@@ -164,6 +164,30 @@ Do tarah ke notifications hain, dono Home screen par apne aap set ho jaate hain 
 - Profile photo: user gallery se apni photo pick kar sakta hai (camera icon overlay ya photo par hi tap karke) — `util/ProfilePhotoManager.kt` isko center-crop karke device ki apni internal storage me save karta hai (koi Firebase Storage/backend nahi chahiye). Koi custom photo na ho to Google account ki photo (agar hai) dikhti hai, warna ek default placeholder icon.
 - Profile screen par user ka naam, email, aur (agar admin hai) ek "Admin" badge bhi dikhta hai.
 
+## Firestore Security Rules (Phase 13)
+Abhi tak Firestore "test mode" me tha (koi bhi console se seedha connect karke sab data padh/badal/delete kar sakta tha). Ab `firestore.rules` file me proper rules hain — **par yeh apply tabhi hongi jab deploy karoge** (naya file sirf repo me hone se kuch nahi hota, Firebase project ko batana padega):
+
+### Deploy karne ke steps (Termux/laptop, ek baar)
+```bash
+npm install -g firebase-tools     # agar pehle se nahi hai
+firebase login
+cd eve-mock-test-app              # repo ka root, jahan firebase.json hai
+firebase deploy --only firestore:rules
+```
+`firebase login` pehli baar browser khol ke Google account se login maangega — jo bhi Firebase project ka owner/editor hai wahi account use karo.
+
+### Rules kya karti hain
+| Collection | Read | Write |
+|---|---|---|
+| `exams`, `questions` | Koi bhi logged-in user | Sirf admin |
+| `admins` | Koi bhi logged-in user (sirf emails hain, secret nahi) | Sirf admin |
+| `attempts` | User sirf apni khud ki attempts | User sirf apni banayi (create), edit/delete kabhi nahi (result tamper-proof) |
+| `users` (FCM token, Phase 12) | Sirf apna khud ka document | Sirf apna khud ka document |
+
+**Naya admin email hardcode karna ho** to `Constants.kt` ke `ADMIN_EMAILS` ke saath-saath `firestore.rules` ke `isHardcodedAdmin()` list bhi update karo — dono jagah sync rehni chahiye, warna naya admin Firestore me write nahi kar payega (rules deny kar degi) chahe app UI me button dikh jaye.
+
+**Test kaise karo**: deploy hone ke baad Firebase Console → Firestore → koi bhi document manually edit karne ki koshish karo (bina app khole) — ab "Missing or insufficient permissions" error aana chahiye. App normal chalti rahegi, kyunki wahan se requests hamesha logged-in user ke through hi jaati hain.
+
 ## Notes
 - Negative marking off hai by default — `util/Constants.kt` me `NEGATIVE_MARK` change kar sakte ho.
 - Koi Android Studio / wrapper zip nahi diya — seedha GitHub push karo, Actions khud build karega. Agar Android Studio me kholna hai to ek baar khulte hi wo khud gradle wrapper regenerate kar dega.
