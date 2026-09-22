@@ -113,6 +113,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
+            android:layoutAnimation="@anim/layout_enter"
             android:paddingHorizontal="8dp"
             android:paddingTop="4dp"
             android:paddingBottom="16dp" />
@@ -176,7 +177,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRetry"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/Widget.Eve.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
