@@ -188,6 +188,23 @@ firebase deploy --only firestore:rules
 
 **Test kaise karo**: deploy hone ke baad Firebase Console → Firestore → koi bhi document manually edit karne ki koshish karo (bina app khole) — ab "Missing or insufficient permissions" error aana chahiye. App normal chalti rahegi, kyunki wahan se requests hamesha logged-in user ke through hi jaati hain.
 
+## Privacy Policy + Terms (Phase 14)
+Google Sign-in use karne wale kisi bhi app ko Play Store par ek Privacy Policy URL dena mandatory hai. Do cheezein add ki hain:
+
+1. **Hosted HTML pages** — `docs/privacy-policy.html` aur `docs/terms.html`. Yeh GitHub Pages se free me host honge (repo me `docs/` folder hai isiliye).
+2. **In-app About screen** — `ui/about/AboutActivity.kt`, Profile screen se "About" button dabane par khulta hai. Isme app version, "Privacy Policy", "Terms of Service" aur "Contact Us" rows hain — Privacy Policy/Terms tap karne par browser me hosted page khulta hai, Contact Us email app kholta hai.
+
+### GitHub Pages enable karna (ek baar, zaroori)
+Bina is step ke Privacy Policy link kaam nahi karega:
+1. GitHub par apne repo (`eve-mock-test-app`) ki **Settings** kholo.
+2. Left sidebar me **Pages** par jao.
+3. **Source** me "Deploy from a branch" select karo, **Branch**: `main`, folder: `/docs`, phir **Save**.
+4. 1-2 minute me page live ho jayega: `https://<tumhara-github-username>.github.io/eve-mock-test-app/privacy-policy.html`
+
+`Constants.kt` me `PRIVACY_POLICY_URL` aur `TERMS_URL` pehle se `vishu762701.github.io/eve-mock-test-app/...` set hain. Agar tumhara GitHub username ya repo ka naam isse alag hai, to yeh do lines update kar dena.
+
+**Play Store Console** me app submit karte waqt "App content" → "Privacy Policy" section me yahi hosted URL daalna hoga.
+
 ## Notes
 - Negative marking off hai by default — `util/Constants.kt` me `NEGATIVE_MARK` change kar sakte ho.
 - Koi Android Studio / wrapper zip nahi diya — seedha GitHub push karo, Actions khud build karega. Agar Android Studio me kholna hai to ek baar khulte hi wo khud gradle wrapper regenerate kar dega.

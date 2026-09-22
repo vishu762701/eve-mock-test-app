@@ -28,4 +28,11 @@ object Constants {
     // Test History (Phase 10)
     const val EXTRA_ATTEMPT_DATE = "extra_attempt_date"
     const val EXTRA_FROM_HISTORY = "extra_from_history"
+
+    // Phase 14: About screen ke links. GitHub Pages par docs/ folder se serve hote hain
+    // (repo Settings -> Pages -> Source: main branch, /docs folder). Agar tumhara
+    // GitHub username ya repo naam alag hai to yeh 2 URLs update kar dena.
+    const val PRIVACY_POLICY_URL = "https://vishu762701.github.io/eve-mock-test-app/privacy-policy.html"
+    const val TERMS_URL = "https://vishu762701.github.io/eve-mock-test-app/terms.html"
+    const val SUPPORT_EMAIL = "pronlike9@gmail.com"
 }

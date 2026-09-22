@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.databinding.ActivityProfileBinding
+import com.eve.app.ui.about.AboutActivity
 import com.eve.app.ui.login.LoginActivity
 import com.eve.app.util.ProfilePhotoManager
 import com.eve.app.util.ThemeManager
@@ -58,6 +59,9 @@ class ProfileActivity : AppCompatActivity() {
             }
         }
 
+        binding.btnAbout.setOnClickListener {
+            startActivity(Intent(this, AboutActivity::class.java))
+        }
         binding.btnLogout.setOnClickListener { logout() }
     }
 
