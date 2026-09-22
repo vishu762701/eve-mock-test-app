@@ -19,11 +19,13 @@ import com.eve.app.databinding.ActivityMainBinding
 import com.eve.app.ui.admin.AdminActivity
 import com.eve.app.ui.history.HistoryActivity
 import com.eve.app.ui.login.LoginActivity
+import com.eve.app.ui.notifications.NotificationsActivity
 import com.eve.app.ui.profile.ProfileActivity
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.Constants
 import com.eve.app.util.NetworkUtil
 import com.eve.app.util.NotificationHelper
+import com.eve.app.util.NotificationStore
 import com.eve.app.util.ProfilePhotoManager
 import com.eve.app.util.ReminderScheduler
 import com.eve.app.util.UiState
@@ -68,7 +70,11 @@ class MainActivity : AppCompatActivity() {
 
         binding.tvWelcome.text = "Hi, ${user.displayName ?: "Student"}"
 
-        ReminderScheduler.setupToggleButton(this, binding.btnNotification)
+        // Bug fix: bell icon ab daily-reminder toggle nahi, balki Notifications list kholta hai
+        // (reminder ON/OFF ab Profile screen me shift kar diya gaya hai).
+        binding.btnNotification.setOnClickListener {
+            startActivity(Intent(this, NotificationsActivity::class.java))
+        }
         setupPushNotifications()
         binding.ivProfile.setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
@@ -94,6 +100,8 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnRetry.setOnClickListener { viewModel.load() }
 
+        updateNotificationDot()
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { viewModel.state.collect { render(it) } }
@@ -113,7 +121,13 @@ class MainActivity : AppCompatActivity() {
             viewModel.load()
             // Profile screen se photo badal ke wapas aaya ho to header par bhi turant update ho
             FirebaseAuth.getInstance().currentUser?.let { loadProfilePhoto(it) }
+            // Notifications screen se wapas aaye ho (sab read ho chuke) to dot hat jaye
+            updateNotificationDot()
         }
+    }
+
+    private fun updateNotificationDot() {
+        binding.dotUnread.visibility = if (NotificationStore.hasUnread(this)) View.VISIBLE else View.GONE
     }
 
     private fun loadProfilePhoto(user: com.google.firebase.auth.FirebaseUser) {

@@ -11,6 +11,7 @@ import com.eve.app.databinding.ActivityProfileBinding
 import com.eve.app.ui.about.AboutActivity
 import com.eve.app.ui.login.LoginActivity
 import com.eve.app.util.ProfilePhotoManager
+import com.eve.app.util.ReminderScheduler
 import com.eve.app.util.ThemeManager
 import com.eve.app.util.isHardcodedAdmin
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -62,6 +63,13 @@ class ProfileActivity : AppCompatActivity() {
         binding.btnAbout.setOnClickListener {
             startActivity(Intent(this, AboutActivity::class.java))
         }
+
+        // Bug fix: daily reminder ON/OFF ab yahan hai (bell icon ab notifications list kholta hai)
+        binding.switchReminder.isChecked = ReminderScheduler.isEnabled(this)
+        binding.switchReminder.setOnCheckedChangeListener { _, isChecked ->
+            ReminderScheduler.setEnabled(this, isChecked)
+        }
+
         binding.btnLogout.setOnClickListener { logout() }
     }
 

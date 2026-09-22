@@ -188,6 +188,15 @@ firebase deploy --only firestore:rules
 
 **Test kaise karo**: deploy hone ke baad Firebase Console → Firestore → koi bhi document manually edit karne ki koshish karo (bina app khole) — ab "Missing or insufficient permissions" error aana chahiye. App normal chalti rahegi, kyunki wahan se requests hamesha logged-in user ke through hi jaati hain.
 
+## Bug fix: build error + bell icon behavior (after Phase 14)
+Do cheezein fix ki hain:
+
+1. **Build error** — `activity_about.xml` me `app:tint` use ho raha tha par us file me `xmlns:app` namespace declare hi nahi tha (isiliye GitHub Actions build fail ho raha tha, "AttributePrefixUnbound" error). Ab fix hai.
+2. **Bell icon** — pehle Home screen ka bell icon sirf daily-reminder ON/OFF toggle tha, tap karne par koi notification list nahi dikhti thi. Ab:
+   - Bell tap karne par ek naya **Notifications screen** (`ui/notifications/NotificationsActivity.kt`) khulta hai jisme asal me aayi hui notifications (naya exam alert + daily reminder) ki list dikhti hai — naya sabse upar, saath me "kitne time pehle" bhi. Yeh list device par hi save hoti hai (`util/NotificationStore.kt`), koi Firestore collection nahi chahiye.
+   - Notification aane par bell par ek chhota **red dot** dikhta hai (unread indicator); Notifications screen khulte hi dot hat jaata hai.
+   - Daily reminder ka ON/OFF ab **Profile screen** me shift ho gaya hai (naya switch row "Daily Practice Reminder", About button ke upar).
+
 ## Privacy Policy + Terms (Phase 14)
 Google Sign-in use karne wale kisi bhi app ko Play Store par ek Privacy Policy URL dena mandatory hai. Do cheezein add ki hain:
 

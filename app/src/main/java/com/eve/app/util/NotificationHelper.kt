@@ -65,6 +65,9 @@ object NotificationHelper {
     }
 
     private fun show(context: Context, channelId: String, notificationId: Int, title: String, body: String) {
+        // Bug fix: har notification ab local history me bhi save hoti hai (bell icon list ke liye)
+        NotificationStore.add(context, title, body)
+
         if (!hasPermission(context)) return
         val notification = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_notification)
