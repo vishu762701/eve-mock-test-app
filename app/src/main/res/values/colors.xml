@@ -16,4 +16,8 @@
     <color name="eve_bronze">#B0702A</color>
     <color name="eve_highlight_bg">#E8EAFB</color>
     <color name="eve_card_bg">#FFFFFF</color>
+<color name="eve_stroke">#E0E0E0</color>
+    <color name="eve_surface">#FFFFFF</color>
+    <color name="eve_text">#212121</color>
+    <color name="eve_text_secondary">#757575</color>
 </resources>
