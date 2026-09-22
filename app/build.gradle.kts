@@ -101,4 +101,7 @@ dependencies {
 
     // Push notifications (Phase 12): naya-exam alerts (FCM topic) + daily reminder (WorkManager)
     implementation("androidx.work:work-runtime-ktx:2.9.1")
+
+    // Profile screen: Google account ki photo (remote URL) load karne ke liye lightweight image loader
+    implementation("io.coil-kt:coil:2.6.0")
 }

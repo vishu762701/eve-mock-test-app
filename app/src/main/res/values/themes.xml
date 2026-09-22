@@ -8,4 +8,10 @@
         <item name="android:windowBackground">@color/eve_bg</item>
         <item name="android:statusBarColor">@color/eve_primary_dark</item>
     </style>
+
+    <!-- Profile photo (Home header + Profile screen) ko perfect circle banane ke liye -->
+    <style name="ShapeCircle" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
 </resources>

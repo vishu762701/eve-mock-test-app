@@ -158,6 +158,12 @@ Do tarah ke notifications hain, dono Home screen par apne aap set ho jaate hain 
 - `util/ReminderScheduler.kt` WorkManager ke through roz shaam 7 baje ek local reminder notification schedule karta hai (channel: "Daily Practice Reminder"), jab tak app kam se kam ek baar khuli ho — WorkManager khud reboot ke baad bhi schedule yaad rakhta hai.
 - Home screen ke header me naya **bell icon** (theme toggle ke bagal) is reminder ko ON/OFF karta hai — choice SharedPreferences me save hoti hai (default ON).
 
+## Profile screen + Home header redesign
+- Home screen ka header ab simple hai: **left** me profile photo icon + "Hi, {naam}" greeting, **right** me sirf notification bell (daily reminder toggle, Phase 12 wala).
+- Theme toggle (dark/light) aur Logout Home screen se hata ke naye **Profile screen** (`ui/profile/ProfileActivity.kt`) me daal diye hain — Home ke profile icon par tap karke khulta hai. Profile screen ke header (top bar) ke right side me dark/light toggle hai, aur sabse niche ek "Logout" button.
+- Profile photo: user gallery se apni photo pick kar sakta hai (camera icon overlay ya photo par hi tap karke) — `util/ProfilePhotoManager.kt` isko center-crop karke device ki apni internal storage me save karta hai (koi Firebase Storage/backend nahi chahiye). Koi custom photo na ho to Google account ki photo (agar hai) dikhti hai, warna ek default placeholder icon.
+- Profile screen par user ka naam, email, aur (agar admin hai) ek "Admin" badge bhi dikhta hai.
+
 ## Notes
 - Negative marking off hai by default — `util/Constants.kt` me `NEGATIVE_MARK` change kar sakte ho.
 - Koi Android Studio / wrapper zip nahi diya — seedha GitHub push karo, Actions khud build karega. Agar Android Studio me kholna hai to ek baar khulte hi wo khud gradle wrapper regenerate kar dega.

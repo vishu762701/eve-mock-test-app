@@ -11,46 +11,38 @@
         android:background="@color/eve_primary"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="20dp"
-        android:paddingVertical="18dp">
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="14dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivProfile"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_circle_translucent"
+            android:contentDescription="Profile"
+            android:padding="8dp"
+            android:src="@drawable/ic_person"
+            app:shapeAppearanceOverlay="@style/ShapeCircle" />
 
         <TextView
             android:id="@+id/tvWelcome"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
             android:layout_weight="1"
             android:text="Eve"
             android:textColor="@android:color/white"
-            android:textSize="20sp"
+            android:textSize="17sp"
             android:textStyle="bold" />
 
         <ImageButton
-            android:id="@+id/btnReminderToggle"
+            android:id="@+id/btnNotification"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginEnd="4dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/reminder_toggle_off"
             android:padding="8dp"
             android:src="@drawable/ic_bell" />
-
-        <ImageButton
-            android:id="@+id/btnThemeToggle"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="4dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/theme_toggle_to_dark"
-            android:padding="8dp"
-            android:src="@drawable/ic_sun" />
-
-        <Button
-            android:id="@+id/btnLogout"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Logout"
-            android:textColor="@android:color/white" />
     </LinearLayout>
 
     <TextView

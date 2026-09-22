@@ -19,16 +19,15 @@ import com.eve.app.databinding.ActivityMainBinding
 import com.eve.app.ui.admin.AdminActivity
 import com.eve.app.ui.history.HistoryActivity
 import com.eve.app.ui.login.LoginActivity
+import com.eve.app.ui.profile.ProfileActivity
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.Constants
 import com.eve.app.util.NetworkUtil
 import com.eve.app.util.NotificationHelper
+import com.eve.app.util.ProfilePhotoManager
 import com.eve.app.util.ReminderScheduler
-import com.eve.app.util.ThemeManager
 import com.eve.app.util.UiState
 import com.eve.app.util.isHardcodedAdmin
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.material.chip.Chip
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessaging
@@ -69,9 +68,12 @@ class MainActivity : AppCompatActivity() {
 
         binding.tvWelcome.text = "Hi, ${user.displayName ?: "Student"}"
 
-        ThemeManager.setupToggleButton(this, binding.btnThemeToggle)
-        ReminderScheduler.setupToggleButton(this, binding.btnReminderToggle)
+        ReminderScheduler.setupToggleButton(this, binding.btnNotification)
         setupPushNotifications()
+        binding.ivProfile.setOnClickListener {
+            startActivity(Intent(this, ProfileActivity::class.java))
+        }
+        loadProfilePhoto(user)
 
         // Hardcoded admin ho to turant dikhao (fast path, koi network wait nahi)
         if (isHardcodedAdmin(user.email)) {
@@ -83,7 +85,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.btnLogout.setOnClickListener { logout() }
         binding.btnHistory.setOnClickListener {
             startActivity(Intent(this, HistoryActivity::class.java))
         }
@@ -108,7 +109,17 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         // Admin ne naya exam add kiya ho to list refresh ho jaye
-        if (::binding.isInitialized) viewModel.load()
+        if (::binding.isInitialized) {
+            viewModel.load()
+            // Profile screen se photo badal ke wapas aaya ho to header par bhi turant update ho
+            FirebaseAuth.getInstance().currentUser?.let { loadProfilePhoto(it) }
+        }
+    }
+
+    private fun loadProfilePhoto(user: com.google.firebase.auth.FirebaseUser) {
+        ProfilePhotoManager.applyTo(
+            this, binding.ivProfile, user.photoUrl?.toString(), com.eve.app.R.drawable.bg_circle_translucent
+        )
     }
 
     /**
@@ -205,12 +216,6 @@ class MainActivity : AppCompatActivity() {
             }
             binding.chipGroupCategory.addView(chip)
         }
-    }
-
-    private fun logout() {
-        FirebaseAuth.getInstance().signOut()
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
-        GoogleSignIn.getClient(this, gso).signOut().addOnCompleteListener { goToLogin() }
     }
 
     private fun goToLogin() {
