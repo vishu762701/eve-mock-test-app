@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Dark mode: thoda lighter indigo taaki buttons/accents dark background par crisp dikhein -->
-    <color name="eve_primary">#5C6BC0</color>
-    <color name="eve_primary_dark">#3949AB</color>
-    <color name="eve_accent">#FFAB40</color>
-    <color name="eve_green">#66BB6A</color>
-    <color name="eve_red">#EF5350</color>
-    <color name="eve_grey">#B0B0B0</color>
-    <color name="eve_bg">#121212</color>
-    <color name="eve_offline_bg">#4A3B00</color>
-    <color name="eve_offline_text">#FFD666</color>
-
-    <!-- Phase 16: Leaderboard rank badge + "you" row highlight colors -->
-    <color name="eve_gold">#E6C04D</color>
-    <color name="eve_silver">#B8BBC0</color>
-    <color name="eve_bronze">#D08A4C</color>
-    <color name="eve_highlight_bg">#2A2F4A</color>
-    <color name="eve_card_bg">#1E1E1E</color>
+    <color name="eve_primary">#7DA7FF</color>
+    <color name="eve_primary_dark">#1E3A8A</color>
+    <color name="eve_accent">#FDBA74</color>
+    <color name="eve_green">#4ADE80</color>
+    <color name="eve_red">#F87171</color>
+    <color name="eve_grey">#94A3B8</color>
+    <color name="eve_bg">#0B1220</color>
+    <color name="eve_surface">#121C2E</color>
+    <color name="eve_text">#F8FAFC</color>
+    <color name="eve_text_secondary">#94A3B8</color>
+    <color name="eve_stroke">#26354D</color>
+    <color name="eve_surface_variant">#19263A</color>
+    <color name="eve_offline_bg">#3B2B0D</color>
+    <color name="eve_offline_text">#FCD34D</color>
+    <color name="eve_gold">#FCD34D</color>
+    <color name="eve_silver">#CBD5E1</color>
+    <color name="eve_bronze">#FDBA74</color>
+    <color name="eve_highlight_bg">#172A4A</color>
+    <color name="eve_card_bg">#121C2E</color>
 </resources>

@@ -3,58 +3,41 @@
     <style name="Widget.Eve.Button" parent="Widget.Material3.Button">
         <item name="android:minHeight">48dp</item>
         <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans</item>
+        <item name="android:textStyle">bold</item>
         <item name="cornerRadius">14dp</item>
         <item name="android:insetTop">2dp</item>
         <item name="android:insetBottom">2dp</item>
     </style>
-
     <style name="Widget.Eve.OutlinedButton" parent="Widget.Material3.Button.OutlinedButton">
         <item name="android:minHeight">48dp</item>
         <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
         <item name="cornerRadius">14dp</item>
         <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">@color/eve_stroke</item>
     </style>
-
     <style name="Widget.Eve.TextButton" parent="Widget.Material3.Button.TextButton">
         <item name="android:minHeight">44dp</item>
         <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">14sp</item>
         <item name="cornerRadius">12dp</item>
     </style>
-
     <style name="Widget.Eve.Card" parent="Widget.Material3.CardView.Elevated">
         <item name="cardCornerRadius">18dp</item>
-        <item name="cardElevation">1dp</item>
+        <item name="cardElevation">0dp</item>
         <item name="strokeWidth">1dp</item>
         <item name="strokeColor">@color/eve_stroke</item>
         <item name="cardBackgroundColor">@color/eve_surface</item>
     </style>
-
     <style name="Eve.TopBar" parent="">
-        <item name="android:background">@color/eve_surface</item>
-        <item name="android:minHeight">64dp</item>
-        <item name="android:elevation">0dp</item>
-        <item name="android:paddingStart">16dp</item>
-        <item name="android:paddingEnd">16dp</item>
+        <item name="android:background">@color/eve_surface</item><item name="android:minHeight">64dp</item>
+        <item name="android:elevation">0dp</item><item name="android:paddingStart">16dp</item><item name="android:paddingEnd">16dp</item>
     </style>
-
-    <style name="Eve.Screen" parent="">
-        <item name="android:background">@color/eve_bg</item>
-    </style>
-
-    <style name="Eve.Title" parent="">
-        <item name="android:textColor">@color/eve_text</item>
-        <item name="android:textSize">22sp</item>
-        <item name="android:fontFamily">sans</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="Eve.Body" parent="">
-        <item name="android:textColor">@color/eve_text</item>
-        <item name="android:textSize">15sp</item>
-    </style>
-
-    <style name="Eve.Secondary" parent="">
-        <item name="android:textColor">@color/eve_text_secondary</item>
-        <item name="android:textSize">13sp</item>
-    </style>
+    <style name="Eve.Screen" parent=""><item name="android:background">@color/eve_bg</item></style>
+    <style name="Eve.Title" parent=""><item name="android:textColor">@color/eve_text</item><item name="android:textSize">24sp</item><item name="android:fontFamily">sans</item><item name="android:textStyle">bold</item></style>
+    <style name="Eve.Body" parent=""><item name="android:textColor">@color/eve_text</item><item name="android:textSize">15sp</item></style>
+    <style name="Eve.Secondary" parent=""><item name="android:textColor">@color/eve_text_secondary</item><item name="android:textSize">13sp</item></style>
 </resources>

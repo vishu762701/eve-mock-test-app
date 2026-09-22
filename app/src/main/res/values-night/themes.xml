@@ -1,12 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.Eve" parent="Theme.Material3.Dark.NoActionBar">
-        <item name="colorPrimary">@color/eve_primary</item>
-        <item name="colorOnPrimary">@android:color/white</item>
-        <item name="colorSecondary">@color/eve_accent</item>
-        <item name="colorSurface">#1E1E1E</item>
-        <item name="colorOnSurface">#F0F0F0</item>
-        <item name="android:windowBackground">@color/eve_bg</item>
-        <item name="android:statusBarColor">@color/eve_primary_dark</item>
+        <item name="colorPrimary">@color/eve_primary</item><item name="colorOnPrimary">#0B1220</item>
+        <item name="colorSecondary">@color/eve_accent</item><item name="colorSurface">@color/eve_surface</item>
+        <item name="colorOnSurface">@color/eve_text</item><item name="colorOutline">@color/eve_stroke</item>
+        <item name="android:windowBackground">@color/eve_bg</item><item name="android:statusBarColor">@color/eve_bg</item>
+        <item name="android:navigationBarColor">@color/eve_bg</item><item name="android:windowLightStatusBar">false</item>
+        <item name="android:fontFamily">sans</item><item name="materialButtonStyle">@style/Widget.Eve.Button</item>
+        <item name="materialCardViewStyle">@style/Widget.Eve.Card</item>
     </style>
 </resources>
