@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/eve_bg">
+    <ImageButton android:id="@+id/btnThemeToggle" android:layout_width="44dp" android:layout_height="44dp" android:layout_gravity="top|end" android:layout_margin="16dp" android:background="@color/eve_surface_variant" android:contentDescription="@string/theme_toggle_to_dark" android:padding="10dp" android:src="@drawable/ic_sun" android:tint="@color/eve_text" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical" android:paddingHorizontal="28dp">
+        <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" app:cardBackgroundColor="@color/eve_surface" app:cardCornerRadius="24dp" app:cardElevation="0dp" app:strokeColor="@color/eve_stroke" app:strokeWidth="1dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_horizontal" android:orientation="vertical" android:padding="28dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Eve" android:textColor="@color/eve_primary" android:textSize="42sp" android:textStyle="bold" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:gravity="center" android:text="Practice with confidence." android:textColor="@color/eve_text" android:textSize="20sp" android:textStyle="bold" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:text="Free mock tests for government and entrance exams." android:textColor="@color/eve_text_secondary" android:textSize="14sp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnGoogle" style="@style/Widget.Eve.Button" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="32dp" android:text="Continue with Google" />
+                <ProgressBar android:id="@+id/progress" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="22dp" android:visibility="gone" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+</FrameLayout>

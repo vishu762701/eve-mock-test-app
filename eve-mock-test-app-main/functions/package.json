@@ -1,0 +1,11 @@
+{
+  "name": "eve-functions",
+  "description": "Optional Cloud Function: push notification jab naya exam Firestore me add ho",
+  "engines": { "node": "20" },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.1.0",
+    "firebase-functions": "^5.0.0"
+  },
+  "private": true
+}

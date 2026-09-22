@@ -1,0 +1,12 @@
+<resources>
+    <style name="Theme.Eve" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/eve_primary</item><item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorSecondary">@color/eve_accent</item><item name="colorSurface">@color/eve_surface</item>
+        <item name="colorOnSurface">@color/eve_text</item><item name="colorOutline">@color/eve_stroke</item>
+        <item name="android:windowBackground">@color/eve_bg</item><item name="android:statusBarColor">@color/eve_bg</item>
+        <item name="android:navigationBarColor">@color/eve_bg</item><item name="android:windowLightStatusBar">true</item>
+        <item name="android:fontFamily">sans</item><item name="materialButtonStyle">@style/Widget.Eve.Button</item>
+        <item name="materialCardViewStyle">@style/Widget.Eve.Card</item>
+    </style>
+    <style name="ShapeCircle" parent=""><item name="cornerFamily">rounded</item><item name="cornerSize">50%</item></style>
+</resources>

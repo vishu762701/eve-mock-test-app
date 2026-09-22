@@ -1,0 +1,83 @@
+rules_version = '2';
+
+// Phase 13: Firestore Security Rules.
+//
+// Abhi tak (default/test mode rules) koi bhi Firestore console se seedha connect karke
+// saara data (exams, questions, doosron ki attempts) padh/badal/delete kar sakta tha. Yeh
+// rules ab enforce karti hain:
+//   - exams/questions: koi bhi logged-in user read kar sakta hai, sirf admin write kar sakta hai
+//   - admins: koi bhi logged-in user list dekh sakta hai (yeh sirf emails hain, secret nahi —
+//     already app ke APK me hardcoded list decompile karke dekhi ja sakti hai), sirf admin add/remove kar sakta hai
+//   - attempts: user sirf apni khud ki attempt create/read kar sakta hai, kisi aur ki nahi.
+//     Ek baar submit hone ke baad koi bhi (user ya admin) usse edit/delete nahi kar sakta
+//     (result history tamper-proof rehti hai)
+//   - users: sirf apna khud ka document (FCM token store karne ke liye, Phase 12) read/write
+//
+// IMPORTANT: yeh file khud-ba-khud apply nahi hoti — deploy karna padega (neeche README me steps).
+// Naya admin email hardcode karna ho to Constants.kt ke ADMIN_EMAILS ke saath-saath yahan
+// isAdmin() function ki list bhi update karo, warna dono jagah mismatch ho jayega.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Constants.kt ke ADMIN_EMAILS se hamesha match honi chahiye
+    function isHardcodedAdmin() {
+      return isSignedIn() && request.auth.token.email in [
+        'pronlike9@gmail.com',
+        'own.keni@gmail.com',
+        'anyqueairdrop@gmail.com',
+        'ghatisarkar56@gmail.com'
+      ];
+    }
+
+    // Firestore me manually add kiye gaye extra admins (AdminRepository.addAdmin() se,
+    // document ID = lowercase email — Google account ka email bhi normally lowercase hi
+    // hota hai, isliye yeh match ho jaata hai)
+    function isDynamicAdmin() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
+    }
+
+    function isAdmin() {
+      return isHardcodedAdmin() || isDynamicAdmin();
+    }
+
+    match /exams/{examId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /questions/{questionId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /admins/{email} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /attempts/{attemptId} {
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    match /users/{userId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Phase 16: Leaderboard. Har exam ke top scorers sabko (koi bhi logged-in user)
+    // dikhne chahiye, lekin client seedha yahan likh nahi sakta (warna koi apna score
+    // khud badhaa sakta hai) — sirf functions/index.js ka updateLeaderboard Cloud
+    // Function (Admin SDK, jo rules ko bypass karta hai) yahan likhta hai.
+    match /leaderboard/{entryId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+  }
+}
