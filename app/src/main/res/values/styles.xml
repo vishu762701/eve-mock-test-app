@@ -57,9 +57,4 @@
         <item name="android:textColor">@color/eve_text_secondary</item>
         <item name="android:textSize">13sp</item>
     </style>
-
-    <style name="ShapeCircle" parent="">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">50%</item>
-    </style>
 </resources>
