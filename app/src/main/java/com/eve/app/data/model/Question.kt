@@ -12,6 +12,9 @@ data class Question(
     val correctAnswer: String = "",
     /** Optional — "kyun sahi hai" wali detail. Blank ho to Result screen me section hide rehta hai. */
     val explanation: String = "",
+    /** Optional — subject/topic tag (jaise "Percentage", "Polity"). Blank ho to Performance
+     * screen (Phase 17) is question ko "General" ke bucket me count karta hai. */
+    val topic: String = "",
     // Hindi translations (Phase 11) — sab optional. Admin ne translate na kiya ho to
     // display*() functions apne aap English par fallback ho jaate hain.
     val questionTextHi: String = "",

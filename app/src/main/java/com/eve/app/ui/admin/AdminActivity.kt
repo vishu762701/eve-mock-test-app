@@ -184,6 +184,7 @@ class AdminActivity : AppCompatActivity() {
         editingQuestion = q
         binding.tvFormTitle.text = "3. Question edit karo"
         binding.etQuestion.setText(q.questionText)
+        binding.etTopic.setText(q.topic)
         binding.etOptionA.setText(q.optionA)
         binding.etOptionB.setText(q.optionB)
         binding.etOptionC.setText(q.optionC)
@@ -224,6 +225,7 @@ class AdminActivity : AppCompatActivity() {
         editingQuestion = null
         binding.tvFormTitle.text = "3. Naya question upload karo"
         binding.etQuestion.text?.clear()
+        binding.etTopic.text?.clear()
         binding.etOptionA.text?.clear()
         binding.etOptionB.text?.clear()
         binding.etOptionC.text?.clear()
@@ -280,6 +282,7 @@ class AdminActivity : AppCompatActivity() {
         }
         val exam = exams[binding.spExam.selectedItemPosition]
         val qText = binding.etQuestion.text.toString().trim()
+        val topic = binding.etTopic.text.toString().trim()
         val a = binding.etOptionA.text.toString().trim()
         val b = binding.etOptionB.text.toString().trim()
         val c = binding.etOptionC.text.toString().trim()
@@ -303,6 +306,7 @@ class AdminActivity : AppCompatActivity() {
             val updated = editing.copy(
                 examId = exam.id,
                 questionText = qText,
+                topic = topic,
                 optionA = a, optionB = b, optionC = c, optionD = d,
                 correctAnswer = correct,
                 explanation = explanation,
@@ -315,6 +319,7 @@ class AdminActivity : AppCompatActivity() {
             val q = Question(
                 examId = exam.id,
                 questionText = qText,
+                topic = topic,
                 optionA = a, optionB = b, optionC = c, optionD = d,
                 correctAnswer = correct,
                 explanation = explanation,

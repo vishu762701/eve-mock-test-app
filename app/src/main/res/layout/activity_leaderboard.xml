@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/Eve.Screen"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -9,7 +8,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_surface"
+        android:background="@color/eve_primary"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="4dp"
@@ -22,8 +21,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Back"
             android:padding="8dp"
-            android:src="@drawable/ic_back"
-            android:tint="@color/eve_text" />
+            android:src="@drawable/ic_back" />
 
         <TextView
             android:id="@+id/tvExamName"
@@ -34,7 +32,7 @@
             android:maxLines="1"
             android:paddingStart="4dp"
             android:text="Leaderboard"
-            android:textColor="@color/eve_text"
+            android:textColor="@android:color/white"
             android:textSize="20sp"
             android:textStyle="bold" />
     </LinearLayout>
@@ -45,8 +43,9 @@
         android:layout_height="wrap_content"
         android:layout_margin="12dp"
         android:visibility="gone"
-        style="@style/Widget.Eve.Card"
-        app:cardCornerRadius="18dp">
+        app:cardBackgroundColor="@color/eve_primary"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="2dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -58,8 +57,7 @@
             <ImageView
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/ic_trophy"
-                android:tint="@color/eve_primary" />
+                android:src="@drawable/ic_trophy" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -72,7 +70,7 @@
                     android:id="@+id/tvYourRank"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/eve_text"
+                    android:textColor="@android:color/white"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -81,7 +79,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:textColor="@color/eve_text_secondary"
+                    android:textColor="#CFD8FF"
                     android:textSize="13sp" />
             </LinearLayout>
 
@@ -89,7 +87,7 @@
                 android:id="@+id/tvYourScore"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/eve_text"
+                android:textColor="@android:color/white"
                 android:textSize="16sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -112,11 +110,10 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvLeaderboard"
-            android:layoutAnimation="@anim/layout_enter"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:paddingHorizontal="12dp"
+            android:paddingHorizontal="8dp"
             android:paddingTop="4dp"
             android:paddingBottom="16dp" />
 
@@ -179,7 +176,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRetry"
-                style="@style/Widget.Eve.OutlinedButton"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"

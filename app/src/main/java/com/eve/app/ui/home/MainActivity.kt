@@ -96,6 +96,10 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, HistoryActivity::class.java))
         }
 
+        binding.btnPerformance.setOnClickListener {
+            startActivity(Intent(this, com.eve.app.ui.performance.PerformanceActivity::class.java))
+        }
+
         binding.rvExams.layoutManager = LinearLayoutManager(this)
         binding.rvExams.adapter = adapter
 

@@ -14,6 +14,9 @@ data class AnswerItem(
     val correctText: String,
     val explanation: String = "",
     val isBookmarked: Boolean = false,
+    /** Question ka topic tag (Phase 17) — snapshot at submit-time, taaki baad me question
+     * edit/delete ho jaaye tab bhi purane attempts ki Performance stats sahi rahein. */
+    val topic: String = "",
     // Hindi translations (Phase 11) — raw values, blank matlab translate nahi hua
     val questionTextHi: String = "",
     val selectedTextHi: String = "",

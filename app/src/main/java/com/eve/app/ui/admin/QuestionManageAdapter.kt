@@ -21,7 +21,8 @@ class QuestionManageAdapter(
     inner class VH(private val b: ItemManageQuestionBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(q: Question, position: Int) {
             b.tvQuestionText.text = "Q${position + 1}. ${q.questionText}"
-            b.tvCorrect.text = "Correct: ${q.correctAnswer}. ${q.optionText(q.correctAnswer)}"
+            val topicSuffix = if (q.topic.isNotBlank()) "  •  Topic: ${q.topic}" else ""
+            b.tvCorrect.text = "Correct: ${q.correctAnswer}. ${q.optionText(q.correctAnswer)}$topicSuffix"
             b.btnEdit.setOnClickListener { onEdit(q) }
             b.btnDelete.setOnClickListener { onDelete(q) }
         }

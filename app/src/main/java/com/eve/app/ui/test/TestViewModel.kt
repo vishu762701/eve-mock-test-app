@@ -111,7 +111,8 @@ class TestViewModel : ViewModel() {
                     correctTextHi = q.optionTextHi(q.correctAnswer),
                     explanation = q.explanation,
                     explanationHi = q.explanationHi,
-                    isBookmarked = isBookmarked(index)
+                    isBookmarked = isBookmarked(index),
+                    topic = q.topic
                 )
             )
         }

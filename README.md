@@ -242,6 +242,38 @@ cd eve-mock-test-app
 firebase deploy --only firestore:rules,firestore:indexes,functions
 ```
 
+## Performance Analytics (Phase 17)
+Home screen par **Test History** ke bagal ek naya **Performance** button hai — Test History ke
+history se aage ka "insights" version: score trend graph, topic-wise accuracy, aur weak areas.
+Koi naya Firestore collection nahi chahiye, sab kuch `attempts` collection (Phase 10) se hi
+client-side compute hota hai, isliye koi extra `firebase deploy` bhi nahi karna padta.
+
+**Kaam kaise karta hai:**
+- `data/model/Question.kt` me ek naya optional `topic` field hai (jaise "Percentage", "Polity",
+  "Modern History"). Admin Dashboard ke question form me "Question text" ke turant neeche ek
+  naya "Topic (optional)" field hai — bharna zaroori nahi, khali chhoda to wo question
+  Performance screen par **"General"** bucket me count hota hai.
+- Test submit hote hi har answer ke saath uske question ka topic bhi save ho jaata hai
+  (`AnswerItem.topic`) — isliye purane attempts kabhi galat nahi honge chahe baad me admin
+  us question ka topic edit/delete kar de.
+- `ui/performance/PerformanceViewModel.kt` current user ke saare Test History attempts load
+  karke 3 cheezein nikalta hai:
+  1. **Overall stats** — total attempts + overall accuracy %
+  2. **Score Trend** — last 15 attempts ki accuracy % ka line chart, purane se naye order me
+     (custom `ScoreTrendChartView.kt` — Canvas se khud draw kiya hai, koi naya charting library
+     add nahi ki gayi taaki build simple rahe)
+  3. **Topic-wise Accuracy** — saare attempts ke answers ko topic ke hisaab se group karke
+     har topic ki accuracy %, progress bar ke saath (green ≥70%, amber 40-69%, red <40%)
+- **Weak Areas** card sabse kam accuracy wale (aur kam se kam 2 questions attempt kiye hue)
+  top 3 topics highlight karta hai — red card, taaki student ko turant pata chale kahan focus
+  karna hai.
+- Purane attempts jinme topic save hi nahi hua (Phase 17 se pehle ke, ya jahan admin ne topic
+  field khali chhoda tha) "General" bucket me chale jaate hain — koi data lost nahi hota,
+  bas unattributed rehta hai.
+- Har cheez client-side, ek hi Firestore read (`attempts` collection, jo already cache/offline
+  ho chuki hoti hai Test History dekhne se) se compute hoti hai — koi naya composite index ya
+  security rule change nahi chahiye.
+
 ## Notes
 - Negative marking off hai by default — `util/Constants.kt` me `NEGATIVE_MARK` change kar sakte ho.
 - Koi Android Studio / wrapper zip nahi diya — seedha GitHub push karo, Actions khud build karega. Agar Android Studio me kholna hai to ek baar khulte hi wo khud gradle wrapper regenerate kar dega.
