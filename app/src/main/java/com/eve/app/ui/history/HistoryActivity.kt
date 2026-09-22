@@ -92,6 +92,7 @@ class HistoryActivity : AppCompatActivity() {
         startActivity(
             Intent(this, ResultActivity::class.java)
                 .putParcelableArrayListExtra(Constants.EXTRA_ANSWERS, ArrayList(attempt.answers))
+                .putExtra(Constants.EXTRA_EXAM_ID, attempt.examId)
                 .putExtra(Constants.EXTRA_EXAM_NAME, attempt.examName)
                 .putExtra(Constants.EXTRA_ATTEMPT_DATE, dateFormat.format(Date(attempt.timestamp)))
                 .putExtra(Constants.EXTRA_FROM_HISTORY, true)

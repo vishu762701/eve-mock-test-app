@@ -226,6 +226,22 @@ Bina is step ke Privacy Policy link kaam nahi karega:
 
 **Play Store Console** me app submit karte waqt "App content" → "Privacy Policy" section me yahi hosted URL daalna hoga.
 
+## Leaderboard / Rank (Phase 16)
+Har exam submit karne ke baad ab ek **"View Leaderboard"** button dikhta hai (Result screen ke Answer Key ke neeche) jo us exam ke top scorers aur apna rank/percentile dikhata hai — Test History se purana attempt review karne par bhi yeh button dikhta hai.
+
+**Kaam kaise karta hai:**
+- Naya Firestore collection: `leaderboard`, doc ID = `"{examId}_{userId}"` — har user ka ek exam me sirf ek (BEST score wala) entry.
+- Client seedha is collection me kabhi nahi likhta (koi bhi apna score khud badha na sake, isliye) — `functions/index.js` ka naya `updateLeaderboard` Cloud Function jab bhi koi `attempts` document create hota hai (test submit) tab automatically best-score entry upsert kar deta hai. Yeh wahi optional Cloud Function setup hai jo Phase 12 (push notification) me pehle se use ho raha hai — **Blaze plan** chahiye deploy karne ke liye (`firebase deploy --only functions`); bina deploy kiye baaki app crash nahi hogi, bas Leaderboard screen par "Abhi koi scorer nahi hai" dikhega.
+- `firestore.rules` me `leaderboard` collection: koi bhi logged-in user **read** kar sakta hai, **write** sirf Cloud Function (Admin SDK) se hoti hai — client write hamesha reject hogi.
+- Apna rank nikalne ke liye poori list download nahi karte — Firestore ki `count()` aggregation query se seedha server par "mujhse zyada score kitno ka hai" count ho jaata hai (`LeaderboardRepository.getUserRank`), fast hai chahe hazaaron attempts ho chuke hon.
+- `firestore.indexes.json` me ek naya composite index (`examId` + `score`) add hua hai — yeh bhi `firebase deploy --only firestore:indexes` se deploy karna padega (Phase 13 ke rules deploy jaisa hi step), warna Leaderboard/rank queries "index required" error dengi.
+
+**Setup ek baar (rules + function dono deploy karne ke liye):**
+```bash
+cd eve-mock-test-app
+firebase deploy --only firestore:rules,firestore:indexes,functions
+```
+
 ## Notes
 - Negative marking off hai by default — `util/Constants.kt` me `NEGATIVE_MARK` change kar sakte ho.
 - Koi Android Studio / wrapper zip nahi diya — seedha GitHub push karo, Actions khud build karega. Agar Android Studio me kholna hai to ek baar khulte hi wo khud gradle wrapper regenerate kar dega.

@@ -10,4 +10,11 @@
     <color name="eve_bg">#121212</color>
     <color name="eve_offline_bg">#4A3B00</color>
     <color name="eve_offline_text">#FFD666</color>
+
+    <!-- Phase 16: Leaderboard rank badge + "you" row highlight colors -->
+    <color name="eve_gold">#E6C04D</color>
+    <color name="eve_silver">#B8BBC0</color>
+    <color name="eve_bronze">#D08A4C</color>
+    <color name="eve_highlight_bg">#2A2F4A</color>
+    <color name="eve_card_bg">#1E1E1E</color>
 </resources>

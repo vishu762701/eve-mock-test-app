@@ -8,6 +8,7 @@ package com.eve.app.data.model
 data class TestAttempt(
     val id: String = "",
     val userId: String = "",
+    val displayName: String = "",
     val examId: String = "",
     val examName: String = "",
     val category: String = "",

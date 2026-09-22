@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.data.model.AnswerItem
 import com.eve.app.databinding.ActivityResultBinding
 import com.eve.app.ui.home.MainActivity
+import com.eve.app.ui.leaderboard.LeaderboardActivity
 import com.eve.app.util.Constants
 import com.eve.app.util.LanguageManager
 
@@ -73,6 +74,20 @@ class ResultActivity : AppCompatActivity() {
             }
             adapter.submit(filtered)
             binding.rvAnswers.scrollToPosition(0)
+        }
+
+        // Phase 16: exam ka examId ho (fresh submit ya history review, dono me milta hai) to
+        // Leaderboard button dikhao — is exam ke top scorers + apna rank dekhne ke liye.
+        val examId = intent.getStringExtra(Constants.EXTRA_EXAM_ID)
+        if (!examId.isNullOrBlank()) {
+            binding.btnLeaderboard.visibility = android.view.View.VISIBLE
+            binding.btnLeaderboard.setOnClickListener {
+                startActivity(
+                    Intent(this, LeaderboardActivity::class.java)
+                        .putExtra(Constants.EXTRA_EXAM_ID, examId)
+                        .putExtra(Constants.EXTRA_EXAM_NAME, examName)
+                )
+            }
         }
 
         binding.btnHome.setOnClickListener { close() }

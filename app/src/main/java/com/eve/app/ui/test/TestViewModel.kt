@@ -120,7 +120,8 @@ class TestViewModel : ViewModel() {
 
     /** Test History (Phase 10): submit hote hi attempt Firestore me save karo, logged in ho tabhi. */
     fun saveAttempt(examId: String, examName: String, category: String, items: List<AnswerItem>) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        historyRepo.saveAttempt(userId, examId, examName, category, items)
+        val user = FirebaseAuth.getInstance().currentUser ?: return
+        val displayName = user.displayName?.ifBlank { null } ?: "Student"
+        historyRepo.saveAttempt(user.uid, displayName, examId, examName, category, items)
     }
 }

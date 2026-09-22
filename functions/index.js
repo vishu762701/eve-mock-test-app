@@ -28,6 +28,8 @@
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const { initializeApp } = require("firebase-admin/app");
 const { getMessaging } = require("firebase-admin/messaging");
+const { getFirestore } = require("firebase-admin/firestore");
+const { getAuth } = require("firebase-admin/auth");
 
 initializeApp();
 
@@ -50,5 +52,60 @@ exports.notifyNewExam = onDocumentCreated("exams/{examId}", async (event) => {
       priority: "high",
       notification: { channelId: "new_exam_channel" },
     },
+  });
+});
+
+/**
+ * Phase 16 (Leaderboard/Rank): jab bhi koi "attempts" document create hota hai (yaani
+ * koi student test submit karta hai), yeh function `leaderboard` collection me uska
+ * BEST score wala entry upsert kar deta hai (doc ID = "{examId}_{userId}", isliye ek
+ * user ka ek exam me sirf ek hi entry rehti hai — dobara attempt dene par sirf tabhi
+ * update hota hai jab naya score purane se better ho).
+ *
+ * Yeh Cloud Function ke through kyun: client apni khud ki attempt (Firestore rules) ke
+ * alawa kisi aur ki nahi padh sakta, aur `leaderboard` collection me client se seedha
+ * likhna bhi disallowed hai (firestore.rules) — taaki koi apna fake score khud se na
+ * likh de. Sirf yeh server-side function (Admin SDK, rules bypass) likh sakta hai.
+ *
+ * Deploy karne ke steps README.md aur upar wale `notifyNewExam` function ke comment me
+ * hain (same `firebase deploy --only functions`, Blaze plan chahiye).
+ */
+exports.updateLeaderboard = onDocumentCreated("attempts/{attemptId}", async (event) => {
+  const attempt = event.data?.data();
+  if (!attempt) return;
+
+  const { userId, examId, examName, category, score, total } = attempt;
+  if (!userId || !examId) return;
+
+  const db = getFirestore();
+  const entryRef = db.collection("leaderboard").doc(`${examId}_${userId}`);
+
+  // displayName purane attempts (is Phase se pehle ke) me nahi hoga — tab Auth se fallback
+  let displayName = attempt.displayName;
+  if (!displayName) {
+    try {
+      const userRecord = await getAuth().getUser(userId);
+      displayName = userRecord.displayName || "Student";
+    } catch (e) {
+      displayName = "Student";
+    }
+  }
+
+  await db.runTransaction(async (tx) => {
+    const existing = await tx.get(entryRef);
+    if (existing.exists && (existing.data().score || 0) >= (score || 0)) {
+      // Purana attempt already behtar ya barabar hai — overwrite mat karo
+      return;
+    }
+    tx.set(entryRef, {
+      userId,
+      examId,
+      examName: examName || "",
+      category: category || "",
+      displayName,
+      score: score || 0,
+      total: total || 0,
+      timestamp: attempt.timestamp || Date.now(),
+    });
   });
 });

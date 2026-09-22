@@ -191,6 +191,9 @@ class TestActivity : AppCompatActivity() {
         startActivity(
             Intent(this, ResultActivity::class.java)
                 .putParcelableArrayListExtra(Constants.EXTRA_ANSWERS, items)
+                .putExtra(Constants.EXTRA_EXAM_ID, examId)
+                .putExtra(Constants.EXTRA_EXAM_NAME, examName)
+                .putExtra(Constants.EXTRA_EXAM_CATEGORY, examCategory)
         )
         finish()
     }

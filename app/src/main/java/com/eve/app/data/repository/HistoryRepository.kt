@@ -21,6 +21,7 @@ class HistoryRepository(
      */
     fun saveAttempt(
         userId: String,
+        displayName: String,
         examId: String,
         examName: String,
         category: String,
@@ -51,6 +52,7 @@ class HistoryRepository(
 
         val data = hashMapOf(
             "userId" to userId,
+            "displayName" to displayName,
             "examId" to examId,
             "examName" to examName,
             "category" to category,
@@ -96,6 +98,7 @@ class HistoryRepository(
         return TestAttempt(
             id = doc.id,
             userId = doc.getString("userId") ?: "",
+            displayName = doc.getString("displayName") ?: "",
             examId = examId,
             examName = doc.getString("examName") ?: "",
             category = doc.getString("category") ?: "",

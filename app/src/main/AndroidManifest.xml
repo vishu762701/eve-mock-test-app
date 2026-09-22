@@ -47,6 +47,7 @@
         <activity android:name=".ui.history.HistoryActivity" android:exported="false" />
         <activity android:name=".ui.test.TestActivity" android:exported="false" />
         <activity android:name=".ui.result.ResultActivity" android:exported="false" />
+        <activity android:name=".ui.leaderboard.LeaderboardActivity" android:exported="false" />
         <activity android:name=".ui.admin.AdminActivity" android:exported="false" />
         <activity android:name=".ui.about.AboutActivity" android:exported="false" />
         <activity android:name=".ui.notifications.NotificationsActivity" android:exported="false" />
