@@ -40,12 +40,15 @@ class TestViewModel : ViewModel() {
     private var started = false
     private var timerJob: Job? = null
 
-    fun start(examId: String, timeLimitMinutes: Int) {
+    fun start(examId: String, timeLimitMinutes: Int, topic: String = "") {
         if (started) return
         started = true
         viewModelScope.launch {
             try {
-                val list = repo.getQuestions(examId).shuffled()
+                // Practice mode me ek focused, manageable set dikhao; full mock behaviour unchanged hai.
+                val list = (if (topic.isBlank()) repo.getQuestions(examId) else repo.getQuestionsForTopic(examId, topic))
+                    .shuffled()
+                    .let { questions -> if (topic.isBlank()) questions else questions.take(10) }
                 _questions.value = UiState.Success(list)
                 if (list.isNotEmpty()) startTimer(timeLimitMinutes * 60L)
             } catch (e: Exception) {
@@ -55,9 +58,10 @@ class TestViewModel : ViewModel() {
         }
     }
 
-    fun retry(examId: String, timeLimitMinutes: Int) {
+    fun retry(examId: String, timeLimitMinutes: Int, topic: String = "") {
         _questions.value = UiState.Loading
-        start(examId, timeLimitMinutes)
+        started = false
+        start(examId, timeLimitMinutes, topic)
     }
 
     private fun startTimer(totalSeconds: Long) {

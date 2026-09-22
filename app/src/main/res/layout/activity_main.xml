@@ -99,6 +99,15 @@
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnPractice"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="10dp"
+        android:text="Topic-wise Practice" />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnAdmin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

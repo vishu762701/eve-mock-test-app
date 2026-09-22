@@ -21,6 +21,7 @@ import com.eve.app.ui.history.HistoryActivity
 import com.eve.app.ui.login.LoginActivity
 import com.eve.app.ui.notifications.NotificationsActivity
 import com.eve.app.ui.profile.ProfileActivity
+import com.eve.app.ui.practice.PracticeActivity
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.Constants
 import com.eve.app.util.CrashlyticsHelper
@@ -98,6 +99,9 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnPerformance.setOnClickListener {
             startActivity(Intent(this, com.eve.app.ui.performance.PerformanceActivity::class.java))
+        }
+        binding.btnPractice.setOnClickListener {
+            startActivity(Intent(this, PracticeActivity::class.java))
         }
 
         binding.rvExams.layoutManager = LinearLayoutManager(this)

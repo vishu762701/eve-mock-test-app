@@ -20,6 +20,15 @@ class ExamRepository(
                 doc.toObject(Question::class.java)?.copy(id = doc.id)
             }
 
+    suspend fun getQuestionsForTopic(examId: String, topic: String): List<Question> =
+        db.collection("questions")
+            .whereEqualTo("examId", examId)
+            .whereEqualTo("topic", topic)
+            .get()
+            .await()
+            .documents
+            .mapNotNull { doc -> doc.toObject(Question::class.java)?.copy(id = doc.id) }
+
     suspend fun addExam(name: String, minutes: Int, category: String) {
         val data = hashMapOf(
             "examName" to name,
