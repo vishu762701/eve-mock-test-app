@@ -146,6 +146,18 @@ Naya version release karna ho to bas naya tag badha ke push karo (`v1.0.1`, `v1.
 - Fallback rule: agar kisi question/option/explanation ka Hindi translation nahi bhara, "हिं" select hone par bhi wahi field English me hi dikhta hai — kabhi khali nahi dikhta.
 - Test History me bhi yeh translation preserved rehta hai — `AnswerItem` submit ke time dono languages (raw English + raw Hindi) save karta hai, isliye purane attempt ka review bhi language toggle ke saath kaam karta hai.
 
+## Push Notifications (Phase 12)
+Do tarah ke notifications hain, dono Home screen par apne aap set ho jaate hain (koi extra setup nahi chahiye, sirf Android 13+ par user ko ek baar permission popup allow karna hoga):
+
+**1. Naya Exam Alert (FCM topic push)**
+- Har device app khulte hi `"new_exams"` FCM topic subscribe kar leta hai (`MainActivity.setupPushNotifications()`).
+- `service/EveMessagingService.kt` is topic par aane wale message ko receive karke notification dikhata hai (channel: "Naye Exam Alerts").
+- **Important:** client se seedha doosre devices ko push bhejna possible nahi hai — asli automatic alert (admin ke naya exam add karte hi) ke liye ek chhota Cloud Function chahiye, jo `functions/index.js` me diya hua hai (optional bonus, deploy steps us file ke comments me hain, Blaze plan chahiye). Function deploy kiye bina bhi app crash nahi hogi — bas automatic alert nahi aayega; test karne ke liye Firebase Console → Cloud Messaging se seedha `new_exams` topic par ek test notification bhej sakte ho.
+
+**2. Daily Practice Reminder (on-device, koi server nahi chahiye)**
+- `util/ReminderScheduler.kt` WorkManager ke through roz shaam 7 baje ek local reminder notification schedule karta hai (channel: "Daily Practice Reminder"), jab tak app kam se kam ek baar khuli ho — WorkManager khud reboot ke baad bhi schedule yaad rakhta hai.
+- Home screen ke header me naya **bell icon** (theme toggle ke bagal) is reminder ko ON/OFF karta hai — choice SharedPreferences me save hoti hai (default ON).
+
 ## Notes
 - Negative marking off hai by default — `util/Constants.kt` me `NEGATIVE_MARK` change kar sakte ho.
 - Koi Android Studio / wrapper zip nahi diya — seedha GitHub push karo, Actions khud build karega. Agar Android Studio me kholna hai to ek baar khulte hi wo khud gradle wrapper regenerate kar dega.

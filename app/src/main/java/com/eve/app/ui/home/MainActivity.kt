@@ -1,9 +1,14 @@
 package com.eve.app.ui.home
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.core.content.ContextCompat
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -17,6 +22,8 @@ import com.eve.app.ui.login.LoginActivity
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.Constants
 import com.eve.app.util.NetworkUtil
+import com.eve.app.util.NotificationHelper
+import com.eve.app.util.ReminderScheduler
 import com.eve.app.util.ThemeManager
 import com.eve.app.util.UiState
 import com.eve.app.util.isHardcodedAdmin
@@ -24,6 +31,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.material.chip.Chip
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -31,6 +39,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val viewModel: HomeViewModel by viewModels()
     private val adminRepo = AdminRepository()
+
+    // Phase 12: Android 13+ par POST_NOTIFICATIONS permission runtime me maangni padti hai.
+    // User "Deny" bhi kar de to app normally chalti rahegi, sirf naya-exam/reminder alerts nahi dikhenge.
+    private val notificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* result ignore kar sakte hain */ }
 
     private val adapter = ExamAdapter { exam ->
         startActivity(
@@ -57,6 +70,8 @@ class MainActivity : AppCompatActivity() {
         binding.tvWelcome.text = "Hi, ${user.displayName ?: "Student"}"
 
         ThemeManager.setupToggleButton(this, binding.btnThemeToggle)
+        ReminderScheduler.setupToggleButton(this, binding.btnReminderToggle)
+        setupPushNotifications()
 
         // Hardcoded admin ho to turant dikhao (fast path, koi network wait nahi)
         if (isHardcodedAdmin(user.email)) {
@@ -94,6 +109,24 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
         // Admin ne naya exam add kiya ho to list refresh ho jaye
         if (::binding.isInitialized) viewModel.load()
+    }
+
+    /**
+     * Phase 12 setup: notification channels banao, Android 13+ par permission maango, naye-exam
+     * FCM topic subscribe karo, aur saved reminder preference ke hisaab se daily reminder schedule karo.
+     */
+    private fun setupPushNotifications() {
+        NotificationHelper.createChannels(this)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+        ) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+
+        FirebaseMessaging.getInstance().subscribeToTopic(NotificationHelper.TOPIC_NEW_EXAMS)
+        ReminderScheduler.applySavedState(this)
     }
 
     private fun showAdminButton() {
