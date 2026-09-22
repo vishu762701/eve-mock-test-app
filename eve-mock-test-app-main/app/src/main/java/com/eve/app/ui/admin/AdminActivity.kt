@@ -93,6 +93,9 @@ class AdminActivity : AppCompatActivity() {
         binding.btnCancelEdit.setOnClickListener { cancelEdit() }
         binding.btnAddAdmin.setOnClickListener { addAdmin() }
         binding.btnToggleHindi.setOnClickListener { toggleHindiGroup() }
+        binding.cbPyq.setOnCheckedChangeListener { _, checked ->
+            binding.groupPyq.visibility = if (checked) View.VISIBLE else View.GONE
+        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -198,6 +201,10 @@ class AdminActivity : AppCompatActivity() {
         binding.etOptionCHi.setText(q.optionCHi)
         binding.etOptionDHi.setText(q.optionDHi)
         binding.etExplanationHi.setText(q.explanationHi)
+        binding.cbPyq.isChecked = q.isPyq
+        binding.etPyqYear.setText(if (q.pyqYear > 0) q.pyqYear.toString() else "")
+        binding.etPyqPaper.setText(q.pyqPaper)
+        binding.groupPyq.visibility = if (q.isPyq) View.VISIBLE else View.GONE
         // Agar pehle se koi Hindi translation bhari hai to section khud khul jaye
         val hasHindi = listOf(
             q.questionTextHi, q.optionAHi, q.optionBHi, q.optionCHi, q.optionDHi, q.explanationHi
@@ -238,6 +245,10 @@ class AdminActivity : AppCompatActivity() {
         binding.etOptionCHi.text?.clear()
         binding.etOptionDHi.text?.clear()
         binding.etExplanationHi.text?.clear()
+        binding.cbPyq.isChecked = false
+        binding.etPyqYear.text?.clear()
+        binding.etPyqPaper.text?.clear()
+        binding.groupPyq.visibility = View.GONE
         hideHindiGroup()
         binding.btnUpload.text = "Upload to Firestore"
         binding.btnCancelEdit.visibility = View.GONE
@@ -295,9 +306,16 @@ class AdminActivity : AppCompatActivity() {
         val cHi = binding.etOptionCHi.text.toString().trim()
         val dHi = binding.etOptionDHi.text.toString().trim()
         val explanationHi = binding.etExplanationHi.text.toString().trim()
+        val isPyq = binding.cbPyq.isChecked
+        val pyqYear = binding.etPyqYear.text.toString().trim().toIntOrNull() ?: 0
+        val pyqPaper = binding.etPyqPaper.text.toString().trim()
 
         if (qText.isEmpty() || a.isEmpty() || b.isEmpty() || c.isEmpty() || d.isEmpty()) {
             Toast.makeText(this, "Saari fields bharo", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (isPyq && pyqYear !in 1990..2100) {
+            Toast.makeText(this, "PYQ ke liye valid year daalo (e.g. 2024)", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -312,7 +330,10 @@ class AdminActivity : AppCompatActivity() {
                 explanation = explanation,
                 questionTextHi = qTextHi,
                 optionAHi = aHi, optionBHi = bHi, optionCHi = cHi, optionDHi = dHi,
-                explanationHi = explanationHi
+                explanationHi = explanationHi,
+                isPyq = isPyq,
+                pyqYear = if (isPyq) pyqYear else 0,
+                pyqPaper = if (isPyq) pyqPaper else ""
             )
             viewModel.updateQuestion(updated) { cancelEdit() }
         } else {
@@ -325,7 +346,10 @@ class AdminActivity : AppCompatActivity() {
                 explanation = explanation,
                 questionTextHi = qTextHi,
                 optionAHi = aHi, optionBHi = bHi, optionCHi = cHi, optionDHi = dHi,
-                explanationHi = explanationHi
+                explanationHi = explanationHi,
+                isPyq = isPyq,
+                pyqYear = if (isPyq) pyqYear else 0,
+                pyqPaper = if (isPyq) pyqPaper else ""
             )
             viewModel.addQuestion(q) { cancelEdit() }
         }

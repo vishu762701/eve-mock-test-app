@@ -40,15 +40,24 @@ class TestViewModel : ViewModel() {
     private var started = false
     private var timerJob: Job? = null
 
-    fun start(examId: String, timeLimitMinutes: Int, topic: String = "") {
+    fun start(
+        examId: String,
+        timeLimitMinutes: Int,
+        topic: String = "",
+        pyqYear: Int = 0,
+        pyqPaper: String = ""
+    ) {
         if (started) return
         started = true
         viewModelScope.launch {
             try {
-                // Practice mode me ek focused, manageable set dikhao; full mock behaviour unchanged hai.
-                val list = (if (topic.isBlank()) repo.getQuestions(examId) else repo.getQuestionsForTopic(examId, topic))
-                    .shuffled()
-                    .let { questions -> if (topic.isBlank()) questions else questions.take(10) }
+                val list = when {
+                    // Phase 19: PYQ paper — original order preserve (shuffle nahi), taaki
+                    // admin jaisa upload kiya waisa paper feel rahe.
+                    pyqYear > 0 -> repo.getPyqQuestions(examId, pyqYear, pyqPaper)
+                    topic.isNotBlank() -> repo.getQuestionsForTopic(examId, topic).shuffled().take(10)
+                    else -> repo.getQuestions(examId).shuffled()
+                }
                 _questions.value = UiState.Success(list)
                 if (list.isNotEmpty()) startTimer(timeLimitMinutes * 60L)
             } catch (e: Exception) {
@@ -58,10 +67,16 @@ class TestViewModel : ViewModel() {
         }
     }
 
-    fun retry(examId: String, timeLimitMinutes: Int, topic: String = "") {
+    fun retry(
+        examId: String,
+        timeLimitMinutes: Int,
+        topic: String = "",
+        pyqYear: Int = 0,
+        pyqPaper: String = ""
+    ) {
         _questions.value = UiState.Loading
         started = false
-        start(examId, timeLimitMinutes, topic)
+        start(examId, timeLimitMinutes, topic, pyqYear, pyqPaper)
     }
 
     private fun startTimer(totalSeconds: Long) {

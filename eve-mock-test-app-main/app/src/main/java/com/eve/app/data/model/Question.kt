@@ -15,6 +15,12 @@ data class Question(
     /** Optional — subject/topic tag (jaise "Percentage", "Polity"). Blank ho to Performance
      * screen (Phase 17) is question ko "General" ke bucket me count karta hai. */
     val topic: String = "",
+    /** Phase 19: true ho to yeh question Previous Year Paper ka hissa hai. */
+    val isPyq: Boolean = false,
+    /** Phase 19: exam year, jaise 2024. 0 = year tag nahi hai. */
+    val pyqYear: Int = 0,
+    /** Phase 19: optional paper/shift label — "Prelims", "Mains", "Tier 1", "Shift 2". */
+    val pyqPaper: String = "",
     // Hindi translations (Phase 11) — sab optional. Admin ne translate na kiya ho to
     // display*() functions apne aap English par fallback ho jaate hain.
     val questionTextHi: String = "",

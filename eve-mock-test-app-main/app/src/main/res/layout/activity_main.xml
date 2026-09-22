@@ -20,7 +20,10 @@
             <com.google.android.material.button.MaterialButton android:id="@+id/btnHistory" style="@style/Widget.Eve.OutlinedButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="History" />
             <com.google.android.material.button.MaterialButton android:id="@+id/btnPerformance" style="@style/Widget.Eve.OutlinedButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="10dp" android:layout_weight="1" android:text="Performance" />
         </LinearLayout>
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnPractice" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Topic-wise Practice" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="horizontal">
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnPractice" style="@style/Widget.Eve.OutlinedButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Practice" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnPyq" style="@style/Widget.Eve.OutlinedButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="10dp" android:layout_weight="1" android:text="PYQ" />
+        </LinearLayout>
         <com.google.android.material.button.MaterialButton android:id="@+id/btnAdmin" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Admin Dashboard" android:visibility="gone" />
     </LinearLayout>
     <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="20dp" android:paddingBottom="8dp" android:scrollbars="none">

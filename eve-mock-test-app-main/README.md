@@ -274,6 +274,40 @@ client-side compute hota hai, isliye koi extra `firebase deploy` bhi nahi karna 
   ho chuki hoti hai Test History dekhne se) se compute hoti hai — koi naya composite index ya
   security rule change nahi chahiye.
 
+## Topic-wise Practice (Phase 18)
+Home screen par **Practice** button `PracticeActivity` kholta hai. Exam select karo, phir
+us exam ke topic-tagged questions chips me dikhte hain (jaise "Percentage • 24 questions").
+Chip tap karte hi Test screen **practice mode** me khulti hai: us topic ke max 10 random
+questions, 1 minute/question. Submit ke baad wahi Result + History flow chalta hai, attempt
+name me "• Topic Practice" suffix save hota hai.
+
+Koi naya collection nahi — Phase 17 wala `questions.topic` field hi reuse hota hai. Jis exam
+me admin ne topic khali chhoda ho, wahan empty state dikhega.
+
+## Previous Year Questions (Phase 19)
+Indian exam prep apps ka sabse searched feature. Home par **PYQ** button `PyqActivity` kholta
+hai:
+
+- Exam select karo → tagged PYQ years chips me (naye year upar)
+- Year select karo → paper/shift chips (Prelims, Tier 1, Shift 2, …)
+- Ek se zyada papers hon to **"Saare papers"** chip bhi aati hai
+- Tap karte hi Test screen PYQ mode me start hoti hai — **questions shuffle nahi hote**
+  (admin ne jis order me upload kiya wahi paper order), timer chhote set par 1 min/Q,
+  20+ questions par exam ka official time
+
+**Admin:** question form me **Previous Year Question** checkbox + Year (required) + Paper/Shift
+(optional). Edit par pehle se tagged PYQ fields prefill ho jaate hain. Manage list me
+`PYQ 2024 Prelims` badge dikhta hai.
+
+**Schema (questions collection, extra fields):**
+- `isPyq` (Boolean)
+- `pyqYear` (Int, jaise 2024)
+- `pyqPaper` (String, optional)
+
+Naya Firestore collection / index / security rule change nahi — read already signed-in users
+ko allowed hai, write sirf admin. History/Result me attempt name `"SSC CGL • PYQ 2024 • Prelims"`
+jaisa save hota hai taaki review me mock vs PYQ alag dikhe.
+
 ## Notes
 - Negative marking off hai by default — `util/Constants.kt` me `NEGATIVE_MARK` change kar sakte ho.
 - Koi Android Studio / wrapper zip nahi diya — seedha GitHub push karo, Actions khud build karega. Agar Android Studio me kholna hai to ek baar khulte hi wo khud gradle wrapper regenerate kar dega.

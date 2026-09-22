@@ -103,6 +103,9 @@ class MainActivity : AppCompatActivity() {
         binding.btnPractice.setOnClickListener {
             startActivity(Intent(this, PracticeActivity::class.java))
         }
+        binding.btnPyq.setOnClickListener {
+            startActivity(Intent(this, com.eve.app.ui.pyq.PyqActivity::class.java))
+        }
 
         binding.rvExams.layoutManager = LinearLayoutManager(this)
         binding.rvExams.adapter = adapter

@@ -133,6 +133,35 @@
                 android:hint="Topic (optional) — jaise Percentage, Polity, History"
                 android:inputType="text" />
 
+            <CheckBox
+                android:id="@+id/cbPyq"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Previous Year Question (PYQ)" />
+
+            <LinearLayout
+                android:id="@+id/groupPyq"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <EditText
+                    android:id="@+id/etPyqYear"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Year (e.g. 2024)"
+                    android:inputType="number" />
+
+                <EditText
+                    android:id="@+id/etPyqPaper"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Paper / Shift (optional) — Prelims, Tier 1, Shift 2"
+                    android:inputType="textCapWords" />
+            </LinearLayout>
+
             <EditText
                 android:id="@+id/etOptionA"
                 android:layout_width="match_parent"

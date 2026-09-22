@@ -32,6 +32,8 @@ class TestActivity : AppCompatActivity() {
     private var examName = ""
     private var examCategory = ""
     private var topic = ""
+    private var pyqYear = 0
+    private var pyqPaper = ""
     private var totalQuestions = 0
     private var submitted = false
 
@@ -45,8 +47,10 @@ class TestActivity : AppCompatActivity() {
         examCategory = intent.getStringExtra(Constants.EXTRA_EXAM_CATEGORY) ?: ""
         timeLimit = intent.getIntExtra(Constants.EXTRA_TIME_LIMIT, 30)
         topic = intent.getStringExtra(Constants.EXTRA_TOPIC).orEmpty()
+        pyqYear = intent.getIntExtra(Constants.EXTRA_PYQ_YEAR, 0)
+        pyqPaper = intent.getStringExtra(Constants.EXTRA_PYQ_PAPER).orEmpty()
 
-        viewModel.start(examId, timeLimit, topic)
+        viewModel.start(examId, timeLimit, topic, pyqYear, pyqPaper)
         // Phase 15: exam start event — is exam ko kitni baar attempt kiya gaya, yeh track karta hai
         AnalyticsHelper.logExamStart(this, examId, examName, examCategory)
 
@@ -57,7 +61,7 @@ class TestActivity : AppCompatActivity() {
             binding.viewPager.currentItem = binding.viewPager.currentItem + 1
         }
         binding.btnSubmit.setOnClickListener { confirmSubmit() }
-        binding.btnRetry.setOnClickListener { viewModel.retry(examId, timeLimit, topic) }
+        binding.btnRetry.setOnClickListener { viewModel.retry(examId, timeLimit, topic, pyqYear, pyqPaper) }
 
         LanguageManager.setupToggleButton(this, binding.btnLanguage) {
             binding.viewPager.adapter?.notifyDataSetChanged()
@@ -123,8 +127,10 @@ class TestActivity : AppCompatActivity() {
                     binding.messageGroup.visibility = View.VISIBLE
                     binding.btnRetry.visibility = View.GONE
                     binding.ivMessageIcon.setImageResource(com.eve.app.R.drawable.ic_state_empty)
-                    binding.tvMessage.text = "Is exam me abhi koi question nahi hai"
-                    binding.tvMessageSub.text = "Admin se question upload karne ko bolo"
+                    binding.tvMessage.text = if (pyqYear > 0) "Is year/paper ke PYQ nahi mile"
+                    else "Is exam me abhi koi question nahi hai"
+                    binding.tvMessageSub.text = if (pyqYear > 0) "Admin Dashboard se isPyq + year tag karke questions upload karo"
+                    else "Admin se question upload karne ko bolo"
                     binding.tvTimer.text = "--:--"
                     return
                 }
@@ -155,7 +161,7 @@ class TestActivity : AppCompatActivity() {
 
     private fun updateNav(position: Int) {
         if (totalQuestions == 0) return
-        val title = if (topic.isBlank()) examName else "$examName • $topic Practice"
+        val title = sessionTitle()
         binding.tvProgress.text = "$title  •  Question ${position + 1} / $totalQuestions"
         binding.btnPrev.isEnabled = position > 0
         binding.btnNext.isEnabled = position < totalQuestions - 1
@@ -177,7 +183,7 @@ class TestActivity : AppCompatActivity() {
         submitted = true
         viewModel.stopTimer()
         val items = viewModel.buildAnswerItems()
-        val attemptName = if (topic.isBlank()) examName else "$examName • $topic Practice"
+        val attemptName = sessionTitle()
         viewModel.saveAttempt(examId, attemptName, examCategory, items)
 
         // Phase 15: exam submit event + score summary (average score / weak exams Console me dikhenge)
@@ -200,5 +206,14 @@ class TestActivity : AppCompatActivity() {
                 .putExtra(Constants.EXTRA_EXAM_CATEGORY, examCategory)
         )
         finish()
+    }
+
+    private fun sessionTitle(): String = when {
+        pyqYear > 0 -> {
+            val paper = if (pyqPaper.isBlank()) "" else " • $pyqPaper"
+            "$examName • PYQ $pyqYear$paper"
+        }
+        topic.isNotBlank() -> "$examName • $topic Practice"
+        else -> examName
     }
 }

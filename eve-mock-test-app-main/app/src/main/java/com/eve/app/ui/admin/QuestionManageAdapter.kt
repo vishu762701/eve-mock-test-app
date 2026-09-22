@@ -22,7 +22,11 @@ class QuestionManageAdapter(
         fun bind(q: Question, position: Int) {
             b.tvQuestionText.text = "Q${position + 1}. ${q.questionText}"
             val topicSuffix = if (q.topic.isNotBlank()) "  •  Topic: ${q.topic}" else ""
-            b.tvCorrect.text = "Correct: ${q.correctAnswer}. ${q.optionText(q.correctAnswer)}$topicSuffix"
+            val pyqSuffix = if (q.isPyq && q.pyqYear > 0) {
+                val paper = if (q.pyqPaper.isBlank()) "" else " ${q.pyqPaper}"
+                "  •  PYQ ${q.pyqYear}$paper"
+            } else ""
+            b.tvCorrect.text = "Correct: ${q.correctAnswer}. ${q.optionText(q.correctAnswer)}$topicSuffix$pyqSuffix"
             b.btnEdit.setOnClickListener { onEdit(q) }
             b.btnDelete.setOnClickListener { onDelete(q) }
         }
