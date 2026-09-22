@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Eve.Screen"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -9,7 +10,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_primary"
+        android:background="@color/eve_surface"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="4dp"
@@ -22,7 +23,8 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Back"
             android:padding="8dp"
-            android:src="@drawable/ic_back" />
+            android:src="@drawable/ic_back"
+            android:tint="@color/eve_text" />
 
         <TextView
             android:layout_width="0dp"
@@ -30,7 +32,7 @@
             android:layout_weight="1"
             android:paddingStart="4dp"
             android:text="Profile"
-            android:textColor="@android:color/white"
+            android:textColor="@color/eve_text"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -42,7 +44,8 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/theme_toggle_to_dark"
             android:padding="8dp"
-            android:src="@drawable/ic_sun" />
+            android:src="@drawable/ic_sun"
+            android:tint="@color/eve_text" />
     </LinearLayout>
 
     <LinearLayout
@@ -148,7 +151,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnAbout"
-        style="@style/Widget.Material3.Button.OutlinedButton"
+        style="@style/Widget.Eve.OutlinedButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
@@ -157,7 +160,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnLogout"
-        style="@style/Widget.Material3.Button.OutlinedButton"
+        style="@style/Widget.Eve.OutlinedButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"

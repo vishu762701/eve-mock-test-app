@@ -1,148 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Eve.Screen"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/eve_primary"
-        android:orientation="vertical"
-        android:padding="24dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Your Score"
-                android:textColor="#CFD8FF"
-                android:textSize="14sp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnLanguage"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minWidth="0dp"
-                android:paddingHorizontal="10dp"
-                android:text="हिं"
-                android:textColor="@android:color/white" />
+    <com.google.android.material.card.MaterialCardView style="@style/Widget.Eve.Card" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="16dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="22dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Your Score" android:textColor="@color/eve_text_secondary" android:textSize="14sp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnLanguage" style="@style/Widget.Eve.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minWidth="0dp" android:paddingHorizontal="10dp" android:text="हिं" />
+            </LinearLayout>
+            <TextView android:id="@+id/tvScore" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:textColor="@color/eve_text" android:textSize="38sp" android:textStyle="bold" />
+            <TextView android:id="@+id/tvStats" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textColor="@color/eve_text_secondary" android:textSize="14sp" />
+            <TextView android:id="@+id/tvResultSubtitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="7dp" android:textColor="@color/eve_text_secondary" android:textSize="13sp" android:visibility="gone" />
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvScore"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="@android:color/white"
-            android:textSize="36sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tvStats"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:textColor="@android:color/white"
-            android:textSize="15sp" />
-
-        <TextView
-            android:id="@+id/tvResultSubtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:textColor="#CFD8FF"
-            android:textSize="13sp"
-            android:visibility="gone" />
-    </LinearLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="14dp"
-        android:text="Answer Key"
-        android:textColor="?attr/colorOnSurface"
-        android:textSize="18sp"
-        android:textStyle="bold" />
-
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="10dp"
-        android:paddingBottom="4dp"
-        android:scrollbars="none">
-
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chipGroupFilter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            app:singleLine="true"
-            app:singleSelection="true">
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipAll"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="All" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipCorrect"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Correct" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipWrong"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Wrong" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipNotAttempted"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Not Attempted" />
+    </com.google.android.material.card.MaterialCardView>
+    <TextView style="@style/Eve.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="18dp" android:paddingTop="2dp" android:text="Answer Key" android:textSize="18sp" />
+    <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="8dp" android:paddingBottom="4dp" android:scrollbars="none">
+        <com.google.android.material.chip.ChipGroup android:id="@+id/chipGroupFilter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" app:chipSpacingHorizontal="8dp" app:singleLine="true" app:singleSelection="true">
+            <com.google.android.material.chip.Chip android:id="@+id/chipAll" style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="All" />
+            <com.google.android.material.chip.Chip android:id="@+id/chipCorrect" style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Correct" />
+            <com.google.android.material.chip.Chip android:id="@+id/chipWrong" style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Wrong" />
+            <com.google.android.material.chip.Chip android:id="@+id/chipNotAttempted" style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Not Attempted" />
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvAnswers"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:padding="8dp" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnLeaderboard"
-        style="@style/Widget.Material3.Button.OutlinedButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="12dp"
-        android:layout_marginTop="12dp"
-        android:text="View Leaderboard"
-        android:visibility="gone" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnHome"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        android:text="Back to Home" />
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvAnswers" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:paddingHorizontal="12dp" android:paddingBottom="10dp" />
+    <com.google.android.material.button.MaterialButton android:id="@+id/btnLeaderboard" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="16dp" android:layout_marginTop="8dp" android:text="View Leaderboard" android:visibility="gone" />
+    <com.google.android.material.button.MaterialButton android:id="@+id/btnHome" style="@style/Widget.Eve.Button" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="16dp" android:text="Back to Home" />
 </LinearLayout>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Eve.Screen"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -36,14 +37,14 @@
             <EditText
                 android:id="@+id/etExamName"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
                 android:hint="Exam name (e.g. SSC CGL)"
                 android:inputType="textCapWords" />
 
             <EditText
                 android:id="@+id/etExamMinutes"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
                 android:hint="Time limit (minutes)"
                 android:inputType="number" />
 
@@ -69,6 +70,7 @@
                 android:visibility="gone" />
 
             <com.google.android.material.button.MaterialButton
+                style="@style/Widget.Eve.Button"
                 android:id="@+id/btnAddExam"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -99,7 +101,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnDeleteExam"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    style="@style/Widget.Eve.OutlinedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
@@ -120,36 +122,37 @@
             <EditText
                 android:id="@+id/etQuestion"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
                 android:hint="Question text"
                 android:inputType="textMultiLine|textCapSentences"
-                android:minLines="2" />
+                android:minLines="2"
+                android:padding="14dp" />
 
             <EditText
                 android:id="@+id/etOptionA"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
                 android:hint="Option A"
                 android:inputType="text" />
 
             <EditText
                 android:id="@+id/etOptionB"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
                 android:hint="Option B"
                 android:inputType="text" />
 
             <EditText
                 android:id="@+id/etOptionC"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
                 android:hint="Option C"
                 android:inputType="text" />
 
             <EditText
                 android:id="@+id/etOptionD"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
                 android:hint="Option D"
                 android:inputType="text" />
 
@@ -172,11 +175,12 @@
                 android:layout_marginTop="12dp"
                 android:hint="Explanation (optional) — kyun sahi hai"
                 android:inputType="textMultiLine|textCapSentences"
-                android:minLines="2" />
+                android:minLines="2"
+                android:padding="14dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnToggleHindi"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Widget.Eve.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -205,7 +209,8 @@
                     android:layout_marginTop="6dp"
                     android:hint="Question text (Hindi)"
                     android:inputType="textMultiLine"
-                    android:minLines="2" />
+                    android:minLines="2"
+                android:padding="14dp" />
 
                 <EditText
                     android:id="@+id/etOptionAHi"
@@ -241,7 +246,8 @@
                     android:layout_height="wrap_content"
                     android:hint="Explanation (Hindi)"
                     android:inputType="textMultiLine"
-                    android:minLines="2" />
+                    android:minLines="2"
+                android:padding="14dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -259,7 +265,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnCancelEdit"
-                    style="@style/Widget.Material3.Button.TextButton"
+                    style="@style/Widget.Eve.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
@@ -296,6 +302,7 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvQuestions"
+            android:layoutAnimation="@anim/layout_enter"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false" />
@@ -352,6 +359,7 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvAdmins"
+            android:layoutAnimation="@anim/layout_enter"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"

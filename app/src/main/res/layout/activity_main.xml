@@ -1,60 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Eve.Screen"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
     <LinearLayout
+        style="@style/Eve.TopBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_primary"
         android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="14dp">
+        android:orientation="horizontal">
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivProfile"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="@drawable/bg_circle_translucent"
+            android:background="@drawable/bg_circle_primary"
             android:contentDescription="Profile"
             android:padding="8dp"
             android:src="@drawable/ic_person"
             app:shapeAppearanceOverlay="@style/ShapeCircle" />
 
-        <TextView
-            android:id="@+id/tvWelcome"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_weight="1"
-            android:text="Eve"
-            android:textColor="@android:color/white"
-            android:textSize="17sp"
-            android:textStyle="bold" />
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/tvWelcome"
+                style="@style/Eve.Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Hi, Student"
+                android:textSize="19sp" />
+            <TextView
+                style="@style/Eve.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:text="Choose a test and get started" />
+        </LinearLayout>
 
         <FrameLayout
-            android:layout_width="40dp"
-            android:layout_height="40dp">
-
+            android:layout_width="44dp"
+            android:layout_height="44dp">
             <ImageButton
                 android:id="@+id/btnNotification"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Notifications"
-                android:padding="8dp"
-                android:src="@drawable/ic_bell" />
-
+                android:padding="11dp"
+                android:src="@drawable/ic_bell"
+                android:tint="@color/eve_text" />
             <View
                 android:id="@+id/dotUnread"
-                android:layout_width="10dp"
-                android:layout_height="10dp"
+                android:layout_width="9dp"
+                android:layout_height="9dp"
                 android:layout_gravity="top|end"
-                android:layout_marginTop="6dp"
-                android:layout_marginEnd="6dp"
+                android:layout_marginTop="7dp"
+                android:layout_marginEnd="7dp"
                 android:background="@drawable/bg_dot_red"
                 android:visibility="gone" />
         </FrameLayout>
@@ -66,7 +74,7 @@
         android:layout_height="wrap_content"
         android:background="@color/eve_offline_bg"
         android:gravity="center"
-        android:paddingVertical="6dp"
+        android:paddingVertical="7dp"
         android:text="@string/offline_banner_text"
         android:textColor="@color/eve_offline_text"
         android:textSize="12sp"
@@ -79,38 +87,39 @@
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="16dp"
         android:orientation="horizontal">
-
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnHistory"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/Widget.Eve.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Test History" />
-
+            android:text="Test History"
+            android:textSize="14sp" />
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAdmin"
+            style="@style/Widget.Eve.Button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_weight="1"
             android:text="Admin Dashboard"
+            android:textSize="14sp"
             android:visibility="gone" />
     </LinearLayout>
 
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="12dp"
-        android:paddingBottom="4dp"
+        android:layout_marginTop="6dp"
+        android:paddingVertical="8dp"
         android:scrollbars="none">
-
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipGroupCategory"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
+            app:chipSpacingHorizontal="8dp"
             app:singleLine="true"
             app:singleSelection="true" />
     </HorizontalScrollView>
@@ -119,15 +128,14 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvExams"
+            android:layoutAnimation="@anim/layout_enter"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:paddingHorizontal="8dp"
-            android:paddingBottom="16dp" />
-
+            android:paddingHorizontal="12dp"
+            android:paddingBottom="20dp" />
         <LinearLayout
             android:id="@+id/progressGroup"
             android:layout_width="wrap_content"
@@ -136,63 +144,22 @@
             android:gravity="center"
             android:orientation="vertical"
             android:visibility="gone">
-
-            <ProgressBar
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Exams load ho rahe hain…"
-                android:textColor="@color/eve_grey"
-                android:textSize="13sp" />
+            <ProgressBar android:layout_width="wrap_content" android:layout_height="wrap_content" />
+            <TextView style="@style/Eve.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Exams load ho rahe hain…" />
         </LinearLayout>
-
         <LinearLayout
             android:id="@+id/messageGroup"
-            android:layout_width="wrap_content"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
             android:orientation="vertical"
             android:padding="24dp"
             android:visibility="gone">
-
-            <ImageView
-                android:id="@+id/ivMessageIcon"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:src="@drawable/ic_state_empty" />
-
-            <TextView
-                android:id="@+id/tvMessage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:gravity="center"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvMessageSub"
-                android:layout_width="260dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:gravity="center"
-                android:textColor="@color/eve_grey"
-                android:textSize="13sp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnRetry"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Retry"
-                android:visibility="gone" />
+            <ImageView android:id="@+id/ivMessageIcon" android:layout_width="56dp" android:layout_height="56dp" android:src="@drawable/ic_state_empty" />
+            <TextView android:id="@+id/tvMessage" style="@style/Eve.Title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:gravity="center" android:textSize="17sp" />
+            <TextView android:id="@+id/tvMessageSub" style="@style/Eve.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:gravity="center" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnRetry" style="@style/Widget.Eve.OutlinedButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Retry" android:visibility="gone" />
         </LinearLayout>
     </FrameLayout>
 </LinearLayout>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Eve.Screen"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -8,7 +9,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_primary"
+        android:background="@color/eve_surface"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="4dp"
@@ -21,7 +22,8 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Back"
             android:padding="8dp"
-            android:src="@drawable/ic_back" />
+            android:src="@drawable/ic_back"
+            android:tint="@color/eve_text" />
 
         <TextView
             android:layout_width="0dp"
@@ -29,7 +31,7 @@
             android:layout_weight="1"
             android:paddingStart="4dp"
             android:text="Notifications"
-            android:textColor="@android:color/white"
+            android:textColor="@color/eve_text"
             android:textSize="20sp"
             android:textStyle="bold" />
     </LinearLayout>
@@ -41,6 +43,7 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvNotifications"
+            android:layoutAnimation="@anim/layout_enter"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"

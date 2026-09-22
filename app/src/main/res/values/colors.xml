@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="eve_primary">#3F51B5</color>
-    <color name="eve_primary_dark">#303F9F</color>
-    <color name="eve_accent">#FF6D00</color>
-    <color name="eve_green">#2E7D32</color>
-    <color name="eve_red">#C62828</color>
-    <color name="eve_grey">#757575</color>
-    <color name="eve_bg">#F5F6FA</color>
-    <color name="eve_offline_bg">#FFF3CD</color>
-    <color name="eve_offline_text">#7A5B00</color>
-
-    <!-- Phase 16: Leaderboard rank badge + "you" row highlight colors -->
-    <color name="eve_gold">#D4A017</color>
-    <color name="eve_silver">#8A8D91</color>
-    <color name="eve_bronze">#B0702A</color>
-    <color name="eve_highlight_bg">#E8EAFB</color>
+    <color name="eve_primary">#4F6EF7</color>
+    <color name="eve_primary_dark">#3D58D6</color>
+    <color name="eve_accent">#4F6EF7</color>
+    <color name="eve_green">#238636</color>
+    <color name="eve_red">#D64545</color>
+    <color name="eve_grey">#6B7280</color>
+    <color name="eve_bg">#F7F8FA</color>
+    <color name="eve_surface">#FFFFFF</color>
+    <color name="eve_surface_alt">#F0F2F5</color>
+    <color name="eve_stroke">#E3E6EB</color>
+    <color name="eve_text">#17191C</color>
+    <color name="eve_text_secondary">#6B7280</color>
+    <color name="eve_offline_bg">#FFF4D6</color>
+    <color name="eve_offline_text">#765B00</color>
+    <color name="eve_gold">#C79519</color>
+    <color name="eve_silver">#7D858F</color>
+    <color name="eve_bronze">#A9662A</color>
+    <color name="eve_highlight_bg">#E9EDFF</color>
     <color name="eve_card_bg">#FFFFFF</color>
 </resources>

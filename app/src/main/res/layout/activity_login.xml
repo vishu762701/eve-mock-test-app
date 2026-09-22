@@ -1,58 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Eve.Screen"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <ImageButton
-        android:id="@+id/btnThemeToggle"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:layout_gravity="top|end"
-        android:layout_margin="12dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/theme_toggle_to_dark"
-        android:padding="10dp"
-        android:src="@drawable/ic_sun"
-        android:tint="@color/eve_primary" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="32dp">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Eve"
-        android:textColor="@color/eve_primary"
-        android:textSize="52sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="56dp"
-        android:gravity="center"
-        android:text="Free Mock Tests for Govt &amp; Entrance Exams"
-        android:textColor="@color/eve_grey"
-        android:textSize="16sp" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnGoogle"
-        android:layout_width="match_parent"
-        android:layout_height="58dp"
-        app:cornerRadius="12dp"
-        android:text="Sign in with Google" />
-
-    <ProgressBar
-        android:id="@+id/progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:visibility="gone" />
+    <ImageButton android:id="@+id/btnThemeToggle" android:layout_width="44dp" android:layout_height="44dp" android:layout_gravity="top|end" android:layout_margin="14dp" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="@string/theme_toggle_to_dark" android:padding="10dp" android:src="@drawable/ic_sun" android:tint="@color/eve_text" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical" android:paddingHorizontal="28dp">
+        <com.google.android.material.card.MaterialCardView style="@style/Widget.Eve.Card" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_horizontal" android:orientation="vertical" android:padding="28dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Eve" android:textColor="@color/eve_primary" android:textSize="44sp" android:textStyle="bold" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:text="Free mock tests for government &amp; entrance exams" android:textColor="@color/eve_text_secondary" android:textSize="15sp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnGoogle" style="@style/Widget.Eve.Button" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:text="Continue with Google" />
+                <ProgressBar android:id="@+id/progress" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:visibility="gone" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:gravity="center" android:text="Simple. Free. Focused on practice." android:textColor="@color/eve_text_secondary" android:textSize="12sp" />
     </LinearLayout>
 </FrameLayout>
