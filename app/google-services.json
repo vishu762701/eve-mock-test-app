@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "118032999217",
+    "project_id": "eve-fb0e3",
+    "storage_bucket": "eve-fb0e3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:118032999217:android:f8feaa35f1cae37f358610",
+        "android_client_info": {
+          "package_name": "com.eve.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDU4mfiVHg0YOm74VorHUOTXkgguWTfg_Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

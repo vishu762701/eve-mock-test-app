@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="eve_primary">#3F51B5</color>
+    <color name="eve_primary_dark">#303F9F</color>
+    <color name="eve_accent">#FF6D00</color>
+    <color name="eve_green">#2E7D32</color>
+    <color name="eve_red">#C62828</color>
+    <color name="eve_grey">#757575</color>
+    <color name="eve_bg">#F5F6FA</color>
+</resources>
