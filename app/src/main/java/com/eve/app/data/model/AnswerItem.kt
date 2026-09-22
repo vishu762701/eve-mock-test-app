@@ -11,8 +11,27 @@ data class AnswerItem(
     val selected: String,
     val selectedText: String,
     val correct: String,
-    val correctText: String
+    val correctText: String,
+    val explanation: String = "",
+    val isBookmarked: Boolean = false,
+    // Hindi translations (Phase 11) — raw values, blank matlab translate nahi hua
+    val questionTextHi: String = "",
+    val selectedTextHi: String = "",
+    val correctTextHi: String = "",
+    val explanationHi: String = ""
 ) : Parcelable {
     val isAttempted: Boolean get() = selected.isNotEmpty()
     val isCorrect: Boolean get() = selected.isNotEmpty() && selected == correct
+
+    fun displayQuestionText(hindi: Boolean): String =
+        if (hindi && questionTextHi.isNotBlank()) questionTextHi else questionText
+
+    fun displaySelectedText(hindi: Boolean): String =
+        if (hindi && selectedTextHi.isNotBlank()) selectedTextHi else selectedText
+
+    fun displayCorrectText(hindi: Boolean): String =
+        if (hindi && correctTextHi.isNotBlank()) correctTextHi else correctText
+
+    fun displayExplanation(hindi: Boolean): String =
+        if (hindi && explanationHi.isNotBlank()) explanationHi else explanation
 }

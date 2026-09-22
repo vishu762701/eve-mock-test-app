@@ -6,7 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.eve.app.data.model.AnswerItem
 import com.eve.app.data.model.Question
 import com.eve.app.data.repository.ExamRepository
+import com.eve.app.data.repository.HistoryRepository
 import com.eve.app.util.UiState
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +19,7 @@ import kotlinx.coroutines.launch
 class TestViewModel : ViewModel() {
 
     private val repo = ExamRepository()
+    private val historyRepo = HistoryRepository()
 
     private val _questions = MutableStateFlow<UiState<List<Question>>>(UiState.Loading)
     val questions: StateFlow<UiState<List<Question>>> = _questions.asStateFlow()
@@ -30,6 +33,9 @@ class TestViewModel : ViewModel() {
 
     // position -> "A".."D". Swipe karne par selection yahin se wapas milta hai.
     private val answers = mutableMapOf<Int, String>()
+
+    // position -> bookmarked? "Review ke liye flag" state, swipe karne par bhi yaad rehta hai.
+    private val bookmarks = mutableMapOf<Int, Boolean>()
 
     private var started = false
     private var timerJob: Job? = null
@@ -81,6 +87,12 @@ class TestViewModel : ViewModel() {
         if (letter.isEmpty()) answers.remove(position) else answers[position] = letter
     }
 
+    fun isBookmarked(position: Int): Boolean = bookmarks[position] ?: false
+
+    fun toggleBookmark(position: Int) {
+        bookmarks[position] = !isBookmarked(position)
+    }
+
     fun buildAnswerItems(): ArrayList<AnswerItem> {
         val list = (questions.value as? UiState.Success)?.data ?: emptyList()
         val items = ArrayList<AnswerItem>()
@@ -90,13 +102,25 @@ class TestViewModel : ViewModel() {
                 AnswerItem(
                     number = index + 1,
                     questionText = q.questionText,
+                    questionTextHi = q.questionTextHi,
                     selected = selected,
                     selectedText = if (selected.isEmpty()) "" else q.optionText(selected),
+                    selectedTextHi = if (selected.isEmpty()) "" else q.optionTextHi(selected),
                     correct = q.correctAnswer,
-                    correctText = q.optionText(q.correctAnswer)
+                    correctText = q.optionText(q.correctAnswer),
+                    correctTextHi = q.optionTextHi(q.correctAnswer),
+                    explanation = q.explanation,
+                    explanationHi = q.explanationHi,
+                    isBookmarked = isBookmarked(index)
                 )
             )
         }
         return items
+    }
+
+    /** Test History (Phase 10): submit hote hi attempt Firestore me save karo, logged in ho tabhi. */
+    fun saveAttempt(examId: String, examName: String, category: String, items: List<AnswerItem>) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        historyRepo.saveAttempt(userId, examId, examName, category, items)
     }
 }

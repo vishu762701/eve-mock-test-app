@@ -10,8 +10,8 @@ Kotlin + MVVM + Firebase (Firestore + Google Sign-in). No custom backend.
      (yeh is repo ke fixed debug keystore ka SHA-1 hai — GitHub Actions isi keystore se APK banayega, isliye SHA-1 hamesha same rahega aur Google Sign-in kabhi nahi tootega)
 3. `google-services.json` download karo → repo me **`app/google-services.json`** path par daal do (root me nahi, `app/` folder ke andar).
 4. Firebase console me **Authentication → Sign-in method → Google → Enable**.
-5. **Firestore Database → Create database** (production mode) → 2 collections banega apne aap jab data add hoga: `exams`, `questions`.
-6. Firestore **Rules** tab me yeh laga do (MVP ke liye — logged-in user read kar sake, sirf admins write karein):
+5. **Firestore Database → Create database** (production mode) → collections apne aap ban jayengi jab data add hoga: `exams`, `questions`, `admins`, aur `attempts` (Phase 10 — students ki test history).
+6. Firestore **Rules** tab me yeh laga do (MVP ke liye — logged-in user read kar sake, sirf admins `exams`/`questions`/`admins` write karein; har student sirf apni khud ki `attempts` likh/padh sake):
 ```
 rules_version = '2';
 service cloud.firestore {
@@ -27,6 +27,11 @@ service cloud.firestore {
         exists(/databases/$(database)/documents/admins/$(request.auth.token.email))
       );
     }
+    match /attempts/{attemptId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if false;
+    }
     match /{document=**} {
       allow read: if request.auth != null;
       allow write: if isAdmin();
@@ -35,6 +40,7 @@ service cloud.firestore {
 }
 ```
    Yeh 4 emails already `Constants.kt` me bhi hardcoded hain, dono jagah match hone chahiye. Agar app ke andar se koi naya admin add karo, wo `admins` collection me save hota hai aur is rule ka `exists(...)` check use hoke automatically usko bhi write access mil jata hai — Firestore rules dobara publish karne ki zaroorat nahi padti jab tak naye hardcoded emails na jodne ho.
+   Firestore rules me matching blocks OR hoke evaluate hote hain (jo bhi block allow de de, wahi final hota hai), isliye `attempts` ka specific rule upar ho ya neeche — position se farak nahi padta, bas dono block hone chahiye.
 
 ## 2. GitHub par push karo
 ```
@@ -65,6 +71,80 @@ APK download karke phone me transfer karo, install karo (Unknown sources allow k
 - `Constants.kt` me diye 4 email hamesha admin rahenge, chahe internet na ho
 - Admin Dashboard ke "5. Admins manage karo" section se koi bhi existing admin naya email add kar sakta hai — wo turant Firestore `admins` collection me save hota hai aur agli baar us email se login hote hi Admin Dashboard unlock ho jata hai, bina app update kiye
 - "Remove" button se sirf Firestore wale (dynamically add kiye) admins hi hataye ja sakte hain — Constants.kt wale 4 hardcoded emails yahan se nahi hatenge (unhe hatane ke liye code edit karke rebuild karna padega)
+
+## Offline support + Dark/Light toggle (Phase 7)
+- Firestore ka offline persistent cache `EveApplication.kt` me explicitly enable kiya gaya hai (`FirebaseFirestoreSettings` + `PersistentCacheSettings`). Matlab ek baar exams/questions load ho jaane ke baad, weak network ya no-internet me bhi wahi (cached) data turant dikhta rahega — Home screen ke exams aur Test screen ke questions dono.
+- Jab device offline ho, Home aur Test dono screens ke top par ek chhota amber banner dikhta hai: "No internet — cached data dikha rahe hain". Yeh `util/NetworkUtil.kt` (ConnectivityManager ka live Flow) se chalta hai.
+- Agar kisi exam/question ka data pehle kabhi cache hi nahi hua aur internet bhi nahi hai, to error state me seedha "No internet connection" dikhega (generic Firestore error ki jagah) aur ek **Retry** button milega jo dobara try karta hai.
+- Top-right corner me ek hi icon-button se Dark/Light mode toggle hota hai (Login aur Home screen dono par) — light mode me ☀️ sun icon dikhta hai (tap karke dark karo), dark mode me 🌙 moon icon dikhta hai (tap karke light karo). Choice `util/ThemeManager.kt` SharedPreferences me save hoti hai, isliye app dobara khulne par bhi wahi mode yaad rehta hai. Pehli baar (kabhi toggle na kiya ho) system ka apna dark/light setting follow hoti hai.
+
+## Play Store ready — signed release build (Phase 8)
+Ab tak jo bhi APK banta tha wo **debug** keystore se sign hota tha (testing ke liye theek hai, par Play Store isko accept nahi karta). Phase 8 me ek **naya, real release keystore** banate hain jo sirf tumhare paas rahega — GitHub ko sirf iska encrypted copy (Secret ke roop me) milta hai, repo me kabhi commit nahi hota.
+
+### 1. Release keystore banao (sirf ek baar, apne Termux/computer par)
+Termux me pehle Java install karo (agar nahi hai):
+```
+pkg install openjdk-17 -y
+```
+Phir keystore banao:
+```
+keytool -genkeypair -v -keystore eve-release.keystore -alias eve-release -keyalg RSA -keysize 2048 -validity 10000
+```
+Yeh kuch sawaal poochega (naam, organization, city, etc.) — kuch bhi bhar sakte ho, matter nahi karta. **Do password maangega**:
+- Keystore password
+- Key password (yahi rakh sakte ho jo keystore password hai — enter dabakar same use kar sakte ho)
+
+**⚠️ Bahut important**: `eve-release.keystore` file aur dono passwords kahin surakshit save kar lo (jaise password manager me). Yeh khoya to Play Store par app update karna future me impossible ho jayega — Google naya keystore accept nahi karta ek baar publish hone ke baad.
+
+### 2. Keystore ko base64 me convert karo
+```
+base64 -w 0 eve-release.keystore > eve-release.keystore.b64
+cat eve-release.keystore.b64
+```
+Pura output (ek lambi single line) copy kar lo.
+
+### 3. GitHub par 4 Secrets add karo
+Repo → **Settings → Secrets and variables → Actions → New repository secret** — yeh 4 banao:
+
+| Secret name | Value |
+|---|---|
+| `RELEASE_KEYSTORE_BASE64` | Step 2 wala pura base64 output |
+| `RELEASE_STORE_PASSWORD` | Keystore password |
+| `RELEASE_KEY_ALIAS` | `eve-release` (ya jo alias diya tha) |
+| `RELEASE_KEY_PASSWORD` | Key password |
+
+### 4. Release build trigger karo
+Do tareeke hain:
+- **Git tag push karo** (recommended — automatically GitHub Release bhi ban jaata hai APK+AAB attached):
+  ```
+  git tag v1.0.0
+  git push origin v1.0.0
+  ```
+- **Ya Actions tab se manually**: `Build Signed Release (APK + AAB)` workflow kholo → **Run workflow** button → version name type karo (jaise `1.0.0`) → Run.
+
+Build complete hote hi:
+- `Eve-release-apk` artifact — signed APK (phone par direct install ke liye)
+- `Eve-release-aab` artifact — signed `.aab` (yehi file **Play Console** par upload hoti hai, APK nahi)
+- Tag wale trigger me ek **GitHub Release** bhi ban jaata hai dono files ke saath
+
+### Versioning
+`versionCode` GitHub Actions run number se automatic aata hai, `versionName` tag (`v1.2.0` → `1.2.0`) ya manual input se. Local build me (tag/secrets ke bina) dono ki default values `app/build.gradle.kts` me hi set hain, kuch extra karne ki zaroorat nahi.
+
+Naya version release karna ho to bas naya tag badha ke push karo (`v1.0.1`, `v1.1.0`, etc.) — code me kahin version number manually change karne ki zaroorat nahi.
+
+## Test History (Phase 10)
+- Har test submit hote hi (Home screen se attempt kiya ho tabhi, review/preview se nahi) `TestViewModel.saveAttempt()` uska poora record — exam, category, score, correct/wrong/unattempted, aur poori answer key — Firestore `attempts` collection me save kar deta hai, current logged-in user ki `uid` ke saath.
+- Yeh write suspend function nahi hai (fire-and-forget): Firestore ka offline cache turant local write kar leta hai, isliye Result screen par navigate karne ke liye TestActivity turant `finish()` ho jaaye tab bhi save lost nahi hota.
+- Home screen par naya **Test History** button — `HistoryActivity` me sirf usi user ki (apni `uid` wali) attempts naye-se-purane order me dikhti hain (`data/repository/HistoryRepository.kt`).
+- Kisi bhi history row par tap karo to wahi Result screen (answer key + filters + explanation) dubara khulti hai, ab **read-only review mode** me — header me exam ka naam aur attempt ki date dikhti hai, aur "Close" button seedha History list par wapas le jaata hai (Home par nahi).
+- Offline support yahan bhi kaam karta hai: pehle load ho chuki history cache se turant dikh jaati hai, No-internet banner aur Retry button Home/Test screens jaisa hi hai.
+
+## Hindi/English toggle for questions (Phase 11)
+- `data/model/Question.kt` me ab har question ke sath optional Hindi fields bhi hote hain (`questionTextHi`, `optionAHi..DHi`, `explanationHi`) — sab default blank, Firestore me bhi automatically map ho jaate hain kyunki field names Kotlin property names se exactly match karte hain.
+- Admin Dashboard ke question form me ab ek collapsible **"+ Hindi translation add karo (optional)"** section hai — bharna zaroori nahi. Jis question ka Hindi bhara ho, edit karte waqt section apne aap khul jaata hai.
+- Test screen (header, timer ke bagal) aur Result/Review screen (Score card, top-right) dono par ek chhota **हिं / EN** button hai — tap karte hi turant switch ho jaata hai, koi screen reload/reset nahi hota (`util/LanguageManager.kt` SharedPreferences me choice save karta hai, poore app me shared rehti hai).
+- Fallback rule: agar kisi question/option/explanation ka Hindi translation nahi bhara, "हिं" select hone par bhi wahi field English me hi dikhta hai — kabhi khali nahi dikhta.
+- Test History me bhi yeh translation preserved rehta hai — `AnswerItem` submit ke time dono languages (raw English + raw Hindi) save karta hai, isliye purane attempt ka review bhi language toggle ke saath kaam karta hai.
 
 ## Notes
 - Negative marking off hai by default — `util/Constants.kt` me `NEGATIVE_MARK` change kar sakte ho.

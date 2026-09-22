@@ -21,6 +21,11 @@ object Constants {
 
     const val EXTRA_EXAM_ID = "extra_exam_id"
     const val EXTRA_EXAM_NAME = "extra_exam_name"
+    const val EXTRA_EXAM_CATEGORY = "extra_exam_category"
     const val EXTRA_TIME_LIMIT = "extra_time_limit"
     const val EXTRA_ANSWERS = "extra_answers"
+
+    // Test History (Phase 10)
+    const val EXTRA_ATTEMPT_DATE = "extra_attempt_date"
+    const val EXTRA_FROM_HISTORY = "extra_from_history"
 }

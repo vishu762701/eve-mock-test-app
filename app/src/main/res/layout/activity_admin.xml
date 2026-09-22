@@ -165,6 +165,85 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp" />
 
+            <EditText
+                android:id="@+id/etExplanation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:hint="Explanation (optional) — kyun sahi hai"
+                android:inputType="textMultiLine|textCapSentences"
+                android:minLines="2" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnToggleHindi"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="-8dp"
+                android:text="+ Hindi translation add karo (optional)" />
+
+            <LinearLayout
+                android:id="@+id/groupHindi"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Hindi translation (optional — khali chhod sakte ho)"
+                    android:textColor="@color/eve_grey"
+                    android:textSize="13sp" />
+
+                <EditText
+                    android:id="@+id/etQuestionHi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:hint="Question text (Hindi)"
+                    android:inputType="textMultiLine"
+                    android:minLines="2" />
+
+                <EditText
+                    android:id="@+id/etOptionAHi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Option A (Hindi)"
+                    android:inputType="text" />
+
+                <EditText
+                    android:id="@+id/etOptionBHi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Option B (Hindi)"
+                    android:inputType="text" />
+
+                <EditText
+                    android:id="@+id/etOptionCHi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Option C (Hindi)"
+                    android:inputType="text" />
+
+                <EditText
+                    android:id="@+id/etOptionDHi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Option D (Hindi)"
+                    android:inputType="text" />
+
+                <EditText
+                    android:id="@+id/etExplanationHi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Explanation (Hindi)"
+                    android:inputType="textMultiLine"
+                    android:minLines="2" />
+            </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

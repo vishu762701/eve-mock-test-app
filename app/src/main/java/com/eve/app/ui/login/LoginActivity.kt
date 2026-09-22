@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.eve.app.R
 import com.eve.app.databinding.ActivityLoginBinding
 import com.eve.app.ui.home.MainActivity
+import com.eve.app.util.ThemeManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
@@ -49,6 +50,8 @@ class LoginActivity : AppCompatActivity() {
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        ThemeManager.setupToggleButton(this, binding.btnThemeToggle)
 
         binding.btnGoogle.setOnClickListener {
             val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)

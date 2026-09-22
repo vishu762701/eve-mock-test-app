@@ -46,7 +46,14 @@ class ExamRepository(
             "optionB" to q.optionB,
             "optionC" to q.optionC,
             "optionD" to q.optionD,
-            "correctAnswer" to q.correctAnswer
+            "correctAnswer" to q.correctAnswer,
+            "explanation" to q.explanation,
+            "questionTextHi" to q.questionTextHi,
+            "optionAHi" to q.optionAHi,
+            "optionBHi" to q.optionBHi,
+            "optionCHi" to q.optionCHi,
+            "optionDHi" to q.optionDHi,
+            "explanationHi" to q.explanationHi
         )
         db.collection("questions").add(data).await()
     }
@@ -59,7 +66,14 @@ class ExamRepository(
             "optionB" to q.optionB,
             "optionC" to q.optionC,
             "optionD" to q.optionD,
-            "correctAnswer" to q.correctAnswer
+            "correctAnswer" to q.correctAnswer,
+            "explanation" to q.explanation,
+            "questionTextHi" to q.questionTextHi,
+            "optionAHi" to q.optionAHi,
+            "optionBHi" to q.optionBHi,
+            "optionCHi" to q.optionCHi,
+            "optionDHi" to q.optionDHi,
+            "explanationHi" to q.explanationHi
         )
         db.collection("questions").document(q.id).set(data).await()
     }

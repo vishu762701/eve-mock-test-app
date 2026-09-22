@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Eve</string>
+    <string name="theme_toggle_to_dark">Dark mode on karo</string>
+    <string name="theme_toggle_to_light">Light mode on karo</string>
+    <string name="offline_banner_text">No internet — cached data dikha rahe hain</string>
 </resources>

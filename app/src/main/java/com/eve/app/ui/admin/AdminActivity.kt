@@ -92,6 +92,7 @@ class AdminActivity : AppCompatActivity() {
         binding.btnUpload.setOnClickListener { submitQuestion() }
         binding.btnCancelEdit.setOnClickListener { cancelEdit() }
         binding.btnAddAdmin.setOnClickListener { addAdmin() }
+        binding.btnToggleHindi.setOnClickListener { toggleHindiGroup() }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -189,8 +190,34 @@ class AdminActivity : AppCompatActivity() {
         binding.etOptionD.setText(q.optionD)
         val idx = listOf("A", "B", "C", "D").indexOf(q.correctAnswer)
         if (idx >= 0) binding.spCorrect.setSelection(idx)
+        binding.etExplanation.setText(q.explanation)
+        binding.etQuestionHi.setText(q.questionTextHi)
+        binding.etOptionAHi.setText(q.optionAHi)
+        binding.etOptionBHi.setText(q.optionBHi)
+        binding.etOptionCHi.setText(q.optionCHi)
+        binding.etOptionDHi.setText(q.optionDHi)
+        binding.etExplanationHi.setText(q.explanationHi)
+        // Agar pehle se koi Hindi translation bhari hai to section khud khul jaye
+        val hasHindi = listOf(
+            q.questionTextHi, q.optionAHi, q.optionBHi, q.optionCHi, q.optionDHi, q.explanationHi
+        ).any { it.isNotBlank() }
+        if (hasHindi) showHindiGroup()
         binding.btnUpload.text = "Update Question"
         binding.btnCancelEdit.visibility = View.VISIBLE
+    }
+
+    private fun toggleHindiGroup() {
+        if (binding.groupHindi.visibility == View.VISIBLE) hideHindiGroup() else showHindiGroup()
+    }
+
+    private fun showHindiGroup() {
+        binding.groupHindi.visibility = View.VISIBLE
+        binding.btnToggleHindi.text = "− Hindi translation hide karo"
+    }
+
+    private fun hideHindiGroup() {
+        binding.groupHindi.visibility = View.GONE
+        binding.btnToggleHindi.text = "+ Hindi translation add karo (optional)"
     }
 
     private fun cancelEdit() {
@@ -202,6 +229,14 @@ class AdminActivity : AppCompatActivity() {
         binding.etOptionC.text?.clear()
         binding.etOptionD.text?.clear()
         binding.spCorrect.setSelection(0)
+        binding.etExplanation.text?.clear()
+        binding.etQuestionHi.text?.clear()
+        binding.etOptionAHi.text?.clear()
+        binding.etOptionBHi.text?.clear()
+        binding.etOptionCHi.text?.clear()
+        binding.etOptionDHi.text?.clear()
+        binding.etExplanationHi.text?.clear()
+        hideHindiGroup()
         binding.btnUpload.text = "Upload to Firestore"
         binding.btnCancelEdit.visibility = View.GONE
     }
@@ -250,6 +285,13 @@ class AdminActivity : AppCompatActivity() {
         val c = binding.etOptionC.text.toString().trim()
         val d = binding.etOptionD.text.toString().trim()
         val correct = binding.spCorrect.selectedItem as String
+        val explanation = binding.etExplanation.text.toString().trim()
+        val qTextHi = binding.etQuestionHi.text.toString().trim()
+        val aHi = binding.etOptionAHi.text.toString().trim()
+        val bHi = binding.etOptionBHi.text.toString().trim()
+        val cHi = binding.etOptionCHi.text.toString().trim()
+        val dHi = binding.etOptionDHi.text.toString().trim()
+        val explanationHi = binding.etExplanationHi.text.toString().trim()
 
         if (qText.isEmpty() || a.isEmpty() || b.isEmpty() || c.isEmpty() || d.isEmpty()) {
             Toast.makeText(this, "Saari fields bharo", Toast.LENGTH_SHORT).show()
@@ -262,7 +304,11 @@ class AdminActivity : AppCompatActivity() {
                 examId = exam.id,
                 questionText = qText,
                 optionA = a, optionB = b, optionC = c, optionD = d,
-                correctAnswer = correct
+                correctAnswer = correct,
+                explanation = explanation,
+                questionTextHi = qTextHi,
+                optionAHi = aHi, optionBHi = bHi, optionCHi = cHi, optionDHi = dHi,
+                explanationHi = explanationHi
             )
             viewModel.updateQuestion(updated) { cancelEdit() }
         } else {
@@ -270,7 +316,11 @@ class AdminActivity : AppCompatActivity() {
                 examId = exam.id,
                 questionText = qText,
                 optionA = a, optionB = b, optionC = c, optionD = d,
-                correctAnswer = correct
+                correctAnswer = correct,
+                explanation = explanation,
+                questionTextHi = qTextHi,
+                optionAHi = aHi, optionBHi = bHi, optionCHi = cHi, optionDHi = dHi,
+                explanationHi = explanationHi
             )
             viewModel.addQuestion(q) { cancelEdit() }
         }

@@ -7,4 +7,6 @@
     <color name="eve_red">#C62828</color>
     <color name="eve_grey">#757575</color>
     <color name="eve_bg">#F5F6FA</color>
+    <color name="eve_offline_bg">#FFF3CD</color>
+    <color name="eve_offline_text">#7A5B00</color>
 </resources>

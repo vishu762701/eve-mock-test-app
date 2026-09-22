@@ -8,4 +8,6 @@
     <color name="eve_red">#EF5350</color>
     <color name="eve_grey">#B0B0B0</color>
     <color name="eve_bg">#121212</color>
+    <color name="eve_offline_bg">#4A3B00</color>
+    <color name="eve_offline_text">#FFD666</color>
 </resources>

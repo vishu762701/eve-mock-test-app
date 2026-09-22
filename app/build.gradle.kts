@@ -5,6 +5,14 @@ plugins {
     id("com.google.gms.google-services")
 }
 
+// Versioning (Phase 8): CI in dono env vars ko set karke override kar deti hai
+// (versionCode = GitHub Actions run number, versionName = git tag jaise "v1.2.0" -> "1.2.0").
+// Local build me (Android Studio / seedha `gradle` command) yeh env vars set nahi hote,
+// isliye neeche wali default values (versionCode = 1, versionName = "1.0") use ho jaati
+// hain — koi extra setup ki zaroorat nahi local dev ke liye.
+val appVersionCode = (System.getenv("APP_VERSION_CODE") ?: "1").toInt()
+val appVersionName = System.getenv("APP_VERSION_NAME") ?: "1.0"
+
 android {
     namespace = "com.eve.app"
     compileSdk = 34
@@ -13,24 +21,46 @@ android {
         applicationId = "com.eve.app"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = appVersionCode
+        versionName = appVersionName
     }
 
-    // Fixed debug keystore (repo me committed) -> SHA-1 hamesha same rahega,
-    // isliye GitHub Actions ke APK me bhi Google Sign-in chalega.
     signingConfigs {
+        // Fixed debug keystore (repo me committed) -> SHA-1 hamesha same rahega,
+        // isliye GitHub Actions ke debug APK me bhi Google Sign-in chalega.
         getByName("debug") {
             storeFile = file("eve-debug.keystore")
             storePassword = "android"
             keyAlias = "eve"
             keyPassword = "android"
         }
+
+        // Real release keystore KABHI repo me commit nahi hota. GitHub Actions isko
+        // GitHub Secrets se decode karke RELEASE_STORE_FILE env var me path deta hai
+        // (dekho .github/workflows/release.yml). Local machine par agar yeh env vars
+        // set nahi hain, to release build automatically debug keystore se hi sign ho
+        // jaayega (taaki `gradle assembleRelease` local par bhi bina secrets ke chal
+        // jaaye) — sirf CI se banaya hua release Play Store ke liye asli signed hota hai.
+        create("release") {
+            val storeFilePath = System.getenv("RELEASE_STORE_FILE")
+            if (storeFilePath != null) {
+                storeFile = file(storeFilePath)
+                storePassword = System.getenv("RELEASE_STORE_PASSWORD")
+                keyAlias = System.getenv("RELEASE_KEY_ALIAS")
+                keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
+            } else {
+                storeFile = file("eve-debug.keystore")
+                storePassword = "android"
+                keyAlias = "eve"
+                keyPassword = "android"
+            }
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }

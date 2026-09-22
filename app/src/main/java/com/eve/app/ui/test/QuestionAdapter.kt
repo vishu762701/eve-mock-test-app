@@ -10,16 +10,31 @@ import com.eve.app.databinding.ItemQuestionBinding
 class QuestionAdapter(
     private val questions: List<Question>,
     private val getSelected: (Int) -> String,
-    private val onSelect: (Int, String) -> Unit
+    private val onSelect: (Int, String) -> Unit,
+    private val getBookmarked: (Int) -> Boolean,
+    private val onToggleBookmark: (Int) -> Unit,
+    private val isHindi: () -> Boolean
 ) : RecyclerView.Adapter<QuestionAdapter.VH>() {
 
     inner class VH(private val b: ItemQuestionBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(position: Int, q: Question) {
-            b.tvQuestion.text = "Q${position + 1}. ${q.questionText}"
-            b.rbA.text = "A. ${q.optionA}"
-            b.rbB.text = "B. ${q.optionB}"
-            b.rbC.text = "C. ${q.optionC}"
-            b.rbD.text = "D. ${q.optionD}"
+            val hindi = isHindi()
+            b.tvQuestion.text = "Q${position + 1}. ${q.displayQuestionText(hindi)}"
+            b.rbA.text = "A. ${q.displayOptionText("A", hindi)}"
+            b.rbB.text = "B. ${q.displayOptionText("B", hindi)}"
+            b.rbC.text = "C. ${q.displayOptionText("C", hindi)}"
+            b.rbD.text = "D. ${q.displayOptionText("D", hindi)}"
+
+            fun refreshBookmarkIcon() {
+                b.btnBookmark.setImageResource(
+                    if (getBookmarked(position)) R.drawable.ic_star_filled else R.drawable.ic_star_outline
+                )
+            }
+            refreshBookmarkIcon()
+            b.btnBookmark.setOnClickListener {
+                onToggleBookmark(position)
+                refreshBookmarkIcon()
+            }
 
             // Recycled view me purana state / listener saaf karo, phir saved answer restore karo
             b.rgOptions.setOnCheckedChangeListener(null)

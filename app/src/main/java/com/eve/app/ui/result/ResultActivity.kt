@@ -9,21 +9,40 @@ import com.eve.app.data.model.AnswerItem
 import com.eve.app.databinding.ActivityResultBinding
 import com.eve.app.ui.home.MainActivity
 import com.eve.app.util.Constants
+import com.eve.app.util.LanguageManager
 
 class ResultActivity : AppCompatActivity() {
+
+    private lateinit var allItems: List<AnswerItem>
+    private val adapter = AnswerAdapter()
+    private var fromHistory = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val items: List<AnswerItem> =
+        allItems =
             IntentCompat.getParcelableArrayListExtra(intent, Constants.EXTRA_ANSWERS, AnswerItem::class.java)
                 ?: emptyList()
 
-        val total = items.size
-        val correct = items.count { it.isCorrect }
-        val unattempted = items.count { !it.isAttempted }
+        // Test History (Phase 10): yeh screen ek purane attempt ka review bhi ho sakti hai
+        fromHistory = intent.getBooleanExtra(Constants.EXTRA_FROM_HISTORY, false)
+        val examName = intent.getStringExtra(Constants.EXTRA_EXAM_NAME)
+        val attemptDate = intent.getStringExtra(Constants.EXTRA_ATTEMPT_DATE)
+        if (fromHistory && !examName.isNullOrBlank()) {
+            binding.tvResultSubtitle.visibility = android.view.View.VISIBLE
+            binding.tvResultSubtitle.text = if (!attemptDate.isNullOrBlank()) {
+                "$examName  •  $attemptDate"
+            } else {
+                examName
+            }
+            binding.btnHome.text = "Close"
+        }
+
+        val total = allItems.size
+        val correct = allItems.count { it.isCorrect }
+        val unattempted = allItems.count { !it.isAttempted }
         val wrong = total - correct - unattempted
         val score = correct - wrong * Constants.NEGATIVE_MARK
 
@@ -31,18 +50,45 @@ class ResultActivity : AppCompatActivity() {
         binding.tvScore.text = "$scoreText / $total"
         binding.tvStats.text = "Correct: $correct   Wrong: $wrong   Unattempted: $unattempted"
 
-        binding.rvAnswers.layoutManager = LinearLayoutManager(this)
-        binding.rvAnswers.adapter = AnswerAdapter(items)
+        binding.chipAll.text = "All ($total)"
+        binding.chipCorrect.text = "Correct ($correct)"
+        binding.chipWrong.text = "Wrong ($wrong)"
+        binding.chipNotAttempted.text = "Not Attempted ($unattempted)"
 
-        binding.btnHome.setOnClickListener { goHome() }
+        binding.rvAnswers.layoutManager = LinearLayoutManager(this)
+        binding.rvAnswers.adapter = adapter
+        adapter.submit(allItems)
+        adapter.setHindi(LanguageManager.isHindi(this))
+
+        LanguageManager.setupToggleButton(this, binding.btnLanguage) { hindi ->
+            adapter.setHindi(hindi)
+        }
+
+        binding.chipGroupFilter.setOnCheckedStateChangeListener { _, checkedIds ->
+            val filtered = when (checkedIds.firstOrNull()) {
+                binding.chipCorrect.id -> allItems.filter { it.isCorrect }
+                binding.chipWrong.id -> allItems.filter { it.isAttempted && !it.isCorrect }
+                binding.chipNotAttempted.id -> allItems.filter { !it.isAttempted }
+                else -> allItems
+            }
+            adapter.submit(filtered)
+            binding.rvAnswers.scrollToPosition(0)
+        }
+
+        binding.btnHome.setOnClickListener { close() }
     }
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        goHome()
+        close()
     }
 
-    private fun goHome() {
+    /** History se review khola tha to bas finish karo (History list par wapas), warna Home pe jao. */
+    private fun close() {
+        if (fromHistory) {
+            finish()
+            return
+        }
         startActivity(
             Intent(this, MainActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)

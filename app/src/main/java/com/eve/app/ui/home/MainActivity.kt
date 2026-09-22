@@ -12,9 +12,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.databinding.ActivityMainBinding
 import com.eve.app.ui.admin.AdminActivity
+import com.eve.app.ui.history.HistoryActivity
 import com.eve.app.ui.login.LoginActivity
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.Constants
+import com.eve.app.util.NetworkUtil
+import com.eve.app.util.ThemeManager
 import com.eve.app.util.UiState
 import com.eve.app.util.isHardcodedAdmin
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -34,6 +37,7 @@ class MainActivity : AppCompatActivity() {
             Intent(this, TestActivity::class.java)
                 .putExtra(Constants.EXTRA_EXAM_ID, exam.id)
                 .putExtra(Constants.EXTRA_EXAM_NAME, exam.examName)
+                .putExtra(Constants.EXTRA_EXAM_CATEGORY, exam.categoryOrOther)
                 .putExtra(Constants.EXTRA_TIME_LIMIT, exam.timeLimitMinutes)
         )
     }
@@ -52,6 +56,8 @@ class MainActivity : AppCompatActivity() {
 
         binding.tvWelcome.text = "Hi, ${user.displayName ?: "Student"}"
 
+        ThemeManager.setupToggleButton(this, binding.btnThemeToggle)
+
         // Hardcoded admin ho to turant dikhao (fast path, koi network wait nahi)
         if (isHardcodedAdmin(user.email)) {
             showAdminButton()
@@ -63,13 +69,23 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnLogout.setOnClickListener { logout() }
+        binding.btnHistory.setOnClickListener {
+            startActivity(Intent(this, HistoryActivity::class.java))
+        }
 
         binding.rvExams.layoutManager = LinearLayoutManager(this)
         binding.rvExams.adapter = adapter
 
+        binding.btnRetry.setOnClickListener { viewModel.load() }
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.state.collect { render(it) }
+                launch { viewModel.state.collect { render(it) } }
+                launch {
+                    NetworkUtil.observe(this@MainActivity).collect { online ->
+                        binding.tvOfflineBanner.visibility = if (online) View.GONE else View.VISIBLE
+                    }
+                }
             }
         }
     }
@@ -96,6 +112,7 @@ class MainActivity : AppCompatActivity() {
             }
             is UiState.Success -> {
                 binding.progressGroup.visibility = View.GONE
+                binding.btnRetry.visibility = View.GONE
                 val data = state.data
                 renderChips(data.categories, data.selectedCategory)
                 adapter.submit(data.items)
@@ -116,9 +133,16 @@ class MainActivity : AppCompatActivity() {
             is UiState.Error -> {
                 binding.progressGroup.visibility = View.GONE
                 binding.messageGroup.visibility = View.VISIBLE
+                binding.btnRetry.visibility = View.VISIBLE
                 binding.ivMessageIcon.setImageResource(com.eve.app.R.drawable.ic_state_error)
-                binding.tvMessage.text = "Kuch gadbad ho gayi"
-                binding.tvMessageSub.text = state.message
+                if (NetworkUtil.isOnline(this)) {
+                    binding.tvMessage.text = "Kuch gadbad ho gayi"
+                    binding.tvMessageSub.text = state.message
+                } else {
+                    binding.tvMessage.text = "No internet connection"
+                    binding.tvMessageSub.text =
+                        "Exams abhi tak cache nahi hue. Network wapas aane par retry karo."
+                }
                 binding.chipGroupCategory.visibility = View.GONE
             }
         }

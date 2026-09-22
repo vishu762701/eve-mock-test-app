@@ -16,6 +16,8 @@ import com.eve.app.data.model.Question
 import com.eve.app.databinding.ActivityTestBinding
 import com.eve.app.ui.result.ResultActivity
 import com.eve.app.util.Constants
+import com.eve.app.util.LanguageManager
+import com.eve.app.util.NetworkUtil
 import com.eve.app.util.UiState
 import kotlinx.coroutines.launch
 
@@ -27,6 +29,7 @@ class TestActivity : AppCompatActivity() {
     private lateinit var examId: String
     private var timeLimit = 30
     private var examName = ""
+    private var examCategory = ""
     private var totalQuestions = 0
     private var submitted = false
 
@@ -37,6 +40,7 @@ class TestActivity : AppCompatActivity() {
 
         examId = intent.getStringExtra(Constants.EXTRA_EXAM_ID) ?: ""
         examName = intent.getStringExtra(Constants.EXTRA_EXAM_NAME) ?: "Test"
+        examCategory = intent.getStringExtra(Constants.EXTRA_EXAM_CATEGORY) ?: ""
         timeLimit = intent.getIntExtra(Constants.EXTRA_TIME_LIMIT, 30)
 
         viewModel.start(examId, timeLimit)
@@ -48,6 +52,11 @@ class TestActivity : AppCompatActivity() {
             binding.viewPager.currentItem = binding.viewPager.currentItem + 1
         }
         binding.btnSubmit.setOnClickListener { confirmSubmit() }
+        binding.btnRetry.setOnClickListener { viewModel.retry(examId, timeLimit) }
+
+        LanguageManager.setupToggleButton(this, binding.btnLanguage) {
+            binding.viewPager.adapter?.notifyDataSetChanged()
+        }
 
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) = updateNav(position)
@@ -72,6 +81,11 @@ class TestActivity : AppCompatActivity() {
                 launch { viewModel.questions.collect { renderQuestions(it) } }
                 launch { viewModel.remainingSeconds.collect { renderTimer(it) } }
                 launch { viewModel.timeUp.collect { if (it) submit() } }
+                launch {
+                    NetworkUtil.observe(this@TestActivity).collect { online ->
+                        binding.tvOfflineBanner.visibility = if (online) View.GONE else View.VISIBLE
+                    }
+                }
             }
         }
     }
@@ -85,9 +99,16 @@ class TestActivity : AppCompatActivity() {
             is UiState.Error -> {
                 binding.progressGroup.visibility = View.GONE
                 binding.messageGroup.visibility = View.VISIBLE
+                binding.btnRetry.visibility = View.VISIBLE
                 binding.ivMessageIcon.setImageResource(com.eve.app.R.drawable.ic_state_error)
-                binding.tvMessage.text = "Kuch gadbad ho gayi"
-                binding.tvMessageSub.text = state.message
+                if (NetworkUtil.isOnline(this)) {
+                    binding.tvMessage.text = "Kuch gadbad ho gayi"
+                    binding.tvMessageSub.text = state.message
+                } else {
+                    binding.tvMessage.text = "No internet connection"
+                    binding.tvMessageSub.text =
+                        "Is exam ke questions abhi tak cache nahi hue. Network wapas aane par retry karo."
+                }
             }
             is UiState.Success -> {
                 binding.progressGroup.visibility = View.GONE
@@ -95,6 +116,7 @@ class TestActivity : AppCompatActivity() {
                 totalQuestions = list.size
                 if (list.isEmpty()) {
                     binding.messageGroup.visibility = View.VISIBLE
+                    binding.btnRetry.visibility = View.GONE
                     binding.ivMessageIcon.setImageResource(com.eve.app.R.drawable.ic_state_empty)
                     binding.tvMessage.text = "Is exam me abhi koi question nahi hai"
                     binding.tvMessageSub.text = "Admin se question upload karne ko bolo"
@@ -107,7 +129,10 @@ class TestActivity : AppCompatActivity() {
                     binding.viewPager.adapter = QuestionAdapter(
                         list,
                         getSelected = { viewModel.getAnswer(it) },
-                        onSelect = { pos, letter -> viewModel.setAnswer(pos, letter) }
+                        onSelect = { pos, letter -> viewModel.setAnswer(pos, letter) },
+                        getBookmarked = { viewModel.isBookmarked(it) },
+                        onToggleBookmark = { viewModel.toggleBookmark(it) },
+                        isHindi = { LanguageManager.isHindi(this) }
                     )
                 }
                 updateNav(binding.viewPager.currentItem)
@@ -146,6 +171,7 @@ class TestActivity : AppCompatActivity() {
         submitted = true
         viewModel.stopTimer()
         val items = viewModel.buildAnswerItems()
+        viewModel.saveAttempt(examId, examName, examCategory, items)
         startActivity(
             Intent(this, ResultActivity::class.java)
                 .putParcelableArrayListExtra(Constants.EXTRA_ANSWERS, items)
