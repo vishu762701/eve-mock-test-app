@@ -2,17 +2,21 @@ package com.eve.app.ui.admin
 
 import android.os.Bundle
 import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.data.model.Exam
 import com.eve.app.data.model.Question
+import com.eve.app.data.repository.AdminRepository
+import com.eve.app.data.repository.ExamRepository
 import com.eve.app.databinding.ActivityAdminBinding
-import com.eve.app.util.isAdminEmail
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -20,17 +24,35 @@ class AdminActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAdminBinding
     private val viewModel: AdminViewModel by viewModels()
+    private val adminRepo = AdminRepository()
+
     private var exams: List<Exam> = emptyList()
+    private var editingQuestion: Question? = null
+
+    private val questionAdapter = QuestionManageAdapter(
+        onEdit = { startEdit(it) },
+        onDelete = { confirmDeleteQuestion(it) }
+    )
+
+    private val adminEmailAdapter = AdminEmailAdapter(
+        onRemove = { confirmRemoveAdmin(it) }
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Double check: sirf admin hi is screen par reh sakta hai
-        if (!isAdminEmail(FirebaseAuth.getInstance().currentUser?.email)) {
-            finish()
-            return
+        val email = FirebaseAuth.getInstance().currentUser?.email
+        lifecycleScope.launch {
+            // Double check: hardcoded ya Firestore dono se admin check karo
+            if (!adminRepo.isAdmin(email)) {
+                finish()
+                return@launch
+            }
+            setupUi()
         }
+    }
 
+    private fun setupUi() {
         binding = ActivityAdminBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -38,8 +60,26 @@ class AdminActivity : AppCompatActivity() {
             this, android.R.layout.simple_spinner_dropdown_item, listOf("A", "B", "C", "D")
         )
 
+        binding.rvQuestions.layoutManager = LinearLayoutManager(this)
+        binding.rvQuestions.adapter = questionAdapter
+
+        binding.rvAdmins.layoutManager = LinearLayoutManager(this)
+        binding.rvAdmins.adapter = adminEmailAdapter
+
+        binding.spExam.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val exam = exams.getOrNull(position)
+                viewModel.loadQuestions(exam?.id ?: "")
+                cancelEdit()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
         binding.btnAddExam.setOnClickListener { addExam() }
-        binding.btnUpload.setOnClickListener { uploadQuestion() }
+        binding.btnDeleteExam.setOnClickListener { confirmDeleteExam() }
+        binding.btnUpload.setOnClickListener { submitQuestion() }
+        binding.btnCancelEdit.setOnClickListener { cancelEdit() }
+        binding.btnAddAdmin.setOnClickListener { addAdmin() }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -51,6 +91,22 @@ class AdminActivity : AppCompatActivity() {
                             android.R.layout.simple_spinner_dropdown_item,
                             list.map { it.examName }
                         )
+                        val selected = exams.getOrNull(binding.spExam.selectedItemPosition)
+                        viewModel.loadQuestions(selected?.id ?: "")
+                    }
+                }
+                launch {
+                    viewModel.questions.collect { list ->
+                        questionAdapter.submit(list)
+                        binding.tvNoQuestions.visibility =
+                            if (list.isEmpty()) View.VISIBLE else View.GONE
+                    }
+                }
+                launch {
+                    viewModel.admins.collect { list ->
+                        adminEmailAdapter.submit(list)
+                        binding.tvNoAdmins.visibility =
+                            if (list.isEmpty()) View.VISIBLE else View.GONE
                     }
                 }
                 launch {
@@ -58,6 +114,7 @@ class AdminActivity : AppCompatActivity() {
                         binding.progress.visibility = if (it) View.VISIBLE else View.GONE
                         binding.btnUpload.isEnabled = !it
                         binding.btnAddExam.isEnabled = !it
+                        binding.btnDeleteExam.isEnabled = !it
                     }
                 }
                 launch {
@@ -85,7 +142,78 @@ class AdminActivity : AppCompatActivity() {
         }
     }
 
-    private fun uploadQuestion() {
+    private fun confirmDeleteExam() {
+        val exam = exams.getOrNull(binding.spExam.selectedItemPosition) ?: return
+        AlertDialog.Builder(this)
+            .setTitle("Exam delete karein?")
+            .setMessage("'${exam.examName}' aur uske saare questions permanently delete ho jayenge.")
+            .setPositiveButton("Delete") { _, _ ->
+                viewModel.deleteExam(exam.id) { cancelEdit() }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun startEdit(q: Question) {
+        editingQuestion = q
+        binding.tvFormTitle.text = "3. Question edit karo"
+        binding.etQuestion.setText(q.questionText)
+        binding.etOptionA.setText(q.optionA)
+        binding.etOptionB.setText(q.optionB)
+        binding.etOptionC.setText(q.optionC)
+        binding.etOptionD.setText(q.optionD)
+        val idx = listOf("A", "B", "C", "D").indexOf(q.correctAnswer)
+        if (idx >= 0) binding.spCorrect.setSelection(idx)
+        binding.btnUpload.text = "Update Question"
+        binding.btnCancelEdit.visibility = View.VISIBLE
+    }
+
+    private fun cancelEdit() {
+        editingQuestion = null
+        binding.tvFormTitle.text = "3. Naya question upload karo"
+        binding.etQuestion.text?.clear()
+        binding.etOptionA.text?.clear()
+        binding.etOptionB.text?.clear()
+        binding.etOptionC.text?.clear()
+        binding.etOptionD.text?.clear()
+        binding.spCorrect.setSelection(0)
+        binding.btnUpload.text = "Upload to Firestore"
+        binding.btnCancelEdit.visibility = View.GONE
+    }
+
+    private fun confirmDeleteQuestion(q: Question) {
+        AlertDialog.Builder(this)
+            .setTitle("Question delete karein?")
+            .setMessage(q.questionText)
+            .setPositiveButton("Delete") { _, _ ->
+                viewModel.deleteQuestion(q)
+                if (editingQuestion?.id == q.id) cancelEdit()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun addAdmin() {
+        val email = binding.etAdminEmail.text.toString().trim()
+        if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(this, "Valid email daalo", Toast.LENGTH_SHORT).show()
+            return
+        }
+        viewModel.addAdmin(email) {
+            binding.etAdminEmail.text?.clear()
+        }
+    }
+
+    private fun confirmRemoveAdmin(email: String) {
+        AlertDialog.Builder(this)
+            .setTitle("Admin remove karein?")
+            .setMessage("$email ab admin nahi rahega.")
+            .setPositiveButton("Remove") { _, _ -> viewModel.removeAdmin(email) }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun submitQuestion() {
         if (exams.isEmpty()) {
             Toast.makeText(this, "Pehle ek exam banao", Toast.LENGTH_SHORT).show()
             return
@@ -103,19 +231,23 @@ class AdminActivity : AppCompatActivity() {
             return
         }
 
-        val q = Question(
-            examId = exam.id,
-            questionText = qText,
-            optionA = a, optionB = b, optionC = c, optionD = d,
-            correctAnswer = correct
-        )
-        viewModel.addQuestion(q) {
-            binding.etQuestion.text?.clear()
-            binding.etOptionA.text?.clear()
-            binding.etOptionB.text?.clear()
-            binding.etOptionC.text?.clear()
-            binding.etOptionD.text?.clear()
-            binding.etQuestion.requestFocus()
+        val editing = editingQuestion
+        if (editing != null) {
+            val updated = editing.copy(
+                examId = exam.id,
+                questionText = qText,
+                optionA = a, optionB = b, optionC = c, optionD = d,
+                correctAnswer = correct
+            )
+            viewModel.updateQuestion(updated) { cancelEdit() }
+        } else {
+            val q = Question(
+                examId = exam.id,
+                questionText = qText,
+                optionA = a, optionB = b, optionC = c, optionD = d,
+                correctAnswer = correct
+            )
+            viewModel.addQuestion(q) { cancelEdit() }
         }
     }
 }

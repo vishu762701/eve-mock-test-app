@@ -28,6 +28,15 @@ class ExamRepository(
         db.collection("exams").add(data).await()
     }
 
+    suspend fun deleteExam(examId: String) {
+        // Exam ke saath uske saare questions bhi delete karo
+        val questions = db.collection("questions").whereEqualTo("examId", examId).get().await()
+        for (doc in questions.documents) {
+            db.collection("questions").document(doc.id).delete().await()
+        }
+        db.collection("exams").document(examId).delete().await()
+    }
+
     suspend fun addQuestion(q: Question) {
         val data = hashMapOf(
             "examId" to q.examId,
@@ -39,5 +48,22 @@ class ExamRepository(
             "correctAnswer" to q.correctAnswer
         )
         db.collection("questions").add(data).await()
+    }
+
+    suspend fun updateQuestion(q: Question) {
+        val data = hashMapOf(
+            "examId" to q.examId,
+            "questionText" to q.questionText,
+            "optionA" to q.optionA,
+            "optionB" to q.optionB,
+            "optionC" to q.optionC,
+            "optionD" to q.optionD,
+            "correctAnswer" to q.correctAnswer
+        )
+        db.collection("questions").document(q.id).set(data).await()
+    }
+
+    suspend fun deleteQuestion(questionId: String) {
+        db.collection("questions").document(questionId).delete().await()
     }
 }

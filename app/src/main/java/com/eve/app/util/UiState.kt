@@ -6,5 +6,6 @@ sealed interface UiState<out T> {
     data class Error(val message: String) : UiState<Nothing>
 }
 
-fun isAdminEmail(email: String?): Boolean =
+/** Sirf hardcoded list check karta hai - fast, no network chahiye */
+fun isHardcodedAdmin(email: String?): Boolean =
     email != null && Constants.ADMIN_EMAILS.any { it.equals(email, ignoreCase = true) }

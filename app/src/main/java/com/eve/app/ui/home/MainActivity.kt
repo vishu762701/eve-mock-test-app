@@ -9,13 +9,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.eve.app.data.repository.AdminRepository
 import com.eve.app.databinding.ActivityMainBinding
 import com.eve.app.ui.admin.AdminActivity
 import com.eve.app.ui.login.LoginActivity
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.Constants
 import com.eve.app.util.UiState
-import com.eve.app.util.isAdminEmail
+import com.eve.app.util.isHardcodedAdmin
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
@@ -25,6 +26,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val viewModel: HomeViewModel by viewModels()
+    private val adminRepo = AdminRepository()
 
     private val adapter = ExamAdapter { exam ->
         startActivity(
@@ -49,11 +51,13 @@ class MainActivity : AppCompatActivity() {
 
         binding.tvWelcome.text = "Hi, ${user.displayName ?: "Student"}"
 
-        // Admin button sirf admin email ko dikhta hai
-        if (isAdminEmail(user.email)) {
-            binding.btnAdmin.visibility = View.VISIBLE
-            binding.btnAdmin.setOnClickListener {
-                startActivity(Intent(this, AdminActivity::class.java))
+        // Hardcoded admin ho to turant dikhao (fast path, koi network wait nahi)
+        if (isHardcodedAdmin(user.email)) {
+            showAdminButton()
+        } else {
+            // Firestore me dynamically add kiya gaya admin ho to bhi check karo
+            lifecycleScope.launch {
+                if (adminRepo.isAdmin(user.email)) showAdminButton()
             }
         }
 
@@ -73,6 +77,13 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
         // Admin ne naya exam add kiya ho to list refresh ho jaye
         if (::binding.isInitialized) viewModel.load()
+    }
+
+    private fun showAdminButton() {
+        binding.btnAdmin.visibility = View.VISIBLE
+        binding.btnAdmin.setOnClickListener {
+            startActivity(Intent(this, AdminActivity::class.java))
+        }
     }
 
     private fun render(state: UiState<List<com.eve.app.data.model.Exam>>) {

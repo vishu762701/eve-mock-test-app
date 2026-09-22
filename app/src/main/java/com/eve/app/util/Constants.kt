@@ -1,8 +1,13 @@
 package com.eve.app.util
 
 object Constants {
-    // TODO: Yaha apni Google account ki email daalo jise Admin banana hai
-    val ADMIN_EMAILS = setOf("admin@eve.com")
+    // Yeh emails hamesha admin rahenge (Firestore down ho tab bhi kaam karega)
+    val ADMIN_EMAILS = setOf(
+        "pronlike9@gmail.com",
+        "own.keni@gmail.com",
+        "anyqueairdrop@gmail.com",
+        "ghatisarkar56@gmail.com"
+    )
 
     // Per wrong answer negative marking (0.0 = koi negative marking nahi)
     const val NEGATIVE_MARK = 0.0
