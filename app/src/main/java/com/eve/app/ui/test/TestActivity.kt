@@ -31,6 +31,7 @@ class TestActivity : AppCompatActivity() {
     private var timeLimit = 30
     private var examName = ""
     private var examCategory = ""
+    private var topic = ""
     private var totalQuestions = 0
     private var submitted = false
 
@@ -43,8 +44,9 @@ class TestActivity : AppCompatActivity() {
         examName = intent.getStringExtra(Constants.EXTRA_EXAM_NAME) ?: "Test"
         examCategory = intent.getStringExtra(Constants.EXTRA_EXAM_CATEGORY) ?: ""
         timeLimit = intent.getIntExtra(Constants.EXTRA_TIME_LIMIT, 30)
+        topic = intent.getStringExtra(Constants.EXTRA_TOPIC).orEmpty()
 
-        viewModel.start(examId, timeLimit)
+        viewModel.start(examId, timeLimit, topic)
         // Phase 15: exam start event — is exam ko kitni baar attempt kiya gaya, yeh track karta hai
         AnalyticsHelper.logExamStart(this, examId, examName, examCategory)
 
@@ -55,7 +57,7 @@ class TestActivity : AppCompatActivity() {
             binding.viewPager.currentItem = binding.viewPager.currentItem + 1
         }
         binding.btnSubmit.setOnClickListener { confirmSubmit() }
-        binding.btnRetry.setOnClickListener { viewModel.retry(examId, timeLimit) }
+        binding.btnRetry.setOnClickListener { viewModel.retry(examId, timeLimit, topic) }
 
         LanguageManager.setupToggleButton(this, binding.btnLanguage) {
             binding.viewPager.adapter?.notifyDataSetChanged()
@@ -153,7 +155,8 @@ class TestActivity : AppCompatActivity() {
 
     private fun updateNav(position: Int) {
         if (totalQuestions == 0) return
-        binding.tvProgress.text = "$examName  •  Question ${position + 1} / $totalQuestions"
+        val title = if (topic.isBlank()) examName else "$examName • $topic Practice"
+        binding.tvProgress.text = "$title  •  Question ${position + 1} / $totalQuestions"
         binding.btnPrev.isEnabled = position > 0
         binding.btnNext.isEnabled = position < totalQuestions - 1
     }
@@ -174,13 +177,14 @@ class TestActivity : AppCompatActivity() {
         submitted = true
         viewModel.stopTimer()
         val items = viewModel.buildAnswerItems()
-        viewModel.saveAttempt(examId, examName, examCategory, items)
+        val attemptName = if (topic.isBlank()) examName else "$examName • $topic Practice"
+        viewModel.saveAttempt(examId, attemptName, examCategory, items)
 
         // Phase 15: exam submit event + score summary (average score / weak exams Console me dikhenge)
         AnalyticsHelper.logExamSubmit(
             context = this,
             examId = examId,
-            examName = examName,
+            examName = attemptName,
             category = examCategory,
             correct = items.count { it.isCorrect },
             wrong = items.count { it.isAttempted && !it.isCorrect },
@@ -192,7 +196,7 @@ class TestActivity : AppCompatActivity() {
             Intent(this, ResultActivity::class.java)
                 .putParcelableArrayListExtra(Constants.EXTRA_ANSWERS, items)
                 .putExtra(Constants.EXTRA_EXAM_ID, examId)
-                .putExtra(Constants.EXTRA_EXAM_NAME, examName)
+                .putExtra(Constants.EXTRA_EXAM_NAME, attemptName)
                 .putExtra(Constants.EXTRA_EXAM_CATEGORY, examCategory)
         )
         finish()
