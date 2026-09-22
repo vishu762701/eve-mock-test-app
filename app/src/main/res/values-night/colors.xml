@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark mode: thoda lighter indigo taaki buttons/accents dark background par crisp dikhein -->
+    <color name="eve_primary">#5C6BC0</color>
+    <color name="eve_primary_dark">#3949AB</color>
+    <color name="eve_accent">#FFAB40</color>
+    <color name="eve_green">#66BB6A</color>
+    <color name="eve_red">#EF5350</color>
+    <color name="eve_grey">#B0B0B0</color>
+    <color name="eve_bg">#121212</color>
+</resources>

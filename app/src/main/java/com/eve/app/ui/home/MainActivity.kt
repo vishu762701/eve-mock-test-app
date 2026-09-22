@@ -19,6 +19,7 @@ import com.eve.app.util.UiState
 import com.eve.app.util.isHardcodedAdmin
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.material.chip.Chip
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -86,23 +87,66 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun render(state: UiState<List<com.eve.app.data.model.Exam>>) {
+    private fun render(state: UiState<HomeUiData>) {
         when (state) {
             is UiState.Loading -> {
-                binding.progress.visibility = View.VISIBLE
-                binding.tvMessage.visibility = View.GONE
+                binding.progressGroup.visibility = View.VISIBLE
+                binding.messageGroup.visibility = View.GONE
+                binding.chipGroupCategory.visibility = View.GONE
             }
             is UiState.Success -> {
-                binding.progress.visibility = View.GONE
-                adapter.submit(state.data)
-                binding.tvMessage.visibility = if (state.data.isEmpty()) View.VISIBLE else View.GONE
-                binding.tvMessage.text = "Abhi koi exam available nahi hai"
+                binding.progressGroup.visibility = View.GONE
+                val data = state.data
+                renderChips(data.categories, data.selectedCategory)
+                adapter.submit(data.items)
+                val empty = data.items.isEmpty()
+                binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
+                if (empty) {
+                    binding.ivMessageIcon.setImageResource(com.eve.app.R.drawable.ic_state_empty)
+                    if (data.categories.size <= 1) {
+                        binding.tvMessage.text = "Abhi koi exam available nahi hai"
+                        binding.tvMessageSub.text = "Admin ke naya exam add karte hi yahan dikhega"
+                    } else {
+                        binding.tvMessage.text = "Is category me abhi koi exam nahi hai"
+                        binding.tvMessageSub.text = "Koi aur category try karo ya \"All\" par wapas jao"
+                    }
+                }
+                binding.chipGroupCategory.visibility = if (data.categories.size <= 1) View.GONE else View.VISIBLE
             }
             is UiState.Error -> {
-                binding.progress.visibility = View.GONE
-                binding.tvMessage.visibility = View.VISIBLE
-                binding.tvMessage.text = state.message
+                binding.progressGroup.visibility = View.GONE
+                binding.messageGroup.visibility = View.VISIBLE
+                binding.ivMessageIcon.setImageResource(com.eve.app.R.drawable.ic_state_error)
+                binding.tvMessage.text = "Kuch gadbad ho gayi"
+                binding.tvMessageSub.text = state.message
+                binding.chipGroupCategory.visibility = View.GONE
             }
+        }
+    }
+
+    private fun renderChips(categories: List<String>, selected: String) {
+        // Ek hi jaisi list dobara build na ho isliye simple guard
+        if (binding.chipGroupCategory.childCount == categories.size) {
+            val same = (0 until binding.chipGroupCategory.childCount).all { i ->
+                (binding.chipGroupCategory.getChildAt(i) as? Chip)?.text?.toString() == categories[i]
+            }
+            if (same) {
+                (0 until binding.chipGroupCategory.childCount).forEach { i ->
+                    val chip = binding.chipGroupCategory.getChildAt(i) as Chip
+                    chip.isChecked = chip.text.toString() == selected
+                }
+                return
+            }
+        }
+        binding.chipGroupCategory.removeAllViews()
+        categories.forEach { category ->
+            val chip = Chip(this).apply {
+                text = category
+                isCheckable = true
+                isChecked = category == selected
+                setOnClickListener { viewModel.selectCategory(category) }
+            }
+            binding.chipGroupCategory.addView(chip)
         }
     }
 

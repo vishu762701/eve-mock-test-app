@@ -20,10 +20,11 @@ class ExamRepository(
                 doc.toObject(Question::class.java)?.copy(id = doc.id)
             }
 
-    suspend fun addExam(name: String, minutes: Int) {
+    suspend fun addExam(name: String, minutes: Int, category: String) {
         val data = hashMapOf(
             "examName" to name,
-            "timeLimitMinutes" to minutes
+            "timeLimitMinutes" to minutes,
+            "category" to category
         )
         db.collection("exams").add(data).await()
     }

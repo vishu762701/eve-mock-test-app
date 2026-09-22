@@ -65,11 +65,11 @@ class AdminViewModel : ViewModel() {
         }
     }
 
-    fun addExam(name: String, minutes: Int, onDone: () -> Unit) {
+    fun addExam(name: String, minutes: Int, category: String, onDone: () -> Unit) {
         viewModelScope.launch {
             _busy.value = true
             try {
-                repo.addExam(name, minutes)
+                repo.addExam(name, minutes, category)
                 _message.value = "Exam add ho gaya"
                 loadExams()
                 onDone()

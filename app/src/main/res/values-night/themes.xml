@@ -1,10 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Eve" parent="Theme.Material3.Light.NoActionBar">
+    <style name="Theme.Eve" parent="Theme.Material3.Dark.NoActionBar">
         <item name="colorPrimary">@color/eve_primary</item>
         <item name="colorOnPrimary">@android:color/white</item>
         <item name="colorSecondary">@color/eve_accent</item>
-        <item name="colorSurface">@android:color/white</item>
-        <item name="colorOnSurface">#1A1A1A</item>
+        <item name="colorSurface">#1E1E1E</item>
+        <item name="colorOnSurface">#F0F0F0</item>
         <item name="android:windowBackground">@color/eve_bg</item>
         <item name="android:statusBarColor">@color/eve_primary_dark</item>
     </style>

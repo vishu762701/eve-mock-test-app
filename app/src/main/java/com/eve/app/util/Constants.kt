@@ -12,6 +12,13 @@ object Constants {
     // Per wrong answer negative marking (0.0 = koi negative marking nahi)
     const val NEGATIVE_MARK = 0.0
 
+    // Admin form ke Category spinner ke liye preset list. "Other" chuno to custom naam type kar sakte ho.
+    val CATEGORIES = listOf(
+        "SSC", "UPSC", "Banking", "Railway", "State PSC", "Police", "Defence", "Teaching", "Other"
+    )
+    const val CATEGORY_OTHER = "Other"
+    const val CATEGORY_ALL = "All"
+
     const val EXTRA_EXAM_ID = "extra_exam_id"
     const val EXTRA_EXAM_NAME = "extra_exam_name"
     const val EXTRA_TIME_LIMIT = "extra_time_limit"

@@ -17,6 +17,7 @@ import com.eve.app.data.model.Question
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.databinding.ActivityAdminBinding
+import com.eve.app.util.Constants
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -59,6 +60,17 @@ class AdminActivity : AppCompatActivity() {
         binding.spCorrect.adapter = ArrayAdapter(
             this, android.R.layout.simple_spinner_dropdown_item, listOf("A", "B", "C", "D")
         )
+
+        binding.spCategory.adapter = ArrayAdapter(
+            this, android.R.layout.simple_spinner_dropdown_item, Constants.CATEGORIES
+        )
+        binding.spCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                binding.etOtherCategory.visibility =
+                    if (Constants.CATEGORIES.getOrNull(position) == Constants.CATEGORY_OTHER) View.VISIBLE else View.GONE
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
 
         binding.rvQuestions.layoutManager = LinearLayoutManager(this)
         binding.rvQuestions.adapter = questionAdapter
@@ -132,13 +144,26 @@ class AdminActivity : AppCompatActivity() {
     private fun addExam() {
         val name = binding.etExamName.text.toString().trim()
         val minutes = binding.etExamMinutes.text.toString().trim().toIntOrNull()
+        val selectedCategory = binding.spCategory.selectedItem as? String ?: Constants.CATEGORY_OTHER
+        val category = if (selectedCategory == Constants.CATEGORY_OTHER) {
+            binding.etOtherCategory.text.toString().trim()
+        } else {
+            selectedCategory
+        }
         if (name.isEmpty() || minutes == null || minutes <= 0) {
             Toast.makeText(this, "Exam name aur valid minutes daalo", Toast.LENGTH_SHORT).show()
             return
         }
-        viewModel.addExam(name, minutes) {
+        if (category.isEmpty()) {
+            Toast.makeText(this, "Category chuno ya naam type karo", Toast.LENGTH_SHORT).show()
+            return
+        }
+        viewModel.addExam(name, minutes, category) {
             binding.etExamName.text?.clear()
             binding.etExamMinutes.text?.clear()
+            binding.spCategory.setSelection(0)
+            binding.etOtherCategory.text?.clear()
+            binding.etOtherCategory.visibility = View.GONE
         }
     }
 

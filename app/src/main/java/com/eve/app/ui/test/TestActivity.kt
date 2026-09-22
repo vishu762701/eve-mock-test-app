@@ -79,25 +79,29 @@ class TestActivity : AppCompatActivity() {
     private fun renderQuestions(state: UiState<List<Question>>) {
         when (state) {
             is UiState.Loading -> {
-                binding.progress.visibility = View.VISIBLE
-                binding.tvMessage.visibility = View.GONE
+                binding.progressGroup.visibility = View.VISIBLE
+                binding.messageGroup.visibility = View.GONE
             }
             is UiState.Error -> {
-                binding.progress.visibility = View.GONE
-                binding.tvMessage.visibility = View.VISIBLE
-                binding.tvMessage.text = state.message
+                binding.progressGroup.visibility = View.GONE
+                binding.messageGroup.visibility = View.VISIBLE
+                binding.ivMessageIcon.setImageResource(com.eve.app.R.drawable.ic_state_error)
+                binding.tvMessage.text = "Kuch gadbad ho gayi"
+                binding.tvMessageSub.text = state.message
             }
             is UiState.Success -> {
-                binding.progress.visibility = View.GONE
+                binding.progressGroup.visibility = View.GONE
                 val list = state.data
                 totalQuestions = list.size
                 if (list.isEmpty()) {
-                    binding.tvMessage.visibility = View.VISIBLE
+                    binding.messageGroup.visibility = View.VISIBLE
+                    binding.ivMessageIcon.setImageResource(com.eve.app.R.drawable.ic_state_empty)
                     binding.tvMessage.text = "Is exam me abhi koi question nahi hai"
+                    binding.tvMessageSub.text = "Admin se question upload karne ko bolo"
                     binding.tvTimer.text = "--:--"
                     return
                 }
-                binding.tvMessage.visibility = View.GONE
+                binding.messageGroup.visibility = View.GONE
                 binding.btnSubmit.isEnabled = true
                 if (binding.viewPager.adapter == null) {
                     binding.viewPager.adapter = QuestionAdapter(
