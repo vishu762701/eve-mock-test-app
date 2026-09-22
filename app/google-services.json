@@ -12,7 +12,20 @@
           "package_name": "com.eve.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "118032999217-k00isl64ikhr2k1tt3lbaeijecac1r61.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.eve.app",
+            "certificate_hash": "49246051f90d465fb15ede4fef1e77008b607693"
+          }
+        },
+        {
+          "client_id": "118032999217-nijut9hsj7te9276b1ire3jerk03os9v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDU4mfiVHg0YOm74VorHUOTXkgguWTfg_Y"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "118032999217-nijut9hsj7te9276b1ire3jerk03os9v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
