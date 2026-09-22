@@ -1,8 +1,10 @@
 package com.eve.app.ui.about
 
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.eve.app.databinding.ActivityAboutBinding
 import com.eve.app.util.Constants
@@ -28,6 +30,17 @@ class AboutActivity : AppCompatActivity() {
             "1.0"
         }
         binding.tvVersion.text = "Version $versionName"
+
+        // Phase 15: debug build me version text ko long-press karo to ek test crash trigger
+        // hoga — Crashlytics setup verify karne ka sabse aasan tarika (Firebase Console me
+        // "Crashlytics" section me 2-3 min me report dikhega). Release build me kuch nahi hota.
+        binding.tvVersion.setOnLongClickListener {
+            if ((applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
+                Toast.makeText(this, "Test crash triggering…", Toast.LENGTH_SHORT).show()
+                throw RuntimeException("Eve: Crashlytics test crash (About screen long-press)")
+            }
+            true
+        }
 
         binding.rowPrivacyPolicy.setOnClickListener { openUrl(Constants.PRIVACY_POLICY_URL) }
         binding.rowTerms.setOnClickListener { openUrl(Constants.TERMS_URL) }

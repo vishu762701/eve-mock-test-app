@@ -3,6 +3,8 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("kotlin-parcelize")
     id("com.google.gms.google-services")
+    // Phase 15: Crashlytics + Analytics
+    id("com.google.firebase.crashlytics")
 }
 
 // Versioning (Phase 8): CI in dono env vars ko set karke override kar deti hai
@@ -98,6 +100,11 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-messaging")
     implementation("com.google.android.gms:play-services-auth:21.2.0")
+
+    // Phase 15: Crashlytics (crash reports) + Analytics (kaunsa exam sabse zyada attempt
+    // ho raha, kahan drop-off ho raha — dono Firebase Console me dikhte hain)
+    implementation("com.google.firebase:firebase-crashlytics")
+    implementation("com.google.firebase:firebase-analytics")
 
     // Push notifications (Phase 12): naya-exam alerts (FCM topic) + daily reminder (WorkManager)
     implementation("androidx.work:work-runtime-ktx:2.9.1")

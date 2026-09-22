@@ -10,6 +10,8 @@ import androidx.lifecycle.lifecycleScope
 import com.eve.app.R
 import com.eve.app.databinding.ActivityLoginBinding
 import com.eve.app.ui.home.MainActivity
+import com.eve.app.util.AnalyticsHelper
+import com.eve.app.util.CrashlyticsHelper
 import com.eve.app.util.ThemeManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -71,7 +73,11 @@ class LoginActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val credential = GoogleAuthProvider.getCredential(idToken, null)
-                auth.signInWithCredential(credential).await()
+                val result = auth.signInWithCredential(credential).await()
+                // Phase 15: login event + Crashlytics identity (admin flag baad me MainActivity
+                // me set hoti hai jab admin check complete hota hai)
+                AnalyticsHelper.logLogin(this@LoginActivity)
+                result.user?.uid?.let { uid -> CrashlyticsHelper.identify(uid, isAdmin = false) }
                 goHome()
             } catch (e: Exception) {
                 setLoading(false)

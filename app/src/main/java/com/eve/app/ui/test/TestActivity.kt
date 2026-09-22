@@ -15,6 +15,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.eve.app.data.model.Question
 import com.eve.app.databinding.ActivityTestBinding
 import com.eve.app.ui.result.ResultActivity
+import com.eve.app.util.AnalyticsHelper
 import com.eve.app.util.Constants
 import com.eve.app.util.LanguageManager
 import com.eve.app.util.NetworkUtil
@@ -44,6 +45,8 @@ class TestActivity : AppCompatActivity() {
         timeLimit = intent.getIntExtra(Constants.EXTRA_TIME_LIMIT, 30)
 
         viewModel.start(examId, timeLimit)
+        // Phase 15: exam start event — is exam ko kitni baar attempt kiya gaya, yeh track karta hai
+        AnalyticsHelper.logExamStart(this, examId, examName, examCategory)
 
         binding.btnPrev.setOnClickListener {
             binding.viewPager.currentItem = binding.viewPager.currentItem - 1
@@ -172,6 +175,19 @@ class TestActivity : AppCompatActivity() {
         viewModel.stopTimer()
         val items = viewModel.buildAnswerItems()
         viewModel.saveAttempt(examId, examName, examCategory, items)
+
+        // Phase 15: exam submit event + score summary (average score / weak exams Console me dikhenge)
+        AnalyticsHelper.logExamSubmit(
+            context = this,
+            examId = examId,
+            examName = examName,
+            category = examCategory,
+            correct = items.count { it.isCorrect },
+            wrong = items.count { it.isAttempted && !it.isCorrect },
+            unattempted = items.count { !it.isAttempted },
+            total = items.size
+        )
+
         startActivity(
             Intent(this, ResultActivity::class.java)
                 .putParcelableArrayListExtra(Constants.EXTRA_ANSWERS, items)

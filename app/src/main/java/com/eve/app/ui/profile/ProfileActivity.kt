@@ -10,6 +10,7 @@ import com.eve.app.data.repository.AdminRepository
 import com.eve.app.databinding.ActivityProfileBinding
 import com.eve.app.ui.about.AboutActivity
 import com.eve.app.ui.login.LoginActivity
+import com.eve.app.util.CrashlyticsHelper
 import com.eve.app.util.ProfilePhotoManager
 import com.eve.app.util.ReminderScheduler
 import com.eve.app.util.ThemeManager
@@ -84,6 +85,7 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun logout() {
+        CrashlyticsHelper.clearIdentity()
         FirebaseAuth.getInstance().signOut()
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
         GoogleSignIn.getClient(this, gso).signOut().addOnCompleteListener {

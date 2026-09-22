@@ -188,6 +188,18 @@ firebase deploy --only firestore:rules
 
 **Test kaise karo**: deploy hone ke baad Firebase Console → Firestore → koi bhi document manually edit karne ki koshish karo (bina app khole) — ab "Missing or insufficient permissions" error aana chahiye. App normal chalti rahegi, kyunki wahan se requests hamesha logged-in user ke through hi jaati hain.
 
+## Crashlytics + Analytics (Phase 15) + Night mode icon update
+
+**Crash reports & analytics** — pehle koi crash ya usage data track nahi hoti thi. Ab Firebase Console me do naye sections active honge:
+- **Crashlytics** — koi bhi crash ho to Console → Crashlytics me stack trace + kis user (UID) ke saath hua + admin tha ya student, sab dikhega.
+- **Analytics** → **Events** — `exam_start` aur `exam_submit` events se pata chalega kaunsa exam sabse zyada attempt ho raha hai aur kahan users beech me hi chhod dete hain (start hua par submit nahi hua = drop-off).
+
+**Setup ek baar zaroori hai**: Firebase Console kholo → apna project → left sidebar me **Crashlytics** par jao → "Enable Crashlytics" par click karo (pehli baar ek dummy crash bhejna maang sakta hai, wahi neeche wala test crash trick use karo). Analytics already-on hota hai naye Firebase projects me by default.
+
+**Test karne ka tarika** (sirf debug build me kaam karega): App khol ke Profile → About screen kholo, version text (jaise "Version 1.0") ko **long-press** karo — app crash ho jayegi, aur 2-3 minute me Firebase Console → Crashlytics me woh report dikhne lagegi. Release build (Play Store wali) me yeh long-press kuch nahi karta, safe hai.
+
+**Night mode icon** — Profile/Login screen ka dark-mode toggle icon (moon) ab Telegram-style crescent + sparkles wala hai (pehle ek plain crescent tha).
+
 ## Bug fix: build error + bell icon behavior (after Phase 14)
 Do cheezein fix ki hain:
 

@@ -23,6 +23,7 @@ import com.eve.app.ui.notifications.NotificationsActivity
 import com.eve.app.ui.profile.ProfileActivity
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.Constants
+import com.eve.app.util.CrashlyticsHelper
 import com.eve.app.util.NetworkUtil
 import com.eve.app.util.NotificationHelper
 import com.eve.app.util.NotificationStore
@@ -158,6 +159,10 @@ class MainActivity : AppCompatActivity() {
         binding.btnAdmin.visibility = View.VISIBLE
         binding.btnAdmin.setOnClickListener {
             startActivity(Intent(this, AdminActivity::class.java))
+        }
+        // Phase 15: ab crash reports me pata chalega ki crash admin ke saath hua ya student ke
+        FirebaseAuth.getInstance().currentUser?.uid?.let { uid ->
+            CrashlyticsHelper.identify(uid, isAdmin = true)
         }
     }
 
