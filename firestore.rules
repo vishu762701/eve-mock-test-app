@@ -121,13 +121,13 @@ service cloud.firestore {
       allow update: if false;
     }
 
-    // AI Generated Tests: signed-in students can read live tests; admins can read all and manage status/delete
+    // AI Generated Tests: signed-in students can read live/published tests; admins can read all and manage status/delete
     match /generated_tests/{testId} {
-      allow read: if isSignedIn() && (isAdmin() || resource.data.status == "live");
+      allow read: if isSignedIn() && (isAdmin() || resource.data.status in ["live", "published"]);
       allow write: if isAdmin();
 
       match /questions/{questionId} {
-        allow read: if isSignedIn() && (isAdmin() || get(/databases/$(database)/documents/generated_tests/$(testId)).data.status == "live");
+        allow read: if isSignedIn() && (isAdmin() || get(/databases/$(database)/documents/generated_tests/$(testId)).data.status in ["live", "published"]);
         allow write: if isAdmin();
       }
     }
@@ -136,6 +136,11 @@ service cloud.firestore {
     match /generation_logs/{logId} {
       allow read: if isAdmin();
       allow write: if false;
+    }
+
+    // System configuration (e.g. API key rotation state). Cloud Functions Admin SDK access only.
+    match /system_config/{configId} {
+      allow read, write: if false;
     }
 
     // Internal marker collection used only by Cloud Function triggers. No client access.
