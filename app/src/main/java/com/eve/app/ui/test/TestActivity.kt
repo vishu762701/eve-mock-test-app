@@ -19,6 +19,7 @@ import com.eve.app.util.Constants
 import com.eve.app.util.DateUtil
 import com.eve.app.util.LanguageManager
 import com.eve.app.util.NetworkUtil
+import com.eve.app.util.SecurityHelper
 import com.eve.app.util.StreakStore
 import com.eve.app.util.UiState
 import com.eve.app.util.isHardcodedAdmin
@@ -45,6 +46,7 @@ class TestActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        SecurityHelper.applyScreenProtection(this)
         binding = ActivityTestBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

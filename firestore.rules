@@ -86,7 +86,8 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read, write: if isSignedIn() && request.auth.uid == userId;
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow write: if isSignedIn() && request.auth.uid == userId;
     }
 
     // Phase 16: Leaderboard. Har exam ke top scorers sabko (koi bhi logged-in user)
@@ -94,6 +95,12 @@ service cloud.firestore {
     // khud badhaa sakta hai) — sirf functions/index.js ka updateLeaderboard Cloud
     // Function (Admin SDK, jo rules ko bypass karta hai) yahan likhta hai.
     match /leaderboard/{entryId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    // Overall Leaderboard (all exams aggregate)
+    match /overall_leaderboard/{entryId} {
       allow read: if isSignedIn();
       allow write: if false;
     }

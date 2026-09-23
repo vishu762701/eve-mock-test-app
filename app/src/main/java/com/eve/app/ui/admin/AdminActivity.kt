@@ -126,9 +126,20 @@ class AdminActivity : AppCompatActivity() {
         binding.cbPyq.setOnCheckedChangeListener { _, checked ->
             binding.groupPyq.visibility = if (checked) View.VISIBLE else View.GONE
         }
+        binding.btnRefreshStats.setOnClickListener { viewModel.loadUserStats() }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.totalUsers.collect { count ->
+                        binding.tvTotalUsers.text = count?.toString() ?: "—"
+                    }
+                }
+                launch {
+                    viewModel.onlineUsers.collect { count ->
+                        binding.tvOnlineUsers.text = count?.toString() ?: "—"
+                    }
+                }
                 launch {
                     viewModel.exams.collect { list ->
                         exams = list

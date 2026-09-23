@@ -10,6 +10,8 @@
     <string name="home_menu_performance">Performance</string>
     <string name="home_menu_topic_test">Topic-wise Test</string>
     <string name="home_menu_pyq">PYQ</string>
+    <string name="home_menu_overall_leaderboard">Overall Leaderboard</string>
+    <string name="home_menu_logout">Logout</string>
     <string name="exam_completed_view_history">Completed • View Result in History</string>
     <string name="exam_time_category">Time: %1$d minutes • %2$s</string>
     <string name="exam_already_attempted">You have already completed this test.</string>

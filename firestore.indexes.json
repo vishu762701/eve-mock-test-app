@@ -7,6 +7,14 @@
         { "fieldPath": "examId", "order": "ASCENDING" },
         { "fieldPath": "score", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "attempts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "examId", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

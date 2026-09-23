@@ -1,15 +1,247 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/eve_bg">
-    <ImageButton android:id="@+id/btnThemeToggle" android:layout_width="44dp" android:layout_height="44dp" android:layout_gravity="top|end" android:layout_margin="16dp" android:background="@color/eve_surface_variant" android:contentDescription="@string/theme_toggle_to_dark" android:padding="10dp" android:src="@drawable/ic_sun" android:tint="@color/eve_text" />
-    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical" android:paddingHorizontal="28dp">
-        <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" app:cardBackgroundColor="@color/eve_surface" app:cardCornerRadius="@dimen/eve_radius_lg" app:cardElevation="1dp" app:strokeWidth="0dp">
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_horizontal" android:orientation="vertical" android:padding="28dp">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Eve" android:textColor="@color/eve_primary" android:textSize="42sp" android:textStyle="bold" />
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:gravity="center" android:text="Practice with confidence." android:textColor="@color/eve_text" android:textSize="20sp" android:textStyle="bold" />
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:text="Free mock tests for government and entrance exams." android:textColor="@color/eve_text_secondary" android:textSize="14sp" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnGoogle" style="@style/Widget.Eve.Button" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="32dp" android:text="Continue with Google" />
-                <ProgressBar android:id="@+id/progress" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="22dp" android:visibility="gone" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-    </LinearLayout>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/eve_bg">
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/contentLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingVertical="32dp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardLogin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/eve_surface"
+                app:cardCornerRadius="@dimen/eve_radius_lg"
+                app:cardElevation="1dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="28dp">
+
+                    <TextView
+                        android:id="@+id/tvLogo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:text="Eve"
+                        android:textColor="@color/eve_primary"
+                        android:textSize="40sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvTagline"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="6dp"
+                        android:gravity="center"
+                        android:text="Practice with confidence."
+                        android:textColor="@color/eve_text"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvSubtitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="6dp"
+                        android:gravity="center"
+                        android:text="Free mock tests for government and entrance exams."
+                        android:textColor="@color/eve_text_secondary"
+                        android:textSize="13sp" />
+
+                    <!-- Name input (visible only during Sign Up) -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilName"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:hint="Full Name"
+                        android:visibility="gone"
+                        app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm"
+                        app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm"
+                        app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm"
+                        app:boxCornerRadiusTopStart="@dimen/eve_radius_sm"
+                        app:boxStrokeColor="@color/eve_text"
+                        app:hintTextColor="@color/eve_text">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textCapWords"
+                            android:maxLines="1"
+                            android:textColor="@color/eve_text"
+                            android:textSize="15sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Email input -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilEmail"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:hint="Email address"
+                        app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm"
+                        app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm"
+                        app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm"
+                        app:boxCornerRadiusTopStart="@dimen/eve_radius_sm"
+                        app:boxStrokeColor="@color/eve_text"
+                        app:hintTextColor="@color/eve_text">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etEmail"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textEmailAddress"
+                            android:maxLines="1"
+                            android:textColor="@color/eve_text"
+                            android:textSize="15sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Password input -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilPassword"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:hint="Password"
+                        app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm"
+                        app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm"
+                        app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm"
+                        app:boxCornerRadiusTopStart="@dimen/eve_radius_sm"
+                        app:boxStrokeColor="@color/eve_text"
+                        app:endIconMode="password_toggle"
+                        app:endIconTint="@color/eve_text_secondary"
+                        app:hintTextColor="@color/eve_text">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etPassword"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textPassword"
+                            android:maxLines="1"
+                            android:textColor="@color/eve_text"
+                            android:textSize="15sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Error Text -->
+                    <TextView
+                        android:id="@+id/tvError"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:textColor="@color/eve_red"
+                        android:textSize="13sp"
+                        android:visibility="gone" />
+
+                    <!-- Submit Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSubmit"
+                        style="@style/Widget.Eve.Button"
+                        android:layout_width="match_parent"
+                        android:layout_height="54dp"
+                        android:layout_marginTop="20dp"
+                        android:text="Sign In" />
+
+                    <!-- Toggle Mode (Sign In / Sign Up) -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnToggleMode"
+                        style="@style/Widget.Eve.TextButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Don't have an account? Sign Up"
+                        android:textColor="@color/eve_text_secondary" />
+
+                    <!-- Divider -->
+                    <LinearLayout
+                        android:id="@+id/dividerLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1"
+                            android:background="@color/eve_stroke" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="12dp"
+                            android:text="or"
+                            android:textColor="@color/eve_text_secondary"
+                            android:textSize="13sp" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1"
+                            android:background="@color/eve_stroke" />
+                    </LinearLayout>
+
+                    <!-- Google Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnGoogle"
+                        style="@style/Widget.Eve.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:layout_marginTop="14dp"
+                        android:text="Continue with Google" />
+
+                    <!-- Progress Bar -->
+                    <ProgressBar
+                        android:id="@+id/progress"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="16dp"
+                        android:indeterminateTint="@color/eve_primary"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Theme Toggle in top-right corner -->
+    <ImageButton
+        android:id="@+id/btnThemeToggle"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_gravity="top|end"
+        android:layout_margin="16dp"
+        android:background="@color/eve_surface_variant"
+        android:contentDescription="@string/theme_toggle_to_dark"
+        android:padding="10dp"
+        android:src="@drawable/ic_sun"
+        app:tint="@color/eve_text" />
+
 </FrameLayout>

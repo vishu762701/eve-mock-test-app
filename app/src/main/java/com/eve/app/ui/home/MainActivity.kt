@@ -15,10 +15,15 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
+import com.eve.app.R
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.databinding.ActivityMainBinding
 import com.eve.app.ui.admin.AdminActivity
 import com.eve.app.ui.history.HistoryActivity
+import com.eve.app.ui.leaderboard.LeaderboardActivity
 import com.eve.app.ui.login.LoginActivity
 import com.eve.app.ui.notifications.NotificationsActivity
 import com.eve.app.ui.profile.ProfileActivity
@@ -34,10 +39,14 @@ import com.eve.app.util.NotificationHelper
 import com.eve.app.util.NotificationStore
 import com.eve.app.util.ProfilePhotoManager
 import com.eve.app.util.ReminderScheduler
+import com.eve.app.util.ThemeManager
 import com.eve.app.util.UiState
 import com.eve.app.util.isHardcodedAdmin
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.material.chip.Chip
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
 
@@ -103,16 +112,40 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnOverflow.setOnClickListener { anchor ->
             PopupMenu(this, anchor).apply {
-                menu.add(0, 1, 0, getString(com.eve.app.R.string.home_menu_history))
-                menu.add(0, 2, 1, getString(com.eve.app.R.string.home_menu_performance))
-                menu.add(0, 3, 2, getString(com.eve.app.R.string.home_menu_topic_test))
-                menu.add(0, 4, 3, getString(com.eve.app.R.string.home_menu_pyq))
+                val isDark = ThemeManager.isDarkMode(this@MainActivity)
+                val themeTitle = if (isDark) "Light Mode" else "Dark Mode"
+                menu.add(0, 0, 0, themeTitle)
+                menu.add(0, 1, 1, getString(com.eve.app.R.string.home_menu_history))
+                menu.add(0, 2, 2, getString(com.eve.app.R.string.home_menu_performance))
+                menu.add(0, 3, 3, getString(com.eve.app.R.string.home_menu_topic_test))
+                menu.add(0, 4, 4, getString(com.eve.app.R.string.home_menu_pyq))
+                menu.add(0, 5, 5, getString(R.string.home_menu_overall_leaderboard))
+
+                val logoutStr = getString(R.string.home_menu_logout)
+                val logoutTitle = SpannableString(logoutStr).apply {
+                    setSpan(
+                        ForegroundColorSpan(ContextCompat.getColor(this@MainActivity, R.color.eve_red)),
+                        0,
+                        length,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+                menu.add(0, 6, 6, logoutTitle)
+
                 setOnMenuItemClickListener { item ->
                     when (item.itemId) {
+                        0 -> ThemeManager.toggleWithReveal(this@MainActivity, anchor)
                         1 -> startActivity(Intent(this@MainActivity, HistoryActivity::class.java))
                         2 -> startActivity(Intent(this@MainActivity, com.eve.app.ui.performance.PerformanceActivity::class.java))
                         3 -> startActivity(Intent(this@MainActivity, PracticeActivity::class.java))
                         4 -> startActivity(Intent(this@MainActivity, com.eve.app.ui.pyq.PyqActivity::class.java))
+                        5 -> startActivity(
+                            Intent(this@MainActivity, LeaderboardActivity::class.java).apply {
+                                putExtra(Constants.EXTRA_EXAM_ID, "overall")
+                                putExtra(Constants.EXTRA_EXAM_NAME, "Overall Leaderboard")
+                            }
+                        )
+                        6 -> logout()
                     }
                     true
                 }
@@ -140,6 +173,34 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Heartbeat: updates lastActive so Admin Dashboard "Online Now" counter stays accurate
+        FirebaseAuth.getInstance().currentUser?.let { user ->
+            lifecycleScope.launch {
+                try {
+                    FirebaseFirestore.getInstance()
+                        .collection("users").document(user.uid)
+                        .update("lastActive", System.currentTimeMillis())
+                } catch (_: Exception) {
+                    // Ignore stats update errors (e.g. offline)
+                }
+            }
+        }
+    }
+
+    private fun logout() {
+        CrashlyticsHelper.clearIdentity()
+        FirebaseAuth.getInstance().signOut()
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
+        GoogleSignIn.getClient(this, gso).signOut().addOnCompleteListener {
+            val intent = Intent(this, LoginActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            startActivity(intent)
+            finish()
         }
     }
 

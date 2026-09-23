@@ -110,6 +110,40 @@ exports.updateLeaderboard = onDocumentCreated("attempts/{attemptId}", async (eve
       timestamp: attempt.timestamp || Date.now(),
     });
   });
+
+  // Overall Leaderboard aggregation
+  try {
+    const overallRef = db.collection("overall_leaderboard").doc(userId);
+    await db.runTransaction(async (tx) => {
+      const overallSnap = await tx.get(overallRef);
+      const prev = overallSnap.exists ? overallSnap.data() : {
+        totalScore: 0,
+        testsTaken: 0,
+        totalQuestions: 0,
+        totalCorrect: 0
+      };
+      const testsTaken = (prev.testsTaken || 0) + 1;
+      const totalScore = Math.round(((prev.totalScore || 0) + (score || 0)) * 100) / 100;
+      const totalQuestions = (prev.totalQuestions || 0) + (total || 0);
+      const correctCount = attempt.answers ? attempt.answers.filter(a => a.isCorrect).length : (score > 0 ? Math.round(score) : 0);
+      const totalCorrect = (prev.totalCorrect || 0) + correctCount;
+      const accuracy = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+
+      tx.set(overallRef, {
+        userId,
+        displayName: displayName || prev.displayName || "Student",
+        score: totalScore,
+        totalScore,
+        total: totalQuestions,
+        testsTaken,
+        totalCorrect,
+        accuracy,
+        timestamp: Date.now()
+      }, { merge: true });
+    });
+  } catch (e) {
+    console.error("Failed to update overall leaderboard:", e);
+  }
 });
 
 
@@ -230,6 +264,7 @@ exports.submitAttempt = onCall(async (request) => {
 
   const data = request.data || {};
   const examId = String(data.examId || "").trim();
+  const db = getFirestore();
 
   // A student may submit a particular exam only once. Admins retain preview/retry access.
   const adminEmails = new Set([
@@ -268,8 +303,11 @@ exports.submitAttempt = onCall(async (request) => {
     throw new HttpsError("invalid-argument", "No valid answers in payload.");
   }
 
-  const db = getFirestore();
-  const lockRef = examId ? db.collection("attempt_locks").doc(`${uid}_${examId}`) : null;
+  const isDaily = examId === "daily-gk";
+  const isPractice = Boolean(data.topic || data.pyqYear);
+  const todayDateStr = new Date().toISOString().slice(0, 10);
+  const lockKey = isPractice ? null : (isDaily ? `${uid}_daily-gk_${todayDateStr}` : `${uid}_${examId}`);
+  const lockRef = lockKey ? db.collection("attempt_locks").doc(lockKey) : null;
   if (!isAdminCaller && lockRef) {
     // Legacy compatibility: convert an old attempts document into the new deterministic lock.
     const existingLock = await lockRef.get();
@@ -296,7 +334,6 @@ exports.submitAttempt = onCall(async (request) => {
     });
   }
 
-  const isDaily = examId === "daily-gk";
   const collectionName = isDaily ? "daily_questions" : "questions";
   const refs = picks.map((p) => db.collection(collectionName).doc(p.questionId));
   const snaps = await db.getAll(...refs);

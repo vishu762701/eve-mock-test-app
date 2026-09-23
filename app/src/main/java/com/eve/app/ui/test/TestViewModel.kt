@@ -59,7 +59,8 @@ class TestViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val user = FirebaseAuth.getInstance().currentUser
-                if (!isAdmin && user != null && examId.isNotBlank() && historyRepo.hasAttempted(user.uid, examId)) {
+                val isStandardMock = quizDate.isBlank() && topic.isBlank() && pyqYear == 0
+                if (!isAdmin && user != null && examId.isNotBlank() && isStandardMock && historyRepo.hasAttempted(user.uid, examId)) {
                     _alreadyAttempted.value = true
                     started = false
                     return@launch

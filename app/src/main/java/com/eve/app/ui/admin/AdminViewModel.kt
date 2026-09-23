@@ -6,6 +6,7 @@ import com.eve.app.data.model.Exam
 import com.eve.app.data.model.Question
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.ExamRepository
+import com.eve.app.data.repository.UserStatsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,6 +16,7 @@ class AdminViewModel : ViewModel() {
 
     private val repo = ExamRepository()
     private val adminRepo = AdminRepository()
+    private val userStatsRepo = UserStatsRepository()
 
     private val _exams = MutableStateFlow<List<Exam>>(emptyList())
     val exams: StateFlow<List<Exam>> = _exams.asStateFlow()
@@ -24,6 +26,12 @@ class AdminViewModel : ViewModel() {
 
     private val _admins = MutableStateFlow<List<String>>(emptyList())
     val admins: StateFlow<List<String>> = _admins.asStateFlow()
+
+    private val _totalUsers = MutableStateFlow<Long?>(null)
+    val totalUsers: StateFlow<Long?> = _totalUsers.asStateFlow()
+
+    private val _onlineUsers = MutableStateFlow<Long?>(null)
+    val onlineUsers: StateFlow<Long?> = _onlineUsers.asStateFlow()
 
     private val _busy = MutableStateFlow(false)
     val busy: StateFlow<Boolean> = _busy.asStateFlow()
@@ -35,6 +43,18 @@ class AdminViewModel : ViewModel() {
     init {
         loadExams()
         loadAdmins()
+        loadUserStats()
+    }
+
+    fun loadUserStats() {
+        viewModelScope.launch {
+            try {
+                _totalUsers.value = userStatsRepo.getTotalUserCount()
+                _onlineUsers.value = userStatsRepo.getOnlineUserCount()
+            } catch (e: Exception) {
+                _message.value = e.message ?: "User stats load nahi hue"
+            }
+        }
     }
 
     fun consumeMessage() {

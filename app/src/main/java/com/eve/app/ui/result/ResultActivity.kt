@@ -11,6 +11,7 @@ import com.eve.app.ui.home.MainActivity
 import com.eve.app.ui.leaderboard.LeaderboardActivity
 import com.eve.app.util.Constants
 import com.eve.app.util.LanguageManager
+import com.eve.app.util.SecurityHelper
 
 class ResultActivity : AppCompatActivity() {
 
@@ -20,6 +21,7 @@ class ResultActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        SecurityHelper.applyScreenProtection(this)
         val binding = ActivityResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

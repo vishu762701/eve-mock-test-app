@@ -39,9 +39,14 @@ class LeaderboardActivity : AppCompatActivity() {
         binding = ActivityLeaderboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        examId = intent.getStringExtra(Constants.EXTRA_EXAM_ID) ?: run { finish(); return }
+        examId = intent.getStringExtra(Constants.EXTRA_EXAM_ID) ?: "overall"
         val examName = intent.getStringExtra(Constants.EXTRA_EXAM_NAME)
-        if (!examName.isNullOrBlank()) binding.tvExamName.text = examName
+        if (examId == "overall" || examId.isBlank()) {
+            examId = "overall"
+            binding.tvExamName.text = if (!examName.isNullOrBlank()) examName else "Overall Leaderboard"
+        } else if (!examName.isNullOrBlank()) {
+            binding.tvExamName.text = examName
+        }
 
         binding.btnBack.setOnClickListener { finish() }
 
@@ -74,8 +79,8 @@ class LeaderboardActivity : AppCompatActivity() {
                 binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
                 if (empty) {
                     binding.ivMessageIcon.setImageResource(R.drawable.ic_state_empty)
-                    binding.tvMessage.text = "Abhi koi scorer nahi hai"
-                    binding.tvMessageSub.text = "Is exam ka pehla attempt submit karte hi yahan dikhega"
+                    binding.tvMessage.text = if (examId == "overall") "No overall scores yet" else "Abhi koi scorer nahi hai"
+                    binding.tvMessageSub.text = if (examId == "overall") "Complete any test to see overall rankings here" else "Is exam ka pehla attempt submit karte hi yahan dikhega"
                 }
             }
             is UiState.Error -> {

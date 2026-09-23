@@ -1,8 +1,22 @@
 package com.eve.app.util
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.app.Activity
+import android.app.Application
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.os.Bundle
+import android.view.View
+import android.view.ViewAnimationUtils
+import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageButton
+import android.widget.ImageView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.eve.app.R
 
@@ -11,14 +25,27 @@ import com.eve.app.R
  * Moon icon = "abhi dark hai, light karne ke liye dabao". Choice SharedPreferences me save
  * hoti hai isliye app dobara khulne par bhi wahi mode yaad rehta hai. Pehli baar (koi saved
  * choice nahi) system ka dark/light setting follow hoti hai.
+ *
+ * FEATURE 1: Telegram-style circular theme reveal animation across AppCompatDelegate.setDefaultNightMode()
+ * Activity recreation.
  */
 object ThemeManager {
 
     private const val PREFS = "eve_prefs"
     private const val KEY_DARK_MODE = "key_dark_mode"
 
+    private var pendingBitmap: Bitmap? = null
+    private var pendingOriginX: Int = 0
+    private var pendingOriginY: Int = 0
+    private var pendingActivityClass: Class<*>? = null
+    private var isLifecycleRegistered = false
+    private var isTransitioning = false
+
     /** App start hote hi (Application.onCreate me) call karo, kisi Activity dikhne se pehle. */
     fun applySavedMode(context: Context) {
+        val app = (context as? Application) ?: (context.applicationContext as? Application)
+        app?.let { ensureLifecycleRegistered(it) }
+
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val mode = if (prefs.contains(KEY_DARK_MODE)) {
             if (prefs.getBoolean(KEY_DARK_MODE, false)) {
@@ -43,6 +70,8 @@ object ThemeManager {
         }
     }
 
+    fun isNight(context: Context): Boolean = isDarkMode(context)
+
     /**
      * Mode flip karta hai aur save karta hai. AppCompatDelegate.setDefaultNightMode()
      * chalte hi saari running AppCompatActivity apne aap recreate ho jaati hain, isliye
@@ -58,29 +87,198 @@ object ThemeManager {
         )
     }
 
+    private fun findActivity(context: Context): AppCompatActivity? {
+        var ctx: Context? = context
+        while (ctx is ContextWrapper) {
+            if (ctx is AppCompatActivity) return ctx
+            ctx = ctx.baseContext
+        }
+        return null
+    }
+
+    private fun ensureLifecycleRegistered(app: Application) {
+        if (isLifecycleRegistered) return
+        isLifecycleRegistered = true
+        app.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
+            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+                if (activity.javaClass == pendingActivityClass && pendingBitmap != null) {
+                    activity.overridePendingTransition(0, 0)
+                }
+            }
+
+            override fun onActivityStarted(activity: Activity) {
+                if (activity.javaClass == pendingActivityClass && pendingBitmap != null) {
+                    activity.overridePendingTransition(0, 0)
+                    triggerRevealAnimation(activity)
+                }
+            }
+
+            override fun onActivityResumed(activity: Activity) {}
+            override fun onActivityPaused(activity: Activity) {}
+            override fun onActivityStopped(activity: Activity) {}
+            override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
+            override fun onActivityDestroyed(activity: Activity) {
+                if (activity.javaClass == pendingActivityClass) {
+                    cleanupPending()
+                }
+            }
+        })
+    }
+
+    private fun cleanupPending() {
+        pendingBitmap?.let {
+            if (!it.isRecycled) it.recycle()
+        }
+        pendingBitmap = null
+        pendingActivityClass = null
+        isTransitioning = false
+    }
+
+    private fun triggerRevealAnimation(activity: Activity) {
+        val bitmap = pendingBitmap ?: return
+        val cx = pendingOriginX
+        val cy = pendingOriginY
+        // Consume state so it only triggers once
+        pendingBitmap = null
+        pendingActivityClass = null
+
+        val decorView = activity.window.decorView as? ViewGroup ?: run {
+            if (!bitmap.isRecycled) bitmap.recycle()
+            isTransitioning = false
+            return
+        }
+
+        // Add overlay immediately so the old theme is shown before first draw of the new theme
+        val overlay = ImageView(activity).apply {
+            setImageBitmap(bitmap)
+            scaleType = ImageView.ScaleType.FIT_XY
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+        }
+        decorView.addView(overlay)
+
+        decorView.post {
+            if (activity.isFinishing || activity.isDestroyed) {
+                decorView.removeView(overlay)
+                if (!bitmap.isRecycled) bitmap.recycle()
+                isTransitioning = false
+                return@post
+            }
+
+            val w = decorView.width.toFloat()
+            val h = decorView.height.toFloat()
+            val maxRadius = Math.hypot(
+                Math.max(cx.toFloat(), w - cx.toFloat()).toDouble(),
+                Math.max(cy.toFloat(), h - cy.toFloat()).toDouble()
+            ).toFloat().coerceAtLeast(1f)
+
+            try {
+                val anim = ViewAnimationUtils.createCircularReveal(overlay, cx, cy, maxRadius, 0f)
+                anim.duration = 420
+                anim.interpolator = AccelerateDecelerateInterpolator()
+                anim.addListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        decorView.removeView(overlay)
+                        if (!bitmap.isRecycled) bitmap.recycle()
+                        isTransitioning = false
+                    }
+                })
+                anim.start()
+            } catch (e: Exception) {
+                decorView.removeView(overlay)
+                if (!bitmap.isRecycled) bitmap.recycle()
+                isTransitioning = false
+            }
+        }
+    }
+
     /**
      * Ek chhota icon-only toggle button ko current mode ke hisaab se sun/moon icon set
-     * karta hai aur click par mode switch karta hai. Har screen isi ek function ko reuse
-     * karti hai taaki icon/behaviour hamesha same rahe (dark ho to moon dikhega, tap karte
-     * hi light ho jayega aur sun dikhega — dono icon hamesha ek hi jagah/button me hote hain).
+     * karta hai aur click par mode switch karta hai. Telegram-style circular theme reveal
+     * transition centrally yahin implement kiya gaya hai taaki har screen ko automatically
+     * smooth circular reveal transition mil jaye.
      */
     fun setupToggleButton(context: Context, button: ImageButton) {
+        val activity = findActivity(button.context) ?: findActivity(context)
+        activity?.application?.let { ensureLifecycleRegistered(it) }
+
         button.setImageResource(if (isDarkMode(context)) R.drawable.ic_moon else R.drawable.ic_sun)
+        button.setColorFilter(androidx.core.content.ContextCompat.getColor(context, R.color.eve_text))
         button.contentDescription = context.getString(
             if (isDarkMode(context)) R.string.theme_toggle_to_light else R.string.theme_toggle_to_dark
         )
         button.setOnClickListener {
-            // toggle() turant AppCompatDelegate.setDefaultNightMode() call karta hai jo
-            // Activity ko turant recreate() kar deta hai — isliye ek lambi crossfade/rotate
-            // animation yahan chalti hi nahi (screen beech me hi rebuild ho jaati). Bas ek
-            // chhota tap-pop feedback (spin + shrink) jo click ke turant baad recreate hone
-            // tak visually register ho jaata hai.
-            button.animate()
-                .rotationBy(180f)
-                .scaleX(0.8f).scaleY(0.8f)
-                .setDuration(120)
-                .withEndAction { toggle(context) }
-                .start()
+            toggleWithReveal(context, button)
         }
+    }
+
+    /**
+     * Triggers theme toggle with a circular reveal expanding/collapsing from the specified
+     * anchor View (e.g. toggle button or three-dot menu button).
+     */
+    fun toggleWithReveal(context: Context, anchorView: View) {
+        if (isTransitioning) return
+
+        val currentActivity = findActivity(anchorView.context) ?: findActivity(context)
+        if (currentActivity == null) {
+            toggle(context)
+            return
+        }
+
+        val decorView = currentActivity.window.decorView as? ViewGroup
+        if (decorView == null || decorView.width <= 0 || decorView.height <= 0) {
+            toggle(context)
+            return
+        }
+
+        // Capture exact anchor center relative to decorView
+        val anchorLoc = IntArray(2)
+        anchorView.getLocationInWindow(anchorLoc)
+        val decorLoc = IntArray(2)
+        decorView.getLocationInWindow(decorLoc)
+        val cx = (anchorLoc[0] - decorLoc[0]) + anchorView.width / 2
+        val cy = (anchorLoc[1] - decorLoc[1]) + anchorView.height / 2
+
+        // Capture current screen as Bitmap screenshot
+        val bitmap = try {
+            val bmp = Bitmap.createBitmap(decorView.width, decorView.height, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bmp)
+            decorView.draw(canvas)
+            bmp
+        } catch (e: OutOfMemoryError) {
+            null
+        } catch (e: Exception) {
+            null
+        }
+
+        if (bitmap == null) {
+            toggle(context)
+            return
+        }
+
+        isTransitioning = true
+        pendingBitmap = bitmap
+        pendingOriginX = cx
+        pendingOriginY = cy
+        pendingActivityClass = currentActivity.javaClass
+
+        // Add overlay to current screen immediately so no jump/glitch occurs before recreate
+        val oldOverlay = ImageView(currentActivity).apply {
+            setImageBitmap(bitmap)
+            scaleType = ImageView.ScaleType.FIT_XY
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+        }
+        decorView.addView(oldOverlay)
+
+        // Suppress default activity recreate crossfade
+        currentActivity.overridePendingTransition(0, 0)
+
+        // Call existing toggle() function
+        toggle(context)
     }
 }
