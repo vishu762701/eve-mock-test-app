@@ -29,7 +29,7 @@
             android:layout_weight="1"
             android:paddingStart="4dp"
             android:text="Performance Insights"
-            android:textColor="@android:color/white"
+            android:textColor="@color/eve_on_primary"
             android:textSize="20sp"
             android:textStyle="bold" />
     </LinearLayout>
@@ -62,8 +62,8 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        app:cardCornerRadius="14dp"
-                        app:cardElevation="1dp">
+                        app:cardCornerRadius="@dimen/eve_radius_md"
+                        app:cardElevation="0dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -95,8 +95,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
                         android:layout_weight="1"
-                        app:cardCornerRadius="14dp"
-                        app:cardElevation="1dp">
+                        app:cardCornerRadius="@dimen/eve_radius_md"
+                        app:cardElevation="0dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -129,8 +129,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    app:cardCornerRadius="14dp"
-                    app:cardElevation="1dp">
+                    app:cardCornerRadius="@dimen/eve_radius_md"
+                    app:cardElevation="0dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -169,8 +169,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:visibility="gone"
-                    app:cardBackgroundColor="#FDECEA"
-                    app:cardCornerRadius="14dp"
+                    app:cardBackgroundColor="@color/eve_error_bg"
+                    app:cardCornerRadius="@dimen/eve_radius_md"
                     app:cardElevation="0dp">
 
                     <LinearLayout
@@ -193,7 +193,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
                             android:lineSpacingExtra="4dp"
-                            android:textColor="#7A1F1A"
+                            android:textColor="@color/eve_error_text"
                             android:textSize="13sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -222,6 +222,7 @@
                     android:id="@+id/rvTopics"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layoutAnimation="@anim/layout_enter"
                     android:layout_marginTop="4dp"
                     android:nestedScrollingEnabled="false" />
             </LinearLayout>

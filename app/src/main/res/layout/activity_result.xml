@@ -23,7 +23,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Your Score"
-                android:textColor="#CFD8FF"
+                android:textColor="@color/eve_banner_text"
                 android:textSize="14sp" />
 
             <com.google.android.material.button.MaterialButton
@@ -34,7 +34,7 @@
                 android:minWidth="0dp"
                 android:paddingHorizontal="10dp"
                 android:text="हिं"
-                android:textColor="@android:color/white" />
+                android:textColor="@color/eve_on_primary" />
         </LinearLayout>
 
         <TextView
@@ -42,7 +42,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:textColor="@android:color/white"
+            android:textColor="@color/eve_on_primary"
             android:textSize="36sp"
             android:textStyle="bold" />
 
@@ -51,7 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:textColor="@android:color/white"
+            android:textColor="@color/eve_on_primary"
             android:textSize="15sp" />
 
         <TextView
@@ -59,7 +59,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:textColor="#CFD8FF"
+            android:textColor="@color/eve_banner_text"
             android:textSize="13sp"
             android:visibility="gone" />
     </LinearLayout>
@@ -125,6 +125,7 @@
         android:id="@+id/rvAnswers"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layoutAnimation="@anim/layout_enter"
         android:layout_weight="1"
         android:clipToPadding="false"
         android:padding="8dp" />

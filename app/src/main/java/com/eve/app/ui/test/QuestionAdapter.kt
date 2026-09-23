@@ -1,7 +1,10 @@
 package com.eve.app.ui.test
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.animation.OvershootInterpolator
 import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.R
 import com.eve.app.data.model.Question
@@ -33,7 +36,25 @@ class QuestionAdapter(
             refreshBookmarkIcon()
             b.btnBookmark.setOnClickListener {
                 onToggleBookmark(position)
-                refreshBookmarkIcon()
+                // Phase 25: shrink-then-pop-back-with-overshoot ("bounce") — icon swap
+                // happens exactly at the smallest point so the new icon is the one that
+                // bounces in, jaisa Telegram/Twitter ke like-button me hota hai.
+                b.btnBookmark.animate().cancel()
+                b.btnBookmark.animate()
+                    .scaleX(0.6f).scaleY(0.6f)
+                    .setDuration(90)
+                    .setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator) {
+                            refreshBookmarkIcon()
+                            b.btnBookmark.animate()
+                                .scaleX(1f).scaleY(1f)
+                                .setDuration(220)
+                                .setInterpolator(OvershootInterpolator(3f))
+                                .setListener(null)
+                                .start()
+                        }
+                    })
+                    .start()
             }
 
             // Recycled view me purana state / listener saaf karo, phir saved answer restore karo

@@ -10,7 +10,7 @@ Kotlin + MVVM + Firebase (Firestore + Google Sign-in). No custom backend.
      (yeh is repo ke fixed debug keystore ka SHA-1 hai — GitHub Actions isi keystore se APK banayega, isliye SHA-1 hamesha same rahega aur Google Sign-in kabhi nahi tootega)
 3. `google-services.json` download karo → repo me **`app/google-services.json`** path par daal do (root me nahi, `app/` folder ke andar).
 4. Firebase console me **Authentication → Sign-in method → Google → Enable**.
-5. **Firestore Database → Create database** (production mode) → collections apne aap ban jayengi jab data add hoga: `exams`, `questions`, `admins`, aur `attempts` (Phase 10 — students ki test history).
+5. **Firestore Database → Create database** (production mode) → collections apne aap ban jayengi jab data add hoga: `exams`, `questions`, `admins`, `attempts` (Phase 10 — students ki test history), aur `daily_questions` (Phase 20 — Daily GK).
 6. Firestore **Rules** tab me yeh laga do (MVP ke liye — logged-in user read kar sake, sirf admins `exams`/`questions`/`admins` write karein; har student sirf apni khud ki `attempts` likh/padh sake):
 ```
 rules_version = '2';
@@ -274,6 +274,158 @@ client-side compute hota hai, isliye koi extra `firebase deploy` bhi nahi karna 
   ho chuki hoti hai Test History dekhne se) se compute hoti hai — koi naya composite index ya
   security rule change nahi chahiye.
 
+## Topic-wise Practice (Phase 18)
+Home screen par **Practice** button `PracticeActivity` kholta hai. Exam select karo, phir
+us exam ke topic-tagged questions chips me dikhte hain (jaise "Percentage • 24 questions").
+Chip tap karte hi Test screen **practice mode** me khulti hai: us topic ke max 10 random
+questions, 1 minute/question. Submit ke baad wahi Result + History flow chalta hai, attempt
+name me "• Topic Practice" suffix save hota hai.
+
+Koi naya collection nahi — Phase 17 wala `questions.topic` field hi reuse hota hai. Jis exam
+me admin ne topic khali chhoda ho, wahan empty state dikhega.
+
+## Previous Year Questions (Phase 19)
+Indian exam prep apps ka sabse searched feature. Home par **PYQ** button `PyqActivity` kholta
+hai:
+
+- Exam select karo → tagged PYQ years chips me (naye year upar)
+- Year select karo → paper/shift chips (Prelims, Tier 1, Shift 2, …)
+- Ek se zyada papers hon to **"Saare papers"** chip bhi aati hai
+- Tap karte hi Test screen PYQ mode me start hoti hai — **questions shuffle nahi hote**
+  (admin ne jis order me upload kiya wahi paper order), timer chhote set par 1 min/Q,
+  20+ questions par exam ka official time
+
+**Admin:** question form me **Previous Year Question** checkbox + Year (required) + Paper/Shift
+(optional). Edit par pehle se tagged PYQ fields prefill ho jaate hain. Manage list me
+`PYQ 2024 Prelims` badge dikhta hai.
+
+**Schema (questions collection, extra fields):**
+- `isPyq` (Boolean)
+- `pyqYear` (Int, jaise 2024)
+- `pyqPaper` (String, optional)
+
+Naya Firestore collection / index nahi — read already signed-in users
+ko allowed hai, write sirf admin. History/Result me attempt name `"SSC CGL • PYQ 2024 • Prelims"`
+jaisa save hota hai taaki review me mock vs PYQ alag dikhe.
+
+**Phase 19 gap-fix:** mock tests aur topic-practice ab `isPyq = true` wale questions skip karte
+hain (`ExamRepository.getMockQuestions` / `getQuestionsForTopic`). Pehle full mock me PYQ
+questions bhi shuffle ho ke aa jaate the. Admin manage list ab bhi saare questions dikhati hai.
+
+## Daily GK / Current Affairs (Phase 20)
+Roz naya content = daily open rate. Home screen par highlighted **Aaj ka GK Quiz** card
+`DailyQuizActivity` kholta hai:
+
+- Aaj ki date (IST / Asia/Kolkata) ke questions
+- Streak counter (consecutive days, locally save)
+- Pehle ke dates ka archive — tap karke past quiz bhi attempt
+- Timer = 1 min / question
+- Submit par History me `"Daily GK • 22 Sep 2026"` save hota hai, category `Daily GK`
+- Daily reminder notification ab GK quiz ka mention bhi karti hai
+
+**Admin:** Dashboard ke top par **Daily GK / Current Affairs upload** → alag form.
+Date `yyyy-MM-dd` (default aaj), phir normal question fields + optional Hindi.
+
+**Schema (nayi collection `daily_questions`):**
+- `date` (String, `yyyy-MM-dd`)
+- `questionText`, `optionA`–`optionD`, `correctAnswer`
+- `explanation`, `topic` (optional)
+- Hindi fields same as exam questions
+
+**Security rules:** signed-in read, sirf admin write. Deploy:
+
+```bash
+firebase deploy --only firestore:rules
+```
+
+Koi naya composite index nahi.
+
+## Bulk question upload (Phase 21)
+Admin Dashboard section **3. Bulk CSV / Excel upload** (aur Daily GK screen par bhi same):
+
+1. **Template** button se sample CSV share / save karo (`app/src/main/assets/eve_questions_template.csv`).
+2. Excel / Google Sheets me columns bharo — 10 ho ya 100, same flow.
+3. **CSV / Excel** se file pick karo. Preview dialog valid vs skip rows dikhata hai.
+4. Confirm → Firestore `WriteBatch` (400 per batch) se upload.
+
+**Required columns:** `questionText`, `optionA`, `optionB`, `optionC`, `optionD`, `correctAnswer`  
+**Optional:** `explanation`, `topic`, `isPyq`, `pyqYear`, `pyqPaper`, Hindi fields  
+**Daily GK extra:** `date` (`yyyy-MM-dd`). Khali ho to screen wali date use hoti hai.
+
+Header names case-insensitive hain (`Question Text` = `questionText`).  
+`.csv` aur `.xlsx` support. Purana `.xls` nahi — Excel se Save As CSV/xlsx karo. Koi naya Gradle dependency nahi (XLSX zip+XML parser).
+
+Target exam = Admin spinner me selected exam.
+
 ## Notes
 - Negative marking off hai by default — `util/Constants.kt` me `NEGATIVE_MARK` change kar sakte ho.
+  Phase 23 ke baad ye value **do jagah** hai: `Constants.NEGATIVE_MARK` (client-side, sirf Result
+  screen turant dikhane ke liye) aur `functions/index.js` ke top par `NEGATIVE_MARK` (server-side,
+  jo actual persisted score decide karta hai). Ek change karo to dusri jagah bhi karna, warna
+  Result screen aur History/Leaderboard ka score mismatch ho jayega.
 - Koi Android Studio / wrapper zip nahi diya — seedha GitHub push karo, Actions khud build karega. Agar Android Studio me kholna hai to ek baar khulte hi wo khud gradle wrapper regenerate kar dega.
+
+
+## Phase 22 — Admin Analytics
+
+Admin Dashboard now includes **Admin Analytics**. It reads trusted aggregate data generated by
+the Cloud Function `updateAdminAnalytics` whenever an attempt is submitted.
+
+Collections:
+- `admin_analytics_exams/{examId}` — submission count, unique student count, last attempt.
+- `admin_analytics_questions/{stableQuestionKey}` — attempted/correct/wrong/unattempted counts.
+- `admin_analytics_exam_users/{examId}_{uid}` — internal unique-student marker; clients have no access.
+
+### Firebase deployment required
+
+After updating the app, deploy both rules and functions:
+
+```bash
+firebase deploy --only firestore:rules,functions
+```
+
+Phase 22 analytics will remain empty until the `updateAdminAnalytics` function is deployed and
+students submit new attempts. Existing attempts are intentionally not backfilled automatically;
+this avoids reading private historical attempts from the client. If you need historical analytics,
+run a controlled server-side backfill separately.
+
+The new analytics collections are protected by `firestore.rules`: only admins can read the
+aggregates and no client can write them.
+
+## Phase 23 — Trusted attempt submission (security fix)
+
+**Problem (found during Phase 22 review):** the app used to compute the test score on the
+device and write the whole `attempts` document straight to Firestore. The security rules only
+checked `userId == auth.uid` — they never checked that the score was actually earned. A modified
+client (or a direct REST/console call with a valid login) could submit any score it wanted,
+which fed straight into the Phase 16 Leaderboard and the Phase 22 Admin Analytics.
+
+**Fix:** attempt submission now goes through a new callable Cloud Function, `submitAttempt`.
+- The app sends only `{questionId, number, selected}` per question — never the score, never
+  whether it was correct.
+- The function re-reads the real question docs from `questions` / `daily_questions` with the
+  Admin SDK, recomputes correct/wrong/unattempted/score itself, and only then writes the
+  `attempts` document.
+- `firestore.rules` now has `allow create: if false` on `attempts` — a client can no longer
+  write an attempt directly, only this Cloud Function can (Admin SDK bypasses rules).
+- `Leaderboard` and `Admin Analytics` triggers are unchanged; they still fire off the new
+  `attempts` document, but now that document is trustworthy.
+
+### Firebase deployment required
+
+```bash
+firebase deploy --only firestore:rules,functions
+```
+
+Deploy **before** rolling out the updated app build — once `firestore:rules` is live, the old
+app version's direct `attempts` write will start failing (by design), so users should update
+around the same time you deploy.
+
+### Known limitation
+Because scoring now requires a network round-trip to the Cloud Function, a student who submits
+completely offline (no internet at the moment they tap Submit) will still see their Result
+screen instantly (calculated locally, unchanged), but the attempt retries a few times in the
+background and — if there's truly no network — will silently **not** be saved to History /
+Leaderboard / Analytics for that attempt. This trade-off is unavoidable once scoring is
+server-verified; a future improvement would be to queue failed submissions (e.g. with
+WorkManager) and retry after the device reconnects.

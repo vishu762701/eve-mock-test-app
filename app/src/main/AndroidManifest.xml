@@ -50,8 +50,22 @@
         <activity android:name=".ui.leaderboard.LeaderboardActivity" android:exported="false" />
         <activity android:name=".ui.performance.PerformanceActivity" android:exported="false" />
         <activity android:name=".ui.practice.PracticeActivity" android:exported="false" />
+        <activity android:name=".ui.pyq.PyqActivity" android:exported="false" />
+        <activity android:name=".ui.daily.DailyQuizActivity" android:exported="false" />
         <activity android:name=".ui.admin.AdminActivity" android:exported="false" />
+        <activity android:name=".ui.admin.AdminAnalyticsActivity" android:exported="false" />
+        <activity android:name=".ui.admin.DailyAdminActivity" android:exported="false" />
         <activity android:name=".ui.about.AboutActivity" android:exported="false" />
         <activity android:name=".ui.notifications.NotificationsActivity" android:exported="false" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 </manifest>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Phase 24: single source of truth for the Telegram-style "bubble" corner radius.
+         Every card that used to hardcode 14dp/16dp/18dp/24dp now points here, so the
+         whole app's roundness can be tuned in one place. -->
+    <dimen name="eve_radius_sm">16dp</dimen>
+    <dimen name="eve_radius_md">20dp</dimen>
+    <dimen name="eve_radius_lg">28dp</dimen>
+</resources>

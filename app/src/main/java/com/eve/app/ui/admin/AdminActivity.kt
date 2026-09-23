@@ -1,10 +1,12 @@
 package com.eve.app.ui.admin
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -17,7 +19,10 @@ import com.eve.app.data.model.Question
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.databinding.ActivityAdminBinding
+import com.eve.app.util.BulkImportHelper
 import com.eve.app.util.Constants
+import com.eve.app.util.QuestionBulkParser
+import com.eve.app.util.SpreadsheetReader
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -29,6 +34,10 @@ class AdminActivity : AppCompatActivity() {
 
     private var exams: List<Exam> = emptyList()
     private var editingQuestion: Question? = null
+
+    private val bulkPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) importBulk(uri)
+    }
 
     private val questionAdapter = QuestionManageAdapter(
         onEdit = { startEdit(it) },
@@ -92,7 +101,31 @@ class AdminActivity : AppCompatActivity() {
         binding.btnUpload.setOnClickListener { submitQuestion() }
         binding.btnCancelEdit.setOnClickListener { cancelEdit() }
         binding.btnAddAdmin.setOnClickListener { addAdmin() }
+        binding.btnDailyGkAdmin.setOnClickListener {
+            startActivity(android.content.Intent(this, DailyAdminActivity::class.java))
+        }
+        binding.btnAnalyticsAdmin.setOnClickListener {
+            startActivity(android.content.Intent(this, AdminAnalyticsActivity::class.java))
+        }
+        binding.btnShareTemplate.setOnClickListener {
+            BulkImportHelper.shareTemplate(this, BulkImportHelper.EXAM_TEMPLATE)
+        }
+        binding.btnBulkUpload.setOnClickListener {
+            bulkPicker.launch(
+                arrayOf(
+                    "text/*",
+                    "text/csv",
+                    "text/comma-separated-values",
+                    "application/vnd.ms-excel",
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "application/octet-stream"
+                )
+            )
+        }
         binding.btnToggleHindi.setOnClickListener { toggleHindiGroup() }
+        binding.cbPyq.setOnCheckedChangeListener { _, checked ->
+            binding.groupPyq.visibility = if (checked) View.VISIBLE else View.GONE
+        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -128,6 +161,7 @@ class AdminActivity : AppCompatActivity() {
                         binding.btnUpload.isEnabled = !it
                         binding.btnAddExam.isEnabled = !it
                         binding.btnDeleteExam.isEnabled = !it
+                        binding.btnBulkUpload.isEnabled = !it
                     }
                 }
                 launch {
@@ -182,7 +216,7 @@ class AdminActivity : AppCompatActivity() {
 
     private fun startEdit(q: Question) {
         editingQuestion = q
-        binding.tvFormTitle.text = "3. Question edit karo"
+        binding.tvFormTitle.text = "4. Question edit karo"
         binding.etQuestion.setText(q.questionText)
         binding.etTopic.setText(q.topic)
         binding.etOptionA.setText(q.optionA)
@@ -198,6 +232,10 @@ class AdminActivity : AppCompatActivity() {
         binding.etOptionCHi.setText(q.optionCHi)
         binding.etOptionDHi.setText(q.optionDHi)
         binding.etExplanationHi.setText(q.explanationHi)
+        binding.cbPyq.isChecked = q.isPyq
+        binding.etPyqYear.setText(if (q.pyqYear > 0) q.pyqYear.toString() else "")
+        binding.etPyqPaper.setText(q.pyqPaper)
+        binding.groupPyq.visibility = if (q.isPyq) View.VISIBLE else View.GONE
         // Agar pehle se koi Hindi translation bhari hai to section khud khul jaye
         val hasHindi = listOf(
             q.questionTextHi, q.optionAHi, q.optionBHi, q.optionCHi, q.optionDHi, q.explanationHi
@@ -223,7 +261,7 @@ class AdminActivity : AppCompatActivity() {
 
     private fun cancelEdit() {
         editingQuestion = null
-        binding.tvFormTitle.text = "3. Naya question upload karo"
+        binding.tvFormTitle.text = "4. Naya question upload karo"
         binding.etQuestion.text?.clear()
         binding.etTopic.text?.clear()
         binding.etOptionA.text?.clear()
@@ -238,6 +276,10 @@ class AdminActivity : AppCompatActivity() {
         binding.etOptionCHi.text?.clear()
         binding.etOptionDHi.text?.clear()
         binding.etExplanationHi.text?.clear()
+        binding.cbPyq.isChecked = false
+        binding.etPyqYear.text?.clear()
+        binding.etPyqPaper.text?.clear()
+        binding.groupPyq.visibility = View.GONE
         hideHindiGroup()
         binding.btnUpload.text = "Upload to Firestore"
         binding.btnCancelEdit.visibility = View.GONE
@@ -275,6 +317,40 @@ class AdminActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun importBulk(uri: Uri) {
+        val exam = exams.getOrNull(binding.spExam.selectedItemPosition)
+        if (exam == null) {
+            Toast.makeText(this, "Pehle ek exam select / banao", Toast.LENGTH_SHORT).show()
+            return
+        }
+        try {
+            val name = BulkImportHelper.displayName(this, uri)
+            val sheet = SpreadsheetReader.read(contentResolver, uri, name)
+            val parsed = QuestionBulkParser.parseExamQuestions(sheet, exam.id)
+            if (parsed.questions.isEmpty()) {
+                val detail = parsed.errors.take(5).joinToString("\n") { "Row ${it.rowNumber}: ${it.reason}" }
+                Toast.makeText(this, "Koi valid question nahi mila.\n$detail", Toast.LENGTH_LONG).show()
+                return
+            }
+            val errorPreview = if (parsed.errors.isEmpty()) "Koi row skip nahi hui."
+            else parsed.errors.take(8).joinToString("\n") { "Row ${it.rowNumber}: ${it.reason}" } +
+                if (parsed.errors.size > 8) "\n… +${parsed.errors.size - 8} aur" else ""
+            AlertDialog.Builder(this)
+                .setTitle("Bulk upload?")
+                .setMessage(
+                    "${exam.examName} me ${parsed.questions.size} questions jaayenge.\n" +
+                        "Skip: ${parsed.errors.size}\n\n$errorPreview"
+                )
+                .setPositiveButton("Upload") { _, _ ->
+                    viewModel.addQuestions(parsed.questions) { }
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        } catch (e: Exception) {
+            Toast.makeText(this, e.message ?: "File padh nahi paye", Toast.LENGTH_LONG).show()
+        }
+    }
+
     private fun submitQuestion() {
         if (exams.isEmpty()) {
             Toast.makeText(this, "Pehle ek exam banao", Toast.LENGTH_SHORT).show()
@@ -295,9 +371,16 @@ class AdminActivity : AppCompatActivity() {
         val cHi = binding.etOptionCHi.text.toString().trim()
         val dHi = binding.etOptionDHi.text.toString().trim()
         val explanationHi = binding.etExplanationHi.text.toString().trim()
+        val isPyq = binding.cbPyq.isChecked
+        val pyqYear = binding.etPyqYear.text.toString().trim().toIntOrNull() ?: 0
+        val pyqPaper = binding.etPyqPaper.text.toString().trim()
 
         if (qText.isEmpty() || a.isEmpty() || b.isEmpty() || c.isEmpty() || d.isEmpty()) {
             Toast.makeText(this, "Saari fields bharo", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (isPyq && pyqYear !in 1990..2100) {
+            Toast.makeText(this, "PYQ ke liye valid year daalo (e.g. 2024)", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -312,7 +395,10 @@ class AdminActivity : AppCompatActivity() {
                 explanation = explanation,
                 questionTextHi = qTextHi,
                 optionAHi = aHi, optionBHi = bHi, optionCHi = cHi, optionDHi = dHi,
-                explanationHi = explanationHi
+                explanationHi = explanationHi,
+                isPyq = isPyq,
+                pyqYear = if (isPyq) pyqYear else 0,
+                pyqPaper = if (isPyq) pyqPaper else ""
             )
             viewModel.updateQuestion(updated) { cancelEdit() }
         } else {
@@ -325,7 +411,10 @@ class AdminActivity : AppCompatActivity() {
                 explanation = explanation,
                 questionTextHi = qTextHi,
                 optionAHi = aHi, optionBHi = bHi, optionCHi = cHi, optionDHi = dHi,
-                explanationHi = explanationHi
+                explanationHi = explanationHi,
+                isPyq = isPyq,
+                pyqYear = if (isPyq) pyqYear else 0,
+                pyqPaper = if (isPyq) pyqPaper else ""
             )
             viewModel.addQuestion(q) { cancelEdit() }
         }

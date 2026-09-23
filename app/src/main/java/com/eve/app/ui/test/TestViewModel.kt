@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eve.app.data.model.AnswerItem
 import com.eve.app.data.model.Question
+import com.eve.app.data.repository.DailyGkRepository
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.data.repository.HistoryRepository
 import com.eve.app.util.UiState
@@ -19,6 +20,7 @@ import kotlinx.coroutines.launch
 class TestViewModel : ViewModel() {
 
     private val repo = ExamRepository()
+    private val dailyRepo = DailyGkRepository()
     private val historyRepo = HistoryRepository()
 
     private val _questions = MutableStateFlow<UiState<List<Question>>>(UiState.Loading)
@@ -31,6 +33,9 @@ class TestViewModel : ViewModel() {
     private val _timeUp = MutableStateFlow(false)
     val timeUp: StateFlow<Boolean> = _timeUp.asStateFlow()
 
+    private val _alreadyAttempted = MutableStateFlow(false)
+    val alreadyAttempted: StateFlow<Boolean> = _alreadyAttempted.asStateFlow()
+
     // position -> "A".."D". Swipe karne par selection yahin se wapas milta hai.
     private val answers = mutableMapOf<Int, String>()
 
@@ -40,15 +45,34 @@ class TestViewModel : ViewModel() {
     private var started = false
     private var timerJob: Job? = null
 
-    fun start(examId: String, timeLimitMinutes: Int, topic: String = "") {
+    fun start(
+        examId: String,
+        timeLimitMinutes: Int,
+        topic: String = "",
+        pyqYear: Int = 0,
+        pyqPaper: String = "",
+        quizDate: String = "",
+        isAdmin: Boolean = false
+    ) {
         if (started) return
         started = true
         viewModelScope.launch {
             try {
-                // Practice mode me ek focused, manageable set dikhao; full mock behaviour unchanged hai.
-                val list = (if (topic.isBlank()) repo.getQuestions(examId) else repo.getQuestionsForTopic(examId, topic))
-                    .shuffled()
-                    .let { questions -> if (topic.isBlank()) questions else questions.take(10) }
+                val user = FirebaseAuth.getInstance().currentUser
+                if (!isAdmin && user != null && examId.isNotBlank() && historyRepo.hasAttempted(user.uid, examId)) {
+                    _alreadyAttempted.value = true
+                    started = false
+                    return@launch
+                }
+                val list = when {
+                    // Phase 20: Daily GK — date-tagged questions, order preserve
+                    quizDate.isNotBlank() -> dailyRepo.getQuestionsForDate(quizDate).map { it.toQuestion() }
+                    // Phase 19: PYQ paper — original order preserve (shuffle nahi), taaki
+                    // admin jaisa upload kiya waisa paper feel rahe.
+                    pyqYear > 0 -> repo.getPyqQuestions(examId, pyqYear, pyqPaper)
+                    topic.isNotBlank() -> repo.getQuestionsForTopic(examId, topic).shuffled().take(10)
+                    else -> repo.getMockQuestions(examId).shuffled()
+                }
                 _questions.value = UiState.Success(list)
                 if (list.isNotEmpty()) startTimer(timeLimitMinutes * 60L)
             } catch (e: Exception) {
@@ -58,10 +82,19 @@ class TestViewModel : ViewModel() {
         }
     }
 
-    fun retry(examId: String, timeLimitMinutes: Int, topic: String = "") {
+    fun retry(
+        examId: String,
+        timeLimitMinutes: Int,
+        topic: String = "",
+        pyqYear: Int = 0,
+        pyqPaper: String = "",
+        quizDate: String = "",
+        isAdmin: Boolean = false
+    ) {
         _questions.value = UiState.Loading
+        _alreadyAttempted.value = false
         started = false
-        start(examId, timeLimitMinutes, topic)
+        start(examId, timeLimitMinutes, topic, pyqYear, pyqPaper, quizDate, isAdmin)
     }
 
     private fun startTimer(totalSeconds: Long) {
@@ -104,6 +137,7 @@ class TestViewModel : ViewModel() {
             val selected = getAnswer(index)
             items.add(
                 AnswerItem(
+                    questionId = q.id,
                     number = index + 1,
                     questionText = q.questionText,
                     questionTextHi = q.questionTextHi,
@@ -123,10 +157,15 @@ class TestViewModel : ViewModel() {
         return items
     }
 
-    /** Test History (Phase 10): submit hote hi attempt Firestore me save karo, logged in ho tabhi. */
+    /**
+     * Test History (Phase 10): submit hote hi attempt server se save karo, logged in ho tabhi.
+     * Phase 23: userId ab bheja hi nahi jaata — submitAttempt Cloud Function apne auth
+     * context (request.auth.uid) se hi decide karta hai, isliye client isko spoof nahi
+     * kar sakta.
+     */
     fun saveAttempt(examId: String, examName: String, category: String, items: List<AnswerItem>) {
         val user = FirebaseAuth.getInstance().currentUser ?: return
         val displayName = user.displayName?.ifBlank { null } ?: "Student"
-        historyRepo.saveAttempt(user.uid, displayName, examId, examName, category, items)
+        historyRepo.saveAttempt(examId, examName, category, displayName, items)
     }
 }

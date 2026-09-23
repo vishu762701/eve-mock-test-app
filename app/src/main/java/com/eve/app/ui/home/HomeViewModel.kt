@@ -16,65 +16,55 @@ import kotlinx.coroutines.launch
 class HomeViewModel : ViewModel() {
 
     private val repo = ExamRepository()
-
     private val _examState = MutableStateFlow<UiState<List<Exam>>>(UiState.Loading)
-
+    private val _attemptedIds = MutableStateFlow<Set<String>>(emptySet())
     private val _selectedCategory = MutableStateFlow(Constants.CATEGORY_ALL)
 
     val state: StateFlow<UiState<HomeUiData>> =
-        combine(_examState, _selectedCategory) { examState, selected ->
+        combine(_examState, _selectedCategory, _attemptedIds) { examState, selected, attempted ->
             when (examState) {
                 is UiState.Loading -> UiState.Loading
                 is UiState.Error -> UiState.Error(examState.message)
-                is UiState.Success -> UiState.Success(buildUiData(examState.data, selected))
+                is UiState.Success -> UiState.Success(buildUiData(examState.data, selected, attempted))
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState.Loading)
 
-    init {
-        load()
-    }
+    init { load() }
 
     fun load() {
         viewModelScope.launch {
             _examState.value = UiState.Loading
-            _examState.value = try {
-                UiState.Success(repo.getExams())
+            _examState.value = try { UiState.Success(repo.getExams()) }
+            catch (e: Exception) { UiState.Error(e.message ?: "Exams load nahi hue") }
+        }
+    }
+
+    fun loadForUser(userId: String, isAdmin: Boolean) {
+        viewModelScope.launch {
+            _examState.value = UiState.Loading
+            try {
+                _examState.value = UiState.Success(repo.getExams())
+                _attemptedIds.value = if (isAdmin) emptySet() else repo.getAttemptedExamIds(userId)
             } catch (e: Exception) {
-                UiState.Error(e.message ?: "Exams load nahi hue")
+                _examState.value = UiState.Error(e.message ?: "Exams load nahi hue")
             }
         }
     }
 
-    fun selectCategory(category: String) {
-        _selectedCategory.value = category
-    }
+    fun selectCategory(category: String) { _selectedCategory.value = category }
 
-    private fun buildUiData(all: List<Exam>, selected: String): HomeUiData {
-        val categories = listOf(Constants.CATEGORY_ALL) +
-            all.map { it.categoryOrOther }.distinct().sorted()
-
-        // Agar pehle select ki gayi category ab exams me nahi hai (delete ho gaya), "All" par wapas
+    private fun buildUiData(all: List<Exam>, selected: String, attempted: Set<String>): HomeUiData {
+        val categories = listOf(Constants.CATEGORY_ALL) + all.map { it.categoryOrOther }.distinct().sorted()
         val effectiveSelected = if (selected in categories) selected else Constants.CATEGORY_ALL
-
-        val filtered = if (effectiveSelected == Constants.CATEGORY_ALL) {
-            all
-        } else {
-            all.filter { it.categoryOrOther == effectiveSelected }
-        }
-
+        val filtered = if (effectiveSelected == Constants.CATEGORY_ALL) all else all.filter { it.categoryOrOther == effectiveSelected }
         val items = if (effectiveSelected == Constants.CATEGORY_ALL) {
-            // Grouped view: har category ka apna header
-            filtered
-                .groupBy { it.categoryOrOther }
-                .toSortedMap()
-                .flatMap { (category, exams) ->
-                    listOf(HomeListItem.Header(category)) +
-                        exams.sortedBy { it.examName }.map { HomeListItem.ExamRow(it) }
-                }
+            filtered.groupBy { it.categoryOrOther }.toSortedMap().flatMap { (category, exams) ->
+                listOf(HomeListItem.Header(category)) + exams.sortedBy { it.examName }
+                    .map { HomeListItem.ExamRow(it, it.id in attempted) }
+            }
         } else {
-            filtered.sortedBy { it.examName }.map { HomeListItem.ExamRow(it) }
+            filtered.sortedBy { it.examName }.map { HomeListItem.ExamRow(it, it.id in attempted) }
         }
-
         return HomeUiData(categories, effectiveSelected, items)
     }
 }

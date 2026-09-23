@@ -23,6 +23,22 @@
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAnalyticsAdmin"
+                style="@style/Widget.Eve.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="📊 Admin Analytics" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDailyGkAdmin"
+                style="@style/Widget.Eve.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Daily GK / Current Affairs upload" />
+
             <!-- Add Exam -->
             <TextView
                 android:layout_width="wrap_content"
@@ -106,13 +122,53 @@
                     android:text="Delete exam" />
             </LinearLayout>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:text="3. Bulk CSV / Excel upload"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Upar se exam select karo, template download karo, 100 questions bhar ke CSV ya .xlsx pick karo. Invalid rows skip ho jaati hain."
+                android:textColor="@color/eve_text_secondary"
+                android:textSize="13sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnShareTemplate"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Template" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnBulkUpload"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:text="CSV / Excel" />
+            </LinearLayout>
+
             <!-- Add / Edit Question -->
             <TextView
                 android:id="@+id/tvFormTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"
-                android:text="3. Naya question upload karo"
+                android:text="4. Naya question upload karo"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -132,6 +188,35 @@
                 android:layout_marginTop="6dp"
                 android:hint="Topic (optional) — jaise Percentage, Polity, History"
                 android:inputType="text" />
+
+            <CheckBox
+                android:id="@+id/cbPyq"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Previous Year Question (PYQ)" />
+
+            <LinearLayout
+                android:id="@+id/groupPyq"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <EditText
+                    android:id="@+id/etPyqYear"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Year (e.g. 2024)"
+                    android:inputType="number" />
+
+                <EditText
+                    android:id="@+id/etPyqPaper"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Paper / Shift (optional) — Prelims, Tier 1, Shift 2"
+                    android:inputType="textCapWords" />
+            </LinearLayout>
 
             <EditText
                 android:id="@+id/etOptionA"
@@ -306,6 +391,7 @@
                 android:id="@+id/rvQuestions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layoutAnimation="@anim/layout_enter"
                 android:nestedScrollingEnabled="false" />
 
             <!-- Manage Admins -->
@@ -362,6 +448,7 @@
                 android:id="@+id/rvAdmins"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layoutAnimation="@anim/layout_enter"
                 android:layout_marginTop="4dp"
                 android:nestedScrollingEnabled="false" />
 

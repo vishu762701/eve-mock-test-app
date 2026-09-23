@@ -6,6 +6,7 @@ import kotlinx.parcelize.Parcelize
 /** Result screen ki answer key ke liye ek row. selected = "" matlab unattempted. */
 @Parcelize
 data class AnswerItem(
+    val questionId: String = "",
     val number: Int,
     val questionText: String,
     val selected: String,

@@ -1,22 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="eve_primary">#7DA7FF</color>
-    <color name="eve_primary_dark">#1E3A8A</color>
-    <color name="eve_accent">#FDBA74</color>
-    <color name="eve_green">#4ADE80</color>
-    <color name="eve_red">#F87171</color>
-    <color name="eve_grey">#94A3B8</color>
-    <color name="eve_bg">#0B1220</color>
-    <color name="eve_surface">#121C2E</color>
-    <color name="eve_text">#F8FAFC</color>
-    <color name="eve_text_secondary">#94A3B8</color>
-    <color name="eve_stroke">#26354D</color>
-    <color name="eve_surface_variant">#19263A</color>
-    <color name="eve_offline_bg">#3B2B0D</color>
-    <color name="eve_offline_text">#FCD34D</color>
-    <color name="eve_gold">#FCD34D</color>
-    <color name="eve_silver">#CBD5E1</color>
-    <color name="eve_bronze">#FDBA74</color>
-    <color name="eve_highlight_bg">#172A4A</color>
-    <color name="eve_card_bg">#121C2E</color>
+    <!-- Phase 24: Telegram-inspired premium palette (dark). Matches Telegram's classic
+         "Night" theme: near-black navy page, slightly lighter navy bubbles/cards, and a
+         light sky-blue accent that stays readable at low brightness. -->
+    <color name="eve_primary">#FFFFFF</color>
+    <color name="eve_primary_dark">#242424</color>
+    <color name="eve_accent">#FFFFFF</color>
+    <color name="eve_green">#81C784</color>
+    <color name="eve_red">#FF8A80</color>
+    <color name="eve_grey">#8A8A8A</color>
+    <color name="eve_bg">#000000</color>
+    <color name="eve_surface">#111111</color>
+    <color name="eve_text">#F5F5F5</color>
+    <color name="eve_text_secondary">#8A8A8A</color>
+    <color name="eve_stroke">#242424</color>
+    <color name="eve_surface_variant">#111111</color>
+    <color name="eve_offline_bg">#332800</color>
+    <color name="eve_offline_text">#FFD166</color>
+    <color name="eve_gold">#FFD166</color>
+    <color name="eve_silver">#C7D0D9</color>
+    <color name="eve_bronze">#E3A66D</color>
+    <color name="eve_highlight_bg">#111111</color>
+    <color name="eve_card_bg">#111111</color>
+    <color name="eve_banner_text">#F5F5F5</color>
+    <color name="eve_error_bg">#351818</color>
+    <color name="eve_error_text">#FF8A80</color>
+    <color name="eve_button_bg">#FFFFFF</color>
+    <color name="eve_button_text">#000000</color>
+    <color name="eve_on_primary">#000000</color>
+    <color name="eve_timer_warning">#FFAB91</color>
+    <color name="eve_chart_primary">#F5F5F5</color>
+    <color name="eve_chart_fill">#22F5F5F5</color>
+    <color name="eve_chart_grid">#242424</color>
+    <color name="eve_chart_label">#8A8A8A</color>
 </resources>

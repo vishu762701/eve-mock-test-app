@@ -1,12 +1,22 @@
 <resources>
     <style name="Theme.Eve" parent="Theme.Material3.Light.NoActionBar">
-        <item name="colorPrimary">@color/eve_primary</item><item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorPrimary">@color/eve_primary</item><item name="colorOnPrimary">@color/eve_on_primary</item>
         <item name="colorSecondary">@color/eve_accent</item><item name="colorSurface">@color/eve_surface</item>
         <item name="colorOnSurface">@color/eve_text</item><item name="colorOutline">@color/eve_stroke</item>
         <item name="android:windowBackground">@color/eve_bg</item><item name="android:statusBarColor">@color/eve_bg</item>
         <item name="android:navigationBarColor">@color/eve_bg</item><item name="android:windowLightStatusBar">true</item>
         <item name="android:fontFamily">sans</item><item name="materialButtonStyle">@style/Widget.Eve.Button</item>
         <item name="materialCardViewStyle">@style/Widget.Eve.Card</item>
+        <!-- Phase 25: Telegram-style push/pop screen transition, app-wide (koi per-Activity
+             code nahi chahiye — har startActivity()/finish() par khud-ba-khud apply hoti hai). -->
+        <item name="android:windowAnimationStyle">@style/Eve.WindowAnimation</item>
     </style>
     <style name="ShapeCircle" parent=""><item name="cornerFamily">rounded</item><item name="cornerSize">50%</item></style>
+
+    <style name="Eve.WindowAnimation" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/slide_in_right</item>
+        <item name="android:activityOpenExitAnimation">@anim/stay_visible</item>
+        <item name="android:activityCloseEnterAnimation">@anim/stay_visible</item>
+        <item name="android:activityCloseExitAnimation">@anim/slide_out_right</item>
+    </style>
 </resources>

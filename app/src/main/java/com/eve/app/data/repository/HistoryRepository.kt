@@ -1,71 +1,92 @@
 package com.eve.app.data.repository
 
+import android.util.Log
 import com.eve.app.data.model.AnswerItem
 import com.eve.app.data.model.TestAttempt
-import com.eve.app.util.Constants
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.functions.FirebaseFunctions
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class HistoryRepository(
-    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val db: FirebaseFirestore = FirebaseFirestore.getInstance(),
+    private val functions: FirebaseFunctions = FirebaseFunctions.getInstance()
 ) {
 
     /**
-     * Test submit hone ke turant baad call hota hai. Jaanbujh kar suspend nahi hai:
-     * Firestore ka .add() call hote hi write local cache me turant ho jaata hai
-     * (offline persistence EveApplication me on hai) aur background me server se sync
-     * ho jaata hai — TestActivity finish() ho jaaye uske baad bhi yeh write lost nahi hota,
-     * isliye coroutine scope (jo Activity/ViewModel ke saath cancel ho sakta hai) par depend
-     * nahi karte.
+     * Phase 23 security fix: pehle yahan client khud score calculate karke seedha
+     * Firestore "attempts" collection me likh deta tha (rules sirf userId check karte
+     * the) — matlab modified client fake score/answers bhej sakta tha jo Leaderboard aur
+     * Phase 22 Analytics dono ko spoof kar deta. Ab sirf itna bhejte hain: kaunsa
+     * question dikha aur kaunsa option select kiya. Score/correctness/leaderboard-worthy
+     * sab kuch functions/index.js ka `submitAttempt` Cloud Function khud, real
+     * "questions"/"daily_questions" documents se (Admin SDK) calculate karta hai —
+     * client ki bheji hui score/correct/answers value ab kahin trust nahi hoti.
+     *
+     * Jaanbujh kar viewModelScope use nahi kiya: TestActivity submit() ke turant baad
+     * finish() ho jaata hai jo viewModelScope cancel kar deta, aur network call beech
+     * me hi kat jaata. Isliye ek repository-level scope use kiya hai jo Activity/ViewModel
+     * ke saath cancel nahi hota (process zinda rehne tak). Yeh purani offline-persistence
+     * jitna robust nahi hai (process kill/no-network par retries ke baad bhi fail ho sakta
+     * hai aur wo attempt History/Leaderboard me kabhi nahi aayega), lekin Result screen
+     * turant local calculation se hi dikhta hai isliye student block nahi hota.
      */
+    private val submitScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     fun saveAttempt(
-        userId: String,
-        displayName: String,
         examId: String,
         examName: String,
         category: String,
+        displayName: String,
         items: List<AnswerItem>
     ) {
-        val total = items.size
-        val correct = items.count { it.isCorrect }
-        val unattempted = items.count { !it.isAttempted }
-        val wrong = total - correct - unattempted
-        val score = correct - wrong * Constants.NEGATIVE_MARK
-
-        val answersData = items.map { a ->
-            hashMapOf(
-                "number" to a.number,
-                "questionText" to a.questionText,
-                "selected" to a.selected,
-                "selectedText" to a.selectedText,
-                "correct" to a.correct,
-                "correctText" to a.correctText,
-                "explanation" to a.explanation,
-                "isBookmarked" to a.isBookmarked,
-                "topic" to a.topic,
-                "questionTextHi" to a.questionTextHi,
-                "selectedTextHi" to a.selectedTextHi,
-                "correctTextHi" to a.correctTextHi,
-                "explanationHi" to a.explanationHi
-            )
-        }
-
-        val data = hashMapOf(
-            "userId" to userId,
-            "displayName" to displayName,
+        val payload = hashMapOf(
             "examId" to examId,
             "examName" to examName,
             "category" to category,
-            "score" to score,
-            "total" to total,
-            "correct" to correct,
-            "wrong" to wrong,
-            "unattempted" to unattempted,
-            "timestamp" to System.currentTimeMillis(),
-            "answers" to answersData
+            "displayName" to displayName,
+            "answers" to items.map { a ->
+                hashMapOf(
+                    "questionId" to a.questionId,
+                    "number" to a.number,
+                    "selected" to a.selected,
+                    "isBookmarked" to a.isBookmarked
+                )
+            }
         )
-        db.collection("attempts").add(data)
+
+        submitScope.launch {
+            val maxAttempts = 3
+            for (attempt in 1..maxAttempts) {
+                try {
+                    functions.getHttpsCallable("submitAttempt").call(payload).await()
+                    return@launch
+                } catch (e: Exception) {
+                    Log.w("HistoryRepository", "submitAttempt try $attempt/$maxAttempts failed", e)
+                    if (attempt < maxAttempts) delay(2000L * attempt)
+                }
+            }
+            // Sab retries fail — yeh attempt History/Leaderboard/Analytics me nahi
+            // dikhega. Result screen already dikh chuka hoga (local calculation se),
+            // isliye student ko pata nahi chalega ki background save fail hua.
+        }
+    }
+
+    /** Backward-compatible attempt check: lock first, then legacy attempts. */
+    suspend fun hasAttempted(userId: String, examId: String): Boolean {
+        if (userId.isBlank() || examId.isBlank()) return false
+        val lockId = "${userId}_${examId}"
+        if (db.collection("attempt_locks").document(lockId).get().await().exists()) return true
+        return !db.collection("attempts")
+            .whereEqualTo("userId", userId)
+            .whereEqualTo("examId", examId)
+            .limit(1)
+            .get().await().isEmpty
     }
 
     /** Naye se purane order me — client side sort karte hain taaki composite index ki zaroorat na pade. */
@@ -82,6 +103,7 @@ class HistoryRepository(
         val answers = answersRaw.mapNotNull { raw ->
             val map = raw as? Map<*, *> ?: return@mapNotNull null
             AnswerItem(
+                questionId = map["questionId"] as? String ?: "",
                 number = (map["number"] as? Long)?.toInt() ?: 0,
                 questionText = map["questionText"] as? String ?: "",
                 selected = map["selected"] as? String ?: "",

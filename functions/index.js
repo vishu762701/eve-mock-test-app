@@ -26,10 +26,12 @@
  */
 
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
+const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { initializeApp } = require("firebase-admin/app");
 const { getMessaging } = require("firebase-admin/messaging");
-const { getFirestore } = require("firebase-admin/firestore");
+const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 const { getAuth } = require("firebase-admin/auth");
+const crypto = require("crypto");
 
 initializeApp();
 
@@ -108,4 +110,266 @@ exports.updateLeaderboard = onDocumentCreated("attempts/{attemptId}", async (eve
       timestamp: attempt.timestamp || Date.now(),
     });
   });
+});
+
+
+/**
+ * Phase 22 — Admin analytics.
+ *
+ * attempts are private to their owner, so the Admin app cannot query the whole attempts
+ * collection directly. This trusted server-side trigger turns each submitted attempt into
+ * small aggregate documents that admins can read:
+ *   admin_analytics_exams/{examId}
+ *   admin_analytics_questions/{stableQuestionKey}
+ *
+ * No answer data is exposed to students through these collections.
+ */
+function stableQuestionKey(examId, answer) {
+  const explicitId = String(answer.questionId || "").trim();
+  if (explicitId) return `${examId}_${explicitId}`.replace(/[^A-Za-z0-9_-]/g, "_").slice(0, 120);
+  const legacy = `${examId}|${answer.number || 0}|${answer.questionText || ""}`;
+  return `${examId}_legacy_${crypto.createHash("sha256").update(legacy).digest("hex").slice(0, 24)}`;
+}
+
+exports.updateAdminAnalytics = onDocumentCreated("attempts/{attemptId}", async (event) => {
+  const attempt = event.data?.data();
+  if (!attempt) return;
+
+  const db = getFirestore();
+  const examId = String(attempt.examId || "").trim();
+  const userId = String(attempt.userId || "").trim();
+  if (!examId || !userId) return;
+
+  const examRef = db.collection("admin_analytics_exams").doc(examId);
+  const userMarkerRef = db.collection("admin_analytics_exam_users").doc(`${examId}_${userId}`);
+
+  // Count a submission every time, but count a student only once per exam.
+  await db.runTransaction(async (tx) => {
+    const marker = await tx.get(userMarkerRef);
+    const examData = {
+      examId,
+      examName: String(attempt.examName || ""),
+      category: String(attempt.category || ""),
+      attemptCount: FieldValue.increment(1),
+      lastAttemptAt: Number(attempt.timestamp || Date.now())
+    };
+    if (!marker.exists) {
+      examData.uniqueUsers = FieldValue.increment(1);
+      tx.set(userMarkerRef, { createdAt: Date.now() });
+    }
+    tx.set(examRef, examData, { merge: true });
+  });
+
+  const answers = Array.isArray(attempt.answers) ? attempt.answers : [];
+  const writes = [];
+  for (const answer of answers) {
+    const selected = String(answer.selected || "");
+    const correct = String(answer.correct || "");
+    const attempted = selected.length > 0;
+    const isCorrect = attempted && selected === correct;
+    const qRef = db.collection("admin_analytics_questions").doc(stableQuestionKey(examId, answer));
+
+    const data = {
+      examId,
+      examName: String(attempt.examName || ""),
+      questionId: String(answer.questionId || ""),
+      questionNumber: Number(answer.number || 0),
+      questionText: String(answer.questionText || ""),
+      topic: String(answer.topic || ""),
+      attempts: FieldValue.increment(attempted ? 1 : 0),
+      correct: FieldValue.increment(isCorrect ? 1 : 0),
+      wrong: FieldValue.increment(attempted && !isCorrect ? 1 : 0),
+      unattempted: FieldValue.increment(attempted ? 0 : 1)
+    };
+    writes.push({ ref: qRef, data });
+  }
+
+  // Batched writes are limited to 500 operations. A normal mock test is far below this,
+  // but chunking keeps the trigger safe for unusually large exams.
+  for (let i = 0; i < writes.length; i += 400) {
+    const batch = db.batch();
+    writes.slice(i, i + 400).forEach(({ ref, data }) => batch.set(ref, data, { merge: true }));
+    await batch.commit();
+  }
+});
+
+/**
+ * Phase 23 — Trusted attempt submission (security fix).
+ *
+ * Before this phase, the Android client computed its own score and wrote the whole
+ * "attempts" document directly to Firestore (rules only checked that userId == auth uid,
+ * never that the score was real). A modified client could submit any score/answers it
+ * wanted, which fed straight into the Leaderboard (updateLeaderboard above) and the
+ * Phase 22 admin analytics (updateAdminAnalytics above).
+ *
+ * Now the client sends ONLY which question it saw and which option it picked
+ * ({questionId, number, selected}) through this callable function. Everything that
+ * matters for trust — the correct answer, the score, correct/wrong/unattempted counts —
+ * is computed here from the real "questions"/"daily_questions" documents (Admin SDK,
+ * ignores client input for that part entirely). "attempts" documents are only ever
+ * written from here now (see firestore.rules: attempts create is `false`), so a modified
+ * client can no longer forge a result.
+ *
+ * NEGATIVE_MARK below must be kept in sync with Constants.NEGATIVE_MARK in the Android app.
+ */
+const NEGATIVE_MARK = 0.0;
+const VALID_OPTIONS = ["A", "B", "C", "D"];
+
+function questionOptionText(q, letter) {
+  return String(q[`option${letter}`] || "");
+}
+function questionOptionTextHi(q, letter) {
+  return String(q[`option${letter}Hi`] || "");
+}
+
+exports.submitAttempt = onCall(async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) {
+    throw new HttpsError("unauthenticated", "Login required.");
+  }
+
+  const data = request.data || {};
+  const examId = String(data.examId || "").trim();
+
+  // A student may submit a particular exam only once. Admins retain preview/retry access.
+  const adminEmails = new Set([
+    "pronlike9@gmail.com",
+    "own.keni@gmail.com",
+    "anyqueairdrop@gmail.com",
+    "ghatisarkar56@gmail.com"
+  ]);
+  const callerEmail = String(request.auth?.token?.email || "").toLowerCase();
+  const dynamicAdmin = await db.collection("admins").doc(callerEmail).get();
+  const isAdminCaller = adminEmails.has(callerEmail) || dynamicAdmin.exists;
+  const examName = String(data.examName || "Test").trim();
+  const category = String(data.category || "").trim();
+  const rawAnswers = Array.isArray(data.answers) ? data.answers : [];
+
+  if (!examId || rawAnswers.length === 0 || rawAnswers.length > 300) {
+    throw new HttpsError("invalid-argument", "Invalid attempt payload.");
+  }
+
+  // Trust nothing from rawAnswers except which question + which option was picked.
+  const seen = new Set();
+  const picks = [];
+  for (const a of rawAnswers) {
+    const questionId = String(a?.questionId || "").trim();
+    if (!questionId || seen.has(questionId)) continue;
+    seen.add(questionId);
+    const selectedRaw = String(a?.selected || "").trim().toUpperCase();
+    picks.push({
+      questionId,
+      number: Number(a?.number || 0),
+      selected: VALID_OPTIONS.includes(selectedRaw) ? selectedRaw : "",
+      isBookmarked: a?.isBookmarked === true
+    });
+  }
+  if (picks.length === 0) {
+    throw new HttpsError("invalid-argument", "No valid answers in payload.");
+  }
+
+  const db = getFirestore();
+  const lockRef = examId ? db.collection("attempt_locks").doc(`${uid}_${examId}`) : null;
+  if (!isAdminCaller && lockRef) {
+    // Legacy compatibility: convert an old attempts document into the new deterministic lock.
+    const existingLock = await lockRef.get();
+    if (existingLock.exists) {
+      throw new HttpsError("already-exists", "You have already completed this test.");
+    }
+    const existing = await db.collection("attempts")
+      .where("userId", "==", uid)
+      .where("examId", "==", examId)
+      .limit(1)
+      .get();
+    if (!existing.empty) {
+      await lockRef.set({ userId: uid, examId, timestamp: Date.now(), source: "legacy_migration" });
+      throw new HttpsError("already-exists", "You have already completed this test.");
+    }
+
+    // Close the race where two devices submit the same test simultaneously.
+    await db.runTransaction(async (tx) => {
+      const lock = await tx.get(lockRef);
+      if (lock.exists) {
+        throw new HttpsError("already-exists", "You have already completed this test.");
+      }
+      tx.create(lockRef, { userId: uid, examId, timestamp: Date.now(), source: "submit" });
+    });
+  }
+
+  const isDaily = examId === "daily-gk";
+  const collectionName = isDaily ? "daily_questions" : "questions";
+  const refs = picks.map((p) => db.collection(collectionName).doc(p.questionId));
+  const snaps = await db.getAll(...refs);
+
+  const answersData = [];
+  let correct = 0, wrong = 0, unattempted = 0;
+
+  snaps.forEach((snap, i) => {
+    if (!snap.exists) return; // question deleted/edited away since the student loaded it — skip
+    const q = snap.data();
+    // For a normal exam, make sure this question actually belongs to the exam the
+    // student claims — stops mixing questions from a different exam into a leaderboard.
+    if (!isDaily && String(q.examId || "") !== examId) return;
+
+    const pick = picks[i];
+    const correctAnswer = String(q.correctAnswer || "");
+    const attempted = pick.selected.length > 0;
+    const isCorrect = attempted && pick.selected === correctAnswer;
+
+    if (!attempted) unattempted++;
+    else if (isCorrect) correct++;
+    else wrong++;
+
+    answersData.push({
+      questionId: pick.questionId,
+      number: pick.number,
+      questionText: String(q.questionText || ""),
+      selected: pick.selected,
+      selectedText: pick.selected ? questionOptionText(q, pick.selected) : "",
+      correct: correctAnswer,
+      correctText: questionOptionText(q, correctAnswer),
+      explanation: String(q.explanation || ""),
+      isBookmarked: pick.isBookmarked,
+      topic: String(q.topic || ""),
+      questionTextHi: String(q.questionTextHi || ""),
+      selectedTextHi: pick.selected ? questionOptionTextHi(q, pick.selected) : "",
+      correctTextHi: questionOptionTextHi(q, correctAnswer),
+      explanationHi: String(q.explanationHi || "")
+    });
+  });
+
+  if (answersData.length === 0) {
+    throw new HttpsError("invalid-argument", "None of the submitted questions could be verified.");
+  }
+
+  const total = answersData.length;
+  const score = correct - wrong * NEGATIVE_MARK;
+
+  let displayName = String(data.displayName || "").trim();
+  if (!displayName) {
+    try {
+      const userRecord = await getAuth().getUser(uid);
+      displayName = userRecord.displayName || "Student";
+    } catch (e) {
+      displayName = "Student";
+    }
+  }
+
+  const attemptRef = db.collection("attempts").doc();
+  await attemptRef.set({
+    userId: uid,
+    displayName,
+    examId,
+    examName,
+    category,
+    score,
+    total,
+    correct,
+    wrong,
+    unattempted,
+    timestamp: Date.now(),
+    answers: answersData
+  });
+
+  return { attemptId: attemptRef.id, score, total, correct, wrong, unattempted };
 });

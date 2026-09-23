@@ -25,6 +25,13 @@ object Constants {
     const val EXTRA_TIME_LIMIT = "extra_time_limit"
     const val EXTRA_TOPIC = "extra_topic"
     const val EXTRA_PRACTICE_MODE = "extra_practice_mode"
+    const val EXTRA_PYQ_MODE = "extra_pyq_mode"
+    const val EXTRA_PYQ_YEAR = "extra_pyq_year"
+    const val EXTRA_PYQ_PAPER = "extra_pyq_paper"
+    const val EXTRA_DAILY_MODE = "extra_daily_mode"
+    const val EXTRA_QUIZ_DATE = "extra_quiz_date"
+    const val DAILY_GK_EXAM_ID = "daily-gk"
+    const val DAILY_GK_CATEGORY = "Daily GK"
     const val EXTRA_ANSWERS = "extra_answers"
 
     // Test History (Phase 10)

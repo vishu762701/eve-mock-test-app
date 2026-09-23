@@ -30,7 +30,7 @@ class PracticeViewModel : ViewModel() {
         if (examId.isBlank()) return@launch
         _topics.value = UiState.Loading
         _topics.value = try {
-            val topics = repository.getQuestions(examId)
+            val topics = repository.getMockQuestions(examId)
                 .map { it.topic.trim() }
                 .filter { it.isNotBlank() }
                 .groupingBy { it }

@@ -69,6 +69,18 @@ object ThemeManager {
         button.contentDescription = context.getString(
             if (isDarkMode(context)) R.string.theme_toggle_to_light else R.string.theme_toggle_to_dark
         )
-        button.setOnClickListener { toggle(context) }
+        button.setOnClickListener {
+            // toggle() turant AppCompatDelegate.setDefaultNightMode() call karta hai jo
+            // Activity ko turant recreate() kar deta hai — isliye ek lambi crossfade/rotate
+            // animation yahan chalti hi nahi (screen beech me hi rebuild ho jaati). Bas ek
+            // chhota tap-pop feedback (spin + shrink) jo click ke turant baad recreate hone
+            // tak visually register ho jaata hai.
+            button.animate()
+                .rotationBy(180f)
+                .scaleX(0.8f).scaleY(0.8f)
+                .setDuration(120)
+                .withEndAction { toggle(context) }
+                .start()
+        }
     }
 }

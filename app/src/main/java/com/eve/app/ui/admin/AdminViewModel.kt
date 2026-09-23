@@ -95,6 +95,25 @@ class AdminViewModel : ViewModel() {
         }
     }
 
+    fun addQuestions(questions: List<Question>, onDone: () -> Unit) {
+        if (questions.isEmpty()) {
+            _message.value = "Upload ke liye koi valid question nahi mila"
+            return
+        }
+        viewModelScope.launch {
+            _busy.value = true
+            try {
+                val n = repo.addQuestions(questions)
+                _message.value = "$n questions Firestore me upload ho gaye"
+                questions.firstOrNull()?.examId?.let { loadQuestions(it) }
+                onDone()
+            } catch (e: Exception) {
+                _message.value = e.message ?: "Bulk upload fail (Firestore rules check karo)"
+            }
+            _busy.value = false
+        }
+    }
+
     fun addQuestion(q: Question, onDone: () -> Unit) {
         viewModelScope.launch {
             _busy.value = true

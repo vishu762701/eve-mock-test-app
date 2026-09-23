@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:background="@color/eve_primary" android:gravity="center_vertical" android:paddingHorizontal="4dp" android:paddingVertical="10dp">
+        <ImageButton android:id="@+id/btnBack" android:layout_width="40dp" android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="Back"
+            android:padding="8dp" android:src="@drawable/ic_back"/>
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:text="Admin Analytics" android:textColor="@color/eve_on_primary" android:textSize="20sp" android:textStyle="bold"/>
+        <ImageButton android:id="@+id/btnRefresh" android:layout_width="40dp" android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="Refresh"
+            android:padding="8dp" android:src="@drawable/ic_refresh"/>
+    </LinearLayout>
+    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <ScrollView android:id="@+id/content" android:layout_width="match_parent" android:layout_height="match_parent"
+            android:fillViewport="true">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="16dp">
+                <TextView android:id="@+id/tvSummary" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:textColor="?attr/colorOnSurface" android:textSize="14sp"/>
+                <TextView android:id="@+id/tvMostAttempted" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:textColor="@color/eve_primary" android:textSize="15sp" android:textStyle="bold"/>
+                <TextView android:id="@+id/tvExamHeading" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="22dp" android:text="Exam attempts" android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp" android:textStyle="bold"/>
+                <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvExams" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:nestedScrollingEnabled="false" android:layout_marginTop="8dp"
+                    android:layoutAnimation="@anim/layout_enter"/>
+                <TextView android:id="@+id/tvWeakHeading" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="22dp" android:text="Weak questions" android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp" android:textStyle="bold"/>
+                <TextView android:id="@+id/tvWeakSub" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp" android:text="High wrong-rate questions with enough attempts are shown first."
+                    android:textColor="@color/eve_grey" android:textSize="12sp"/>
+                <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvQuestions" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:nestedScrollingEnabled="false" android:layout_marginTop="8dp"
+                    android:layoutAnimation="@anim/layout_enter"/>
+                <TextView android:id="@+id/tvEmpty" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp" android:text="Analytics abhi available nahi hai. Pehle students test submit karein."
+                    android:textColor="@color/eve_grey" android:textSize="13sp" android:visibility="gone"/>
+            </LinearLayout>
+        </ScrollView>
+        <ProgressBar android:id="@+id/progress" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_gravity="center" android:visibility="gone"/>
+    </FrameLayout>
+</LinearLayout>

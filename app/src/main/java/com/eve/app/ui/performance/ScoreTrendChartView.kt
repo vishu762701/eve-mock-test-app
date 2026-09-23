@@ -2,7 +2,7 @@ package com.eve.app.ui.performance
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
+import androidx.core.content.ContextCompat
 import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
@@ -25,26 +25,26 @@ class ScoreTrendChartView @JvmOverloads constructor(
     private var points: List<ScorePoint> = emptyList()
 
     private val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.parseColor("#3F51B5")
+        color = ContextCompat.getColor(context, com.eve.app.R.color.eve_chart_primary)
         strokeWidth = 5f
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
         strokeJoin = Paint.Join.ROUND
     }
     private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.parseColor("#1F3F51B5")
+        color = ContextCompat.getColor(context, com.eve.app.R.color.eve_chart_fill)
         style = Paint.Style.FILL
     }
     private val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.parseColor("#3F51B5")
+        color = ContextCompat.getColor(context, com.eve.app.R.color.eve_chart_primary)
         style = Paint.Style.FILL
     }
     private val gridPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.parseColor("#E0E0E0")
+        color = ContextCompat.getColor(context, com.eve.app.R.color.eve_chart_grid)
         strokeWidth = 2f
     }
     private val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.parseColor("#9E9E9E")
+        color = ContextCompat.getColor(context, com.eve.app.R.color.eve_chart_label)
         textSize = 24f
     }
 

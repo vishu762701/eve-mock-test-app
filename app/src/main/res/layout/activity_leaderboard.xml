@@ -32,7 +32,7 @@
             android:maxLines="1"
             android:paddingStart="4dp"
             android:text="Leaderboard"
-            android:textColor="@android:color/white"
+            android:textColor="@color/eve_on_primary"
             android:textSize="20sp"
             android:textStyle="bold" />
     </LinearLayout>
@@ -44,8 +44,8 @@
         android:layout_margin="12dp"
         android:visibility="gone"
         app:cardBackgroundColor="@color/eve_primary"
-        app:cardCornerRadius="14dp"
-        app:cardElevation="2dp">
+        app:cardCornerRadius="@dimen/eve_radius_lg"
+        app:cardElevation="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -70,7 +70,7 @@
                     android:id="@+id/tvYourRank"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/white"
+                    android:textColor="@color/eve_on_primary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -79,7 +79,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:textColor="#CFD8FF"
+                    android:textColor="@color/eve_banner_text"
                     android:textSize="13sp" />
             </LinearLayout>
 
@@ -87,7 +87,7 @@
                 android:id="@+id/tvYourScore"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/white"
+                android:textColor="@color/eve_on_primary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
         </LinearLayout>

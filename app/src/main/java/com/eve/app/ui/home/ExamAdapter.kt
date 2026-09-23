@@ -28,10 +28,20 @@ class ExamAdapter(
     }
 
     inner class ExamVH(private val b: ItemExamBinding) : RecyclerView.ViewHolder(b.root) {
-        fun bind(exam: Exam) {
+        fun bind(exam: Exam, attempted: Boolean) {
             b.tvExamName.text = exam.examName
-            b.tvExamTime.text = "Time: ${exam.timeLimitMinutes} minutes  •  ${exam.categoryOrOther}"
-            b.root.setOnClickListener { onClick(exam) }
+            b.tvExamTime.text = if (attempted) {
+                b.root.context.getString(com.eve.app.R.string.exam_completed_view_history)
+            } else {
+                b.root.context.getString(
+                    com.eve.app.R.string.exam_time_category,
+                    exam.timeLimitMinutes,
+                    exam.categoryOrOther
+                )
+            }
+            b.root.isEnabled = !attempted
+            b.root.alpha = if (attempted) 0.62f else 1f
+            b.root.setOnClickListener(if (attempted) null else { { onClick(exam) } })
         }
     }
 
@@ -52,7 +62,7 @@ class ExamAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = items[position]) {
             is HomeListItem.Header -> (holder as HeaderVH).bind(item)
-            is HomeListItem.ExamRow -> (holder as ExamVH).bind(item.exam)
+            is HomeListItem.ExamRow -> (holder as ExamVH).bind(item.exam, item.attempted)
         }
     }
 

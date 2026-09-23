@@ -51,7 +51,20 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Deterministic lock created by the submitAttempt Cloud Function. Students cannot
+    // read or create locks; admins bypass the lock so they can preview/retry tests.
+    match /attempt_locks/{lockId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow write: if false;
+    }
+
     match /questions/{questionId} {
+      allow read: if isAdmin() || (isSignedIn() && !exists(/databases/$(database)/documents/attempt_locks/$(request.auth.uid + "_" + resource.data.examId)));
+      allow write: if isAdmin();
+    }
+
+    // Phase 20: Daily GK / Current Affairs. Signed-in students read, sirf admin write.
+    match /daily_questions/{questionId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
     }
@@ -61,8 +74,13 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Phase 23: attempts create ab client se allowed nahi hai. Pehle yahan sirf
+    // userId == auth.uid check hota tha — score/answers client jo chaahe bhej sakta
+    // tha, jo Leaderboard/Analytics dono ko spoof kar sakta tha. Ab sirf
+    // functions/index.js ka submitAttempt Cloud Function (Admin SDK, real question
+    // data se score khud calculate karke) attempts likhta hai.
     match /attempts/{attemptId} {
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow create: if false;
       allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
       allow update, delete: if false;
     }
@@ -78,6 +96,24 @@ service cloud.firestore {
     match /leaderboard/{entryId} {
       allow read: if isSignedIn();
       allow write: if false;
+    }
+
+    // Phase 22: pre-aggregated admin analytics. Client admins can read these summaries;
+    // clients (including admins) cannot forge them. Cloud Functions/Admin SDK writes them.
+    match /admin_analytics_exams/{examId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /admin_analytics_questions/{questionId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // Internal marker collection used only by the Phase 22 Cloud Function to count
+    // unique students once per exam. Never expose it to clients.
+    match /admin_analytics_exam_users/{markerId} {
+      allow read, write: if false;
     }
   }
 }

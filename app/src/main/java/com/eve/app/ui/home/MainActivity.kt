@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.widget.PopupMenu
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
@@ -21,9 +22,12 @@ import com.eve.app.ui.history.HistoryActivity
 import com.eve.app.ui.login.LoginActivity
 import com.eve.app.ui.notifications.NotificationsActivity
 import com.eve.app.ui.profile.ProfileActivity
+import com.eve.app.ui.daily.DailyQuizActivity
 import com.eve.app.ui.practice.PracticeActivity
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.Constants
+import com.eve.app.util.DateUtil
+import com.eve.app.util.StreakStore
 import com.eve.app.util.CrashlyticsHelper
 import com.eve.app.util.NetworkUtil
 import com.eve.app.util.NotificationHelper
@@ -86,23 +90,39 @@ class MainActivity : AppCompatActivity() {
         // Hardcoded admin ho to turant dikhao (fast path, koi network wait nahi)
         if (isHardcodedAdmin(user.email)) {
             showAdminButton()
+            viewModel.loadForUser(user.uid, true)
         } else {
-            // Firestore me dynamically add kiya gaya admin ho to bhi check karo
+            // Students ke liye attempted state bhi load hota hai. Dynamic admin hone par
+            // restriction hata kar normal admin preview/retry behaviour preserve hota hai.
             lifecycleScope.launch {
-                if (adminRepo.isAdmin(user.email)) showAdminButton()
+                val admin = adminRepo.isAdmin(user.email)
+                if (admin) showAdminButton()
+                viewModel.loadForUser(user.uid, admin)
             }
         }
 
-        binding.btnHistory.setOnClickListener {
-            startActivity(Intent(this, HistoryActivity::class.java))
+        binding.btnOverflow.setOnClickListener { anchor ->
+            PopupMenu(this, anchor).apply {
+                menu.add(0, 1, 0, getString(com.eve.app.R.string.home_menu_history))
+                menu.add(0, 2, 1, getString(com.eve.app.R.string.home_menu_performance))
+                menu.add(0, 3, 2, getString(com.eve.app.R.string.home_menu_topic_test))
+                menu.add(0, 4, 3, getString(com.eve.app.R.string.home_menu_pyq))
+                setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        1 -> startActivity(Intent(this@MainActivity, HistoryActivity::class.java))
+                        2 -> startActivity(Intent(this@MainActivity, com.eve.app.ui.performance.PerformanceActivity::class.java))
+                        3 -> startActivity(Intent(this@MainActivity, PracticeActivity::class.java))
+                        4 -> startActivity(Intent(this@MainActivity, com.eve.app.ui.pyq.PyqActivity::class.java))
+                    }
+                    true
+                }
+                show()
+            }
         }
-
-        binding.btnPerformance.setOnClickListener {
-            startActivity(Intent(this, com.eve.app.ui.performance.PerformanceActivity::class.java))
+        binding.cardDailyGk.setOnClickListener {
+            startActivity(Intent(this, DailyQuizActivity::class.java))
         }
-        binding.btnPractice.setOnClickListener {
-            startActivity(Intent(this, PracticeActivity::class.java))
-        }
+        refreshDailyCard()
 
         binding.rvExams.layoutManager = LinearLayoutManager(this)
         binding.rvExams.adapter = adapter
@@ -127,11 +147,31 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
         // Admin ne naya exam add kiya ho to list refresh ho jaye
         if (::binding.isInitialized) {
-            viewModel.load()
+            FirebaseAuth.getInstance().currentUser?.let { current ->
+                lifecycleScope.launch {
+                    val admin = isHardcodedAdmin(current.email) || adminRepo.isAdmin(current.email)
+                    viewModel.loadForUser(current.uid, admin)
+                }
+            }
             // Profile screen se photo badal ke wapas aaya ho to header par bhi turant update ho
             FirebaseAuth.getInstance().currentUser?.let { loadProfilePhoto(it) }
             // Notifications screen se wapas aaye ho (sab read ho chuke) to dot hat jaye
             updateNotificationDot()
+            refreshDailyCard()
+        }
+    }
+
+    private fun refreshDailyCard() {
+        if (!::binding.isInitialized) return
+        val streak = StreakStore.streak(this)
+        val streakText = if (streak > 0) "  •  🔥 $streak day streak" else ""
+        binding.tvDailyTitle.text = "Daily GK  •  ${DateUtil.display(DateUtil.todayIso())}"
+        binding.tvDailySub.text = if (StreakStore.attemptedToday(this)) {
+            val score = StreakStore.lastScore(this)
+            val total = StreakStore.lastTotal(this)
+            "Aaj attempt ho chuka • $score/$total$streakText"
+        } else {
+            "Aaj ka current affairs quiz$streakText"
         }
     }
 
