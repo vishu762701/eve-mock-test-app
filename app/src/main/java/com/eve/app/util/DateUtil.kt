@@ -28,18 +28,22 @@ object DateUtil {
         return isoFormat().format(cal.time)
     }
 
-    fun display(isoDate: String): String = try {
-        val parsed = isoFormat().parse(isoDate) ?: return isoDate
-        displayFormat().format(parsed)
-    } catch (_: Exception) {
-        isoDate
+    fun display(isoDate: String): String {
+        return try {
+            val parsed = isoFormat().parse(isoDate) ?: return isoDate
+            displayFormat().format(parsed)
+        } catch (_: Exception) {
+            isoDate
+        }
     }
 
-    fun weekday(isoDate: String): String = try {
-        val parsed = isoFormat().parse(isoDate) ?: return ""
-        weekdayFormat().format(parsed)
-    } catch (_: Exception) {
-        ""
+    fun weekday(isoDate: String): String {
+        return try {
+            val parsed = isoFormat().parse(isoDate) ?: return ""
+            weekdayFormat().format(parsed)
+        } catch (_: Exception) {
+            ""
+        }
     }
 
     fun isToday(isoDate: String): Boolean = isoDate == todayIso()
