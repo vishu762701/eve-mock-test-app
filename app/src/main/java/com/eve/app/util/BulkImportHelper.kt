@@ -27,7 +27,7 @@ object BulkImportHelper {
             putExtra(Intent.EXTRA_SUBJECT, "Eve question template")
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        context.startActivity(Intent.createChooser(send, "Template share / save karo"))
+        context.startActivity(Intent.createChooser(send, "Share or save template"))
     }
 
     fun displayName(context: Context, uri: Uri): String {

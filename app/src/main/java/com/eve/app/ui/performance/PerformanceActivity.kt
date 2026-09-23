@@ -63,9 +63,9 @@ class PerformanceActivity : AppCompatActivity() {
                     binding.contentGroup.visibility = View.GONE
                     binding.messageGroup.visibility = View.VISIBLE
                     binding.ivMessageIcon.setImageResource(R.drawable.ic_state_empty)
-                    binding.tvMessage.text = "Abhi koi insight nahi hai"
+                    binding.tvMessage.text = "No insights available yet"
                     binding.tvMessageSub.text =
-                        "Koi bhi test submit karte hi yahan tumhari performance dikhne lagegi"
+                        "Your performance insights will appear here after you submit a test"
                 } else {
                     binding.messageGroup.visibility = View.GONE
                     binding.contentGroup.visibility = View.VISIBLE
@@ -78,7 +78,7 @@ class PerformanceActivity : AppCompatActivity() {
                 binding.messageGroup.visibility = View.VISIBLE
                 binding.btnRetry.visibility = View.VISIBLE
                 binding.ivMessageIcon.setImageResource(R.drawable.ic_state_error)
-                binding.tvMessage.text = "Kuch gadbad ho gayi"
+                binding.tvMessage.text = "Something went wrong"
                 binding.tvMessageSub.text = state.message
             }
         }

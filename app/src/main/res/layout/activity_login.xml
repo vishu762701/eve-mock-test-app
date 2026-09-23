@@ -231,17 +231,4 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Theme Toggle in top-right corner -->
-    <ImageButton
-        android:id="@+id/btnThemeToggle"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:layout_gravity="top|end"
-        android:layout_margin="16dp"
-        android:background="@color/eve_surface_variant"
-        android:contentDescription="@string/theme_toggle_to_dark"
-        android:padding="10dp"
-        android:src="@drawable/ic_sun"
-        app:tint="@color/eve_text" />
-
 </FrameLayout>

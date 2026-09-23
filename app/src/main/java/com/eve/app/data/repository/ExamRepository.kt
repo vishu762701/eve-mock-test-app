@@ -182,4 +182,73 @@ class ExamRepository(
     suspend fun deleteQuestion(questionId: String) {
         db.collection("questions").document(questionId).delete().await()
     }
+
+    suspend fun updateExamAiSettings(
+        examId: String,
+        syllabus: String,
+        questionCount: Int,
+        customPromptNotes: String,
+        autoGenerationEnabled: Boolean
+    ) {
+        val data = hashMapOf<String, Any>(
+            "syllabus" to syllabus,
+            "questionCount" to questionCount,
+            "customPromptNotes" to customPromptNotes,
+            "autoGenerationEnabled" to autoGenerationEnabled
+        )
+        db.collection("exams").document(examId).update(data).await()
+    }
+
+    suspend fun getGeneratedTests(examId: String? = null): List<com.eve.app.data.model.GeneratedTest> {
+        val query = if (examId.isNullOrBlank()) {
+            db.collection("generated_tests")
+        } else {
+            db.collection("generated_tests").whereEqualTo("examId", examId)
+        }
+        val snapshot = query.get().await()
+        return snapshot.documents.mapNotNull { doc ->
+            val eId = doc.getString("examId") ?: ""
+            val eName = doc.getString("examName") ?: ""
+            val genAt = doc.getLong("generatedAt") ?: 0L
+            val status = doc.getString("status") ?: "paused"
+            val count = doc.getLong("questionCount")?.toInt() ?: 0
+
+            @Suppress("UNCHECKED_CAST")
+            val rawQuestions = doc.get("questions") as? List<Map<String, Any>> ?: emptyList()
+            val questions = rawQuestions.map { m ->
+                com.eve.app.data.model.GeneratedQuestion(
+                    questionText = m["questionText"] as? String ?: "",
+                    optionA = m["optionA"] as? String ?: "",
+                    optionB = m["optionB"] as? String ?: "",
+                    optionC = m["optionC"] as? String ?: "",
+                    optionD = m["optionD"] as? String ?: "",
+                    correctAnswer = m["correctAnswer"] as? String ?: "A",
+                    explanation = m["explanation"] as? String ?: ""
+                )
+            }
+
+            com.eve.app.data.model.GeneratedTest(
+                id = doc.id,
+                examId = eId,
+                examName = eName,
+                generatedAt = genAt,
+                status = status,
+                questionCount = if (count > 0) count else questions.size,
+                questions = questions
+            )
+        }.sortedByDescending { it.generatedAt }
+    }
+
+    suspend fun getLiveGeneratedTests(examId: String): List<com.eve.app.data.model.GeneratedTest> {
+        return getGeneratedTests(examId).filter { it.isLive }
+    }
+
+    suspend fun updateGeneratedTestStatus(testId: String, status: String) {
+        db.collection("generated_tests").document(testId)
+            .update("status", status).await()
+    }
+
+    suspend fun deleteGeneratedTest(testId: String) {
+        db.collection("generated_tests").document(testId).delete().await()
+    }
 }

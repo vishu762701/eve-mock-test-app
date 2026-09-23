@@ -67,8 +67,6 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Setup theme toggle with circular reveal
-        ThemeManager.setupToggleButton(this, binding.btnThemeToggle)
 
         // Play tasteful entrance animation
         playEntranceAnimation()

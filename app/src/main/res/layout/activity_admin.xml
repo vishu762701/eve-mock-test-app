@@ -19,11 +19,12 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_bold"
                 android:text="Admin Dashboard"
                 android:textColor="@color/eve_primary"
-                android:textSize="24sp"
-                android:textStyle="bold" />
+                android:textSize="24sp" />
 
+            <!-- Stats Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -50,14 +51,15 @@
                             android:id="@+id/tvTotalUsers"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_bold"
                             android:text="—"
                             android:textColor="@color/eve_text"
-                            android:textSize="22sp"
-                            android:textStyle="bold" />
+                            android:textSize="22sp" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins"
                             android:text="Total Signups"
                             android:textColor="@color/eve_text_secondary"
                             android:textSize="13sp" />
@@ -73,14 +75,15 @@
                             android:id="@+id/tvOnlineUsers"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_bold"
                             android:text="—"
                             android:textColor="@color/eve_green"
-                            android:textSize="22sp"
-                            android:textStyle="bold" />
+                            android:textSize="22sp" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins"
                             android:text="Online Now"
                             android:textColor="@color/eve_text_secondary"
                             android:textSize="13sp" />
@@ -98,6 +101,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Navigation Buttons -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAnalyticsAdmin"
                 style="@style/Widget.Eve.OutlinedButton"
@@ -111,23 +115,48 @@
                 style="@style/Widget.Eve.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Daily GK / Current Affairs upload" />
+                android:layout_marginTop="10dp"
+                android:text="📅 Daily GK / Current Affairs upload" />
 
-            <!-- Add Exam -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSendNotification"
+                style="@style/Widget.Eve.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="🔔 Broadcast Notification" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnManageExams"
+                style="@style/Widget.Eve.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="📝 Manage Exams (Syllabus &amp; AI)" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnGeneratedTests"
+                style="@style/Widget.Eve.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="🤖 AI Generated Tests" />
+
+            <!-- Add Exam Section -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="1. Naya Exam banao"
+                android:layout_marginTop="24dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="1. Create New Exam"
                 android:textColor="?attr/colorOnSurface"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textSize="16sp" />
 
             <EditText
                 android:id="@+id/etExamName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins"
                 android:hint="Exam name (e.g. SSC CGL)"
                 android:inputType="textCapWords" />
 
@@ -135,6 +164,7 @@
                 android:id="@+id/etExamMinutes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins"
                 android:hint="Time limit (minutes)"
                 android:inputType="number" />
 
@@ -142,6 +172,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
+                android:fontFamily="@font/poppins"
                 android:text="Category"
                 android:textColor="@color/eve_grey" />
 
@@ -155,6 +186,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
+                android:fontFamily="@font/poppins"
                 android:hint="Category name (e.g. Insurance)"
                 android:inputType="textCapWords"
                 android:visibility="gone" />
@@ -164,17 +196,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:fontFamily="@font/poppins_semibold"
                 android:text="Add Exam" />
 
-            <!-- Manage exam (select + delete) -->
+            <!-- Manage Exam (select + delete) -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"
-                android:text="2. Exam select karo (questions manage/add karne ke liye)"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="2. Select Exam (to manage questions)"
                 android:textColor="?attr/colorOnSurface"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textSize="16sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -194,23 +227,26 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
+                    android:fontFamily="@font/poppins_medium"
                     android:text="Delete exam" />
             </LinearLayout>
 
+            <!-- Bulk Upload Section -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"
-                android:text="3. Bulk CSV / Excel upload"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="3. Bulk CSV / Excel Upload"
                 android:textColor="?attr/colorOnSurface"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textSize="16sp" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Upar se exam select karo, template download karo, 100 questions bhar ke CSV ya .xlsx pick karo. Invalid rows skip ho jaati hain."
+                android:fontFamily="@font/poppins"
+                android:text="Select an exam above, download the template, fill questions in CSV or .xlsx, and upload. Invalid rows are skipped automatically."
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="13sp" />
 
@@ -226,239 +262,37 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:fontFamily="@font/poppins_medium"
                     android:text="Template" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnBulkUpload"
+                    style="@style/Widget.Eve.Button"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_weight="1"
-                    android:text="CSV / Excel" />
+                    android:fontFamily="@font/poppins_semibold"
+                    android:text="Upload CSV / Excel" />
             </LinearLayout>
 
-            <!-- Add / Edit Question -->
-            <TextView
-                android:id="@+id/tvFormTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:text="4. Naya question upload karo"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/etQuestion"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Question text"
-                android:inputType="textMultiLine|textCapSentences"
-                android:minLines="2" />
-
-            <EditText
-                android:id="@+id/etTopic"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:hint="Topic (optional) — jaise Percentage, Polity, History"
-                android:inputType="text" />
-
-            <CheckBox
-                android:id="@+id/cbPyq"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Previous Year Question (PYQ)" />
-
-            <LinearLayout
-                android:id="@+id/groupPyq"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
-
-                <EditText
-                    android:id="@+id/etPyqYear"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Year (e.g. 2024)"
-                    android:inputType="number" />
-
-                <EditText
-                    android:id="@+id/etPyqPaper"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Paper / Shift (optional) — Prelims, Tier 1, Shift 2"
-                    android:inputType="textCapWords" />
-            </LinearLayout>
-
-            <EditText
-                android:id="@+id/etOptionA"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Option A"
-                android:inputType="text" />
-
-            <EditText
-                android:id="@+id/etOptionB"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Option B"
-                android:inputType="text" />
-
-            <EditText
-                android:id="@+id/etOptionC"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Option C"
-                android:inputType="text" />
-
-            <EditText
-                android:id="@+id/etOptionD"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Option D"
-                android:inputType="text" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Correct option"
-                android:textColor="@color/eve_grey" />
-
-            <Spinner
-                android:id="@+id/spCorrect"
-                android:layout_width="match_parent"
-                android:layout_height="48dp" />
-
-            <EditText
-                android:id="@+id/etExplanation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:hint="Explanation (optional) — kyun sahi hai"
-                android:inputType="textMultiLine|textCapSentences"
-                android:minLines="2" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnToggleHindi"
-                style="@style/Widget.Eve.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginStart="-8dp"
-                android:text="+ Hindi translation add karo (optional)" />
-
-            <LinearLayout
-                android:id="@+id/groupHindi"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Hindi translation (optional — khali chhod sakte ho)"
-                    android:textColor="@color/eve_grey"
-                    android:textSize="13sp" />
-
-                <EditText
-                    android:id="@+id/etQuestionHi"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:hint="Question text (Hindi)"
-                    android:inputType="textMultiLine"
-                    android:minLines="2" />
-
-                <EditText
-                    android:id="@+id/etOptionAHi"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Option A (Hindi)"
-                    android:inputType="text" />
-
-                <EditText
-                    android:id="@+id/etOptionBHi"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Option B (Hindi)"
-                    android:inputType="text" />
-
-                <EditText
-                    android:id="@+id/etOptionCHi"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Option C (Hindi)"
-                    android:inputType="text" />
-
-                <EditText
-                    android:id="@+id/etOptionDHi"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Option D (Hindi)"
-                    android:inputType="text" />
-
-                <EditText
-                    android:id="@+id/etExplanationHi"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Explanation (Hindi)"
-                    android:inputType="textMultiLine"
-                    android:minLines="2" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:orientation="horizontal">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnUpload"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Upload to Firestore" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnCancelEdit"
-                    style="@style/Widget.Eve.TextButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="Cancel"
-                    android:visibility="gone" />
-            </LinearLayout>
-
-            <ProgressBar
-                android:id="@+id/progress"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="12dp"
-                android:visibility="gone" />
-
-            <!-- Existing questions -->
+            <!-- Existing Questions List -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"
-                android:text="4. Is exam ke questions"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="4. Questions in Selected Exam"
                 android:textColor="?attr/colorOnSurface"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/tvNoQuestions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins"
                 android:padding="12dp"
-                android:text="Koi question nahi hai abhi"
+                android:text="No questions uploaded yet"
                 android:textColor="@color/eve_grey"
                 android:visibility="gone" />
 
@@ -469,22 +303,23 @@
                 android:layoutAnimation="@anim/layout_enter"
                 android:nestedScrollingEnabled="false" />
 
-            <!-- Manage Admins -->
+            <!-- Manage Admins Section -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"
-                android:text="5. Admins manage karo"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="5. Manage Admins"
                 android:textColor="?attr/colorOnSurface"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textSize="16sp" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="8dp"
-                android:text="Naya email add karo taaki wo bhi bina app update kiye Admin ban jaye"
+                android:fontFamily="@font/poppins"
+                android:text="Add new admin emails dynamically without requiring an app update."
                 android:textColor="@color/eve_grey"
                 android:textSize="13sp" />
 
@@ -498,7 +333,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="naya-admin@gmail.com"
+                    android:fontFamily="@font/poppins"
+                    android:hint="new-admin@gmail.com"
                     android:inputType="textEmailAddress" />
 
                 <com.google.android.material.button.MaterialButton
@@ -506,6 +342,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
+                    android:fontFamily="@font/poppins_medium"
                     android:text="Add" />
             </LinearLayout>
 
@@ -514,8 +351,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:fontFamily="@font/poppins"
                 android:padding="8dp"
-                android:text="Abhi koi extra admin add nahi kiya"
+                android:text="No extra dynamic admins added"
                 android:textColor="@color/eve_grey"
                 android:visibility="gone" />
 

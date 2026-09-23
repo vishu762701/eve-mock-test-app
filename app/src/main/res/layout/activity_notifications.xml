@@ -70,7 +70,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
                 android:gravity="center"
-                android:text="Abhi koi notification nahi hai"
+                android:text="No notifications yet"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="15sp"
                 android:textStyle="bold" />
@@ -80,7 +80,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:gravity="center"
-                android:text="Naya exam ya reminder aate hi yahan dikhega"
+                android:text="New exams and updates will appear here"
                 android:textColor="@color/eve_grey"
                 android:textSize="12sp" />
         </LinearLayout>

@@ -67,8 +67,8 @@ class HistoryActivity : AppCompatActivity() {
                 binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
                 if (empty) {
                     binding.ivMessageIcon.setImageResource(R.drawable.ic_state_empty)
-                    binding.tvMessage.text = "Abhi koi test attempt nahi hai"
-                    binding.tvMessageSub.text = "Koi bhi test submit karte hi wo yahan dikhega"
+                    binding.tvMessage.text = "No test attempts yet"
+                    binding.tvMessageSub.text = "Submitted tests will appear here"
                 }
             }
             is UiState.Error -> {
@@ -77,12 +77,12 @@ class HistoryActivity : AppCompatActivity() {
                 binding.btnRetry.visibility = View.VISIBLE
                 binding.ivMessageIcon.setImageResource(R.drawable.ic_state_error)
                 if (NetworkUtil.isOnline(this)) {
-                    binding.tvMessage.text = "Kuch gadbad ho gayi"
+                    binding.tvMessage.text = "Something went wrong"
                     binding.tvMessageSub.text = state.message
                 } else {
                     binding.tvMessage.text = "No internet connection"
                     binding.tvMessageSub.text =
-                        "History abhi tak cache nahi hui. Network wapas aane par retry karo."
+                        "History has not been cached yet. Please retry when internet connection is restored."
                 }
             }
         }

@@ -28,7 +28,7 @@ class DailyQuizViewModel : ViewModel() {
             _days.value = try {
                 UiState.Success(repo.getAvailableDays())
             } catch (e: Exception) {
-                UiState.Error(e.message ?: "Daily quizzes load nahi hue")
+                UiState.Error(e.message ?: "Failed to load daily quizzes")
             }
         }
     }

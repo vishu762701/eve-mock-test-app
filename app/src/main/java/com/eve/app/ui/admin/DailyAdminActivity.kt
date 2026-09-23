@@ -84,10 +84,10 @@ class DailyAdminActivity : AppCompatActivity() {
         binding.btnToggleHindi.setOnClickListener {
             if (binding.groupHindi.visibility == View.VISIBLE) {
                 binding.groupHindi.visibility = View.GONE
-                binding.btnToggleHindi.text = "+ Hindi translation add karo (optional)"
+                binding.btnToggleHindi.text = "+ Add Hindi translation (optional)"
             } else {
                 binding.groupHindi.visibility = View.VISIBLE
-                binding.btnToggleHindi.text = "− Hindi translation hide karo"
+                binding.btnToggleHindi.text = "− Hide Hindi translation"
             }
         }
 
@@ -97,7 +97,7 @@ class DailyAdminActivity : AppCompatActivity() {
                     viewModel.questions.collect { list ->
                         adapter.submit(list)
                         binding.tvNoQuestions.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
-                        binding.tvListTitle.text = "Is date ke questions (${list.size})"
+                        binding.tvListTitle.text = "Questions for this date (${list.size})"
                     }
                 }
                 launch {
@@ -127,11 +127,11 @@ class DailyAdminActivity : AppCompatActivity() {
             val parsed = QuestionBulkParser.parseDailyQuestions(sheet, fallback)
             if (parsed.questions.isEmpty()) {
                 val detail = parsed.errors.take(5).joinToString("\n") { "Row ${it.rowNumber}: ${it.reason}" }
-                Toast.makeText(this, "Koi valid question nahi mila.\n$detail", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "No valid questions found.\n$detail", Toast.LENGTH_LONG).show()
                 return
             }
             val dates = parsed.questions.map { it.date }.distinct().joinToString(", ")
-            val errorPreview = if (parsed.errors.isEmpty()) "Koi row skip nahi hui."
+            val errorPreview = if (parsed.errors.isEmpty()) "No rows skipped."
             else parsed.errors.take(8).joinToString("\n") { "Row ${it.rowNumber}: ${it.reason}" }
             AlertDialog.Builder(this)
                 .setTitle("Bulk Daily GK upload?")
@@ -142,14 +142,14 @@ class DailyAdminActivity : AppCompatActivity() {
                 .setNegativeButton("Cancel", null)
                 .show()
         } catch (e: Exception) {
-            Toast.makeText(this, e.message ?: "File padh nahi paye", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, e.message ?: "Unable to read file", Toast.LENGTH_LONG).show()
         }
     }
 
     private fun loadSelectedDate() {
         val date = binding.etDate.text.toString().trim()
         if (!date.matches(Regex("\\d{4}-\\d{2}-\\d{2}"))) {
-            Toast.makeText(this, "Date yyyy-MM-dd format me daalo", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Please enter date in yyyy-MM-dd format", Toast.LENGTH_SHORT).show()
             return
         }
         cancelEdit()
@@ -158,7 +158,7 @@ class DailyAdminActivity : AppCompatActivity() {
 
     private fun startEdit(q: DailyQuestion) {
         editing = q
-        binding.tvFormTitle.text = "Question edit karo"
+        binding.tvFormTitle.text = "Edit Question"
         binding.etDate.setText(q.date)
         binding.etQuestion.setText(q.questionText)
         binding.etTopic.setText(q.topic)
@@ -181,7 +181,7 @@ class DailyAdminActivity : AppCompatActivity() {
 
     private fun cancelEdit() {
         editing = null
-        binding.tvFormTitle.text = "Naya question"
+        binding.tvFormTitle.text = "New Question"
         binding.etQuestion.text?.clear()
         binding.etTopic.text?.clear()
         binding.etOptionA.text?.clear()
@@ -202,7 +202,7 @@ class DailyAdminActivity : AppCompatActivity() {
 
     private fun confirmDelete(q: DailyQuestion) {
         AlertDialog.Builder(this)
-            .setTitle("Question delete karein?")
+            .setTitle("Delete question?")
             .setMessage(q.questionText)
             .setPositiveButton("Delete") { _, _ ->
                 viewModel.delete(q)
@@ -215,7 +215,7 @@ class DailyAdminActivity : AppCompatActivity() {
     private fun submit() {
         val date = binding.etDate.text.toString().trim()
         if (!date.matches(Regex("\\d{4}-\\d{2}-\\d{2}"))) {
-            Toast.makeText(this, "Date yyyy-MM-dd format me daalo", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Please enter date in yyyy-MM-dd format", Toast.LENGTH_SHORT).show()
             return
         }
         val qText = binding.etQuestion.text.toString().trim()
@@ -224,7 +224,7 @@ class DailyAdminActivity : AppCompatActivity() {
         val c = binding.etOptionC.text.toString().trim()
         val d = binding.etOptionD.text.toString().trim()
         if (qText.isEmpty() || a.isEmpty() || b.isEmpty() || c.isEmpty() || d.isEmpty()) {
-            Toast.makeText(this, "Saari fields bharo", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Please fill in all required fields", Toast.LENGTH_SHORT).show()
             return
         }
         val draft = DailyQuestion(

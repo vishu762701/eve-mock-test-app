@@ -30,7 +30,7 @@
                 android:layout_height="36dp"
                 android:layout_marginStart="8dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Review ke liye mark karo"
+                android:contentDescription="Mark for review"
                 android:padding="6dp"
                 android:src="@drawable/ic_star_outline" />
         </LinearLayout>

@@ -9,13 +9,9 @@ import androidx.lifecycle.lifecycleScope
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.databinding.ActivityProfileBinding
 import com.eve.app.ui.about.AboutActivity
-import com.eve.app.ui.login.LoginActivity
-import com.eve.app.util.CrashlyticsHelper
 import com.eve.app.util.ProfilePhotoManager
 import com.eve.app.util.ReminderScheduler
 import com.eve.app.util.isHardcodedAdmin
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -69,7 +65,6 @@ class ProfileActivity : AppCompatActivity() {
             ReminderScheduler.setEnabled(this, isChecked)
         }
 
-        binding.btnLogout.setOnClickListener { logout() }
     }
 
     private fun loadProfilePhoto() {
@@ -80,17 +75,5 @@ class ProfileActivity : AppCompatActivity() {
             user.photoUrl?.toString(),
             com.eve.app.R.drawable.bg_circle_primary
         )
-    }
-
-    private fun logout() {
-        CrashlyticsHelper.clearIdentity()
-        FirebaseAuth.getInstance().signOut()
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
-        GoogleSignIn.getClient(this, gso).signOut().addOnCompleteListener {
-            // Poora back stack clear karke Login par bhejo (Home/Profile dono khatam)
-            val intent = Intent(this, LoginActivity::class.java)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            startActivity(intent)
-        }
     }
 }

@@ -1,10 +1,10 @@
 <resources>
     <string name="app_name">Eve</string>
-    <string name="theme_toggle_to_dark">Dark mode on karo</string>
-    <string name="theme_toggle_to_light">Light mode on karo</string>
-    <string name="offline_banner_text">No internet — cached data dikha rahe hain</string>
-    <string name="reminder_toggle_off">Daily reminder band karo</string>
-    <string name="reminder_toggle_on">Daily reminder on karo</string>
+    <string name="theme_toggle_to_dark">Switch to dark mode</string>
+    <string name="theme_toggle_to_light">Switch to light mode</string>
+    <string name="offline_banner_text">No internet connection — showing cached data</string>
+    <string name="reminder_toggle_off">Turn off daily reminder</string>
+    <string name="reminder_toggle_on">Turn on daily reminder</string>
 <string name="home_menu">More options</string>
     <string name="home_menu_history">History</string>
     <string name="home_menu_performance">Performance</string>

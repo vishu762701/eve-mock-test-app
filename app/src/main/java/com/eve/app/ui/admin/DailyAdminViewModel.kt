@@ -40,7 +40,7 @@ class DailyAdminViewModel : ViewModel() {
             try {
                 _questions.value = repo.getQuestionsForDate(date)
             } catch (e: Exception) {
-                _message.value = e.message ?: "Questions load nahi hue"
+                _message.value = e.message ?: "Failed to load questions"
             }
         }
     }
@@ -50,11 +50,11 @@ class DailyAdminViewModel : ViewModel() {
             _busy.value = true
             try {
                 repo.addQuestion(q)
-                _message.value = "Daily GK question upload ho gaya"
+                _message.value = "Daily GK question uploaded successfully"
                 load(q.date)
                 onDone()
             } catch (e: Exception) {
-                _message.value = e.message ?: "Upload fail (rules deploy kiye? daily_questions write admin-only hai)"
+                _message.value = e.message ?: "Upload failed (check admin permissions)"
             }
             _busy.value = false
         }
@@ -62,18 +62,18 @@ class DailyAdminViewModel : ViewModel() {
 
     fun addAll(questions: List<DailyQuestion>, onDone: () -> Unit) {
         if (questions.isEmpty()) {
-            _message.value = "Upload ke liye koi valid question nahi mila"
+            _message.value = "No valid questions found for upload"
             return
         }
         viewModelScope.launch {
             _busy.value = true
             try {
                 val n = repo.addQuestions(questions)
-                _message.value = "$n Daily GK questions upload ho gaye"
+                _message.value = "$n Daily GK questions uploaded successfully"
                 questions.lastOrNull()?.date?.let { load(it) }
                 onDone()
             } catch (e: Exception) {
-                _message.value = e.message ?: "Upload fail (rules deploy kiye? daily_questions write admin-only hai)"
+                _message.value = e.message ?: "Upload failed (check admin permissions)"
             }
             _busy.value = false
         }
@@ -84,11 +84,11 @@ class DailyAdminViewModel : ViewModel() {
             _busy.value = true
             try {
                 repo.updateQuestion(q)
-                _message.value = "Question update ho gaya"
+                _message.value = "Question updated successfully"
                 load(q.date)
                 onDone()
             } catch (e: Exception) {
-                _message.value = e.message ?: "Update fail"
+                _message.value = e.message ?: "Failed to update question"
             }
             _busy.value = false
         }
@@ -99,10 +99,10 @@ class DailyAdminViewModel : ViewModel() {
             _busy.value = true
             try {
                 repo.deleteQuestion(q.id)
-                _message.value = "Question delete ho gaya"
+                _message.value = "Question deleted successfully"
                 load(q.date)
             } catch (e: Exception) {
-                _message.value = e.message ?: "Delete fail"
+                _message.value = e.message ?: "Failed to delete question"
             }
             _busy.value = false
         }

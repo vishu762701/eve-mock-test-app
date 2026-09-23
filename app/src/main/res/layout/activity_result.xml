@@ -33,7 +33,7 @@
                 android:layout_height="wrap_content"
                 android:minWidth="0dp"
                 android:paddingHorizontal="10dp"
-                android:text="हिं"
+                android:text="HI"
                 android:textColor="@color/eve_on_primary" />
         </LinearLayout>
 

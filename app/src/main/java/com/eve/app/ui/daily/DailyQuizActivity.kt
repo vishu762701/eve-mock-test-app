@@ -54,8 +54,8 @@ class DailyQuizActivity : AppCompatActivity() {
     private fun renderStreak() {
         val streak = StreakStore.streak(this)
         binding.tvStreak.text = when {
-            streak <= 0 -> "Streak shuru karo — aaj ka quiz attempt karo."
-            else -> "🔥 $streak day streak  •  Roz open karke streak mat todo"
+            streak <= 0 -> "Start your streak — attempt today's quiz."
+            else -> "🔥 $streak day streak  •  Keep practicing daily to maintain your streak!"
         }
     }
 
@@ -82,7 +82,7 @@ class DailyQuizActivity : AppCompatActivity() {
                 binding.tvMessage.visibility = if (past.isEmpty() && todayDay == null) View.VISIBLE else View.GONE
                 if (past.isEmpty() && todayDay == null) {
                     binding.tvMessage.text =
-                        "Abhi koi Daily GK quiz upload nahi hua. Admin Dashboard → Daily GK se aaj ki date par questions daalo."
+                        "No Daily GK quiz uploaded yet. Add questions for today from Admin Dashboard → Daily GK."
                 }
             }
         }
@@ -91,9 +91,9 @@ class DailyQuizActivity : AppCompatActivity() {
     private fun bindToday(day: DailyQuizDay?) {
         binding.tvTodayTitle.text = DateUtil.display(DateUtil.todayIso())
         if (day == null) {
-            binding.tvTodaySub.text = "Aaj ke questions abhi upload nahi hue. Archive se pehle ka quiz try karo."
+            binding.tvTodaySub.text = "Today's questions have not been uploaded yet. Try a quiz from the archive."
             binding.btnStartToday.isEnabled = false
-            binding.btnStartToday.text = "Aaj ka quiz nahi mila"
+            binding.btnStartToday.text = "Quiz unavailable"
             return
         }
         binding.btnStartToday.isEnabled = true
@@ -101,8 +101,8 @@ class DailyQuizActivity : AppCompatActivity() {
         if (StreakStore.attemptedToday(this) && StreakStore.lastDate(this) == day.date) {
             val score = StreakStore.lastScore(this)
             val total = StreakStore.lastTotal(this)
-            binding.tvTodaySub.text = "$qLabel  •  ${day.timeLimitMinutes} min\nAaj attempt ho chuka • Score $score/$total"
-            binding.btnStartToday.text = "Dobara attempt karo"
+            binding.tvTodaySub.text = "$qLabel  •  ${day.timeLimitMinutes} min\nAttempted today  •  Score $score/$total"
+            binding.btnStartToday.text = "Retake Quiz"
         } else {
             binding.tvTodaySub.text = "$qLabel  •  ${day.timeLimitMinutes} min  •  1 min / question"
             binding.btnStartToday.text = "Start today's quiz"

@@ -75,8 +75,8 @@ class ScoreTrendChartView @JvmOverloads constructor(
         }
 
         if (points.size < 2) {
-            val msg = if (points.isEmpty()) "Abhi koi data nahi hai"
-            else "Trend dikhane ke liye kam se kam 2 attempts chahiye"
+            val msg = if (points.isEmpty()) "No data available yet"
+            else "At least 2 test attempts are required to show score trend"
             labelPaint.textAlign = Paint.Align.CENTER
             canvas.drawText(msg, paddingLeft + chartW / 2, paddingTop + chartH / 2, labelPaint)
             labelPaint.textAlign = Paint.Align.LEFT

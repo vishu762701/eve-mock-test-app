@@ -33,8 +33,8 @@ object LanguageManager {
     fun setupToggleButton(context: Context, button: TextView, onChanged: (Boolean) -> Unit) {
         fun render() {
             val hindi = isHindi(context)
-            button.text = if (hindi) "EN" else "हिं"
-            button.contentDescription = if (hindi) "English me dikhao" else "Hindi me dikhao"
+            button.text = if (hindi) "EN" else "HI"
+            button.contentDescription = if (hindi) "Switch to English" else "Switch to Hindi"
         }
         render()
         button.setOnClickListener {

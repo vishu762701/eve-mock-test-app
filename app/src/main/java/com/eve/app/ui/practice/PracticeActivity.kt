@@ -53,7 +53,7 @@ class PracticeActivity : AppCompatActivity() {
                 exams = state.data
                 binding.spExam.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, exams.map { it.examName })
                 binding.tvMessage.visibility = if (exams.isEmpty()) View.VISIBLE else View.GONE
-                if (exams.isEmpty()) binding.tvMessage.text = "Practice ke liye abhi koi exam available nahi hai."
+                if (exams.isEmpty()) binding.tvMessage.text = "No exams are currently available for practice."
             }
         }
     }
@@ -66,7 +66,7 @@ class PracticeActivity : AppCompatActivity() {
             is UiState.Success -> {
                 binding.progress.visibility = View.GONE
                 binding.tvMessage.visibility = if (state.data.isEmpty()) View.VISIBLE else View.GONE
-                if (state.data.isEmpty()) binding.tvMessage.text = "Is exam me topic-tagged questions nahi hain. Admin se Topic field bharwane ko bolo."
+                if (state.data.isEmpty()) binding.tvMessage.text = "No topic-tagged questions found for this exam. Please ask an admin to add topics."
                 state.data.forEach { topic -> addTopicChip(topic) }
             }
         }

@@ -139,12 +139,12 @@ class TestActivity : AppCompatActivity() {
                 binding.btnRetry.visibility = View.VISIBLE
                 binding.ivMessageIcon.setImageResource(com.eve.app.R.drawable.ic_state_error)
                 if (NetworkUtil.isOnline(this)) {
-                    binding.tvMessage.text = "Kuch gadbad ho gayi"
+                    binding.tvMessage.text = "Something went wrong"
                     binding.tvMessageSub.text = state.message
                 } else {
                     binding.tvMessage.text = "No internet connection"
                     binding.tvMessageSub.text =
-                        "Is exam ke questions abhi tak cache nahi hue. Network wapas aane par retry karo."
+                        "Questions for this exam have not been cached yet. Please retry when internet connection is restored."
                 }
             }
             is UiState.Success -> {
@@ -156,14 +156,14 @@ class TestActivity : AppCompatActivity() {
                     binding.btnRetry.visibility = View.GONE
                     binding.ivMessageIcon.setImageResource(com.eve.app.R.drawable.ic_state_empty)
                     binding.tvMessage.text = when {
-                        quizDate.isNotBlank() -> "Is date ka Daily GK quiz nahi mila"
-                        pyqYear > 0 -> "Is year/paper ke PYQ nahi mile"
-                        else -> "Is exam me abhi koi question nahi hai"
+                        quizDate.isNotBlank() -> "No Daily GK quiz found for this date"
+                        pyqYear > 0 -> "No PYQs found for this year or paper"
+                        else -> "No questions found for this exam"
                     }
                     binding.tvMessageSub.text = when {
-                        quizDate.isNotBlank() -> "Admin Dashboard → Daily GK se is date ke questions upload karo"
-                        pyqYear > 0 -> "Admin Dashboard se isPyq + year tag karke questions upload karo"
-                        else -> "Admin se question upload karne ko bolo"
+                        quizDate.isNotBlank() -> "Upload questions for this date from Admin Dashboard → Daily GK"
+                        pyqYear > 0 -> "Upload questions tagged with PYQ and year from Admin Dashboard"
+                        else -> "Please ask an admin to add questions for this exam"
                     }
                     binding.tvTimer.text = "--:--"
                     return
@@ -205,7 +205,7 @@ class TestActivity : AppCompatActivity() {
         val items = viewModel.buildAnswerItems()
         val unattempted = items.count { !it.isAttempted }
         AlertDialog.Builder(this)
-            .setTitle("Test submit karein?")
+            .setTitle("Submit test?")
             .setMessage("Unattempted questions: $unattempted")
             .setPositiveButton("Submit") { _, _ -> submit() }
             .setNegativeButton("Cancel", null)

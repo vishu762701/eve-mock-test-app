@@ -68,7 +68,7 @@ class PyqActivity : AppCompatActivity() {
                     exams.map { it.examName }
                 )
                 if (exams.isEmpty()) {
-                    binding.tvMessage.text = "PYQ ke liye abhi koi exam available nahi hai."
+                    binding.tvMessage.text = "No exams are currently available for previous year questions."
                     binding.tvMessage.visibility = View.VISIBLE
                 }
             }
@@ -95,7 +95,7 @@ class PyqActivity : AppCompatActivity() {
                 sets = state.data
                 if (sets.isEmpty()) {
                     binding.tvMessage.text =
-                        "Is exam me tagged PYQ nahi hain. Admin form me “Previous Year Question” tick karke year daalo."
+                        "No tagged PYQs found for this exam. Please upload questions tagged with Previous Year Question and year."
                     binding.tvMessage.visibility = View.VISIBLE
                     binding.tvPapersLabel.visibility = View.GONE
                     return

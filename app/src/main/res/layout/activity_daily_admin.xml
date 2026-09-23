@@ -51,7 +51,7 @@
                 style="@style/Widget.Eve.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Is date ke questions load karo" />
+                android:text="Load questions for this date" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -66,7 +66,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="File me date column ho to usi din par save hoga. Khali ho to upar wali date use hogi."
+                android:text="If file contains a date column, questions save to that date. Otherwise selected date above is used."
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="13sp" />
 
@@ -166,7 +166,7 @@
                 style="@style/Widget.Eve.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="+ Hindi translation add karo (optional)" />
+                android:text="+ Add Hindi translation (optional)" />
 
             <LinearLayout
                 android:id="@+id/groupHindi"
@@ -232,7 +232,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Is date ke questions"
+                android:text="Questions for this date"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -242,7 +242,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Is date par abhi koi question nahi hai"
+                android:text="No questions for this date yet"
                 android:textColor="@color/eve_text_secondary"
                 android:visibility="gone" />
 

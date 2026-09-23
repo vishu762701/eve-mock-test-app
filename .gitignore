@@ -5,3 +5,6 @@ local.properties
 build/
 app/build/
 .DS_Store
+*.local
+.secret.local
+.env.local

@@ -33,7 +33,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:text="Exam chuno, phir year / paper select karke original PYQ attempt karo. Order shuffle nahi hota."
+        android:text="Select an exam, then choose year and paper to attempt original PYQs. Question order is preserved."
         android:textColor="@color/eve_grey"
         android:textSize="14sp" />
 
@@ -77,7 +77,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="Paper / Shift — tap karke start"
+        android:text="Paper / Shift — tap to start"
         android:textStyle="bold"
         android:visibility="gone" />
 

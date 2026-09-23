@@ -35,7 +35,7 @@ class HomeViewModel : ViewModel() {
         viewModelScope.launch {
             _examState.value = UiState.Loading
             _examState.value = try { UiState.Success(repo.getExams()) }
-            catch (e: Exception) { UiState.Error(e.message ?: "Exams load nahi hue") }
+            catch (e: Exception) { UiState.Error(e.message ?: "Failed to load exams") }
         }
     }
 
@@ -46,7 +46,7 @@ class HomeViewModel : ViewModel() {
                 _examState.value = UiState.Success(repo.getExams())
                 _attemptedIds.value = if (isAdmin) emptySet() else repo.getAttemptedExamIds(userId)
             } catch (e: Exception) {
-                _examState.value = UiState.Error(e.message ?: "Exams load nahi hue")
+                _examState.value = UiState.Error(e.message ?: "Failed to load exams")
             }
         }
     }

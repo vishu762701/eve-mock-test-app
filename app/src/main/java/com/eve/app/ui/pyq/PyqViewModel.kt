@@ -29,7 +29,7 @@ class PyqViewModel : ViewModel() {
         _exams.value = try {
             UiState.Success(repository.getExams())
         } catch (e: Exception) {
-            UiState.Error(e.message ?: "Exams load nahi hue")
+            UiState.Error(e.message ?: "Failed to load exams")
         }
     }
 
@@ -38,7 +38,7 @@ class PyqViewModel : ViewModel() {
         _sets.value = try {
             UiState.Success(repository.getPyqSets(exam))
         } catch (e: Exception) {
-            UiState.Error(e.message ?: "PYQ load nahi hue")
+            UiState.Error(e.message ?: "Failed to load PYQs")
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.eve.app.ui.admin
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -17,7 +18,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.data.model.Exam
 import com.eve.app.data.model.Question
 import com.eve.app.data.repository.AdminRepository
-import com.eve.app.data.repository.ExamRepository
 import com.eve.app.databinding.ActivityAdminBinding
 import com.eve.app.util.BulkImportHelper
 import com.eve.app.util.Constants
@@ -33,19 +33,18 @@ class AdminActivity : AppCompatActivity() {
     private val adminRepo = AdminRepository()
 
     private var exams: List<Exam> = emptyList()
-    private var editingQuestion: Question? = null
 
     private val bulkPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) importBulk(uri)
     }
 
     private val questionAdapter = QuestionManageAdapter(
-        onEdit = { startEdit(it) },
-        onDelete = { confirmDeleteQuestion(it) }
+        onEdit = { q -> showQuestionDetails(q) },
+        onDelete = { q -> confirmDeleteQuestion(q) }
     )
 
     private val adminEmailAdapter = AdminEmailAdapter(
-        onRemove = { confirmRemoveAdmin(it) }
+        onRemove = { email -> confirmRemoveAdmin(email) }
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,7 +52,6 @@ class AdminActivity : AppCompatActivity() {
 
         val email = FirebaseAuth.getInstance().currentUser?.email
         lifecycleScope.launch {
-            // Double check: hardcoded ya Firestore dono se admin check karo
             if (!adminRepo.isAdmin(email)) {
                 finish()
                 return@launch
@@ -65,10 +63,6 @@ class AdminActivity : AppCompatActivity() {
     private fun setupUi() {
         binding = ActivityAdminBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        binding.spCorrect.adapter = ArrayAdapter(
-            this, android.R.layout.simple_spinner_dropdown_item, listOf("A", "B", "C", "D")
-        )
 
         binding.spCategory.adapter = ArrayAdapter(
             this, android.R.layout.simple_spinner_dropdown_item, Constants.CATEGORIES
@@ -91,22 +85,30 @@ class AdminActivity : AppCompatActivity() {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val exam = exams.getOrNull(position)
                 viewModel.loadQuestions(exam?.id ?: "")
-                cancelEdit()
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
         binding.btnAddExam.setOnClickListener { addExam() }
         binding.btnDeleteExam.setOnClickListener { confirmDeleteExam() }
-        binding.btnUpload.setOnClickListener { submitQuestion() }
-        binding.btnCancelEdit.setOnClickListener { cancelEdit() }
         binding.btnAddAdmin.setOnClickListener { addAdmin() }
-        binding.btnDailyGkAdmin.setOnClickListener {
-            startActivity(android.content.Intent(this, DailyAdminActivity::class.java))
-        }
+
         binding.btnAnalyticsAdmin.setOnClickListener {
-            startActivity(android.content.Intent(this, AdminAnalyticsActivity::class.java))
+            startActivity(Intent(this, AdminAnalyticsActivity::class.java))
         }
+        binding.btnDailyGkAdmin.setOnClickListener {
+            startActivity(Intent(this, DailyAdminActivity::class.java))
+        }
+        binding.btnSendNotification.setOnClickListener {
+            startActivity(Intent(this, SendNotificationActivity::class.java))
+        }
+        binding.btnManageExams.setOnClickListener {
+            startActivity(Intent(this, ManageExamsActivity::class.java))
+        }
+        binding.btnGeneratedTests.setOnClickListener {
+            startActivity(Intent(this, GeneratedTestsActivity::class.java))
+        }
+
         binding.btnShareTemplate.setOnClickListener {
             BulkImportHelper.shareTemplate(this, BulkImportHelper.EXAM_TEMPLATE)
         }
@@ -121,10 +123,6 @@ class AdminActivity : AppCompatActivity() {
                     "application/octet-stream"
                 )
             )
-        }
-        binding.btnToggleHindi.setOnClickListener { toggleHindiGroup() }
-        binding.cbPyq.setOnCheckedChangeListener { _, checked ->
-            binding.groupPyq.visibility = if (checked) View.VISIBLE else View.GONE
         }
         binding.btnRefreshStats.setOnClickListener { viewModel.loadUserStats() }
 
@@ -167,12 +165,10 @@ class AdminActivity : AppCompatActivity() {
                     }
                 }
                 launch {
-                    viewModel.busy.collect {
-                        binding.progress.visibility = if (it) View.VISIBLE else View.GONE
-                        binding.btnUpload.isEnabled = !it
-                        binding.btnAddExam.isEnabled = !it
-                        binding.btnDeleteExam.isEnabled = !it
-                        binding.btnBulkUpload.isEnabled = !it
+                    viewModel.busy.collect { busy ->
+                        binding.btnAddExam.isEnabled = !busy
+                        binding.btnDeleteExam.isEnabled = !busy
+                        binding.btnBulkUpload.isEnabled = !busy
                     }
                 }
                 launch {
@@ -197,11 +193,11 @@ class AdminActivity : AppCompatActivity() {
             selectedCategory
         }
         if (name.isEmpty() || minutes == null || minutes <= 0) {
-            Toast.makeText(this, "Exam name aur valid minutes daalo", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Please enter exam name and valid duration in minutes", Toast.LENGTH_SHORT).show()
             return
         }
         if (category.isEmpty()) {
-            Toast.makeText(this, "Category chuno ya naam type karo", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Please select or type a category", Toast.LENGTH_SHORT).show()
             return
         }
         viewModel.addExam(name, minutes, category) {
@@ -216,93 +212,39 @@ class AdminActivity : AppCompatActivity() {
     private fun confirmDeleteExam() {
         val exam = exams.getOrNull(binding.spExam.selectedItemPosition) ?: return
         AlertDialog.Builder(this)
-            .setTitle("Exam delete karein?")
-            .setMessage("'${exam.examName}' aur uske saare questions permanently delete ho jayenge.")
+            .setTitle("Delete Exam?")
+            .setMessage("Exam '${exam.examName}' and all its questions will be permanently deleted.")
             .setPositiveButton("Delete") { _, _ ->
-                viewModel.deleteExam(exam.id) { cancelEdit() }
+                viewModel.deleteExam(exam.id) { }
             }
             .setNegativeButton("Cancel", null)
             .show()
     }
 
-    private fun startEdit(q: Question) {
-        editingQuestion = q
-        binding.tvFormTitle.text = "4. Question edit karo"
-        binding.etQuestion.setText(q.questionText)
-        binding.etTopic.setText(q.topic)
-        binding.etOptionA.setText(q.optionA)
-        binding.etOptionB.setText(q.optionB)
-        binding.etOptionC.setText(q.optionC)
-        binding.etOptionD.setText(q.optionD)
-        val idx = listOf("A", "B", "C", "D").indexOf(q.correctAnswer)
-        if (idx >= 0) binding.spCorrect.setSelection(idx)
-        binding.etExplanation.setText(q.explanation)
-        binding.etQuestionHi.setText(q.questionTextHi)
-        binding.etOptionAHi.setText(q.optionAHi)
-        binding.etOptionBHi.setText(q.optionBHi)
-        binding.etOptionCHi.setText(q.optionCHi)
-        binding.etOptionDHi.setText(q.optionDHi)
-        binding.etExplanationHi.setText(q.explanationHi)
-        binding.cbPyq.isChecked = q.isPyq
-        binding.etPyqYear.setText(if (q.pyqYear > 0) q.pyqYear.toString() else "")
-        binding.etPyqPaper.setText(q.pyqPaper)
-        binding.groupPyq.visibility = if (q.isPyq) View.VISIBLE else View.GONE
-        // Agar pehle se koi Hindi translation bhari hai to section khud khul jaye
-        val hasHindi = listOf(
-            q.questionTextHi, q.optionAHi, q.optionBHi, q.optionCHi, q.optionDHi, q.explanationHi
-        ).any { it.isNotBlank() }
-        if (hasHindi) showHindiGroup()
-        binding.btnUpload.text = "Update Question"
-        binding.btnCancelEdit.visibility = View.VISIBLE
-    }
-
-    private fun toggleHindiGroup() {
-        if (binding.groupHindi.visibility == View.VISIBLE) hideHindiGroup() else showHindiGroup()
-    }
-
-    private fun showHindiGroup() {
-        binding.groupHindi.visibility = View.VISIBLE
-        binding.btnToggleHindi.text = "− Hindi translation hide karo"
-    }
-
-    private fun hideHindiGroup() {
-        binding.groupHindi.visibility = View.GONE
-        binding.btnToggleHindi.text = "+ Hindi translation add karo (optional)"
-    }
-
-    private fun cancelEdit() {
-        editingQuestion = null
-        binding.tvFormTitle.text = "4. Naya question upload karo"
-        binding.etQuestion.text?.clear()
-        binding.etTopic.text?.clear()
-        binding.etOptionA.text?.clear()
-        binding.etOptionB.text?.clear()
-        binding.etOptionC.text?.clear()
-        binding.etOptionD.text?.clear()
-        binding.spCorrect.setSelection(0)
-        binding.etExplanation.text?.clear()
-        binding.etQuestionHi.text?.clear()
-        binding.etOptionAHi.text?.clear()
-        binding.etOptionBHi.text?.clear()
-        binding.etOptionCHi.text?.clear()
-        binding.etOptionDHi.text?.clear()
-        binding.etExplanationHi.text?.clear()
-        binding.cbPyq.isChecked = false
-        binding.etPyqYear.text?.clear()
-        binding.etPyqPaper.text?.clear()
-        binding.groupPyq.visibility = View.GONE
-        hideHindiGroup()
-        binding.btnUpload.text = "Upload to Firestore"
-        binding.btnCancelEdit.visibility = View.GONE
+    private fun showQuestionDetails(q: Question) {
+        val details = buildString {
+            append("Q: ${q.questionText}\n\n")
+            append("A: ${q.optionA}\n")
+            append("B: ${q.optionB}\n")
+            append("C: ${q.optionC}\n")
+            append("D: ${q.optionD}\n\n")
+            append("Correct Answer: ${q.correctAnswer}\n")
+            if (q.explanation.isNotBlank()) append("Explanation: ${q.explanation}\n")
+            if (q.topic.isNotBlank()) append("Topic: ${q.topic}\n")
+        }
+        AlertDialog.Builder(this)
+            .setTitle("Question Details")
+            .setMessage(details)
+            .setPositiveButton("OK", null)
+            .show()
     }
 
     private fun confirmDeleteQuestion(q: Question) {
         AlertDialog.Builder(this)
-            .setTitle("Question delete karein?")
+            .setTitle("Delete Question?")
             .setMessage(q.questionText)
             .setPositiveButton("Delete") { _, _ ->
                 viewModel.deleteQuestion(q)
-                if (editingQuestion?.id == q.id) cancelEdit()
             }
             .setNegativeButton("Cancel", null)
             .show()
@@ -311,7 +253,7 @@ class AdminActivity : AppCompatActivity() {
     private fun addAdmin() {
         val email = binding.etAdminEmail.text.toString().trim()
         if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            Toast.makeText(this, "Valid email daalo", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show()
             return
         }
         viewModel.addAdmin(email) {
@@ -321,8 +263,8 @@ class AdminActivity : AppCompatActivity() {
 
     private fun confirmRemoveAdmin(email: String) {
         AlertDialog.Builder(this)
-            .setTitle("Admin remove karein?")
-            .setMessage("$email ab admin nahi rahega.")
+            .setTitle("Remove Admin?")
+            .setMessage("$email will no longer have admin privileges.")
             .setPositiveButton("Remove") { _, _ -> viewModel.removeAdmin(email) }
             .setNegativeButton("Cancel", null)
             .show()
@@ -331,7 +273,7 @@ class AdminActivity : AppCompatActivity() {
     private fun importBulk(uri: Uri) {
         val exam = exams.getOrNull(binding.spExam.selectedItemPosition)
         if (exam == null) {
-            Toast.makeText(this, "Pehle ek exam select / banao", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Please select or create an exam first", Toast.LENGTH_SHORT).show()
             return
         }
         try {
@@ -340,17 +282,17 @@ class AdminActivity : AppCompatActivity() {
             val parsed = QuestionBulkParser.parseExamQuestions(sheet, exam.id)
             if (parsed.questions.isEmpty()) {
                 val detail = parsed.errors.take(5).joinToString("\n") { "Row ${it.rowNumber}: ${it.reason}" }
-                Toast.makeText(this, "Koi valid question nahi mila.\n$detail", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "No valid questions found.\n$detail", Toast.LENGTH_LONG).show()
                 return
             }
-            val errorPreview = if (parsed.errors.isEmpty()) "Koi row skip nahi hui."
+            val errorPreview = if (parsed.errors.isEmpty()) "No rows were skipped."
             else parsed.errors.take(8).joinToString("\n") { "Row ${it.rowNumber}: ${it.reason}" } +
-                if (parsed.errors.size > 8) "\n… +${parsed.errors.size - 8} aur" else ""
+                if (parsed.errors.size > 8) "\n… +${parsed.errors.size - 8} more" else ""
             AlertDialog.Builder(this)
-                .setTitle("Bulk upload?")
+                .setTitle("Bulk Upload Questions")
                 .setMessage(
-                    "${exam.examName} me ${parsed.questions.size} questions jaayenge.\n" +
-                        "Skip: ${parsed.errors.size}\n\n$errorPreview"
+                    "Uploading ${parsed.questions.size} questions to '${exam.examName}'.\n" +
+                        "Skipped: ${parsed.errors.size}\n\n$errorPreview"
                 )
                 .setPositiveButton("Upload") { _, _ ->
                     viewModel.addQuestions(parsed.questions) { }
@@ -358,76 +300,7 @@ class AdminActivity : AppCompatActivity() {
                 .setNegativeButton("Cancel", null)
                 .show()
         } catch (e: Exception) {
-            Toast.makeText(this, e.message ?: "File padh nahi paye", Toast.LENGTH_LONG).show()
-        }
-    }
-
-    private fun submitQuestion() {
-        if (exams.isEmpty()) {
-            Toast.makeText(this, "Pehle ek exam banao", Toast.LENGTH_SHORT).show()
-            return
-        }
-        val exam = exams[binding.spExam.selectedItemPosition]
-        val qText = binding.etQuestion.text.toString().trim()
-        val topic = binding.etTopic.text.toString().trim()
-        val a = binding.etOptionA.text.toString().trim()
-        val b = binding.etOptionB.text.toString().trim()
-        val c = binding.etOptionC.text.toString().trim()
-        val d = binding.etOptionD.text.toString().trim()
-        val correct = binding.spCorrect.selectedItem as String
-        val explanation = binding.etExplanation.text.toString().trim()
-        val qTextHi = binding.etQuestionHi.text.toString().trim()
-        val aHi = binding.etOptionAHi.text.toString().trim()
-        val bHi = binding.etOptionBHi.text.toString().trim()
-        val cHi = binding.etOptionCHi.text.toString().trim()
-        val dHi = binding.etOptionDHi.text.toString().trim()
-        val explanationHi = binding.etExplanationHi.text.toString().trim()
-        val isPyq = binding.cbPyq.isChecked
-        val pyqYear = binding.etPyqYear.text.toString().trim().toIntOrNull() ?: 0
-        val pyqPaper = binding.etPyqPaper.text.toString().trim()
-
-        if (qText.isEmpty() || a.isEmpty() || b.isEmpty() || c.isEmpty() || d.isEmpty()) {
-            Toast.makeText(this, "Saari fields bharo", Toast.LENGTH_SHORT).show()
-            return
-        }
-        if (isPyq && pyqYear !in 1990..2100) {
-            Toast.makeText(this, "PYQ ke liye valid year daalo (e.g. 2024)", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val editing = editingQuestion
-        if (editing != null) {
-            val updated = editing.copy(
-                examId = exam.id,
-                questionText = qText,
-                topic = topic,
-                optionA = a, optionB = b, optionC = c, optionD = d,
-                correctAnswer = correct,
-                explanation = explanation,
-                questionTextHi = qTextHi,
-                optionAHi = aHi, optionBHi = bHi, optionCHi = cHi, optionDHi = dHi,
-                explanationHi = explanationHi,
-                isPyq = isPyq,
-                pyqYear = if (isPyq) pyqYear else 0,
-                pyqPaper = if (isPyq) pyqPaper else ""
-            )
-            viewModel.updateQuestion(updated) { cancelEdit() }
-        } else {
-            val q = Question(
-                examId = exam.id,
-                questionText = qText,
-                topic = topic,
-                optionA = a, optionB = b, optionC = c, optionD = d,
-                correctAnswer = correct,
-                explanation = explanation,
-                questionTextHi = qTextHi,
-                optionAHi = aHi, optionBHi = bHi, optionCHi = cHi, optionDHi = dHi,
-                explanationHi = explanationHi,
-                isPyq = isPyq,
-                pyqYear = if (isPyq) pyqYear else 0,
-                pyqPaper = if (isPyq) pyqPaper else ""
-            )
-            viewModel.addQuestion(q) { cancelEdit() }
+            Toast.makeText(this, e.message ?: "Failed to read spreadsheet", Toast.LENGTH_LONG).show()
         }
     }
 }

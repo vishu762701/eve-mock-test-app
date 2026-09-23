@@ -79,8 +79,8 @@ class LeaderboardActivity : AppCompatActivity() {
                 binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
                 if (empty) {
                     binding.ivMessageIcon.setImageResource(R.drawable.ic_state_empty)
-                    binding.tvMessage.text = if (examId == "overall") "No overall scores yet" else "Abhi koi scorer nahi hai"
-                    binding.tvMessageSub.text = if (examId == "overall") "Complete any test to see overall rankings here" else "Is exam ka pehla attempt submit karte hi yahan dikhega"
+                    binding.tvMessage.text = if (examId == "overall") "No overall scores yet" else "No scores recorded yet"
+                    binding.tvMessageSub.text = if (examId == "overall") "Complete any test to see overall rankings here" else "Rankings will appear after the first attempt is submitted"
                 }
             }
             is UiState.Error -> {
@@ -88,7 +88,7 @@ class LeaderboardActivity : AppCompatActivity() {
                 binding.messageGroup.visibility = View.VISIBLE
                 binding.btnRetry.visibility = View.VISIBLE
                 binding.ivMessageIcon.setImageResource(R.drawable.ic_state_error)
-                binding.tvMessage.text = "Kuch gadbad ho gayi"
+                binding.tvMessage.text = "Something went wrong"
                 binding.tvMessageSub.text = state.message
             }
         }

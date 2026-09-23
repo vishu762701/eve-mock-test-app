@@ -25,10 +25,10 @@ object SpreadsheetReader {
     fun read(resolver: ContentResolver, uri: Uri, displayName: String = ""): Sheet {
         val name = displayName.lowercase()
         val bytes = resolver.openInputStream(uri)?.use { it.readBytes() }
-            ?: throw IllegalStateException("File open nahi ho payi")
+            ?: throw IllegalStateException("Unable to open file")
         return when {
             name.endsWith(".xls") && !name.endsWith(".xlsx") ->
-                throw IllegalArgumentException("Purana .xls support nahi hai. Excel me Save As → CSV ya .xlsx karo.")
+                throw IllegalArgumentException("Legacy .xls format is not supported. Please Save As CSV or .xlsx in Excel.")
             name.endsWith(".xlsx") || isZip(bytes) -> readXlsx(bytes)
             else -> readCsv(bytes)
         }
@@ -40,7 +40,7 @@ object SpreadsheetReader {
     fun readCsv(bytes: ByteArray): Sheet {
         val text = decodeText(bytes)
         val table = parseCsv(text)
-        if (table.isEmpty()) throw IllegalArgumentException("CSV khali hai")
+        if (table.isEmpty()) throw IllegalArgumentException("CSV is empty")
         val headers = table.first().map { it.trim() }
         val rows = table.drop(1).filter { row -> row.any { it.isNotBlank() } }
         return Sheet(headers, rows)
@@ -126,9 +126,9 @@ object SpreadsheetReader {
         val shared = stringsPath?.let { parseSharedStrings(parts[it]!!) } ?: emptyList()
         val sheetPath = parts.keys.firstOrNull {
             it.startsWith("xl/worksheets/sheet") && it.endsWith(".xml")
-        } ?: throw IllegalArgumentException("XLSX me koi worksheet nahi mili")
+        } ?: throw IllegalArgumentException("No worksheet found in XLSX file")
         val table = parseSheet(parts[sheetPath]!!, shared)
-        if (table.isEmpty()) throw IllegalArgumentException("Excel sheet khali hai")
+        if (table.isEmpty()) throw IllegalArgumentException("Excel sheet is empty")
         val headers = table.first().map { it.trim() }
         val rows = table.drop(1).filter { row -> row.any { it.isNotBlank() } }
         return Sheet(headers, rows)

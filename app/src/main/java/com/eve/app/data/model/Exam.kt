@@ -5,8 +5,12 @@ data class Exam(
     val id: String = "",
     val examName: String = "",
     val timeLimitMinutes: Int = 30,
-    val category: String = ""
+    val category: String = "",
+    val syllabus: String = "",
+    val questionCount: Int = 20,
+    val customPromptNotes: String = "",
+    val autoGenerationEnabled: Boolean = false
 ) {
-    /** Purane exams jinme category field nahi hai unke liye fallback */
+    /** Fallback for older exams without category */
     val categoryOrOther: String get() = category.ifBlank { "Other" }
 }

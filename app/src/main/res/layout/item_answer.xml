@@ -62,7 +62,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:layout_marginStart="-8dp"
-            android:text="Explanation dekho"
+            android:text="View explanation"
             android:textSize="13sp"
             android:visibility="gone" />
 
@@ -70,7 +70,9 @@
             android:id="@+id/tvExplanation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:background="@color/eve_bg"
+            android:lineSpacingExtra="3dp"
             android:padding="10dp"
             android:textColor="?attr/colorOnSurface"
             android:textSize="14sp"

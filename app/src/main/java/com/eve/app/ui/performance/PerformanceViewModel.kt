@@ -43,7 +43,7 @@ class PerformanceViewModel : ViewModel() {
             _state.value = try {
                 UiState.Success(compute(repo.getAttempts(userId)))
             } catch (e: Exception) {
-                UiState.Error(e.message ?: "Performance data load nahi hui")
+                UiState.Error(e.message ?: "Failed to load performance data")
             }
         }
     }

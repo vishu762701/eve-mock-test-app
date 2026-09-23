@@ -38,10 +38,11 @@ class EveMessagingService : FirebaseMessagingService() {
         // bheja gaya) handle karna hai taaki foreground me bhi notification dikhe.
         val title = message.notification?.title
             ?: message.data["title"]
-            ?: "Naya Exam Available!"
+            ?: "New Exam Available!"
         val body = message.notification?.body
             ?: message.data["body"]
-            ?: "Ek naya mock test add hua hai. Abhi try karo!"
+            ?: message.data["message"]
+            ?: "A new mock test has been added. Try it now!"
 
         NotificationHelper.showNewExamNotification(applicationContext, title, body)
     }

@@ -47,22 +47,15 @@ class AnswerAdapter : RecyclerView.Adapter<AnswerAdapter.VH>() {
             }
             b.tvCorrectAnswer.text = "Correct answer: ${item.correct}. ${item.displayCorrectText(hindi)}"
 
-            // Explanation: sirf tabhi dikhega jab admin ne bhara ho, collapsible.
+            // Display explanation under the answer key so students see why it's correct
             val explanationText = item.displayExplanation(hindi)
-            if (explanationText.isBlank()) {
-                b.btnToggleExplanation.visibility = View.GONE
-                b.tvExplanation.visibility = View.GONE
-            } else {
-                b.btnToggleExplanation.visibility = View.VISIBLE
+            if (explanationText.isNotBlank()) {
+                b.tvExplanation.visibility = View.VISIBLE
                 b.tvExplanation.text = "Explanation: $explanationText"
+            } else {
                 b.tvExplanation.visibility = View.GONE
-                b.btnToggleExplanation.text = "Explanation dekho"
-                b.btnToggleExplanation.setOnClickListener {
-                    val show = b.tvExplanation.visibility != View.VISIBLE
-                    b.tvExplanation.visibility = if (show) View.VISIBLE else View.GONE
-                    b.btnToggleExplanation.text = if (show) "Explanation chhupao" else "Explanation dekho"
-                }
             }
+            b.btnToggleExplanation.visibility = View.GONE
         }
     }
 

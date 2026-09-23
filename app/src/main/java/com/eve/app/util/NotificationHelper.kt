@@ -34,9 +34,9 @@ object NotificationHelper {
         manager.createNotificationChannel(
             NotificationChannel(
                 CHANNEL_NEW_EXAM,
-                "Naye Exam Alerts",
+                "New Exam Alerts",
                 NotificationManager.IMPORTANCE_HIGH
-            ).apply { description = "Jab bhi koi naya mock test add hota hai" }
+            ).apply { description = "Alerts when a new mock test is added" }
         )
 
         manager.createNotificationChannel(
@@ -44,7 +44,7 @@ object NotificationHelper {
                 CHANNEL_DAILY_REMINDER,
                 "Daily Practice Reminder",
                 NotificationManager.IMPORTANCE_DEFAULT
-            ).apply { description = "Rozana mock test practice ka reminder" }
+            ).apply { description = "Daily mock test practice reminder" }
         )
     }
 

@@ -37,7 +37,7 @@
                     android:layout_height="wrap_content" android:nestedScrollingEnabled="false" android:layout_marginTop="8dp"
                     android:layoutAnimation="@anim/layout_enter"/>
                 <TextView android:id="@+id/tvEmpty" android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp" android:text="Analytics abhi available nahi hai. Pehle students test submit karein."
+                    android:layout_marginTop="20dp" android:text="Analytics are not available yet. Data will appear after students submit tests."
                     android:textColor="@color/eve_grey" android:textSize="13sp" android:visibility="gone"/>
             </LinearLayout>
         </ScrollView>

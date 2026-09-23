@@ -52,7 +52,7 @@ class AdminViewModel : ViewModel() {
                 _totalUsers.value = userStatsRepo.getTotalUserCount()
                 _onlineUsers.value = userStatsRepo.getOnlineUserCount()
             } catch (e: Exception) {
-                _message.value = e.message ?: "User stats load nahi hue"
+                _message.value = e.message ?: "Failed to load user stats"
             }
         }
     }
@@ -66,7 +66,7 @@ class AdminViewModel : ViewModel() {
             try {
                 _exams.value = repo.getExams()
             } catch (e: Exception) {
-                _message.value = e.message ?: "Exams load nahi hue"
+                _message.value = e.message ?: "Failed to load exams"
             }
         }
     }
@@ -80,7 +80,7 @@ class AdminViewModel : ViewModel() {
             try {
                 _questions.value = repo.getQuestions(examId)
             } catch (e: Exception) {
-                _message.value = e.message ?: "Questions load nahi hue"
+                _message.value = e.message ?: "Failed to load questions"
             }
         }
     }
@@ -90,11 +90,11 @@ class AdminViewModel : ViewModel() {
             _busy.value = true
             try {
                 repo.addExam(name, minutes, category)
-                _message.value = "Exam add ho gaya"
+                _message.value = "Exam added successfully"
                 loadExams()
                 onDone()
             } catch (e: Exception) {
-                _message.value = e.message ?: "Exam add fail"
+                _message.value = e.message ?: "Failed to add exam"
             }
             _busy.value = false
         }
@@ -105,11 +105,11 @@ class AdminViewModel : ViewModel() {
             _busy.value = true
             try {
                 repo.deleteExam(examId)
-                _message.value = "Exam delete ho gaya"
+                _message.value = "Exam deleted successfully"
                 loadExams()
                 onDone()
             } catch (e: Exception) {
-                _message.value = e.message ?: "Delete fail"
+                _message.value = e.message ?: "Failed to delete exam"
             }
             _busy.value = false
         }
@@ -117,18 +117,18 @@ class AdminViewModel : ViewModel() {
 
     fun addQuestions(questions: List<Question>, onDone: () -> Unit) {
         if (questions.isEmpty()) {
-            _message.value = "Upload ke liye koi valid question nahi mila"
+            _message.value = "No valid questions found for upload"
             return
         }
         viewModelScope.launch {
             _busy.value = true
             try {
                 val n = repo.addQuestions(questions)
-                _message.value = "$n questions Firestore me upload ho gaye"
+                _message.value = "$n questions uploaded successfully"
                 questions.firstOrNull()?.examId?.let { loadQuestions(it) }
                 onDone()
             } catch (e: Exception) {
-                _message.value = e.message ?: "Bulk upload fail (Firestore rules check karo)"
+                _message.value = e.message ?: "Bulk upload failed (check permissions)"
             }
             _busy.value = false
         }
@@ -139,11 +139,11 @@ class AdminViewModel : ViewModel() {
             _busy.value = true
             try {
                 repo.addQuestion(q)
-                _message.value = "Question upload ho gaya"
+                _message.value = "Question uploaded successfully"
                 loadQuestions(q.examId)
                 onDone()
             } catch (e: Exception) {
-                _message.value = e.message ?: "Upload fail (Firestore rules check karo)"
+                _message.value = e.message ?: "Upload failed (check permissions)"
             }
             _busy.value = false
         }
@@ -154,11 +154,11 @@ class AdminViewModel : ViewModel() {
             _busy.value = true
             try {
                 repo.updateQuestion(q)
-                _message.value = "Question update ho gaya"
+                _message.value = "Question updated successfully"
                 loadQuestions(q.examId)
                 onDone()
             } catch (e: Exception) {
-                _message.value = e.message ?: "Update fail"
+                _message.value = e.message ?: "Failed to update question"
             }
             _busy.value = false
         }
@@ -169,10 +169,10 @@ class AdminViewModel : ViewModel() {
             _busy.value = true
             try {
                 repo.deleteQuestion(q.id)
-                _message.value = "Question delete ho gaya"
+                _message.value = "Question deleted successfully"
                 loadQuestions(q.examId)
             } catch (e: Exception) {
-                _message.value = e.message ?: "Delete fail"
+                _message.value = e.message ?: "Failed to delete question"
             }
             _busy.value = false
         }
@@ -183,7 +183,7 @@ class AdminViewModel : ViewModel() {
             try {
                 _admins.value = adminRepo.getDynamicAdmins()
             } catch (e: Exception) {
-                _message.value = e.message ?: "Admins load nahi hue"
+                _message.value = e.message ?: "Failed to load admins"
             }
         }
     }
@@ -193,11 +193,11 @@ class AdminViewModel : ViewModel() {
             _busy.value = true
             try {
                 adminRepo.addAdmin(email)
-                _message.value = "Admin add ho gaya"
+                _message.value = "Admin added successfully"
                 loadAdmins()
                 onDone()
             } catch (e: Exception) {
-                _message.value = e.message ?: "Admin add fail"
+                _message.value = e.message ?: "Failed to add admin"
             }
             _busy.value = false
         }
@@ -208,10 +208,10 @@ class AdminViewModel : ViewModel() {
             _busy.value = true
             try {
                 adminRepo.removeAdmin(email)
-                _message.value = "Admin remove ho gaya"
+                _message.value = "Admin removed successfully"
                 loadAdmins()
             } catch (e: Exception) {
-                _message.value = e.message ?: "Remove fail"
+                _message.value = e.message ?: "Failed to remove admin"
             }
             _busy.value = false
         }

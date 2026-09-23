@@ -55,6 +55,9 @@
         <activity android:name=".ui.admin.AdminActivity" android:exported="false" />
         <activity android:name=".ui.admin.AdminAnalyticsActivity" android:exported="false" />
         <activity android:name=".ui.admin.DailyAdminActivity" android:exported="false" />
+        <activity android:name=".ui.admin.SendNotificationActivity" android:exported="false" />
+        <activity android:name=".ui.admin.ManageExamsActivity" android:exported="false" />
+        <activity android:name=".ui.admin.GeneratedTestsActivity" android:exported="false" />
         <activity android:name=".ui.about.AboutActivity" android:exported="false" />
         <activity android:name=".ui.notifications.NotificationsActivity" android:exported="false" />
 

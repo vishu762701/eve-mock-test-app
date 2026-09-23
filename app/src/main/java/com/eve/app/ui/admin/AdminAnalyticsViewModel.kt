@@ -30,7 +30,7 @@ class AdminAnalyticsViewModel : ViewModel() {
                 val questions = repo.getQuestionAnalytics(examId.ifBlank { null })
                 UiState.Success(AdminAnalyticsUi(exams, questions, examId))
             } catch (e: Exception) {
-                UiState.Error(e.message ?: "Analytics load nahi hui")
+                UiState.Error(e.message ?: "Failed to load analytics")
             }
         }
     }

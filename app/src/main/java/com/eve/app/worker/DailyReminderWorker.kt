@@ -18,11 +18,11 @@ class DailyReminderWorker(context: Context, params: WorkerParameters) : Worker(c
         if (FirebaseAuth.getInstance().currentUser == null) return Result.success()
 
         val messages = listOf(
-            "Aaj ka GK quiz ready hai" to "5 minute nikaalo — Daily Current Affairs attempt karke streak bachaao.",
-            "Aaj ka mock test abhi tak nahi diya?" to "5 minute nikaalo aur ek test complete karo.",
-            "Practice makes perfect!" to "Rozana ek mock test se apni speed aur accuracy dono improve hongi.",
-            "Exam ki taiyari chal rahi hai?" to "Aaj ka Daily GK + ek mock test attempt karke progress check karo.",
-            "Consistency is the key" to "Daily GK quiz aaj bhi ho jaaye — apna streak mat todo!"
+            "Today's Daily GK quiz is ready" to "Take 5 minutes to attempt today's quiz and protect your streak.",
+            "Haven't taken today's mock test yet?" to "Take 5 minutes and complete a test.",
+            "Practice makes perfect!" to "Taking a daily mock test improves both speed and accuracy.",
+            "Preparing for your exam?" to "Attempt today's Daily GK and a mock test to track your progress.",
+            "Consistency is key!" to "Keep your daily study momentum going — maintain your streak!"
         )
         val (title, body) = messages.random()
         NotificationHelper.showDailyReminder(applicationContext, title, body)

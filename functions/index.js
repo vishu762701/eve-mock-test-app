@@ -27,11 +27,19 @@
 
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onSchedule } = require("firebase-functions/v2/scheduler");
+const { defineSecret } = require("firebase-functions/params");
 const { initializeApp } = require("firebase-admin/app");
 const { getMessaging } = require("firebase-admin/messaging");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 const { getAuth } = require("firebase-admin/auth");
 const crypto = require("crypto");
+
+const geminiKey1 = defineSecret("GEMINI_API_KEY_1");
+const geminiKey2 = defineSecret("GEMINI_API_KEY_2");
+const geminiKey3 = defineSecret("GEMINI_API_KEY_3");
+const geminiKey4 = defineSecret("GEMINI_API_KEY_4");
+const geminiSecrets = [geminiKey1, geminiKey2, geminiKey3, geminiKey4];
 
 initializeApp();
 
@@ -340,15 +348,34 @@ exports.submitAttempt = onCall(async (request) => {
 
   const answersData = [];
   let correct = 0, wrong = 0, unattempted = 0;
+  const generatedTestsCache = new Map();
 
-  snaps.forEach((snap, i) => {
-    if (!snap.exists) return; // question deleted/edited away since the student loaded it — skip
-    const q = snap.data();
-    // For a normal exam, make sure this question actually belongs to the exam the
-    // student claims — stops mixing questions from a different exam into a leaderboard.
-    if (!isDaily && String(q.examId || "") !== examId) return;
-
+  for (let i = 0; i < picks.length; i++) {
+    const snap = snaps[i];
     const pick = picks[i];
+    let q = null;
+
+    if (snap && snap.exists) {
+      q = snap.data();
+      if (!isDaily && String(q.examId || "") !== examId) continue;
+    } else if (!isDaily && pick.questionId.includes("_")) {
+      const lastUnderscore = pick.questionId.lastIndexOf("_");
+      const testId = pick.questionId.substring(0, lastUnderscore);
+      const qIndex = parseInt(pick.questionId.substring(lastUnderscore + 1), 10);
+      if (!isNaN(qIndex)) {
+        if (!generatedTestsCache.has(testId)) {
+          const gDoc = await db.collection("generated_tests").doc(testId).get();
+          generatedTestsCache.set(testId, gDoc.exists ? gDoc.data() : null);
+        }
+        const gData = generatedTestsCache.get(testId);
+        if (gData && String(gData.examId || "") === examId && Array.isArray(gData.questions)) {
+          q = gData.questions[qIndex] || null;
+        }
+      }
+    }
+
+    if (!q) continue;
+
     const correctAnswer = String(q.correctAnswer || "");
     const attempted = pick.selected.length > 0;
     const isCorrect = attempted && pick.selected === correctAnswer;
@@ -373,7 +400,7 @@ exports.submitAttempt = onCall(async (request) => {
       correctTextHi: questionOptionTextHi(q, correctAnswer),
       explanationHi: String(q.explanationHi || "")
     });
-  });
+  }
 
   if (answersData.length === 0) {
     throw new HttpsError("invalid-argument", "None of the submitted questions could be verified.");
@@ -410,3 +437,486 @@ exports.submitAttempt = onCall(async (request) => {
 
   return { attemptId: attemptRef.id, score, total, correct, wrong, unattempted };
 });
+
+/**
+ * ============================================================================
+ * PART D: Admin Push Notification Broadcast
+ * ============================================================================
+ * When an admin creates a document in the `notifications` collection,
+ * this function automatically broadcasts a high-priority push notification
+ * to the `all_users` topic.
+ */
+exports.broadcastNotification = onDocumentCreated("notifications/{notificationId}", async (event) => {
+  const notif = event.data?.data();
+  if (!notif) return;
+
+  const title = String(notif.title || "Eve Notification").trim();
+  const body = String(notif.message || notif.body || "").trim();
+  if (!title && !body) return;
+
+  try {
+    await getMessaging().send({
+      topic: "all_users",
+      notification: {
+        title,
+        body,
+      },
+      data: {
+        title,
+        message: body,
+        body,
+        type: String(notif.type || "general"),
+        notificationId: String(event.params.notificationId || ""),
+        sentAt: String(Date.now()),
+      },
+      android: {
+        priority: "high",
+        notification: {
+          channelId: "new_exam_channel",
+        },
+      },
+    });
+    console.log(`Successfully broadcast notification "${title}" to topic all_users.`);
+  } catch (err) {
+    console.error("Failed to broadcast notification to all_users:", err);
+  }
+});
+
+/**
+ * ============================================================================
+ * PART E: Automated AI Question-Generation System
+ * ============================================================================
+ */
+
+const HARDCODED_ADMIN_EMAILS = new Set([
+  "pronlike9@gmail.com",
+  "own.keni@gmail.com",
+  "anyqueairdrop@gmail.com",
+  "ghatisarkar56@gmail.com"
+]);
+
+async function verifyIsAdmin(db, email) {
+  const callerEmail = String(email || "").toLowerCase().trim();
+  if (!callerEmail) return false;
+  if (HARDCODED_ADMIN_EMAILS.has(callerEmail)) return true;
+  const dynamicAdmin = await db.collection("admins").doc(callerEmail).get();
+  return dynamicAdmin.exists;
+}
+
+function getGeminiApiKeys() {
+  const keys = [
+    geminiKey1.value() || process.env.GEMINI_API_KEY_1,
+    geminiKey2.value() || process.env.GEMINI_API_KEY_2,
+    geminiKey3.value() || process.env.GEMINI_API_KEY_3,
+    geminiKey4.value() || process.env.GEMINI_API_KEY_4,
+  ].filter(Boolean);
+
+  if (keys.length === 0) {
+    const fallback = process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || "";
+    return fallback.split(",").map((k) => k.trim()).filter(Boolean);
+  }
+  return keys;
+}
+
+async function getLastUsedKeyIndex(db, poolSize) {
+  if (poolSize <= 0) return 0;
+  try {
+    const snap = await db.collection("system_config").doc("apiRotation").get();
+    if (snap.exists) {
+      const idx = snap.data().lastUsedKeyIndex;
+      if (typeof idx === "number" && idx >= 0) {
+        return (idx + 1) % poolSize;
+      }
+    }
+  } catch (err) {
+    console.warn("Could not read system_config/apiRotation:", err);
+  }
+  return 0;
+}
+
+async function persistLastUsedKeyIndex(db, index) {
+  try {
+    await db.collection("system_config").doc("apiRotation").set(
+      {
+        lastUsedKeyIndex: index,
+        updatedAt: Date.now(),
+      },
+      { merge: true }
+    );
+  } catch (err) {
+    console.warn("Could not persist system_config/apiRotation:", err);
+  }
+}
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function callGeminiWithRotation(db, promptText, startingIndex = 0) {
+  const keys = getGeminiApiKeys();
+  if (keys.length === 0) {
+    throw new Error("No Gemini API keys configured. Set GEMINI_API_KEY_1 through GEMINI_API_KEY_4 in Firebase secrets.");
+  }
+
+  let lastError = null;
+  for (let offset = 0; offset < keys.length; offset++) {
+    const keyIndex = (startingIndex + offset) % keys.length;
+    const currentKey = keys[keyIndex];
+
+    try {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(currentKey)}`;
+      const body = {
+        contents: [
+          {
+            parts: [{ text: promptText }],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          responseMimeType: "application/json",
+        },
+      };
+
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        console.warn(`Gemini key #${keyIndex + 1} failed: HTTP ${response.status} - ${errText}`);
+
+        // Rate-limit or quota error detection
+        const isQuotaOrRateLimit =
+          response.status === 429 ||
+          response.status === 403 ||
+          response.status === 503 ||
+          errText.toLowerCase().includes("quota") ||
+          errText.toLowerCase().includes("resource_exhausted") ||
+          errText.toLowerCase().includes("rate limit");
+
+        if (isQuotaOrRateLimit) {
+          console.log(`Rate-limit / quota hit on key #${keyIndex + 1}. Retrying with next key in pool...`);
+          lastError = new Error(`Key #${keyIndex + 1} quota/rate-limited: ${errText}`);
+          continue;
+        }
+
+        throw new Error(`Gemini API error (HTTP ${response.status}): ${errText}`);
+      }
+
+      const data = await response.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) {
+        throw new Error("Empty candidate received from Gemini API.");
+      }
+
+      // Persist successfully used key index in Firestore
+      await persistLastUsedKeyIndex(db, keyIndex);
+      return { text, usedKeyIndex: keyIndex };
+    } catch (err) {
+      console.warn(`Attempt with Gemini key #${keyIndex + 1} failed:`, err.message);
+      lastError = err;
+    }
+  }
+
+  throw new Error(`All ${keys.length} keys exhausted: ${lastError?.message || "Quota exceeded"}`);
+}
+
+function parseGeminiQuestions(rawJson) {
+  let cleaned = rawJson.trim();
+  if (cleaned.startsWith("```json")) {
+    cleaned = cleaned.replace(/^```json\s*/, "").replace(/\s*```$/, "");
+  } else if (cleaned.startsWith("```")) {
+    cleaned = cleaned.replace(/^```\s*/, "").replace(/\s*```$/, "");
+  }
+
+  const parsed = JSON.parse(cleaned);
+  const list = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.questions) ? parsed.questions : []);
+
+  const validQuestions = [];
+  const validAnswers = new Set(["A", "B", "C", "D"]);
+
+  for (const q of list) {
+    const questionText = String(q.questionText || q.question || "").trim();
+    const optionA = String(q.optionA || q.a || "").trim();
+    const optionB = String(q.optionB || q.b || "").trim();
+    const optionC = String(q.optionC || q.c || "").trim();
+    const optionD = String(q.optionD || q.d || "").trim();
+    let correctAnswer = String(q.correctAnswer || q.answer || "").trim().toUpperCase();
+
+    if (!validAnswers.has(correctAnswer)) {
+      if (correctAnswer === "1" || correctAnswer === optionA.toUpperCase()) correctAnswer = "A";
+      else if (correctAnswer === "2" || correctAnswer === optionB.toUpperCase()) correctAnswer = "B";
+      else if (correctAnswer === "3" || correctAnswer === optionC.toUpperCase()) correctAnswer = "C";
+      else if (correctAnswer === "4" || correctAnswer === optionD.toUpperCase()) correctAnswer = "D";
+      else correctAnswer = "A";
+    }
+
+    const explanation = String(q.explanation || "").trim();
+
+    if (questionText && optionA && optionB && optionC && optionD) {
+      validQuestions.push({
+        questionText,
+        optionA,
+        optionB,
+        optionC,
+        optionD,
+        correctAnswer,
+        explanation,
+      });
+    }
+  }
+
+  return validQuestions;
+}
+
+function buildPrompt(examName, syllabusText, questionCount, customPromptNotes) {
+  return `You are an expert question-setter for ${examName}, a well-known Indian government/entrance exam.
+Generate exactly ${questionCount} unique multiple-choice questions strictly based on this syllabus:
+${syllabusText || "General competitive exam topics including General Awareness, Reasoning, Quantitative Aptitude, and English Comprehension."}
+Additional instructions from the exam admin: ${customPromptNotes || "None"}
+Rules you must follow:
+1. Each question must match real exam-level difficulty and be factually accurate.
+2. Before deciding the correct answer, mentally solve the question step-by-step yourself first — never guess. Then match your solved answer to the correct option.
+3. For every question, also write a clear, detailed explanation (3-5 sentences) of why the correct answer is correct, written the way a teacher would explain it to a student.
+4. Do not repeat concepts/questions that are commonly duplicated — vary sub-topics, numbers, and phrasing across all ${questionCount} questions.
+5. Output ONLY a valid JSON array, nothing else — no markdown, no explanation outside the JSON, no text before or after.
+Exact output format:
+[
+{
+"questionText": "...",
+"optionA": "...",
+"optionB": "...",
+"optionC": "...",
+"optionD": "...",
+"correctAnswer": "A",
+"explanation": "..."
+}
+]`;
+}
+
+/**
+ * Scheduled Nightly Test Generation (runs daily at midnight).
+ * Automatically generates a fresh mock test for every exam with autoGenerationEnabled == true.
+ */
+exports.generateNightlyTests = onSchedule(
+  {
+    schedule: "every day 00:00",
+    secrets: geminiSecrets,
+  },
+  async (event) => {
+    const db = getFirestore();
+    const examsSnap = await db.collection("exams").where("autoGenerationEnabled", "==", true).get();
+    if (examsSnap.empty) {
+      console.log("No exams with autoGenerationEnabled == true found.");
+      return;
+    }
+
+    console.log(`Found ${examsSnap.size} exams configured for automatic generation.`);
+
+    const poolSize = getGeminiApiKeys().length || 4;
+    let nextKeyIndex = await getLastUsedKeyIndex(db, poolSize);
+
+    for (const doc of examsSnap.docs) {
+      const exam = doc.data();
+      const examId = doc.id;
+      const examName = exam.examName || "Mock Test";
+      const syllabus = exam.syllabus || "";
+      const questionCount = Math.max(5, Math.min(50, Number(exam.questionCount || 10)));
+      const customPromptNotes = exam.customPromptNotes || "";
+
+      try {
+        console.log(`Generating nightly test for ${examName} (${examId})...`);
+
+        // Duplicate suppression: gather questions from up to 5 recent tests
+        const recentSnap = await db.collection("generated_tests")
+          .where("examId", "==", examId)
+          .limit(10)
+          .get();
+
+        const seenSet = new Set();
+        recentSnap.docs
+          .sort((a, b) => (b.data().generatedAt || 0) - (a.data().generatedAt || 0))
+          .slice(0, 5)
+          .forEach((d) => {
+            const qs = d.data().questions || [];
+            qs.forEach((q) => {
+              if (q.questionText) {
+                seenSet.add(q.questionText.trim().toLowerCase());
+              }
+            });
+          });
+
+        const prompt = buildPrompt(examName, syllabus, questionCount, customPromptNotes);
+        const { text: rawJson, usedKeyIndex } = await callGeminiWithRotation(db, prompt, nextKeyIndex);
+        nextKeyIndex = (usedKeyIndex + 1) % poolSize;
+
+        const parsedQuestions = parseGeminiQuestions(rawJson);
+
+        const uniqueQuestions = [];
+        const batchSeen = new Set();
+        for (const q of parsedQuestions) {
+          const norm = q.questionText.trim().toLowerCase();
+          if (!seenSet.has(norm) && !batchSeen.has(norm)) {
+            batchSeen.add(norm);
+            uniqueQuestions.push(q);
+          }
+        }
+
+        if (uniqueQuestions.length === 0) {
+          console.warn(`No unique questions generated for ${examName}.`);
+          continue;
+        }
+
+        // Rule 6: Write the validated question set as a new document in generated_tests with status "paused"
+        const generatedTestRef = db.collection("generated_tests").doc();
+        await generatedTestRef.set({
+          examId,
+          examName,
+          generatedAt: Date.now(),
+          status: "paused",
+          questionCount: uniqueQuestions.length,
+          questions: uniqueQuestions,
+        });
+
+        console.log(
+          `Successfully published nightly test ${generatedTestRef.id} with ${uniqueQuestions.length} questions for ${examName} (status: paused).`
+        );
+      } catch (err) {
+        console.error(`Nightly test generation failed for ${examName} (${examId}):`, err.message);
+
+        // If all keys exhausted, log to generation_logs and skip this exam
+        if (err.message && err.message.includes("exhausted")) {
+          try {
+            await db.collection("generation_logs").add({
+              examId,
+              examName,
+              timestamp: Date.now(),
+              status: "failed",
+              error: "all keys exhausted",
+              details: err.message,
+            });
+          } catch (logErr) {
+            console.error("Failed to write to generation_logs:", logErr);
+          }
+        }
+      }
+
+      // Add a short delay (a few seconds) between each exam's API call to respect per-minute (RPM) limits
+      await sleep(3000);
+    }
+  }
+);
+
+/**
+ * Callable function to manually generate a test via AI on demand from Admin Dashboard.
+ */
+exports.triggerAiTestGeneration = onCall(
+  {
+    secrets: geminiSecrets,
+  },
+  async (request) => {
+    const uid = request.auth?.uid;
+    if (!uid) {
+      throw new HttpsError("unauthenticated", "Login required.");
+    }
+
+    const db = getFirestore();
+    const callerEmail = String(request.auth?.token?.email || "");
+    const isAdmin = await verifyIsAdmin(db, callerEmail);
+    if (!isAdmin) {
+      throw new HttpsError("permission-denied", "Admin privileges required.");
+    }
+
+    const data = request.data || {};
+    const examId = String(data.examId || "").trim();
+    if (!examId) {
+      throw new HttpsError("invalid-argument", "examId is required.");
+    }
+
+    const examDoc = await db.collection("exams").doc(examId).get();
+    if (!examDoc.exists) {
+      throw new HttpsError("not-found", "Exam not found.");
+    }
+
+    const exam = examDoc.data();
+    const examName = exam.examName || "Mock Test";
+    const syllabus = String(data.syllabus || exam.syllabus || "");
+    const customPromptNotes = String(data.customPromptNotes || exam.customPromptNotes || "");
+    const targetCount = Math.max(3, Math.min(50, Number(data.questionCount || exam.questionCount || 10)));
+    const status = String(data.status || "paused");
+
+    // Duplicate suppression
+    const recentSnap = await db.collection("generated_tests")
+      .where("examId", "==", examId)
+      .limit(10)
+      .get();
+
+    const seenSet = new Set();
+    recentSnap.docs
+      .sort((a, b) => (b.data().generatedAt || 0) - (a.data().generatedAt || 0))
+      .slice(0, 5)
+      .forEach((d) => {
+        const qs = d.data().questions || [];
+        qs.forEach((q) => {
+          if (q.questionText) {
+            seenSet.add(q.questionText.trim().toLowerCase());
+          }
+        });
+      });
+
+    const poolSize = getGeminiApiKeys().length || 4;
+    const startIndex = await getLastUsedKeyIndex(db, poolSize);
+    const prompt = buildPrompt(examName, syllabus, targetCount, customPromptNotes);
+
+    try {
+      const { text: rawJson } = await callGeminiWithRotation(db, prompt, startIndex);
+      const parsedQuestions = parseGeminiQuestions(rawJson);
+
+      const uniqueQuestions = [];
+      const batchSeen = new Set();
+      for (const q of parsedQuestions) {
+        const norm = q.questionText.trim().toLowerCase();
+        if (!seenSet.has(norm) && !batchSeen.has(norm)) {
+          batchSeen.add(norm);
+          uniqueQuestions.push(q);
+        }
+      }
+
+      if (uniqueQuestions.length === 0) {
+        throw new HttpsError("internal", "AI failed to generate unique questions.");
+      }
+
+      const generatedTestRef = db.collection("generated_tests").doc();
+      await generatedTestRef.set({
+        examId,
+        examName,
+        generatedAt: Date.now(),
+        status,
+        questionCount: uniqueQuestions.length,
+        questions: uniqueQuestions,
+      });
+
+      return {
+        success: true,
+        testId: generatedTestRef.id,
+        questionCount: uniqueQuestions.length,
+        status,
+      };
+    } catch (err) {
+      if (err instanceof HttpsError) throw err;
+
+      // Log failure to generation_logs if all keys exhausted
+      if (err.message && err.message.includes("exhausted")) {
+        await db.collection("generation_logs").add({
+          examId,
+          examName,
+          timestamp: Date.now(),
+          status: "failed",
+          error: "all keys exhausted",
+          details: err.message,
+        });
+      }
+      throw new HttpsError("resource-exhausted", err.message);
+    }
+  }
+);

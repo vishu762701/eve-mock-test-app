@@ -1,21 +1,17 @@
 rules_version = '2';
 
-// Phase 13: Firestore Security Rules.
+// EVE Mock Test App — Firestore Security Rules
 //
-// Abhi tak (default/test mode rules) koi bhi Firestore console se seedha connect karke
-// saara data (exams, questions, doosron ki attempts) padh/badal/delete kar sakta tha. Yeh
-// rules ab enforce karti hain:
-//   - exams/questions: koi bhi logged-in user read kar sakta hai, sirf admin write kar sakta hai
-//   - admins: koi bhi logged-in user list dekh sakta hai (yeh sirf emails hain, secret nahi —
-//     already app ke APK me hardcoded list decompile karke dekhi ja sakti hai), sirf admin add/remove kar sakta hai
-//   - attempts: user sirf apni khud ki attempt create/read kar sakta hai, kisi aur ki nahi.
-//     Ek baar submit hone ke baad koi bhi (user ya admin) usse edit/delete nahi kar sakta
-//     (result history tamper-proof rehti hai)
-//   - users: sirf apna khud ka document (FCM token store karne ke liye, Phase 12) read/write
+// Access patterns & least privilege rules audited against actual Android client
+// and Cloud Functions implementation.
 //
-// IMPORTANT: yeh file khud-ba-khud apply nahi hoti — deploy karna padega (neeche README me steps).
-// Naya admin email hardcode karna ho to Constants.kt ke ADMIN_EMAILS ke saath-saath yahan
-// isAdmin() function ki list bhi update karo, warna dono jagah mismatch ho jayega.
+// Highlights:
+// - Questions/Exams: Signed-in students can read, only verified admins can write.
+// - Attempt Locks: Safe read access for user/admin; client writes disabled.
+// - Attempts: Client writes disabled (Cloud Function submitAttempt writes verified data);
+//   users read only their own attempts, admins can read all.
+// - Users: Users read/write only their own document; admins can read collection for stats.
+// - Leaderboards & Analytics: Public read for signed-in users, client writes disabled.
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -24,9 +20,13 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Constants.kt ke ADMIN_EMAILS se hamesha match honi chahiye
+    function userEmail() {
+      return isSignedIn() && 'email' in request.auth.token ? request.auth.token.email.lower() : '';
+    }
+
+    // Must stay synchronized with Constants.kt ADMIN_EMAILS
     function isHardcodedAdmin() {
-      return isSignedIn() && request.auth.token.email in [
+      return userEmail() in [
         'pronlike9@gmail.com',
         'own.keni@gmail.com',
         'anyqueairdrop@gmail.com',
@@ -34,91 +34,111 @@ service cloud.firestore {
       ];
     }
 
-    // Firestore me manually add kiye gaye extra admins (AdminRepository.addAdmin() se,
-    // document ID = lowercase email — Google account ka email bhi normally lowercase hi
-    // hota hai, isliye yeh match ho jaata hai)
+    // Dynamic Admins (documents in 'admins' collection are stored with lowercase email as ID)
     function isDynamicAdmin() {
-      return isSignedIn() &&
-        exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
+      return userEmail() != '' &&
+        exists(/databases/$(database)/documents/admins/$(userEmail()));
     }
 
     function isAdmin() {
       return isHardcodedAdmin() || isDynamicAdmin();
     }
 
+    // Exams: signed-in users can browse; only admin can create, update, or delete
     match /exams/{examId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
     }
 
-    // Deterministic lock created by the submitAttempt Cloud Function. Students cannot
-    // read or create locks; admins bypass the lock so they can preview/retry tests.
+    // Deterministic lock created by submitAttempt Cloud Function.
+    // Safe null check prevents rule evaluation failure when checking unattempted tests.
     match /attempt_locks/{lockId} {
-      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow read: if isSignedIn() && (isAdmin() || resource == null || resource.data.userId == request.auth.uid);
       allow write: if false;
     }
 
+    // Questions: signed-in users can read (mock tests, practice mode, PYQ); only admin can write.
+    // Duplicate test submissions are prevented server-side by submitAttempt Cloud Function.
     match /questions/{questionId} {
-      allow read: if isAdmin() || (isSignedIn() && !exists(/databases/$(database)/documents/attempt_locks/$(request.auth.uid + "_" + resource.data.examId)));
+      allow read: if isSignedIn();
       allow write: if isAdmin();
     }
 
-    // Phase 20: Daily GK / Current Affairs. Signed-in students read, sirf admin write.
+    // Daily GK / Current Affairs questions
     match /daily_questions/{questionId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
     }
 
+    // Admins whitelist: signed-in users can read to verify admin status; only admin can add/remove
     match /admins/{email} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
     }
 
-    // Phase 23: attempts create ab client se allowed nahi hai. Pehle yahan sirf
-    // userId == auth.uid check hota tha — score/answers client jo chaahe bhej sakta
-    // tha, jo Leaderboard/Analytics dono ko spoof kar sakta tha. Ab sirf
-    // functions/index.js ka submitAttempt Cloud Function (Admin SDK, real question
-    // data se score khud calculate karke) attempts likhta hai.
+    // Attempts: only submitAttempt Cloud Function (Admin SDK) writes verified results.
+    // Students can read only their own attempts; admins can read any attempt.
     match /attempts/{attemptId} {
       allow create: if false;
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
       allow update, delete: if false;
     }
 
+    // User profile & stats: users read/write their own document; admins read for analytics counters
     match /users/{userId} {
       allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
       allow write: if isSignedIn() && request.auth.uid == userId;
     }
 
-    // Phase 16: Leaderboard. Har exam ke top scorers sabko (koi bhi logged-in user)
-    // dikhne chahiye, lekin client seedha yahan likh nahi sakta (warna koi apna score
-    // khud badhaa sakta hai) — sirf functions/index.js ka updateLeaderboard Cloud
-    // Function (Admin SDK, jo rules ko bypass karta hai) yahan likhta hai.
+    // Leaderboard (per-exam top scorers)
     match /leaderboard/{entryId} {
       allow read: if isSignedIn();
       allow write: if false;
     }
 
-    // Overall Leaderboard (all exams aggregate)
+    // Overall Leaderboard (aggregate across all exams)
     match /overall_leaderboard/{entryId} {
       allow read: if isSignedIn();
       allow write: if false;
     }
 
-    // Phase 22: pre-aggregated admin analytics. Client admins can read these summaries;
-    // clients (including admins) cannot forge them. Cloud Functions/Admin SDK writes them.
+    // Pre-aggregated exam analytics for Admin Dashboard
     match /admin_analytics_exams/{examId} {
       allow read: if isAdmin();
       allow write: if false;
     }
 
+    // Pre-aggregated question difficulty analytics for Admin Dashboard
     match /admin_analytics_questions/{questionId} {
       allow read: if isAdmin();
       allow write: if false;
     }
 
-    // Internal marker collection used only by the Phase 22 Cloud Function to count
-    // unique students once per exam. Never expose it to clients.
+    // Notifications: all signed-in users can read, only admin can create/delete, no edits
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn();
+      allow create, delete: if isAdmin();
+      allow update: if false;
+    }
+
+    // AI Generated Tests: signed-in students can read live tests; admins can read all and manage status/delete
+    match /generated_tests/{testId} {
+      allow read: if isSignedIn() && (isAdmin() || resource.data.status == "live");
+      allow write: if isAdmin();
+
+      match /questions/{questionId} {
+        allow read: if isSignedIn() && (isAdmin() || get(/databases/$(database)/documents/generated_tests/$(testId)).data.status == "live");
+        allow write: if isAdmin();
+      }
+    }
+
+    // AI Generation Logs: admin-only read, client writes disabled (Cloud Functions write via Admin SDK)
+    match /generation_logs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // Internal marker collection used only by Cloud Function triggers. No client access.
     match /admin_analytics_exam_users/{markerId} {
       allow read, write: if false;
     }

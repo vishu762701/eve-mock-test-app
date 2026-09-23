@@ -72,13 +72,38 @@ class TestViewModel : ViewModel() {
                     // admin jaisa upload kiya waisa paper feel rahe.
                     pyqYear > 0 -> repo.getPyqQuestions(examId, pyqYear, pyqPaper)
                     topic.isNotBlank() -> repo.getQuestionsForTopic(examId, topic).shuffled().take(10)
-                    else -> repo.getMockQuestions(examId).shuffled()
+                    else -> {
+                        val mockList = repo.getMockQuestions(examId)
+                        if (mockList.isNotEmpty()) {
+                            mockList.shuffled()
+                        } else {
+                            val liveTests = repo.getLiveGeneratedTests(examId)
+                            val latestLive = liveTests.firstOrNull()
+                            if (latestLive != null && latestLive.questions.isNotEmpty()) {
+                                latestLive.questions.mapIndexed { idx, gq ->
+                                    Question(
+                                        id = "${latestLive.id}_$idx",
+                                        examId = examId,
+                                        questionText = gq.questionText,
+                                        optionA = gq.optionA,
+                                        optionB = gq.optionB,
+                                        optionC = gq.optionC,
+                                        optionD = gq.optionD,
+                                        correctAnswer = gq.correctAnswer,
+                                        explanation = gq.explanation
+                                    )
+                                }
+                            } else {
+                                emptyList()
+                            }
+                        }
+                    }
                 }
                 _questions.value = UiState.Success(list)
                 if (list.isNotEmpty()) startTimer(timeLimitMinutes * 60L)
             } catch (e: Exception) {
                 started = false
-                _questions.value = UiState.Error(e.message ?: "Questions load nahi hue")
+                _questions.value = UiState.Error(e.message ?: "Failed to load questions")
             }
         }
     }

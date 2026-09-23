@@ -29,7 +29,7 @@ class LeaderboardViewModel : ViewModel() {
             _state.value = try {
                 UiState.Success(repo.getTopScorers(examId))
             } catch (e: Exception) {
-                UiState.Error(e.message ?: "Leaderboard load nahi hui")
+                UiState.Error(e.message ?: "Failed to load leaderboard")
             }
 
             // Apna rank alag se load karte hain taaki top-scorers list, rank query fail

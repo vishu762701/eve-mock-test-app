@@ -33,7 +33,7 @@ class HistoryViewModel : ViewModel() {
             _state.value = try {
                 UiState.Success(repo.getAttempts(userId))
             } catch (e: Exception) {
-                UiState.Error(e.message ?: "History load nahi hui")
+                UiState.Error(e.message ?: "Failed to load history")
             }
         }
     }

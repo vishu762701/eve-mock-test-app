@@ -23,7 +23,7 @@ class PracticeViewModel : ViewModel() {
     fun loadExams() = viewModelScope.launch {
         _exams.value = UiState.Loading
         _exams.value = try { UiState.Success(repository.getExams()) }
-        catch (e: Exception) { UiState.Error(e.message ?: "Exams load nahi hue") }
+        catch (e: Exception) { UiState.Error(e.message ?: "Failed to load exams") }
     }
 
     fun loadTopics(examId: String) = viewModelScope.launch {
@@ -38,6 +38,6 @@ class PracticeViewModel : ViewModel() {
                 .map { PracticeTopic(it.key, it.value) }
                 .sortedBy { it.name.lowercase() }
             UiState.Success(topics)
-        } catch (e: Exception) { UiState.Error(e.message ?: "Topics load nahi hue") }
+        } catch (e: Exception) { UiState.Error(e.message ?: "Failed to load topics") }
     }
 }

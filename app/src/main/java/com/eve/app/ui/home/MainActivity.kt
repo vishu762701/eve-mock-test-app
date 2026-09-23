@@ -1,44 +1,48 @@
 package com.eve.app.ui.home
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
-import android.widget.PopupMenu
+import android.view.animation.DecelerateInterpolator
+import android.view.inputmethod.InputMethodManager
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.core.content.ContextCompat
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
 import com.eve.app.R
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.databinding.ActivityMainBinding
 import com.eve.app.ui.admin.AdminActivity
+import com.eve.app.ui.daily.DailyQuizActivity
 import com.eve.app.ui.history.HistoryActivity
 import com.eve.app.ui.leaderboard.LeaderboardActivity
 import com.eve.app.ui.login.LoginActivity
 import com.eve.app.ui.notifications.NotificationsActivity
-import com.eve.app.ui.profile.ProfileActivity
-import com.eve.app.ui.daily.DailyQuizActivity
+import com.eve.app.ui.performance.PerformanceActivity
 import com.eve.app.ui.practice.PracticeActivity
+import com.eve.app.ui.profile.ProfileActivity
+import com.eve.app.ui.pyq.PyqActivity
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.Constants
-import com.eve.app.util.DateUtil
-import com.eve.app.util.StreakStore
 import com.eve.app.util.CrashlyticsHelper
+import com.eve.app.util.DateUtil
 import com.eve.app.util.NetworkUtil
 import com.eve.app.util.NotificationHelper
 import com.eve.app.util.NotificationStore
 import com.eve.app.util.ProfilePhotoManager
 import com.eve.app.util.ReminderScheduler
+import com.eve.app.util.StreakStore
 import com.eve.app.util.ThemeManager
 import com.eve.app.util.UiState
 import com.eve.app.util.isHardcodedAdmin
@@ -48,6 +52,8 @@ import com.google.android.material.chip.Chip
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -56,10 +62,13 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: HomeViewModel by viewModels()
     private val adminRepo = AdminRepository()
 
-    // Phase 12: Android 13+ par POST_NOTIFICATIONS permission runtime me maangni padti hai.
-    // User "Deny" bhi kar de to app normally chalti rahegi, sirf naya-exam/reminder alerts nahi dikhenge.
+    private var isSearchActive = false
+    private var currentSearchQuery = ""
+    private var lastLoadedItems: List<HomeListItem> = emptyList()
+    private var searchDebounceJob: Job? = null
+
     private val notificationPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* result ignore kar sakte hain */ }
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* ignored */ }
 
     private val adapter = ExamAdapter { exam ->
         startActivity(
@@ -85,24 +94,57 @@ class MainActivity : AppCompatActivity() {
 
         binding.tvWelcome.text = "Hi, ${user.displayName ?: "Student"}"
 
-        // Bug fix: bell icon ab daily-reminder toggle nahi, balki Notifications list kholta hai
-        // (reminder ON/OFF ab Profile screen me shift kar diya gaya hai).
         binding.btnNotification.setOnClickListener {
             startActivity(Intent(this, NotificationsActivity::class.java))
         }
         setupPushNotifications()
+
         binding.ivProfile.setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
         }
         loadProfilePhoto(user)
 
-        // Hardcoded admin ho to turant dikhao (fast path, koi network wait nahi)
+        // Telegram-style Search setup
+        setupSearch()
+
+        // Telegram-style 2-card overflow menu setup
+        binding.btnOverflow.setOnClickListener { anchor ->
+            TelegramMenuPopup(
+                context = this,
+                onThemeToggle = { ThemeManager.toggleWithReveal(this, anchor) },
+                onHistory = { startActivity(Intent(this, HistoryActivity::class.java)) },
+                onPerformance = { startActivity(Intent(this, PerformanceActivity::class.java)) },
+                onTopic = { startActivity(Intent(this, PracticeActivity::class.java)) },
+                onPyq = { startActivity(Intent(this, PyqActivity::class.java)) },
+                onLeaderboard = {
+                    startActivity(
+                        Intent(this, LeaderboardActivity::class.java).apply {
+                            putExtra(Constants.EXTRA_EXAM_ID, "overall")
+                            putExtra(Constants.EXTRA_EXAM_NAME, "Overall Leaderboard")
+                        }
+                    )
+                },
+                onLogout = { logout() }
+            ).show(anchor)
+        }
+
+        // System back button closes active search first
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (isSearchActive) {
+                    closeSearch()
+                } else {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                    isEnabled = true
+                }
+            }
+        })
+
         if (isHardcodedAdmin(user.email)) {
             showAdminButton()
             viewModel.loadForUser(user.uid, true)
         } else {
-            // Students ke liye attempted state bhi load hota hai. Dynamic admin hone par
-            // restriction hata kar normal admin preview/retry behaviour preserve hota hai.
             lifecycleScope.launch {
                 val admin = adminRepo.isAdmin(user.email)
                 if (admin) showAdminButton()
@@ -110,48 +152,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.btnOverflow.setOnClickListener { anchor ->
-            PopupMenu(this, anchor).apply {
-                val isDark = ThemeManager.isDarkMode(this@MainActivity)
-                val themeTitle = if (isDark) "Light Mode" else "Dark Mode"
-                menu.add(0, 0, 0, themeTitle)
-                menu.add(0, 1, 1, getString(com.eve.app.R.string.home_menu_history))
-                menu.add(0, 2, 2, getString(com.eve.app.R.string.home_menu_performance))
-                menu.add(0, 3, 3, getString(com.eve.app.R.string.home_menu_topic_test))
-                menu.add(0, 4, 4, getString(com.eve.app.R.string.home_menu_pyq))
-                menu.add(0, 5, 5, getString(R.string.home_menu_overall_leaderboard))
-
-                val logoutStr = getString(R.string.home_menu_logout)
-                val logoutTitle = SpannableString(logoutStr).apply {
-                    setSpan(
-                        ForegroundColorSpan(ContextCompat.getColor(this@MainActivity, R.color.eve_red)),
-                        0,
-                        length,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                }
-                menu.add(0, 6, 6, logoutTitle)
-
-                setOnMenuItemClickListener { item ->
-                    when (item.itemId) {
-                        0 -> ThemeManager.toggleWithReveal(this@MainActivity, anchor)
-                        1 -> startActivity(Intent(this@MainActivity, HistoryActivity::class.java))
-                        2 -> startActivity(Intent(this@MainActivity, com.eve.app.ui.performance.PerformanceActivity::class.java))
-                        3 -> startActivity(Intent(this@MainActivity, PracticeActivity::class.java))
-                        4 -> startActivity(Intent(this@MainActivity, com.eve.app.ui.pyq.PyqActivity::class.java))
-                        5 -> startActivity(
-                            Intent(this@MainActivity, LeaderboardActivity::class.java).apply {
-                                putExtra(Constants.EXTRA_EXAM_ID, "overall")
-                                putExtra(Constants.EXTRA_EXAM_NAME, "Overall Leaderboard")
-                            }
-                        )
-                        6 -> logout()
-                    }
-                    true
-                }
-                show()
-            }
-        }
         binding.cardDailyGk.setOnClickListener {
             startActivity(Intent(this, DailyQuizActivity::class.java))
         }
@@ -176,18 +176,130 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupSearch() {
+        binding.btnSearch.setOnClickListener {
+            openSearch()
+        }
+
+        binding.btnSearchBack.setOnClickListener {
+            closeSearch()
+        }
+
+        binding.btnClearSearch.setOnClickListener {
+            if (binding.etSearch.text.isNullOrEmpty()) {
+                closeSearch()
+            } else {
+                binding.etSearch.text?.clear()
+            }
+        }
+
+        binding.etSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val query = s?.toString()?.trim() ?: ""
+                binding.btnClearSearch.visibility = if (query.isNotEmpty()) View.VISIBLE else View.GONE
+                searchDebounceJob?.cancel()
+                searchDebounceJob = lifecycleScope.launch {
+                    delay(250)
+                    currentSearchQuery = query
+                    applyCurrentList()
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+    }
+
+    private fun openSearch() {
+        isSearchActive = true
+        binding.searchTopBar.visibility = View.VISIBLE
+        binding.searchTopBar.alpha = 0f
+        binding.searchTopBar.translationX = 50f
+
+        binding.normalTopBar.animate()
+            .alpha(0f)
+            .translationX(-50f)
+            .setDuration(220)
+            .setInterpolator(DecelerateInterpolator())
+            .withEndAction {
+                binding.normalTopBar.visibility = View.GONE
+            }
+            .start()
+
+        binding.searchTopBar.animate()
+            .alpha(1f)
+            .translationX(0f)
+            .setDuration(220)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+
+        binding.etSearch.requestFocus()
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        imm?.showSoftInput(binding.etSearch, InputMethodManager.SHOW_IMPLICIT)
+        applyCurrentList()
+    }
+
+    private fun closeSearch() {
+        isSearchActive = false
+        binding.etSearch.text?.clear()
+        currentSearchQuery = ""
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        imm?.hideSoftInputFromWindow(binding.etSearch.windowToken, 0)
+
+        binding.normalTopBar.visibility = View.VISIBLE
+
+        binding.searchTopBar.animate()
+            .alpha(0f)
+            .translationX(50f)
+            .setDuration(160)
+            .setInterpolator(DecelerateInterpolator())
+            .withEndAction {
+                binding.searchTopBar.visibility = View.GONE
+            }
+            .start()
+
+        binding.normalTopBar.animate()
+            .alpha(1f)
+            .translationX(0f)
+            .setDuration(160)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+
+        applyCurrentList()
+    }
+
+    private fun applyCurrentList() {
+        if (currentSearchQuery.isBlank()) {
+            adapter.submit(lastLoadedItems)
+            val empty = lastLoadedItems.isEmpty()
+            binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
+            binding.rvExams.visibility = if (empty) View.GONE else View.VISIBLE
+            binding.chipGroupCategory.visibility = if (isSearchActive) View.GONE else View.VISIBLE
+        } else {
+            binding.chipGroupCategory.visibility = View.GONE
+            val filtered = lastLoadedItems.filterIsInstance<HomeListItem.ExamRow>()
+                .filter { it.exam.examName.contains(currentSearchQuery, ignoreCase = true) }
+            adapter.submit(filtered)
+            val empty = filtered.isEmpty()
+            binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
+            binding.rvExams.visibility = if (empty) View.GONE else View.VISIBLE
+            if (empty) {
+                binding.ivMessageIcon.setImageResource(R.drawable.ic_state_empty)
+                binding.tvMessage.text = "No exams found"
+                binding.tvMessageSub.text = "Try a different search query"
+                binding.btnRetry.visibility = View.GONE
+            }
+        }
+    }
+
     override fun onResume() {
         super.onResume()
-        // Heartbeat: updates lastActive so Admin Dashboard "Online Now" counter stays accurate
         FirebaseAuth.getInstance().currentUser?.let { user ->
             lifecycleScope.launch {
                 try {
                     FirebaseFirestore.getInstance()
                         .collection("users").document(user.uid)
                         .update("lastActive", System.currentTimeMillis())
-                } catch (_: Exception) {
-                    // Ignore stats update errors (e.g. offline)
-                }
+                } catch (_: Exception) {}
             }
         }
     }
@@ -206,7 +318,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        // Admin ne naya exam add kiya ho to list refresh ho jaye
         if (::binding.isInitialized) {
             FirebaseAuth.getInstance().currentUser?.let { current ->
                 lifecycleScope.launch {
@@ -214,9 +325,7 @@ class MainActivity : AppCompatActivity() {
                     viewModel.loadForUser(current.uid, admin)
                 }
             }
-            // Profile screen se photo badal ke wapas aaya ho to header par bhi turant update ho
             FirebaseAuth.getInstance().currentUser?.let { loadProfilePhoto(it) }
-            // Notifications screen se wapas aaye ho (sab read ho chuke) to dot hat jaye
             updateNotificationDot()
             refreshDailyCard()
         }
@@ -230,9 +339,9 @@ class MainActivity : AppCompatActivity() {
         binding.tvDailySub.text = if (StreakStore.attemptedToday(this)) {
             val score = StreakStore.lastScore(this)
             val total = StreakStore.lastTotal(this)
-            "Aaj attempt ho chuka • $score/$total$streakText"
+            "Attempted today • $score/$total$streakText"
         } else {
-            "Aaj ka current affairs quiz$streakText"
+            "Today's current affairs quiz$streakText"
         }
     }
 
@@ -242,14 +351,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadProfilePhoto(user: com.google.firebase.auth.FirebaseUser) {
         ProfilePhotoManager.applyTo(
-            this, binding.ivProfile, user.photoUrl?.toString(), com.eve.app.R.drawable.bg_circle_translucent
+            this, binding.ivProfile, user.photoUrl?.toString(), R.drawable.bg_circle_translucent
         )
     }
 
-    /**
-     * Phase 12 setup: notification channels banao, Android 13+ par permission maango, naye-exam
-     * FCM topic subscribe karo, aur saved reminder preference ke hisaab se daily reminder schedule karo.
-     */
     private fun setupPushNotifications() {
         NotificationHelper.createChannels(this)
 
@@ -260,7 +365,9 @@ class MainActivity : AppCompatActivity() {
             notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
 
+        // Subscribe to new exams topic AND all_users broadcast topic
         FirebaseMessaging.getInstance().subscribeToTopic(NotificationHelper.TOPIC_NEW_EXAMS)
+        FirebaseMessaging.getInstance().subscribeToTopic("all_users")
         ReminderScheduler.applySavedState(this)
     }
 
@@ -269,7 +376,6 @@ class MainActivity : AppCompatActivity() {
         binding.btnAdmin.setOnClickListener {
             startActivity(Intent(this, AdminActivity::class.java))
         }
-        // Phase 15: ab crash reports me pata chalega ki crash admin ke saath hua ya student ke
         FirebaseAuth.getInstance().currentUser?.uid?.let { uid ->
             CrashlyticsHelper.identify(uid, isAdmin = true)
         }
@@ -286,34 +392,24 @@ class MainActivity : AppCompatActivity() {
                 binding.progressGroup.visibility = View.GONE
                 binding.btnRetry.visibility = View.GONE
                 val data = state.data
+                lastLoadedItems = data.items
                 renderChips(data.categories, data.selectedCategory)
-                adapter.submit(data.items)
-                val empty = data.items.isEmpty()
-                binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
-                if (empty) {
-                    binding.ivMessageIcon.setImageResource(com.eve.app.R.drawable.ic_state_empty)
-                    if (data.categories.size <= 1) {
-                        binding.tvMessage.text = "Abhi koi exam available nahi hai"
-                        binding.tvMessageSub.text = "Admin ke naya exam add karte hi yahan dikhega"
-                    } else {
-                        binding.tvMessage.text = "Is category me abhi koi exam nahi hai"
-                        binding.tvMessageSub.text = "Koi aur category try karo ya \"All\" par wapas jao"
-                    }
-                }
-                binding.chipGroupCategory.visibility = if (data.categories.size <= 1) View.GONE else View.VISIBLE
+                applyCurrentList()
+                binding.chipGroupCategory.visibility =
+                    if (data.categories.size <= 1 || isSearchActive) View.GONE else View.VISIBLE
             }
             is UiState.Error -> {
                 binding.progressGroup.visibility = View.GONE
                 binding.messageGroup.visibility = View.VISIBLE
                 binding.btnRetry.visibility = View.VISIBLE
-                binding.ivMessageIcon.setImageResource(com.eve.app.R.drawable.ic_state_error)
+                binding.ivMessageIcon.setImageResource(R.drawable.ic_state_error)
                 if (NetworkUtil.isOnline(this)) {
-                    binding.tvMessage.text = "Kuch gadbad ho gayi"
+                    binding.tvMessage.text = "Something went wrong"
                     binding.tvMessageSub.text = state.message
                 } else {
                     binding.tvMessage.text = "No internet connection"
                     binding.tvMessageSub.text =
-                        "Exams abhi tak cache nahi hue. Network wapas aane par retry karo."
+                        "Exams not cached yet. Please retry once back online."
                 }
                 binding.chipGroupCategory.visibility = View.GONE
             }
@@ -321,7 +417,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun renderChips(categories: List<String>, selected: String) {
-        // Ek hi jaisi list dobara build na ho isliye simple guard
         if (binding.chipGroupCategory.childCount == categories.size) {
             val same = (0 until binding.chipGroupCategory.childCount).all { i ->
                 (binding.chipGroupCategory.getChildAt(i) as? Chip)?.text?.toString() == categories[i]

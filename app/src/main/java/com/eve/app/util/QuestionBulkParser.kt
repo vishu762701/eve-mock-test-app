@@ -40,17 +40,17 @@ object QuestionBulkParser {
                 val d = row.cell(idx.d)
                 val correct = normalizeCorrect(row.cell(idx.correct))
                 if (qText.isBlank() || a.isBlank() || b.isBlank() || c.isBlank() || d.isBlank()) {
-                    errors += BulkRowError(line, "Question / options khali hain")
+                    errors += BulkRowError(line, "Question or options are blank")
                     return@forEachIndexed
                 }
                 if (correct !in setOf("A", "B", "C", "D")) {
-                    errors += BulkRowError(line, "correctAnswer A/B/C/D hona chahiye (mila: ${row.cell(idx.correct)})")
+                    errors += BulkRowError(line, "correctAnswer must be A, B, C, or D (found: ${row.cell(idx.correct)})")
                     return@forEachIndexed
                 }
                 val isPyq = parseBool(row.cell(idx.isPyq))
                 val year = row.cell(idx.pyqYear).toIntOrNull() ?: 0
                 if (isPyq && year !in 1990..2100) {
-                    errors += BulkRowError(line, "PYQ row me valid year chahiye (e.g. 2024)")
+                    errors += BulkRowError(line, "PYQ row requires a valid year (e.g. 2024)")
                     return@forEachIndexed
                 }
                 ok += Question(
@@ -105,11 +105,11 @@ object QuestionBulkParser {
                 val d = row.cell(idx.d)
                 val correct = normalizeCorrect(row.cell(idx.correct))
                 if (qText.isBlank() || a.isBlank() || b.isBlank() || c.isBlank() || d.isBlank()) {
-                    errors += BulkRowError(line, "Question / options khali hain")
+                    errors += BulkRowError(line, "Question or options are blank")
                     return@forEachIndexed
                 }
                 if (correct !in setOf("A", "B", "C", "D")) {
-                    errors += BulkRowError(line, "correctAnswer A/B/C/D hona chahiye")
+                    errors += BulkRowError(line, "correctAnswer must be A, B, C, or D")
                     return@forEachIndexed
                 }
                 ok += DailyQuestion(

@@ -150,7 +150,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="Pichle attempts ki accuracy % — purane se naye, left se right"
+                            android:text="Accuracy % across previous attempts — oldest to newest, left to right"
                             android:textColor="@color/eve_grey"
                             android:textSize="11sp" />
 
@@ -213,7 +213,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:text="Questions me topic tag nahi hai — Admin question add/edit karte waqt topic bhi bhar sakta hai."
+                    android:text="No topic tags found in questions — Admin can add topics when creating or editing questions."
                     android:textColor="@color/eve_grey"
                     android:textSize="12sp"
                     android:visibility="gone" />
