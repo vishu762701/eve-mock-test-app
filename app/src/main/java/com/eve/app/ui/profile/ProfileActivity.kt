@@ -47,11 +47,19 @@ class ProfileActivity : AppCompatActivity() {
         binding.btnChangePhoto.setOnClickListener { pickPhotoLauncher.launch("image/*") }
         binding.ivProfilePhoto.setOnClickListener { pickPhotoLauncher.launch("image/*") }
 
-        if (isHardcodedAdmin(user.email)) {
+        val setupAdminUi = {
             binding.chipAdmin.visibility = View.VISIBLE
+            binding.btnEditAbout.visibility = View.VISIBLE
+            binding.btnEditAbout.setOnClickListener {
+                startActivity(Intent(this, com.eve.app.ui.admin.EditAboutActivity::class.java))
+            }
+        }
+
+        if (isHardcodedAdmin(user.email)) {
+            setupAdminUi()
         } else {
             lifecycleScope.launch {
-                if (adminRepo.isAdmin(user.email)) binding.chipAdmin.visibility = View.VISIBLE
+                if (adminRepo.isAdmin(user.email)) setupAdminUi()
             }
         }
 

@@ -10,10 +10,12 @@
     <color name="eve_red">#8C1D18</color>
     <color name="eve_grey">#666666</color>
     <color name="eve_bg">#FFFFFF</color>
+    <color name="eve_background">#FFFFFF</color>
     <color name="eve_surface">#FFFFFF</color>
     <color name="eve_text">#111111</color>
     <color name="eve_text_secondary">#555555</color>
     <color name="eve_stroke">#D0D0D0</color>
+    <color name="eve_border">#D0D0D0</color>
     <color name="eve_surface_variant">#F5F5F5</color>
     <color name="eve_offline_bg">#FFF4CC</color>
     <color name="eve_offline_text">#5F4300</color>

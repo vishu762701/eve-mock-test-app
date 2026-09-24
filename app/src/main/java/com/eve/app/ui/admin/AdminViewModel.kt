@@ -115,6 +115,21 @@ class AdminViewModel : ViewModel() {
         }
     }
 
+    fun renameExam(examId: String, newName: String, onDone: () -> Unit) {
+        viewModelScope.launch {
+            _busy.value = true
+            try {
+                repo.renameExam(examId, newName)
+                _message.value = "Exam renamed successfully"
+                loadExams()
+                onDone()
+            } catch (e: Exception) {
+                _message.value = e.message ?: "Failed to rename exam"
+            }
+            _busy.value = false
+        }
+    }
+
     fun addQuestions(questions: List<Question>, onDone: () -> Unit) {
         if (questions.isEmpty()) {
             _message.value = "No valid questions found for upload"
@@ -128,7 +143,7 @@ class AdminViewModel : ViewModel() {
                 questions.firstOrNull()?.examId?.let { loadQuestions(it) }
                 onDone()
             } catch (e: Exception) {
-                _message.value = e.message ?: "Bulk upload failed (check permissions)"
+                _message.value = e.message ?: "Upload failed (check permissions)"
             }
             _busy.value = false
         }

@@ -1,0 +1,40 @@
+rules_version = '2';
+
+// EVE Mock Test App — Firebase Storage Security Rules
+// Enforces that syllabus PDFs can only be uploaded/deleted by verified admins,
+// while signed-in students can view and download them. Max size 20MB, PDF only.
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userEmail() {
+      return isSignedIn() && 'email' in request.auth.token ? request.auth.token.email.lower() : '';
+    }
+
+    // Must stay synchronized with Constants.kt ADMIN_EMAILS
+    function isHardcodedAdmin() {
+      return userEmail() in [
+        'pronlike9@gmail.com',
+        'own.keni@gmail.com',
+        'anyqueairdrop@gmail.com',
+        'ghatisarkar56@gmail.com'
+      ];
+    }
+
+    // Syllabus PDF files:
+    // - Signed-in users can read/download
+    // - Only admin can upload (PDF format only, max 20MB)
+    // - Only admin can delete
+    match /syllabi/{fileName} {
+      allow read: if isSignedIn();
+      allow write: if isHardcodedAdmin() &&
+        request.resource.size < 20 * 1024 * 1024 &&
+        request.resource.contentType == 'application/pdf';
+      allow delete: if isHardcodedAdmin();
+    }
+  }
+}

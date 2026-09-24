@@ -42,28 +42,26 @@ class AboutActivity : AppCompatActivity() {
             true
         }
 
-        binding.rowPrivacyPolicy.setOnClickListener { openUrl(Constants.PRIVACY_POLICY_URL) }
-        binding.rowTerms.setOnClickListener { openUrl(Constants.TERMS_URL) }
-        binding.rowContact.setOnClickListener { openEmail() }
-    }
-
-    private fun openUrl(url: String) {
-        try {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-        } catch (e: Exception) {
-            // No browser available - kuch nahi ho sakta, silently ignore
+        binding.rowPrivacyPolicy.setOnClickListener {
+            startActivity(
+                Intent(this, ContentDisplayActivity::class.java).apply {
+                    putExtra(ContentDisplayActivity.EXTRA_CONTENT_TYPE, com.eve.app.data.repository.AppContentRepository.TYPE_PRIVACY)
+                }
+            )
         }
-    }
-
-    private fun openEmail() {
-        val intent = Intent(Intent.ACTION_SENDTO).apply {
-            data = Uri.parse("mailto:${Constants.SUPPORT_EMAIL}")
-            putExtra(Intent.EXTRA_SUBJECT, "Eve App Support")
+        binding.rowTerms.setOnClickListener {
+            startActivity(
+                Intent(this, ContentDisplayActivity::class.java).apply {
+                    putExtra(ContentDisplayActivity.EXTRA_CONTENT_TYPE, com.eve.app.data.repository.AppContentRepository.TYPE_TERMS)
+                }
+            )
         }
-        try {
-            startActivity(intent)
-        } catch (e: Exception) {
-            // No email app available - silently ignore
+        binding.rowContact.setOnClickListener {
+            startActivity(
+                Intent(this, ContentDisplayActivity::class.java).apply {
+                    putExtra(ContentDisplayActivity.EXTRA_CONTENT_TYPE, com.eve.app.data.repository.AppContentRepository.TYPE_CONTACT)
+                }
+            )
         }
     }
 }

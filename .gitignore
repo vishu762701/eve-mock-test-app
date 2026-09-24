@@ -8,3 +8,4 @@ app/build/
 *.local
 .secret.local
 .env.local
+functions/package-lock.json

@@ -19,6 +19,7 @@ class TelegramMenuPopup(
     private val onPerformance: () -> Unit,
     private val onTopic: () -> Unit,
     private val onPyq: () -> Unit,
+    private val onSyllabus: () -> Unit,
     private val onLeaderboard: () -> Unit,
     private val onLogout: () -> Unit
 ) : PopupWindow(context) {
@@ -67,6 +68,9 @@ class TelegramMenuPopup(
         binding.menuRowPyq.setOnClickListener {
             dismissWithAction { onPyq() }
         }
+        binding.menuRowSyllabus.setOnClickListener {
+            dismissWithAction { onSyllabus() }
+        }
         binding.menuRowLeaderboard.setOnClickListener {
             dismissWithAction { onLeaderboard() }
         }
@@ -76,7 +80,10 @@ class TelegramMenuPopup(
     }
 
     fun show(anchorView: View) {
+        if (isShowing) return
+        isDismissing = false
         setupThemeCard()
+
         // Anchor below the 3-dot icon, aligned to right edge
         showAsDropDown(anchorView, -binding.root.paddingStart, 8)
 
@@ -103,12 +110,13 @@ class TelegramMenuPopup(
         binding.root.pivotX = binding.root.width.toFloat()
         binding.root.pivotY = 0f
         binding.root.animate()
-            .scaleX(0.9f)
-            .scaleY(0.9f)
+            .scaleX(0.85f)
+            .scaleY(0.85f)
             .alpha(0f)
-            .setDuration(130)
+            .setDuration(150)
             .setInterpolator(FastOutSlowInInterpolator())
             .withEndAction {
+                isDismissing = false
                 super.dismiss()
                 action()
             }
@@ -121,12 +129,13 @@ class TelegramMenuPopup(
         binding.root.pivotX = binding.root.width.toFloat()
         binding.root.pivotY = 0f
         binding.root.animate()
-            .scaleX(0.9f)
-            .scaleY(0.9f)
+            .scaleX(0.85f)
+            .scaleY(0.85f)
             .alpha(0f)
-            .setDuration(130)
+            .setDuration(150)
             .setInterpolator(FastOutSlowInInterpolator())
             .withEndAction {
+                isDismissing = false
                 super.dismiss()
             }
             .start()

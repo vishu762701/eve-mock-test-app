@@ -98,22 +98,139 @@ class ExamRepository(
         }.sortedWith(compareByDescending<PyqSet> { it.year }.thenBy { it.paper.lowercase() })
     }
 
-    suspend fun addExam(name: String, minutes: Int, category: String) {
+    suspend fun addExam(
+        name: String,
+        minutes: Int,
+        category: String,
+        testNumber: String = "Test 1",
+        questionCount: Int = 20,
+        autoGenEnabled: Boolean = true,
+        autoGenTime: String = "00:00",
+        timezone: String = "Asia/Kolkata",
+        generationPrompt: String = ""
+    ): String {
+        val trimmed = name.trim()
         val data = hashMapOf(
-            "examName" to name,
+            "examName" to trimmed,
             "timeLimitMinutes" to minutes,
-            "category" to category
+            "category" to category.trim(),
+            "testNumber" to testNumber,
+            "questionCount" to questionCount,
+            "autoGenerationEnabled" to autoGenEnabled,
+            "autoGenTime" to autoGenTime,
+            "timezone" to timezone,
+            "generationPrompt" to generationPrompt,
+            "syllabusUrl" to "",
+            "syllabusFileName" to "",
+            "lastGeneratedDate" to "",
+            "lastGenerationStatus" to "",
+            "lastGenerationError" to "",
+            "lastGenerationTime" to 0L
         )
-        db.collection("exams").add(data).await()
+        val docRef = db.collection("exams").add(data).await()
+        return docRef.id
+    }
+
+    suspend fun renameExam(examId: String, newName: String) {
+        val trimmed = newName.trim()
+        db.collection("exams").document(examId).update("examName", trimmed).await()
+
+        val genTests = db.collection("generated_tests").whereEqualTo("examId", examId).get().await()
+        if (!genTests.isEmpty) {
+            genTests.documents.chunked(450).forEach { chunk ->
+                val batch = db.batch()
+                chunk.forEach { doc -> batch.update(doc.reference, "examName", trimmed) }
+                batch.commit().await()
+            }
+        }
+
+        val attempts = db.collection("attempts").whereEqualTo("examId", examId).get().await()
+        if (!attempts.isEmpty) {
+            attempts.documents.chunked(450).forEach { chunk ->
+                val batch = db.batch()
+                chunk.forEach { doc -> batch.update(doc.reference, "examName", trimmed) }
+                batch.commit().await()
+            }
+        }
+
+        val leaderboard = db.collection("leaderboard").whereEqualTo("examId", examId).get().await()
+        if (!leaderboard.isEmpty) {
+            leaderboard.documents.chunked(450).forEach { chunk ->
+                val batch = db.batch()
+                chunk.forEach { doc -> batch.update(doc.reference, "examName", trimmed) }
+                batch.commit().await()
+            }
+        }
     }
 
     suspend fun deleteExam(examId: String) {
-        // Exam ke saath uske saare questions bhi delete karo
         val questions = db.collection("questions").whereEqualTo("examId", examId).get().await()
-        for (doc in questions.documents) {
-            db.collection("questions").document(doc.id).delete().await()
+        questions.documents.chunked(450).forEach { chunk ->
+            val batch = db.batch()
+            chunk.forEach { doc -> batch.delete(doc.reference) }
+            batch.commit().await()
         }
+
+        val genTests = db.collection("generated_tests").whereEqualTo("examId", examId).get().await()
+        genTests.documents.chunked(450).forEach { chunk ->
+            val batch = db.batch()
+            chunk.forEach { doc -> batch.delete(doc.reference) }
+            batch.commit().await()
+        }
+
         db.collection("exams").document(examId).delete().await()
+    }
+
+    suspend fun updateExamFullSettings(
+        examId: String,
+        examName: String,
+        testNumber: String,
+        questionCount: Int,
+        autoGenEnabled: Boolean,
+        autoGenTime: String,
+        syllabusUrl: String,
+        syllabusFileName: String,
+        generationPrompt: String
+    ) {
+        val data = hashMapOf<String, Any>(
+            "examName" to examName.trim(),
+            "testNumber" to testNumber.trim(),
+            "questionCount" to questionCount,
+            "autoGenerationEnabled" to autoGenEnabled,
+            "autoGenTime" to autoGenTime.trim(),
+            "syllabusUrl" to syllabusUrl,
+            "syllabusFileName" to syllabusFileName,
+            "generationPrompt" to generationPrompt.trim()
+        )
+        db.collection("exams").document(examId).update(data).await()
+    }
+
+    suspend fun uploadSyllabusPdf(examId: String, fileName: String, bytes: ByteArray): String {
+        val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().reference
+        val fileRef = storageRef.child("syllabi/${examId}_${System.currentTimeMillis()}.pdf")
+        val metadata = com.google.firebase.storage.StorageMetadata.Builder()
+            .setContentType("application/pdf")
+            .build()
+        fileRef.putBytes(bytes, metadata).await()
+        val downloadUrl = fileRef.downloadUrl.await().toString()
+        db.collection("exams").document(examId).update(
+            "syllabusUrl", downloadUrl,
+            "syllabusFileName", fileName
+        ).await()
+        return downloadUrl
+    }
+
+    suspend fun removeSyllabusPdf(examId: String, syllabusUrl: String) {
+        if (syllabusUrl.isNotBlank()) {
+            try {
+                val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().getReferenceFromUrl(syllabusUrl)
+                storageRef.delete().await()
+            } catch (_: Exception) {}
+        }
+        db.collection("exams").document(examId).update(
+            "syllabusUrl", "",
+            "syllabusFileName", ""
+        ).await()
     }
 
     suspend fun addQuestion(q: Question) {

@@ -55,6 +55,7 @@
     </style>
     <style name="Eve.Screen" parent=""><item name="android:background">@color/eve_bg</item></style>
     <style name="Eve.Title" parent=""><item name="android:textColor">@color/eve_text</item><item name="android:textSize">23sp</item><item name="android:fontFamily">@font/poppins_semibold</item><item name="fontFamily">@font/poppins_semibold</item><item name="android:textStyle">bold</item></style>
+    <style name="Eve.Text.Title" parent="Eve.Title" />
     <style name="Eve.Body" parent=""><item name="android:textColor">@color/eve_text</item><item name="android:textSize">15sp</item><item name="android:fontFamily">@font/poppins</item><item name="fontFamily">@font/poppins</item></style>
     <style name="Eve.Secondary" parent=""><item name="android:textColor">@color/eve_text_secondary</item><item name="android:textSize">13sp</item><item name="android:fontFamily">@font/poppins</item><item name="fontFamily">@font/poppins</item></style>
 </resources>

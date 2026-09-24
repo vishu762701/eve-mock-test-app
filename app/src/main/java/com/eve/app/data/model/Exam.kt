@@ -1,6 +1,11 @@
 package com.eve.app.data.model
 
-/** Firestore collection: exams. category = "SSC" | "UPSC" | "Banking" | ... (Constants.CATEGORIES) */
+/**
+ * Firestore collection: exams.
+ * Per-exam fields: examName, testNumber, questionCount, autoGenEnabled, autoGenTime, timezone,
+ * syllabusUrl, syllabusFileName, generationPrompt, lastGeneratedDate, lastGenerationStatus, lastGenerationError.
+ * Existing exams default autoGenEnabled=true, autoGenTime="00:00" without destructive migration.
+ */
 data class Exam(
     val id: String = "",
     val examName: String = "",
@@ -9,8 +14,18 @@ data class Exam(
     val syllabus: String = "",
     val questionCount: Int = 20,
     val customPromptNotes: String = "",
-    val autoGenerationEnabled: Boolean = false
+    val autoGenerationEnabled: Boolean = true,
+    val autoGenTime: String = "00:00",
+    val timezone: String = "Asia/Kolkata",
+    val testNumber: String = "Test 1",
+    val syllabusUrl: String = "",
+    val syllabusFileName: String = "",
+    val generationPrompt: String = "",
+    val lastGeneratedDate: String = "",
+    val lastGenerationStatus: String = "",
+    val lastGenerationError: String = "",
+    val lastGenerationTime: Long = 0L
 ) {
-    /** Fallback for older exams without category */
     val categoryOrOther: String get() = category.ifBlank { "Other" }
+    val autoGenEnabled: Boolean get() = autoGenerationEnabled
 }

@@ -15,6 +15,14 @@
         { "fieldPath": "userId", "order": "ASCENDING" },
         { "fieldPath": "examId", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "generated_tests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "examId", "order": "ASCENDING" },
+        { "fieldPath": "generatedAt", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

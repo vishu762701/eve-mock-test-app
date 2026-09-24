@@ -24,7 +24,6 @@ import com.eve.app.R
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.databinding.ActivityMainBinding
 import com.eve.app.ui.admin.AdminActivity
-import com.eve.app.ui.daily.DailyQuizActivity
 import com.eve.app.ui.history.HistoryActivity
 import com.eve.app.ui.leaderboard.LeaderboardActivity
 import com.eve.app.ui.login.LoginActivity
@@ -33,16 +32,15 @@ import com.eve.app.ui.performance.PerformanceActivity
 import com.eve.app.ui.practice.PracticeActivity
 import com.eve.app.ui.profile.ProfileActivity
 import com.eve.app.ui.pyq.PyqActivity
+import com.eve.app.ui.syllabus.SyllabusActivity
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.Constants
 import com.eve.app.util.CrashlyticsHelper
-import com.eve.app.util.DateUtil
 import com.eve.app.util.NetworkUtil
 import com.eve.app.util.NotificationHelper
 import com.eve.app.util.NotificationStore
 import com.eve.app.util.ProfilePhotoManager
 import com.eve.app.util.ReminderScheduler
-import com.eve.app.util.StreakStore
 import com.eve.app.util.ThemeManager
 import com.eve.app.util.UiState
 import com.eve.app.util.isHardcodedAdmin
@@ -116,6 +114,7 @@ class MainActivity : AppCompatActivity() {
                 onPerformance = { startActivity(Intent(this, PerformanceActivity::class.java)) },
                 onTopic = { startActivity(Intent(this, PracticeActivity::class.java)) },
                 onPyq = { startActivity(Intent(this, PyqActivity::class.java)) },
+                onSyllabus = { startActivity(Intent(this, SyllabusActivity::class.java)) },
                 onLeaderboard = {
                     startActivity(
                         Intent(this, LeaderboardActivity::class.java).apply {
@@ -151,11 +150,6 @@ class MainActivity : AppCompatActivity() {
                 viewModel.loadForUser(user.uid, admin)
             }
         }
-
-        binding.cardDailyGk.setOnClickListener {
-            startActivity(Intent(this, DailyQuizActivity::class.java))
-        }
-        refreshDailyCard()
 
         binding.rvExams.layoutManager = LinearLayoutManager(this)
         binding.rvExams.adapter = adapter
@@ -327,21 +321,6 @@ class MainActivity : AppCompatActivity() {
             }
             FirebaseAuth.getInstance().currentUser?.let { loadProfilePhoto(it) }
             updateNotificationDot()
-            refreshDailyCard()
-        }
-    }
-
-    private fun refreshDailyCard() {
-        if (!::binding.isInitialized) return
-        val streak = StreakStore.streak(this)
-        val streakText = if (streak > 0) "  •  🔥 $streak day streak" else ""
-        binding.tvDailyTitle.text = "Daily GK  •  ${DateUtil.display(DateUtil.todayIso())}"
-        binding.tvDailySub.text = if (StreakStore.attemptedToday(this)) {
-            val score = StreakStore.lastScore(this)
-            val total = StreakStore.lastTotal(this)
-            "Attempted today • $score/$total$streakText"
-        } else {
-            "Today's current affairs quiz$streakText"
         }
     }
 

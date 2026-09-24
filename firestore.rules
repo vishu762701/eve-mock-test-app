@@ -64,8 +64,8 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // Daily GK / Current Affairs questions
-    match /daily_questions/{questionId} {
+    // App Content (Privacy Policy, Terms of Service, Contact Us): signed-in read, admin write
+    match /app_content/{contentId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
     }

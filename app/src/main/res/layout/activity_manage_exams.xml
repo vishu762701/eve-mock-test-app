@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/eve_bg"
@@ -27,181 +28,360 @@
             app:tint="@color/eve_text" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:layout_weight="1"
             android:fontFamily="@font/poppins_semibold"
-            android:text="Manage Exams (Syllabus &amp; AI)"
+            android:text="Manage Exam"
             android:textColor="@color/eve_text"
-            android:textSize="19sp" />
+            android:textSize="18sp" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:visibility="gone" />
     </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="20dp">
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="20dp">
 
+            <!-- 1. Select Exam Dropdown -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_semibold"
-                android:text="Select Exam"
+                android:text="1. Select Exam"
                 android:textColor="@color/eve_text"
-                android:textSize="15sp" />
+                android:textSize="14sp" />
 
-            <Spinner
-                android:id="@+id/spExam"
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_circle_translucent"
-                android:paddingHorizontal="12dp" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                app:cardBackgroundColor="@color/eve_surface"
+                app:cardCornerRadius="@dimen/eve_radius_sm"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/eve_border"
+                app:strokeWidth="1dp">
 
-            <!-- Question Count -->
+                <Spinner
+                    android:id="@+id/spExam"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:paddingHorizontal="8dp" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 2. Exam Name -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="2. Exam Name"
+                android:textColor="@color/eve_text"
+                android:textSize="14sp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilExamName"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm"
+                app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm"
+                app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm"
+                app:boxCornerRadiusTopStart="@dimen/eve_radius_sm">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etExamName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins"
+                    android:hint="Exam Name"
+                    android:inputType="textCapWords"
+                    android:maxLines="1"
+                    android:textColor="@color/eve_text"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- 3. Test Number -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="3. Test Number"
+                android:textColor="@color/eve_text"
+                android:textSize="14sp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilTestNumber"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm"
+                app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm"
+                app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm"
+                app:boxCornerRadiusTopStart="@dimen/eve_radius_sm"
+                app:helperText="Label for the next generated test (e.g. Test 1, Test 2)">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etTestNumber"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins"
+                    android:hint="Test Number"
+                    android:inputType="textCapWords"
+                    android:maxLines="1"
+                    android:textColor="@color/eve_text"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- 4. Number of Questions -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="4. Number of Questions"
+                android:textColor="@color/eve_text"
+                android:textSize="14sp" />
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilQuestionCount"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="Questions per Test (e.g. 25, 50, 75)"
+                android:layout_marginTop="4dp"
                 app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm"
                 app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm"
                 app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm"
-                app:boxCornerRadiusTopStart="@dimen/eve_radius_sm">
+                app:boxCornerRadiusTopStart="@dimen/eve_radius_sm"
+                app:helperText="Valid range: 1 to 200 questions">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etQuestionCount"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins"
+                    android:hint="Question Count"
                     android:inputType="number"
+                    android:maxLines="1"
                     android:textColor="@color/eve_text"
-                    android:textSize="15sp" />
+                    android:textSize="14sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Auto-generation Switch -->
-            <com.google.android.material.card.MaterialCardView
+            <!-- 5. Auto-generation time + Switch -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="5. Scheduled Auto-Generation"
+                android:textColor="@color/eve_text"
+                android:textSize="14sp" />
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:cardBackgroundColor="@color/eve_surface"
-                app:cardCornerRadius="@dimen/eve_radius_md"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/eve_stroke"
-                app:strokeWidth="1dp">
+                android:layout_marginTop="6dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPickTime"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="16dp">
+                    android:layout_weight="1"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="Time: 00:00 (IST)" />
 
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchAutoGen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="Auto-generation"
+                    android:textColor="@color/eve_text" />
+            </LinearLayout>
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_semibold"
-                            android:text="Nightly AI Auto-Generation"
-                            android:textColor="@color/eve_text"
-                            android:textSize="15sp" />
+            <TextView
+                android:id="@+id/tvLastRunStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:fontFamily="@font/poppins"
+                android:textColor="@color/eve_text_secondary"
+                android:textSize="12sp"
+                tools:text="Last run: Success on 24 Sep 2026, 05:00 AM" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:fontFamily="@font/poppins"
-                            android:text="Generates fresh tests into Paused state automatically"
-                            android:textColor="@color/eve_text_secondary"
-                            android:textSize="12sp" />
-                    </LinearLayout>
+            <!-- Generate Test Now Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnGenerateNow"
+                style="@style/Widget.Eve.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/poppins_medium"
+                android:text="⚡ Generate Test Now (Admin On-Demand)"
+                android:textColor="@color/eve_primary" />
 
-                    <com.google.android.material.switchmaterial.SwitchMaterial
-                        android:id="@+id/switchAutoGen"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+            <!-- 6. Exam Syllabus (PDF) Upload -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="6. Exam Syllabus (PDF)"
+                android:textColor="@color/eve_text"
+                android:textSize="14sp" />
 
-            <!-- Syllabus Field -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:fontFamily="@font/poppins"
+                android:text="Upload PDF syllabus (Max 20MB). Stored in Firebase Storage."
+                android:textColor="@color/eve_text_secondary"
+                android:textSize="12sp" />
+
+            <ProgressBar
+                android:id="@+id/progressBarPdf"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:indeterminate="true"
+                android:visibility="gone" />
+
+            <!-- Uploaded Container -->
+            <LinearLayout
+                android:id="@+id/layoutSyllabusUploaded"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:contentDescription="PDF"
+                    android:src="@drawable/ic_description"
+                    app:tint="@color/eve_primary" />
+
+                <TextView
+                    android:id="@+id/tvSyllabusFileName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:ellipsize="middle"
+                    android:fontFamily="@font/poppins_medium"
+                    android:maxLines="1"
+                    android:textColor="@color/eve_text"
+                    android:textSize="13sp"
+                    tools:text="ssc_cgl_syllabus.pdf" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnReplacePdf"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="8dp"
+                    android:paddingHorizontal="10dp"
+                    android:text="Replace"
+                    android:textSize="12sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRemovePdf"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="6dp"
+                    android:paddingHorizontal="10dp"
+                    android:text="Remove"
+                    android:textColor="@color/eve_red"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- Empty Upload Container -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnUploadPdf"
+                style="@style/Widget.Eve.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/poppins_medium"
+                android:text="Upload Syllabus PDF"
+                app:icon="@drawable/ic_upload" />
+
+            <!-- 7. AI Prompt for this Exam -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="7. AI Prompt for this Exam"
+                android:textColor="@color/eve_text"
+                android:textSize="14sp" />
+
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilSyllabus"
+                android:id="@+id/tilGenerationPrompt"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="Exam Syllabus (topics, subjects, sub-topics)"
+                android:layout_marginTop="4dp"
                 app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm"
                 app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm"
                 app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm"
-                app:boxCornerRadiusTopStart="@dimen/eve_radius_sm">
+                app:boxCornerRadiusTopStart="@dimen/eve_radius_sm"
+                app:helperText="Custom instructions appended to Gemini base prompt for this exam">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etSyllabus"
+                    android:id="@+id/etGenerationPrompt"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins"
                     android:gravity="top|start"
+                    android:hint="Custom syllabus topics, focus areas, pattern notes..."
                     android:inputType="textMultiLine|textCapSentences"
                     android:minLines="5"
                     android:textColor="@color/eve_text"
                     android:textSize="14sp" />
             </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Custom Prompt Notes -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilCustomNotes"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="Custom Prompt Notes (e.g. Focus on Polity and Economy)"
-                app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm"
-                app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm"
-                app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm"
-                app:boxCornerRadiusTopStart="@dimen/eve_radius_sm">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etCustomNotes"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins"
-                    android:gravity="top|start"
-                    android:inputType="textMultiLine|textCapSentences"
-                    android:minLines="3"
-                    android:textColor="@color/eve_text"
-                    android:textSize="14sp" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Save Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSave"
-                style="@style/Widget.Eve.Button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:fontFamily="@font/poppins_semibold"
-                android:text="Save Exam Settings" />
-
-            <ProgressBar
-                android:id="@+id/progressBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="16dp"
-                android:visibility="gone" />
         </LinearLayout>
     </ScrollView>
+
+    <!-- 8. Sticky Save Button at Bottom -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/eve_surface"
+        android:elevation="8dp"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="12dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSave"
+            style="@style/Widget.Eve.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_semibold"
+            android:text="Save Exam Settings" />
+    </LinearLayout>
 </LinearLayout>

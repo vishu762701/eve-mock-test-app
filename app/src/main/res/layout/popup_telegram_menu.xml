@@ -4,6 +4,7 @@
     android:id="@+id/menuContainer"
     android:layout_width="250dp"
     android:layout_height="wrap_content"
+    android:clipChildren="true"
     android:orientation="vertical"
     android:padding="4dp">
 
@@ -13,11 +14,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clickable="true"
+        android:clipToOutline="true"
         android:focusable="true"
         android:foreground="?attr/selectableItemBackground"
         app:cardBackgroundColor="@color/eve_surface"
         app:cardCornerRadius="18dp"
-        app:cardElevation="8dp"
+        app:cardElevation="6dp"
+        app:cardPreventCornerOverlap="false"
         app:strokeWidth="0dp">
 
         <LinearLayout
@@ -58,14 +61,17 @@
         android:id="@+id/cardMenuItems"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:clipToOutline="true"
         app:cardBackgroundColor="@color/eve_surface"
         app:cardCornerRadius="18dp"
-        app:cardElevation="8dp"
+        app:cardElevation="6dp"
+        app:cardPreventCornerOverlap="false"
         app:strokeWidth="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clipToOutline="true"
             android:orientation="vertical">
 
             <!-- Row 1: History -->
@@ -85,7 +91,7 @@
                     android:layout_height="24dp"
                     android:background="@android:color/transparent"
                     android:contentDescription="History"
-                    android:src="@drawable/ic_history"
+                    android:src="@drawable/ic_history_rounded"
                     app:tint="@color/eve_text" />
 
                 <TextView
@@ -188,7 +194,37 @@
                     android:textSize="15sp" />
             </LinearLayout>
 
-            <!-- Row 5: Overall Leaderboard -->
+            <!-- Row 5: Syllabus -->
+            <LinearLayout
+                android:id="@+id/menuRowSyllabus"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="18dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="Syllabus"
+                    android:src="@drawable/ic_syllabus"
+                    app:tint="@color/eve_text" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="Syllabus"
+                    android:textColor="@color/eve_text"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <!-- Row 6: Overall Leaderboard -->
             <LinearLayout
                 android:id="@+id/menuRowLeaderboard"
                 android:layout_width="match_parent"
@@ -205,7 +241,7 @@
                     android:layout_height="24dp"
                     android:background="@android:color/transparent"
                     android:contentDescription="Overall Leaderboard"
-                    android:src="@drawable/ic_trophy"
+                    android:src="@drawable/ic_leaderboard_star"
                     app:tint="@color/eve_text" />
 
                 <TextView
@@ -218,7 +254,7 @@
                     android:textSize="15sp" />
             </LinearLayout>
 
-            <!-- Row 6: Logout (Last row, highlighted) -->
+            <!-- Row 7: Logout (Last row, highlighted) -->
             <LinearLayout
                 android:id="@+id/menuRowLogout"
                 android:layout_width="match_parent"

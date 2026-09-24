@@ -110,13 +110,6 @@
                 android:layout_marginTop="12dp"
                 android:text="📊 Admin Analytics" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnDailyGkAdmin"
-                style="@style/Widget.Eve.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="📅 Daily GK / Current Affairs upload" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSendNotification"
@@ -222,58 +215,22 @@
                     android:layout_weight="1" />
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRenameExam"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="Rename" />
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnDeleteExam"
                     style="@style/Widget.Eve.OutlinedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:fontFamily="@font/poppins_medium"
-                    android:text="Delete exam" />
-            </LinearLayout>
-
-            <!-- Bulk Upload Section -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:fontFamily="@font/poppins_semibold"
-                android:text="3. Bulk CSV / Excel Upload"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="16sp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:fontFamily="@font/poppins"
-                android:text="Select an exam above, download the template, fill questions in CSV or .xlsx, and upload. Invalid rows are skipped automatically."
-                android:textColor="@color/eve_text_secondary"
-                android:textSize="13sp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnShareTemplate"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Template" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnBulkUpload"
-                    style="@style/Widget.Eve.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/poppins_semibold"
-                    android:text="Upload CSV / Excel" />
+                    android:text="Delete" />
             </LinearLayout>
 
             <!-- Existing Questions List -->
@@ -282,7 +239,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"
                 android:fontFamily="@font/poppins_semibold"
-                android:text="4. Questions in Selected Exam"
+                android:text="3. Questions in Selected Exam"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="16sp" />
 
@@ -309,7 +266,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"
                 android:fontFamily="@font/poppins_semibold"
-                android:text="5. Manage Admins"
+                android:text="4. Manage Admins"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="16sp" />
 

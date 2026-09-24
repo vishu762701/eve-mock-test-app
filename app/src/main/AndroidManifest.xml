@@ -51,14 +51,15 @@
         <activity android:name=".ui.performance.PerformanceActivity" android:exported="false" />
         <activity android:name=".ui.practice.PracticeActivity" android:exported="false" />
         <activity android:name=".ui.pyq.PyqActivity" android:exported="false" />
-        <activity android:name=".ui.daily.DailyQuizActivity" android:exported="false" />
         <activity android:name=".ui.admin.AdminActivity" android:exported="false" />
         <activity android:name=".ui.admin.AdminAnalyticsActivity" android:exported="false" />
-        <activity android:name=".ui.admin.DailyAdminActivity" android:exported="false" />
         <activity android:name=".ui.admin.SendNotificationActivity" android:exported="false" />
         <activity android:name=".ui.admin.ManageExamsActivity" android:exported="false" />
         <activity android:name=".ui.admin.GeneratedTestsActivity" android:exported="false" />
         <activity android:name=".ui.about.AboutActivity" android:exported="false" />
+        <activity android:name=".ui.about.ContentDisplayActivity" android:exported="false" />
+        <activity android:name=".ui.admin.EditAboutActivity" android:exported="false" />
+        <activity android:name=".ui.syllabus.SyllabusActivity" android:exported="false" />
         <activity android:name=".ui.notifications.NotificationsActivity" android:exported="false" />
 
         <provider

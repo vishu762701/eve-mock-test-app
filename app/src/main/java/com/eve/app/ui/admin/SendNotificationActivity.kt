@@ -6,16 +6,24 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.eve.app.data.model.BroadcastMessage
 import com.eve.app.databinding.ActivitySendNotificationBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class SendNotificationActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySendNotificationBinding
+    private var sentListener: ListenerRegistration? = null
+    private val sentAdapter = SentBroadcastAdapter(
+        onDelete = { broadcast -> confirmDeleteBroadcast(broadcast) }
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,8 +32,86 @@ class SendNotificationActivity : AppCompatActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
 
+        binding.rvSentBroadcasts.layoutManager = LinearLayoutManager(this)
+        binding.rvSentBroadcasts.adapter = sentAdapter
+
         binding.btnSend.setOnClickListener {
             validateAndConfirm()
+        }
+
+        listenToSentBroadcasts()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        sentListener?.remove()
+    }
+
+    private fun listenToSentBroadcasts() {
+        binding.progressBarSent.visibility = View.VISIBLE
+        sentListener = FirebaseFirestore.getInstance()
+            .collection("notifications")
+            .orderBy("sentAt", Query.Direction.DESCENDING)
+            .limit(100)
+            .addSnapshotListener { snapshot, error ->
+                binding.progressBarSent.visibility = View.GONE
+                if (error != null) {
+                    Toast.makeText(this, "Failed to load sent broadcasts: ${error.localizedMessage}", Toast.LENGTH_SHORT).show()
+                    return@addSnapshotListener
+                }
+                val broadcasts = snapshot?.documents?.mapNotNull { doc ->
+                    val title = doc.getString("title") ?: return@mapNotNull null
+                    val message = doc.getString("message") ?: return@mapNotNull null
+                    val sentAt = doc.getTimestamp("sentAt")?.toDate()?.time
+                        ?: doc.getLong("sentAt")
+                        ?: 0L
+                    val sentBy = doc.getString("sentBy").orEmpty()
+                    val type = doc.getString("type") ?: "general"
+                    BroadcastMessage(
+                        id = doc.id,
+                        title = title,
+                        message = message,
+                        sentAt = sentAt,
+                        sentBy = sentBy,
+                        type = type
+                    )
+                }.orEmpty()
+
+                sentAdapter.submit(broadcasts)
+                binding.tvNoSentBroadcasts.visibility = if (broadcasts.isEmpty()) View.VISIBLE else View.GONE
+            }
+    }
+
+    private fun confirmDeleteBroadcast(broadcast: BroadcastMessage) {
+        AlertDialog.Builder(this)
+            .setTitle("Delete Broadcast?")
+            .setMessage("Delete this broadcast? It will be removed from all students' notification lists.")
+            .setPositiveButton("Delete") { _, _ ->
+                deleteBroadcast(broadcast)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun deleteBroadcast(broadcast: BroadcastMessage) {
+        binding.progressBarSent.visibility = View.VISIBLE
+        lifecycleScope.launch {
+            try {
+                FirebaseFirestore.getInstance()
+                    .collection("notifications")
+                    .document(broadcast.id)
+                    .delete()
+                    .await()
+
+                Toast.makeText(this@SendNotificationActivity, "Broadcast deleted successfully", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                binding.progressBarSent.visibility = View.GONE
+                Toast.makeText(
+                    this@SendNotificationActivity,
+                    "Failed to delete broadcast: ${e.localizedMessage ?: "Unknown error"}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
     }
 
@@ -80,13 +166,16 @@ class SendNotificationActivity : AppCompatActivity() {
                     .add(doc)
                     .await()
 
+                binding.btnSend.isEnabled = true
+                binding.progressBar.visibility = View.GONE
+                binding.etTitle.text?.clear()
+                binding.etMessage.text?.clear()
+
                 Toast.makeText(
                     this@SendNotificationActivity,
                     "Notification broadcast successfully!",
                     Toast.LENGTH_SHORT
                 ).show()
-
-                finish()
             } catch (e: Exception) {
                 binding.btnSend.isEnabled = true
                 binding.progressBar.visibility = View.GONE

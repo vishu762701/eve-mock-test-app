@@ -87,6 +87,7 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.viewpager2:viewpager2:1.1.0")
     implementation("androidx.activity:activity-ktx:1.9.1")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
     // MVVM + Coroutines/Flow
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4")
@@ -101,6 +102,7 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging")
     // Phase 23: submitAttempt callable Cloud Function (server-side score verification)
     implementation("com.google.firebase:firebase-functions-ktx")
+    implementation("com.google.firebase:firebase-storage")
     implementation("com.google.android.gms:play-services-auth:21.2.0")
 
     // Phase 15: Crashlytics (crash reports) + Analytics (kaunsa exam sabse zyada attempt
@@ -113,4 +115,7 @@ dependencies {
 
     // Profile screen: Google account ki photo (remote URL) load karne ke liye lightweight image loader
     implementation("io.coil-kt:coil:2.6.0")
+
+    // Lottie animation library
+    implementation("com.airbnb.android:lottie:6.4.1")
 }

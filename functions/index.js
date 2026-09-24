@@ -39,7 +39,8 @@ const geminiKey1 = defineSecret("GEMINI_API_KEY_1");
 const geminiKey2 = defineSecret("GEMINI_API_KEY_2");
 const geminiKey3 = defineSecret("GEMINI_API_KEY_3");
 const geminiKey4 = defineSecret("GEMINI_API_KEY_4");
-const geminiSecrets = [geminiKey1, geminiKey2, geminiKey3, geminiKey4];
+const geminiSingleKey = defineSecret("GEMINI_API_KEY");
+const geminiSecrets = [geminiKey1, geminiKey2, geminiKey3, geminiKey4, geminiSingleKey];
 
 initializeApp();
 
@@ -311,10 +312,8 @@ exports.submitAttempt = onCall(async (request) => {
     throw new HttpsError("invalid-argument", "No valid answers in payload.");
   }
 
-  const isDaily = examId === "daily-gk";
   const isPractice = Boolean(data.topic || data.pyqYear);
-  const todayDateStr = new Date().toISOString().slice(0, 10);
-  const lockKey = isPractice ? null : (isDaily ? `${uid}_daily-gk_${todayDateStr}` : `${uid}_${examId}`);
+  const lockKey = isPractice ? null : `${uid}_${examId}`;
   const lockRef = lockKey ? db.collection("attempt_locks").doc(lockKey) : null;
   if (!isAdminCaller && lockRef) {
     // Legacy compatibility: convert an old attempts document into the new deterministic lock.
@@ -342,8 +341,7 @@ exports.submitAttempt = onCall(async (request) => {
     });
   }
 
-  const collectionName = isDaily ? "daily_questions" : "questions";
-  const refs = picks.map((p) => db.collection(collectionName).doc(p.questionId));
+  const refs = picks.map((p) => db.collection("questions").doc(p.questionId));
   const snaps = await db.getAll(...refs);
 
   const answersData = [];
@@ -357,8 +355,8 @@ exports.submitAttempt = onCall(async (request) => {
 
     if (snap && snap.exists) {
       q = snap.data();
-      if (!isDaily && String(q.examId || "") !== examId) continue;
-    } else if (!isDaily && pick.questionId.includes("_")) {
+      if (String(q.examId || "") !== examId) continue;
+    } else if (pick.questionId.includes("_")) {
       const lastUnderscore = pick.questionId.lastIndexOf("_");
       const testId = pick.questionId.substring(0, lastUnderscore);
       const qIndex = parseInt(pick.questionId.substring(lastUnderscore + 1), 10);
@@ -503,8 +501,11 @@ async function verifyIsAdmin(db, email) {
   return dynamicAdmin.exists;
 }
 
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+
 function getGeminiApiKeys() {
   const keys = [
+    geminiSingleKey.value() || process.env.GEMINI_API_KEY,
     geminiKey1.value() || process.env.GEMINI_API_KEY_1,
     geminiKey2.value() || process.env.GEMINI_API_KEY_2,
     geminiKey3.value() || process.env.GEMINI_API_KEY_3,
@@ -512,10 +513,36 @@ function getGeminiApiKeys() {
   ].filter(Boolean);
 
   if (keys.length === 0) {
-    const fallback = process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || "";
+    const fallback = process.env.GEMINI_API_KEYS || "";
     return fallback.split(",").map((k) => k.trim()).filter(Boolean);
   }
   return keys;
+}
+
+function getIstTimeAndDate() {
+  const now = new Date();
+  const dateFormatter = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }); // YYYY-MM-DD
+  const todayDate = dateFormatter.format(now);
+
+  const timeFormatter = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Kolkata",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  const currentTime = timeFormatter.format(now); // "HH:mm"
+  return { todayDate, currentTime };
+}
+
+function incrementTestNumber(current) {
+  const str = String(current || "Test 1").trim();
+  const match = str.match(/(\d+)$/);
+  if (match) {
+    const num = parseInt(match[1], 10);
+    const prefix = str.substring(0, match.index);
+    return `${prefix}${num + 1}`;
+  }
+  return `${str} 2`;
 }
 
 async function getLastUsedKeyIndex(db, poolSize) {
@@ -553,7 +580,7 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 async function callGeminiWithRotation(db, promptText, startingIndex = 0) {
   const keys = getGeminiApiKeys();
   if (keys.length === 0) {
-    throw new Error("No Gemini API keys configured. Set GEMINI_API_KEY_1 through GEMINI_API_KEY_4 in Firebase secrets.");
+    throw new Error("No Gemini API keys configured. Set GEMINI_API_KEY in Firebase secrets or environment.");
   }
 
   let lastError = null;
@@ -562,7 +589,7 @@ async function callGeminiWithRotation(db, promptText, startingIndex = 0) {
     const currentKey = keys[keyIndex];
 
     try {
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(currentKey)}`;
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent?key=${encodeURIComponent(currentKey)}`;
       const body = {
         contents: [
           {
@@ -583,9 +610,8 @@ async function callGeminiWithRotation(db, promptText, startingIndex = 0) {
 
       if (!response.ok) {
         const errText = await response.text();
-        console.warn(`Gemini key #${keyIndex + 1} failed: HTTP ${response.status} - ${errText}`);
+        console.warn(`Gemini key #${keyIndex + 1} returned status HTTP ${response.status}: ${errText}`);
 
-        // Rate-limit or quota error detection
         const isQuotaOrRateLimit =
           response.status === 429 ||
           response.status === 403 ||
@@ -609,7 +635,6 @@ async function callGeminiWithRotation(db, promptText, startingIndex = 0) {
         throw new Error("Empty candidate received from Gemini API.");
       }
 
-      // Persist successfully used key index in Firestore
       await persistLastUsedKeyIndex(db, keyIndex);
       return { text, usedKeyIndex: keyIndex };
     } catch (err) {
@@ -621,7 +646,7 @@ async function callGeminiWithRotation(db, promptText, startingIndex = 0) {
   throw new Error(`All ${keys.length} keys exhausted: ${lastError?.message || "Quota exceeded"}`);
 }
 
-function parseGeminiQuestions(rawJson) {
+function parseAndValidateGeminiQuestions(rawJson) {
   let cleaned = rawJson.trim();
   if (cleaned.startsWith("```json")) {
     cleaned = cleaned.replace(/^```json\s*/, "").replace(/\s*```$/, "");
@@ -629,8 +654,16 @@ function parseGeminiQuestions(rawJson) {
     cleaned = cleaned.replace(/^```\s*/, "").replace(/\s*```$/, "");
   }
 
-  const parsed = JSON.parse(cleaned);
-  const list = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.questions) ? parsed.questions : []);
+  let parsed;
+  try {
+    parsed = JSON.parse(cleaned);
+  } catch (err) {
+    throw new Error(`Invalid JSON output from Gemini: ${err.message}`);
+  }
+
+  const list = Array.isArray(parsed)
+    ? parsed
+    : (Array.isArray(parsed.questions) ? parsed.questions : []);
 
   const validQuestions = [];
   const validAnswers = new Set(["A", "B", "C", "D"]);
@@ -653,171 +686,254 @@ function parseGeminiQuestions(rawJson) {
 
     const explanation = String(q.explanation || "").trim();
 
-    if (questionText && optionA && optionB && optionC && optionD) {
-      validQuestions.push({
-        questionText,
-        optionA,
-        optionB,
-        optionC,
-        optionD,
-        correctAnswer,
-        explanation,
-      });
+    // Check non-empty
+    if (!questionText || !optionA || !optionB || !optionC || !optionD) {
+      continue;
     }
+
+    // Check no duplicate choices among options
+    const uniqueOptions = new Set([
+      optionA.toLowerCase(),
+      optionB.toLowerCase(),
+      optionC.toLowerCase(),
+      optionD.toLowerCase(),
+    ]);
+    if (uniqueOptions.size < 4) {
+      continue;
+    }
+
+    validQuestions.push({
+      questionText,
+      optionA,
+      optionB,
+      optionC,
+      optionD,
+      correctAnswer,
+      explanation: explanation || `Option ${correctAnswer} is the correct answer.`,
+    });
   }
 
   return validQuestions;
 }
 
-function buildPrompt(examName, syllabusText, questionCount, customPromptNotes) {
-  return `You are an expert question-setter for ${examName}, a well-known Indian government/entrance exam.
-Generate exactly ${questionCount} unique multiple-choice questions strictly based on this syllabus:
+function buildPrompt(examName, syllabusText, questionCount, customPromptNotes, chunkIndex = 0) {
+  return `You are an expert question-setter for ${examName}, a well-known Indian competitive/entrance exam.
+Generate exactly ${questionCount} unique, high-quality multiple-choice questions strictly adhering to this exam pattern and syllabus:
 ${syllabusText || "General competitive exam topics including General Awareness, Reasoning, Quantitative Aptitude, and English Comprehension."}
-Additional instructions from the exam admin: ${customPromptNotes || "None"}
-Rules you must follow:
-1. Each question must match real exam-level difficulty and be factually accurate.
-2. Before deciding the correct answer, mentally solve the question step-by-step yourself first — never guess. Then match your solved answer to the correct option.
-3. For every question, also write a clear, detailed explanation (3-5 sentences) of why the correct answer is correct, written the way a teacher would explain it to a student.
-4. Do not repeat concepts/questions that are commonly duplicated — vary sub-topics, numbers, and phrasing across all ${questionCount} questions.
-5. Output ONLY a valid JSON array, nothing else — no markdown, no explanation outside the JSON, no text before or after.
-Exact output format:
+Admin instructions & focus areas: ${customPromptNotes || "Ensure standard exam difficulty and balanced topic coverage."}
+
+Rules:
+1. Each question must match the real competitive exam format and difficulty level.
+2. Factually verify each question and step-by-step solve before matching to options.
+3. Every question must have 4 distinct, plausible options (A, B, C, D).
+4. Provide a detailed, pedagogical explanation (3-4 sentences) for why the correct answer is right.
+5. Output ONLY a valid JSON array of objects with the exact schema below. No markdown fences, no surrounding prose.
+
+JSON Schema:
 [
-{
-"questionText": "...",
-"optionA": "...",
-"optionB": "...",
-"optionC": "...",
-"optionD": "...",
-"correctAnswer": "A",
-"explanation": "..."
-}
+  {
+    "questionText": "...",
+    "optionA": "...",
+    "optionB": "...",
+    "optionC": "...",
+    "optionD": "...",
+    "correctAnswer": "A",
+    "explanation": "..."
+  }
 ]`;
 }
 
+async function generateQuestionsForExam(db, exam, targetCount, customPrompt) {
+  const examName = exam.examName || "Mock Test";
+  const syllabus = exam.syllabus || "";
+  const promptNotes = customPrompt || exam.generationPrompt || exam.customPromptNotes || "";
+
+  const CHUNK_SIZE = 25;
+  const numChunks = Math.ceil(targetCount / CHUNK_SIZE);
+  const collectedQuestions = [];
+  const seenTexts = new Set();
+
+  const poolSize = getGeminiApiKeys().length || 4;
+  let keyIndex = await getLastUsedKeyIndex(db, poolSize);
+
+  for (let c = 0; c < numChunks; c++) {
+    const countForChunk = Math.min(CHUNK_SIZE, targetCount - collectedQuestions.length);
+    if (countForChunk <= 0) break;
+
+    const prompt = buildPrompt(examName, syllabus, countForChunk, promptNotes, c);
+    let attempts = 0;
+    let chunkQuestions = [];
+
+    while (attempts < 2 && chunkQuestions.length === 0) {
+      attempts++;
+      const { text: rawJson, usedKeyIndex } = await callGeminiWithRotation(db, prompt, keyIndex);
+      keyIndex = (usedKeyIndex + 1) % poolSize;
+      const parsed = parseAndValidateGeminiQuestions(rawJson);
+
+      for (const q of parsed) {
+        const norm = q.questionText.trim().toLowerCase();
+        if (!seenTexts.has(norm)) {
+          seenTexts.add(norm);
+          chunkQuestions.push(q);
+        }
+      }
+
+      if (chunkQuestions.length === 0) {
+        console.warn(`[AI Gen] Chunk ${c + 1} attempt ${attempts} yielded 0 valid questions. Retrying...`);
+        await sleep(2000);
+      }
+    }
+
+    collectedQuestions.push(...chunkQuestions);
+    if (c + 1 < numChunks) {
+      await sleep(1500); // Brief pause between chunks to respect rate limits
+    }
+  }
+
+  if (collectedQuestions.length === 0) {
+    throw new Error(`Failed to generate valid questions for ${examName}.`);
+  }
+
+  return collectedQuestions;
+}
+
 /**
- * Scheduled Nightly Test Generation (runs daily at midnight).
- * Automatically generates a fresh mock test for every exam with autoGenerationEnabled == true.
+ * Task K: Redesigned Scheduled Test Generation (runs every 5 minutes with timeZone Asia/Kolkata).
+ * Checks each exam where autoGenerationEnabled == true, current IST time >= autoGenTime,
+ * and lastGeneratedDate != todayDate. Uses idempotent transactional locking.
  */
-exports.generateNightlyTests = onSchedule(
+exports.scheduledTestGeneration = onSchedule(
   {
-    schedule: "every day 00:00",
+    schedule: "every 5 minutes",
+    timeZone: "Asia/Kolkata",
+    timeoutSeconds: 540,
+    memory: "512MiB",
     secrets: geminiSecrets,
   },
   async (event) => {
     const db = getFirestore();
-    const examsSnap = await db.collection("exams").where("autoGenerationEnabled", "==", true).get();
+    const { todayDate, currentTime } = getIstTimeAndDate();
+    console.log(`[Scheduler Triggered] IST Date: ${todayDate}, Time: ${currentTime}`);
+
+    const examsSnap = await db.collection("exams").get();
     if (examsSnap.empty) {
-      console.log("No exams with autoGenerationEnabled == true found.");
+      console.log("[Scheduler] No exams found in database.");
       return;
     }
-
-    console.log(`Found ${examsSnap.size} exams configured for automatic generation.`);
-
-    const poolSize = getGeminiApiKeys().length || 4;
-    let nextKeyIndex = await getLastUsedKeyIndex(db, poolSize);
 
     for (const doc of examsSnap.docs) {
       const exam = doc.data();
       const examId = doc.id;
       const examName = exam.examName || "Mock Test";
-      const syllabus = exam.syllabus || "";
-      const questionCount = Math.max(5, Math.min(50, Number(exam.questionCount || 10)));
-      const customPromptNotes = exam.customPromptNotes || "";
+      const isEnabled = exam.autoGenerationEnabled === true || exam.autoGenEnabled === true;
+      const autoGenTime = String(exam.autoGenTime || "00:00").trim();
+      const lastGenDate = String(exam.lastGeneratedDate || "").trim();
+
+      // Check criteria: enabled, time reached, not already generated today
+      if (!isEnabled) continue;
+      if (currentTime < autoGenTime) continue;
+      if (lastGenDate === todayDate) continue;
+
+      // Idempotent lock check in a Firestore transaction
+      const examRef = db.collection("exams").doc(examId);
+      let acquiredLock = false;
 
       try {
-        console.log(`Generating nightly test for ${examName} (${examId})...`);
+        acquiredLock = await db.runTransaction(async (tx) => {
+          const freshSnap = await tx.get(examRef);
+          if (!freshSnap.exists) return false;
+          const freshData = freshSnap.data();
+          const freshEnabled = freshData.autoGenerationEnabled === true || freshData.autoGenEnabled === true;
+          if (!freshEnabled) return false;
+          if (freshData.lastGeneratedDate === todayDate) return false;
 
-        // Duplicate suppression: gather questions from up to 5 recent tests
-        const recentSnap = await db.collection("generated_tests")
-          .where("examId", "==", examId)
-          .limit(10)
-          .get();
+          const lockUntil = Number(freshData.generatingLockUntil || 0);
+          if (Date.now() < lockUntil) {
+            console.log(`[Scheduler] Exam ${examName} (${examId}) is already locked by another run. Skipping.`);
+            return false;
+          }
 
-        const seenSet = new Set();
-        recentSnap.docs
-          .sort((a, b) => (b.data().generatedAt || 0) - (a.data().generatedAt || 0))
-          .slice(0, 5)
-          .forEach((d) => {
-            const qs = d.data().questions || [];
-            qs.forEach((q) => {
-              if (q.questionText) {
-                seenSet.add(q.questionText.trim().toLowerCase());
-              }
-            });
+          // Acquire 10-minute lock
+          tx.update(examRef, {
+            generatingLockUntil: Date.now() + 10 * 60 * 1000,
+            lastGenerationStatus: "running",
+            lastGenerationTime: Date.now(),
           });
-
-        const prompt = buildPrompt(examName, syllabus, questionCount, customPromptNotes);
-        const { text: rawJson, usedKeyIndex } = await callGeminiWithRotation(db, prompt, nextKeyIndex);
-        nextKeyIndex = (usedKeyIndex + 1) % poolSize;
-
-        const parsedQuestions = parseGeminiQuestions(rawJson);
-
-        const uniqueQuestions = [];
-        const batchSeen = new Set();
-        for (const q of parsedQuestions) {
-          const norm = q.questionText.trim().toLowerCase();
-          if (!seenSet.has(norm) && !batchSeen.has(norm)) {
-            batchSeen.add(norm);
-            uniqueQuestions.push(q);
-          }
-        }
-
-        if (uniqueQuestions.length === 0) {
-          console.warn(`No unique questions generated for ${examName}.`);
-          continue;
-        }
-
-        // Rule 6: Write the validated question set as a new document in generated_tests with status "paused"
-        const generatedTestRef = db.collection("generated_tests").doc();
-        await generatedTestRef.set({
-          examId,
-          examName,
-          generatedAt: Date.now(),
-          status: "paused",
-          questionCount: uniqueQuestions.length,
-          questions: uniqueQuestions,
+          return true;
         });
-
-        console.log(
-          `Successfully published nightly test ${generatedTestRef.id} with ${uniqueQuestions.length} questions for ${examName} (status: paused).`
-        );
-      } catch (err) {
-        console.error(`Nightly test generation failed for ${examName} (${examId}):`, err.message);
-
-        // If all keys exhausted, log to generation_logs and skip this exam
-        if (err.message && err.message.includes("exhausted")) {
-          try {
-            await db.collection("generation_logs").add({
-              examId,
-              examName,
-              timestamp: Date.now(),
-              status: "failed",
-              error: "all keys exhausted",
-              details: err.message,
-            });
-          } catch (logErr) {
-            console.error("Failed to write to generation_logs:", logErr);
-          }
-        }
+      } catch (lockErr) {
+        console.warn(`[Scheduler] Transaction lock failed for ${examName}:`, lockErr.message);
+        continue;
       }
 
-      // Add a short delay (a few seconds) between each exam's API call to respect per-minute (RPM) limits
-      await sleep(3000);
+      if (!acquiredLock) continue;
+
+      console.log(`[Scheduler] Starting auto-generation for ${examName} (${examId}) scheduled at ${autoGenTime}...`);
+
+      const targetCount = Math.max(1, Math.min(200, Number(exam.questionCount || 20)));
+      const testNumber = exam.testNumber || "Test 1";
+
+      try {
+        const questions = await generateQuestionsForExam(db, exam, targetCount);
+
+        // Write to generated_tests with status "paused" (pending admin approval)
+        const genTestRef = db.collection("generated_tests").doc();
+        await genTestRef.set({
+          examId,
+          examName,
+          testNumber,
+          title: `${examName} - ${testNumber}`,
+          generatedAt: Date.now(),
+          status: "paused",
+          questionCount: questions.length,
+          questions,
+          syllabusUsed: exam.syllabus || "",
+          promptUsed: exam.generationPrompt || exam.customPromptNotes || "",
+        });
+
+        const nextTestNumber = incrementTestNumber(testNumber);
+
+        // Release lock and mark success
+        await examRef.update({
+          generatingLockUntil: 0,
+          lastGeneratedDate: todayDate,
+          lastGenerationStatus: "success",
+          lastGenerationError: "",
+          lastGenerationTime: Date.now(),
+          testNumber: nextTestNumber,
+        });
+
+        console.log(`[Scheduler] Successfully generated test ${genTestRef.id} (${questions.length} Qs) for ${examName}. Next: ${nextTestNumber}`);
+      } catch (err) {
+        console.error(`[Scheduler] Generation failed for ${examName} (${examId}):`, err.message);
+
+        await examRef.update({
+          generatingLockUntil: 0,
+          lastGenerationStatus: "failed",
+          lastGenerationError: String(err.message || "Unknown error").slice(0, 200),
+          lastGenerationTime: Date.now(),
+        });
+      }
+
+      // Short delay between exams to prevent burst quota consumption
+      await sleep(2000);
     }
   }
 );
 
 /**
- * Callable function to manually generate a test via AI on demand from Admin Dashboard.
+ * Callable function for Admin: "Generate test now" on-demand from Manage Exam page.
  */
 exports.triggerAiTestGeneration = onCall(
   {
     secrets: geminiSecrets,
+    timeoutSeconds: 300,
+    memory: "512MiB",
   },
   async (request) => {
     const uid = request.auth?.uid;
     if (!uid) {
-      throw new HttpsError("unauthenticated", "Login required.");
+      throw new HttpsError("unauthenticated", "Authentication required.");
     }
 
     const db = getFirestore();
@@ -840,83 +956,62 @@ exports.triggerAiTestGeneration = onCall(
 
     const exam = examDoc.data();
     const examName = exam.examName || "Mock Test";
-    const syllabus = String(data.syllabus || exam.syllabus || "");
-    const customPromptNotes = String(data.customPromptNotes || exam.customPromptNotes || "");
-    const targetCount = Math.max(3, Math.min(50, Number(data.questionCount || exam.questionCount || 10)));
-    const status = String(data.status || "paused");
+    const targetCount = Math.max(1, Math.min(200, Number(data.questionCount || exam.questionCount || 20)));
+    const testNumber = String(data.testNumber || exam.testNumber || "Test 1").trim();
+    const customPrompt = String(data.customPromptNotes || "").trim();
 
-    // Duplicate suppression
-    const recentSnap = await db.collection("generated_tests")
-      .where("examId", "==", examId)
-      .limit(10)
-      .get();
-
-    const seenSet = new Set();
-    recentSnap.docs
-      .sort((a, b) => (b.data().generatedAt || 0) - (a.data().generatedAt || 0))
-      .slice(0, 5)
-      .forEach((d) => {
-        const qs = d.data().questions || [];
-        qs.forEach((q) => {
-          if (q.questionText) {
-            seenSet.add(q.questionText.trim().toLowerCase());
-          }
-        });
-      });
-
-    const poolSize = getGeminiApiKeys().length || 4;
-    const startIndex = await getLastUsedKeyIndex(db, poolSize);
-    const prompt = buildPrompt(examName, syllabus, targetCount, customPromptNotes);
+    const { todayDate } = getIstTimeAndDate();
+    const examRef = db.collection("exams").doc(examId);
 
     try {
-      const { text: rawJson } = await callGeminiWithRotation(db, prompt, startIndex);
-      const parsedQuestions = parseGeminiQuestions(rawJson);
+      await examRef.update({
+        lastGenerationStatus: "running",
+        lastGenerationTime: Date.now(),
+      });
 
-      const uniqueQuestions = [];
-      const batchSeen = new Set();
-      for (const q of parsedQuestions) {
-        const norm = q.questionText.trim().toLowerCase();
-        if (!seenSet.has(norm) && !batchSeen.has(norm)) {
-          batchSeen.add(norm);
-          uniqueQuestions.push(q);
-        }
-      }
+      const questions = await generateQuestionsForExam(db, exam, targetCount, customPrompt);
 
-      if (uniqueQuestions.length === 0) {
-        throw new HttpsError("internal", "AI failed to generate unique questions.");
-      }
-
-      const generatedTestRef = db.collection("generated_tests").doc();
-      await generatedTestRef.set({
+      const genTestRef = db.collection("generated_tests").doc();
+      await genTestRef.set({
         examId,
         examName,
+        testNumber,
+        title: `${examName} - ${testNumber}`,
         generatedAt: Date.now(),
-        status,
-        questionCount: uniqueQuestions.length,
-        questions: uniqueQuestions,
+        status: "paused",
+        questionCount: questions.length,
+        questions,
+        syllabusUsed: exam.syllabus || "",
+        promptUsed: customPrompt || exam.generationPrompt || exam.customPromptNotes || "",
+      });
+
+      const nextTestNumber = incrementTestNumber(testNumber);
+
+      await examRef.update({
+        generatingLockUntil: 0,
+        lastGeneratedDate: todayDate,
+        lastGenerationStatus: "success",
+        lastGenerationError: "",
+        lastGenerationTime: Date.now(),
+        testNumber: nextTestNumber,
       });
 
       return {
         success: true,
-        testId: generatedTestRef.id,
-        questionCount: uniqueQuestions.length,
-        status,
+        testId: genTestRef.id,
+        questionCount: questions.length,
+        testNumber,
+        nextTestNumber,
       };
     } catch (err) {
-      if (err instanceof HttpsError) throw err;
-
-      // Log failure to generation_logs if all keys exhausted
-      if (err.message && err.message.includes("exhausted")) {
-        await db.collection("generation_logs").add({
-          examId,
-          examName,
-          timestamp: Date.now(),
-          status: "failed",
-          error: "all keys exhausted",
-          details: err.message,
-        });
-      }
-      throw new HttpsError("resource-exhausted", err.message);
+      console.error(`[triggerAiTestGeneration] Error for ${examName}:`, err.message);
+      await examRef.update({
+        generatingLockUntil: 0,
+        lastGenerationStatus: "failed",
+        lastGenerationError: String(err.message || "Unknown error").slice(0, 200),
+        lastGenerationTime: Date.now(),
+      });
+      throw new HttpsError("internal", err.message || "Generation failed.");
     }
   }
 );

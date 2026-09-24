@@ -137,6 +137,17 @@
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnEditAbout"
+        style="@style/Widget.Eve.Button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="8dp"
+        android:text="Edit About Content (Admin)"
+        android:visibility="gone" />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnAbout"
         style="@style/Widget.Eve.OutlinedButton"
         android:layout_width="match_parent"

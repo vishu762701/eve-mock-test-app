@@ -1,13 +1,11 @@
 package com.eve.app.ui.admin
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -19,10 +17,7 @@ import com.eve.app.data.model.Exam
 import com.eve.app.data.model.Question
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.databinding.ActivityAdminBinding
-import com.eve.app.util.BulkImportHelper
 import com.eve.app.util.Constants
-import com.eve.app.util.QuestionBulkParser
-import com.eve.app.util.SpreadsheetReader
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -33,10 +28,6 @@ class AdminActivity : AppCompatActivity() {
     private val adminRepo = AdminRepository()
 
     private var exams: List<Exam> = emptyList()
-
-    private val bulkPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) importBulk(uri)
-    }
 
     private val questionAdapter = QuestionManageAdapter(
         onEdit = { q -> showQuestionDetails(q) },
@@ -90,14 +81,12 @@ class AdminActivity : AppCompatActivity() {
         }
 
         binding.btnAddExam.setOnClickListener { addExam() }
+        binding.btnRenameExam.setOnClickListener { promptRenameExam() }
         binding.btnDeleteExam.setOnClickListener { confirmDeleteExam() }
         binding.btnAddAdmin.setOnClickListener { addAdmin() }
 
         binding.btnAnalyticsAdmin.setOnClickListener {
             startActivity(Intent(this, AdminAnalyticsActivity::class.java))
-        }
-        binding.btnDailyGkAdmin.setOnClickListener {
-            startActivity(Intent(this, DailyAdminActivity::class.java))
         }
         binding.btnSendNotification.setOnClickListener {
             startActivity(Intent(this, SendNotificationActivity::class.java))
@@ -107,22 +96,6 @@ class AdminActivity : AppCompatActivity() {
         }
         binding.btnGeneratedTests.setOnClickListener {
             startActivity(Intent(this, GeneratedTestsActivity::class.java))
-        }
-
-        binding.btnShareTemplate.setOnClickListener {
-            BulkImportHelper.shareTemplate(this, BulkImportHelper.EXAM_TEMPLATE)
-        }
-        binding.btnBulkUpload.setOnClickListener {
-            bulkPicker.launch(
-                arrayOf(
-                    "text/*",
-                    "text/csv",
-                    "text/comma-separated-values",
-                    "application/vnd.ms-excel",
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    "application/octet-stream"
-                )
-            )
         }
         binding.btnRefreshStats.setOnClickListener { viewModel.loadUserStats() }
 
@@ -167,8 +140,8 @@ class AdminActivity : AppCompatActivity() {
                 launch {
                     viewModel.busy.collect { busy ->
                         binding.btnAddExam.isEnabled = !busy
+                        binding.btnRenameExam.isEnabled = !busy
                         binding.btnDeleteExam.isEnabled = !busy
-                        binding.btnBulkUpload.isEnabled = !busy
                     }
                 }
                 launch {
@@ -192,12 +165,17 @@ class AdminActivity : AppCompatActivity() {
         } else {
             selectedCategory
         }
-        if (name.isEmpty() || minutes == null || minutes <= 0) {
-            Toast.makeText(this, "Please enter exam name and valid duration in minutes", Toast.LENGTH_SHORT).show()
+        if (name.length < 2 || minutes == null || minutes <= 0) {
+            Toast.makeText(this, "Please enter exam name (min 2 characters) and valid duration in minutes", Toast.LENGTH_SHORT).show()
             return
         }
         if (category.isEmpty()) {
             Toast.makeText(this, "Please select or type a category", Toast.LENGTH_SHORT).show()
+            return
+        }
+        // Duplicate check within same category
+        if (exams.any { it.categoryOrOther.equals(category, ignoreCase = true) && it.examName.trim().equals(name, ignoreCase = true) }) {
+            Toast.makeText(this, "An exam named '$name' already exists in category '$category'", Toast.LENGTH_LONG).show()
             return
         }
         viewModel.addExam(name, minutes, category) {
@@ -209,11 +187,45 @@ class AdminActivity : AppCompatActivity() {
         }
     }
 
+    private fun promptRenameExam() {
+        val exam = exams.getOrNull(binding.spExam.selectedItemPosition)
+        if (exam == null) {
+            Toast.makeText(this, "Please select an exam to rename", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val input = android.widget.EditText(this).apply {
+            setText(exam.examName)
+            setSelection(text.length)
+            hint = "Enter new exam name"
+            setPadding(50, 40, 50, 40)
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Rename Exam")
+            .setMessage("Rename '${exam.examName}' (${exam.categoryOrOther})")
+            .setView(input)
+            .setPositiveButton("Rename") { _, _ ->
+                val newName = input.text.toString().trim()
+                if (newName.length < 2) {
+                    Toast.makeText(this, "Exam name must be at least 2 characters", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                if (exams.any { it.id != exam.id && it.categoryOrOther.equals(exam.categoryOrOther, ignoreCase = true) && it.examName.trim().equals(newName, ignoreCase = true) }) {
+                    Toast.makeText(this, "An exam named '$newName' already exists in category '${exam.categoryOrOther}'", Toast.LENGTH_LONG).show()
+                    return@setPositiveButton
+                }
+                viewModel.renameExam(exam.id, newName) { }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
     private fun confirmDeleteExam() {
         val exam = exams.getOrNull(binding.spExam.selectedItemPosition) ?: return
         AlertDialog.Builder(this)
             .setTitle("Delete Exam?")
-            .setMessage("Exam '${exam.examName}' and all its questions will be permanently deleted.")
+            .setMessage("Exam '${exam.examName}' and all its tests/questions will be permanently deleted.")
             .setPositiveButton("Delete") { _, _ ->
                 viewModel.deleteExam(exam.id) { }
             }
@@ -268,39 +280,5 @@ class AdminActivity : AppCompatActivity() {
             .setPositiveButton("Remove") { _, _ -> viewModel.removeAdmin(email) }
             .setNegativeButton("Cancel", null)
             .show()
-    }
-
-    private fun importBulk(uri: Uri) {
-        val exam = exams.getOrNull(binding.spExam.selectedItemPosition)
-        if (exam == null) {
-            Toast.makeText(this, "Please select or create an exam first", Toast.LENGTH_SHORT).show()
-            return
-        }
-        try {
-            val name = BulkImportHelper.displayName(this, uri)
-            val sheet = SpreadsheetReader.read(contentResolver, uri, name)
-            val parsed = QuestionBulkParser.parseExamQuestions(sheet, exam.id)
-            if (parsed.questions.isEmpty()) {
-                val detail = parsed.errors.take(5).joinToString("\n") { "Row ${it.rowNumber}: ${it.reason}" }
-                Toast.makeText(this, "No valid questions found.\n$detail", Toast.LENGTH_LONG).show()
-                return
-            }
-            val errorPreview = if (parsed.errors.isEmpty()) "No rows were skipped."
-            else parsed.errors.take(8).joinToString("\n") { "Row ${it.rowNumber}: ${it.reason}" } +
-                if (parsed.errors.size > 8) "\n… +${parsed.errors.size - 8} more" else ""
-            AlertDialog.Builder(this)
-                .setTitle("Bulk Upload Questions")
-                .setMessage(
-                    "Uploading ${parsed.questions.size} questions to '${exam.examName}'.\n" +
-                        "Skipped: ${parsed.errors.size}\n\n$errorPreview"
-                )
-                .setPositiveButton("Upload") { _, _ ->
-                    viewModel.addQuestions(parsed.questions) { }
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
-        } catch (e: Exception) {
-            Toast.makeText(this, e.message ?: "Failed to read spreadsheet", Toast.LENGTH_LONG).show()
-        }
     }
 }

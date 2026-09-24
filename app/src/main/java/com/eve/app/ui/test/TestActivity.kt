@@ -16,11 +16,9 @@ import com.eve.app.databinding.ActivityTestBinding
 import com.eve.app.ui.result.ResultActivity
 import com.eve.app.util.AnalyticsHelper
 import com.eve.app.util.Constants
-import com.eve.app.util.DateUtil
 import com.eve.app.util.LanguageManager
 import com.eve.app.util.NetworkUtil
 import com.eve.app.util.SecurityHelper
-import com.eve.app.util.StreakStore
 import com.eve.app.util.UiState
 import com.eve.app.util.isHardcodedAdmin
 import com.eve.app.data.repository.AdminRepository
@@ -38,7 +36,6 @@ class TestActivity : AppCompatActivity() {
     private var topic = ""
     private var pyqYear = 0
     private var pyqPaper = ""
-    private var quizDate = ""
     private var totalQuestions = 0
     private var submitted = false
     private val adminRepository = AdminRepository()
@@ -57,7 +54,6 @@ class TestActivity : AppCompatActivity() {
         topic = intent.getStringExtra(Constants.EXTRA_TOPIC).orEmpty()
         pyqYear = intent.getIntExtra(Constants.EXTRA_PYQ_YEAR, 0)
         pyqPaper = intent.getStringExtra(Constants.EXTRA_PYQ_PAPER).orEmpty()
-        quizDate = intent.getStringExtra(Constants.EXTRA_QUIZ_DATE).orEmpty()
 
         val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
         lifecycleScope.launch {
@@ -65,7 +61,7 @@ class TestActivity : AppCompatActivity() {
                 isHardcodedAdmin(user.email) || adminRepository.isAdmin(user.email)
             } ?: false
             isAdminUser = isAdmin
-            viewModel.start(examId, timeLimit, topic, pyqYear, pyqPaper, quizDate, isAdminUser)
+            viewModel.start(examId, timeLimit, topic, pyqYear, pyqPaper, isAdminUser)
         }
         // Phase 15: exam start event — is exam ko kitni baar attempt kiya gaya, yeh track karta hai
         AnalyticsHelper.logExamStart(this, examId, examName, examCategory)
@@ -77,7 +73,7 @@ class TestActivity : AppCompatActivity() {
             binding.viewPager.currentItem = binding.viewPager.currentItem + 1
         }
         binding.btnSubmit.setOnClickListener { confirmSubmit() }
-        binding.btnRetry.setOnClickListener { viewModel.retry(examId, timeLimit, topic, pyqYear, pyqPaper, quizDate, isAdminUser) }
+        binding.btnRetry.setOnClickListener { viewModel.retry(examId, timeLimit, topic, pyqYear, pyqPaper, isAdminUser) }
 
         LanguageManager.setupToggleButton(this, binding.btnLanguage) {
             binding.viewPager.adapter?.notifyDataSetChanged()
@@ -156,12 +152,10 @@ class TestActivity : AppCompatActivity() {
                     binding.btnRetry.visibility = View.GONE
                     binding.ivMessageIcon.setImageResource(com.eve.app.R.drawable.ic_state_empty)
                     binding.tvMessage.text = when {
-                        quizDate.isNotBlank() -> "No Daily GK quiz found for this date"
                         pyqYear > 0 -> "No PYQs found for this year or paper"
                         else -> "No questions found for this exam"
                     }
                     binding.tvMessageSub.text = when {
-                        quizDate.isNotBlank() -> "Upload questions for this date from Admin Dashboard → Daily GK"
                         pyqYear > 0 -> "Upload questions tagged with PYQ and year from Admin Dashboard"
                         else -> "Please ask an admin to add questions for this exam"
                     }
@@ -219,10 +213,6 @@ class TestActivity : AppCompatActivity() {
         val items = viewModel.buildAnswerItems()
         val attemptName = sessionTitle()
         viewModel.saveAttempt(examId, attemptName, examCategory, items)
-        if (quizDate.isNotBlank()) {
-            val correct = items.count { it.isCorrect }
-            StreakStore.recordAttempt(this, quizDate, correct, items.size)
-        }
 
         // Phase 15: exam submit event + score summary (average score / weak exams Console me dikhenge)
         AnalyticsHelper.logExamSubmit(
@@ -247,7 +237,6 @@ class TestActivity : AppCompatActivity() {
     }
 
     private fun sessionTitle(): String = when {
-        quizDate.isNotBlank() -> "Daily GK • ${DateUtil.display(quizDate)}"
         pyqYear > 0 -> {
             val paper = if (pyqPaper.isBlank()) "" else " • $pyqPaper"
             "$examName • PYQ $pyqYear$paper"

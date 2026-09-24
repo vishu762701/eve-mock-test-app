@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eve.app.data.model.AnswerItem
 import com.eve.app.data.model.Question
-import com.eve.app.data.repository.DailyGkRepository
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.data.repository.HistoryRepository
 import com.eve.app.util.UiState
@@ -20,7 +19,6 @@ import kotlinx.coroutines.launch
 class TestViewModel : ViewModel() {
 
     private val repo = ExamRepository()
-    private val dailyRepo = DailyGkRepository()
     private val historyRepo = HistoryRepository()
 
     private val _questions = MutableStateFlow<UiState<List<Question>>>(UiState.Loading)
@@ -51,7 +49,6 @@ class TestViewModel : ViewModel() {
         topic: String = "",
         pyqYear: Int = 0,
         pyqPaper: String = "",
-        quizDate: String = "",
         isAdmin: Boolean = false
     ) {
         if (started) return
@@ -59,15 +56,13 @@ class TestViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val user = FirebaseAuth.getInstance().currentUser
-                val isStandardMock = quizDate.isBlank() && topic.isBlank() && pyqYear == 0
+                val isStandardMock = topic.isBlank() && pyqYear == 0
                 if (!isAdmin && user != null && examId.isNotBlank() && isStandardMock && historyRepo.hasAttempted(user.uid, examId)) {
                     _alreadyAttempted.value = true
                     started = false
                     return@launch
                 }
                 val list = when {
-                    // Phase 20: Daily GK — date-tagged questions, order preserve
-                    quizDate.isNotBlank() -> dailyRepo.getQuestionsForDate(quizDate).map { it.toQuestion() }
                     // Phase 19: PYQ paper — original order preserve (shuffle nahi), taaki
                     // admin jaisa upload kiya waisa paper feel rahe.
                     pyqYear > 0 -> repo.getPyqQuestions(examId, pyqYear, pyqPaper)
@@ -114,13 +109,12 @@ class TestViewModel : ViewModel() {
         topic: String = "",
         pyqYear: Int = 0,
         pyqPaper: String = "",
-        quizDate: String = "",
         isAdmin: Boolean = false
     ) {
         _questions.value = UiState.Loading
         _alreadyAttempted.value = false
         started = false
-        start(examId, timeLimitMinutes, topic, pyqYear, pyqPaper, quizDate, isAdmin)
+        start(examId, timeLimitMinutes, topic, pyqYear, pyqPaper, isAdmin)
     }
 
     private fun startTimer(totalSeconds: Long) {
