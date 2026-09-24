@@ -29,8 +29,11 @@ class PerformanceActivity : AppCompatActivity() {
     private val viewModel: PerformanceViewModel by viewModels()
     private val topicAdapter = TopicStatAdapter()
 
+    private var hasEmptyPlayed = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
         binding = ActivityPerformanceBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -48,6 +51,11 @@ class PerformanceActivity : AppCompatActivity() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("key_empty_played", hasEmptyPlayed)
+    }
+
     private fun render(state: UiState<PerformanceData>) {
         when (state) {
             is UiState.Loading -> {
@@ -62,12 +70,15 @@ class PerformanceActivity : AppCompatActivity() {
                 if (data.totalAttempts == 0) {
                     binding.contentGroup.visibility = View.GONE
                     binding.messageGroup.visibility = View.VISIBLE
-                    binding.ivMessageIcon.setAnimation(R.raw.no_files)
-                    binding.ivMessageIcon.playAnimation()
+                    hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(
+                        binding.ivMessageIcon,
+                        hasEmptyPlayed
+                    )
                     binding.tvMessage.text = "No insights available yet"
                     binding.tvMessageSub.text =
                         "Your performance insights will appear here after you submit a test"
                 } else {
+                    hasEmptyPlayed = false
                     binding.messageGroup.visibility = View.GONE
                     binding.contentGroup.visibility = View.VISIBLE
                     renderData(data)

@@ -34,8 +34,11 @@ class LeaderboardActivity : AppCompatActivity() {
 
     private val adapter = LeaderboardAdapter(FirebaseAuth.getInstance().currentUser?.uid)
 
+    private var hasEmptyPlayed = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
         binding = ActivityLeaderboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -65,6 +68,11 @@ class LeaderboardActivity : AppCompatActivity() {
         viewModel.load(examId)
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("key_empty_played", hasEmptyPlayed)
+    }
+
     private fun render(state: UiState<List<LeaderboardEntry>>) {
         when (state) {
             is UiState.Loading -> {
@@ -78,10 +86,14 @@ class LeaderboardActivity : AppCompatActivity() {
                 val empty = state.data.isEmpty()
                 binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
                 if (empty) {
-                    binding.ivMessageIcon.setAnimation(R.raw.no_files)
-                    binding.ivMessageIcon.playAnimation()
+                    hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(
+                        binding.ivMessageIcon,
+                        hasEmptyPlayed
+                    )
                     binding.tvMessage.text = if (examId == "overall") "No overall scores yet" else "No scores recorded yet"
                     binding.tvMessageSub.text = if (examId == "overall") "Complete any test to see overall rankings here" else "Rankings will appear after the first attempt is submitted"
+                } else {
+                    hasEmptyPlayed = false
                 }
             }
             is UiState.Error -> {

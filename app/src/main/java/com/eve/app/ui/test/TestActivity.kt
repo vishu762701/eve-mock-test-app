@@ -40,9 +40,11 @@ class TestActivity : AppCompatActivity() {
     private var submitted = false
     private val adminRepository = AdminRepository()
     private var isAdminUser = false
+    private var hasEmptyPlayed = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
         SecurityHelper.applyScreenProtection(this)
         binding = ActivityTestBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -151,8 +153,10 @@ class TestActivity : AppCompatActivity() {
                 if (list.isEmpty()) {
                     binding.messageGroup.visibility = View.VISIBLE
                     binding.btnRetry.visibility = View.GONE
-                    binding.ivMessageIcon.setAnimation(com.eve.app.R.raw.no_files)
-                    binding.ivMessageIcon.playAnimation()
+                    hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(
+                        binding.ivMessageIcon,
+                        hasEmptyPlayed
+                    )
                     binding.tvMessage.text = when {
                         pyqYear > 0 -> "No PYQs found for this year or paper"
                         else -> "No questions found for this exam"
@@ -164,6 +168,7 @@ class TestActivity : AppCompatActivity() {
                     binding.tvTimer.text = "--:--"
                     return
                 }
+                hasEmptyPlayed = false
                 binding.messageGroup.visibility = View.GONE
                 binding.btnSubmit.isEnabled = true
                 if (binding.viewPager.adapter == null) {
@@ -245,5 +250,10 @@ class TestActivity : AppCompatActivity() {
         }
         topic.isNotBlank() -> "$examName • $topic Practice"
         else -> examName
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("key_empty_played", hasEmptyPlayed)
     }
 }

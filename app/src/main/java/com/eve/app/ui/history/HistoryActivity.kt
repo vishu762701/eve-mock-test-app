@@ -29,8 +29,11 @@ class HistoryActivity : AppCompatActivity() {
 
     private val adapter = HistoryAdapter { attempt -> openReview(attempt) }
 
+    private var hasEmptyPlayed = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
         binding = ActivityHistoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -53,6 +56,11 @@ class HistoryActivity : AppCompatActivity() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("key_empty_played", hasEmptyPlayed)
+    }
+
     private fun render(state: UiState<List<TestAttempt>>) {
         when (state) {
             is UiState.Loading -> {
@@ -66,10 +74,14 @@ class HistoryActivity : AppCompatActivity() {
                 val empty = state.data.isEmpty()
                 binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
                 if (empty) {
-                    binding.ivMessageIcon.setAnimation(R.raw.no_files)
-                    binding.ivMessageIcon.playAnimation()
+                    hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(
+                        binding.ivMessageIcon,
+                        hasEmptyPlayed
+                    )
                     binding.tvMessage.text = "No test attempts yet"
                     binding.tvMessageSub.text = "Submitted tests will appear here"
+                } else {
+                    hasEmptyPlayed = false
                 }
             }
             is UiState.Error -> {

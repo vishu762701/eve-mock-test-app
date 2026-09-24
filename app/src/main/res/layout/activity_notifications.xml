@@ -59,10 +59,12 @@
             android:visibility="gone">
 
             <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/lottieEmpty"
                 android:layout_width="140dp"
                 android:layout_height="140dp"
-                app:lottie_autoPlay="true"
-                app:lottie_loop="true"
+                app:lottie_autoPlay="false"
+                app:lottie_loop="false"
+                app:lottie_repeatCount="0"
                 app:lottie_rawRes="@raw/no_files" />
 
             <TextView

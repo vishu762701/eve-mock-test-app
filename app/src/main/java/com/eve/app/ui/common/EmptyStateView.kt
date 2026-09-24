@@ -61,6 +61,8 @@ class EmptyStateView @JvmOverloads constructor(
         }
     }
 
+    private var hasPlayedOnce: Boolean = false
+
     fun show(title: String = "Nothing here yet", message: String? = null) {
         visibility = View.VISIBLE
         binding.tvEmptyTitle.text = title
@@ -70,9 +72,10 @@ class EmptyStateView @JvmOverloads constructor(
         } else {
             binding.tvEmptyMessage.visibility = View.GONE
         }
-        if (!binding.lottieEmpty.isAnimating) {
-            binding.lottieEmpty.playAnimation()
-        }
+        hasPlayedOnce = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(
+            binding.lottieEmpty,
+            hasPlayedOnce
+        )
     }
 
     fun hide() {
@@ -80,5 +83,31 @@ class EmptyStateView @JvmOverloads constructor(
             binding.lottieEmpty.pauseAnimation()
         }
         visibility = View.GONE
+        hasPlayedOnce = false
+    }
+
+    override fun onSaveInstanceState(): android.os.Parcelable {
+        val superState = super.onSaveInstanceState()
+        val bundle = android.os.Bundle()
+        bundle.putParcelable("super_state", superState)
+        bundle.putBoolean("has_played_once", hasPlayedOnce)
+        return bundle
+    }
+
+    override fun onRestoreInstanceState(state: android.os.Parcelable?) {
+        var superState = state
+        if (state is android.os.Bundle) {
+            hasPlayedOnce = state.getBoolean("has_played_once", false)
+            superState = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                state.getParcelable("super_state", android.os.Parcelable::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                state.getParcelable("super_state")
+            }
+        }
+        super.onRestoreInstanceState(superState)
+        if (hasPlayedOnce && visibility == View.VISIBLE) {
+            binding.lottieEmpty.progress = 1.0f
+        }
     }
 }

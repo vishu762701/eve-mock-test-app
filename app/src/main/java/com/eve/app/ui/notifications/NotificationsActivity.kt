@@ -17,8 +17,11 @@ class NotificationsActivity : AppCompatActivity() {
     private val adapter = NotificationAdapter()
     private var notificationsListener: ListenerRegistration? = null
 
+    private var hasEmptyPlayed = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
         binding = ActivityNotificationsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -30,9 +33,9 @@ class NotificationsActivity : AppCompatActivity() {
         val localItems = NotificationStore.getAll(this)
         if (localItems.isNotEmpty()) {
             adapter.submit(localItems)
-            binding.emptyGroup.visibility = View.GONE
+            updateEmptyState(false)
         } else {
-            binding.emptyGroup.visibility = View.VISIBLE
+            updateEmptyState(true)
         }
 
         // Real-time listener for broadcast notifications from Firestore notifications collection
@@ -41,9 +44,23 @@ class NotificationsActivity : AppCompatActivity() {
         NotificationStore.markAllRead(this)
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("key_empty_played", hasEmptyPlayed)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         notificationsListener?.remove()
+    }
+
+    private fun updateEmptyState(isEmpty: Boolean) {
+        binding.emptyGroup.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        if (isEmpty) {
+            hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(binding.lottieEmpty, hasEmptyPlayed)
+        } else {
+            hasEmptyPlayed = false
+        }
     }
 
     private fun listenToNotifications() {
@@ -55,7 +72,7 @@ class NotificationsActivity : AppCompatActivity() {
                 if (error != null) {
                     val local = NotificationStore.getAll(this@NotificationsActivity)
                     adapter.submit(local)
-                    binding.emptyGroup.visibility = if (local.isEmpty()) View.VISIBLE else View.GONE
+                    updateEmptyState(local.isEmpty())
                     return@addSnapshotListener
                 }
 
@@ -70,11 +87,11 @@ class NotificationsActivity : AppCompatActivity() {
 
                 if (firestoreList.isNotEmpty()) {
                     adapter.submit(firestoreList)
-                    binding.emptyGroup.visibility = View.GONE
+                    updateEmptyState(false)
                 } else {
                     val local = NotificationStore.getAll(this@NotificationsActivity)
                     adapter.submit(local)
-                    binding.emptyGroup.visibility = if (local.isEmpty()) View.VISIBLE else View.GONE
+                    updateEmptyState(local.isEmpty())
                 }
             }
     }

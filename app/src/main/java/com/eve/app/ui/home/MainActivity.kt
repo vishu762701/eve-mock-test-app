@@ -96,8 +96,11 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    private var hasEmptyPlayed = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
 
         val user = FirebaseAuth.getInstance().currentUser
         if (user == null) {
@@ -132,7 +135,7 @@ class MainActivity : AppCompatActivity() {
         binding.btnOverflow.setOnClickListener { anchor ->
             TelegramMenuPopup(
                 context = this,
-                onThemeToggle = { ThemeManager.toggleWithReveal(this, anchor) },
+                onThemeToggle = { cx, cy -> ThemeManager.toggleWithCircularReveal(this, cx, cy) },
                 onHistory = { startActivity(Intent(this, HistoryActivity::class.java)) },
                 onPerformance = { startActivity(Intent(this, PerformanceActivity::class.java)) },
                 onTopic = { startActivity(Intent(this, PracticeActivity::class.java)) },
@@ -284,6 +287,11 @@ class MainActivity : AppCompatActivity() {
         applyCurrentList()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("key_empty_played", hasEmptyPlayed)
+    }
+
     private fun applyCurrentList() {
         if (currentSearchQuery.isBlank()) {
             adapter.submit(lastLoadedItems)
@@ -292,11 +300,15 @@ class MainActivity : AppCompatActivity() {
             binding.rvExams.visibility = if (empty) View.GONE else View.VISIBLE
             binding.chipGroupCategory.visibility = if (isSearchActive) View.GONE else View.VISIBLE
             if (empty) {
-                binding.ivMessageIcon.setAnimation(R.raw.no_files)
-                binding.ivMessageIcon.playAnimation()
+                hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(
+                    binding.ivMessageIcon,
+                    hasEmptyPlayed
+                )
                 binding.tvMessage.text = "No exams available"
                 binding.tvMessageSub.text = "Exams added by admin will appear here"
                 binding.btnRetry.visibility = View.GONE
+            } else {
+                hasEmptyPlayed = false
             }
         } else {
             binding.chipGroupCategory.visibility = View.GONE
@@ -307,11 +319,15 @@ class MainActivity : AppCompatActivity() {
             binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
             binding.rvExams.visibility = if (empty) View.GONE else View.VISIBLE
             if (empty) {
-                binding.ivMessageIcon.setAnimation(R.raw.no_files)
-                binding.ivMessageIcon.playAnimation()
+                hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(
+                    binding.ivMessageIcon,
+                    hasEmptyPlayed
+                )
                 binding.tvMessage.text = "No exams found"
                 binding.tvMessageSub.text = "Try a different search query"
                 binding.btnRetry.visibility = View.GONE
+            } else {
+                hasEmptyPlayed = false
             }
         }
     }

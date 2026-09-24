@@ -2,6 +2,7 @@ package com.eve.app.util
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.animation.ValueAnimator
 import android.app.Activity
 import android.app.Application
 import android.content.Context
@@ -9,11 +10,12 @@ import android.content.ContextWrapper
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Path
 import android.os.Bundle
 import android.view.View
-import android.view.ViewAnimationUtils
 import android.view.ViewGroup
-import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.WindowManager
+import android.view.animation.DecelerateInterpolator
 import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
@@ -21,13 +23,8 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.eve.app.R
 
 /**
- * Ek single toggle: Light <-> Dark. Sun icon = "abhi light hai, dark karne ke liye dabao",
- * Moon icon = "abhi dark hai, light karne ke liye dabao". Choice SharedPreferences me save
- * hoti hai isliye app dobara khulne par bhi wahi mode yaad rehta hai. Pehli baar (koi saved
- * choice nahi) system ka dark/light setting follow hoti hai.
- *
- * FEATURE 1: Telegram-style circular theme reveal animation across AppCompatDelegate.setDefaultNightMode()
- * Activity recreation.
+ * ThemeManager: Controls Light <-> Dark theme switching with Telegram-style circular reveal.
+ * Choice SharedPreferences me save hoti hai isliye app dobara khulne par bhi wahi mode yaad rehta hai.
  */
 object ThemeManager {
 
@@ -39,7 +36,11 @@ object ThemeManager {
     private var pendingOriginY: Int = 0
     private var pendingActivityClass: Class<*>? = null
     private var isLifecycleRegistered = false
-    private var isTransitioning = false
+    private var transitioning = false
+    private var activeOverlay: CircularRevealOverlayView? = null
+
+    val isTransitioning: Boolean
+        get() = transitioning
 
     /** App start hote hi (Application.onCreate me) call karo, kisi Activity dikhne se pehle. */
     fun applySavedMode(context: Context) {
@@ -73,9 +74,7 @@ object ThemeManager {
     fun isNight(context: Context): Boolean = isDarkMode(context)
 
     /**
-     * Mode flip karta hai aur save karta hai. AppCompatDelegate.setDefaultNightMode()
-     * chalte hi saari running AppCompatActivity apne aap recreate ho jaati hain, isliye
-     * icon/colors sab jagah turant update ho jaate hain — manual recreate() ki zaroorat nahi.
+     * Standard theme toggle without animation.
      */
     fun toggle(context: Context) {
         val goingDark = !isDarkMode(context)
@@ -96,7 +95,7 @@ object ThemeManager {
         return null
     }
 
-    private fun ensureLifecycleRegistered(app: Application) {
+    fun ensureLifecycleRegistered(app: Application) {
         if (isLifecycleRegistered) return
         isLifecycleRegistered = true
         app.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
@@ -109,7 +108,7 @@ object ThemeManager {
             override fun onActivityStarted(activity: Activity) {
                 if (activity.javaClass == pendingActivityClass && pendingBitmap != null) {
                     activity.overridePendingTransition(0, 0)
-                    triggerRevealAnimation(activity)
+                    triggerCircularReveal(activity)
                 }
             }
 
@@ -119,6 +118,9 @@ object ThemeManager {
             override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
             override fun onActivityDestroyed(activity: Activity) {
                 if (activity.javaClass == pendingActivityClass) {
+                    activeOverlay?.cancelAnimation()
+                    (activity.window.decorView as? ViewGroup)?.removeView(activeOverlay)
+                    activeOverlay = null
                     cleanupPending()
                 }
             }
@@ -131,31 +133,51 @@ object ThemeManager {
         }
         pendingBitmap = null
         pendingActivityClass = null
-        isTransitioning = false
+        transitioning = false
     }
 
-    private fun triggerRevealAnimation(activity: Activity) {
-        val bitmap = pendingBitmap ?: return
-        val cx = pendingOriginX
-        val cy = pendingOriginY
-        // Consume state so it only triggers once
-        pendingBitmap = null
-        pendingActivityClass = null
+    /**
+     * Triggers theme toggle with a full-screen Telegram-style circular reveal expanding
+     * from the specified on-screen coordinates (originX, originY).
+     */
+    fun toggleWithCircularReveal(activity: Activity, originX: Int, originY: Int) {
+        if (transitioning) return
 
         val decorView = activity.window.decorView as? ViewGroup ?: run {
-            if (!bitmap.isRecycled) bitmap.recycle()
-            isTransitioning = false
+            toggle(activity)
             return
         }
 
-        // Ignore taps during animation
-        activity.window.setFlags(
-            android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-            android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-        )
+        if (decorView.width <= 0 || decorView.height <= 0) {
+            toggle(activity)
+            return
+        }
 
-        // Add overlay behind the new content so circular reveal displays new theme expanding outwards
-        val overlay = ImageView(activity).apply {
+        ensureLifecycleRegistered(activity.application)
+
+        // Capture static snapshot of the entire screen in the current theme
+        val bitmap = try {
+            val bmp = Bitmap.createBitmap(decorView.width, decorView.height, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bmp)
+            decorView.draw(canvas)
+            bmp
+        } catch (e: Throwable) {
+            null
+        }
+
+        if (bitmap == null) {
+            toggle(activity)
+            return
+        }
+
+        transitioning = true
+        pendingBitmap = bitmap
+        pendingOriginX = originX
+        pendingOriginY = originY
+        pendingActivityClass = activity.javaClass
+
+        // Add static overlay on the current screen to eliminate any flash before recreation
+        val preOverlay = ImageView(activity).apply {
             setImageBitmap(bitmap)
             scaleType = ImageView.ScaleType.FIT_XY
             layoutParams = ViewGroup.LayoutParams(
@@ -163,55 +185,67 @@ object ThemeManager {
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
         }
-        val rootContent = decorView.findViewById<View>(android.R.id.content) ?: decorView.getChildAt(0) ?: decorView
-        decorView.addView(overlay, 0)
-        rootContent.bringToFront()
+        decorView.addView(preOverlay)
 
-        decorView.post {
-            if (activity.isFinishing || activity.isDestroyed) {
-                decorView.removeView(overlay)
-                if (!bitmap.isRecycled) bitmap.recycle()
-                activity.window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-                isTransitioning = false
-                return@post
-            }
+        // Suppress default activity recreate crossfade
+        activity.overridePendingTransition(0, 0)
 
-            val w = decorView.width.toFloat()
-            val h = decorView.height.toFloat()
-            val maxRadius = Math.hypot(
-                Math.max(cx.toFloat(), w - cx.toFloat()).toDouble(),
-                Math.max(cy.toFloat(), h - cy.toFloat()).toDouble()
-            ).toFloat().coerceAtLeast(1f)
-
-            try {
-                // Reveal circle starts at toggle point in both directions (light->dark & dark->light)
-                val anim = ViewAnimationUtils.createCircularReveal(rootContent, cx, cy, 0f, maxRadius)
-                anim.duration = 400
-                anim.interpolator = AccelerateDecelerateInterpolator()
-                anim.addListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator) {
-                        decorView.removeView(overlay)
-                        if (!bitmap.isRecycled) bitmap.recycle()
-                        activity.window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-                        isTransitioning = false
-                    }
-                })
-                anim.start()
-            } catch (e: Exception) {
-                decorView.removeView(overlay)
-                if (!bitmap.isRecycled) bitmap.recycle()
-                activity.window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-                isTransitioning = false
-            }
-        }
+        // Persist and commit the new theme
+        toggle(activity)
     }
 
     /**
-     * Ek chhota icon-only toggle button ko current mode ke hisaab se sun/moon icon set
-     * karta hai aur click par mode switch karta hai. Telegram-style circular theme reveal
-     * transition centrally yahin implement kiya gaya hai taaki har screen ko automatically
-     * smooth circular reveal transition mil jaye.
+     * Helper to trigger circular reveal from an anchor view.
      */
+    fun toggleWithCircularReveal(anchorView: View) {
+        if (transitioning) return
+        val loc = IntArray(2)
+        anchorView.getLocationInWindow(loc)
+        val cx = loc[0] + anchorView.width / 2
+        val cy = loc[1] + anchorView.height / 2
+        val activity = findActivity(anchorView.context) ?: return
+        toggleWithCircularReveal(activity, cx, cy)
+    }
+
+    /** Backward compatibility alias */
+    fun toggleWithReveal(context: Context, anchorView: View) {
+        toggleWithCircularReveal(anchorView)
+    }
+
+    private fun triggerCircularReveal(activity: Activity) {
+        val bitmap = pendingBitmap ?: return
+        val cx = pendingOriginX
+        val cy = pendingOriginY
+
+        val decorView = activity.window.decorView as? ViewGroup ?: run {
+            cleanupPending()
+            return
+        }
+
+        // Disable touches while reveal animation is running
+        activity.window.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        )
+
+        val overlayView = CircularRevealOverlayView(activity, bitmap, cx, cy) {
+            decorView.removeView(activeOverlay)
+            activity.window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+            activeOverlay = null
+            cleanupPending()
+        }
+        activeOverlay = overlayView
+        decorView.addView(overlayView)
+
+        decorView.post {
+            if (activity.isFinishing || activity.isDestroyed) {
+                cleanupPending()
+                return@post
+            }
+            overlayView.startAnimation()
+        }
+    }
+
     fun setupToggleButton(context: Context, button: ImageButton) {
         val activity = findActivity(button.context) ?: findActivity(context)
         activity?.application?.let { ensureLifecycleRegistered(it) }
@@ -222,76 +256,86 @@ object ThemeManager {
             if (isDarkMode(context)) R.string.theme_toggle_to_light else R.string.theme_toggle_to_dark
         )
         button.setOnClickListener {
-            button.setImageResource(if (!isDarkMode(context)) R.drawable.ic_moon else R.drawable.ic_sun)
-            toggleWithReveal(context, button)
+            toggleWithCircularReveal(button)
         }
     }
 
     /**
-     * Triggers theme toggle with a circular reveal expanding/collapsing from the specified
-     * anchor View (e.g. toggle button or three-dot menu button).
+     * Overlay view that displays the old theme snapshot and cuts a smooth circular hole
+     * expanding from (cx, cy) to reveal the new theme directly underneath.
      */
-    fun toggleWithReveal(context: Context, anchorView: View) {
-        if (isTransitioning) return
+    private class CircularRevealOverlayView(
+        context: Context,
+        private val bitmap: Bitmap,
+        private val cx: Int,
+        private val cy: Int,
+        private val onComplete: () -> Unit
+    ) : View(context) {
 
-        val currentActivity = findActivity(anchorView.context) ?: findActivity(context)
-        if (currentActivity == null) {
-            toggle(context)
-            return
-        }
+        private var currentRadius: Float = 0f
+        private val clipPath = Path()
+        private var animator: ValueAnimator? = null
 
-        val decorView = currentActivity.window.decorView as? ViewGroup
-        if (decorView == null || decorView.width <= 0 || decorView.height <= 0) {
-            toggle(context)
-            return
-        }
-
-        // Capture exact anchor center relative to decorView
-        val anchorLoc = IntArray(2)
-        anchorView.getLocationInWindow(anchorLoc)
-        val decorLoc = IntArray(2)
-        decorView.getLocationInWindow(decorLoc)
-        val cx = (anchorLoc[0] - decorLoc[0]) + anchorView.width / 2
-        val cy = (anchorLoc[1] - decorLoc[1]) + anchorView.height / 2
-
-        // Capture current screen as Bitmap screenshot
-        val bitmap = try {
-            val bmp = Bitmap.createBitmap(decorView.width, decorView.height, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(bmp)
-            decorView.draw(canvas)
-            bmp
-        } catch (e: OutOfMemoryError) {
-            null
-        } catch (e: Exception) {
-            null
-        }
-
-        if (bitmap == null) {
-            toggle(context)
-            return
-        }
-
-        isTransitioning = true
-        pendingBitmap = bitmap
-        pendingOriginX = cx
-        pendingOriginY = cy
-        pendingActivityClass = currentActivity.javaClass
-
-        // Add overlay to current screen immediately so no jump/glitch occurs before recreate
-        val oldOverlay = ImageView(currentActivity).apply {
-            setImageBitmap(bitmap)
-            scaleType = ImageView.ScaleType.FIT_XY
+        init {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
         }
-        decorView.addView(oldOverlay)
 
-        // Suppress default activity recreate crossfade
-        currentActivity.overridePendingTransition(0, 0)
+        fun startAnimation() {
+            val w = width.toFloat()
+            val h = height.toFloat()
+            if (w <= 0f || h <= 0f) {
+                post { startAnimation() }
+                return
+            }
 
-        // Call existing toggle() function
-        toggle(context)
+            // Dynamically calculate distance to the farthest of the 4 screen corners
+            val maxRadius = Math.hypot(
+                Math.max(cx.toDouble(), (w - cx).toDouble()),
+                Math.max(cy.toDouble(), (h - cy).toDouble())
+            ).toFloat().coerceAtLeast(1f)
+
+            animator = ValueAnimator.ofFloat(0f, maxRadius).apply {
+                duration = 400
+                interpolator = DecelerateInterpolator()
+                addUpdateListener { va ->
+                    currentRadius = va.animatedValue as Float
+                    invalidate()
+                }
+                addListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        onComplete()
+                    }
+                })
+                start()
+            }
+        }
+
+        override fun onDraw(canvas: Canvas) {
+            if (bitmap.isRecycled) return
+
+            if (currentRadius <= 0f) {
+                // Circle has not expanded yet; draw full old snapshot
+                canvas.drawBitmap(bitmap, 0f, 0f, null)
+            } else {
+                // Cut expanding hole using EVEN_ODD fill
+                clipPath.reset()
+                clipPath.fillType = Path.FillType.EVEN_ODD
+                clipPath.addRect(0f, 0f, width.toFloat(), height.toFloat(), Path.Direction.CW)
+                clipPath.addCircle(cx.toFloat(), cy.toFloat(), currentRadius, Path.Direction.CW)
+
+                canvas.save()
+                canvas.clipPath(clipPath)
+                canvas.drawBitmap(bitmap, 0f, 0f, null)
+                canvas.restore()
+            }
+        }
+
+        fun cancelAnimation() {
+            animator?.cancel()
+            animator = null
+        }
     }
 }

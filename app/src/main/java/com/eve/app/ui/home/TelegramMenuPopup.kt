@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
@@ -14,7 +15,7 @@ import com.eve.app.util.ThemeManager
 
 class TelegramMenuPopup(
     private val context: Context,
-    private val onThemeToggle: () -> Unit,
+    private val onThemeToggle: (originX: Int, originY: Int) -> Unit,
     private val onHistory: () -> Unit,
     private val onPerformance: () -> Unit,
     private val onTopic: () -> Unit,
@@ -27,6 +28,8 @@ class TelegramMenuPopup(
     private val binding: PopupTelegramMenuBinding =
         PopupTelegramMenuBinding.inflate(LayoutInflater.from(context))
     private var isDismissing = false
+    private var lastTouchX = 0f
+    private var lastTouchY = 0f
 
     init {
         contentView = binding.root
@@ -53,10 +56,25 @@ class TelegramMenuPopup(
     }
 
     private fun setupListeners() {
+        binding.cardTheme.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_DOWN || event.action == MotionEvent.ACTION_UP) {
+                lastTouchX = event.rawX
+                lastTouchY = event.rawY
+            }
+            false
+        }
         binding.cardTheme.setOnClickListener {
+            if (ThemeManager.isTransitioning) return@setOnClickListener
             val isDark = ThemeManager.isDarkMode(context)
             binding.ivThemeIcon.setImageResource(if (isDark) R.drawable.ic_moon else R.drawable.ic_sun)
-            dismissWithAction { onThemeToggle() }
+
+            val loc = IntArray(2)
+            binding.cardTheme.getLocationInWindow(loc)
+            val cx = if (lastTouchX > 0f) lastTouchX.toInt() else (loc[0] + binding.cardTheme.width / 2)
+            val cy = if (lastTouchY > 0f) lastTouchY.toInt() else (loc[1] + binding.cardTheme.height / 2)
+
+            super.dismiss()
+            onThemeToggle(cx, cy)
         }
         binding.menuRowHistory.setOnClickListener {
             dismissWithAction { onHistory() }

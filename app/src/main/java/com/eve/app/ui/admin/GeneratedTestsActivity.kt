@@ -29,8 +29,11 @@ class GeneratedTestsActivity : AppCompatActivity() {
         }
     )
 
+    private var hasEmptyPlayed = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
         binding = ActivityGeneratedTestsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -43,6 +46,11 @@ class GeneratedTestsActivity : AppCompatActivity() {
         loadTests()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("key_empty_played", hasEmptyPlayed)
+    }
+
     private fun loadTests() {
         binding.progressBar.visibility = View.VISIBLE
         lifecycleScope.launch {
@@ -50,7 +58,16 @@ class GeneratedTestsActivity : AppCompatActivity() {
                 val tests = examRepo.getGeneratedTests()
                 binding.progressBar.visibility = View.GONE
                 adapter.submit(tests)
-                binding.emptyGroup.visibility = if (tests.isEmpty()) View.VISIBLE else View.GONE
+                val empty = tests.isEmpty()
+                binding.emptyGroup.visibility = if (empty) View.VISIBLE else View.GONE
+                if (empty) {
+                    hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(
+                        binding.lottieEmpty,
+                        hasEmptyPlayed
+                    )
+                } else {
+                    hasEmptyPlayed = false
+                }
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
                 Toast.makeText(
