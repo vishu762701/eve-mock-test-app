@@ -54,17 +54,9 @@ class TelegramMenuPopup(
 
     private fun setupListeners() {
         binding.cardTheme.setOnClickListener {
-            binding.ivThemeIcon.animate()
-                .rotationBy(360f)
-                .scaleX(0.75f)
-                .scaleY(0.75f)
-                .setDuration(180)
-                .withEndAction {
-                    binding.ivThemeIcon.scaleX = 1f
-                    binding.ivThemeIcon.scaleY = 1f
-                    dismissWithAction { onThemeToggle() }
-                }
-                .start()
+            val isDark = ThemeManager.isDarkMode(context)
+            binding.ivThemeIcon.setImageResource(if (isDark) R.drawable.ic_moon else R.drawable.ic_sun)
+            dismissWithAction { onThemeToggle() }
         }
         binding.menuRowHistory.setOnClickListener {
             dismissWithAction { onHistory() }

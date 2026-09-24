@@ -36,6 +36,10 @@ import com.eve.app.ui.profile.ProfileActivity
 import com.eve.app.ui.pyq.PyqActivity
 import com.eve.app.ui.syllabus.SyllabusActivity
 import com.eve.app.ui.test.TestActivity
+import com.eve.app.data.model.Poll
+import com.eve.app.data.repository.PollRepository
+import com.eve.app.databinding.ItemPollOptionResultBinding
+import android.view.LayoutInflater
 import com.eve.app.util.Constants
 import com.eve.app.util.CrashlyticsHelper
 import com.eve.app.util.NetworkUtil
@@ -55,8 +59,13 @@ import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import android.widget.ProgressBar
+import android.widget.TextView
+import android.widget.Toast
 
 class MainActivity : AppCompatActivity() {
+
+    private val pollRepository = PollRepository()
 
     private lateinit var binding: ActivityMainBinding
     private val viewModel: HomeViewModel by viewModels()
@@ -282,6 +291,13 @@ class MainActivity : AppCompatActivity() {
             binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
             binding.rvExams.visibility = if (empty) View.GONE else View.VISIBLE
             binding.chipGroupCategory.visibility = if (isSearchActive) View.GONE else View.VISIBLE
+            if (empty) {
+                binding.ivMessageIcon.setAnimation(R.raw.no_files)
+                binding.ivMessageIcon.playAnimation()
+                binding.tvMessage.text = "No exams available"
+                binding.tvMessageSub.text = "Exams added by admin will appear here"
+                binding.btnRetry.visibility = View.GONE
+            }
         } else {
             binding.chipGroupCategory.visibility = View.GONE
             val filtered = lastLoadedItems.filterIsInstance<HomeListItem.ExamRow>()
@@ -291,7 +307,7 @@ class MainActivity : AppCompatActivity() {
             binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
             binding.rvExams.visibility = if (empty) View.GONE else View.VISIBLE
             if (empty) {
-                binding.ivMessageIcon.setAnimation(R.raw.error_404)
+                binding.ivMessageIcon.setAnimation(R.raw.no_files)
                 binding.ivMessageIcon.playAnimation()
                 binding.tvMessage.text = "No exams found"
                 binding.tvMessageSub.text = "Try a different search query"
@@ -337,6 +353,111 @@ class MainActivity : AppCompatActivity() {
             FirebaseAuth.getInstance().currentUser?.let { loadProfilePhoto(it) }
             updateNotificationDot()
             setupNotificationBell()
+            loadActivePoll()
+        }
+    }
+
+    private fun loadActivePoll() {
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user == null) {
+            binding.cardPoll.visibility = View.GONE
+            return
+        }
+
+        lifecycleScope.launch {
+            try {
+                val poll = pollRepository.getActivePoll()
+                if (poll == null) {
+                    binding.cardPoll.visibility = View.GONE
+                    return@launch
+                }
+
+                binding.cardPoll.visibility = View.VISIBLE
+                binding.tvHomePollQuestion.text = poll.question
+                binding.tvHomePollTotalVotes.text = "${poll.totalVotes} total votes"
+                binding.tvHomePollStatus.text = if (poll.isCurrentlyActive) "Active" else "Closed"
+
+                val myVote = pollRepository.getUserVote(poll.id, user.uid)
+                if (myVote != null || !poll.isCurrentlyActive) {
+                    binding.rgHomePollOptions.visibility = View.GONE
+                    binding.btnSubmitHomeVote.visibility = View.GONE
+                    binding.layoutHomePollResults.visibility = View.VISIBLE
+                    renderHomePollResults(poll, myVote)
+                } else {
+                    binding.layoutHomePollResults.visibility = View.GONE
+                    binding.rgHomePollOptions.visibility = View.VISIBLE
+                    binding.btnSubmitHomeVote.visibility = View.VISIBLE
+                    setupHomePollVoting(poll, user.uid)
+                }
+            } catch (e: Exception) {
+                binding.cardPoll.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun setupHomePollVoting(poll: Poll, uid: String) {
+        binding.rgHomePollOptions.removeAllViews()
+        poll.options.forEachIndexed { index, optionText ->
+            val rb = com.google.android.material.radiobutton.MaterialRadioButton(this).apply {
+                id = View.generateViewId()
+                text = optionText
+                tag = index
+                textSize = 13f
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.eve_text))
+            }
+            binding.rgHomePollOptions.addView(rb)
+        }
+
+        binding.btnSubmitHomeVote.isEnabled = true
+        binding.btnSubmitHomeVote.setOnClickListener {
+            val checkedId = binding.rgHomePollOptions.checkedRadioButtonId
+            if (checkedId == -1) {
+                Toast.makeText(this, "Please select an option to vote", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val checkedRb = binding.rgHomePollOptions.findViewById<View>(checkedId)
+            val selectedOptionIndex = checkedRb.tag as? Int ?: 0
+
+            binding.btnSubmitHomeVote.isEnabled = false
+            lifecycleScope.launch {
+                try {
+                    pollRepository.submitVote(poll.id, uid, selectedOptionIndex)
+                    Toast.makeText(this@MainActivity, "Vote recorded!", Toast.LENGTH_SHORT).show()
+                    loadActivePoll()
+                } catch (e: Exception) {
+                    binding.btnSubmitHomeVote.isEnabled = true
+                    Toast.makeText(this@MainActivity, "Failed to vote: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun renderHomePollResults(poll: Poll, myVote: Int?) {
+        binding.layoutHomePollResults.removeAllViews()
+        val inflater = LayoutInflater.from(this)
+
+        poll.options.forEachIndexed { index, optionText ->
+            val rowView = inflater.inflate(R.layout.item_poll_option_result, binding.layoutHomePollResults, false)
+            val tvTitle = rowView.findViewById<TextView>(R.id.tvOptionTitle)
+            val tvPercent = rowView.findViewById<TextView>(R.id.tvOptionPercent)
+            val pbOption = rowView.findViewById<ProgressBar>(R.id.pbOption)
+            val tvVotes = rowView.findViewById<TextView>(R.id.tvOptionVotes)
+
+            val votes = poll.getVotesForOption(index)
+            val percent = poll.getPercentageForOption(index)
+
+            val isMyChoice = (myVote == index)
+            tvTitle.text = if (isMyChoice) "$optionText  ✓ (Your vote)" else optionText
+            if (isMyChoice) {
+                tvTitle.setTextColor(ContextCompat.getColor(this, R.color.eve_primary))
+                tvTitle.setTypeface(null, android.graphics.Typeface.BOLD)
+            }
+
+            tvPercent.text = "$percent%"
+            pbOption.progress = percent
+            tvVotes.text = "$votes votes"
+
+            binding.layoutHomePollResults.addView(rowView)
         }
     }
 

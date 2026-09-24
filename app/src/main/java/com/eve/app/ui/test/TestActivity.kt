@@ -151,7 +151,7 @@ class TestActivity : AppCompatActivity() {
                 if (list.isEmpty()) {
                     binding.messageGroup.visibility = View.VISIBLE
                     binding.btnRetry.visibility = View.GONE
-                    binding.ivMessageIcon.setAnimation(com.eve.app.R.raw.error_404)
+                    binding.ivMessageIcon.setAnimation(com.eve.app.R.raw.no_files)
                     binding.ivMessageIcon.playAnimation()
                     binding.tvMessage.text = when {
                         pyqYear > 0 -> "No PYQs found for this year or paper"

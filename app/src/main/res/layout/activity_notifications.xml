@@ -59,11 +59,11 @@
             android:visibility="gone">
 
             <com.airbnb.lottie.LottieAnimationView
-                android:layout_width="160dp"
-                android:layout_height="160dp"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
                 app:lottie_autoPlay="true"
                 app:lottie_loop="true"
-                app:lottie_rawRes="@raw/error_404" />
+                app:lottie_rawRes="@raw/no_files" />
 
             <TextView
                 android:layout_width="wrap_content"

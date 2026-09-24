@@ -135,6 +135,14 @@
                 android:layout_marginTop="10dp"
                 android:text="🤖 AI Generated Tests" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPolls"
+                style="@style/Widget.Eve.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="🗳️ Polls" />
+
             <!-- Add Exam Section -->
             <TextView
                 android:layout_width="wrap_content"

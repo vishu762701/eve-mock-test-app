@@ -147,5 +147,23 @@ service cloud.firestore {
     match /admin_analytics_exam_users/{markerId} {
       allow read, write: if false;
     }
+
+    // Community Polls: signed-in users can read; only admins can create, delete, or manage polls.
+    // Signed-in users can only update voteCounts during an atomic vote submission.
+    match /polls/{pollId} {
+      allow read: if isSignedIn();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || (
+        isSignedIn() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['voteCounts'])
+      );
+
+      // Single vote enforcement: user can only create their own vote doc once, never update or delete.
+      match /votes/{uid} {
+        allow read: if isSignedIn();
+        allow create: if isSignedIn() && request.auth.uid == uid;
+        allow update, delete: if false;
+      }
+    }
   }
 }

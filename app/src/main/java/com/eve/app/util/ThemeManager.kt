@@ -222,18 +222,8 @@ object ThemeManager {
             if (isDarkMode(context)) R.string.theme_toggle_to_light else R.string.theme_toggle_to_dark
         )
         button.setOnClickListener {
-            // Animate sun/moon rotation and scale
-            button.animate()
-                .rotationBy(360f)
-                .scaleX(0.75f)
-                .scaleY(0.75f)
-                .setDuration(180)
-                .withEndAction {
-                    button.scaleX = 1f
-                    button.scaleY = 1f
-                    toggleWithReveal(context, button)
-                }
-                .start()
+            button.setImageResource(if (!isDarkMode(context)) R.drawable.ic_moon else R.drawable.ic_sun)
+            toggleWithReveal(context, button)
         }
     }
 

@@ -79,7 +79,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="History load ho rahi hai…"
+                android:text="Loading history…"
                 android:textColor="@color/eve_grey"
                 android:textSize="13sp" />
         </LinearLayout>

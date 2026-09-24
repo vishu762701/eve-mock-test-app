@@ -66,7 +66,7 @@ class HistoryActivity : AppCompatActivity() {
                 val empty = state.data.isEmpty()
                 binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
                 if (empty) {
-                    binding.ivMessageIcon.setAnimation(R.raw.error_404)
+                    binding.ivMessageIcon.setAnimation(R.raw.no_files)
                     binding.ivMessageIcon.playAnimation()
                     binding.tvMessage.text = "No test attempts yet"
                     binding.tvMessageSub.text = "Submitted tests will appear here"

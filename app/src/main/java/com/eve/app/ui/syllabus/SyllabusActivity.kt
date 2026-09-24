@@ -129,6 +129,7 @@ class SyllabusActivity : AppCompatActivity() {
     private fun loadExams() {
         binding.progressBar.visibility = View.VISIBLE
         binding.errorStateView.hide()
+        binding.emptyStateView.hide()
 
         lifecycleScope.launch {
             try {
@@ -139,6 +140,7 @@ class SyllabusActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
                 binding.swipeRefresh.isRefreshing = false
+                binding.emptyStateView.hide()
                 binding.errorStateView.show(
                     type = ErrorStateView.ErrorType.SERVER_ERROR,
                     customMessage = "Failed to load syllabi. ${e.localizedMessage.orEmpty()}",
@@ -158,21 +160,21 @@ class SyllabusActivity : AppCompatActivity() {
         adapter.submitList(filtered)
 
         if (filtered.isEmpty()) {
+            binding.errorStateView.hide()
             if (trimmed.isNotBlank()) {
-                binding.errorStateView.show(
-                    type = ErrorStateView.ErrorType.EMPTY_DATA,
-                    customTitle = "No Results",
-                    customMessage = "No exam syllabus matches \"$query\"."
+                binding.emptyStateView.show(
+                    title = "No Results",
+                    message = "No exam syllabus matches \"$query\"."
                 )
             } else {
-                binding.errorStateView.show(
-                    type = ErrorStateView.ErrorType.EMPTY_DATA,
-                    customTitle = "No Syllabi Available",
-                    customMessage = "There are no exam syllabi published yet."
+                binding.emptyStateView.show(
+                    title = "No Syllabi Available",
+                    message = "There are no exam syllabi published yet."
                 )
             }
         } else {
             binding.errorStateView.hide()
+            binding.emptyStateView.hide()
         }
     }
 

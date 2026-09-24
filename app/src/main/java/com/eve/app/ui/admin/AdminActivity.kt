@@ -97,6 +97,9 @@ class AdminActivity : AppCompatActivity() {
         binding.btnGeneratedTests.setOnClickListener {
             startActivity(Intent(this, GeneratedTestsActivity::class.java))
         }
+        binding.btnPolls.setOnClickListener {
+            startActivity(Intent(this, ManagePollsActivity::class.java))
+        }
         binding.btnRefreshStats.setOnClickListener { viewModel.loadUserStats() }
 
         lifecycleScope.launch {

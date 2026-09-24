@@ -86,5 +86,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone" />
+
+        <com.eve.app.ui.common.EmptyStateView
+            android:id="@+id/emptyStateView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
     </FrameLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

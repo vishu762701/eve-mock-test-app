@@ -78,7 +78,7 @@ class LeaderboardActivity : AppCompatActivity() {
                 val empty = state.data.isEmpty()
                 binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
                 if (empty) {
-                    binding.ivMessageIcon.setAnimation(R.raw.error_404)
+                    binding.ivMessageIcon.setAnimation(R.raw.no_files)
                     binding.ivMessageIcon.playAnimation()
                     binding.tvMessage.text = if (examId == "overall") "No overall scores yet" else "No scores recorded yet"
                     binding.tvMessageSub.text = if (examId == "overall") "Complete any test to see overall rankings here" else "Rankings will appear after the first attempt is submitted"

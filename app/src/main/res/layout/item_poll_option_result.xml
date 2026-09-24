@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="4dp"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvOptionTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/poppins_medium"
+            android:textColor="@color/eve_text"
+            android:textSize="13sp"
+            tools:text="Option 1" />
+
+        <TextView
+            android:id="@+id/tvOptionPercent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_semibold"
+            android:textColor="@color/eve_primary"
+            android:textSize="13sp"
+            tools:text="45%" />
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/pbOption"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_marginTop="4dp"
+        android:max="100"
+        android:progressDrawable="@drawable/bg_poll_progress"
+        tools:progress="45" />
+
+    <TextView
+        android:id="@+id/tvOptionVotes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:fontFamily="@font/poppins"
+        android:textColor="@color/eve_text_secondary"
+        android:textSize="11sp"
+        tools:text="23 votes" />
+</LinearLayout>

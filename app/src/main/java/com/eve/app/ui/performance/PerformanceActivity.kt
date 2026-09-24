@@ -62,7 +62,7 @@ class PerformanceActivity : AppCompatActivity() {
                 if (data.totalAttempts == 0) {
                     binding.contentGroup.visibility = View.GONE
                     binding.messageGroup.visibility = View.VISIBLE
-                    binding.ivMessageIcon.setAnimation(R.raw.error_404)
+                    binding.ivMessageIcon.setAnimation(R.raw.no_files)
                     binding.ivMessageIcon.playAnimation()
                     binding.tvMessage.text = "No insights available yet"
                     binding.tvMessageSub.text =
