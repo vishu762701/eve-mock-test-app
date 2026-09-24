@@ -66,7 +66,8 @@ class HistoryActivity : AppCompatActivity() {
                 val empty = state.data.isEmpty()
                 binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
                 if (empty) {
-                    binding.ivMessageIcon.setImageResource(R.drawable.ic_state_empty)
+                    binding.ivMessageIcon.setAnimation(R.raw.error_404)
+                    binding.ivMessageIcon.playAnimation()
                     binding.tvMessage.text = "No test attempts yet"
                     binding.tvMessageSub.text = "Submitted tests will appear here"
                 }
@@ -75,7 +76,8 @@ class HistoryActivity : AppCompatActivity() {
                 binding.progressGroup.visibility = View.GONE
                 binding.messageGroup.visibility = View.VISIBLE
                 binding.btnRetry.visibility = View.VISIBLE
-                binding.ivMessageIcon.setImageResource(R.drawable.ic_state_error)
+                binding.ivMessageIcon.setAnimation(R.raw.error_404)
+                binding.ivMessageIcon.playAnimation()
                 if (NetworkUtil.isOnline(this)) {
                     binding.tvMessage.text = "Something went wrong"
                     binding.tvMessageSub.text = state.message

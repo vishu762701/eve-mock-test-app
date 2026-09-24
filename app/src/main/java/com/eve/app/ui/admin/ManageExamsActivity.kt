@@ -52,6 +52,7 @@ class ManageExamsActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.btnBack.setOnClickListener { handleBack() }
+        binding.compactErrorView.displayMode = com.eve.app.ui.common.ErrorStateView.DisplayMode.COMPACT
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -135,9 +136,14 @@ class ManageExamsActivity : AppCompatActivity() {
                     // Only + Add new exam option
                     switchExam(0)
                 }
+                binding.compactErrorView.hide()
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
-                Toast.makeText(this@ManageExamsActivity, "Failed to load exams: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                binding.compactErrorView.show(
+                    type = com.eve.app.ui.common.ErrorStateView.ErrorType.SERVER_ERROR,
+                    customMessage = "Failed to load exams: ${e.localizedMessage}",
+                    onRetry = { loadExams() }
+                )
             }
         }
     }
@@ -338,12 +344,16 @@ class ManageExamsActivity : AppCompatActivity() {
 
                         binding.btnGenerateNow.isEnabled = true
                         binding.progressBar.visibility = View.GONE
+                        binding.compactErrorView.hide()
                         Toast.makeText(this@ManageExamsActivity, "Test generation complete! Check Generated Tests.", Toast.LENGTH_LONG).show()
                         loadExams()
                     } catch (e: Exception) {
                         binding.btnGenerateNow.isEnabled = true
                         binding.progressBar.visibility = View.GONE
-                        Toast.makeText(this@ManageExamsActivity, "Generation failed: ${e.localizedMessage ?: "Unknown error"}", Toast.LENGTH_LONG).show()
+                        binding.compactErrorView.show(
+                            type = com.eve.app.ui.common.ErrorStateView.ErrorType.SERVER_ERROR,
+                            customMessage = "Generation failed: ${e.localizedMessage ?: "Unknown error"}"
+                        )
                     }
                 }
             }
@@ -439,12 +449,16 @@ class ManageExamsActivity : AppCompatActivity() {
                 initialExam = getCurrentFormAsExam()
                 binding.btnSave.isEnabled = true
                 binding.progressBar.visibility = View.GONE
+                binding.compactErrorView.hide()
                 loadExams()
                 onSuccess?.invoke()
             } catch (e: Exception) {
                 binding.btnSave.isEnabled = true
                 binding.progressBar.visibility = View.GONE
-                Toast.makeText(this@ManageExamsActivity, "Failed to save: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                binding.compactErrorView.show(
+                    type = com.eve.app.ui.common.ErrorStateView.ErrorType.SERVER_ERROR,
+                    customMessage = "Failed to save: ${e.localizedMessage}"
+                )
             }
         }
     }

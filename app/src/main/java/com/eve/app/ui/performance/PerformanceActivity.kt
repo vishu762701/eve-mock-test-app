@@ -62,7 +62,8 @@ class PerformanceActivity : AppCompatActivity() {
                 if (data.totalAttempts == 0) {
                     binding.contentGroup.visibility = View.GONE
                     binding.messageGroup.visibility = View.VISIBLE
-                    binding.ivMessageIcon.setImageResource(R.drawable.ic_state_empty)
+                    binding.ivMessageIcon.setAnimation(R.raw.error_404)
+                    binding.ivMessageIcon.playAnimation()
                     binding.tvMessage.text = "No insights available yet"
                     binding.tvMessageSub.text =
                         "Your performance insights will appear here after you submit a test"
@@ -77,7 +78,8 @@ class PerformanceActivity : AppCompatActivity() {
                 binding.contentGroup.visibility = View.GONE
                 binding.messageGroup.visibility = View.VISIBLE
                 binding.btnRetry.visibility = View.VISIBLE
-                binding.ivMessageIcon.setImageResource(R.drawable.ic_state_error)
+                binding.ivMessageIcon.setAnimation(R.raw.error_404)
+                binding.ivMessageIcon.playAnimation()
                 binding.tvMessage.text = "Something went wrong"
                 binding.tvMessageSub.text = state.message
             }

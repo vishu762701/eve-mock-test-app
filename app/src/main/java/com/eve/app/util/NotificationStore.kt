@@ -44,6 +44,9 @@ object NotificationStore {
         for (i in 0 until minOf(newArray.length(), MAX_STORED)) trimmed.put(newArray.get(i))
 
         prefs.edit().putString(KEY_NOTIFICATIONS, trimmed.toString()).apply()
+        try {
+            context.sendBroadcast(android.content.Intent("com.eve.app.NOTIFICATION_RECEIVED").setPackage(context.packageName))
+        } catch (_: Exception) { }
     }
 
     fun getAll(context: Context): List<StoredNotification> {

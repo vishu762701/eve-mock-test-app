@@ -54,7 +54,17 @@ class TelegramMenuPopup(
 
     private fun setupListeners() {
         binding.cardTheme.setOnClickListener {
-            dismissWithAction { onThemeToggle() }
+            binding.ivThemeIcon.animate()
+                .rotationBy(360f)
+                .scaleX(0.75f)
+                .scaleY(0.75f)
+                .setDuration(180)
+                .withEndAction {
+                    binding.ivThemeIcon.scaleX = 1f
+                    binding.ivThemeIcon.scaleY = 1f
+                    dismissWithAction { onThemeToggle() }
+                }
+                .start()
         }
         binding.menuRowHistory.setOnClickListener {
             dismissWithAction { onHistory() }

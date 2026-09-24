@@ -150,11 +150,13 @@
             android:padding="24dp"
             android:visibility="gone">
 
-            <ImageView
+            <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/ivMessageIcon"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:src="@drawable/ic_state_empty" />
+                android:layout_width="160dp"
+                android:layout_height="160dp"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                app:lottie_rawRes="@raw/error_404" />
 
             <TextView
                 android:id="@+id/tvMessage"

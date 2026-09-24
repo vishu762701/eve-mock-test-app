@@ -5,8 +5,8 @@
         <item name="colorOnSurface">@color/eve_text</item><item name="colorOutline">@color/eve_stroke</item>
         <item name="android:windowBackground">@color/eve_bg</item><item name="android:statusBarColor">@color/eve_bg</item>
         <item name="android:navigationBarColor">@color/eve_bg</item><item name="android:windowLightStatusBar">true</item>
-        <item name="android:fontFamily">@font/poppins</item>
-        <item name="fontFamily">@font/poppins</item>
+        <item name="android:fontFamily">@font/source_serif_4</item>
+        <item name="fontFamily">@font/source_serif_4</item>
         <item name="materialButtonStyle">@style/Widget.Eve.Button</item>
         <item name="materialCardViewStyle">@style/Widget.Eve.Card</item>
         <!-- Phase 25: Telegram-style push/pop screen transition, app-wide (koi per-Activity

@@ -133,7 +133,8 @@ class TestActivity : AppCompatActivity() {
                 binding.progressGroup.visibility = View.GONE
                 binding.messageGroup.visibility = View.VISIBLE
                 binding.btnRetry.visibility = View.VISIBLE
-                binding.ivMessageIcon.setImageResource(com.eve.app.R.drawable.ic_state_error)
+                binding.ivMessageIcon.setAnimation(com.eve.app.R.raw.error_404)
+                binding.ivMessageIcon.playAnimation()
                 if (NetworkUtil.isOnline(this)) {
                     binding.tvMessage.text = "Something went wrong"
                     binding.tvMessageSub.text = state.message
@@ -150,7 +151,8 @@ class TestActivity : AppCompatActivity() {
                 if (list.isEmpty()) {
                     binding.messageGroup.visibility = View.VISIBLE
                     binding.btnRetry.visibility = View.GONE
-                    binding.ivMessageIcon.setImageResource(com.eve.app.R.drawable.ic_state_empty)
+                    binding.ivMessageIcon.setAnimation(com.eve.app.R.raw.error_404)
+                    binding.ivMessageIcon.playAnimation()
                     binding.tvMessage.text = when {
                         pyqYear > 0 -> "No PYQs found for this year or paper"
                         else -> "No questions found for this exam"

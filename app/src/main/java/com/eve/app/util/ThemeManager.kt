@@ -148,7 +148,13 @@ object ThemeManager {
             return
         }
 
-        // Add overlay immediately so the old theme is shown before first draw of the new theme
+        // Ignore taps during animation
+        activity.window.setFlags(
+            android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        )
+
+        // Add overlay behind the new content so circular reveal displays new theme expanding outwards
         val overlay = ImageView(activity).apply {
             setImageBitmap(bitmap)
             scaleType = ImageView.ScaleType.FIT_XY
@@ -157,12 +163,15 @@ object ThemeManager {
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
         }
-        decorView.addView(overlay)
+        val rootContent = decorView.findViewById<View>(android.R.id.content) ?: decorView.getChildAt(0) ?: decorView
+        decorView.addView(overlay, 0)
+        rootContent.bringToFront()
 
         decorView.post {
             if (activity.isFinishing || activity.isDestroyed) {
                 decorView.removeView(overlay)
                 if (!bitmap.isRecycled) bitmap.recycle()
+                activity.window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
                 isTransitioning = false
                 return@post
             }
@@ -175,13 +184,15 @@ object ThemeManager {
             ).toFloat().coerceAtLeast(1f)
 
             try {
-                val anim = ViewAnimationUtils.createCircularReveal(overlay, cx, cy, maxRadius, 0f)
-                anim.duration = 420
+                // Reveal circle starts at toggle point in both directions (light->dark & dark->light)
+                val anim = ViewAnimationUtils.createCircularReveal(rootContent, cx, cy, 0f, maxRadius)
+                anim.duration = 400
                 anim.interpolator = AccelerateDecelerateInterpolator()
                 anim.addListener(object : AnimatorListenerAdapter() {
                     override fun onAnimationEnd(animation: Animator) {
                         decorView.removeView(overlay)
                         if (!bitmap.isRecycled) bitmap.recycle()
+                        activity.window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
                         isTransitioning = false
                     }
                 })
@@ -189,6 +200,7 @@ object ThemeManager {
             } catch (e: Exception) {
                 decorView.removeView(overlay)
                 if (!bitmap.isRecycled) bitmap.recycle()
+                activity.window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
                 isTransitioning = false
             }
         }
@@ -210,7 +222,18 @@ object ThemeManager {
             if (isDarkMode(context)) R.string.theme_toggle_to_light else R.string.theme_toggle_to_dark
         )
         button.setOnClickListener {
-            toggleWithReveal(context, button)
+            // Animate sun/moon rotation and scale
+            button.animate()
+                .rotationBy(360f)
+                .scaleX(0.75f)
+                .scaleY(0.75f)
+                .setDuration(180)
+                .withEndAction {
+                    button.scaleX = 1f
+                    button.scaleY = 1f
+                    toggleWithReveal(context, button)
+                }
+                .start()
         }
     }
 

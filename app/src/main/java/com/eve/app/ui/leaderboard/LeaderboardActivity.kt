@@ -78,7 +78,8 @@ class LeaderboardActivity : AppCompatActivity() {
                 val empty = state.data.isEmpty()
                 binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
                 if (empty) {
-                    binding.ivMessageIcon.setImageResource(R.drawable.ic_state_empty)
+                    binding.ivMessageIcon.setAnimation(R.raw.error_404)
+                    binding.ivMessageIcon.playAnimation()
                     binding.tvMessage.text = if (examId == "overall") "No overall scores yet" else "No scores recorded yet"
                     binding.tvMessageSub.text = if (examId == "overall") "Complete any test to see overall rankings here" else "Rankings will appear after the first attempt is submitted"
                 }
@@ -87,7 +88,8 @@ class LeaderboardActivity : AppCompatActivity() {
                 binding.progressGroup.visibility = View.GONE
                 binding.messageGroup.visibility = View.VISIBLE
                 binding.btnRetry.visibility = View.VISIBLE
-                binding.ivMessageIcon.setImageResource(R.drawable.ic_state_error)
+                binding.ivMessageIcon.setAnimation(R.raw.error_404)
+                binding.ivMessageIcon.playAnimation()
                 binding.tvMessage.text = "Something went wrong"
                 binding.tvMessageSub.text = state.message
             }

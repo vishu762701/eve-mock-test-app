@@ -373,8 +373,16 @@
         android:layout_height="wrap_content"
         android:background="@color/eve_surface"
         android:elevation="8dp"
+        android:orientation="vertical"
         android:paddingHorizontal="20dp"
         android:paddingVertical="12dp">
+
+        <com.eve.app.ui.common.ErrorStateView
+            android:id="@+id/compactErrorView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSave"

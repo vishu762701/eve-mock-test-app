@@ -1,8 +1,10 @@
 package com.eve.app.ui.home
 
 import android.Manifest
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -68,6 +70,13 @@ class MainActivity : AppCompatActivity() {
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* ignored */ }
 
+    private val foregroundNotificationReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            updateNotificationDot()
+            binding.btnNotification.playAnimation()
+        }
+    }
+
     private val adapter = ExamAdapter { exam ->
         startActivity(
             Intent(this, TestActivity::class.java)
@@ -92,10 +101,15 @@ class MainActivity : AppCompatActivity() {
 
         binding.tvWelcome.text = "Hi, ${user.displayName ?: "Student"}"
 
-        binding.btnNotification.setOnClickListener {
-            startActivity(Intent(this, NotificationsActivity::class.java))
-        }
+        setupNotificationBell()
         setupPushNotifications()
+
+        val notifFilter = IntentFilter("com.eve.app.NOTIFICATION_RECEIVED")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(foregroundNotificationReceiver, notifFilter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(foregroundNotificationReceiver, notifFilter)
+        }
 
         binding.ivProfile.setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
@@ -277,7 +291,8 @@ class MainActivity : AppCompatActivity() {
             binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
             binding.rvExams.visibility = if (empty) View.GONE else View.VISIBLE
             if (empty) {
-                binding.ivMessageIcon.setImageResource(R.drawable.ic_state_empty)
+                binding.ivMessageIcon.setAnimation(R.raw.error_404)
+                binding.ivMessageIcon.playAnimation()
                 binding.tvMessage.text = "No exams found"
                 binding.tvMessageSub.text = "Try a different search query"
                 binding.btnRetry.visibility = View.GONE
@@ -321,11 +336,37 @@ class MainActivity : AppCompatActivity() {
             }
             FirebaseAuth.getInstance().currentUser?.let { loadProfilePhoto(it) }
             updateNotificationDot()
+            setupNotificationBell()
         }
     }
 
     private fun updateNotificationDot() {
         binding.dotUnread.visibility = if (NotificationStore.hasUnread(this)) View.VISIBLE else View.GONE
+    }
+
+    private fun setupNotificationBell() {
+        val textColor = ContextCompat.getColor(this, R.color.eve_text)
+        binding.btnNotification.addValueCallback(
+            com.airbnb.lottie.model.KeyPath("**"),
+            com.airbnb.lottie.LottieProperty.COLOR_FILTER
+        ) {
+            android.graphics.PorterDuffColorFilter(textColor, android.graphics.PorterDuff.Mode.SRC_ATOP)
+        }
+        binding.btnNotification.frame = 0
+
+        binding.btnNotification.setOnClickListener {
+            binding.btnNotification.playAnimation()
+            binding.btnNotification.postDelayed({
+                startActivity(Intent(this, NotificationsActivity::class.java))
+            }, 350)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        try {
+            unregisterReceiver(foregroundNotificationReceiver)
+        } catch (_: Exception) { }
     }
 
     private fun loadProfilePhoto(user: com.google.firebase.auth.FirebaseUser) {
@@ -381,7 +422,8 @@ class MainActivity : AppCompatActivity() {
                 binding.progressGroup.visibility = View.GONE
                 binding.messageGroup.visibility = View.VISIBLE
                 binding.btnRetry.visibility = View.VISIBLE
-                binding.ivMessageIcon.setImageResource(R.drawable.ic_state_error)
+                binding.ivMessageIcon.setAnimation(R.raw.error_404)
+                binding.ivMessageIcon.playAnimation()
                 if (NetworkUtil.isOnline(this)) {
                     binding.tvMessage.text = "Something went wrong"
                     binding.tvMessageSub.text = state.message
