@@ -61,7 +61,7 @@ exports.notifyNewExam = onDocumentCreated("exams/{examId}", async (event) => {
     },
     android: {
       priority: "high",
-      notification: { channelId: "new_exam_channel" },
+      notification: { channelId: "new_exam_channel_v2" },
     },
   });
 });
@@ -470,7 +470,7 @@ exports.broadcastNotification = onDocumentCreated("notifications/{notificationId
       android: {
         priority: "high",
         notification: {
-          channelId: "new_exam_channel",
+          channelId: "new_exam_channel_v2",
         },
       },
     });
@@ -1069,3 +1069,80 @@ exports.triggerAiTestGeneration = onCall(
     }
   }
 );
+
+/**
+ * Task 3: User Can Delete Own Account
+ * Deletes all user data across Firestore collections and Firebase Auth.
+ */
+exports.deleteUserAccount = onCall(async (request) => {
+  if (!request.auth || !request.auth.uid) {
+    throw new HttpsError("unauthenticated", "User must be authenticated to delete account.");
+  }
+  const uid = request.auth.uid;
+  const db = getFirestore();
+
+  try {
+    // 1. Delete users/{uid} and subcollections (e.g. pinned_exams)
+    const userRef = db.collection("users").doc(uid);
+    const pinnedSnap = await userRef.collection("pinned_exams").get();
+    if (!pinnedSnap.empty) {
+      const b = db.batch();
+      pinnedSnap.docs.forEach((doc) => b.delete(doc.ref));
+      await b.commit();
+    }
+    await userRef.delete().catch(() => {});
+
+    // 2. Delete attempts
+    const attemptsSnap = await db.collection("attempts").where("userId", "==", uid).get();
+    for (let i = 0; i < attemptsSnap.docs.length; i += 400) {
+      const b = db.batch();
+      attemptsSnap.docs.slice(i, i + 400).forEach((doc) => b.delete(doc.ref));
+      await b.commit();
+    }
+
+    // 3. Delete attempt_locks
+    const locksSnap = await db.collection("attempt_locks").where("userId", "==", uid).get();
+    for (let i = 0; i < locksSnap.docs.length; i += 400) {
+      const b = db.batch();
+      locksSnap.docs.slice(i, i + 400).forEach((doc) => b.delete(doc.ref));
+      await b.commit();
+    }
+
+    // 4. Delete leaderboard entries
+    const lbSnap = await db.collection("leaderboard").where("userId", "==", uid).get();
+    for (let i = 0; i < lbSnap.docs.length; i += 400) {
+      const b = db.batch();
+      lbSnap.docs.slice(i, i + 400).forEach((doc) => b.delete(doc.ref));
+      await b.commit();
+    }
+
+    // 5. Delete overall_leaderboard entry
+    await db.collection("overall_leaderboard").doc(uid).delete().catch(() => {});
+
+    // 6. Delete feedback_messages
+    const fbSnap = await db.collection("feedback_messages").where("userId", "==", uid).get();
+    for (let i = 0; i < fbSnap.docs.length; i += 400) {
+      const b = db.batch();
+      fbSnap.docs.slice(i, i + 400).forEach((doc) => b.delete(doc.ref));
+      await b.commit();
+    }
+
+    // 7. Delete poll votes
+    const pollsSnap = await db.collection("polls").get();
+    for (const pollDoc of pollsSnap.docs) {
+      await pollDoc.ref.collection("votes").doc(uid).delete().catch(() => {});
+    }
+
+    // 8. Delete user from Firebase Auth
+    try {
+      await getAuth().deleteUser(uid);
+    } catch (authErr) {
+      console.warn(`[deleteUserAccount] Auth user deletion note: ${authErr.message}`);
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error(`[deleteUserAccount] Error for ${uid}:`, err);
+    throw new HttpsError("internal", err.message || "Failed to delete account data.");
+  }
+});

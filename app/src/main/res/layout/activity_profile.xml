@@ -154,7 +154,19 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
         android:layout_marginTop="4dp"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="8dp"
         android:text="About" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnDeleteAccount"
+        style="@style/Widget.Eve.Button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="24dp"
+        android:text="Delete Account"
+        android:textColor="@android:color/white"
+        app:backgroundTint="@color/eve_red" />
 
 </LinearLayout>

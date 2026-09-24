@@ -88,6 +88,11 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
       allow write: if isSignedIn() && request.auth.uid == userId;
+
+      // Pinned exams per user (Task 4)
+      match /pinned_exams/{examId} {
+        allow read, write: if isSignedIn() && request.auth.uid == userId;
+      }
     }
 
     // Leaderboard (per-exam top scorers)
@@ -164,6 +169,14 @@ service cloud.firestore {
         allow create: if isSignedIn() && request.auth.uid == uid;
         allow update, delete: if false;
       }
+    }
+
+    // Student Feedback Messages (Task 2): normal users create their own; only admins read/update/delete
+    match /feedback_messages/{messageId} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
   }
 }

@@ -1,11 +1,13 @@
 package com.eve.app.ui.admin
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -13,11 +15,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.eve.app.R
 import com.eve.app.data.model.Exam
 import com.eve.app.data.model.Question
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.databinding.ActivityAdminBinding
 import com.eve.app.util.Constants
+import com.eve.app.util.ExamImageHelper
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -28,6 +32,35 @@ class AdminActivity : AppCompatActivity() {
     private val adminRepo = AdminRepository()
 
     private var exams: List<Exam> = emptyList()
+    private var newExamImageBase64: String = ""
+    private var selectedExamForImageUpdate: Exam? = null
+
+    private val pickNewExamImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        if (uri != null) {
+            val base64 = ExamImageHelper.uriToBase64(this, uri)
+            if (base64 != null) {
+                newExamImageBase64 = base64
+                ExamImageHelper.loadExamImage(binding.ivNewExamImagePreview, base64)
+                binding.btnRemoveExamImage.visibility = View.VISIBLE
+            } else {
+                Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private val pickEditExamImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        val exam = selectedExamForImageUpdate ?: return@registerForActivityResult
+        if (uri != null) {
+            val base64 = ExamImageHelper.uriToBase64(this, uri)
+            if (base64 != null) {
+                viewModel.updateExamImage(exam.id, base64) {
+                    selectedExamForImageUpdate = null
+                }
+            } else {
+                Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     private val questionAdapter = QuestionManageAdapter(
         onEdit = { q -> showQuestionDetails(q) },
@@ -80,7 +113,14 @@ class AdminActivity : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
+        binding.btnChooseExamImage.setOnClickListener { pickNewExamImageLauncher.launch("image/*") }
+        binding.btnRemoveExamImage.setOnClickListener {
+            newExamImageBase64 = ""
+            binding.ivNewExamImagePreview.setImageResource(R.drawable.ic_exam_placeholder)
+            binding.btnRemoveExamImage.visibility = View.GONE
+        }
         binding.btnAddExam.setOnClickListener { addExam() }
+        binding.btnEditExamImage.setOnClickListener { showEditExamImageDialog() }
         binding.btnRenameExam.setOnClickListener { promptRenameExam() }
         binding.btnDeleteExam.setOnClickListener { confirmDeleteExam() }
         binding.btnAddAdmin.setOnClickListener { addAdmin() }
@@ -97,8 +137,11 @@ class AdminActivity : AppCompatActivity() {
         binding.btnGeneratedTests.setOnClickListener {
             startActivity(Intent(this, GeneratedTestsActivity::class.java))
         }
-        binding.btnPolls.setOnClickListener {
-            startActivity(Intent(this, ManagePollsActivity::class.java))
+        binding.btnFeedback.setOnClickListener {
+            startActivity(Intent(this, com.eve.app.ui.feedback.FeedbackActivity::class.java))
+        }
+        binding.btnFeedbackMessages.setOnClickListener {
+            startActivity(Intent(this, FeedbackMessagesActivity::class.java))
         }
         binding.btnRefreshStats.setOnClickListener { viewModel.loadUserStats() }
 
@@ -181,13 +224,47 @@ class AdminActivity : AppCompatActivity() {
             Toast.makeText(this, "An exam named '$name' already exists in category '$category'", Toast.LENGTH_LONG).show()
             return
         }
-        viewModel.addExam(name, minutes, category) {
+        viewModel.addExam(name, minutes, category, imageUrl = newExamImageBase64) {
             binding.etExamName.text?.clear()
             binding.etExamMinutes.text?.clear()
             binding.spCategory.setSelection(0)
             binding.etOtherCategory.text?.clear()
             binding.etOtherCategory.visibility = View.GONE
+            newExamImageBase64 = ""
+            binding.ivNewExamImagePreview.setImageResource(R.drawable.ic_exam_placeholder)
+            binding.btnRemoveExamImage.visibility = View.GONE
         }
+    }
+
+    private fun showEditExamImageDialog() {
+        val exam = exams.getOrNull(binding.spExam.selectedItemPosition)
+        if (exam == null) {
+            Toast.makeText(this, "Please select an exam first", Toast.LENGTH_SHORT).show()
+            return
+        }
+        selectedExamForImageUpdate = exam
+        val hasImage = exam.imageUrl.isNotBlank()
+        val options = if (hasImage) {
+            arrayOf("Change Image", "Remove Image")
+        } else {
+            arrayOf("Choose Image")
+        }
+        AlertDialog.Builder(this)
+            .setTitle("Exam Image: ${exam.examName}")
+            .setItems(options) { _, which ->
+                when (options[which]) {
+                    "Choose Image", "Change Image" -> {
+                        pickEditExamImageLauncher.launch("image/*")
+                    }
+                    "Remove Image" -> {
+                        viewModel.updateExamImage(exam.id, "") {
+                            selectedExamForImageUpdate = null
+                        }
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun promptRenameExam() {

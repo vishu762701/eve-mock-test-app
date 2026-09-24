@@ -13,17 +13,21 @@ import android.text.TextWatcher
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.R
+import com.eve.app.data.model.Exam
 import com.eve.app.data.repository.AdminRepository
+import com.eve.app.data.repository.FeedbackRepository
 import com.eve.app.databinding.ActivityMainBinding
 import com.eve.app.ui.admin.AdminActivity
 import com.eve.app.ui.history.HistoryActivity
@@ -36,10 +40,6 @@ import com.eve.app.ui.profile.ProfileActivity
 import com.eve.app.ui.pyq.PyqActivity
 import com.eve.app.ui.syllabus.SyllabusActivity
 import com.eve.app.ui.test.TestActivity
-import com.eve.app.data.model.Poll
-import com.eve.app.data.repository.PollRepository
-import com.eve.app.databinding.ItemPollOptionResultBinding
-import android.view.LayoutInflater
 import com.eve.app.util.Constants
 import com.eve.app.util.CrashlyticsHelper
 import com.eve.app.util.NetworkUtil
@@ -49,23 +49,21 @@ import com.eve.app.util.ProfilePhotoManager
 import com.eve.app.util.ReminderScheduler
 import com.eve.app.util.ThemeManager
 import com.eve.app.util.UiState
+import com.eve.app.util.VibrationHelper
 import com.eve.app.util.isHardcodedAdmin
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.material.chip.Chip
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import android.widget.ProgressBar
-import android.widget.TextView
-import android.widget.Toast
 
 class MainActivity : AppCompatActivity() {
 
-    private val pollRepository = PollRepository()
+    private val feedbackRepository = FeedbackRepository()
 
     private lateinit var binding: ActivityMainBinding
     private val viewModel: HomeViewModel by viewModels()
@@ -76,25 +74,36 @@ class MainActivity : AppCompatActivity() {
     private var lastLoadedItems: List<HomeListItem> = emptyList()
     private var searchDebounceJob: Job? = null
 
+    private var firestoreNotifRegistration: ListenerRegistration? = null
+
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* ignored */ }
 
     private val foregroundNotificationReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            updateNotificationDot()
+            val ctx = context ?: this@MainActivity
+            VibrationHelper.vibrateNotification(ctx)
+            binding.btnNotification.repeatCount = 0
+            binding.btnNotification.progress = 0f
             binding.btnNotification.playAnimation()
+            updateNotificationDot()
         }
     }
 
-    private val adapter = ExamAdapter { exam ->
-        startActivity(
-            Intent(this, TestActivity::class.java)
-                .putExtra(Constants.EXTRA_EXAM_ID, exam.id)
-                .putExtra(Constants.EXTRA_EXAM_NAME, exam.examName)
-                .putExtra(Constants.EXTRA_EXAM_CATEGORY, exam.categoryOrOther)
-                .putExtra(Constants.EXTRA_TIME_LIMIT, exam.timeLimitMinutes)
-        )
-    }
+    private val adapter = ExamAdapter(
+        onClick = { exam ->
+            startActivity(
+                Intent(this, TestActivity::class.java)
+                    .putExtra(Constants.EXTRA_EXAM_ID, exam.id)
+                    .putExtra(Constants.EXTRA_EXAM_NAME, exam.examName)
+                    .putExtra(Constants.EXTRA_EXAM_CATEGORY, exam.categoryOrOther)
+                    .putExtra(Constants.EXTRA_TIME_LIMIT, exam.timeLimitMinutes)
+            )
+        },
+        onLongClick = { exam: Exam, isPinned: Boolean, anchorView: View ->
+            showPinPopupMenu(exam, isPinned, anchorView)
+        }
+    )
 
     private var hasEmptyPlayed = false
 
@@ -115,6 +124,7 @@ class MainActivity : AppCompatActivity() {
 
         setupNotificationBell()
         setupPushNotifications()
+        setupFeedbackCard()
 
         val notifFilter = IntentFilter("com.eve.app.NOTIFICATION_RECEIVED")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -255,6 +265,7 @@ class MainActivity : AppCompatActivity() {
         binding.etSearch.requestFocus()
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         imm?.showSoftInput(binding.etSearch, InputMethodManager.SHOW_IMPLICIT)
+        binding.chipGroupCategory.visibility = View.GONE
         applyCurrentList()
     }
 
@@ -284,76 +295,92 @@ class MainActivity : AppCompatActivity() {
             .setInterpolator(DecelerateInterpolator())
             .start()
 
+        val data = (viewModel.state.value as? UiState.Success)?.data
+        if (data != null && data.categories.size > 1) {
+            binding.chipGroupCategory.visibility = View.VISIBLE
+        }
         applyCurrentList()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putBoolean("key_empty_played", hasEmptyPlayed)
-    }
-
     private fun applyCurrentList() {
-        if (currentSearchQuery.isBlank()) {
-            adapter.submit(lastLoadedItems)
-            val empty = lastLoadedItems.isEmpty()
-            binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
-            binding.rvExams.visibility = if (empty) View.GONE else View.VISIBLE
-            binding.chipGroupCategory.visibility = if (isSearchActive) View.GONE else View.VISIBLE
-            if (empty) {
-                hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(
-                    binding.ivMessageIcon,
-                    hasEmptyPlayed
-                )
-                binding.tvMessage.text = "No exams available"
-                binding.tvMessageSub.text = "Exams added by admin will appear here"
+        if (isSearchActive && currentSearchQuery.isNotEmpty()) {
+            val q = currentSearchQuery.lowercase()
+            val filtered = lastLoadedItems.filterIsInstance<HomeListItem.ExamRow>()
+                .filter { it.exam.examName.lowercase().contains(q) || it.exam.categoryOrOther.lowercase().contains(q) }
+
+            if (filtered.isEmpty()) {
+                adapter.submit(emptyList())
+                binding.messageGroup.visibility = View.VISIBLE
                 binding.btnRetry.visibility = View.GONE
+                hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(binding.ivMessageIcon, hasEmptyPlayed)
+                binding.tvMessage.text = "No matching exams"
+                binding.tvMessageSub.text = "Try searching for a different keyword or category."
             } else {
+                binding.messageGroup.visibility = View.GONE
                 hasEmptyPlayed = false
+                adapter.submit(filtered)
             }
         } else {
-            binding.chipGroupCategory.visibility = View.GONE
-            val filtered = lastLoadedItems.filterIsInstance<HomeListItem.ExamRow>()
-                .filter { it.exam.examName.contains(currentSearchQuery, ignoreCase = true) }
-            adapter.submit(filtered)
-            val empty = filtered.isEmpty()
-            binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
-            binding.rvExams.visibility = if (empty) View.GONE else View.VISIBLE
-            if (empty) {
-                hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(
-                    binding.ivMessageIcon,
-                    hasEmptyPlayed
-                )
-                binding.tvMessage.text = "No exams found"
-                binding.tvMessageSub.text = "Try a different search query"
+            val examRows = lastLoadedItems.filterIsInstance<HomeListItem.ExamRow>()
+            if (examRows.isEmpty()) {
+                adapter.submit(emptyList())
+                binding.messageGroup.visibility = View.VISIBLE
                 binding.btnRetry.visibility = View.GONE
+                hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(binding.ivMessageIcon, hasEmptyPlayed)
+                binding.tvMessage.text = "No exams available"
+                binding.tvMessageSub.text = "Check back soon for newly published mock tests."
             } else {
+                binding.messageGroup.visibility = View.GONE
                 hasEmptyPlayed = false
+                adapter.submit(lastLoadedItems)
             }
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        FirebaseAuth.getInstance().currentUser?.let { user ->
+    private fun showPinPopupMenu(exam: Exam, isPinned: Boolean, anchorView: View) {
+        val user = FirebaseAuth.getInstance().currentUser ?: return
+        val popup = PopupMenu(this, anchorView)
+        val title = if (isPinned) "Unpin" else "Pin"
+        popup.menu.add(title)
+        popup.setOnMenuItemClickListener {
+            viewModel.togglePin(user.uid, exam.id, isPinned)
+            val msg = if (isPinned) "Test unpinned" else "Test pinned to top"
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+            true
+        }
+        popup.show()
+    }
+
+    private fun setupFeedbackCard() {
+        binding.btnSendHomeFeedback.setOnClickListener {
+            val message = binding.etHomeFeedback.text?.toString()?.trim().orEmpty()
+            if (message.isEmpty()) {
+                Toast.makeText(this, "Please enter your message", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (message.length > 1000) {
+                Toast.makeText(this, "Message cannot exceed 1000 characters", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val user = FirebaseAuth.getInstance().currentUser ?: return@setOnClickListener
+            val uid = user.uid
+            val name = user.displayName ?: "Student"
+            val email = user.email ?: ""
+
+            binding.btnSendHomeFeedback.isEnabled = false
             lifecycleScope.launch {
-                try {
-                    FirebaseFirestore.getInstance()
-                        .collection("users").document(user.uid)
-                        .update("lastActive", System.currentTimeMillis())
-                } catch (_: Exception) {}
+                val result = feedbackRepository.sendFeedback(uid, name, email, message)
+                binding.btnSendHomeFeedback.isEnabled = true
+                result.onSuccess {
+                    Toast.makeText(this@MainActivity, "Thank you! Your feedback has been sent.", Toast.LENGTH_LONG).show()
+                    binding.etHomeFeedback.text = null
+                    val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                    imm?.hideSoftInputFromWindow(binding.etHomeFeedback.windowToken, 0)
+                }.onFailure { err ->
+                    Toast.makeText(this@MainActivity, "Failed to send: ${err.localizedMessage ?: "Unknown error"}", Toast.LENGTH_SHORT).show()
+                }
             }
-        }
-    }
-
-    private fun logout() {
-        CrashlyticsHelper.clearIdentity()
-        FirebaseAuth.getInstance().signOut()
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
-        GoogleSignIn.getClient(this, gso).signOut().addOnCompleteListener {
-            val intent = Intent(this, LoginActivity::class.java)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            startActivity(intent)
-            finish()
         }
     }
 
@@ -367,114 +394,56 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             FirebaseAuth.getInstance().currentUser?.let { loadProfilePhoto(it) }
-            updateNotificationDot()
-            setupNotificationBell()
-            loadActivePoll()
+
+            if (NotificationStore.hasNewUnseen(this)) {
+                binding.dotUnread.visibility = View.VISIBLE
+                binding.btnNotification.repeatCount = 0
+                binding.btnNotification.progress = 0f
+                binding.btnNotification.playAnimation()
+                val latest = NotificationStore.getLatestNotificationTimestamp(this)
+                if (latest > 0L) NotificationStore.setLastSeenTimestamp(this, latest)
+            } else {
+                updateNotificationDot()
+                if (binding.btnNotification.isAnimating) {
+                    binding.btnNotification.pauseAnimation()
+                }
+                binding.btnNotification.progress = 0f
+            }
+
+            startListeningToNotifications()
         }
     }
 
-    private fun loadActivePoll() {
-        val user = FirebaseAuth.getInstance().currentUser
-        if (user == null) {
-            binding.cardPoll.visibility = View.GONE
-            return
-        }
-
-        lifecycleScope.launch {
-            try {
-                val poll = pollRepository.getActivePoll()
-                if (poll == null) {
-                    binding.cardPoll.visibility = View.GONE
-                    return@launch
-                }
-
-                binding.cardPoll.visibility = View.VISIBLE
-                binding.tvHomePollQuestion.text = poll.question
-                binding.tvHomePollTotalVotes.text = "${poll.totalVotes} total votes"
-                binding.tvHomePollStatus.text = if (poll.isCurrentlyActive) "Active" else "Closed"
-
-                val myVote = pollRepository.getUserVote(poll.id, user.uid)
-                if (myVote != null || !poll.isCurrentlyActive) {
-                    binding.rgHomePollOptions.visibility = View.GONE
-                    binding.btnSubmitHomeVote.visibility = View.GONE
-                    binding.layoutHomePollResults.visibility = View.VISIBLE
-                    renderHomePollResults(poll, myVote)
-                } else {
-                    binding.layoutHomePollResults.visibility = View.GONE
-                    binding.rgHomePollOptions.visibility = View.VISIBLE
-                    binding.btnSubmitHomeVote.visibility = View.VISIBLE
-                    setupHomePollVoting(poll, user.uid)
-                }
-            } catch (e: Exception) {
-                binding.cardPoll.visibility = View.GONE
-            }
-        }
+    override fun onStop() {
+        super.onStop()
+        firestoreNotifRegistration?.remove()
+        firestoreNotifRegistration = null
     }
 
-    private fun setupHomePollVoting(poll: Poll, uid: String) {
-        binding.rgHomePollOptions.removeAllViews()
-        poll.options.forEachIndexed { index, optionText ->
-            val rb = com.google.android.material.radiobutton.MaterialRadioButton(this).apply {
-                id = View.generateViewId()
-                text = optionText
-                tag = index
-                textSize = 13f
-                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.eve_text))
-            }
-            binding.rgHomePollOptions.addView(rb)
-        }
-
-        binding.btnSubmitHomeVote.isEnabled = true
-        binding.btnSubmitHomeVote.setOnClickListener {
-            val checkedId = binding.rgHomePollOptions.checkedRadioButtonId
-            if (checkedId == -1) {
-                Toast.makeText(this, "Please select an option to vote", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            val checkedRb = binding.rgHomePollOptions.findViewById<View>(checkedId)
-            val selectedOptionIndex = checkedRb.tag as? Int ?: 0
-
-            binding.btnSubmitHomeVote.isEnabled = false
-            lifecycleScope.launch {
-                try {
-                    pollRepository.submitVote(poll.id, uid, selectedOptionIndex)
-                    Toast.makeText(this@MainActivity, "Vote recorded!", Toast.LENGTH_SHORT).show()
-                    loadActivePoll()
-                } catch (e: Exception) {
-                    binding.btnSubmitHomeVote.isEnabled = true
-                    Toast.makeText(this@MainActivity, "Failed to vote: ${e.message}", Toast.LENGTH_SHORT).show()
+    private fun startListeningToNotifications() {
+        firestoreNotifRegistration?.remove()
+        firestoreNotifRegistration = FirebaseFirestore.getInstance()
+            .collection("notifications")
+            .orderBy("sentAt", Query.Direction.DESCENDING)
+            .limit(1)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null || snapshot.isEmpty) return@addSnapshotListener
+                val doc = snapshot.documents.firstOrNull() ?: return@addSnapshotListener
+                val sentAt = doc.getTimestamp("sentAt")?.toDate()?.time
+                    ?: doc.getLong("sentAt")
+                    ?: 0L
+                val lastSeen = NotificationStore.getLastSeenTimestamp(this)
+                if (sentAt > lastSeen && lastSeen > 0L) {
+                    val title = doc.getString("title") ?: "New Notification"
+                    val body = doc.getString("message") ?: ""
+                    NotificationStore.add(this, title, body)
+                    VibrationHelper.vibrateNotification(this)
+                    binding.btnNotification.repeatCount = 0
+                    binding.btnNotification.progress = 0f
+                    binding.btnNotification.playAnimation()
+                    updateNotificationDot()
                 }
             }
-        }
-    }
-
-    private fun renderHomePollResults(poll: Poll, myVote: Int?) {
-        binding.layoutHomePollResults.removeAllViews()
-        val inflater = LayoutInflater.from(this)
-
-        poll.options.forEachIndexed { index, optionText ->
-            val rowView = inflater.inflate(R.layout.item_poll_option_result, binding.layoutHomePollResults, false)
-            val tvTitle = rowView.findViewById<TextView>(R.id.tvOptionTitle)
-            val tvPercent = rowView.findViewById<TextView>(R.id.tvOptionPercent)
-            val pbOption = rowView.findViewById<ProgressBar>(R.id.pbOption)
-            val tvVotes = rowView.findViewById<TextView>(R.id.tvOptionVotes)
-
-            val votes = poll.getVotesForOption(index)
-            val percent = poll.getPercentageForOption(index)
-
-            val isMyChoice = (myVote == index)
-            tvTitle.text = if (isMyChoice) "$optionText  ✓ (Your vote)" else optionText
-            if (isMyChoice) {
-                tvTitle.setTextColor(ContextCompat.getColor(this, R.color.eve_primary))
-                tvTitle.setTypeface(null, android.graphics.Typeface.BOLD)
-            }
-
-            tvPercent.text = "$percent%"
-            pbOption.progress = percent
-            tvVotes.text = "$votes votes"
-
-            binding.layoutHomePollResults.addView(rowView)
-        }
     }
 
     private fun updateNotificationDot() {
@@ -489,10 +458,17 @@ class MainActivity : AppCompatActivity() {
         ) {
             android.graphics.PorterDuffColorFilter(textColor, android.graphics.PorterDuff.Mode.SRC_ATOP)
         }
-        binding.btnNotification.frame = 0
+        binding.btnNotification.repeatCount = 0
 
         binding.btnNotification.setOnClickListener {
+            binding.btnNotification.repeatCount = 0
+            binding.btnNotification.progress = 0f
             binding.btnNotification.playAnimation()
+            val latest = NotificationStore.getLatestNotificationTimestamp(this)
+            if (latest > 0L) {
+                NotificationStore.setLastSeenTimestamp(this, latest)
+            }
+            binding.dotUnread.visibility = View.GONE
             binding.btnNotification.postDelayed({
                 startActivity(Intent(this, NotificationsActivity::class.java))
             }, 350)
@@ -602,5 +578,14 @@ class MainActivity : AppCompatActivity() {
     private fun goToLogin() {
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
+    }
+
+    private fun logout() {
+        FirebaseAuth.getInstance().signOut()
+        val gso = com.google.android.gms.auth.api.signin.GoogleSignInOptions.Builder(
+            com.google.android.gms.auth.api.signin.GoogleSignInOptions.DEFAULT_SIGN_IN
+        ).build()
+        com.google.android.gms.auth.api.signin.GoogleSignIn.getClient(this, gso).signOut()
+        goToLogin()
     }
 }

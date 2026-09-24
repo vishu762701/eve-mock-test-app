@@ -85,16 +85,31 @@ class AdminViewModel : ViewModel() {
         }
     }
 
-    fun addExam(name: String, minutes: Int, category: String, onDone: () -> Unit) {
+    fun addExam(name: String, minutes: Int, category: String, imageUrl: String = "", onDone: () -> Unit) {
         viewModelScope.launch {
             _busy.value = true
             try {
-                repo.addExam(name, minutes, category)
+                repo.addExam(name, minutes, category, imageUrl = imageUrl)
                 _message.value = "Exam added successfully"
                 loadExams()
                 onDone()
             } catch (e: Exception) {
                 _message.value = e.message ?: "Failed to add exam"
+            }
+            _busy.value = false
+        }
+    }
+
+    fun updateExamImage(examId: String, imageUrl: String, onDone: () -> Unit) {
+        viewModelScope.launch {
+            _busy.value = true
+            try {
+                repo.updateExamImage(examId, imageUrl)
+                _message.value = if (imageUrl.isBlank()) "Image removed" else "Exam image updated"
+                loadExams()
+                onDone()
+            } catch (e: Exception) {
+                _message.value = e.message ?: "Failed to update exam image"
             }
             _busy.value = false
         }

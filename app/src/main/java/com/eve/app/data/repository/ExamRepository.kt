@@ -107,7 +107,8 @@ class ExamRepository(
         autoGenEnabled: Boolean = true,
         autoGenTime: String = "00:00",
         timezone: String = "Asia/Kolkata",
-        generationPrompt: String = ""
+        generationPrompt: String = "",
+        imageUrl: String = ""
     ): String {
         val trimmed = name.trim()
         val data = hashMapOf(
@@ -122,6 +123,7 @@ class ExamRepository(
             "generationPrompt" to generationPrompt,
             "syllabusUrl" to "",
             "syllabusFileName" to "",
+            "imageUrl" to imageUrl,
             "lastGeneratedDate" to "",
             "lastGenerationStatus" to "",
             "lastGenerationError" to "",
@@ -129,6 +131,10 @@ class ExamRepository(
         )
         val docRef = db.collection("exams").add(data).await()
         return docRef.id
+    }
+
+    suspend fun updateExamImage(examId: String, imageUrl: String) {
+        db.collection("exams").document(examId).update("imageUrl", imageUrl).await()
     }
 
     suspend fun renameExam(examId: String, newName: String) {

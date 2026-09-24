@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Phase 12: Android 13+ par notification dikhane se pehle yeh permission maangni padti hai -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:name=".EveApplication"
@@ -24,7 +25,7 @@
             android:resource="@color/eve_primary" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="new_exam_channel" />
+            android:value="new_exam_channel_v2" />
 
         <service
             android:name=".service.EveMessagingService"
@@ -62,6 +63,8 @@
         <activity android:name=".ui.admin.EditAboutActivity" android:exported="false" />
         <activity android:name=".ui.syllabus.SyllabusActivity" android:exported="false" />
         <activity android:name=".ui.notifications.NotificationsActivity" android:exported="false" />
+        <activity android:name=".ui.feedback.FeedbackActivity" android:exported="false" />
+        <activity android:name=".ui.admin.FeedbackMessagesActivity" android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

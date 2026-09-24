@@ -62,16 +62,50 @@ object NotificationStore {
         }
     }
 
+    private const val KEY_LAST_SEEN_TIMESTAMP = "key_last_seen_notif_ts"
+
+    fun getLastSeenTimestamp(context: Context): Long {
+        return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getLong(KEY_LAST_SEEN_TIMESTAMP, 0L)
+    }
+
+    fun setLastSeenTimestamp(context: Context, timestamp: Long) {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+            .putLong(KEY_LAST_SEEN_TIMESTAMP, timestamp)
+            .apply()
+    }
+
+    fun getLatestNotificationTimestamp(context: Context): Long {
+        val all = getAll(context)
+        return all.firstOrNull()?.timestampMillis ?: 0L
+    }
+
+    fun hasNewUnseen(context: Context): Boolean {
+        val latest = getLatestNotificationTimestamp(context)
+        val lastSeen = getLastSeenTimestamp(context)
+        return latest > lastSeen && hasUnread(context)
+    }
+
     fun hasUnread(context: Context): Boolean = getAll(context).any { !it.read }
 
     /** Notifications screen khulte hi sab ko "read" mark kar do taaki bell ka red dot hat jaye. */
     fun markAllRead(context: Context) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val array = readArray(prefs)
+        var maxTs = 0L
         for (i in 0 until array.length()) {
-            array.getJSONObject(i).put("read", true)
+            val obj = array.getJSONObject(i)
+            obj.put("read", true)
+            val ts = obj.optLong("timestamp", 0L)
+            if (ts > maxTs) maxTs = ts
         }
-        prefs.edit().putString(KEY_NOTIFICATIONS, array.toString()).apply()
+        val editor = prefs.edit().putString(KEY_NOTIFICATIONS, array.toString())
+        if (maxTs > 0) {
+            editor.putLong(KEY_LAST_SEEN_TIMESTAMP, maxTs)
+        } else {
+            editor.putLong(KEY_LAST_SEEN_TIMESTAMP, System.currentTimeMillis())
+        }
+        editor.apply()
     }
 
     private fun readArray(prefs: android.content.SharedPreferences): JSONArray {

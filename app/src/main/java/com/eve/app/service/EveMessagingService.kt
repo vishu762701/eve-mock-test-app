@@ -44,6 +44,7 @@ class EveMessagingService : FirebaseMessagingService() {
             ?: message.data["message"]
             ?: "A new mock test has been added. Try it now!"
 
+        com.eve.app.util.VibrationHelper.vibrateNotification(applicationContext)
         NotificationHelper.showNewExamNotification(applicationContext, title, body)
     }
 }

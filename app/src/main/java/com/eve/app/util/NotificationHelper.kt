@@ -17,7 +17,7 @@ import com.eve.app.R
  */
 object NotificationHelper {
 
-    const val CHANNEL_NEW_EXAM = "new_exam_channel"
+    const val CHANNEL_NEW_EXAM = "new_exam_channel_v2"
     const val CHANNEL_DAILY_REMINDER = "daily_reminder_channel"
 
     /** FCM isi topic par subscribe karke sabhi users ko naya exam ka alert bhejega */
@@ -25,6 +25,8 @@ object NotificationHelper {
 
     private const val ID_NEW_EXAM = 1001
     private const val ID_DAILY_REMINDER = 1002
+
+    private val VIBRATION_PATTERN = longArrayOf(0, 250, 150, 250)
 
     /** App start hote hi (Android 8+ ke liye channels banana zaroori hai, warna notification dikhegi hi nahi) */
     fun createChannels(context: Context) {
@@ -36,7 +38,11 @@ object NotificationHelper {
                 CHANNEL_NEW_EXAM,
                 "New Exam Alerts",
                 NotificationManager.IMPORTANCE_HIGH
-            ).apply { description = "Alerts when a new mock test is added" }
+            ).apply {
+                description = "Alerts when a new mock test is added"
+                enableVibration(true)
+                vibrationPattern = VIBRATION_PATTERN
+            }
         )
 
         manager.createNotificationChannel(
@@ -44,7 +50,11 @@ object NotificationHelper {
                 CHANNEL_DAILY_REMINDER,
                 "Daily Practice Reminder",
                 NotificationManager.IMPORTANCE_DEFAULT
-            ).apply { description = "Daily mock test practice reminder" }
+            ).apply {
+                description = "Daily mock test practice reminder"
+                enableVibration(true)
+                vibrationPattern = VIBRATION_PATTERN
+            }
         )
     }
 
@@ -76,6 +86,7 @@ object NotificationHelper {
             .setStyle(NotificationCompat.BigTextStyle().bigText(body))
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setVibrate(VIBRATION_PATTERN)
             .build()
         NotificationManagerCompat.from(context).notify(notificationId, notification)
     }

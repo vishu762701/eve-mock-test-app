@@ -136,12 +136,20 @@
                 android:text="🤖 AI Generated Tests" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnPolls"
+                android:id="@+id/btnFeedback"
                 style="@style/Widget.Eve.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="🗳️ Polls" />
+                android:text="💬 Send Feedback" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnFeedbackMessages"
+                style="@style/Widget.Eve.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="📨 Feedback Messages" />
 
             <!-- Add Exam Section -->
             <TextView
@@ -192,6 +200,52 @@
                 android:inputType="textCapWords"
                 android:visibility="gone" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:fontFamily="@font/poppins"
+                android:text="Exam Image (Optional)"
+                android:textColor="@color/eve_grey" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/ivNewExamImagePreview"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@color/eve_surface_variant"
+                    android:contentDescription="New exam image preview"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_exam_placeholder"
+                    app:shapeAppearanceOverlay="@style/ShapeCircle" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnChooseExamImage"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="Choose Image" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRemoveExamImage"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="Remove"
+                    android:textColor="@color/eve_red"
+                    android:visibility="gone" />
+            </LinearLayout>
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAddExam"
                 android:layout_width="match_parent"
@@ -223,11 +277,20 @@
                     android:layout_weight="1" />
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEditExamImage"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="Image" />
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRenameExam"
                     style="@style/Widget.Eve.OutlinedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="6dp"
                     android:fontFamily="@font/poppins_medium"
                     android:text="Rename" />
 
@@ -236,7 +299,7 @@
                     style="@style/Widget.Eve.OutlinedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="6dp"
                     android:fontFamily="@font/poppins_medium"
                     android:text="Delete" />
             </LinearLayout>
