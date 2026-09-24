@@ -501,7 +501,7 @@ async function verifyIsAdmin(db, email) {
   return dynamicAdmin.exists;
 }
 
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.5-flash-lite";
 
 function getGeminiApiKeys() {
   const keys = [
@@ -583,13 +583,13 @@ async function callGeminiWithRotation(db, promptText, startingIndex = 0) {
     throw new Error("No Gemini API keys configured. Set GEMINI_API_KEY in Firebase secrets or environment.");
   }
 
-  let lastError = null;
+  const failedAttempts = [];
   for (let offset = 0; offset < keys.length; offset++) {
     const keyIndex = (startingIndex + offset) % keys.length;
     const currentKey = keys[keyIndex];
 
     try {
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent?key=${encodeURIComponent(currentKey)}`;
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent`;
       const body = {
         contents: [
           {
@@ -597,36 +597,48 @@ async function callGeminiWithRotation(db, promptText, startingIndex = 0) {
           },
         ],
         generationConfig: {
-          temperature: 0.7,
           responseMimeType: "application/json",
         },
       };
 
       const response = await fetch(endpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": currentKey,
+        },
         body: JSON.stringify(body),
       });
 
       if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error(`Gemini model '${GEMINI_MODEL}' not found or shut down. Update GEMINI_MODEL.`);
+        }
+
         const errText = await response.text();
-        console.warn(`Gemini key #${keyIndex + 1} returned status HTTP ${response.status}: ${errText}`);
+        console.warn(`Gemini key index ${keyIndex} failed with HTTP ${response.status}.`);
+
+        const isInvalidKey =
+          (response.status === 400 || response.status === 401 || response.status === 403) &&
+          (errText.includes("API_KEY_INVALID") ||
+            errText.includes("API key not valid") ||
+            errText.includes("PERMISSION_DENIED"));
 
         const isQuotaOrRateLimit =
           response.status === 429 ||
-          response.status === 403 ||
           response.status === 503 ||
+          response.status === 403 ||
           errText.toLowerCase().includes("quota") ||
           errText.toLowerCase().includes("resource_exhausted") ||
           errText.toLowerCase().includes("rate limit");
 
-        if (isQuotaOrRateLimit) {
-          console.log(`Rate-limit / quota hit on key #${keyIndex + 1}. Retrying with next key in pool...`);
-          lastError = new Error(`Key #${keyIndex + 1} quota/rate-limited: ${errText}`);
+        if (isQuotaOrRateLimit || isInvalidKey) {
+          failedAttempts.push({ keyIndex, status: response.status });
           continue;
         }
 
-        throw new Error(`Gemini API error (HTTP ${response.status}): ${errText}`);
+        failedAttempts.push({ keyIndex, status: response.status });
+        continue;
       }
 
       const data = await response.json();
@@ -638,12 +650,18 @@ async function callGeminiWithRotation(db, promptText, startingIndex = 0) {
       await persistLastUsedKeyIndex(db, keyIndex);
       return { text, usedKeyIndex: keyIndex };
     } catch (err) {
-      console.warn(`Attempt with Gemini key #${keyIndex + 1} failed:`, err.message);
-      lastError = err;
+      if (err.message && err.message.includes("not found or shut down")) {
+        throw err;
+      }
+      console.warn(`Gemini key index ${keyIndex} attempt failed:`, err.message);
+      failedAttempts.push({ keyIndex, status: err.status || "network_error" });
     }
   }
 
-  throw new Error(`All ${keys.length} keys exhausted: ${lastError?.message || "Quota exceeded"}`);
+  const failureDetails = failedAttempts
+    .map((f) => `key index ${f.keyIndex}: HTTP ${f.status}`)
+    .join(", ");
+  throw new Error(`All ${keys.length} Gemini API keys failed: [${failureDetails}]`);
 }
 
 function parseAndValidateGeminiQuestions(rawJson) {
@@ -813,43 +831,74 @@ exports.scheduledTestGeneration = onSchedule(
   async (event) => {
     const db = getFirestore();
     const { todayDate, currentTime } = getIstTimeAndDate();
-    console.log(`[Scheduler Triggered] IST Date: ${todayDate}, Time: ${currentTime}`);
+    const apiKeys = getGeminiApiKeys();
 
     const examsSnap = await db.collection("exams").get();
     if (examsSnap.empty) {
+      console.log(
+        `[Scheduler Start] IST: ${todayDate} ${currentTime}, Model: ${GEMINI_MODEL}, Exams Scanned: 0, Eligible: 0, API Keys: ${apiKeys.length}`
+      );
       console.log("[Scheduler] No exams found in database.");
       return;
     }
+
+    const eligibleExams = examsSnap.docs.filter((doc) => {
+      const exam = doc.data();
+      const isEnabled = exam.autoGenerationEnabled !== false && exam.autoGenEnabled !== false;
+      const autoGenTime = String(exam.autoGenTime || "00:00").trim();
+      const lastGenDate = String(exam.lastGeneratedDate || "").trim();
+      return isEnabled && currentTime >= autoGenTime && lastGenDate !== todayDate;
+    });
+
+    console.log(
+      `[Scheduler Start] IST: ${todayDate} ${currentTime}, Model: ${GEMINI_MODEL}, Exams Scanned: ${examsSnap.docs.length}, Eligible: ${eligibleExams.length}, API Keys: ${apiKeys.length}`
+    );
 
     for (const doc of examsSnap.docs) {
       const exam = doc.data();
       const examId = doc.id;
       const examName = exam.examName || "Mock Test";
-      const isEnabled = exam.autoGenerationEnabled === true || exam.autoGenEnabled === true;
+      const isEnabled = exam.autoGenerationEnabled !== false && exam.autoGenEnabled !== false;
       const autoGenTime = String(exam.autoGenTime || "00:00").trim();
       const lastGenDate = String(exam.lastGeneratedDate || "").trim();
 
       // Check criteria: enabled, time reached, not already generated today
-      if (!isEnabled) continue;
-      if (currentTime < autoGenTime) continue;
-      if (lastGenDate === todayDate) continue;
+      if (!isEnabled) {
+        console.log(`[Scheduler] Exam '${examName}' (${examId}) skipped: disabled`);
+        continue;
+      }
+      if (currentTime < autoGenTime) {
+        console.log(`[Scheduler] Exam '${examName}' (${examId}) skipped: time not reached (${currentTime} < ${autoGenTime})`);
+        continue;
+      }
+      if (lastGenDate === todayDate) {
+        console.log(`[Scheduler] Exam '${examName}' (${examId}) skipped: already generated today (${todayDate})`);
+        continue;
+      }
 
       // Idempotent lock check in a Firestore transaction
       const examRef = db.collection("exams").doc(examId);
       let acquiredLock = false;
+      let skipReason = null;
 
       try {
         acquiredLock = await db.runTransaction(async (tx) => {
           const freshSnap = await tx.get(examRef);
           if (!freshSnap.exists) return false;
           const freshData = freshSnap.data();
-          const freshEnabled = freshData.autoGenerationEnabled === true || freshData.autoGenEnabled === true;
-          if (!freshEnabled) return false;
-          if (freshData.lastGeneratedDate === todayDate) return false;
+          const freshEnabled = freshData.autoGenerationEnabled !== false && freshData.autoGenEnabled !== false;
+          if (!freshEnabled) {
+            skipReason = "disabled";
+            return false;
+          }
+          if (freshData.lastGeneratedDate === todayDate) {
+            skipReason = "already generated today";
+            return false;
+          }
 
           const lockUntil = Number(freshData.generatingLockUntil || 0);
           if (Date.now() < lockUntil) {
-            console.log(`[Scheduler] Exam ${examName} (${examId}) is already locked by another run. Skipping.`);
+            skipReason = "locked";
             return false;
           }
 
@@ -866,7 +915,12 @@ exports.scheduledTestGeneration = onSchedule(
         continue;
       }
 
-      if (!acquiredLock) continue;
+      if (!acquiredLock) {
+        if (skipReason) {
+          console.log(`[Scheduler] Exam '${examName}' (${examId}) skipped: ${skipReason}`);
+        }
+        continue;
+      }
 
       console.log(`[Scheduler] Starting auto-generation for ${examName} (${examId}) scheduled at ${autoGenTime}...`);
 
