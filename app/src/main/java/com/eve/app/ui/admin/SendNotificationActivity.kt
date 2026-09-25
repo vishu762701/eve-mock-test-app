@@ -77,15 +77,16 @@ class SendNotificationActivity : AppCompatActivity() {
                     )
                 }.orEmpty()
 
-                sentAdapter.submit(broadcasts)
+                sentAdapter.submitList(broadcasts)
                 binding.tvNoSentBroadcasts.visibility = if (broadcasts.isEmpty()) View.VISIBLE else View.GONE
             }
     }
 
     private fun confirmDeleteBroadcast(broadcast: BroadcastMessage) {
-        AlertDialog.Builder(this)
+        val titleText = if (broadcast.title.isNotBlank()) "'${broadcast.title}'" else "this broadcast"
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
             .setTitle("Delete Broadcast?")
-            .setMessage("Delete this broadcast? It will be removed from all students' notification lists.")
+            .setMessage("Delete $titleText? It will be permanently removed from all students' notification lists.")
             .setPositiveButton("Delete") { _, _ ->
                 deleteBroadcast(broadcast)
             }
@@ -94,6 +95,10 @@ class SendNotificationActivity : AppCompatActivity() {
     }
 
     private fun deleteBroadcast(broadcast: BroadcastMessage) {
+        if (broadcast.id.isBlank()) {
+            Toast.makeText(this, "Cannot delete broadcast: Invalid document ID", Toast.LENGTH_SHORT).show()
+            return
+        }
         binding.progressBarSent.visibility = View.VISIBLE
         lifecycleScope.launch {
             try {
@@ -104,13 +109,18 @@ class SendNotificationActivity : AppCompatActivity() {
                     .await()
 
                 Toast.makeText(this@SendNotificationActivity, "Broadcast deleted successfully", Toast.LENGTH_SHORT).show()
+                // Optimistically update adapter immediately
+                val updated = sentAdapter.currentList.filter { it.id != broadcast.id }
+                sentAdapter.submitList(updated)
+                binding.tvNoSentBroadcasts.visibility = if (updated.isEmpty()) View.VISIBLE else View.GONE
             } catch (e: Exception) {
-                binding.progressBarSent.visibility = View.GONE
                 Toast.makeText(
                     this@SendNotificationActivity,
                     "Failed to delete broadcast: ${e.localizedMessage ?: "Unknown error"}",
                     Toast.LENGTH_LONG
                 ).show()
+            } finally {
+                binding.progressBarSent.visibility = View.GONE
             }
         }
     }

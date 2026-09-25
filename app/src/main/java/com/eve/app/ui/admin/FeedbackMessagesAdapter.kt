@@ -25,7 +25,12 @@ class FeedbackMessagesAdapter(
         fun bind(item: FeedbackMessage) {
             binding.tvSenderName.text = item.userName.ifBlank { "Student" }
             binding.tvSenderEmail.text = item.userEmail.ifBlank { "No email provided" }
-            binding.tvMessageBody.text = item.message
+            val bodyText = if (!item.postTitle.isNullOrEmpty()) {
+                "📌 In response to: ${item.postTitle}\n\n${item.message}"
+            } else {
+                item.message
+            }
+            binding.tvMessageBody.text = bodyText
             binding.tvTimestamp.text = dateFormat.format(Date(item.timestamp))
 
             if (!item.read) {

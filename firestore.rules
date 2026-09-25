@@ -178,5 +178,23 @@ service cloud.firestore {
       allow update: if isAdmin();
       allow delete: if isAdmin();
     }
+
+    // Admin Feedback Posts & Student Replies (Task B)
+    match /feedback_posts/{postId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+
+      match /replies/{replyId} {
+        allow read: if isAdmin();
+        allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+        allow update, delete: if isAdmin();
+      }
+    }
+
+    // Home Banner Image (Task D): all signed-in users can read, only admin can write
+    match /home_banner/{bannerId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
   }
 }

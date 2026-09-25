@@ -1,7 +1,7 @@
 package com.eve.app.data.model
 
 /**
- * Task 2: Data model for student feedback messages.
+ * Task B: Data model for student feedback messages.
  */
 data class FeedbackMessage(
     val id: String = "",
@@ -10,5 +10,7 @@ data class FeedbackMessage(
     val userName: String = "",
     val userEmail: String = "",
     val timestamp: Long = System.currentTimeMillis(),
-    val read: Boolean = false
+    val read: Boolean = false,
+    val postId: String? = null,
+    val postTitle: String? = null
 )

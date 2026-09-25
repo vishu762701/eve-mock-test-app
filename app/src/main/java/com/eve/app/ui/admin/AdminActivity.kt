@@ -17,13 +17,21 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.R
 import com.eve.app.data.model.Exam
+import com.eve.app.data.model.FeedbackPost
+import com.eve.app.data.model.FeedbackPostReply
 import com.eve.app.data.model.Question
 import com.eve.app.data.repository.AdminRepository
+import com.eve.app.data.repository.FeedbackRepository
 import com.eve.app.databinding.ActivityAdminBinding
+import com.eve.app.databinding.DialogCreateFeedbackPostBinding
+import com.eve.app.databinding.DialogPostRepliesBinding
 import com.eve.app.util.Constants
 import com.eve.app.util.ExamImageHelper
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class AdminActivity : AppCompatActivity() {
 
@@ -34,6 +42,35 @@ class AdminActivity : AppCompatActivity() {
     private var exams: List<Exam> = emptyList()
     private var newExamImageBase64: String = ""
     private var selectedExamForImageUpdate: Exam? = null
+
+    private val pickBannerImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        if (uri != null) {
+            val base64 = ExamImageHelper.uriToBannerBase64(this, uri)
+            if (base64 != null) {
+                lifecycleScope.launch {
+                    try {
+                        val email = FirebaseAuth.getInstance().currentUser?.email ?: "admin"
+                        val data = hashMapOf(
+                            "id" to "active",
+                            "imageUrl" to base64,
+                            "timestamp" to System.currentTimeMillis(),
+                            "updatedBy" to email
+                        )
+                        FirebaseFirestore.getInstance()
+                            .collection("home_banner")
+                            .document("active")
+                            .set(data)
+                            .await()
+                        Toast.makeText(this@AdminActivity, "Home banner published successfully!", Toast.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        Toast.makeText(this@AdminActivity, "Failed to upload banner: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                    }
+                }
+            } else {
+                Toast.makeText(this, "Failed to process image", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     private val pickNewExamImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) {
@@ -137,8 +174,14 @@ class AdminActivity : AppCompatActivity() {
         binding.btnGeneratedTests.setOnClickListener {
             startActivity(Intent(this, GeneratedTestsActivity::class.java))
         }
-        binding.btnFeedback.setOnClickListener {
-            startActivity(Intent(this, com.eve.app.ui.feedback.FeedbackActivity::class.java))
+        binding.btnHomeBanner.setOnClickListener {
+            showHomeBannerOptionsDialog()
+        }
+        binding.btnCreateFeedbackPost.setOnClickListener {
+            showCreateFeedbackPostDialog()
+        }
+        binding.btnManageFeedbackPosts.setOnClickListener {
+            showManageFeedbackPostsDialog()
         }
         binding.btnFeedbackMessages.setOnClickListener {
             startActivity(Intent(this, FeedbackMessagesActivity::class.java))
@@ -360,5 +403,217 @@ class AdminActivity : AppCompatActivity() {
             .setPositiveButton("Remove") { _, _ -> viewModel.removeAdmin(email) }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+
+    private fun showCreateFeedbackPostDialog() {
+        val dialogBinding = DialogCreateFeedbackPostBinding.inflate(layoutInflater)
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setView(dialogBinding.root)
+            .create()
+
+        dialogBinding.btnCancelPost.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialogBinding.btnManageExistingPosts.setOnClickListener {
+            showManageFeedbackPostsDialog()
+        }
+
+        dialogBinding.btnPublishPost.setOnClickListener {
+            val title = dialogBinding.etPostTitle.text?.toString()?.trim().orEmpty()
+            val message = dialogBinding.etPostMessage.text?.toString()?.trim().orEmpty()
+
+            if (title.isEmpty()) {
+                dialogBinding.tilPostTitle.error = "Title cannot be empty"
+                return@setOnClickListener
+            }
+            dialogBinding.tilPostTitle.error = null
+
+            if (message.isEmpty()) {
+                dialogBinding.tilPostMessage.error = "Message cannot be empty"
+                return@setOnClickListener
+            }
+            dialogBinding.tilPostMessage.error = null
+
+            val user = FirebaseAuth.getInstance().currentUser
+            val authorId = user?.uid ?: ""
+            val authorEmail = user?.email ?: ""
+
+            dialogBinding.btnPublishPost.isEnabled = false
+            lifecycleScope.launch {
+                val feedbackRepo = FeedbackRepository()
+                val result = feedbackRepo.createFeedbackPost(title, message, authorId, authorEmail)
+                dialogBinding.btnPublishPost.isEnabled = true
+                result.onSuccess {
+                    Toast.makeText(this@AdminActivity, "Feedback post published successfully!", Toast.LENGTH_SHORT).show()
+                    dialog.dismiss()
+                }.onFailure { err ->
+                    Toast.makeText(this@AdminActivity, "Failed to publish: ${err.localizedMessage ?: "Unknown error"}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        dialog.show()
+    }
+
+    private fun showHomeBannerOptionsDialog() {
+        val db = FirebaseFirestore.getInstance()
+        lifecycleScope.launch {
+            try {
+                val bannerDoc = db.collection("home_banner").document("active").get().await()
+                val hasBanner = bannerDoc.exists() && !bannerDoc.getString("imageUrl").isNullOrBlank()
+
+                val options = if (hasBanner) {
+                    arrayOf("Change Image (Upload New)", "Delete Banner", "Cancel")
+                } else {
+                    arrayOf("Upload Image from Gallery", "Cancel")
+                }
+
+                MaterialAlertDialogBuilder(this@AdminActivity)
+                    .setTitle("Home Banner Image")
+                    .setMessage(if (hasBanner) "A banner image is currently active on the Home page." else "No banner image currently posted.")
+                    .setItems(options) { dialog, which ->
+                        when (options[which]) {
+                            "Upload Image from Gallery", "Change Image (Upload New)" -> {
+                                pickBannerImageLauncher.launch("image/*")
+                            }
+                            "Delete Banner" -> {
+                                confirmDeleteHomeBanner()
+                            }
+                            else -> dialog.dismiss()
+                        }
+                    }
+                    .show()
+            } catch (e: Exception) {
+                Toast.makeText(this@AdminActivity, "Error loading banner status: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun confirmDeleteHomeBanner() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Delete Home Banner?")
+            .setMessage("This will remove the banner image from the Home screen immediately.")
+            .setPositiveButton("Delete") { _, _ ->
+                lifecycleScope.launch {
+                    try {
+                        FirebaseFirestore.getInstance()
+                            .collection("home_banner")
+                            .document("active")
+                            .delete()
+                            .await()
+                        Toast.makeText(this@AdminActivity, "Home banner removed", Toast.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        Toast.makeText(this@AdminActivity, "Failed to delete: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showManageFeedbackPostsDialog() {
+        val feedbackRepo = FeedbackRepository()
+        lifecycleScope.launch {
+            val posts = feedbackRepo.getFeedbackPosts()
+            if (posts.isEmpty()) {
+                Toast.makeText(this@AdminActivity, "No feedback posts published yet.", Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+            val titles = posts.map { "${it.title} (${it.message.take(30)}...)" }.toTypedArray()
+            MaterialAlertDialogBuilder(this@AdminActivity)
+                .setTitle("Feedback Posts")
+                .setItems(titles) { _, which ->
+                    val selected = posts[which]
+                    showPostActionsDialog(selected)
+                }
+                .setNegativeButton("Close", null)
+                .show()
+        }
+    }
+
+    private fun showPostActionsDialog(post: FeedbackPost) {
+        val feedbackRepo = FeedbackRepository()
+        val options = arrayOf("👁️ View Replies", "🗑️ Delete Post")
+        MaterialAlertDialogBuilder(this)
+            .setTitle(post.title)
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> showPostRepliesDialog(post)
+                    1 -> {
+                        MaterialAlertDialogBuilder(this)
+                            .setTitle("Delete Post?")
+                            .setMessage("Delete '${post.title}' from Home screen? All its student replies will also be permanently deleted.")
+                            .setPositiveButton("Delete") { _, _ ->
+                                lifecycleScope.launch {
+                                    feedbackRepo.deleteFeedbackPost(post.id)
+                                    Toast.makeText(this@AdminActivity, "Post and replies deleted", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                            .setNegativeButton("Cancel", null)
+                            .show()
+                    }
+                }
+            }
+            .setNegativeButton("Back", null)
+            .show()
+    }
+
+    private fun showPostRepliesDialog(post: FeedbackPost) {
+        val dialogBinding = DialogPostRepliesBinding.inflate(layoutInflater)
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setView(dialogBinding.root)
+            .create()
+
+        dialogBinding.tvPostRepliesTitle.text = "Replies: ${post.title}"
+        dialogBinding.tvPostRepliesSnippet.text = post.message
+
+        val feedbackRepo = FeedbackRepository()
+        var currentReplies: List<FeedbackPostReply> = emptyList()
+
+        lateinit var repliesAdapter: PostRepliesAdapter
+        repliesAdapter = PostRepliesAdapter(
+            onMarkRead = { reply ->
+                lifecycleScope.launch {
+                    feedbackRepo.markReplyAsRead(post.id, reply.id).onSuccess {
+                        currentReplies = currentReplies.map { if (it.id == reply.id) it.copy(read = true) else it }
+                        repliesAdapter.submitList(currentReplies)
+                        Toast.makeText(this@AdminActivity, "Marked as read", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            },
+            onDelete = { reply ->
+                MaterialAlertDialogBuilder(this)
+                    .setTitle("Delete Reply?")
+                    .setMessage("Delete reply from ${reply.name}?")
+                    .setPositiveButton("Delete") { _, _ ->
+                        lifecycleScope.launch {
+                            feedbackRepo.deleteSingleReply(post.id, reply.id).onSuccess {
+                                currentReplies = currentReplies.filter { it.id != reply.id }
+                                repliesAdapter.submitList(currentReplies)
+                                dialogBinding.tvNoReplies.visibility = if (currentReplies.isEmpty()) View.VISIBLE else View.GONE
+                                Toast.makeText(this@AdminActivity, "Reply deleted", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+            }
+        )
+
+        dialogBinding.rvReplies.layoutManager = LinearLayoutManager(this)
+        dialogBinding.rvReplies.adapter = repliesAdapter
+
+        dialogBinding.btnCloseReplies.setOnClickListener { dialog.dismiss() }
+
+        dialogBinding.progressBarReplies.visibility = View.VISIBLE
+        lifecycleScope.launch {
+            currentReplies = feedbackRepo.getRepliesForPost(post.id)
+            dialogBinding.progressBarReplies.visibility = View.GONE
+            repliesAdapter.submitList(currentReplies)
+            dialogBinding.tvNoReplies.visibility = if (currentReplies.isEmpty()) View.VISIBLE else View.GONE
+        }
+
+        dialog.show()
     }
 }

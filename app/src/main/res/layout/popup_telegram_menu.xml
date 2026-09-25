@@ -1,31 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/menuContainer"
     android:layout_width="250dp"
     android:layout_height="wrap_content"
-    android:clipChildren="true"
-    android:orientation="vertical"
-    android:padding="4dp">
+    android:clipToOutline="true"
+    app:cardBackgroundColor="@color/eve_menu_glass_bg"
+    app:cardCornerRadius="@dimen/eve_radius_md"
+    app:cardElevation="12dp"
+    app:cardPreventCornerOverlap="false"
+    app:strokeColor="@color/eve_menu_glass_border"
+    app:strokeWidth="1dp">
 
-    <!-- Card 1: Theme Toggle (Top, Smaller) -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardTheme"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clickable="true"
-        android:clipToOutline="true"
-        android:focusable="true"
-        android:foreground="?attr/selectableItemBackground"
-        app:cardBackgroundColor="@color/eve_surface"
-        app:cardCornerRadius="18dp"
-        app:cardElevation="6dp"
-        app:cardPreventCornerOverlap="false"
-        app:strokeWidth="0dp">
+        android:orientation="vertical">
 
+        <!-- Card 1: Theme Toggle Row (Preserves cardTheme ID for touch & window coords) -->
         <LinearLayout
+            android:id="@+id/cardTheme"
             android:layout_width="match_parent"
-            android:layout_height="54dp"
+            android:layout_height="52dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingHorizontal="18dp">
@@ -49,36 +48,26 @@
                 android:textColor="@color/eve_text"
                 android:textSize="15sp" />
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
 
-    <!-- Small 7dp Gap between Card 1 and Card 2 -->
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="7dp" />
+        <!-- Subtle 1dp Frosted Glass Divider -->
+        <View
+            android:id="@+id/menuDivider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/eve_menu_glass_divider" />
 
-    <!-- Card 2: Main Menu Items (Below, Larger) -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardMenuItems"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clipToOutline="true"
-        app:cardBackgroundColor="@color/eve_surface"
-        app:cardCornerRadius="18dp"
-        app:cardElevation="6dp"
-        app:cardPreventCornerOverlap="false"
-        app:strokeWidth="0dp">
-
+        <!-- Card 2: Main Menu Items (Preserves cardMenuItems ID) -->
         <LinearLayout
+            android:id="@+id/cardMenuItems"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clipToOutline="true"
             android:orientation="vertical">
 
             <!-- Row 1: History -->
             <LinearLayout
                 android:id="@+id/menuRowHistory"
                 android:layout_width="match_parent"
-                android:layout_height="54dp"
+                android:layout_height="52dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
@@ -108,7 +97,7 @@
             <LinearLayout
                 android:id="@+id/menuRowPerformance"
                 android:layout_width="match_parent"
-                android:layout_height="54dp"
+                android:layout_height="52dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
@@ -138,7 +127,7 @@
             <LinearLayout
                 android:id="@+id/menuRowTopic"
                 android:layout_width="match_parent"
-                android:layout_height="54dp"
+                android:layout_height="52dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
@@ -168,7 +157,7 @@
             <LinearLayout
                 android:id="@+id/menuRowPyq"
                 android:layout_width="match_parent"
-                android:layout_height="54dp"
+                android:layout_height="52dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
@@ -198,7 +187,7 @@
             <LinearLayout
                 android:id="@+id/menuRowSyllabus"
                 android:layout_width="match_parent"
-                android:layout_height="54dp"
+                android:layout_height="52dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
@@ -228,7 +217,7 @@
             <LinearLayout
                 android:id="@+id/menuRowLeaderboard"
                 android:layout_width="match_parent"
-                android:layout_height="54dp"
+                android:layout_height="52dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
@@ -258,7 +247,7 @@
             <LinearLayout
                 android:id="@+id/menuRowLogout"
                 android:layout_width="match_parent"
-                android:layout_height="54dp"
+                android:layout_height="52dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
@@ -284,5 +273,5 @@
                     android:textSize="15sp" />
             </LinearLayout>
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-</LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

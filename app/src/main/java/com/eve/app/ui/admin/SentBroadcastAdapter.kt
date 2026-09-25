@@ -2,6 +2,8 @@ package com.eve.app.ui.admin
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.data.model.BroadcastMessage
 import com.eve.app.databinding.ItemSentBroadcastBinding
@@ -11,14 +13,16 @@ import java.util.Locale
 
 class SentBroadcastAdapter(
     private val onDelete: (BroadcastMessage) -> Unit
-) : RecyclerView.Adapter<SentBroadcastAdapter.VH>() {
+) : ListAdapter<BroadcastMessage, SentBroadcastAdapter.VH>(DiffCallback) {
 
-    private var items: List<BroadcastMessage> = emptyList()
     private val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
 
-    fun submit(list: List<BroadcastMessage>) {
-        items = list
-        notifyDataSetChanged()
+    object DiffCallback : DiffUtil.ItemCallback<BroadcastMessage>() {
+        override fun areItemsTheSame(oldItem: BroadcastMessage, newItem: BroadcastMessage): Boolean =
+            oldItem.id == newItem.id
+
+        override fun areContentsTheSame(oldItem: BroadcastMessage, newItem: BroadcastMessage): Boolean =
+            oldItem == newItem
     }
 
     inner class VH(private val binding: ItemSentBroadcastBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -32,7 +36,10 @@ class SentBroadcastAdapter(
             }
             binding.tvBroadcastTime.text = formattedTime
             binding.btnDeleteBroadcast.setOnClickListener {
-                onDelete(item)
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    onDelete(getItem(position))
+                }
             }
         }
     }
@@ -44,7 +51,6 @@ class SentBroadcastAdapter(
         return VH(binding)
     }
 
-    override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(items[position])
-
-    override fun getItemCount(): Int = items.size
+    override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(getItem(position))
 }
+

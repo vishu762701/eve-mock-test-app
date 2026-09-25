@@ -45,6 +45,36 @@ object ExamImageHelper {
         }
     }
 
+    fun uriToBannerBase64(context: Context, uri: Uri): String? {
+        return try {
+            val input = context.contentResolver.openInputStream(uri) ?: return null
+            val original = BitmapFactory.decodeStream(input)
+            input.close()
+            if (original == null) return null
+
+            val maxDim = maxOf(original.width, original.height)
+            val scale = if (maxDim > 1024) 1024f / maxDim else 1f
+            val scaled = if (scale < 1f) {
+                Bitmap.createScaledBitmap(
+                    original,
+                    (original.width * scale).toInt().coerceAtLeast(1),
+                    (original.height * scale).toInt().coerceAtLeast(1),
+                    true
+                )
+            } else {
+                original
+            }
+
+            val out = ByteArrayOutputStream()
+            scaled.compress(Bitmap.CompressFormat.JPEG, 75, out)
+            val bytes = out.toByteArray()
+            val b64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
+            "data:image/jpeg;base64,$b64"
+        } catch (_: Exception) {
+            null
+        }
+    }
+
     fun loadExamImage(imageView: ImageView, imageUrl: String?) {
         if (imageUrl.isNullOrBlank()) {
             imageView.setImageResource(R.drawable.ic_exam_placeholder)
@@ -72,6 +102,33 @@ object ExamImageHelper {
         imageView.load(imageUrl) {
             placeholder(R.drawable.ic_exam_placeholder)
             error(R.drawable.ic_exam_placeholder)
+        }
+    }
+
+    fun loadBannerImage(imageView: ImageView, imageUrl: String?) {
+        if (imageUrl.isNullOrBlank()) {
+            imageView.setImageDrawable(null)
+            return
+        }
+
+        if (imageUrl.startsWith("data:image")) {
+            try {
+                val b64 = imageUrl.substringAfter("base64,")
+                val bytes = Base64.decode(b64, Base64.DEFAULT)
+                val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                if (bmp != null) {
+                    imageView.adjustViewBounds = true
+                    imageView.scaleType = ImageView.ScaleType.FIT_CENTER
+                    imageView.setImageBitmap(bmp)
+                    return
+                }
+            } catch (_: Exception) { }
+        }
+
+        imageView.adjustViewBounds = true
+        imageView.scaleType = ImageView.ScaleType.FIT_CENTER
+        imageView.load(imageUrl) {
+            crossfade(true)
         }
     }
 }

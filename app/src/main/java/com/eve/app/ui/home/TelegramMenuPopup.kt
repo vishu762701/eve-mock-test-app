@@ -107,6 +107,9 @@ class TelegramMenuPopup(
         // Anchor below the 3-dot icon, aligned to right edge
         showAsDropDown(anchorView, -binding.root.paddingStart, 8)
 
+        // Apply Glassmorphic background blur on supported Android versions
+        com.eve.app.util.GlassmorphismHelper.applyWindowBlur(binding.root)
+
         binding.root.post {
             binding.root.pivotX = binding.root.width.toFloat()
             binding.root.pivotY = 0f

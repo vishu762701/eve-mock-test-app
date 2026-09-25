@@ -1,8 +1,9 @@
 package com.eve.app.ui.home
 
 import com.eve.app.data.model.Exam
+import com.eve.app.data.model.FeedbackPost
 
-/** RecyclerView row: ya to ek category header, ya ek exam card */
+/** RecyclerView row: category header, exam card, ya feedback post card */
 sealed class HomeListItem {
     data class Header(val title: String) : HomeListItem()
     data class ExamRow(
@@ -10,6 +11,7 @@ sealed class HomeListItem {
         val attempted: Boolean = false,
         val isPinned: Boolean = false
     ) : HomeListItem()
+    data class FeedbackPostRow(val post: FeedbackPost) : HomeListItem()
 }
 
 /** Home screen ka poora render-ready data. */

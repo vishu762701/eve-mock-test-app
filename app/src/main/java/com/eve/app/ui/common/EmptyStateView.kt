@@ -61,9 +61,7 @@ class EmptyStateView @JvmOverloads constructor(
         }
     }
 
-    private var hasPlayedOnce: Boolean = false
-
-    fun show(title: String = "Nothing here yet", message: String? = null) {
+    fun show(title: String = "No files found", message: String? = null) {
         visibility = View.VISIBLE
         binding.tvEmptyTitle.text = title
         if (!message.isNullOrBlank()) {
@@ -72,32 +70,30 @@ class EmptyStateView @JvmOverloads constructor(
         } else {
             binding.tvEmptyMessage.visibility = View.GONE
         }
-        hasPlayedOnce = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(
-            binding.lottieEmpty,
-            hasPlayedOnce
-        )
+        com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(binding.lottieEmpty)
     }
 
     fun hide() {
-        if (binding.lottieEmpty.isAnimating) {
-            binding.lottieEmpty.pauseAnimation()
-        }
+        com.eve.app.util.EmptyStateAnimationHelper.stopEmptyState(binding.lottieEmpty)
         visibility = View.GONE
-        hasPlayedOnce = false
     }
 
     override fun onSaveInstanceState(): android.os.Parcelable {
         val superState = super.onSaveInstanceState()
         val bundle = android.os.Bundle()
         bundle.putParcelable("super_state", superState)
-        bundle.putBoolean("has_played_once", hasPlayedOnce)
+        bundle.putInt("saved_visibility", visibility)
         return bundle
     }
 
     override fun onRestoreInstanceState(state: android.os.Parcelable?) {
         var superState = state
         if (state is android.os.Bundle) {
-            hasPlayedOnce = state.getBoolean("has_played_once", false)
+            val savedVis = state.getInt("saved_visibility", View.GONE)
+            visibility = savedVis
+            if (savedVis == View.VISIBLE) {
+                com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(binding.lottieEmpty)
+            }
             superState = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
                 state.getParcelable("super_state", android.os.Parcelable::class.java)
             } else {
@@ -106,8 +102,5 @@ class EmptyStateView @JvmOverloads constructor(
             }
         }
         super.onRestoreInstanceState(superState)
-        if (hasPlayedOnce && visibility == View.VISIBLE) {
-            binding.lottieEmpty.progress = 1.0f
-        }
     }
 }

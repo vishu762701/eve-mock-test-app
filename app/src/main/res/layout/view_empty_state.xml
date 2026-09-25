@@ -12,10 +12,9 @@
         android:id="@+id/lottieEmpty"
         android:layout_width="140dp"
         android:layout_height="140dp"
-        app:lottie_autoPlay="false"
-        app:lottie_loop="false"
-        app:lottie_repeatCount="0"
-        app:lottie_rawRes="@raw/no_files" />
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/search_empty" />
 
     <TextView
         android:id="@+id/tvEmptyTitle"
@@ -24,7 +23,7 @@
         android:layout_marginTop="16dp"
         android:fontFamily="@font/poppins_semibold"
         android:gravity="center"
-        android:text="Nothing here yet"
+        android:text="No files found"
         android:textColor="@color/eve_text"
         android:textSize="17sp" />
 

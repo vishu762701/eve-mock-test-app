@@ -25,6 +25,12 @@ class FeedbackActivity : AppCompatActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
 
+        val postId = intent.getStringExtra("post_id")
+        val postTitle = intent.getStringExtra("post_title")
+        if (!postTitle.isNullOrEmpty()) {
+            binding.tvFeedbackSubtitle.text = "Responding to post: $postTitle"
+        }
+
         binding.btnSendFeedback.setOnClickListener {
             val message = binding.etFeedbackMessage.text?.toString()?.trim().orEmpty()
             if (message.isEmpty()) {
@@ -46,7 +52,7 @@ class FeedbackActivity : AppCompatActivity() {
             binding.btnSendFeedback.isEnabled = false
 
             lifecycleScope.launch {
-                val result = repo.sendFeedback(uid, name, email, message)
+                val result = repo.sendFeedback(uid, name, email, message, postId, postTitle)
                 binding.progressBar.visibility = View.GONE
                 binding.btnSendFeedback.isEnabled = true
 

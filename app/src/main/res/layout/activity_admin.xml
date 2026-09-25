@@ -136,12 +136,28 @@
                 android:text="🤖 AI Generated Tests" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnFeedback"
+                android:id="@+id/btnHomeBanner"
                 style="@style/Widget.Eve.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="💬 Send Feedback" />
+                android:text="🖼️ Home Banner Image" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCreateFeedbackPost"
+                style="@style/Widget.Eve.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="📢 Create Feedback Post" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnManageFeedbackPosts"
+                style="@style/Widget.Eve.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="💬 Feedback Posts &amp; Replies" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnFeedbackMessages"

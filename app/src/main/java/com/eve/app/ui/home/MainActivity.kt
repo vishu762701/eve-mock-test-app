@@ -63,8 +63,6 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
-    private val feedbackRepository = FeedbackRepository()
-
     private lateinit var binding: ActivityMainBinding
     private val viewModel: HomeViewModel by viewModels()
     private val adminRepo = AdminRepository()
@@ -75,6 +73,7 @@ class MainActivity : AppCompatActivity() {
     private var searchDebounceJob: Job? = null
 
     private var firestoreNotifRegistration: ListenerRegistration? = null
+    private var homeBannerRegistration: ListenerRegistration? = null
 
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* ignored */ }
@@ -102,6 +101,34 @@ class MainActivity : AppCompatActivity() {
         },
         onLongClick = { exam: Exam, isPinned: Boolean, anchorView: View ->
             showPinPopupMenu(exam, isPinned, anchorView)
+        },
+        onFeedbackPostLongClick = { post, _ ->
+            handleFeedbackPostLongClick(post)
+        },
+        onSendReply = { post, text, onComplete ->
+            val user = FirebaseAuth.getInstance().currentUser
+            if (user == null) {
+                Toast.makeText(this, "Please sign in to reply", Toast.LENGTH_SHORT).show()
+                onComplete(false)
+            } else {
+                lifecycleScope.launch {
+                    val repo = com.eve.app.data.repository.FeedbackRepository()
+                    val result = repo.submitPostReply(
+                        postId = post.id,
+                        uid = user.uid,
+                        name = user.displayName ?: "Student",
+                        email = user.email ?: "",
+                        text = text
+                    )
+                    result.onSuccess {
+                        Toast.makeText(this@MainActivity, "Reply sent", Toast.LENGTH_SHORT).show()
+                        onComplete(true)
+                    }.onFailure { err ->
+                        Toast.makeText(this@MainActivity, "Failed to send: ${err.localizedMessage ?: "Unknown error"}", Toast.LENGTH_SHORT).show()
+                        onComplete(false)
+                    }
+                }
+            }
         }
     )
 
@@ -124,7 +151,6 @@ class MainActivity : AppCompatActivity() {
 
         setupNotificationBell()
         setupPushNotifications()
-        setupFeedbackCard()
 
         val notifFilter = IntentFilter("com.eve.app.NOTIFICATION_RECEIVED")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -305,15 +331,22 @@ class MainActivity : AppCompatActivity() {
     private fun applyCurrentList() {
         if (isSearchActive && currentSearchQuery.isNotEmpty()) {
             val q = currentSearchQuery.lowercase()
-            val filtered = lastLoadedItems.filterIsInstance<HomeListItem.ExamRow>()
-                .filter { it.exam.examName.lowercase().contains(q) || it.exam.categoryOrOther.lowercase().contains(q) }
+            val filtered = lastLoadedItems.filter { item ->
+                when (item) {
+                    is HomeListItem.ExamRow ->
+                        item.exam.examName.lowercase().contains(q) || item.exam.categoryOrOther.lowercase().contains(q)
+                    is HomeListItem.FeedbackPostRow ->
+                        item.post.title.lowercase().contains(q) || item.post.message.lowercase().contains(q)
+                    is HomeListItem.Header -> false
+                }
+            }
 
             if (filtered.isEmpty()) {
                 adapter.submit(emptyList())
                 binding.messageGroup.visibility = View.VISIBLE
                 binding.btnRetry.visibility = View.GONE
                 hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(binding.ivMessageIcon, hasEmptyPlayed)
-                binding.tvMessage.text = "No matching exams"
+                binding.tvMessage.text = "No matching items"
                 binding.tvMessageSub.text = "Try searching for a different keyword or category."
             } else {
                 binding.messageGroup.visibility = View.GONE
@@ -321,8 +354,8 @@ class MainActivity : AppCompatActivity() {
                 adapter.submit(filtered)
             }
         } else {
-            val examRows = lastLoadedItems.filterIsInstance<HomeListItem.ExamRow>()
-            if (examRows.isEmpty()) {
+            val hasContent = lastLoadedItems.any { it is HomeListItem.ExamRow || it is HomeListItem.FeedbackPostRow }
+            if (!hasContent) {
                 adapter.submit(emptyList())
                 binding.messageGroup.visibility = View.VISIBLE
                 binding.btnRetry.visibility = View.GONE
@@ -351,35 +384,27 @@ class MainActivity : AppCompatActivity() {
         popup.show()
     }
 
-    private fun setupFeedbackCard() {
-        binding.btnSendHomeFeedback.setOnClickListener {
-            val message = binding.etHomeFeedback.text?.toString()?.trim().orEmpty()
-            if (message.isEmpty()) {
-                Toast.makeText(this, "Please enter your message", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            if (message.length > 1000) {
-                Toast.makeText(this, "Message cannot exceed 1000 characters", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+    private fun openFeedbackForPost(post: com.eve.app.data.model.FeedbackPost) {
+        val intent = Intent(this, com.eve.app.ui.feedback.FeedbackActivity::class.java).apply {
+            putExtra("post_id", post.id)
+            putExtra("post_title", post.title)
+        }
+        startActivity(intent)
+    }
 
-            val user = FirebaseAuth.getInstance().currentUser ?: return@setOnClickListener
-            val uid = user.uid
-            val name = user.displayName ?: "Student"
-            val email = user.email ?: ""
-
-            binding.btnSendHomeFeedback.isEnabled = false
-            lifecycleScope.launch {
-                val result = feedbackRepository.sendFeedback(uid, name, email, message)
-                binding.btnSendHomeFeedback.isEnabled = true
-                result.onSuccess {
-                    Toast.makeText(this@MainActivity, "Thank you! Your feedback has been sent.", Toast.LENGTH_LONG).show()
-                    binding.etHomeFeedback.text = null
-                    val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-                    imm?.hideSoftInputFromWindow(binding.etHomeFeedback.windowToken, 0)
-                }.onFailure { err ->
-                    Toast.makeText(this@MainActivity, "Failed to send: ${err.localizedMessage ?: "Unknown error"}", Toast.LENGTH_SHORT).show()
-                }
+    private fun handleFeedbackPostLongClick(post: com.eve.app.data.model.FeedbackPost) {
+        val email = FirebaseAuth.getInstance().currentUser?.email
+        lifecycleScope.launch {
+            if (isHardcodedAdmin(email) || adminRepo.isAdmin(email)) {
+                com.google.android.material.dialog.MaterialAlertDialogBuilder(this@MainActivity)
+                    .setTitle("Delete Feedback Post?")
+                    .setMessage("Are you sure you want to delete '${post.title}'?")
+                    .setPositiveButton("Delete") { _, _ ->
+                        viewModel.deleteFeedbackPost(post.id)
+                        Toast.makeText(this@MainActivity, "Post deleted", Toast.LENGTH_SHORT).show()
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
             }
         }
     }
@@ -411,6 +436,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             startListeningToNotifications()
+            startListeningToHomeBanner()
         }
     }
 
@@ -418,6 +444,28 @@ class MainActivity : AppCompatActivity() {
         super.onStop()
         firestoreNotifRegistration?.remove()
         firestoreNotifRegistration = null
+        homeBannerRegistration?.remove()
+        homeBannerRegistration = null
+    }
+
+    private fun startListeningToHomeBanner() {
+        homeBannerRegistration?.remove()
+        homeBannerRegistration = FirebaseFirestore.getInstance()
+            .collection("home_banner")
+            .document("active")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null || !snapshot.exists()) {
+                    binding.cardHomeBanner.visibility = View.GONE
+                    return@addSnapshotListener
+                }
+                val imageUrl = snapshot.getString("imageUrl")
+                if (imageUrl.isNullOrBlank()) {
+                    binding.cardHomeBanner.visibility = View.GONE
+                } else {
+                    binding.cardHomeBanner.visibility = View.VISIBLE
+                    com.eve.app.util.ExamImageHelper.loadBannerImage(binding.ivHomeBanner, imageUrl)
+                }
+            }
     }
 
     private fun startListeningToNotifications() {

@@ -3,7 +3,9 @@ package com.eve.app.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eve.app.data.model.Exam
+import com.eve.app.data.model.FeedbackPost
 import com.eve.app.data.repository.ExamRepository
+import com.eve.app.data.repository.FeedbackRepository
 import com.eve.app.data.repository.PinnedExamsRepository
 import com.eve.app.util.Constants
 import com.eve.app.util.UiState
@@ -19,20 +21,23 @@ class HomeViewModel : ViewModel() {
 
     private val repo = ExamRepository()
     private val pinnedRepo = PinnedExamsRepository()
+    private val feedbackRepo = FeedbackRepository()
 
     private val _examState = MutableStateFlow<UiState<List<Exam>>>(UiState.Loading)
     private val _attemptedIds = MutableStateFlow<Set<String>>(emptySet())
     private val _pinnedIds = MutableStateFlow<Set<String>>(emptySet())
+    private val _feedbackPosts = MutableStateFlow<List<FeedbackPost>>(emptyList())
     private val _selectedCategory = MutableStateFlow(Constants.CATEGORY_ALL)
 
     private var pinnedObserverJob: Job? = null
+    private var feedbackObserverJob: Job? = null
 
     val state: StateFlow<UiState<HomeUiData>> =
-        combine(_examState, _selectedCategory, _attemptedIds, _pinnedIds) { examState, selected, attempted, pinned ->
+        combine(_examState, _selectedCategory, _attemptedIds, _pinnedIds, _feedbackPosts) { examState, selected, attempted, pinned, feedbackPosts ->
             when (examState) {
                 is UiState.Loading -> UiState.Loading
                 is UiState.Error -> UiState.Error(examState.message)
-                is UiState.Success -> UiState.Success(buildUiData(examState.data, selected, attempted, pinned))
+                is UiState.Success -> UiState.Success(buildUiData(examState.data, selected, attempted, pinned, feedbackPosts))
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState.Loading)
 
@@ -43,6 +48,9 @@ class HomeViewModel : ViewModel() {
             _examState.value = UiState.Loading
             _examState.value = try { UiState.Success(repo.getExams()) }
             catch (e: Exception) { UiState.Error(e.message ?: "Failed to load exams") }
+        }
+        viewModelScope.launch {
+            _feedbackPosts.value = feedbackRepo.getFeedbackPosts()
         }
     }
 
@@ -64,11 +72,25 @@ class HomeViewModel : ViewModel() {
                 _pinnedIds.value = pins
             }
         }
+
+        // Real-time listener for published feedback posts
+        feedbackObserverJob?.cancel()
+        feedbackObserverJob = viewModelScope.launch {
+            feedbackRepo.observeFeedbackPosts().collect { posts ->
+                _feedbackPosts.value = posts
+            }
+        }
     }
 
     fun togglePin(userId: String, examId: String, currentlyPinned: Boolean) {
         viewModelScope.launch {
             pinnedRepo.togglePin(userId, examId, currentlyPinned)
+        }
+    }
+
+    fun deleteFeedbackPost(postId: String) {
+        viewModelScope.launch {
+            feedbackRepo.deleteFeedbackPost(postId)
         }
     }
 
@@ -78,7 +100,8 @@ class HomeViewModel : ViewModel() {
         all: List<Exam>,
         selected: String,
         attempted: Set<String>,
-        pinned: Set<String>
+        pinned: Set<String>,
+        feedbackPosts: List<FeedbackPost>
     ): HomeUiData {
         val categories = listOf(Constants.CATEGORY_ALL) + all.map { it.categoryOrOther }.distinct().sorted()
         val effectiveSelected = if (selected in categories) selected else Constants.CATEGORY_ALL
@@ -90,6 +113,12 @@ class HomeViewModel : ViewModel() {
         val items = mutableListOf<HomeListItem>()
 
         if (effectiveSelected == Constants.CATEGORY_ALL) {
+            // Task B: Published feedback posts appear in reverse-chronological order along with other home content
+            if (feedbackPosts.isNotEmpty()) {
+                val sortedPosts = feedbackPosts.sortedByDescending { it.timestamp }
+                items.addAll(sortedPosts.map { HomeListItem.FeedbackPostRow(it) })
+            }
+
             if (pinnedExams.isNotEmpty()) {
                 items.add(HomeListItem.Header("Pinned Tests"))
                 items.addAll(pinnedExams.map { HomeListItem.ExamRow(it, it.id in attempted, isPinned = true) })
