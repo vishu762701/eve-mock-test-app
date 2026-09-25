@@ -80,7 +80,7 @@
                 android:layout_width="140dp"
                 android:layout_height="140dp"
                 android:background="@android:color/transparent"
-                app:lottie_autoPlay="true"
+                app:lottie_autoPlay="false"
                 app:lottie_loop="false"
                 app:lottie_rawRes="@raw/search" />
 

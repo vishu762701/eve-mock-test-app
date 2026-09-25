@@ -21,6 +21,10 @@ object EmptyStateAnimationHelper {
         lottieView.setBackgroundResource(android.R.color.transparent)
         lottieView.repeatCount = 0
         lottieView.setAnimation(R.raw.search)
+        if (lottieView.isAnimating) {
+            // Already actively playing in this open session; let it finish cleanly
+            return true
+        }
         if (hasPlayed) {
             lottieView.progress = 1.0f
         } else {

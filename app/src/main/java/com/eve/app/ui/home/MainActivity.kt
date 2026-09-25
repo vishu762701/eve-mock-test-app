@@ -10,6 +10,8 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.view.inputmethod.InputMethodManager
@@ -133,6 +135,7 @@ class MainActivity : AppCompatActivity() {
     )
 
     private var hasEmptyPlayed = false
+    private lateinit var swipeToProfileDetector: GestureDetector
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -146,6 +149,8 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        setupSwipeToProfile()
 
         binding.tvWelcome.text = "Hi, ${user.displayName ?: "Student"}"
 
@@ -377,6 +382,9 @@ class MainActivity : AppCompatActivity() {
         popup.menu.add(title)
         popup.setOnMenuItemClickListener {
             viewModel.togglePin(user.uid, exam.id, isPinned)
+            if (!isPinned) {
+                com.eve.app.util.VibrationHelper.vibrateLightHaptic(this)
+            }
             val msg = if (isPinned) "Test unpinned" else "Test pinned to top"
             Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
             true
@@ -635,5 +643,47 @@ class MainActivity : AppCompatActivity() {
         ).build()
         com.google.android.gms.auth.api.signin.GoogleSignIn.getClient(this, gso).signOut()
         goToLogin()
+    }
+
+    private fun setupSwipeToProfile() {
+        val density = resources.displayMetrics.density
+        val minDistance = 90 * density
+        val minVelocity = 350 * density
+        val chipRect = android.graphics.Rect()
+
+        swipeToProfileDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(
+                e1: MotionEvent?,
+                e2: MotionEvent,
+                velocityX: Float,
+                velocityY: Float
+            ): Boolean {
+                if (e1 == null || isSearchActive) return false
+
+                // Do not intercept if gesture started inside the category chips horizontal scroll
+                if (binding.chipGroupCategory.getGlobalVisibleRect(chipRect)) {
+                    if (chipRect.contains(e1.rawX.toInt(), e1.rawY.toInt())) {
+                        return false
+                    }
+                }
+
+                val diffX = e2.rawX - e1.rawX
+                val diffY = e2.rawY - e1.rawY
+
+                // Recognizes left-to-right swipe from anywhere on screen without breaking vertical scrolling
+                if (diffX > minDistance && kotlin.math.abs(diffX) > kotlin.math.abs(diffY) * 1.6f && velocityX > minVelocity) {
+                    startActivity(Intent(this@MainActivity, ProfileActivity::class.java))
+                    return true
+                }
+                return false
+            }
+        })
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        if (::swipeToProfileDetector.isInitialized) {
+            swipeToProfileDetector.onTouchEvent(ev)
+        }
+        return super.dispatchTouchEvent(ev)
     }
 }

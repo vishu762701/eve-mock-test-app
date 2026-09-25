@@ -3,12 +3,16 @@ package com.eve.app.ui.profile
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.net.Uri
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import coil.load
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.R
 import com.eve.app.data.repository.AdminRepository
@@ -34,11 +38,12 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var binding: ActivityProfileBinding
     private val adminRepo = AdminRepository()
     private var progressDialog: AlertDialog? = null
+    private var pendingPhotoUri: Uri? = null
 
     private val pickPhotoLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            if (uri != null && ProfilePhotoManager.savePhoto(this, uri)) {
-                loadProfilePhoto()
+            if (uri != null) {
+                previewSelectedPhoto(uri)
             }
         }
 
@@ -87,6 +92,25 @@ class ProfileActivity : AppCompatActivity() {
         loadProfilePhoto()
         binding.btnChangePhoto.setOnClickListener { pickPhotoLauncher.launch("image/*") }
         binding.ivProfilePhoto.setOnClickListener { pickPhotoLauncher.launch("image/*") }
+
+        binding.btnCancelPhoto.setOnClickListener {
+            cancelPhotoPreview()
+        }
+
+        binding.btnSavePhoto.setOnClickListener {
+            savePendingPhoto()
+        }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (pendingPhotoUri != null) {
+                    cancelPhotoPreview()
+                } else {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
 
         val setupAdminUi = {
             binding.chipAdmin.visibility = View.VISIBLE
@@ -235,6 +259,37 @@ class ProfileActivity : AppCompatActivity() {
             user.photoUrl?.toString(),
             com.eve.app.R.drawable.bg_circle_primary
         )
+    }
+
+    private fun previewSelectedPhoto(uri: Uri) {
+        pendingPhotoUri = uri
+        binding.ivProfilePhoto.background = null
+        binding.ivProfilePhoto.setPadding(0, 0, 0, 0)
+        binding.ivProfilePhoto.scaleType = ImageView.ScaleType.CENTER_CROP
+        binding.ivProfilePhoto.load(uri) {
+            crossfade(true)
+            placeholder(R.drawable.ic_person)
+            error(R.drawable.ic_person)
+        }
+        binding.layoutPhotoActions.visibility = View.VISIBLE
+    }
+
+    private fun cancelPhotoPreview() {
+        pendingPhotoUri = null
+        binding.layoutPhotoActions.visibility = View.GONE
+        loadProfilePhoto()
+    }
+
+    private fun savePendingPhoto() {
+        val uri = pendingPhotoUri ?: return
+        if (ProfilePhotoManager.savePhoto(this, uri)) {
+            Toast.makeText(this, "Profile photo updated", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Failed to save photo", Toast.LENGTH_SHORT).show()
+        }
+        pendingPhotoUri = null
+        binding.layoutPhotoActions.visibility = View.GONE
+        loadProfilePhoto()
     }
 
     override fun onDestroy() {
