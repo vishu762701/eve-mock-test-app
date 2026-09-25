@@ -38,9 +38,12 @@ class TestActivity : AppCompatActivity() {
     private var pyqPaper = ""
     private var totalQuestions = 0
     private var submitted = false
-    private val adminRepository = AdminRepository()
+    private var adminRepository = AdminRepository()
     private var isAdminUser = false
     private var hasEmptyPlayed = false
+    private var fromBookmark = false
+    private var initialQuestionId: String? = null
+    private var initialNavDone = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +59,8 @@ class TestActivity : AppCompatActivity() {
         topic = intent.getStringExtra(Constants.EXTRA_TOPIC).orEmpty()
         pyqYear = intent.getIntExtra(Constants.EXTRA_PYQ_YEAR, 0)
         pyqPaper = intent.getStringExtra(Constants.EXTRA_PYQ_PAPER).orEmpty()
+        fromBookmark = intent.getBooleanExtra(Constants.EXTRA_FROM_BOOKMARK, false)
+        initialQuestionId = intent.getStringExtra(Constants.EXTRA_INITIAL_QUESTION_ID)
 
         val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
         lifecycleScope.launch {
@@ -63,7 +68,7 @@ class TestActivity : AppCompatActivity() {
                 isHardcodedAdmin(user.email) || adminRepository.isAdmin(user.email)
             } ?: false
             isAdminUser = isAdmin
-            viewModel.start(examId, timeLimit, topic, pyqYear, pyqPaper, isAdminUser)
+            viewModel.start(examId, timeLimit, topic, pyqYear, pyqPaper, isAdminUser, examName, fromBookmark)
         }
         // Phase 15: exam start event — is exam ko kitni baar attempt kiya gaya, yeh track karta hai
         AnalyticsHelper.logExamStart(this, examId, examName, examCategory)
@@ -75,7 +80,7 @@ class TestActivity : AppCompatActivity() {
             binding.viewPager.currentItem = binding.viewPager.currentItem + 1
         }
         binding.btnSubmit.setOnClickListener { confirmSubmit() }
-        binding.btnRetry.setOnClickListener { viewModel.retry(examId, timeLimit, topic, pyqYear, pyqPaper, isAdminUser) }
+        binding.btnRetry.setOnClickListener { viewModel.retry(examId, timeLimit, topic, pyqYear, pyqPaper, isAdminUser, examName, fromBookmark) }
 
         LanguageManager.setupToggleButton(this, binding.btnLanguage) {
             binding.viewPager.adapter?.notifyDataSetChanged()
@@ -113,6 +118,13 @@ class TestActivity : AppCompatActivity() {
                                 android.widget.Toast.LENGTH_LONG
                             ).show()
                             finish()
+                        }
+                    }
+                }
+                launch {
+                    viewModel.bookmarksSynced.collect { synced ->
+                        if (synced) {
+                            binding.viewPager.adapter?.notifyDataSetChanged()
                         }
                     }
                 }
@@ -158,10 +170,12 @@ class TestActivity : AppCompatActivity() {
                         hasEmptyPlayed
                     )
                     binding.tvMessage.text = when {
+                        fromBookmark -> "Bookmarked question is no longer available"
                         pyqYear > 0 -> "No PYQs found for this year or paper"
                         else -> "No questions found for this exam"
                     }
                     binding.tvMessageSub.text = when {
+                        fromBookmark -> "This question may have been removed or updated"
                         pyqYear > 0 -> "Upload questions tagged with PYQ and year from Admin Dashboard"
                         else -> "Please ask an admin to add questions for this exam"
                     }
@@ -180,6 +194,21 @@ class TestActivity : AppCompatActivity() {
                         onToggleBookmark = { viewModel.toggleBookmark(it) },
                         isHindi = { LanguageManager.isHindi(this) }
                     )
+                }
+                if (!initialNavDone && !initialQuestionId.isNullOrBlank()) {
+                    initialNavDone = true
+                    val targetIndex = list.indexOfFirst { it.id == initialQuestionId }
+                    if (targetIndex >= 0) {
+                        binding.viewPager.post {
+                            binding.viewPager.setCurrentItem(targetIndex, false)
+                        }
+                    } else {
+                        android.widget.Toast.makeText(
+                            this@TestActivity,
+                            "Bookmarked question was not found in this test.",
+                            android.widget.Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
                 updateNav(binding.viewPager.currentItem)
             }

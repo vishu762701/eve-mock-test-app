@@ -34,6 +34,10 @@ object Constants {
     const val EXTRA_ATTEMPT_DATE = "extra_attempt_date"
     const val EXTRA_FROM_HISTORY = "extra_from_history"
 
+    // Bookmarks
+    const val EXTRA_INITIAL_QUESTION_ID = "extra_initial_question_id"
+    const val EXTRA_FROM_BOOKMARK = "extra_from_bookmark"
+
     // Phase 14: About screen ke links. GitHub Pages par docs/ folder se serve hote hain
     // (repo Settings -> Pages -> Source: main branch, /docs folder). Agar tumhara
     // GitHub username ya repo naam alag hai to yeh 2 URLs update kar dena.

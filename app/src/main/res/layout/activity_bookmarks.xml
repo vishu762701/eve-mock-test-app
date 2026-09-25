@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- Top App Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/eve_primary"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="4dp"
+        android:paddingVertical="10dp">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            android:padding="8dp"
+            android:src="@drawable/ic_back" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingStart="4dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_bold"
+                android:text="Bookmarked Questions"
+                android:textColor="@color/eve_on_primary"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/tvBookmarkCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:textColor="#D0FFFFFF"
+                android:textSize="12sp"
+                android:visibility="gone"
+                tools:text="3 questions saved"
+                tools:visibility="visible" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLanguage"
+            style="@style/Widget.Eve.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
+            android:minWidth="0dp"
+            android:paddingHorizontal="10dp"
+            android:text="HI"
+            android:textColor="@color/eve_on_primary" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvOfflineBanner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/eve_offline_bg"
+        android:gravity="center"
+        android:paddingVertical="6dp"
+        android:text="@string/offline_banner_text"
+        android:textColor="@color/eve_offline_text"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvBookmarks"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:layoutAnimation="@anim/layout_enter"
+            android:paddingTop="8dp"
+            android:paddingBottom="16dp" />
+
+        <LinearLayout
+            android:id="@+id/progressGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:fontFamily="@font/poppins_regular"
+                android:text="Loading bookmarks…"
+                android:textColor="@color/eve_grey"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/messageGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:visibility="gone">
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/ivMessageIcon"
+                android:layout_width="160dp"
+                android:layout_height="160dp"
+                android:background="@android:color/transparent"
+                app:lottie_autoPlay="false"
+                app:lottie_loop="false"
+                app:lottie_rawRes="@raw/search" />
+
+            <TextView
+                android:id="@+id/tvMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:gravity="center"
+                android:text="No bookmarks yet"
+                android:textColor="@color/eve_text"
+                android:textSize="17sp" />
+
+            <TextView
+                android:id="@+id/tvMessageSub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:fontFamily="@font/poppins_regular"
+                android:gravity="center"
+                android:text="Questions bookmarked during tests will appear here for review."
+                android:textColor="@color/eve_text_secondary"
+                android:textSize="13sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRetry"
+                style="@style/Widget.Eve.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Retry"
+                android:visibility="gone" />
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>

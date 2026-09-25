@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eve.app.data.model.AnswerItem
 import com.eve.app.data.model.Question
+import com.eve.app.data.repository.BookmarkRepository
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.data.repository.HistoryRepository
 import com.eve.app.util.UiState
@@ -20,6 +21,7 @@ class TestViewModel : ViewModel() {
 
     private val repo = ExamRepository()
     private val historyRepo = HistoryRepository()
+    private val bookmarkRepo = BookmarkRepository()
 
     private val _questions = MutableStateFlow<UiState<List<Question>>>(UiState.Loading)
     val questions: StateFlow<UiState<List<Question>>> = _questions.asStateFlow()
@@ -40,6 +42,11 @@ class TestViewModel : ViewModel() {
     // position -> bookmarked? "Review ke liye flag" state, swipe karne par bhi yaad rehta hai.
     private val bookmarks = mutableMapOf<Int, Boolean>()
 
+    private val _bookmarksSynced = MutableStateFlow(false)
+    val bookmarksSynced: StateFlow<Boolean> = _bookmarksSynced.asStateFlow()
+
+    private var cachedBookmarkedIds: Set<String> = emptySet()
+    private var currentExamName: String = ""
     private var started = false
     private var timerJob: Job? = null
 
@@ -49,15 +56,35 @@ class TestViewModel : ViewModel() {
         topic: String = "",
         pyqYear: Int = 0,
         pyqPaper: String = "",
-        isAdmin: Boolean = false
+        isAdmin: Boolean = false,
+        examName: String = "",
+        fromBookmark: Boolean = false
     ) {
         if (started) return
         started = true
+        currentExamName = examName
+
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            viewModelScope.launch {
+                bookmarkRepo.observeBookmarkIds(user.uid).collect { ids ->
+                    cachedBookmarkedIds = ids
+                    val curList = (_questions.value as? UiState.Success)?.data
+                    if (curList != null) {
+                        curList.forEachIndexed { idx, q ->
+                            val qId = bookmarkRepo.getStableId(q, idx + 1)
+                            bookmarks[idx] = ids.contains(qId)
+                        }
+                        _bookmarksSynced.value = true
+                    }
+                }
+            }
+        }
+
         viewModelScope.launch {
             try {
-                val user = FirebaseAuth.getInstance().currentUser
                 val isStandardMock = topic.isBlank() && pyqYear == 0
-                if (!isAdmin && user != null && examId.isNotBlank() && isStandardMock && historyRepo.hasAttempted(user.uid, examId)) {
+                if (!isAdmin && !fromBookmark && user != null && examId.isNotBlank() && isStandardMock && historyRepo.hasAttempted(user.uid, examId)) {
                     _alreadyAttempted.value = true
                     started = false
                     return@launch
@@ -94,7 +121,14 @@ class TestViewModel : ViewModel() {
                         }
                     }
                 }
+                list.forEachIndexed { idx, q ->
+                    val qId = bookmarkRepo.getStableId(q, idx + 1)
+                    bookmarks[idx] = cachedBookmarkedIds.contains(qId)
+                }
                 _questions.value = UiState.Success(list)
+                if (cachedBookmarkedIds.isNotEmpty()) {
+                    _bookmarksSynced.value = true
+                }
                 if (list.isNotEmpty()) startTimer(timeLimitMinutes * 60L)
             } catch (e: Exception) {
                 started = false
@@ -109,12 +143,14 @@ class TestViewModel : ViewModel() {
         topic: String = "",
         pyqYear: Int = 0,
         pyqPaper: String = "",
-        isAdmin: Boolean = false
+        isAdmin: Boolean = false,
+        examName: String = "",
+        fromBookmark: Boolean = false
     ) {
         _questions.value = UiState.Loading
         _alreadyAttempted.value = false
         started = false
-        start(examId, timeLimitMinutes, topic, pyqYear, pyqPaper, isAdmin)
+        start(examId, timeLimitMinutes, topic, pyqYear, pyqPaper, isAdmin, examName, fromBookmark)
     }
 
     private fun startTimer(totalSeconds: Long) {
@@ -147,7 +183,20 @@ class TestViewModel : ViewModel() {
     fun isBookmarked(position: Int): Boolean = bookmarks[position] ?: false
 
     fun toggleBookmark(position: Int) {
-        bookmarks[position] = !isBookmarked(position)
+        val current = isBookmarked(position)
+        bookmarks[position] = !current
+        val user = FirebaseAuth.getInstance().currentUser ?: return
+        val list = (_questions.value as? UiState.Success)?.data ?: return
+        val q = list.getOrNull(position) ?: return
+        viewModelScope.launch {
+            bookmarkRepo.toggleBookmark(
+                userId = user.uid,
+                question = q,
+                examName = currentExamName,
+                questionNumber = position + 1,
+                currentlyBookmarked = current
+            )
+        }
     }
 
     fun buildAnswerItems(): ArrayList<AnswerItem> {

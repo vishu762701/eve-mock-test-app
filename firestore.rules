@@ -113,6 +113,12 @@ service cloud.firestore {
       match /pinned_exams/{examId} {
         allow read, write: if isSignedIn() && request.auth.uid == userId;
       }
+
+      // Bookmarked Questions subcollection (Student apne bookmarked questions save karta hai)
+      // - Sirf wahi user apne bookmarks read aur modify kar sakta hai.
+      match /bookmarks/{questionId} {
+        allow read, write: if isSignedIn() && request.auth.uid == userId;
+      }
     }
 
     // ------------------------------------------------------------------------

@@ -52,6 +52,7 @@
             android:exported="false"
             android:theme="@style/Theme.Eve.Profile" />
         <activity android:name=".ui.history.HistoryActivity" android:exported="false" />
+        <activity android:name=".ui.bookmarks.BookmarksActivity" android:exported="false" />
         <activity android:name=".ui.test.TestActivity" android:exported="false" />
         <activity android:name=".ui.result.ResultActivity" android:exported="false" />
         <activity android:name=".ui.leaderboard.LeaderboardActivity" android:exported="false" />

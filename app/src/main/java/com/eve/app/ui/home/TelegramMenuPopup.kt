@@ -1,6 +1,9 @@
 package com.eve.app.ui.home
 
+import android.app.Activity
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
@@ -11,6 +14,7 @@ import android.widget.PopupWindow
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import com.eve.app.R
 import com.eve.app.databinding.PopupTelegramMenuBinding
+import com.eve.app.util.FastBlurHelper
 import com.eve.app.util.GlassmorphismHelper
 import com.eve.app.util.ThemeManager
 
@@ -19,6 +23,7 @@ class TelegramMenuPopup(
     private val onThemeToggle: (originX: Int, originY: Int) -> Unit,
     private val onHistory: () -> Unit,
     private val onPerformance: () -> Unit,
+    private val onBookmarks: () -> Unit,
     private val onTopic: () -> Unit,
     private val onPyq: () -> Unit,
     private val onSyllabus: () -> Unit,
@@ -30,6 +35,7 @@ class TelegramMenuPopup(
         PopupTelegramMenuBinding.inflate(LayoutInflater.from(context))
     private var isDismissing = false
     private var anchorViewRef: View? = null
+    private var blurBitmap: Bitmap? = null
 
     init {
         contentView = binding.root
@@ -42,6 +48,11 @@ class TelegramMenuPopup(
 
         setupThemeCard()
         setupListeners()
+
+        setOnDismissListener {
+            blurBitmap?.recycle()
+            blurBitmap = null
+        }
     }
 
     private fun setupThemeCard() {
@@ -78,6 +89,9 @@ class TelegramMenuPopup(
         binding.menuRowPerformance.setOnClickListener {
             dismissWithAction { onPerformance() }
         }
+        binding.menuRowBookmarks.setOnClickListener {
+            dismissWithAction { onBookmarks() }
+        }
         binding.menuRowTopic.setOnClickListener {
             dismissWithAction { onTopic() }
         }
@@ -113,6 +127,37 @@ class TelegramMenuPopup(
 
         // Align right edge of popup with right edge of 3-dot anchor icon, right beneath it
         val xOffset = -(measuredW - anchorView.width)
+
+        // Capture background slice directly behind popup rect for strong frosted blur
+        val activity = (anchorView.context as? Activity) ?: (context as? Activity)
+        if (activity != null) {
+            try {
+                val decor = activity.window.decorView
+                if (decor.width > 0 && decor.height > 0) {
+                    val anchorLoc = IntArray(2)
+                    anchorView.getLocationOnScreen(anchorLoc)
+                    val popupX = (anchorLoc[0] + xOffset).coerceIn(0, (decor.width - measuredW).coerceAtLeast(0))
+                    val popupY = (anchorLoc[1] + anchorView.height + 4).coerceIn(0, (decor.height - measuredH).coerceAtLeast(0))
+
+                    val scale = 4
+                    val sampleW = (measuredW / scale).coerceAtLeast(1)
+                    val sampleH = (measuredH / scale).coerceAtLeast(1)
+                    val bmp = Bitmap.createBitmap(sampleW, sampleH, Bitmap.Config.ARGB_8888)
+                    val canvas = Canvas(bmp)
+                    canvas.scale(1f / scale, 1f / scale)
+                    canvas.translate(-popupX.toFloat(), -popupY.toFloat())
+                    decor.draw(canvas)
+
+                    val blurred = FastBlurHelper.blur(bmp, radius = 20, canReuseInBitmap = true)
+                    blurBitmap?.recycle()
+                    blurBitmap = blurred
+                    binding.ivGlassBlurBackground.setImageBitmap(blurred)
+                }
+            } catch (_: Throwable) {
+                // Fallback gracefully
+            }
+        }
+
         showAsDropDown(anchorView, xOffset, 4)
 
         // Task C: Apply animated background blur on supported Android versions
@@ -151,6 +196,8 @@ class TelegramMenuPopup(
             .withEndAction {
                 isDismissing = false
                 super.dismiss()
+                blurBitmap?.recycle()
+                blurBitmap = null
                 action()
             }
             .start()
@@ -172,6 +219,8 @@ class TelegramMenuPopup(
             .withEndAction {
                 isDismissing = false
                 super.dismiss()
+                blurBitmap?.recycle()
+                blurBitmap = null
             }
             .start()
     }

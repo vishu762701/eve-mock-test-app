@@ -32,6 +32,7 @@ import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.FeedbackRepository
 import com.eve.app.databinding.ActivityMainBinding
 import com.eve.app.ui.admin.AdminActivity
+import com.eve.app.ui.bookmarks.BookmarksActivity
 import com.eve.app.ui.history.HistoryActivity
 import com.eve.app.ui.leaderboard.LeaderboardActivity
 import com.eve.app.ui.login.LoginActivity
@@ -188,6 +189,7 @@ class MainActivity : AppCompatActivity() {
                 onThemeToggle = { cx, cy -> ThemeManager.toggleWithCircularReveal(this, cx, cy) },
                 onHistory = { startActivity(Intent(this, HistoryActivity::class.java)) },
                 onPerformance = { startActivity(Intent(this, PerformanceActivity::class.java)) },
+                onBookmarks = { startActivity(Intent(this, BookmarksActivity::class.java)) },
                 onTopic = { startActivity(Intent(this, PracticeActivity::class.java)) },
                 onPyq = { startActivity(Intent(this, PyqActivity::class.java)) },
                 onSyllabus = { startActivity(Intent(this, SyllabusActivity::class.java)) },
