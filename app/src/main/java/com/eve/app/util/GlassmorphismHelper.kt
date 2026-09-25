@@ -15,7 +15,7 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator
  */
 object GlassmorphismHelper {
 
-    const val DEFAULT_BLUR_RADIUS = 28
+    const val DEFAULT_BLUR_RADIUS = 32
 
     fun applyWindowBlur(view: View, blurRadius: Int = DEFAULT_BLUR_RADIUS, animate: Boolean = true) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

@@ -25,6 +25,10 @@ class HomeBannerAdapter(
         val binding = ItemHomeBannerBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
+        binding.root.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
         return BannerVH(binding)
     }
 

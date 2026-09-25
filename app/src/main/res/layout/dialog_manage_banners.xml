@@ -43,7 +43,7 @@
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardPreviewBanner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="150dp"
             android:layout_marginTop="10dp"
             android:visibility="gone"
             app:cardBackgroundColor="@color/eve_card_bg"
@@ -55,10 +55,10 @@
             <ImageView
                 android:id="@+id/ivPreviewBanner"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:contentDescription="Banner live preview"
-                android:scaleType="fitCenter" />
+                android:scaleType="centerCrop" />
         </com.google.android.material.card.MaterialCardView>
 
         <TextView
