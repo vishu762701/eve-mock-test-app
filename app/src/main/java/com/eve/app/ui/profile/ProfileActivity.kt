@@ -86,6 +86,12 @@ class ProfileActivity : AppCompatActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
 
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                finish()
+            }
+        })
+
         binding.tvName.text = user.displayName ?: "Student"
         binding.tvEmail.text = user.email ?: ""
 
@@ -290,6 +296,16 @@ class ProfileActivity : AppCompatActivity() {
         pendingPhotoUri = null
         binding.layoutPhotoActions.visibility = View.GONE
         loadProfilePhoto()
+    }
+
+    override fun finish() {
+        super.finish()
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, R.anim.stay_visible, R.anim.slide_out_left)
+        } else {
+            @Suppress("DEPRECATION")
+            overridePendingTransition(R.anim.stay_visible, R.anim.slide_out_left)
+        }
     }
 
     override fun onDestroy() {

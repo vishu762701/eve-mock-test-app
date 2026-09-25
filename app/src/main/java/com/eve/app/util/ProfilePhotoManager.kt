@@ -88,7 +88,8 @@ object ProfilePhotoManager {
                 }
             }
             else -> {
-                imageView.setImageResource(R.drawable.ic_person)
+                val iconRes = if (imageView.id == R.id.ivProfile) R.drawable.ic_user_profile else R.drawable.ic_person
+                imageView.setImageResource(iconRes)
                 imageView.setBackgroundResource(placeholderBg)
                 imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
                 val pad = (imageView.layoutParams?.width ?: 96).coerceAtLeast(40) / 5

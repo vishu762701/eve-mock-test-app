@@ -69,7 +69,7 @@ class TelegramMenuPopup(
             binding.ivThemeIcon.setImageResource(if (isDark) R.drawable.ic_moon else R.drawable.ic_sun)
 
             val loc = IntArray(2)
-            binding.cardTheme.getLocationInWindow(loc)
+            binding.cardTheme.getLocationOnScreen(loc)
             val cx = if (lastTouchX > 0f) lastTouchX.toInt() else (loc[0] + binding.cardTheme.width / 2)
             val cy = if (lastTouchY > 0f) lastTouchY.toInt() else (loc[1] + binding.cardTheme.height / 2)
 

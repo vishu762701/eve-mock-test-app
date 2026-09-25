@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Screen slides in from the left (X: -100% to 0) -->
+<translate xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="260"
+    android:fromXDelta="-100%p"
+    android:interpolator="@android:interpolator/decelerate_cubic"
+    android:toXDelta="0" />

@@ -6,35 +6,101 @@
     android:background="@color/eve_bg"
     android:orientation="vertical">
 
-    <!-- Top Bar -->
-    <LinearLayout
+    <!-- Top Bar Container -->
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/eve_surface"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="12dp">
+        android:layout_height="wrap_content">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Back"
-            android:padding="8dp"
-            android:src="@drawable/ic_back"
-            app:tint="@color/eve_text" />
-
-        <TextView
-            android:layout_width="wrap_content"
+        <!-- Normal Top Bar -->
+        <LinearLayout
+            android:id="@+id/normalTopBar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:fontFamily="@font/poppins_semibold"
-            android:text="Send Notification"
-            android:textColor="@color/eve_text"
-            android:textSize="19sp" />
-    </LinearLayout>
+            android:background="@color/eve_surface"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Back"
+                android:padding="8dp"
+                android:src="@drawable/ic_back"
+                app:tint="@color/eve_text" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="Send Notification"
+                android:textColor="@color/eve_text"
+                android:textSize="19sp" />
+        </LinearLayout>
+
+        <!-- Selection Mode Top Bar -->
+        <LinearLayout
+            android:id="@+id/selectionTopBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/eve_surface"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:visibility="gone">
+
+            <ImageButton
+                android:id="@+id/btnCancelSelection"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Cancel Selection"
+                android:padding="8dp"
+                android:src="@drawable/ic_close"
+                app:tint="@color/eve_text" />
+
+            <TextView
+                android:id="@+id/tvSelectedCount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="0 selected"
+                android:textColor="@color/eve_text"
+                android:textSize="17sp" />
+
+            <TextView
+                android:id="@+id/btnSelectAll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:fontFamily="@font/poppins_medium"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="8dp"
+                android:text="Select all"
+                android:textColor="@color/eve_primary"
+                android:textSize="14sp" />
+
+            <ImageButton
+                android:id="@+id/btnDeleteSelected"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Delete Selected"
+                android:padding="8dp"
+                android:src="@drawable/ic_delete"
+                app:tint="@color/eve_red" />
+        </LinearLayout>
+    </FrameLayout>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -180,6 +246,13 @@
                 android:text="No broadcast messages sent yet."
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="14sp"
+                android:visibility="gone" />
+
+            <com.eve.app.ui.common.ErrorStateView
+                android:id="@+id/compactErrorView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
                 android:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView

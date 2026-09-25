@@ -3,12 +3,15 @@ package com.eve.app.ui.admin
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.data.model.BroadcastMessage
 import com.eve.app.databinding.ActivitySendNotificationBinding
+import com.eve.app.ui.common.ErrorStateView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -21,14 +24,36 @@ class SendNotificationActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySendNotificationBinding
     private var sentListener: ListenerRegistration? = null
-    private val sentAdapter = SentBroadcastAdapter(
-        onManage = { broadcast -> showManageBroadcastDialog(broadcast) }
-    )
+    private lateinit var sentAdapter: SentBroadcastAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySendNotificationBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        sentAdapter = SentBroadcastAdapter(
+            onManage = { broadcast ->
+                if (!sentAdapter.isSelectionMode) {
+                    showManageBroadcastDialog(broadcast)
+                }
+            },
+            onItemClick = { broadcast ->
+                if (sentAdapter.isSelectionMode) {
+                    sentAdapter.toggleSelection(broadcast.id)
+                    updateSelectionCountUI()
+                }
+            },
+            onItemLongClick = { broadcast ->
+                if (!sentAdapter.isSelectionMode) {
+                    enterSelectionMode(broadcast.id)
+                } else {
+                    sentAdapter.toggleSelection(broadcast.id)
+                    updateSelectionCountUI()
+                }
+            }
+        )
+
+        binding.compactErrorView.displayMode = ErrorStateView.DisplayMode.COMPACT
 
         binding.btnBack.setOnClickListener { finish() }
 
@@ -39,7 +64,146 @@ class SendNotificationActivity : AppCompatActivity() {
             validateAndConfirm()
         }
 
+        setupSelectionTopBar()
+        setupBackPressed()
         listenToSentBroadcasts()
+    }
+
+    private fun setupSelectionTopBar() {
+        binding.btnCancelSelection.setOnClickListener {
+            exitSelectionMode()
+        }
+
+        binding.btnSelectAll.setOnClickListener {
+            val allIds = sentAdapter.currentList.map { it.id }
+            if (sentAdapter.selectedIds.size == allIds.size && allIds.isNotEmpty()) {
+                sentAdapter.clearSelection()
+            } else {
+                sentAdapter.selectAll(allIds)
+            }
+            updateSelectionCountUI()
+        }
+
+        binding.btnDeleteSelected.setOnClickListener {
+            confirmDeleteSelected()
+        }
+    }
+
+    private fun setupBackPressed() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (sentAdapter.isSelectionMode) {
+                    exitSelectionMode()
+                } else {
+                    finish()
+                }
+            }
+        })
+    }
+
+    private fun enterSelectionMode(initialSelectedId: String) {
+        sentAdapter.isSelectionMode = true
+        sentAdapter.selectedIds.clear()
+        sentAdapter.selectedIds.add(initialSelectedId)
+        sentAdapter.notifyDataSetChanged()
+
+        binding.compactErrorView.visibility = View.GONE
+        binding.normalTopBar.visibility = View.GONE
+        binding.selectionTopBar.visibility = View.VISIBLE
+        updateSelectionCountUI()
+    }
+
+    private fun exitSelectionMode() {
+        sentAdapter.clearSelection()
+        sentAdapter.isSelectionMode = false
+        sentAdapter.notifyDataSetChanged()
+
+        binding.compactErrorView.visibility = View.GONE
+        binding.selectionTopBar.visibility = View.GONE
+        binding.normalTopBar.visibility = View.VISIBLE
+    }
+
+    private fun updateSelectionCountUI() {
+        val count = sentAdapter.selectedIds.size
+        binding.tvSelectedCount.text = "$count selected"
+        binding.btnDeleteSelected.isEnabled = count > 0
+        binding.btnDeleteSelected.alpha = if (count > 0) 1.0f else 0.4f
+
+        val total = sentAdapter.currentList.size
+        binding.btnSelectAll.text = if (count > 0 && count == total) "Deselect all" else "Select all"
+    }
+
+    private fun confirmDeleteSelected() {
+        val count = sentAdapter.selectedIds.size
+        if (count == 0) return
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Delete Broadcasts?")
+            .setMessage("Delete $count broadcasts? They will be removed from all students' notification lists.")
+            .setPositiveButton("Delete") { _, _ ->
+                deleteSelectedBroadcasts()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun deleteSelectedBroadcasts() {
+        val idsToDelete = sentAdapter.selectedIds.toList()
+        if (idsToDelete.isEmpty()) return
+
+        binding.progressBarSent.visibility = View.VISIBLE
+        binding.compactErrorView.visibility = View.GONE
+
+        lifecycleScope.launch {
+            val db = FirebaseFirestore.getInstance()
+            val chunks = idsToDelete.chunked(500)
+            var successCount = 0
+            var failCount = 0
+            var lastError: Exception? = null
+
+            for (chunk in chunks) {
+                try {
+                    val batch = db.batch()
+                    for (id in chunk) {
+                        batch.delete(db.collection("notifications").document(id))
+                    }
+                    batch.commit().await()
+                    successCount += chunk.size
+                } catch (e: Exception) {
+                    failCount += chunk.size
+                    lastError = e
+                }
+            }
+
+            binding.progressBarSent.visibility = View.GONE
+
+            if (failCount > 0) {
+                val errorMsg = if (successCount > 0) {
+                    "Deleted $successCount broadcasts, but $failCount failed: ${lastError?.localizedMessage ?: "Unknown error"}"
+                } else {
+                    "Failed to delete broadcasts: ${lastError?.localizedMessage ?: "Unknown error"}"
+                }
+                binding.compactErrorView.visibility = View.VISIBLE
+                binding.compactErrorView.show(
+                    type = ErrorStateView.ErrorType.SERVER_ERROR,
+                    customMessage = errorMsg,
+                    customTitle = "Delete Failed",
+                    onRetry = { deleteSelectedBroadcasts() }
+                )
+                Toast.makeText(this@SendNotificationActivity, errorMsg, Toast.LENGTH_LONG).show()
+                // Keep remaining failed items selected
+                val remainingIds = idsToDelete.takeLast(failCount)
+                sentAdapter.selectAll(remainingIds)
+                updateSelectionCountUI()
+            } else {
+                Toast.makeText(
+                    this@SendNotificationActivity,
+                    "Successfully deleted $successCount broadcast${if (successCount > 1) "s" else ""}",
+                    Toast.LENGTH_SHORT
+                ).show()
+                exitSelectionMode()
+            }
+        }
     }
 
     override fun onDestroy() {
@@ -56,9 +220,16 @@ class SendNotificationActivity : AppCompatActivity() {
             .addSnapshotListener { snapshot, error ->
                 binding.progressBarSent.visibility = View.GONE
                 if (error != null) {
-                    Toast.makeText(this, "Failed to load sent broadcasts: ${error.localizedMessage}", Toast.LENGTH_SHORT).show()
+                    binding.compactErrorView.visibility = View.VISIBLE
+                    binding.compactErrorView.show(
+                        type = ErrorStateView.ErrorType.SERVER_ERROR,
+                        customMessage = "Failed to load sent broadcasts: ${error.localizedMessage}",
+                        customTitle = "Loading Error",
+                        onRetry = { listenToSentBroadcasts() }
+                    )
                     return@addSnapshotListener
                 }
+                binding.compactErrorView.visibility = View.GONE
                 val broadcasts = snapshot?.documents?.mapNotNull { doc ->
                     val title = doc.getString("title") ?: return@mapNotNull null
                     val message = doc.getString("message") ?: return@mapNotNull null
@@ -85,7 +256,7 @@ class SendNotificationActivity : AppCompatActivity() {
     private fun showManageBroadcastDialog(broadcast: BroadcastMessage) {
         val title = if (broadcast.title.isNotBlank()) broadcast.title else "Broadcast Message"
         val options = arrayOf("🗑️ Delete This Message", "Cancel")
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(title)
             .setMessage(broadcast.message)
             .setItems(options) { dialog, which ->
@@ -99,7 +270,7 @@ class SendNotificationActivity : AppCompatActivity() {
 
     private fun confirmDeleteBroadcast(broadcast: BroadcastMessage) {
         val titleText = if (broadcast.title.isNotBlank()) "'${broadcast.title}'" else "this message"
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle("Delete Broadcast?")
             .setMessage("Delete $titleText? Only this individual broadcast will be deleted, leaving all other messages intact.")
             .setPositiveButton("Delete") { _, _ ->
@@ -115,6 +286,7 @@ class SendNotificationActivity : AppCompatActivity() {
             return
         }
         binding.progressBarSent.visibility = View.VISIBLE
+        binding.compactErrorView.visibility = View.GONE
         lifecycleScope.launch {
             try {
                 FirebaseFirestore.getInstance()
@@ -124,16 +296,18 @@ class SendNotificationActivity : AppCompatActivity() {
                     .await()
 
                 Toast.makeText(this@SendNotificationActivity, "Broadcast deleted successfully", Toast.LENGTH_SHORT).show()
-                // Optimistically update adapter immediately
                 val updated = sentAdapter.currentList.filter { it.id != broadcast.id }
                 sentAdapter.submitList(updated)
                 binding.tvNoSentBroadcasts.visibility = if (updated.isEmpty()) View.VISIBLE else View.GONE
             } catch (e: Exception) {
-                Toast.makeText(
-                    this@SendNotificationActivity,
-                    "Failed to delete broadcast: ${e.localizedMessage ?: "Unknown error"}",
-                    Toast.LENGTH_LONG
-                ).show()
+                val err = "Failed to delete broadcast: ${e.localizedMessage ?: "Unknown error"}"
+                binding.compactErrorView.visibility = View.VISIBLE
+                binding.compactErrorView.show(
+                    type = ErrorStateView.ErrorType.SERVER_ERROR,
+                    customMessage = err,
+                    customTitle = "Delete Error"
+                )
+                Toast.makeText(this@SendNotificationActivity, err, Toast.LENGTH_LONG).show()
             } finally {
                 binding.progressBarSent.visibility = View.GONE
             }

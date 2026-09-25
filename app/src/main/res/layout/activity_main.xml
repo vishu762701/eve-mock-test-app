@@ -29,8 +29,9 @@
                 android:background="@drawable/bg_circle_translucent"
                 android:contentDescription="Profile"
                 android:padding="9dp"
-                android:src="@drawable/ic_person"
-                app:shapeAppearanceOverlay="@style/ShapeCircle" />
+                android:src="@drawable/ic_user_profile"
+                app:shapeAppearanceOverlay="@style/ShapeCircle"
+                app:tint="@color/eve_text" />
 
             <LinearLayout
                 android:id="@+id/titleGroup"

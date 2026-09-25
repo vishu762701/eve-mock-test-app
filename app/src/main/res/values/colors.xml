@@ -37,8 +37,8 @@
     <color name="eve_chart_fill">#22111111</color>
     <color name="eve_chart_grid">#D0D0D0</color>
     <color name="eve_chart_label">#666666</color>
-    <!-- 3-Dot Dropdown Glassmorphism Colors -->
-    <color name="eve_menu_glass_bg">#F2FFFFFF</color>
-    <color name="eve_menu_glass_border">#26000000</color>
+    <!-- 3-Dot Dropdown Glassmorphism Colors (frosted glass 5-8% opacity tint + 95% window blur) -->
+    <color name="eve_menu_glass_bg">#14FFFFFF</color>
+    <color name="eve_menu_glass_border">#33000000</color>
     <color name="eve_menu_glass_divider">#1A000000</color>
 </resources>

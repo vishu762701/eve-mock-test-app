@@ -11,7 +11,7 @@ import android.view.WindowManager
  */
 object GlassmorphismHelper {
 
-    fun applyWindowBlur(view: View, blurRadius: Int = 110) {
+    fun applyWindowBlur(view: View, blurRadius: Int = 140) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             view.post {
                 try {

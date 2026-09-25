@@ -111,8 +111,7 @@
                     android:layout_height="24dp"
                     android:background="@android:color/transparent"
                     android:contentDescription="Performance"
-                    android:src="@drawable/ic_performance"
-                    app:tint="@color/eve_text" />
+                    android:src="@drawable/ic_performance_increase" />
 
                 <TextView
                     android:layout_width="wrap_content"

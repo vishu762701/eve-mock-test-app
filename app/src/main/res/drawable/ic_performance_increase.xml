@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Baseline -->
+    <path
+        android:pathData="M1,22.33h22"
+        android:strokeColor="#191919"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="1" />
+
+    <!-- Bar 1 (Yellow) -->
+    <path
+        android:fillColor="#ffef5e"
+        android:pathData="M4.826,22.33v-2.295a0.47,0.47 0 0,0 -0.479,-0.46H2.434a0.47,0.47 0 0,0 -0.478,0.46v2.295z" />
+
+    <!-- Bar 2 (Purple) -->
+    <path
+        android:fillColor="#d480ff"
+        android:pathData="M10.565,22.33v-5.969a0.47,0.47 0 0,0 -0.478,-0.459H8.174a0.47,0.47 0 0,0 -0.479,0.46v5.968z" />
+
+    <!-- Bar 3 (Yellow) -->
+    <path
+        android:fillColor="#ffef5e"
+        android:pathData="M16.304,22.33v-9.64a0.47,0.47 0 0,0 -0.478,-0.46h-1.913a0.466,0.466 0 0,0 -0.478,0.46v9.641z" />
+
+    <!-- Bar 4 (Purple) -->
+    <path
+        android:fillColor="#d480ff"
+        android:pathData="M22.043,22.33V9.016a0.47,0.47 0 0,0 -0.478,-0.46h-1.913a0.47,0.47 0 0,0 -0.478,0.46V22.33z" />
+
+    <!-- Highlights -->
+    <path
+        android:fillColor="#eabfff"
+        android:pathData="M10.087,15.902H8.174a0.47,0.47 0 0,0 -0.479,0.46v2.08a0.47,0.47 0 0,1 0.479,-0.46h1.913a0.47,0.47 0 0,1 0.478,0.46v-2.08a0.47,0.47 0 0,0 -0.478,-0.46" />
+    <path
+        android:fillColor="#fff9bf"
+        android:pathData="M15.826,12.23h-1.913a0.466,0.466 0 0,0 -0.478,0.458v2.086a0.47,0.47 0 0,1 0.478,-0.46h1.913a0.47,0.47 0 0,1 0.478,0.46v-2.085a0.47,0.47 0 0,0 -0.478,-0.46" />
+    <path
+        android:fillColor="#eabfff"
+        android:pathData="M21.565,8.557h-1.913a0.47,0.47 0 0,0 -0.478,0.459v2.08a0.47,0.47 0 0,1 0.298,-0.427a0.5,0.5 0 0,1 0.18,-0.032h1.913a0.47,0.47 0 0,1 0.478,0.46V9.015a0.47,0.47 0 0,0 -0.478,-0.46" />
+
+    <!-- Outlines and Trend Arrow -->
+    <path
+        android:pathData="M4.826,22.33v-2.295a0.47,0.47 0 0,0 -0.479,-0.46H2.434a0.47,0.47 0 0,0 -0.478,0.46v2.295zm5.739,0v-5.969a0.47,0.47 0 0,0 -0.478,-0.459H8.174a0.47,0.47 0 0,0 -0.479,0.46v5.968zm5.739,0v-9.64a0.47,0.47 0 0,0 -0.478,-0.46h-1.913a0.466,0.466 0 0,0 -0.478,0.46v9.641zm5.739,0V9.016a0.47,0.47 0 0,0 -0.478,-0.46h-1.913a0.47,0.47 0 0,0 -0.478,0.46V22.33zM3.391,13.148l17.217,-11.02m-0.478,3.674l0.479,-3.673l-3.826,-0.46"
+        android:strokeColor="#191919"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="1" />
+</vector>

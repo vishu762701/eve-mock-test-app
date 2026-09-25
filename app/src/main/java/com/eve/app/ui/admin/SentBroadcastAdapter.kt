@@ -1,6 +1,7 @@
 package com.eve.app.ui.admin
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -12,10 +13,35 @@ import java.util.Date
 import java.util.Locale
 
 class SentBroadcastAdapter(
-    private val onManage: (BroadcastMessage) -> Unit
+    private val onManage: (BroadcastMessage) -> Unit,
+    private val onItemClick: (BroadcastMessage) -> Unit,
+    private val onItemLongClick: (BroadcastMessage) -> Unit
 ) : ListAdapter<BroadcastMessage, SentBroadcastAdapter.VH>(DiffCallback) {
 
     private val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
+
+    var isSelectionMode: Boolean = false
+    val selectedIds = mutableSetOf<String>()
+
+    fun toggleSelection(id: String) {
+        if (selectedIds.contains(id)) {
+            selectedIds.remove(id)
+        } else {
+            selectedIds.add(id)
+        }
+        notifyDataSetChanged()
+    }
+
+    fun selectAll(ids: Collection<String>) {
+        selectedIds.clear()
+        selectedIds.addAll(ids)
+        notifyDataSetChanged()
+    }
+
+    fun clearSelection() {
+        selectedIds.clear()
+        notifyDataSetChanged()
+    }
 
     object DiffCallback : DiffUtil.ItemCallback<BroadcastMessage>() {
         override fun areItemsTheSame(oldItem: BroadcastMessage, newItem: BroadcastMessage): Boolean =
@@ -35,10 +61,41 @@ class SentBroadcastAdapter(
                 "—"
             }
             binding.tvBroadcastTime.text = formattedTime
-            binding.btnManageBroadcast.setOnClickListener {
-                val position = bindingAdapterPosition
-                if (position != RecyclerView.NO_POSITION) {
-                    onManage(getItem(position))
+
+            if (isSelectionMode) {
+                binding.cbSelect.visibility = View.VISIBLE
+                binding.cbSelect.isChecked = selectedIds.contains(item.id)
+                binding.btnManageBroadcast.visibility = View.GONE
+
+                binding.root.setOnClickListener {
+                    val pos = bindingAdapterPosition
+                    if (pos != RecyclerView.NO_POSITION) {
+                        onItemClick(getItem(pos))
+                    }
+                }
+                binding.root.setOnLongClickListener {
+                    val pos = bindingAdapterPosition
+                    if (pos != RecyclerView.NO_POSITION) {
+                        onItemLongClick(getItem(pos))
+                    }
+                    true
+                }
+            } else {
+                binding.cbSelect.visibility = View.GONE
+                binding.btnManageBroadcast.visibility = View.VISIBLE
+                binding.btnManageBroadcast.setOnClickListener {
+                    val pos = bindingAdapterPosition
+                    if (pos != RecyclerView.NO_POSITION) {
+                        onManage(getItem(pos))
+                    }
+                }
+                binding.root.setOnClickListener(null)
+                binding.root.setOnLongClickListener {
+                    val pos = bindingAdapterPosition
+                    if (pos != RecyclerView.NO_POSITION) {
+                        onItemLongClick(getItem(pos))
+                    }
+                    true
                 }
             }
         }
@@ -53,4 +110,3 @@ class SentBroadcastAdapter(
 
     override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(getItem(position))
 }
-

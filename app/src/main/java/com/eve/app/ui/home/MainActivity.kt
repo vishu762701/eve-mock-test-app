@@ -165,7 +165,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.ivProfile.setOnClickListener {
-            startActivity(Intent(this, ProfileActivity::class.java))
+            openProfileWithLeftSlide()
         }
         loadProfilePhoto(user)
 
@@ -672,12 +672,22 @@ class MainActivity : AppCompatActivity() {
 
                 // Recognizes left-to-right swipe from anywhere on screen without breaking vertical scrolling
                 if (diffX > minDistance && kotlin.math.abs(diffX) > kotlin.math.abs(diffY) * 1.6f && velocityX > minVelocity) {
-                    startActivity(Intent(this@MainActivity, ProfileActivity::class.java))
+                    openProfileWithLeftSlide()
                     return true
                 }
                 return false
             }
         })
+    }
+
+    private fun openProfileWithLeftSlide() {
+        startActivity(Intent(this, ProfileActivity::class.java))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, R.anim.slide_in_left, R.anim.stay_visible)
+        } else {
+            @Suppress("DEPRECATION")
+            overridePendingTransition(R.anim.slide_in_left, R.anim.stay_visible)
+        }
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
