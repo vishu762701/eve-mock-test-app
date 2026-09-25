@@ -21,6 +21,7 @@ import android.view.PixelCopy
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
@@ -44,7 +45,8 @@ object ThemeManager {
         val originX: Int,
         val originY: Int,
         val oldActivityId: Int,
-        val activityClassName: String
+        val activityClassName: String,
+        val isReverse: Boolean
     )
 
     private var pendingSnapshot: SnapshotHolder? = null
@@ -274,12 +276,17 @@ object ThemeManager {
         originY: Int
     ) {
         transitioning = true
+        val isCurrentDark = isDarkMode(activity)
+        // If currently dark, next is light -> reverse collapse to button (max -> 0)
+        // If currently light, next is dark -> forward expand from button (0 -> max)
+        val isReverse = isCurrentDark
         pendingSnapshot = SnapshotHolder(
             bitmap = bitmap,
             originX = originX,
             originY = originY,
             oldActivityId = System.identityHashCode(activity),
-            activityClassName = activity.javaClass.name
+            activityClassName = activity.javaClass.name,
+            isReverse = isReverse
         )
 
         // Add pre-overlay on old screen to prevent any flash before activity recreation begins
@@ -345,7 +352,7 @@ object ThemeManager {
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
         )
 
-        val overlayView = CircularRevealOverlayView(activity, bitmap, cx, cy) {
+        val overlayView = CircularRevealOverlayView(activity, bitmap, cx, cy, holder.isReverse) {
             decorView.removeView(activeOverlay)
             activity.window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
             activeOverlay = null
@@ -376,13 +383,14 @@ object ThemeManager {
         button.setOnClickListener {
             if (transitioning) return@setOnClickListener
 
-            // Synced icon cross-fade with rotate + scale
+            // Synced icon cross-fade with rotate + scale using AccelerateDecelerateInterpolator
             button.animate()
                 .rotationBy(if (isDark) 90f else -90f)
                 .scaleX(0.7f)
                 .scaleY(0.7f)
                 .alpha(0.5f)
-                .setDuration(330)
+                .setDuration(260)
+                .setInterpolator(AccelerateDecelerateInterpolator())
                 .withEndAction {
                     button.setImageResource(if (isDark) R.drawable.ic_sun else R.drawable.ic_moon)
                     button.animate()
@@ -390,7 +398,8 @@ object ThemeManager {
                         .scaleX(1.0f)
                         .scaleY(1.0f)
                         .alpha(1.0f)
-                        .setDuration(350)
+                        .setDuration(260)
+                        .setInterpolator(AccelerateDecelerateInterpolator())
                         .start()
                 }
                 .start()
@@ -400,14 +409,17 @@ object ThemeManager {
     }
 
     /**
-     * Overlay view that displays the old theme snapshot and cuts a smooth circular hole
-     * expanding from (cx, cy) to reveal the new theme directly underneath.
+     * Overlay view that displays the old theme snapshot and cuts or shrinks a circular reveal
+     * centered on (cx, cy).
+     * Forward (Light -> Dark): Circle expands from 0 to max radius.
+     * Reverse (Dark -> Light): Circle collapses back into the button from max radius to 0.
      */
     private class CircularRevealOverlayView(
         context: Context,
         private val bitmap: Bitmap,
         private val cx: Int,
         private val cy: Int,
+        private val isReverse: Boolean,
         private val onComplete: () -> Unit
     ) : View(context) {
 
@@ -430,15 +442,18 @@ object ThemeManager {
                 return
             }
 
-            // Dynamically calculate distance to the farthest of the 4 screen corners
+            // Calculate max radius to cover the entire screen from (cx, cy) to opposite corner
             val maxRadius = Math.hypot(
                 Math.max(cx.toDouble(), (w - cx).toDouble()),
                 Math.max(cy.toDouble(), (h - cy).toDouble())
-            ).toFloat().coerceAtLeast(1f)
+            ).toFloat().coerceAtLeast(Math.hypot(w.toDouble(), h.toDouble()).toFloat())
 
-            animator = ValueAnimator.ofFloat(0f, maxRadius).apply {
-                duration = 680
-                interpolator = FastOutSlowInInterpolator()
+            val startR = if (isReverse) maxRadius else 0f
+            val endR = if (isReverse) 0f else maxRadius
+
+            animator = ValueAnimator.ofFloat(startR, endR).apply {
+                duration = 520L
+                interpolator = AccelerateDecelerateInterpolator()
                 addUpdateListener { va ->
                     currentRadius = va.animatedValue as Float
                     invalidate()
@@ -455,20 +470,33 @@ object ThemeManager {
         override fun onDraw(canvas: Canvas) {
             if (bitmap.isRecycled) return
 
-            if (currentRadius <= 0f) {
-                // Circle has not expanded yet; draw full old snapshot
-                canvas.drawBitmap(bitmap, 0f, 0f, null)
-            } else {
-                // Cut expanding circular hole using EVEN_ODD fill
-                clipPath.reset()
-                clipPath.fillType = Path.FillType.EVEN_ODD
-                clipPath.addRect(0f, 0f, width.toFloat(), height.toFloat(), Path.Direction.CW)
-                clipPath.addCircle(cx.toFloat(), cy.toFloat(), currentRadius, Path.Direction.CW)
+            if (!isReverse) {
+                // Forward (Light -> Dark): new theme expands from button center out
+                if (currentRadius <= 0f) {
+                    canvas.drawBitmap(bitmap, 0f, 0f, null)
+                } else {
+                    clipPath.reset()
+                    clipPath.fillType = Path.FillType.EVEN_ODD
+                    clipPath.addRect(0f, 0f, width.toFloat(), height.toFloat(), Path.Direction.CW)
+                    clipPath.addCircle(cx.toFloat(), cy.toFloat(), currentRadius, Path.Direction.CW)
 
-                canvas.save()
-                canvas.clipPath(clipPath)
-                canvas.drawBitmap(bitmap, 0f, 0f, null)
-                canvas.restore()
+                    canvas.save()
+                    canvas.clipPath(clipPath)
+                    canvas.drawBitmap(bitmap, 0f, 0f, null)
+                    canvas.restore()
+                }
+            } else {
+                // Reverse (Dark -> Light): circle contracts and returns back to the button center
+                if (currentRadius > 0f) {
+                    clipPath.reset()
+                    clipPath.fillType = Path.FillType.WINDING
+                    clipPath.addCircle(cx.toFloat(), cy.toFloat(), currentRadius, Path.Direction.CW)
+
+                    canvas.save()
+                    canvas.clipPath(clipPath)
+                    canvas.drawBitmap(bitmap, 0f, 0f, null)
+                    canvas.restore()
+                }
             }
         }
 
