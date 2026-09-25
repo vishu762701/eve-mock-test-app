@@ -177,14 +177,11 @@ class AdminActivity : AppCompatActivity() {
         binding.btnHomeBanner.setOnClickListener {
             showHomeBannerOptionsDialog()
         }
+        binding.btnFeedbackReplies.setOnClickListener {
+            showFeedbackRepliesDialog()
+        }
         binding.btnCreateFeedbackPost.setOnClickListener {
             showCreateFeedbackPostDialog()
-        }
-        binding.btnManageFeedbackPosts.setOnClickListener {
-            showManageFeedbackPostsDialog()
-        }
-        binding.btnFeedbackMessages.setOnClickListener {
-            startActivity(Intent(this, FeedbackMessagesActivity::class.java))
         }
         binding.btnRefreshStats.setOnClickListener { viewModel.loadUserStats() }
 
@@ -512,6 +509,31 @@ class AdminActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun showFeedbackRepliesDialog() {
+        val feedbackRepo = FeedbackRepository()
+        lifecycleScope.launch {
+            val posts = feedbackRepo.getFeedbackPosts()
+            if (posts.isEmpty()) {
+                Toast.makeText(this@AdminActivity, "No feedback posts found.", Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+            if (posts.size == 1) {
+                showPostRepliesDialog(posts[0])
+            } else {
+                val postOptions = posts.map { post ->
+                    "${post.title} (${post.message.take(30)}...)"
+                }.toTypedArray()
+                MaterialAlertDialogBuilder(this@AdminActivity)
+                    .setTitle("Select Feedback Post to View Replies")
+                    .setItems(postOptions) { _, which ->
+                        showPostRepliesDialog(posts[which])
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+            }
+        }
+    }
+
     private fun showManageFeedbackPostsDialog() {
         val feedbackRepo = FeedbackRepository()
         lifecycleScope.launch {
@@ -603,6 +625,21 @@ class AdminActivity : AppCompatActivity() {
 
         dialogBinding.rvReplies.layoutManager = LinearLayoutManager(this)
         dialogBinding.rvReplies.adapter = repliesAdapter
+
+        dialogBinding.btnDeletePostFromReplies.setOnClickListener {
+            MaterialAlertDialogBuilder(this)
+                .setTitle("Delete Post?")
+                .setMessage("Delete '${post.title}' from Home screen? All its student replies will also be permanently deleted.")
+                .setPositiveButton("Delete") { _, _ ->
+                    lifecycleScope.launch {
+                        feedbackRepo.deleteFeedbackPost(post.id)
+                        dialog.dismiss()
+                        Toast.makeText(this@AdminActivity, "Post and replies deleted", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
 
         dialogBinding.btnCloseReplies.setOnClickListener { dialog.dismiss() }
 

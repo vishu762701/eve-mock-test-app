@@ -35,15 +35,19 @@
                 android:textSize="15sp"
                 tools:text="Important Exam Update" />
 
-            <ImageButton
-                android:id="@+id/btnDeleteBroadcast"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Delete broadcast"
-                android:padding="6dp"
-                android:src="@drawable/ic_delete"
-                app:tint="@color/eve_red" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnManageBroadcast"
+                style="@style/Widget.Eve.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
+                android:layout_marginStart="8dp"
+                android:fontFamily="@font/poppins_medium"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="0dp"
+                android:text="Manage"
+                android:textSize="11sp" />
         </LinearLayout>
 
         <TextView

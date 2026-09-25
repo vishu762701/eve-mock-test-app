@@ -11,16 +11,20 @@ import com.eve.app.R
 object EmptyStateAnimationHelper {
 
     /**
-     * Plays the search_empty animation looping continuously.
-     * @return true to indicate the animation is playing.
+     * Plays the search animation once from start to end, holding on the final frame (non-looping).
+     * @return true to indicate the animation has played.
      */
     fun showEmptyState(
         lottieView: LottieAnimationView,
-        @Suppress("UNUSED_PARAMETER") hasPlayed: Boolean = false
+        hasPlayed: Boolean = false
     ): Boolean {
-        lottieView.repeatCount = LottieDrawable.INFINITE
-        lottieView.setAnimation(R.raw.search_empty)
-        if (!lottieView.isAnimating) {
+        lottieView.setBackgroundResource(android.R.color.transparent)
+        lottieView.repeatCount = 0
+        lottieView.setAnimation(R.raw.search)
+        if (hasPlayed) {
+            lottieView.progress = 1.0f
+        } else {
+            lottieView.progress = 0f
             lottieView.playAnimation()
         }
         return true

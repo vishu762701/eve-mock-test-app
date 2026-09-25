@@ -11,15 +11,18 @@ import android.view.WindowManager
  */
 object GlassmorphismHelper {
 
-    fun applyWindowBlur(view: View, blurRadius: Int = 28) {
+    fun applyWindowBlur(view: View, blurRadius: Int = 90) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             view.post {
                 try {
                     val root = view.rootView
                     val lp = root.layoutParams as? WindowManager.LayoutParams
                     if (lp != null) {
-                        lp.flags = lp.flags or WindowManager.LayoutParams.FLAG_BLUR_BEHIND
+                        lp.flags = lp.flags or
+                                WindowManager.LayoutParams.FLAG_BLUR_BEHIND or
+                                WindowManager.LayoutParams.FLAG_DIM_BEHIND
                         lp.blurBehindRadius = blurRadius
+                        lp.dimAmount = 0.30f
                         val wm = view.context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
                         wm?.updateViewLayout(root, lp)
                     }

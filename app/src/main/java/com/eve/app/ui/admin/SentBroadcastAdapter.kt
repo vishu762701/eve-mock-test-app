@@ -12,7 +12,7 @@ import java.util.Date
 import java.util.Locale
 
 class SentBroadcastAdapter(
-    private val onDelete: (BroadcastMessage) -> Unit
+    private val onManage: (BroadcastMessage) -> Unit
 ) : ListAdapter<BroadcastMessage, SentBroadcastAdapter.VH>(DiffCallback) {
 
     private val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
@@ -35,10 +35,10 @@ class SentBroadcastAdapter(
                 "—"
             }
             binding.tvBroadcastTime.text = formattedTime
-            binding.btnDeleteBroadcast.setOnClickListener {
+            binding.btnManageBroadcast.setOnClickListener {
                 val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
-                    onDelete(getItem(position))
+                    onManage(getItem(position))
                 }
             }
         }

@@ -22,7 +22,7 @@ class SendNotificationActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySendNotificationBinding
     private var sentListener: ListenerRegistration? = null
     private val sentAdapter = SentBroadcastAdapter(
-        onDelete = { broadcast -> confirmDeleteBroadcast(broadcast) }
+        onManage = { broadcast -> showManageBroadcastDialog(broadcast) }
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,11 +82,26 @@ class SendNotificationActivity : AppCompatActivity() {
             }
     }
 
+    private fun showManageBroadcastDialog(broadcast: BroadcastMessage) {
+        val title = if (broadcast.title.isNotBlank()) broadcast.title else "Broadcast Message"
+        val options = arrayOf("🗑️ Delete This Message", "Cancel")
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle(title)
+            .setMessage(broadcast.message)
+            .setItems(options) { dialog, which ->
+                when (which) {
+                    0 -> confirmDeleteBroadcast(broadcast)
+                    else -> dialog.dismiss()
+                }
+            }
+            .show()
+    }
+
     private fun confirmDeleteBroadcast(broadcast: BroadcastMessage) {
-        val titleText = if (broadcast.title.isNotBlank()) "'${broadcast.title}'" else "this broadcast"
+        val titleText = if (broadcast.title.isNotBlank()) "'${broadcast.title}'" else "this message"
         com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
             .setTitle("Delete Broadcast?")
-            .setMessage("Delete $titleText? It will be permanently removed from all students' notification lists.")
+            .setMessage("Delete $titleText? Only this individual broadcast will be deleted, leaving all other messages intact.")
             .setPositiveButton("Delete") { _, _ ->
                 deleteBroadcast(broadcast)
             }

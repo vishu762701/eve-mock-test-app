@@ -104,10 +104,21 @@ class TelegramMenuPopup(
         isDismissing = false
         setupThemeCard()
 
-        // Anchor below the 3-dot icon, aligned to right edge
-        showAsDropDown(anchorView, -binding.root.paddingStart, 8)
+        // Measure content precisely so PopupWindow height is exact and matches content
+        binding.root.measure(
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        )
+        val measuredW = binding.root.measuredWidth
+        val measuredH = binding.root.measuredHeight
+        width = measuredW
+        height = measuredH
 
-        // Apply Glassmorphic background blur on supported Android versions
+        // Align right edge of popup with right edge of 3-dot anchor icon, right beneath it
+        val xOffset = -(measuredW - anchorView.width)
+        showAsDropDown(anchorView, xOffset, 4)
+
+        // Apply heavy background blur on supported Android versions
         com.eve.app.util.GlassmorphismHelper.applyWindowBlur(binding.root)
 
         binding.root.post {

@@ -9,6 +9,7 @@
     app:cardCornerRadius="@dimen/eve_radius_md"
     app:cardElevation="12dp"
     app:cardPreventCornerOverlap="false"
+    app:cardUseCompatPadding="false"
     app:strokeColor="@color/eve_menu_glass_border"
     app:strokeWidth="1dp">
 
@@ -21,7 +22,7 @@
         <LinearLayout
             android:id="@+id/cardTheme"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="48dp"
             android:clickable="true"
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground"
@@ -67,7 +68,7 @@
             <LinearLayout
                 android:id="@+id/menuRowHistory"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="48dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
@@ -97,7 +98,7 @@
             <LinearLayout
                 android:id="@+id/menuRowPerformance"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="48dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
@@ -127,7 +128,7 @@
             <LinearLayout
                 android:id="@+id/menuRowTopic"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="48dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
@@ -157,7 +158,7 @@
             <LinearLayout
                 android:id="@+id/menuRowPyq"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="48dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
@@ -187,7 +188,7 @@
             <LinearLayout
                 android:id="@+id/menuRowSyllabus"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="48dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
@@ -217,7 +218,7 @@
             <LinearLayout
                 android:id="@+id/menuRowLeaderboard"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="48dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
@@ -247,7 +248,7 @@
             <LinearLayout
                 android:id="@+id/menuRowLogout"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="48dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"

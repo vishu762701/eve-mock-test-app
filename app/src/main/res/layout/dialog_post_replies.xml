@@ -55,12 +55,30 @@
         android:maxHeight="360dp"
         android:nestedScrollingEnabled="true" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnCloseReplies"
-        style="@style/Widget.Eve.OutlinedButton"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:fontFamily="@font/poppins_medium"
-        android:text="Close" />
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDeletePostFromReplies"
+            style="@style/Widget.Eve.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:fontFamily="@font/poppins_medium"
+            android:text="Delete Post"
+            android:textColor="@color/eve_red" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCloseReplies"
+            style="@style/Widget.Eve.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/poppins_medium"
+            android:text="Close" />
+    </LinearLayout>
 </LinearLayout>

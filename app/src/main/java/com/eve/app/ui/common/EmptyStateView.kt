@@ -61,6 +61,8 @@ class EmptyStateView @JvmOverloads constructor(
         }
     }
 
+    private var hasPlayedOnce = false
+
     fun show(title: String = "No files found", message: String? = null) {
         visibility = View.VISIBLE
         binding.tvEmptyTitle.text = title
@@ -70,10 +72,11 @@ class EmptyStateView @JvmOverloads constructor(
         } else {
             binding.tvEmptyMessage.visibility = View.GONE
         }
-        com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(binding.lottieEmpty)
+        hasPlayedOnce = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(binding.lottieEmpty, hasPlayedOnce)
     }
 
     fun hide() {
+        hasPlayedOnce = false
         com.eve.app.util.EmptyStateAnimationHelper.stopEmptyState(binding.lottieEmpty)
         visibility = View.GONE
     }
@@ -83,6 +86,7 @@ class EmptyStateView @JvmOverloads constructor(
         val bundle = android.os.Bundle()
         bundle.putParcelable("super_state", superState)
         bundle.putInt("saved_visibility", visibility)
+        bundle.putBoolean("has_played_once", hasPlayedOnce)
         return bundle
     }
 
@@ -90,9 +94,10 @@ class EmptyStateView @JvmOverloads constructor(
         var superState = state
         if (state is android.os.Bundle) {
             val savedVis = state.getInt("saved_visibility", View.GONE)
+            hasPlayedOnce = state.getBoolean("has_played_once", false)
             visibility = savedVis
             if (savedVis == View.VISIBLE) {
-                com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(binding.lottieEmpty)
+                com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(binding.lottieEmpty, hasPlayedOnce)
             }
             superState = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
                 state.getParcelable("super_state", android.os.Parcelable::class.java)
