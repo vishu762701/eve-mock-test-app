@@ -7,7 +7,7 @@
     android:clipToOutline="true"
     app:cardBackgroundColor="@color/eve_menu_glass_bg"
     app:cardCornerRadius="@dimen/eve_radius_md"
-    app:cardElevation="12dp"
+    app:cardElevation="0dp"
     app:cardPreventCornerOverlap="false"
     app:cardUseCompatPadding="false"
     app:strokeColor="@color/eve_menu_glass_border"

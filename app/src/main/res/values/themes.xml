@@ -21,4 +21,15 @@
         <item name="android:activityCloseEnterAnimation">@anim/stay_visible</item>
         <item name="android:activityCloseExitAnimation">@anim/slide_out_right</item>
     </style>
+
+    <style name="Eve.WindowAnimation.ProfileLeft" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/slide_in_left</item>
+        <item name="android:activityOpenExitAnimation">@anim/stay_visible</item>
+        <item name="android:activityCloseEnterAnimation">@anim/stay_visible</item>
+        <item name="android:activityCloseExitAnimation">@anim/slide_out_left</item>
+    </style>
+
+    <style name="Theme.Eve.Profile" parent="Theme.Eve">
+        <item name="android:windowAnimationStyle">@style/Eve.WindowAnimation.ProfileLeft</item>
+    </style>
 </resources>

@@ -31,14 +31,15 @@
 
         <ImageView
             android:id="@+id/ivPinned"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentTop="true"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="2dp"
             android:contentDescription="Pinned test"
             android:src="@drawable/ic_pin"
-            android:visibility="gone"
-            app:tint="@color/eve_primary" />
+            android:visibility="gone" />
 
         <LinearLayout
             android:layout_width="match_parent"

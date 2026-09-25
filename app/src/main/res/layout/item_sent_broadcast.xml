@@ -45,18 +45,23 @@
                 tools:text="Important Exam Update" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnManageBroadcast"
+                android:id="@+id/btnDeleteBroadcast"
                 style="@style/Widget.Eve.OutlinedButton"
                 android:layout_width="wrap_content"
-                android:layout_height="34dp"
+                android:layout_height="32dp"
                 android:layout_marginStart="8dp"
                 android:fontFamily="@font/poppins_medium"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="0dp"
-                android:text="Manage"
-                android:textSize="11sp" />
+                android:text="Delete"
+                android:textColor="@color/eve_red"
+                android:textSize="12sp"
+                app:icon="@drawable/ic_delete"
+                app:iconSize="14dp"
+                app:iconTint="@color/eve_red"
+                app:strokeColor="@color/eve_red" />
         </LinearLayout>
 
         <TextView

@@ -89,6 +89,8 @@ object ProfilePhotoManager {
             }
             else -> {
                 val iconRes = if (imageView.id == R.id.ivProfile) R.drawable.ic_user_profile else R.drawable.ic_person
+                imageView.colorFilter = null
+                imageView.imageTintList = null
                 imageView.setImageResource(iconRes)
                 imageView.setBackgroundResource(placeholderBg)
                 imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE

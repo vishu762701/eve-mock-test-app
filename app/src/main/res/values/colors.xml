@@ -19,7 +19,7 @@
     <color name="eve_surface_variant">#F5F5F5</color>
     <color name="eve_offline_bg">#FFF4CC</color>
     <color name="eve_offline_text">#5F4300</color>
-    <color name="eve_gold">#8A6500</color>
+    <color name="eve_gold">#C59B27</color>
     <color name="eve_silver">#687078</color>
     <color name="eve_bronze">#7A4B2A</color>
     <color name="eve_highlight_bg">#F0F0F0</color>
@@ -37,8 +37,8 @@
     <color name="eve_chart_fill">#22111111</color>
     <color name="eve_chart_grid">#D0D0D0</color>
     <color name="eve_chart_label">#666666</color>
-    <!-- 3-Dot Dropdown Glassmorphism Colors (frosted glass 5-8% opacity tint + 95% window blur) -->
-    <color name="eve_menu_glass_bg">#14FFFFFF</color>
-    <color name="eve_menu_glass_border">#33000000</color>
-    <color name="eve_menu_glass_divider">#1A000000</color>
+    <!-- 3-Dot Dropdown Glassmorphism Colors (subtle frosted glass, content clearly visible behind) -->
+    <color name="eve_menu_glass_bg">#0DFFFFFF</color>
+    <color name="eve_menu_glass_border">#26000000</color>
+    <color name="eve_menu_glass_divider">#14000000</color>
 </resources>

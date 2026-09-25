@@ -43,8 +43,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.home.MainActivity" android:exported="false" />
-        <activity android:name=".ui.profile.ProfileActivity" android:exported="false" />
+        <activity
+            android:name=".ui.profile.ProfileActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Eve.Profile" />
         <activity android:name=".ui.history.HistoryActivity" android:exported="false" />
         <activity android:name=".ui.test.TestActivity" android:exported="false" />
         <activity android:name=".ui.result.ResultActivity" android:exported="false" />

@@ -382,7 +382,7 @@ object ThemeManager {
                 .scaleX(0.7f)
                 .scaleY(0.7f)
                 .alpha(0.5f)
-                .setDuration(220)
+                .setDuration(330)
                 .withEndAction {
                     button.setImageResource(if (isDark) R.drawable.ic_sun else R.drawable.ic_moon)
                     button.animate()
@@ -390,7 +390,7 @@ object ThemeManager {
                         .scaleX(1.0f)
                         .scaleY(1.0f)
                         .alpha(1.0f)
-                        .setDuration(230)
+                        .setDuration(350)
                         .start()
                 }
                 .start()
@@ -437,7 +437,7 @@ object ThemeManager {
             ).toFloat().coerceAtLeast(1f)
 
             animator = ValueAnimator.ofFloat(0f, maxRadius).apply {
-                duration = 460
+                duration = 680
                 interpolator = FastOutSlowInInterpolator()
                 addUpdateListener { va ->
                     currentRadius = va.animatedValue as Float

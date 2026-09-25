@@ -13,7 +13,7 @@ import java.util.Date
 import java.util.Locale
 
 class SentBroadcastAdapter(
-    private val onManage: (BroadcastMessage) -> Unit,
+    private val onDelete: (BroadcastMessage) -> Unit,
     private val onItemClick: (BroadcastMessage) -> Unit,
     private val onItemLongClick: (BroadcastMessage) -> Unit
 ) : ListAdapter<BroadcastMessage, SentBroadcastAdapter.VH>(DiffCallback) {
@@ -65,7 +65,7 @@ class SentBroadcastAdapter(
             if (isSelectionMode) {
                 binding.cbSelect.visibility = View.VISIBLE
                 binding.cbSelect.isChecked = selectedIds.contains(item.id)
-                binding.btnManageBroadcast.visibility = View.GONE
+                binding.btnDeleteBroadcast.visibility = View.GONE
 
                 binding.root.setOnClickListener {
                     val pos = bindingAdapterPosition
@@ -82,11 +82,11 @@ class SentBroadcastAdapter(
                 }
             } else {
                 binding.cbSelect.visibility = View.GONE
-                binding.btnManageBroadcast.visibility = View.VISIBLE
-                binding.btnManageBroadcast.setOnClickListener {
+                binding.btnDeleteBroadcast.visibility = View.VISIBLE
+                binding.btnDeleteBroadcast.setOnClickListener {
                     val pos = bindingAdapterPosition
                     if (pos != RecyclerView.NO_POSITION) {
-                        onManage(getItem(pos))
+                        onDelete(getItem(pos))
                     }
                 }
                 binding.root.setOnClickListener(null)

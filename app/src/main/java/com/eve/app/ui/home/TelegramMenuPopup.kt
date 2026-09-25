@@ -37,7 +37,7 @@ class TelegramMenuPopup(
         height = ViewGroup.LayoutParams.WRAP_CONTENT
         isFocusable = true
         isOutsideTouchable = true
-        elevation = 20f
+        elevation = 0f
         setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         setupThemeCard()

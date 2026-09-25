@@ -32,9 +32,9 @@ class SendNotificationActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         sentAdapter = SentBroadcastAdapter(
-            onManage = { broadcast ->
+            onDelete = { broadcast ->
                 if (!sentAdapter.isSelectionMode) {
-                    showManageBroadcastDialog(broadcast)
+                    confirmDeleteBroadcast(broadcast)
                 }
             },
             onItemClick = { broadcast ->

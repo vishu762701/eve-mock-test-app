@@ -1,6 +1,7 @@
 package com.eve.app.ui.profile
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.net.Uri
@@ -75,6 +76,13 @@ class ProfileActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, R.anim.slide_in_left, R.anim.stay_visible)
+            overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, R.anim.stay_visible, R.anim.slide_out_left)
+        } else {
+            @Suppress("DEPRECATION")
+            overridePendingTransition(R.anim.slide_in_left, R.anim.stay_visible)
+        }
         binding = ActivityProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

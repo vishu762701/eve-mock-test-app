@@ -59,6 +59,7 @@ class ExamAdapter(
             b.root.setOnClickListener(if (attempted) null else { { onClick(exam) } })
 
             b.root.setOnLongClickListener { view ->
+                view.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
                 onLongClick?.invoke(exam, isPinned, view)
                 true
             }
