@@ -1,10 +1,10 @@
 package com.eve.app.ui.profile
 
+import android.app.DatePickerDialog
 import android.content.Intent
-import android.os.Build
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.net.Uri
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -13,8 +13,8 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import coil.load
 import androidx.lifecycle.lifecycleScope
+import coil.load
 import com.eve.app.R
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.databinding.ActivityProfileBinding
@@ -30,9 +30,14 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.functions.FirebaseFunctions
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.util.Calendar
+import java.util.Locale
 
 class ProfileActivity : AppCompatActivity() {
 
@@ -76,13 +81,6 @@ class ProfileActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, R.anim.slide_in_left, R.anim.stay_visible)
-            overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, R.anim.stay_visible, R.anim.slide_out_left)
-        } else {
-            @Suppress("DEPRECATION")
-            overridePendingTransition(R.anim.slide_in_left, R.anim.stay_visible)
-        }
         binding = ActivityProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -96,11 +94,15 @@ class ProfileActivity : AppCompatActivity() {
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                finish()
+                if (pendingPhotoUri != null) {
+                    cancelPhotoPreview()
+                } else {
+                    finish()
+                }
             }
         })
 
-        binding.tvName.text = user.displayName ?: "Student"
+        binding.tvName.text = user.displayName?.takeIf { it.isNotBlank() } ?: "Student"
         binding.tvEmail.text = user.email ?: ""
 
         loadProfilePhoto()
@@ -115,16 +117,12 @@ class ProfileActivity : AppCompatActivity() {
             savePendingPhoto()
         }
 
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (pendingPhotoUri != null) {
-                    cancelPhotoPreview()
-                } else {
-                    isEnabled = false
-                    onBackPressedDispatcher.onBackPressed()
-                }
-            }
-        })
+        setupDobPicker()
+        loadUserProfile(user.uid)
+
+        binding.btnSaveProfile.setOnClickListener {
+            saveUserProfile()
+        }
 
         val setupAdminUi = {
             binding.chipAdmin.visibility = View.VISIBLE
@@ -153,6 +151,146 @@ class ProfileActivity : AppCompatActivity() {
 
         binding.btnDeleteAccount.setOnClickListener {
             showDeleteAccountConfirmation()
+        }
+    }
+
+    private fun setupDobPicker() {
+        val openPicker = {
+            val calendar = Calendar.getInstance()
+            val existingDob = binding.etDob.text?.toString()?.trim() ?: ""
+            if (existingDob.isNotEmpty()) {
+                val parts = existingDob.split("/")
+                if (parts.size == 3) {
+                    val d = parts[0].toIntOrNull()
+                    val m = parts[1].toIntOrNull()
+                    val y = parts[2].toIntOrNull()
+                    if (d != null && m != null && y != null) {
+                        calendar.set(y, m - 1, d)
+                    }
+                }
+            } else {
+                calendar.add(Calendar.YEAR, -18)
+            }
+
+            val picker = DatePickerDialog(
+                this,
+                { _, year, month, dayOfMonth ->
+                    val formatted = String.format(Locale.US, "%02d/%02d/%04d", dayOfMonth, month + 1, year)
+                    binding.etDob.setText(formatted)
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            )
+            picker.datePicker.maxDate = System.currentTimeMillis()
+            picker.show()
+        }
+
+        binding.etDob.setOnClickListener { openPicker() }
+        binding.tilDob.setEndIconOnClickListener { openPicker() }
+    }
+
+    private fun loadUserProfile(userId: String) {
+        val user = FirebaseAuth.getInstance().currentUser ?: return
+        val currentName = user.displayName?.takeIf { it.isNotBlank() } ?: "Student"
+        binding.tvName.text = currentName
+        binding.etName.setText(if (currentName != "Student") currentName else "")
+
+        lifecycleScope.launch {
+            try {
+                val snapshot = FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .document(userId)
+                    .get()
+                    .await()
+
+                if (snapshot.exists()) {
+                    val name = snapshot.getString("displayName")
+                    val dob = snapshot.getString("dob")
+                    val category = snapshot.getString("category")
+
+                    if (!name.isNullOrBlank()) {
+                        binding.tvName.text = name
+                        binding.etName.setText(name)
+                    }
+                    if (!dob.isNullOrBlank()) {
+                        binding.etDob.setText(dob)
+                    }
+                    if (!category.isNullOrBlank()) {
+                        setCategoryChip(category)
+                    }
+                }
+            } catch (e: Exception) {
+                // Non-fatal: Safe fallback, never crash if offline or document missing
+                android.util.Log.w("ProfileActivity", "Error loading profile: ${e.message}")
+            }
+        }
+    }
+
+    private fun setCategoryChip(category: String) {
+        when (category.trim().uppercase(Locale.US)) {
+            "OBC" -> binding.chipObc.isChecked = true
+            "SC" -> binding.chipSc.isChecked = true
+            "ST" -> binding.chipSt.isChecked = true
+            else -> binding.chipGeneral.isChecked = true
+        }
+    }
+
+    private fun getSelectedCategory(): String {
+        return when {
+            binding.chipObc.isChecked -> "OBC"
+            binding.chipSc.isChecked -> "SC"
+            binding.chipSt.isChecked -> "ST"
+            else -> "General"
+        }
+    }
+
+    private fun saveUserProfile() {
+        val user = FirebaseAuth.getInstance().currentUser ?: return
+        val name = binding.etName.text?.toString()?.trim() ?: ""
+        val dob = binding.etDob.text?.toString()?.trim() ?: ""
+        val category = getSelectedCategory()
+
+        if (name.isBlank()) {
+            binding.tilName.error = "Name cannot be empty"
+            return
+        }
+        binding.tilName.error = null
+
+        showProgress("Saving profile...")
+
+        lifecycleScope.launch {
+            try {
+                val data = hashMapOf<String, Any>(
+                    "displayName" to name,
+                    "dob" to dob,
+                    "category" to category,
+                    "email" to (user.email ?: ""),
+                    "lastUpdated" to System.currentTimeMillis()
+                )
+
+                FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .document(user.uid)
+                    .set(data, SetOptions.merge())
+                    .await()
+
+                try {
+                    val profileUpdates = UserProfileChangeRequest.Builder()
+                        .setDisplayName(name)
+                        .build()
+                    user.updateProfile(profileUpdates).await()
+                } catch (_: Exception) {
+                    // Non-fatal
+                }
+
+                binding.tvName.text = name
+                dismissProgress()
+                Toast.makeText(this@ProfileActivity, "Profile saved successfully", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                dismissProgress()
+                Toast.makeText(this@ProfileActivity, "Failed to save profile: ${e.localizedMessage ?: "Unknown error"}", Toast.LENGTH_LONG).show()
+            }
         }
     }
 
@@ -271,7 +409,7 @@ class ProfileActivity : AppCompatActivity() {
             this,
             binding.ivProfilePhoto,
             user.photoUrl?.toString(),
-            com.eve.app.R.drawable.bg_circle_primary
+            R.drawable.bg_circle_primary
         )
     }
 
@@ -304,16 +442,6 @@ class ProfileActivity : AppCompatActivity() {
         pendingPhotoUri = null
         binding.layoutPhotoActions.visibility = View.GONE
         loadProfilePhoto()
-    }
-
-    override fun finish() {
-        super.finish()
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, R.anim.stay_visible, R.anim.slide_out_left)
-        } else {
-            @Suppress("DEPRECATION")
-            overridePendingTransition(R.anim.stay_visible, R.anim.slide_out_left)
-        }
     }
 
     override fun onDestroy() {

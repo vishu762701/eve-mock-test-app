@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/eve_bg"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
+
+    <!-- Main Content Container -->
+    <LinearLayout
+        android:id="@+id/mainContentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/eve_bg"
+        android:orientation="vertical">
 
     <!-- Top Bar Container -->
     <FrameLayout
@@ -340,4 +348,195 @@
                 android:visibility="gone" />
         </LinearLayout>
     </FrameLayout>
-</LinearLayout>
+    </LinearLayout>
+
+    <!-- Left Profile Navigation Drawer Panel -->
+    <LinearLayout
+        android:id="@+id/navDrawerPanel"
+        android:layout_width="290dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@color/eve_menu_glass_bg"
+        android:clickable="true"
+        android:elevation="8dp"
+        android:fitsSystemWindows="true"
+        android:focusable="true"
+        android:orientation="vertical">
+
+        <!-- Drawer Header with Avatar, Name, Email -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="28dp"
+            android:paddingBottom="16dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivDrawerAvatar"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@drawable/bg_circle_translucent"
+                android:contentDescription="Profile photo"
+                android:padding="3dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_user_profile"
+                app:shapeAppearanceOverlay="@style/ShapeCircle" />
+
+            <TextView
+                android:id="@+id/tvDrawerUserName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:fontFamily="@font/poppins_bold"
+                android:text="Student"
+                android:textColor="@color/eve_text"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvDrawerUserEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:fontFamily="@font/poppins_regular"
+                android:text="student@eve.app"
+                android:textColor="@color/eve_text_secondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- Frosted Glass Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/eve_menu_glass_divider" />
+
+        <!-- Drawer Menu Items (Order: 1. Profile, 2. Performance, 3. Overall Leaderboard, 4. Syllabus) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="8dp">
+
+            <!-- 1. Profile -->
+            <LinearLayout
+                android:id="@+id/layoutDrawerProfile"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="20dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="Profile"
+                    android:src="@drawable/ic_person"
+                    app:tint="@color/eve_text" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="Profile"
+                    android:textColor="@color/eve_text"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <!-- 2. Performance -->
+            <LinearLayout
+                android:id="@+id/layoutDrawerPerformance"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="20dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="Performance"
+                    android:src="@drawable/ic_performance_increase"
+                    app:tint="@color/eve_text" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="Performance"
+                    android:textColor="@color/eve_text"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <!-- 3. Overall Leaderboard -->
+            <LinearLayout
+                android:id="@+id/layoutDrawerLeaderboard"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="20dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="Overall Leaderboard"
+                    android:src="@drawable/ic_leaderboard_star"
+                    app:tint="@color/eve_text" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="Overall Leaderboard"
+                    android:textColor="@color/eve_text"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <!-- 4. Syllabus -->
+            <LinearLayout
+                android:id="@+id/layoutDrawerSyllabus"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="20dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="Syllabus"
+                    android:src="@drawable/ic_syllabus"
+                    app:tint="@color/eve_text" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="Syllabus"
+                    android:textColor="@color/eve_text"
+                    android:textSize="15sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.drawerlayout.widget.DrawerLayout>

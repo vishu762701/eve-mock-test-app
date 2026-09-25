@@ -22,12 +22,9 @@ class TelegramMenuPopup(
     private val context: Context,
     private val onThemeToggle: (originX: Int, originY: Int) -> Unit,
     private val onHistory: () -> Unit,
-    private val onPerformance: () -> Unit,
     private val onBookmarks: () -> Unit,
     private val onTopic: () -> Unit,
     private val onPyq: () -> Unit,
-    private val onSyllabus: () -> Unit,
-    private val onLeaderboard: () -> Unit,
     private val onLogout: () -> Unit
 ) : PopupWindow(context) {
 
@@ -50,7 +47,7 @@ class TelegramMenuPopup(
         setupListeners()
 
         setOnDismissListener {
-            blurBitmap?.recycle()
+            binding.ivGlassBlurBackground.setImageDrawable(null)
             blurBitmap = null
         }
     }
@@ -86,9 +83,6 @@ class TelegramMenuPopup(
         binding.menuRowHistory.setOnClickListener {
             dismissWithAction { onHistory() }
         }
-        binding.menuRowPerformance.setOnClickListener {
-            dismissWithAction { onPerformance() }
-        }
         binding.menuRowBookmarks.setOnClickListener {
             dismissWithAction { onBookmarks() }
         }
@@ -97,12 +91,6 @@ class TelegramMenuPopup(
         }
         binding.menuRowPyq.setOnClickListener {
             dismissWithAction { onPyq() }
-        }
-        binding.menuRowSyllabus.setOnClickListener {
-            dismissWithAction { onSyllabus() }
-        }
-        binding.menuRowLeaderboard.setOnClickListener {
-            dismissWithAction { onLeaderboard() }
         }
         binding.menuRowLogout.setOnClickListener {
             dismissWithAction { onLogout() }
@@ -149,7 +137,6 @@ class TelegramMenuPopup(
                     decor.draw(canvas)
 
                     val blurred = FastBlurHelper.blur(bmp, radius = 20, canReuseInBitmap = true)
-                    blurBitmap?.recycle()
                     blurBitmap = blurred
                     binding.ivGlassBlurBackground.setImageBitmap(blurred)
                 }
@@ -196,7 +183,7 @@ class TelegramMenuPopup(
             .withEndAction {
                 isDismissing = false
                 super.dismiss()
-                blurBitmap?.recycle()
+                binding.ivGlassBlurBackground.setImageDrawable(null)
                 blurBitmap = null
                 action()
             }
@@ -219,7 +206,7 @@ class TelegramMenuPopup(
             .withEndAction {
                 isDismissing = false
                 super.dismiss()
-                blurBitmap?.recycle()
+                binding.ivGlassBlurBackground.setImageDrawable(null)
                 blurBitmap = null
             }
             .start()

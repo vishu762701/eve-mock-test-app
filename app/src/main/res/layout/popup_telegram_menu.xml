@@ -114,36 +114,7 @@
                     android:textSize="15sp" />
             </LinearLayout>
 
-            <!-- Row 2: Performance -->
-            <LinearLayout
-                android:id="@+id/menuRowPerformance"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="18dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="Performance"
-                    android:src="@drawable/ic_performance_increase" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Performance"
-                    android:textColor="@color/eve_text"
-                    android:textSize="15sp" />
-            </LinearLayout>
-
-            <!-- Row 3: Bookmarks -->
+            <!-- Row 2: Bookmarks -->
             <LinearLayout
                 android:id="@+id/menuRowBookmarks"
                 android:layout_width="match_parent"
@@ -173,7 +144,7 @@
                     android:textSize="15sp" />
             </LinearLayout>
 
-            <!-- Row 4: Topic-wise Test -->
+            <!-- Row 3: Topic-wise Test -->
             <LinearLayout
                 android:id="@+id/menuRowTopic"
                 android:layout_width="match_parent"
@@ -233,67 +204,7 @@
                     android:textSize="15sp" />
             </LinearLayout>
 
-            <!-- Row 5: Syllabus -->
-            <LinearLayout
-                android:id="@+id/menuRowSyllabus"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="18dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="Syllabus"
-                    android:src="@drawable/ic_syllabus"
-                    app:tint="@color/eve_text" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Syllabus"
-                    android:textColor="@color/eve_text"
-                    android:textSize="15sp" />
-            </LinearLayout>
-
-            <!-- Row 6: Overall Leaderboard -->
-            <LinearLayout
-                android:id="@+id/menuRowLeaderboard"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="18dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="Overall Leaderboard"
-                    android:src="@drawable/ic_leaderboard_star"
-                    app:tint="@color/eve_text" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Overall Leaderboard"
-                    android:textColor="@color/eve_text"
-                    android:textSize="15sp" />
-            </LinearLayout>
-
-            <!-- Row 7: Logout (Last row, highlighted) -->
+            <!-- Row 5: Logout (Last row, highlighted) -->
             <LinearLayout
                 android:id="@+id/menuRowLogout"
                 android:layout_width="match_parent"

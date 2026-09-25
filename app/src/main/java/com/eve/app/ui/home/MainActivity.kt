@@ -22,6 +22,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -144,7 +145,6 @@ class MainActivity : AppCompatActivity() {
     )
 
     private var hasEmptyPlayed = false
-    private lateinit var swipeToProfileDetector: GestureDetector
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -159,7 +159,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupSwipeToProfile()
+        setupDrawer(user)
         setupBannerCarousel()
 
         binding.tvWelcome.text = "Hi, ${user.displayName ?: "Student"}"
@@ -175,40 +175,32 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.ivProfile.setOnClickListener {
-            openProfileWithLeftSlide()
+            binding.drawerLayout.openDrawer(GravityCompat.START)
         }
         loadProfilePhoto(user)
 
         // Telegram-style Search setup
         setupSearch()
 
-        // Telegram-style 2-card overflow menu setup
+        // Telegram-style overflow menu setup
         binding.btnOverflow.setOnClickListener { anchor ->
             TelegramMenuPopup(
                 context = this,
                 onThemeToggle = { cx, cy -> ThemeManager.toggleWithCircularReveal(this, cx, cy) },
                 onHistory = { startActivity(Intent(this, HistoryActivity::class.java)) },
-                onPerformance = { startActivity(Intent(this, PerformanceActivity::class.java)) },
                 onBookmarks = { startActivity(Intent(this, BookmarksActivity::class.java)) },
                 onTopic = { startActivity(Intent(this, PracticeActivity::class.java)) },
                 onPyq = { startActivity(Intent(this, PyqActivity::class.java)) },
-                onSyllabus = { startActivity(Intent(this, SyllabusActivity::class.java)) },
-                onLeaderboard = {
-                    startActivity(
-                        Intent(this, LeaderboardActivity::class.java).apply {
-                            putExtra(Constants.EXTRA_EXAM_ID, "overall")
-                            putExtra(Constants.EXTRA_EXAM_NAME, "Overall Leaderboard")
-                        }
-                    )
-                },
                 onLogout = { logout() }
             ).show(anchor)
         }
 
-        // System back button closes active search first
+        // System back button closes drawer first, then active search
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (isSearchActive) {
+                if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    binding.drawerLayout.closeDrawer(GravityCompat.START)
+                } else if (isSearchActive) {
                     closeSearch()
                 } else {
                     isEnabled = false
@@ -431,6 +423,8 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
         if (::binding.isInitialized) {
             FirebaseAuth.getInstance().currentUser?.let { current ->
+                binding.tvWelcome.text = "Hi, ${current.displayName ?: "Student"}"
+                updateDrawerHeader(current)
                 lifecycleScope.launch {
                     val admin = isHardcodedAdmin(current.email) || adminRepo.isAdmin(current.email)
                     viewModel.loadForUser(current.uid, admin)
@@ -718,55 +712,34 @@ class MainActivity : AppCompatActivity() {
         goToLogin()
     }
 
-    private fun setupSwipeToProfile() {
-        val density = resources.displayMetrics.density
-        val minDistance = 90 * density
-        val minVelocity = 350 * density
-        val chipRect = android.graphics.Rect()
-
-        swipeToProfileDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
-            override fun onFling(
-                e1: MotionEvent?,
-                e2: MotionEvent,
-                velocityX: Float,
-                velocityY: Float
-            ): Boolean {
-                if (e1 == null || isSearchActive) return false
-
-                // Do not intercept if gesture started inside the category chips horizontal scroll
-                if (binding.chipGroupCategory.getGlobalVisibleRect(chipRect)) {
-                    if (chipRect.contains(e1.rawX.toInt(), e1.rawY.toInt())) {
-                        return false
-                    }
+    private fun setupDrawer(user: com.google.firebase.auth.FirebaseUser) {
+        updateDrawerHeader(user)
+        binding.layoutDrawerProfile.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            startActivity(Intent(this, ProfileActivity::class.java))
+        }
+        binding.layoutDrawerPerformance.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            startActivity(Intent(this, PerformanceActivity::class.java))
+        }
+        binding.layoutDrawerLeaderboard.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            startActivity(
+                Intent(this, LeaderboardActivity::class.java).apply {
+                    putExtra(Constants.EXTRA_EXAM_ID, "overall")
+                    putExtra(Constants.EXTRA_EXAM_NAME, "Overall Leaderboard")
                 }
-
-                val diffX = e2.rawX - e1.rawX
-                val diffY = e2.rawY - e1.rawY
-
-                // Recognizes left-to-right swipe from anywhere on screen without breaking vertical scrolling
-                if (diffX > minDistance && kotlin.math.abs(diffX) > kotlin.math.abs(diffY) * 1.6f && velocityX > minVelocity) {
-                    openProfileWithLeftSlide()
-                    return true
-                }
-                return false
-            }
-        })
-    }
-
-    private fun openProfileWithLeftSlide() {
-        startActivity(Intent(this, ProfileActivity::class.java))
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, R.anim.slide_in_left, R.anim.stay_visible)
-        } else {
-            @Suppress("DEPRECATION")
-            overridePendingTransition(R.anim.slide_in_left, R.anim.stay_visible)
+            )
+        }
+        binding.layoutDrawerSyllabus.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            startActivity(Intent(this, SyllabusActivity::class.java))
         }
     }
 
-    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-        if (::swipeToProfileDetector.isInitialized) {
-            swipeToProfileDetector.onTouchEvent(ev)
-        }
-        return super.dispatchTouchEvent(ev)
+    private fun updateDrawerHeader(user: com.google.firebase.auth.FirebaseUser) {
+        ProfilePhotoManager.applyTo(this, binding.ivDrawerAvatar, user.photoUrl?.toString(), R.drawable.bg_circle_translucent)
+        binding.tvDrawerUserName.text = user.displayName?.takeIf { it.isNotBlank() } ?: "Student"
+        binding.tvDrawerUserEmail.text = user.email ?: ""
     }
 }
