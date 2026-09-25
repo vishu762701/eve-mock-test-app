@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="📢 Home Banners"
+        android:textColor="@color/eve_text"
+        android:textSize="18sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:fontFamily="@font/poppins"
+        android:text="Upload, reorder, or delete promotional banners shown on the student Home screen carousel."
+        android:textColor="@color/eve_text_secondary"
+        android:textSize="12sp" />
+
+    <!-- Upload Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="vertical">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPickBannerImage"
+            style="@style/Widget.Eve.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_medium"
+            android:text="Choose Banner Image (Max 5MB)"
+            android:textSize="13sp" />
+
+        <!-- Live Preview Container (exact aspect ratio of Home banner card) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardPreviewBanner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:visibility="gone"
+            app:cardBackgroundColor="@color/eve_card_bg"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:strokeColor="@color/eve_stroke"
+            app:strokeWidth="1dp">
+
+            <ImageView
+                android:id="@+id/ivPreviewBanner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:contentDescription="Banner live preview"
+                android:scaleType="fitCenter" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/tvBannerUploadError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:textColor="@color/eve_red"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSaveBanner"
+            style="@style/Widget.Eve.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/poppins_semibold"
+            android:text="Save &amp; Publish Banner"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginVertical="14dp"
+        android:background="@color/eve_stroke" />
+
+    <!-- Current Banners List -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="Active Banners in Carousel"
+        android:textColor="@color/eve_text"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/tvNoBanners"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="12dp"
+        android:fontFamily="@font/poppins"
+        android:gravity="center"
+        android:text="No banners uploaded yet."
+        android:textColor="@color/eve_text_secondary"
+        android:textSize="13sp"
+        android:visibility="gone" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvAdminBanners"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:maxHeight="240dp"
+        android:nestedScrollingEnabled="true" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCloseBannerDialog"
+        style="@style/Widget.Eve.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/poppins_medium"
+        android:text="Close" />
+</LinearLayout>

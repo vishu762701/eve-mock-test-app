@@ -1,4 +1,10 @@
 <resources>
+    <style name="Theme.Eve.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/eve_bg</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.Eve</item>
+    </style>
+
     <style name="Theme.Eve" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/eve_primary</item><item name="colorOnPrimary">@color/eve_on_primary</item>
         <item name="colorSecondary">@color/eve_accent</item><item name="colorSurface">@color/eve_surface</item>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="0dp"
@@ -10,8 +11,7 @@
     app:cardCornerRadius="@dimen/eve_radius_md"
     app:cardElevation="1dp"
     app:rippleColor="@color/eve_primary"
-    app:strokeWidth="0dp"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    app:strokeWidth="0dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -29,24 +29,25 @@
             android:src="@drawable/ic_exam_placeholder"
             app:shapeAppearanceOverlay="@style/ShapeCircle" />
 
+        <!-- Task D: Pin indicator is icon only (ic_pin), positioned at end without hiding name -->
         <ImageView
             android:id="@+id/ivPinned"
-            android:layout_width="18dp"
-            android:layout_height="18dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="2dp"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="8dp"
             android:contentDescription="Pinned test"
             android:src="@drawable/ic_pin"
             android:visibility="gone" />
 
+        <!-- Task C: Exam name is ALWAYS visible in pinned and unpinned states -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginStart="14dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="6dp"
             android:layout_toEndOf="@id/ivExamImage"
             android:layout_toStartOf="@id/ivPinned"
             android:orientation="vertical">
@@ -55,6 +56,8 @@
                 android:id="@+id/tvExamName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="2"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="17sp"
                 android:textStyle="bold" />

@@ -198,7 +198,7 @@
             android:textColor="@color/eve_text_secondary"
             android:textSize="14sp" />
 
-        <!-- Task D: Home Banner Image Card -->
+        <!-- Task A: Home Banner Image Carousel (Horizontal Swipeable Strip) -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardHomeBanner"
             android:layout_width="match_parent"
@@ -211,14 +211,23 @@
             app:strokeWidth="1dp"
             app:strokeColor="@color/eve_stroke">
 
-            <ImageView
-                android:id="@+id/ivHomeBanner"
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/vpHomeBanners"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:adjustViewBounds="true"
-                android:contentDescription="Home Banner"
-                android:scaleType="fitCenter" />
+                android:overScrollMode="never" />
         </com.google.android.material.card.MaterialCardView>
+
+        <!-- Dot Indicators for Banner Carousel -->
+        <LinearLayout
+            android:id="@+id/layoutBannerDots"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="6dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:visibility="gone" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAdmin"

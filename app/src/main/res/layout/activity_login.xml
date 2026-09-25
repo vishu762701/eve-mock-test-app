@@ -5,6 +5,11 @@
     android:layout_height="match_parent"
     android:background="@color/eve_bg">
 
+    <com.eve.app.ui.login.AmbientBackgroundView
+        android:id="@+id/ambientBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
@@ -158,14 +163,29 @@
                         android:textSize="13sp"
                         android:visibility="gone" />
 
-                    <!-- Submit Button -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSubmit"
-                        style="@style/Widget.Eve.Button"
+                    <!-- Submit Button with In-Button Loading Indicator -->
+                    <FrameLayout
+                        android:id="@+id/layoutBtnSubmit"
                         android:layout_width="match_parent"
                         android:layout_height="54dp"
-                        android:layout_marginTop="20dp"
-                        android:text="Sign In" />
+                        android:layout_marginTop="20dp">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnSubmit"
+                            style="@style/Widget.Eve.Button"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:text="Sign In" />
+
+                        <ProgressBar
+                            android:id="@+id/progressSubmit"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:indeterminate="true"
+                            android:indeterminateTint="@color/eve_button_bg"
+                            android:visibility="gone" />
+                    </FrameLayout>
 
                     <!-- Toggle Mode (Sign In / Sign Up) -->
                     <com.google.android.material.button.MaterialButton
@@ -207,24 +227,29 @@
                             android:background="@color/eve_stroke" />
                     </LinearLayout>
 
-                    <!-- Google Button -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnGoogle"
-                        style="@style/Widget.Eve.OutlinedButton"
+                    <!-- Google Button with In-Button Loading Indicator -->
+                    <FrameLayout
+                        android:id="@+id/layoutBtnGoogle"
                         android:layout_width="match_parent"
                         android:layout_height="52dp"
-                        android:layout_marginTop="14dp"
-                        android:text="Continue with Google" />
+                        android:layout_marginTop="14dp">
 
-                    <!-- Progress Bar -->
-                    <ProgressBar
-                        android:id="@+id/progress"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="16dp"
-                        android:indeterminateTint="@color/eve_primary"
-                        android:visibility="gone" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnGoogle"
+                            style="@style/Widget.Eve.OutlinedButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:text="Continue with Google" />
+
+                        <ProgressBar
+                            android:id="@+id/progressGoogle"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:indeterminate="true"
+                            android:indeterminateTint="@color/eve_primary"
+                            android:visibility="gone" />
+                    </FrameLayout>
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

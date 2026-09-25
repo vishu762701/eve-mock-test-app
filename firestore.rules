@@ -1,30 +1,38 @@
 rules_version = '2';
 
-// EVE Mock Test App — Firestore Security Rules
+// ============================================================================
+// EVE MOCK TEST APP — FIRESTORE SECURITY RULES (PRODUCTION READY)
+// ============================================================================
 //
-// Access patterns & least privilege rules audited against actual Android client
-// and Cloud Functions implementation.
+// Yeh rules Android app "Eve" aur Firebase Cloud Functions ke architecture
+// ke hisab se fully audited aur secure hain.
 //
-// Highlights:
-// - Questions/Exams: Signed-in students can read, only verified admins can write.
-// - Attempt Locks: Safe read access for user/admin; client writes disabled.
-// - Attempts: Client writes disabled (Cloud Function submitAttempt writes verified data);
-//   users read only their own attempts, admins can read all.
-// - Users: Users read/write only their own document; admins can read collection for stats.
-// - Leaderboards & Analytics: Public read for signed-in users, client writes disabled.
+// Security Best Practices Followed:
+// 1. Unauthenticated users ka access sabhi collections se blocked hai.
+// 2. Students sirf apna data read/write kar sakte hain (profile, history, pinned tests).
+// 3. Cheating / Score tampering rokne ke liye Attempts aur Leaderboard me client write
+//    disabled hai (Cloud Function Admin SDK se verify karke likhta hai).
+// 4. Admin-only collections (exams, questions, banners, analytics, etc.) strictly protected hain.
+// 5. Internal backend collections (system_config, internal markers) client se fully block hain.
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ------------------------------------------------------------------------
+    // HELPER FUNCTIONS (Authentication & Role Verification)
+    // ------------------------------------------------------------------------
+
+    // Check karta hai ki user sign in (authenticated) hai ya nahi
     function isSignedIn() {
       return request.auth != null;
     }
 
+    // Authenticated user ka lowercase email nikalta hai
     function userEmail() {
       return isSignedIn() && 'email' in request.auth.token ? request.auth.token.email.lower() : '';
     }
 
-    // Must stay synchronized with Constants.kt ADMIN_EMAILS
+    // Hardcoded Admins list (Constants.kt ke ADMIN_EMAILS se match hona zaroori hai)
     function isHardcodedAdmin() {
       return userEmail() in [
         'pronlike9@gmail.com',
@@ -34,127 +42,149 @@ service cloud.firestore {
       ];
     }
 
-    // Dynamic Admins (documents in 'admins' collection are stored with lowercase email as ID)
+    // Dynamic Admins (agar kisi user ka email 'admins' collection me exist karta hai)
     function isDynamicAdmin() {
       return userEmail() != '' &&
         exists(/databases/$(database)/documents/admins/$(userEmail()));
     }
 
+    // Master Admin Check: chahe hardcoded ho ya dynamic admin doc exist kare
     function isAdmin() {
       return isHardcodedAdmin() || isDynamicAdmin();
     }
 
-    // Exams: signed-in users can browse; only admin can create, update, or delete
+    // ------------------------------------------------------------------------
+    // 1. EXAMS (Mock Tests metadata: name, category, time limit, total questions)
+    // ------------------------------------------------------------------------
+    // - Sabhi logged-in students exams ki list dekh sakte hain.
+    // - Sirf verified Admin naye exams bana, update ya delete kar sakta hai.
     match /exams/{examId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
     }
 
-    // Deterministic lock created by submitAttempt Cloud Function.
-    // Safe null check prevents rule evaluation failure when checking unattempted tests.
-    match /attempt_locks/{lockId} {
-      allow read: if isSignedIn() && (isAdmin() || resource == null || resource.data.userId == request.auth.uid);
-      allow write: if false;
-    }
-
-    // Questions: signed-in users can read (mock tests, practice mode, PYQ); only admin can write.
-    // Duplicate test submissions are prevented server-side by submitAttempt Cloud Function.
+    // ------------------------------------------------------------------------
+    // 2. QUESTIONS (Mock tests, practice mode aur PYQ ke questions bank)
+    // ------------------------------------------------------------------------
+    // - Sabhi logged-in students test dete waqt questions read kar sakte hain.
+    // - Sirf Admin questions add, edit ya delete kar sakta hai.
     match /questions/{questionId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
     }
 
-    // App Content (Privacy Policy, Terms of Service, Contact Us): signed-in read, admin write
-    match /app_content/{contentId} {
-      allow read: if isSignedIn();
-      allow write: if isAdmin();
+    // ------------------------------------------------------------------------
+    // 3. ATTEMPT LOCKS (Anti-cheat submission locks)
+    // ------------------------------------------------------------------------
+    // - Ek student ek test ko duplicate submit na kare, isliye submitAttempt
+    //   Cloud Function ye lock create karta hai.
+    // - Student sirf apna lock check kar sakta hai (ki test pehle diya hai ya nahi).
+    // - Client se write blocked hai; sirf server (Cloud Function) lock bana sakta hai.
+    match /attempt_locks/{lockId} {
+      allow read: if isSignedIn() && (isAdmin() || resource == null || resource.data.userId == request.auth.uid);
+      allow write: if false;
     }
 
-    // Admins whitelist: signed-in users can read to verify admin status; only admin can add/remove
-    match /admins/{email} {
-      allow read: if isSignedIn();
-      allow write: if isAdmin();
-    }
-
-    // Attempts: only submitAttempt Cloud Function (Admin SDK) writes verified results.
-    // Students can read only their own attempts; admins can read any attempt.
+    // ------------------------------------------------------------------------
+    // 4. ATTEMPTS (Completed Test Submissions & Student Result History)
+    // ------------------------------------------------------------------------
+    // - Student sirf apne attempts aur score history dekh sakta hai.
+    // - Admin analytics aur auditing ke liye sabhi attempts read kar sakta hai.
+    // - Client se direct write BLOCKED hai: submitAttempt Cloud Function (Admin SDK)
+    //   server par correct answers verify karke genuine score calculate karta hai,
+    //   taaki koi modified app fake score inject na kar sake.
     match /attempts/{attemptId} {
       allow create: if false;
       allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
       allow update, delete: if false;
     }
 
-    // User profile & stats: users read/write their own document; admins read for analytics counters
+    // ------------------------------------------------------------------------
+    // 5. USERS & PROFILES (User details, displayName, lastActive, FCM tokens)
+    // ------------------------------------------------------------------------
+    // - User sirf apna profile doc read aur update kar sakta hai.
+    // - Admin dashboard ke counters (total users, online users) ke liye admin read allowed hai.
     match /users/{userId} {
       allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
       allow write: if isSignedIn() && request.auth.uid == userId;
 
-      // Pinned exams per user (Task 4)
+      // Pinned Exams subcollection (Student apne favorite tests top par pin karta hai)
+      // - Sirf wahi user apne pinned tests read aur modify kar sakta hai.
       match /pinned_exams/{examId} {
         allow read, write: if isSignedIn() && request.auth.uid == userId;
       }
     }
 
-    // Leaderboard (per-exam top scorers)
+    // ------------------------------------------------------------------------
+    // 6. LEADERBOARD (Per-exam top rankers) & OVERALL LEADERBOARD (All-time rank)
+    // ------------------------------------------------------------------------
+    // - Sabhi logged-in users leaderboard ranks read kar sakte hain.
+    // - Client se write BLOCKED hai taaki koi client fake rank upload na kare.
+    //   Ranks aur scores submitAttempt Cloud Function calculate karke likhta hai.
     match /leaderboard/{entryId} {
       allow read: if isSignedIn();
       allow write: if false;
     }
 
-    // Overall Leaderboard (aggregate across all exams)
     match /overall_leaderboard/{entryId} {
       allow read: if isSignedIn();
       allow write: if false;
     }
 
-    // Pre-aggregated exam analytics for Admin Dashboard
-    match /admin_analytics_exams/{examId} {
-      allow read: if isAdmin();
-      allow write: if false;
+    // ------------------------------------------------------------------------
+    // 7. ADMINS WHITELIST (Dynamic Admins)
+    // ------------------------------------------------------------------------
+    // - Document ID user ka lowercase email hota hai.
+    // - Signed-in user check kar sakta hai ki wo admin hai ya nahi.
+    // - Naye admin add ya remove sirf existing verified Admin hi kar sakta hai.
+    match /admins/{email} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
     }
 
-    // Pre-aggregated question difficulty analytics for Admin Dashboard
-    match /admin_analytics_questions/{questionId} {
-      allow read: if isAdmin();
-      allow write: if false;
+    // ------------------------------------------------------------------------
+    // 8. APP CONTENT (Privacy Policy, Terms of Service, Support Details)
+    // ------------------------------------------------------------------------
+    // - Sabhi signed-in students read kar sakte hain.
+    // - Sirf Admin update kar sakta hai.
+    match /app_content/{contentId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
     }
 
-    // Notifications: all signed-in users can read, only admin can create/delete, no edits
+    // ------------------------------------------------------------------------
+    // 9. HOME BANNER (Home screen ka promotional banner image & link)
+    // ------------------------------------------------------------------------
+    // - Sabhi signed-in students banner dekh sakte hain.
+    // - Sirf Admin naya banner upload ya change kar sakta hai.
+    match /home_banner/{bannerId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /home_banners/{bannerId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // ------------------------------------------------------------------------
+    // 10. NOTIFICATIONS (Broadcast In-App Notifications)
+    // ------------------------------------------------------------------------
+    // - Sabhi signed-in students notifications list dekh sakte hain.
+    // - Sirf Admin nayi notification bhej (create) ya delete kar sakta hai.
+    // - Sent notifications ko edit (update) karna allow nahi hai.
     match /notifications/{notificationId} {
       allow read: if isSignedIn();
       allow create, delete: if isAdmin();
       allow update: if false;
     }
 
-    // AI Generated Tests: signed-in students can read live/published tests; admins can read all and manage status/delete
-    match /generated_tests/{testId} {
-      allow read: if isSignedIn() && (isAdmin() || resource.data.status in ["live", "published"]);
-      allow write: if isAdmin();
-
-      match /questions/{questionId} {
-        allow read: if isSignedIn() && (isAdmin() || get(/databases/$(database)/documents/generated_tests/$(testId)).data.status in ["live", "published"]);
-        allow write: if isAdmin();
-      }
-    }
-
-    // AI Generation Logs: admin-only read, client writes disabled (Cloud Functions write via Admin SDK)
-    match /generation_logs/{logId} {
-      allow read: if isAdmin();
-      allow write: if false;
-    }
-
-    // System configuration (e.g. API key rotation state). Cloud Functions Admin SDK access only.
-    match /system_config/{configId} {
-      allow read, write: if false;
-    }
-
-    // Internal marker collection used only by Cloud Function triggers. No client access.
-    match /admin_analytics_exam_users/{markerId} {
-      allow read, write: if false;
-    }
-
-    // Community Polls: signed-in users can read; only admins can create, delete, or manage polls.
-    // Signed-in users can only update voteCounts during an atomic vote submission.
+    // ------------------------------------------------------------------------
+    // 11. COMMUNITY POLLS & VOTES
+    // ------------------------------------------------------------------------
+    // - Sabhi signed-in students active polls read kar sakte hain.
+    // - Admin naya poll bana sakta hai, close kar sakta hai ya delete kar sakta hai.
+    // - Normal student poll update karte waqt sirf aur sirf 'voteCounts' field increment kar sakta hai.
     match /polls/{pollId} {
       allow read: if isSignedIn();
       allow create, delete: if isAdmin();
@@ -163,38 +193,104 @@ service cloud.firestore {
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['voteCounts'])
       );
 
-      // Single vote enforcement: user can only create their own vote doc once, never update or delete.
+      // Single Vote Subcollection: polls/{pollId}/votes/{uid}
+      // - Student sirf apna vote doc dekh sakta hai (ya Admin audit ke liye).
+      // - Student sirf ek baar apna vote create kar sakta hai (request.auth.uid == uid).
+      // - Vote dene ke baad update ya delete allow nahi hai (1 vote per user).
       match /votes/{uid} {
-        allow read: if isSignedIn();
+        allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());
         allow create: if isSignedIn() && request.auth.uid == uid;
         allow update, delete: if false;
       }
     }
 
-    // Student Feedback Messages (Task 2): normal users create their own; only admins read/update/delete
+    // ------------------------------------------------------------------------
+    // 12. STUDENT FEEDBACK MESSAGES (Direct Private Feedback to Admin)
+    // ------------------------------------------------------------------------
+    // - Student direct admin ko feedback bhej sakta hai (create only with own userId).
+    // - Privacy protection: Feedback messages sirf Admin read, mark read, ya delete kar sakta hai
+    //   (ek student doosre student ka message nahi dekh sakta).
     match /feedback_messages/{messageId} {
       allow read: if isAdmin();
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow update: if isAdmin();
-      allow delete: if isAdmin();
+      allow update, delete: if isAdmin();
     }
 
-    // Admin Feedback Posts & Student Replies (Task B)
+    // ------------------------------------------------------------------------
+    // 13. FEEDBACK POSTS & REPLIES (Admin Announcements / Community Discussions)
+    // ------------------------------------------------------------------------
+    // - Admin public announcements ya feedback discussion posts daalta hai.
+    // - Sabhi signed-in students posts read kar sakte hain.
+    // - Sirf Admin posts create, update ya delete kar sakta hai.
     match /feedback_posts/{postId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
 
+      // Replies Subcollection under post
+      // - Admin sabhi replies dekh sakta hai; student apna khud ka reply bhi dekh sakta hai.
+      // - Student post ke neeche apna reply de sakta hai (request.resource.data.uid == request.auth.uid).
+      // - Replies ko manage (mark read, delete) sirf Admin kar sakta hai.
       match /replies/{replyId} {
-        allow read: if isAdmin();
+        allow read: if isSignedIn() && (isAdmin() || resource.data.uid == request.auth.uid);
         allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
         allow update, delete: if isAdmin();
       }
     }
 
-    // Home Banner Image (Task D): all signed-in users can read, only admin can write
-    match /home_banner/{bannerId} {
-      allow read: if isSignedIn();
+    // ------------------------------------------------------------------------
+    // 14. AI GENERATED TESTS & QUESTIONS
+    // ------------------------------------------------------------------------
+    // - Students sirf 'live' ya 'published' tests aur unke questions read kar sakte hain.
+    // - Admin draft/generating state ke tests bhi dekh sakta hai aur status manage kar sakta hai.
+    match /generated_tests/{testId} {
+      allow read: if isSignedIn() && (isAdmin() || resource.data.status in ["live", "published"]);
       allow write: if isAdmin();
+
+      match /questions/{questionId} {
+        allow read: if isSignedIn() && (
+          isAdmin() ||
+          get(/databases/$(database)/documents/generated_tests/$(testId)).data.status in ["live", "published"]
+        );
+        allow write: if isAdmin();
+      }
+    }
+
+    // ------------------------------------------------------------------------
+    // 15. AI GENERATION LOGS (Audit Logs for AI Test Generation)
+    // ------------------------------------------------------------------------
+    // - Sirf Admin generation history, prompt tokens aur error logs dekh sakta hai.
+    // - Client se write blocked hai; Cloud Functions Admin SDK se logs likhte hain.
+    match /generation_logs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // ------------------------------------------------------------------------
+    // 16. ADMIN ANALYTICS (Pre-aggregated Exam & Question Performance Data)
+    // ------------------------------------------------------------------------
+    // - Sirf Admin read kar sakta hai Admin Dashboard ke analytical charts ke liye.
+    // - Client se write blocked hai (Cloud Functions background triggers update karte hain).
+    match /admin_analytics_exams/{examId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /admin_analytics_questions/{questionId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // ------------------------------------------------------------------------
+    // 17. BACKEND INTERNAL COLLECTIONS (Cloud Functions Only - Zero Client Access)
+    // ------------------------------------------------------------------------
+    // - system_config: Gemini API keys rotation state aur secret config (No client access).
+    // - admin_analytics_exam_users: Functions trigger deduplication markers (No client access).
+    match /system_config/{configId} {
+      allow read, write: if false;
+    }
+
+    match /admin_analytics_exam_users/{markerId} {
+      allow read, write: if false;
     }
   }
 }

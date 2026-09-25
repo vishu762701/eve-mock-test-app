@@ -61,6 +61,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -76,6 +77,13 @@ class MainActivity : AppCompatActivity() {
 
     private var firestoreNotifRegistration: ListenerRegistration? = null
     private var homeBannerRegistration: ListenerRegistration? = null
+
+    private val bannerAdapter = HomeBannerAdapter()
+    private val bannerRepo = com.eve.app.data.repository.HomeBannerRepository()
+    private var bannerObserverJob: Job? = null
+    private var bannerAutoScrollJob: Job? = null
+    private var currentBannerCount = 0
+    private var isUserDraggingBanner = false
 
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* ignored */ }
@@ -151,6 +159,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setupSwipeToProfile()
+        setupBannerCarousel()
 
         binding.tvWelcome.text = "Hi, ${user.displayName ?: "Student"}"
 
@@ -382,9 +391,8 @@ class MainActivity : AppCompatActivity() {
         popup.menu.add(title)
         popup.setOnMenuItemClickListener {
             viewModel.togglePin(user.uid, exam.id, isPinned)
-            if (!isPinned) {
-                com.eve.app.util.VibrationHelper.vibrateLightHaptic(this)
-            }
+            // Task B: Fire exactly one haptic event per pin and per unpin action
+            com.eve.app.util.VibrationHelper.vibrateLightHaptic(this)
             val msg = if (isPinned) "Test unpinned" else "Test pinned to top"
             Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
             true
@@ -452,28 +460,91 @@ class MainActivity : AppCompatActivity() {
         super.onStop()
         firestoreNotifRegistration?.remove()
         firestoreNotifRegistration = null
-        homeBannerRegistration?.remove()
-        homeBannerRegistration = null
+        stopBannerAutoScroll()
+        bannerObserverJob?.cancel()
+        bannerObserverJob = null
+    }
+
+    private fun setupBannerCarousel() {
+        binding.vpHomeBanners.adapter = bannerAdapter
+        binding.vpHomeBanners.registerOnPageChangeCallback(object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                updateBannerDots(position)
+            }
+            override fun onPageScrollStateChanged(state: Int) {
+                isUserDraggingBanner = (state == androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING)
+            }
+        })
     }
 
     private fun startListeningToHomeBanner() {
-        homeBannerRegistration?.remove()
-        homeBannerRegistration = FirebaseFirestore.getInstance()
-            .collection("home_banner")
-            .document("active")
-            .addSnapshotListener { snapshot, error ->
-                if (error != null || snapshot == null || !snapshot.exists()) {
+        bannerObserverJob?.cancel()
+        bannerObserverJob = lifecycleScope.launch {
+            bannerRepo.observeBanners().collect { banners ->
+                currentBannerCount = banners.size
+                if (banners.isEmpty()) {
                     binding.cardHomeBanner.visibility = View.GONE
-                    return@addSnapshotListener
-                }
-                val imageUrl = snapshot.getString("imageUrl")
-                if (imageUrl.isNullOrBlank()) {
-                    binding.cardHomeBanner.visibility = View.GONE
+                    binding.layoutBannerDots.visibility = View.GONE
+                    stopBannerAutoScroll()
                 } else {
                     binding.cardHomeBanner.visibility = View.VISIBLE
-                    com.eve.app.util.ExamImageHelper.loadBannerImage(binding.ivHomeBanner, imageUrl)
+                    bannerAdapter.submitList(banners)
+
+                    if (banners.size == 1) {
+                        binding.layoutBannerDots.visibility = View.GONE
+                        binding.vpHomeBanners.isUserInputEnabled = false
+                        stopBannerAutoScroll()
+                    } else {
+                        binding.layoutBannerDots.visibility = View.VISIBLE
+                        binding.vpHomeBanners.isUserInputEnabled = true
+                        setupBannerDots(banners.size, binding.vpHomeBanners.currentItem)
+                        startBannerAutoScroll(banners.size)
+                    }
                 }
             }
+        }
+    }
+
+    private fun setupBannerDots(count: Int, selectedIndex: Int) {
+        binding.layoutBannerDots.removeAllViews()
+        val density = resources.displayMetrics.density
+        val size = (7 * density).toInt()
+        val margin = (4 * density).toInt()
+        for (i in 0 until count) {
+            val dot = View(this).apply {
+                layoutParams = android.widget.LinearLayout.LayoutParams(size, size).apply {
+                    setMargins(margin, 0, margin, 0)
+                }
+                setBackgroundResource(if (i == selectedIndex) R.drawable.bg_banner_dot_active else R.drawable.bg_banner_dot_inactive)
+            }
+            binding.layoutBannerDots.addView(dot)
+        }
+    }
+
+    private fun updateBannerDots(selectedIndex: Int) {
+        for (i in 0 until binding.layoutBannerDots.childCount) {
+            val dot = binding.layoutBannerDots.getChildAt(i)
+            dot?.setBackgroundResource(if (i == selectedIndex) R.drawable.bg_banner_dot_active else R.drawable.bg_banner_dot_inactive)
+        }
+    }
+
+    private fun startBannerAutoScroll(count: Int) {
+        stopBannerAutoScroll()
+        if (count <= 1) return
+        bannerAutoScrollJob = lifecycleScope.launch {
+            while (isActive) {
+                delay(4500L)
+                if (!isUserDraggingBanner && currentBannerCount > 1) {
+                    val nextItem = (binding.vpHomeBanners.currentItem + 1) % currentBannerCount
+                    binding.vpHomeBanners.setCurrentItem(nextItem, true)
+                }
+            }
+        }
+    }
+
+    private fun stopBannerAutoScroll() {
+        bannerAutoScrollJob?.cancel()
+        bannerAutoScrollJob = null
     }
 
     private fun startListeningToNotifications() {

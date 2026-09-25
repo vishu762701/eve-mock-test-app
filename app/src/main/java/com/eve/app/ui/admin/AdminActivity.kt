@@ -23,6 +23,9 @@ import com.eve.app.data.model.Question
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.FeedbackRepository
 import com.eve.app.databinding.ActivityAdminBinding
+import com.eve.app.data.model.HomeBanner
+import com.eve.app.data.repository.HomeBannerRepository
+import com.eve.app.databinding.DialogManageBannersBinding
 import com.eve.app.databinding.DialogCreateFeedbackPostBinding
 import com.eve.app.databinding.DialogPostRepliesBinding
 import com.eve.app.util.Constants
@@ -38,37 +41,16 @@ class AdminActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAdminBinding
     private val viewModel: AdminViewModel by viewModels()
     private val adminRepo = AdminRepository()
+    private val bannerRepo = HomeBannerRepository()
 
     private var exams: List<Exam> = emptyList()
     private var newExamImageBase64: String = ""
     private var selectedExamForImageUpdate: Exam? = null
+    private var onBannerImageSelected: ((Uri) -> Unit)? = null
 
     private val pickBannerImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) {
-            val base64 = ExamImageHelper.uriToBannerBase64(this, uri)
-            if (base64 != null) {
-                lifecycleScope.launch {
-                    try {
-                        val email = FirebaseAuth.getInstance().currentUser?.email ?: "admin"
-                        val data = hashMapOf(
-                            "id" to "active",
-                            "imageUrl" to base64,
-                            "timestamp" to System.currentTimeMillis(),
-                            "updatedBy" to email
-                        )
-                        FirebaseFirestore.getInstance()
-                            .collection("home_banner")
-                            .document("active")
-                            .set(data)
-                            .await()
-                        Toast.makeText(this@AdminActivity, "Home banner published successfully!", Toast.LENGTH_SHORT).show()
-                    } catch (e: Exception) {
-                        Toast.makeText(this@AdminActivity, "Failed to upload banner: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
-                    }
-                }
-            } else {
-                Toast.makeText(this, "Failed to process image", Toast.LENGTH_SHORT).show()
-            }
+            onBannerImageSelected?.invoke(uri)
         }
     }
 
@@ -454,52 +436,131 @@ class AdminActivity : AppCompatActivity() {
     }
 
     private fun showHomeBannerOptionsDialog() {
-        val db = FirebaseFirestore.getInstance()
-        lifecycleScope.launch {
-            try {
-                val bannerDoc = db.collection("home_banner").document("active").get().await()
-                val hasBanner = bannerDoc.exists() && !bannerDoc.getString("imageUrl").isNullOrBlank()
+        val dialogBinding = DialogManageBannersBinding.inflate(layoutInflater)
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setView(dialogBinding.root)
+            .create()
 
-                val options = if (hasBanner) {
-                    arrayOf("Change Image (Upload New)", "Delete Banner", "Cancel")
-                } else {
-                    arrayOf("Upload Image from Gallery", "Cancel")
+        var pendingBannerUri: Uri? = null
+
+        val bannerAdapter = AdminBannerAdapter(
+            onMoveUp = { banner ->
+                lifecycleScope.launch {
+                    try {
+                        bannerRepo.reorderBanner(banner.id, moveUp = true)
+                        refreshBannerList(dialogBinding)
+                    } catch (e: Exception) {
+                        Toast.makeText(this@AdminActivity, "Error reordering: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            },
+            onMoveDown = { banner ->
+                lifecycleScope.launch {
+                    try {
+                        bannerRepo.reorderBanner(banner.id, moveUp = false)
+                        refreshBannerList(dialogBinding)
+                    } catch (e: Exception) {
+                        Toast.makeText(this@AdminActivity, "Error reordering: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            },
+            onDelete = { banner ->
+                confirmDeleteBanner(banner) {
+                    refreshBannerList(dialogBinding)
+                }
+            }
+        )
+
+        dialogBinding.rvAdminBanners.apply {
+            layoutManager = LinearLayoutManager(this@AdminActivity)
+            adapter = bannerAdapter
+        }
+
+        dialogBinding.btnPickBannerImage.setOnClickListener {
+            onBannerImageSelected = { uri ->
+                val sizeBytes = try {
+                    contentResolver.openInputStream(uri)?.use { it.available() } ?: 0
+                } catch (e: Exception) {
+                    0
                 }
 
-                MaterialAlertDialogBuilder(this@AdminActivity)
-                    .setTitle("Home Banner Image")
-                    .setMessage(if (hasBanner) "A banner image is currently active on the Home page." else "No banner image currently posted.")
-                    .setItems(options) { dialog, which ->
-                        when (options[which]) {
-                            "Upload Image from Gallery", "Change Image (Upload New)" -> {
-                                pickBannerImageLauncher.launch("image/*")
-                            }
-                            "Delete Banner" -> {
-                                confirmDeleteHomeBanner()
-                            }
-                            else -> dialog.dismiss()
-                        }
-                    }
-                    .show()
+                if (sizeBytes > 5 * 1024 * 1024) {
+                    val sizeMb = String.format(java.util.Locale.US, "%.1f", sizeBytes / (1024f * 1024f))
+                    dialogBinding.tvBannerUploadError.text = "Image size exceeds 5MB limit ($sizeMb MB). Please select a smaller image."
+                    dialogBinding.tvBannerUploadError.visibility = View.VISIBLE
+                    dialogBinding.cardPreviewBanner.visibility = View.GONE
+                    dialogBinding.btnSaveBanner.visibility = View.GONE
+                    pendingBannerUri = null
+                } else {
+                    dialogBinding.tvBannerUploadError.visibility = View.GONE
+                    dialogBinding.cardPreviewBanner.visibility = View.VISIBLE
+                    dialogBinding.ivPreviewBanner.setImageURI(uri)
+                    dialogBinding.btnSaveBanner.visibility = View.VISIBLE
+                    pendingBannerUri = uri
+                }
+            }
+            pickBannerImageLauncher.launch("image/*")
+        }
+
+        dialogBinding.btnSaveBanner.setOnClickListener {
+            val uri = pendingBannerUri ?: return@setOnClickListener
+            dialogBinding.btnSaveBanner.isEnabled = false
+            dialogBinding.btnSaveBanner.text = "Uploading..."
+            val email = FirebaseAuth.getInstance().currentUser?.email ?: "admin"
+            lifecycleScope.launch {
+                val result = bannerRepo.uploadBanner(this@AdminActivity, uri, email)
+                if (result.isSuccess) {
+                    Toast.makeText(this@AdminActivity, "Banner published successfully!", Toast.LENGTH_SHORT).show()
+                    dialogBinding.cardPreviewBanner.visibility = View.GONE
+                    dialogBinding.btnSaveBanner.visibility = View.GONE
+                    dialogBinding.btnSaveBanner.isEnabled = true
+                    dialogBinding.btnSaveBanner.text = "Save & Publish Banner"
+                    pendingBannerUri = null
+                    refreshBannerList(dialogBinding)
+                } else {
+                    dialogBinding.btnSaveBanner.isEnabled = true
+                    dialogBinding.btnSaveBanner.text = "Save & Publish Banner"
+                    dialogBinding.tvBannerUploadError.text = "Upload failed: ${result.exceptionOrNull()?.localizedMessage}"
+                    dialogBinding.tvBannerUploadError.visibility = View.VISIBLE
+                }
+            }
+        }
+
+        dialogBinding.btnCloseBannerDialog.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.setOnDismissListener {
+            onBannerImageSelected = null
+        }
+
+        refreshBannerList(dialogBinding)
+        dialog.show()
+    }
+
+    private fun refreshBannerList(dialogBinding: DialogManageBannersBinding) {
+        lifecycleScope.launch {
+            try {
+                val banners = bannerRepo.getBanners()
+                (dialogBinding.rvAdminBanners.adapter as? AdminBannerAdapter)?.submitList(banners)
+                dialogBinding.tvNoBanners.visibility = if (banners.isEmpty()) View.VISIBLE else View.GONE
+                dialogBinding.rvAdminBanners.visibility = if (banners.isEmpty()) View.GONE else View.VISIBLE
             } catch (e: Exception) {
-                Toast.makeText(this@AdminActivity, "Error loading banner status: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@AdminActivity, "Failed to load banners: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun confirmDeleteHomeBanner() {
+    private fun confirmDeleteBanner(banner: HomeBanner, onDeleted: () -> Unit) {
         MaterialAlertDialogBuilder(this)
             .setTitle("Delete Home Banner?")
-            .setMessage("This will remove the banner image from the Home screen immediately.")
+            .setMessage("This will remove this banner from the student Home screen carousel immediately.")
             .setPositiveButton("Delete") { _, _ ->
                 lifecycleScope.launch {
                     try {
-                        FirebaseFirestore.getInstance()
-                            .collection("home_banner")
-                            .document("active")
-                            .delete()
-                            .await()
-                        Toast.makeText(this@AdminActivity, "Home banner removed", Toast.LENGTH_SHORT).show()
+                        bannerRepo.deleteBanner(banner.id)
+                        Toast.makeText(this@AdminActivity, "Banner deleted", Toast.LENGTH_SHORT).show()
+                        onDeleted()
                     } catch (e: Exception) {
                         Toast.makeText(this@AdminActivity, "Failed to delete: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
                     }

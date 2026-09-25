@@ -11,6 +11,7 @@ import android.widget.PopupWindow
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import com.eve.app.R
 import com.eve.app.databinding.PopupTelegramMenuBinding
+import com.eve.app.util.GlassmorphismHelper
 import com.eve.app.util.ThemeManager
 
 class TelegramMenuPopup(
@@ -28,8 +29,7 @@ class TelegramMenuPopup(
     private val binding: PopupTelegramMenuBinding =
         PopupTelegramMenuBinding.inflate(LayoutInflater.from(context))
     private var isDismissing = false
-    private var lastTouchX = 0f
-    private var lastTouchY = 0f
+    private var anchorViewRef: View? = null
 
     init {
         contentView = binding.root
@@ -56,23 +56,19 @@ class TelegramMenuPopup(
     }
 
     private fun setupListeners() {
-        binding.cardTheme.setOnTouchListener { _, event ->
-            if (event.action == MotionEvent.ACTION_DOWN || event.action == MotionEvent.ACTION_UP) {
-                lastTouchX = event.rawX
-                lastTouchY = event.rawY
-            }
-            false
-        }
         binding.cardTheme.setOnClickListener {
             if (ThemeManager.isTransitioning) return@setOnClickListener
             val isDark = ThemeManager.isDarkMode(context)
             binding.ivThemeIcon.setImageResource(if (isDark) R.drawable.ic_moon else R.drawable.ic_sun)
 
+            // Task B: Always calculate origin (cx, cy) from the live screen position of the 3-DOT ANCHOR BUTTON
+            val anchor = anchorViewRef ?: binding.cardTheme
             val loc = IntArray(2)
-            binding.cardTheme.getLocationOnScreen(loc)
-            val cx = if (lastTouchX > 0f) lastTouchX.toInt() else (loc[0] + binding.cardTheme.width / 2)
-            val cy = if (lastTouchY > 0f) lastTouchY.toInt() else (loc[1] + binding.cardTheme.height / 2)
+            anchor.getLocationOnScreen(loc)
+            val cx = loc[0] + anchor.width / 2
+            val cy = loc[1] + anchor.height / 2
 
+            GlassmorphismHelper.removeWindowBlur(binding.root, animate = false)
             super.dismiss()
             onThemeToggle(cx, cy)
         }
@@ -102,6 +98,7 @@ class TelegramMenuPopup(
     fun show(anchorView: View) {
         if (isShowing) return
         isDismissing = false
+        anchorViewRef = anchorView
         setupThemeCard()
 
         // Measure content precisely so PopupWindow height is exact and matches content
@@ -118,8 +115,8 @@ class TelegramMenuPopup(
         val xOffset = -(measuredW - anchorView.width)
         showAsDropDown(anchorView, xOffset, 4)
 
-        // Apply heavy background blur on supported Android versions
-        com.eve.app.util.GlassmorphismHelper.applyWindowBlur(binding.root)
+        // Task C: Apply animated background blur on supported Android versions
+        GlassmorphismHelper.applyWindowBlur(binding.root, blurRadius = GlassmorphismHelper.DEFAULT_BLUR_RADIUS, animate = true)
 
         binding.root.post {
             binding.root.pivotX = binding.root.width.toFloat()
@@ -141,6 +138,8 @@ class TelegramMenuPopup(
     private fun dismissWithAction(action: () -> Unit) {
         if (isDismissing) return
         isDismissing = true
+        GlassmorphismHelper.removeWindowBlur(binding.root, animate = true)
+
         binding.root.pivotX = binding.root.width.toFloat()
         binding.root.pivotY = 0f
         binding.root.animate()
@@ -160,6 +159,8 @@ class TelegramMenuPopup(
     override fun dismiss() {
         if (isDismissing) return
         isDismissing = true
+        GlassmorphismHelper.removeWindowBlur(binding.root, animate = true)
+
         binding.root.pivotX = binding.root.width.toFloat()
         binding.root.pivotY = 0f
         binding.root.animate()

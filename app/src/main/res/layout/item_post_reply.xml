@@ -71,15 +71,11 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDeleteReply"
-                style="@style/Widget.Eve.OutlinedButton"
+                style="@style/Widget.Eve.ChipButton.Delete"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
                 android:layout_marginStart="8dp"
-                android:fontFamily="@font/poppins_medium"
-                android:paddingHorizontal="10dp"
-                android:text="Delete"
-                android:textColor="@color/eve_red"
-                android:textSize="11sp" />
+                android:text="Delete" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
