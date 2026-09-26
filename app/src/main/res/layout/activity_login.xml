@@ -19,22 +19,16 @@
         android:overScrollMode="never"
         android:scrollbars="none">
 
-        <LinearLayout
+        <FrameLayout
             android:id="@+id/contentLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:paddingHorizontal="20dp"
-            android:paddingVertical="32dp">
+            android:layout_height="match_parent">
 
             <!-- 2. Modal Card: Dark near-black semi-transparent glassmorphism with ~24px rounded corners -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardLogin"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="20dp"
                 android:layout_gravity="center"
                 app:cardBackgroundColor="@color/eve_menu_glass_bg"
                 app:cardCornerRadius="24dp"
@@ -45,12 +39,20 @@
                 app:strokeColor="@color/eve_menu_glass_border"
                 app:strokeWidth="1dp">
 
-                <LinearLayout
+                <androidx.core.widget.NestedScrollView
+                    android:id="@+id/cardScrollView"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingHorizontal="24dp"
-                    android:paddingVertical="26dp">
+                    android:layout_height="match_parent"
+                    android:fillViewport="true"
+                    android:overScrollMode="never"
+                    android:scrollbars="none">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="24dp"
+                        android:paddingVertical="26dp">
 
                     <!-- 3. Header / Tabs Row (Sign In / Join + Orange Underline + Close X icon) -->
                     <LinearLayout
@@ -389,8 +391,9 @@
                         android:textSize="13sp" />
 
                 </LinearLayout>
+                </androidx.core.widget.NestedScrollView>
             </com.google.android.material.card.MaterialCardView>
-        </LinearLayout>
+        </FrameLayout>
     </ScrollView>
 
 </FrameLayout>

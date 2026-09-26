@@ -18,8 +18,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.lifecycleScope
+import kotlin.math.roundToInt
 import com.eve.app.R
 import com.eve.app.databinding.ActivityLoginBinding
 import com.eve.app.ui.home.MainActivity
@@ -107,6 +110,9 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
+        // Part A: Responsive reference panel sizing (width = 85.46%, height = 69.37% of usable viewport)
+        setupResponsiveLoginPanel()
+
         // Task C: Staggered Entrance Animation
         playStaggeredEntranceAnimation()
 
@@ -132,6 +138,59 @@ class LoginActivity : AppCompatActivity() {
         }
         binding.btnCloseModal.setOnClickListener {
             finish()
+        }
+    }
+
+    /**
+     * Part A: Sizing panel responsively to match reference screenshot proportions:
+     * panelWidth = availableWidth * 0.8546 (629 / 736)
+     * panelHeight = availableHeight * 0.6937 (1066 / 1536)
+     * Uses actual usable viewport after existing safe-area/inset handling.
+     * Panel remains horizontally and vertically centered.
+     */
+    private fun setupResponsiveLoginPanel() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val sysBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            applyResponsivePanelSize(sysBars)
+            insets
+        }
+
+        binding.root.addOnLayoutChangeListener { _, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+            val w = right - left
+            val h = bottom - top
+            if (w > 0 && h > 0 && (w != (oldRight - oldLeft) || h != (oldBottom - oldTop))) {
+                val insets = ViewCompat.getRootWindowInsets(binding.root)?.getInsets(WindowInsetsCompat.Type.systemBars())
+                applyResponsivePanelSize(insets)
+            }
+        }
+
+        binding.root.post {
+            val insets = ViewCompat.getRootWindowInsets(binding.root)?.getInsets(WindowInsetsCompat.Type.systemBars())
+            applyResponsivePanelSize(insets)
+        }
+    }
+
+    private fun applyResponsivePanelSize(sysBars: androidx.core.graphics.Insets?) {
+        val rootW = binding.root.width
+        val rootH = binding.root.height
+        if (rootW <= 0 || rootH <= 0) return
+
+        val insetLeft = sysBars?.left ?: 0
+        val insetRight = sysBars?.right ?: 0
+        val insetTop = sysBars?.top ?: 0
+        val insetBottom = sysBars?.bottom ?: 0
+
+        val availableWidth = (rootW - insetLeft - insetRight).coerceAtLeast(1)
+        val availableHeight = (rootH - insetTop - insetBottom).coerceAtLeast(1)
+
+        val targetWidth = (availableWidth * 0.8546f).roundToInt()
+        val targetHeight = (availableHeight * 0.6937f).roundToInt()
+
+        val lp = binding.cardLogin.layoutParams
+        if (lp.width != targetWidth || lp.height != targetHeight) {
+            lp.width = targetWidth
+            lp.height = targetHeight
+            binding.cardLogin.layoutParams = lp
         }
     }
 

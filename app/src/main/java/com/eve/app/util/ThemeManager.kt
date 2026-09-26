@@ -190,7 +190,10 @@ object ThemeManager {
 
             override fun onActivityStopped(activity: Activity) {
                 val holder = pendingSnapshot ?: return
-                // Check if user navigated away while transition was in progress
+                if (System.identityHashCode(activity) == holder.oldActivityId) {
+                    logDebug("Old Activity stopped during recreate (expected)")
+                    return
+                }
                 if (activity.javaClass.name == holder.activityClassName) {
                     logDebug("Activity stopped during transition (${activity.javaClass.simpleName}) -> cleaning up safely")
                     detachAllOverlays(activity)
@@ -201,14 +204,15 @@ object ThemeManager {
             override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
 
             override fun onActivityDestroyed(activity: Activity) {
-                detachAllOverlays(activity)
                 val holder = pendingSnapshot ?: return
                 if (System.identityHashCode(activity) == holder.oldActivityId) {
                     logDebug("Old Activity destroyed during recreate (expected)")
+                    detachAllOverlays(activity)
                     return
                 }
                 if (activity.javaClass.name == holder.activityClassName) {
                     logDebug("Activity destroyed -> cleaning up overlay")
+                    detachAllOverlays(activity)
                     cleanupPending("activity_destroyed")
                 }
             }
@@ -368,8 +372,11 @@ object ThemeManager {
         val navBarLeft = sysBars?.left ?: 0
         val navBarBottom = sysBars?.bottom ?: 0
         val insetPx = (24 * activity.resources.displayMetrics.density).toInt()
-        val trX = originX.toFloat()
-        val trY = originY.toFloat()
+
+        val decorLoc = IntArray(2)
+        decorView.getLocationOnScreen(decorLoc)
+        val trX = (originX - decorLoc[0]).toFloat()
+        val trY = (originY - decorLoc[1]).toFloat()
         val blX = (navBarLeft + insetPx).toFloat()
         val blY = (height - navBarBottom - insetPx).toFloat()
 
@@ -404,17 +411,31 @@ object ThemeManager {
             try {
                 val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
                 val window = activity.window
+                var pixelCopyDone = false
+                val pixelCopyTimeout = Runnable {
+                    if (!pixelCopyDone) {
+                        pixelCopyDone = true
+                        logDebug("PixelCopy timed out -> fallback to Canvas draw")
+                        fallbackSynchronousCaptureAndToggle(activity, decorView, coords)
+                    }
+                }
+                mainHandler.postDelayed(pixelCopyTimeout, 120)
+
                 PixelCopy.request(
                     window,
                     Rect(0, 0, width, height),
                     bitmap,
                     { copyResult ->
-                        if (copyResult == PixelCopy.SUCCESS) {
-                            logDebug("PixelCopy capture SUCCESS")
-                            commitRevealTransition(activity, bitmap, coords)
-                        } else {
-                            logDebug("PixelCopy failed with code $copyResult -> fallback to Canvas draw")
-                            fallbackSynchronousCaptureAndToggle(activity, decorView, coords)
+                        mainHandler.removeCallbacks(pixelCopyTimeout)
+                        if (!pixelCopyDone) {
+                            pixelCopyDone = true
+                            if (copyResult == PixelCopy.SUCCESS) {
+                                logDebug("PixelCopy capture SUCCESS")
+                                commitRevealTransition(activity, bitmap, coords)
+                            } else {
+                                logDebug("PixelCopy failed with code $copyResult -> fallback to Canvas draw")
+                                fallbackSynchronousCaptureAndToggle(activity, decorView, coords)
+                            }
                         }
                     },
                     mainHandler
@@ -552,8 +573,10 @@ object ThemeManager {
             if (overflowBtn != null && overflowBtn.isAttachedToWindow && overflowBtn.width > 0) {
                 val loc = IntArray(2)
                 overflowBtn.getLocationOnScreen(loc)
-                liveEndX = (loc[0] + overflowBtn.width / 2).toFloat()
-                liveEndY = (loc[1] + overflowBtn.height / 2).toFloat()
+                val decorLoc = IntArray(2)
+                decorView.getLocationOnScreen(decorLoc)
+                liveEndX = (loc[0] - decorLoc[0] + overflowBtn.width / 2).toFloat()
+                liveEndY = (loc[1] - decorLoc[1] + overflowBtn.height / 2).toFloat()
             } else {
                 liveEndX = holder.endX
                 liveEndY = holder.endY
@@ -659,10 +682,10 @@ object ThemeManager {
         private val clipPath = Path()
         private var animator: ValueAnimator? = null
         private val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+        private val dstRect = android.graphics.RectF()
 
         init {
             fitsSystemWindows = false
-            setLayerType(LAYER_TYPE_HARDWARE, null)
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
@@ -677,7 +700,9 @@ object ThemeManager {
                 return
             }
 
-            // Calculate exact distance from the END anchor to all four screen corners
+            dstRect.set(0f, 0f, w, h)
+
+            // Dynamic radius calculation from actual viewport geometry and destination anchor
             val d1 = hypot(endX.toDouble(), endY.toDouble())
             val d2 = hypot((w - endX).toDouble(), endY.toDouble())
             val d3 = hypot(endX.toDouble(), (h - endY).toDouble())
@@ -686,9 +711,14 @@ object ThemeManager {
 
             logDebug("Starting traveling reveal: ($startX, $startY) -> ($endX, $endY), rFinal=$rFinal (duration 550ms)")
 
+            // Smooth ease-in-out easing function: E(t) = 3t² - 2t³
+            val easeInOut = android.view.animation.Interpolator { t ->
+                t * t * (3f - 2f * t)
+            }
+
             animator = ValueAnimator.ofFloat(0f, 1f).apply {
                 duration = 550L
-                interpolator = FastOutSlowInInterpolator()
+                interpolator = easeInOut
                 addUpdateListener { va ->
                     val t = va.animatedValue as Float
                     currentX = startX + (endX - startX) * t
@@ -709,9 +739,13 @@ object ThemeManager {
             val bmp = bitmap ?: return
             if (bmp.isRecycled) return
 
+            if (dstRect.isEmpty) {
+                dstRect.set(0f, 0f, width.toFloat(), height.toFloat())
+            }
+
             if (currentRadius <= 0f) {
                 // Entire screen covered by old snapshot
-                canvas.drawBitmap(bmp, 0f, 0f, paint)
+                canvas.drawBitmap(bmp, null, dstRect, paint)
             } else {
                 // Expanding hole reveal: inside circle is new theme underneath, outside is old snapshot
                 clipPath.reset()
@@ -721,7 +755,7 @@ object ThemeManager {
 
                 canvas.save()
                 canvas.clipPath(clipPath)
-                canvas.drawBitmap(bmp, 0f, 0f, paint)
+                canvas.drawBitmap(bmp, null, dstRect, paint)
                 canvas.restore()
             }
         }
