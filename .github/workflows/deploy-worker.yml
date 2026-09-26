@@ -38,25 +38,28 @@ jobs:
         working-directory: backend
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || 'a50b9cf54c5e84de0183a5d3a4b38844' }}
+          CLOUDFLARE_ACCOUNT_ID: a50b9cf54c5e84de0183a5d3a4b38844
         run: |
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
             echo "::error::CLOUDFLARE_API_TOKEN secret is empty or missing in GitHub repository secrets!"
             exit 1
           fi
-          OUTPUT=$(npx wrangler d1 migrations apply eve-database --remote --yes 2>&1) || {
+          OUTPUT=$(echo "y" | npx wrangler d1 migrations apply eve-database --remote 2>&1) || {
             STATUS=$?
-            echo "::error title=D1 Migration Failed::Exit $STATUS: $OUTPUT"
+            ESCAPED="${OUTPUT//$'\n'/'%0A'}"
+            echo "::error title=D1 Migration Failed::$ESCAPED"
             echo "$OUTPUT"
             exit $STATUS
           }
-          echo "::notice title=D1 Migration Succeeded::$OUTPUT"
+          ESCAPED="${OUTPUT//$'\n'/'%0A'}"
+          echo "::notice title=D1 Migration Succeeded::$ESCAPED"
           echo "$OUTPUT"
 
       - name: Configure Worker Secrets (if present)
         working-directory: backend
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: a50b9cf54c5e84de0183a5d3a4b38844
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
@@ -71,5 +74,5 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || 'a50b9cf54c5e84de0183a5d3a4b38844' }}
+          accountId: 'a50b9cf54c5e84de0183a5d3a4b38844'
           workingDirectory: 'backend'
