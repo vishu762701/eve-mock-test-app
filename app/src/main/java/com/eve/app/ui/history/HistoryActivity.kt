@@ -13,6 +13,7 @@ import com.eve.app.R
 import com.eve.app.data.model.TestAttempt
 import com.eve.app.databinding.ActivityHistoryBinding
 import com.eve.app.ui.result.ResultActivity
+import com.eve.app.ui.result.ResultDataHolder
 import com.eve.app.util.Constants
 import com.eve.app.util.NetworkUtil
 import com.eve.app.util.UiState
@@ -103,9 +104,9 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     private fun openReview(attempt: TestAttempt) {
+        ResultDataHolder.setAnswers(attempt.answers)
         startActivity(
             Intent(this, ResultActivity::class.java)
-                .putParcelableArrayListExtra(Constants.EXTRA_ANSWERS, ArrayList(attempt.answers))
                 .putExtra(Constants.EXTRA_EXAM_ID, attempt.examId)
                 .putExtra(Constants.EXTRA_EXAM_NAME, attempt.examName)
                 .putExtra(Constants.EXTRA_ATTEMPT_DATE, dateFormat.format(Date(attempt.timestamp)))

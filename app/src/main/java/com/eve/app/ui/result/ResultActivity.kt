@@ -2,8 +2,8 @@ package com.eve.app.ui.result
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.IntentCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.data.model.AnswerItem
 import com.eve.app.databinding.ActivityResultBinding
@@ -15,6 +15,7 @@ import com.eve.app.util.SecurityHelper
 
 class ResultActivity : AppCompatActivity() {
 
+    private val viewModel: ResultViewModel by viewModels()
     private lateinit var allItems: List<AnswerItem>
     private val adapter = AnswerAdapter()
     private var fromHistory = false
@@ -25,9 +26,18 @@ class ResultActivity : AppCompatActivity() {
         val binding = ActivityResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        allItems =
-            IntentCompat.getParcelableArrayListExtra(intent, Constants.EXTRA_ANSWERS, AnswerItem::class.java)
-                ?: emptyList()
+        // Configuration change safe: initialize from ResultDataHolder on first open,
+        // or retain existing items from ResultViewModel across screen rotations.
+        if (viewModel.allItems.isEmpty()) {
+            val incoming = ResultDataHolder.consumeAnswers()
+            viewModel.initAnswers(incoming)
+        }
+        allItems = viewModel.allItems
+
+        if (allItems.isEmpty()) {
+            finish()
+            return
+        }
 
         // Test History (Phase 10): yeh screen ek purane attempt ka review bhi ho sakti hai
         fromHistory = intent.getBooleanExtra(Constants.EXTRA_FROM_HISTORY, false)
@@ -98,6 +108,13 @@ class ResultActivity : AppCompatActivity() {
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         close()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (isFinishing) {
+            ResultDataHolder.clear()
+        }
     }
 
     /** History se review khola tha to bas finish karo (History list par wapas), warna Home pe jao. */

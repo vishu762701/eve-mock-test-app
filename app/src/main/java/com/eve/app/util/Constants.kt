@@ -31,6 +31,7 @@ object Constants {
     const val EXTRA_PYQ_MODE = "extra_pyq_mode"
     const val EXTRA_PYQ_YEAR = "extra_pyq_year"
     const val EXTRA_PYQ_PAPER = "extra_pyq_paper"
+    @Deprecated("Replaced by ResultDataHolder to prevent android.os.TransactionTooLargeException")
     const val EXTRA_ANSWERS = "extra_answers"
 
     // Test History (Phase 10)

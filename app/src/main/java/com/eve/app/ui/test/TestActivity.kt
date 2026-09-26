@@ -14,6 +14,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.eve.app.data.model.Question
 import com.eve.app.databinding.ActivityTestBinding
 import com.eve.app.ui.result.ResultActivity
+import com.eve.app.ui.result.ResultDataHolder
 import com.eve.app.util.AnalyticsHelper
 import com.eve.app.util.Constants
 import com.eve.app.util.LanguageManager
@@ -262,9 +263,10 @@ class TestActivity : AppCompatActivity() {
             total = items.size
         )
 
+        ResultDataHolder.setAnswers(items)
+
         startActivity(
             Intent(this, ResultActivity::class.java)
-                .putParcelableArrayListExtra(Constants.EXTRA_ANSWERS, items)
                 .putExtra(Constants.EXTRA_EXAM_ID, examId)
                 .putExtra(Constants.EXTRA_EXAM_NAME, attemptName)
                 .putExtra(Constants.EXTRA_EXAM_CATEGORY, examCategory)
