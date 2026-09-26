@@ -1,66 +1,62 @@
 package com.eve.app.data.repository
 
 import com.eve.app.data.model.Exam
+import com.eve.app.data.model.GeneratedTest
 import com.eve.app.data.model.PyqSet
 import com.eve.app.data.model.Question
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.tasks.await
+import com.eve.app.data.remote.ApiClient
+import com.eve.app.data.remote.EveApiService
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 
+/**
+ * Repository for exams, questions, syllabus, and AI-generated tests via Cloudflare Worker API.
+ * Uploads syllabus PDFs to Supabase Storage via Worker and manages metadata in D1.
+ */
 class ExamRepository(
-    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val api: EveApiService = ApiClient.apiService
 ) {
 
-    private fun attemptLockId(userId: String, examId: String): String =
-        "${userId}_${examId}"
-
     /**
-     * Returns exams already completed by this user. The deterministic lock is checked first;
-     * the legacy attempts query keeps old users backward-compatible.
+     * Returns exams already completed by this user.
      */
     suspend fun getAttemptedExamIds(userId: String): Set<String> {
-        if (userId.isBlank()) return emptySet()
-
-        val locks = db.collection("attempt_locks")
-            .whereEqualTo("userId", userId)
-            .get().await()
-            .documents
-            .mapNotNull { it.getString("examId") }
-            .toMutableSet()
-
-        val legacy = db.collection("attempts")
-            .whereEqualTo("userId", userId)
-            .get().await()
-            .documents
-            .mapNotNull { it.getString("examId") }
-
-        locks.addAll(legacy)
-        return locks
+        return try {
+            val res = api.getAttemptLocks()
+            (res.data ?: emptyList()).toSet()
+        } catch (_: Exception) {
+            emptySet()
+        }
     }
 
     /** Test start se pehle deterministic server-side lock ko check karta hai. */
     suspend fun hasAttemptLock(userId: String, examId: String): Boolean {
-        if (userId.isBlank() || examId.isBlank()) return false
-        val lock = db.collection("attempt_locks").document(attemptLockId(userId, examId)).get().await()
-        if (lock.exists()) return true
-
-        // Purane attempts ke liye graceful backward compatibility.
-        return !db.collection("attempts")
-            .whereEqualTo("userId", userId)
-            .whereEqualTo("examId", examId)
-            .limit(1)
-            .get().await().isEmpty
+        if (examId.isBlank()) return false
+        return try {
+            val res = api.checkAttemptLock(examId)
+            res.data?.hasLock == true
+        } catch (_: Exception) {
+            false
+        }
     }
 
-    suspend fun getExams(): List<Exam> =
-        db.collection("exams").get().await().documents.mapNotNull { doc ->
-            doc.toObject(Exam::class.java)?.copy(id = doc.id)
-        }.sortedBy { it.examName }
+    suspend fun getExams(): List<Exam> {
+        return try {
+            val res = api.getExams()
+            (res.data ?: emptyList()).sortedBy { it.examName }
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
 
-    suspend fun getQuestions(examId: String): List<Question> =
-        db.collection("questions").whereEqualTo("examId", examId).get().await()
-            .documents.mapNotNull { doc ->
-                doc.toObject(Question::class.java)?.copy(id = doc.id)
-            }
+    suspend fun getQuestions(examId: String): List<Question> {
+        return try {
+            val res = api.getQuestions(examId)
+            res.data ?: emptyList()
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
 
     /** Phase 19 gap-fix: mock test me PYQ tagged questions mix nahi hone chahiye. */
     suspend fun getMockQuestions(examId: String): List<Question> =
@@ -70,8 +66,7 @@ class ExamRepository(
         getQuestions(examId).filter { !it.isPyq && it.topic.trim().equals(topic.trim(), ignoreCase = true) }
 
     /**
-     * Phase 19: PYQ questions. Composite index avoid karne ke liye exam ke saare questions
-     * load karke client-side filter — Practice topics jaisa hi, offline cache bhi kaam karta hai.
+     * Phase 19: PYQ questions.
      */
     suspend fun getPyqQuestions(examId: String, year: Int, paper: String = ""): List<Question> =
         getQuestions(examId).filter { q ->
@@ -111,7 +106,7 @@ class ExamRepository(
         imageUrl: String = ""
     ): String {
         val trimmed = name.trim()
-        val data = hashMapOf(
+        val data = mapOf(
             "examName" to trimmed,
             "timeLimitMinutes" to minutes,
             "category" to category.trim(),
@@ -123,68 +118,29 @@ class ExamRepository(
             "generationPrompt" to generationPrompt,
             "syllabusUrl" to "",
             "syllabusFileName" to "",
-            "imageUrl" to imageUrl,
-            "lastGeneratedDate" to "",
-            "lastGenerationStatus" to "",
-            "lastGenerationError" to "",
-            "lastGenerationTime" to 0L
+            "imageUrl" to imageUrl
         )
-        val docRef = db.collection("exams").add(data).await()
-        return docRef.id
+        val res = api.createExam(data)
+        if (!res.success || res.data == null) {
+            throw Exception(res.error ?: "Failed to create exam")
+        }
+        return res.data["id"] ?: ""
     }
 
     suspend fun updateExamImage(examId: String, imageUrl: String) {
-        db.collection("exams").document(examId).update("imageUrl", imageUrl).await()
+        val res = api.updateExamImage(examId, mapOf("imageUrl" to imageUrl))
+        if (!res.success) throw Exception(res.error ?: "Failed to update exam image")
     }
 
     suspend fun renameExam(examId: String, newName: String) {
         val trimmed = newName.trim()
-        db.collection("exams").document(examId).update("examName", trimmed).await()
-
-        val genTests = db.collection("generated_tests").whereEqualTo("examId", examId).get().await()
-        if (!genTests.isEmpty) {
-            genTests.documents.chunked(450).forEach { chunk ->
-                val batch = db.batch()
-                chunk.forEach { doc -> batch.update(doc.reference, "examName", trimmed) }
-                batch.commit().await()
-            }
-        }
-
-        val attempts = db.collection("attempts").whereEqualTo("examId", examId).get().await()
-        if (!attempts.isEmpty) {
-            attempts.documents.chunked(450).forEach { chunk ->
-                val batch = db.batch()
-                chunk.forEach { doc -> batch.update(doc.reference, "examName", trimmed) }
-                batch.commit().await()
-            }
-        }
-
-        val leaderboard = db.collection("leaderboard").whereEqualTo("examId", examId).get().await()
-        if (!leaderboard.isEmpty) {
-            leaderboard.documents.chunked(450).forEach { chunk ->
-                val batch = db.batch()
-                chunk.forEach { doc -> batch.update(doc.reference, "examName", trimmed) }
-                batch.commit().await()
-            }
-        }
+        val res = api.renameExam(examId, mapOf("examName" to trimmed))
+        if (!res.success) throw Exception(res.error ?: "Failed to rename exam")
     }
 
     suspend fun deleteExam(examId: String) {
-        val questions = db.collection("questions").whereEqualTo("examId", examId).get().await()
-        questions.documents.chunked(450).forEach { chunk ->
-            val batch = db.batch()
-            chunk.forEach { doc -> batch.delete(doc.reference) }
-            batch.commit().await()
-        }
-
-        val genTests = db.collection("generated_tests").whereEqualTo("examId", examId).get().await()
-        genTests.documents.chunked(450).forEach { chunk ->
-            val batch = db.batch()
-            chunk.forEach { doc -> batch.delete(doc.reference) }
-            batch.commit().await()
-        }
-
-        db.collection("exams").document(examId).delete().await()
+        val res = api.deleteExam(examId)
+        if (!res.success) throw Exception(res.error ?: "Failed to delete exam")
     }
 
     suspend fun updateExamFullSettings(
@@ -198,7 +154,7 @@ class ExamRepository(
         syllabusFileName: String,
         generationPrompt: String
     ) {
-        val data = hashMapOf<String, Any>(
+        val data = mapOf<String, Any>(
             "examName" to examName.trim(),
             "testNumber" to testNumber.trim(),
             "questionCount" to questionCount,
@@ -208,56 +164,43 @@ class ExamRepository(
             "syllabusFileName" to syllabusFileName,
             "generationPrompt" to generationPrompt.trim()
         )
-        db.collection("exams").document(examId).update(data).await()
+        val res = api.updateExam(examId, data)
+        if (!res.success) throw Exception(res.error ?: "Failed to update exam settings")
     }
 
     suspend fun uploadSyllabusPdf(examId: String, fileName: String, bytes: ByteArray): String {
-        val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().reference
-        val fileRef = storageRef.child("syllabi/${examId}_${System.currentTimeMillis()}.pdf")
-        val metadata = com.google.firebase.storage.StorageMetadata.Builder()
-            .setContentType("application/pdf")
-            .build()
-        fileRef.putBytes(bytes, metadata).await()
-        val downloadUrl = fileRef.downloadUrl.await().toString()
-        db.collection("exams").document(examId).update(
-            "syllabusUrl", downloadUrl,
-            "syllabusFileName", fileName
-        ).await()
-        return downloadUrl
+        val reqBody = bytes.toRequestBody("application/pdf".toMediaTypeOrNull())
+        val res = api.uploadSyllabus(
+            id = examId,
+            fileName = fileName,
+            contentType = "application/pdf",
+            body = reqBody
+        )
+        if (!res.success || res.data == null) {
+            throw Exception(res.error ?: "Failed to upload syllabus")
+        }
+        return res.data.syllabusUrl
     }
 
     suspend fun removeSyllabusPdf(examId: String, syllabusUrl: String) {
-        if (syllabusUrl.isNotBlank()) {
-            try {
-                val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().getReferenceFromUrl(syllabusUrl)
-                storageRef.delete().await()
-            } catch (_: Exception) {}
-        }
-        db.collection("exams").document(examId).update(
-            "syllabusUrl", "",
-            "syllabusFileName", ""
-        ).await()
+        val res = api.removeSyllabus(examId)
+        if (!res.success) throw Exception(res.error ?: "Failed to remove syllabus")
     }
 
     suspend fun addQuestion(q: Question) {
-        db.collection("questions").add(questionMap(q)).await()
+        val res = api.addQuestion(questionMap(q))
+        if (!res.success) throw Exception(res.error ?: "Failed to add question")
     }
 
-    /** Phase 21: 500-per-batch Firestore writes. 100 questions ~1-2 batches. */
     suspend fun addQuestions(questions: List<Question>): Int {
         if (questions.isEmpty()) return 0
-        questions.chunked(400).forEach { chunk ->
-            val batch = db.batch()
-            chunk.forEach { q ->
-                val ref = db.collection("questions").document()
-                batch.set(ref, questionMap(q))
-            }
-            batch.commit().await()
-        }
+        val payload = mapOf("questions" to questions.map { questionMap(it) })
+        val res = api.addQuestionsBatch(payload)
+        if (!res.success) throw Exception(res.error ?: "Failed to add questions batch")
         return questions.size
     }
 
-    private fun questionMap(q: Question): HashMap<String, Any> = hashMapOf(
+    private fun questionMap(q: Question): Map<String, Any> = mapOf(
         "examId" to q.examId,
         "questionText" to q.questionText,
         "optionA" to q.optionA,
@@ -279,31 +222,13 @@ class ExamRepository(
     )
 
     suspend fun updateQuestion(q: Question) {
-        val data = hashMapOf(
-            "examId" to q.examId,
-            "questionText" to q.questionText,
-            "optionA" to q.optionA,
-            "optionB" to q.optionB,
-            "optionC" to q.optionC,
-            "optionD" to q.optionD,
-            "correctAnswer" to q.correctAnswer,
-            "explanation" to q.explanation,
-            "topic" to q.topic,
-            "isPyq" to q.isPyq,
-            "pyqYear" to q.pyqYear,
-            "pyqPaper" to q.pyqPaper,
-            "questionTextHi" to q.questionTextHi,
-            "optionAHi" to q.optionAHi,
-            "optionBHi" to q.optionBHi,
-            "optionCHi" to q.optionCHi,
-            "optionDHi" to q.optionDHi,
-            "explanationHi" to q.explanationHi
-        )
-        db.collection("questions").document(q.id).set(data).await()
+        val res = api.updateQuestion(q.id, questionMap(q))
+        if (!res.success) throw Exception(res.error ?: "Failed to update question")
     }
 
     suspend fun deleteQuestion(questionId: String) {
-        db.collection("questions").document(questionId).delete().await()
+        val res = api.deleteQuestion(questionId)
+        if (!res.success) throw Exception(res.error ?: "Failed to delete question")
     }
 
     suspend fun updateExamAiSettings(
@@ -313,65 +238,36 @@ class ExamRepository(
         customPromptNotes: String,
         autoGenerationEnabled: Boolean
     ) {
-        val data = hashMapOf<String, Any>(
+        val data = mapOf<String, Any>(
             "syllabus" to syllabus,
             "questionCount" to questionCount,
             "customPromptNotes" to customPromptNotes,
             "autoGenerationEnabled" to autoGenerationEnabled
         )
-        db.collection("exams").document(examId).update(data).await()
+        val res = api.updateExam(examId, data)
+        if (!res.success) throw Exception(res.error ?: "Failed to update AI settings")
     }
 
-    suspend fun getGeneratedTests(examId: String? = null): List<com.eve.app.data.model.GeneratedTest> {
-        val query = if (examId.isNullOrBlank()) {
-            db.collection("generated_tests")
-        } else {
-            db.collection("generated_tests").whereEqualTo("examId", examId)
+    suspend fun getGeneratedTests(examId: String? = null): List<GeneratedTest> {
+        return try {
+            val res = api.getGeneratedTests(examId)
+            (res.data ?: emptyList()).sortedByDescending { it.generatedAt }
+        } catch (_: Exception) {
+            emptyList()
         }
-        val snapshot = query.get().await()
-        return snapshot.documents.mapNotNull { doc ->
-            val eId = doc.getString("examId") ?: ""
-            val eName = doc.getString("examName") ?: ""
-            val genAt = doc.getLong("generatedAt") ?: 0L
-            val status = doc.getString("status") ?: "paused"
-            val count = doc.getLong("questionCount")?.toInt() ?: 0
-
-            @Suppress("UNCHECKED_CAST")
-            val rawQuestions = doc.get("questions") as? List<Map<String, Any>> ?: emptyList()
-            val questions = rawQuestions.map { m ->
-                com.eve.app.data.model.GeneratedQuestion(
-                    questionText = m["questionText"] as? String ?: "",
-                    optionA = m["optionA"] as? String ?: "",
-                    optionB = m["optionB"] as? String ?: "",
-                    optionC = m["optionC"] as? String ?: "",
-                    optionD = m["optionD"] as? String ?: "",
-                    correctAnswer = m["correctAnswer"] as? String ?: "A",
-                    explanation = m["explanation"] as? String ?: ""
-                )
-            }
-
-            com.eve.app.data.model.GeneratedTest(
-                id = doc.id,
-                examId = eId,
-                examName = eName,
-                generatedAt = genAt,
-                status = status,
-                questionCount = if (count > 0) count else questions.size,
-                questions = questions
-            )
-        }.sortedByDescending { it.generatedAt }
     }
 
-    suspend fun getLiveGeneratedTests(examId: String): List<com.eve.app.data.model.GeneratedTest> {
+    suspend fun getLiveGeneratedTests(examId: String): List<GeneratedTest> {
         return getGeneratedTests(examId).filter { it.isLive }
     }
 
     suspend fun updateGeneratedTestStatus(testId: String, status: String) {
-        db.collection("generated_tests").document(testId)
-            .update("status", status).await()
+        val res = api.updateGeneratedTestStatus(testId, mapOf("status" to status))
+        if (!res.success) throw Exception(res.error ?: "Failed to update generated test status")
     }
 
     suspend fun deleteGeneratedTest(testId: String) {
-        db.collection("generated_tests").document(testId).delete().await()
+        val res = api.deleteGeneratedTest(testId)
+        if (!res.success) throw Exception(res.error ?: "Failed to delete generated test")
     }
 }

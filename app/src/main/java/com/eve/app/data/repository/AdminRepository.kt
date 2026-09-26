@@ -1,43 +1,41 @@
 package com.eve.app.data.repository
 
-import com.eve.app.util.Constants
+import com.eve.app.data.remote.ApiClient
 import com.eve.app.util.isHardcodedAdmin
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.tasks.await
 
-/**
- * Firestore collection: admins. Document ID = lowercase email, field "email" = original email.
- * Hardcoded Constants.ADMIN_EMAILS hamesha admin rahenge; yeh collection sirf extra admins ke liye hai
- * jo app ke andar se (bina rebuild ke) add/remove kiye ja sakte hain.
- */
-class AdminRepository(
-    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
-) {
+class AdminRepository {
 
-    /** Hardcoded + Firestore dono check karta hai */
+    private val api = ApiClient.api
+
+    /** Hardcoded + Worker/D1 dynamic check */
     suspend fun isAdmin(email: String?): Boolean {
         if (email == null) return false
         if (isHardcodedAdmin(email)) return true
         return try {
-            db.collection("admins").document(email.lowercase()).get().await().exists()
-        } catch (e: Exception) {
+            val response = api.getMe()
+            response.data?.isAdmin == true
+        } catch (_: Exception) {
             false
         }
     }
 
-    /** Sirf Firestore me manually add kiye gaye admins (hardcoded wale is list me nahi aate) */
-    suspend fun getDynamicAdmins(): List<String> =
-        db.collection("admins").get().await().documents.mapNotNull { doc ->
-            doc.getString("email")
-        }.sorted()
+    /** Dynamic admins from D1 */
+    suspend fun getDynamicAdmins(): List<String> = try {
+        val response = api.getDynamicAdmins()
+        response.data ?: emptyList()
+    } catch (_: Exception) {
+        emptyList()
+    }
 
     suspend fun addAdmin(email: String) {
         val clean = email.trim()
-        db.collection("admins").document(clean.lowercase())
-            .set(hashMapOf("email" to clean)).await()
+        if (clean.isBlank()) return
+        api.addAdmin(mapOf("email" to clean))
     }
 
     suspend fun removeAdmin(email: String) {
-        db.collection("admins").document(email.trim().lowercase()).delete().await()
+        val clean = email.trim().lowercase()
+        if (clean.isBlank()) return
+        api.removeAdmin(clean)
     }
 }

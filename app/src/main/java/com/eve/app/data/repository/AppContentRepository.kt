@@ -1,12 +1,11 @@
 package com.eve.app.data.repository
 
 import com.eve.app.data.model.AppContent
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.tasks.await
+import com.eve.app.data.remote.ApiClient
 
-class AppContentRepository(
-    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
-) {
+class AppContentRepository {
+
+    private val api = ApiClient.api
 
     companion object {
         const val TYPE_PRIVACY = "privacy_policy"
@@ -14,30 +13,26 @@ class AppContentRepository(
         const val TYPE_CONTACT = "contact_us"
     }
 
+    private fun normalizeType(type: String): String = when (type.lowercase()) {
+        TYPE_PRIVACY, "privacy" -> "privacy"
+        TYPE_TERMS, "terms" -> "terms"
+        TYPE_CONTACT, "contact" -> "contact"
+        else -> type.lowercase()
+    }
+
     suspend fun getContent(type: String): AppContent {
+        val norm = normalizeType(type)
         return try {
-            val doc = db.collection("app_content").document(type).get().await()
-            if (doc.exists()) {
-                AppContent(
-                    title = doc.getString("title").orEmpty(),
-                    body = doc.getString("body").orEmpty(),
-                    updatedAt = doc.getLong("updatedAt") ?: 0L,
-                    updatedBy = doc.getString("updatedBy").orEmpty(),
-                    supportEmail = doc.getString("supportEmail").orEmpty(),
-                    phone = doc.getString("phone").orEmpty(),
-                    website = doc.getString("website").orEmpty(),
-                    address = doc.getString("address").orEmpty()
-                )
-            } else {
-                getDefaultContent(type)
-            }
+            val response = api.getAppContent(norm)
+            response.data ?: getDefaultContent(type)
         } catch (_: Exception) {
             getDefaultContent(type)
         }
     }
 
     suspend fun saveContent(type: String, content: AppContent) {
-        val data = hashMapOf(
+        val norm = normalizeType(type)
+        val data = mapOf(
             "title" to content.title,
             "body" to content.body,
             "updatedAt" to System.currentTimeMillis(),
@@ -47,18 +42,18 @@ class AppContentRepository(
             "website" to content.website,
             "address" to content.address
         )
-        db.collection("app_content").document(type).set(data).await()
+        api.updateAppContent(norm, data)
     }
 
-    fun getDefaultContent(type: String): AppContent = when (type) {
-        TYPE_PRIVACY -> AppContent(
+    fun getDefaultContent(type: String): AppContent = when (normalizeType(type)) {
+        "privacy" -> AppContent(
             title = "Privacy Policy",
             body = """Eve ("the App", "we", "us") is a free mock test / exam preparation app for Government and entrance exams in India. This Privacy Policy explains what information the App collects and how it is used.
 
 Information We Collect:
 • Google Sign-In: When you sign in, we receive your name, email address, and profile photo from your Google account via Firebase Authentication.
 • Test Attempts: We store your exam attempts, scores, selected answers, and attempt dates so you can view your test history.
-• Device / Notification Token: To send you optional notifications about new exams or study reminders, we store a Firebase Cloud Messaging token linked to your account.
+• Device / Notification Token: To send you optional notifications about new exams or study reminders, we store a notification token linked to your account.
 
 How We Use Your Information:
 • To let you sign in and securely identify your account.
@@ -66,7 +61,7 @@ How We Use Your Information:
 • To send optional notifications if you enable them.
 
 Data Storage & Sharing:
-All data is stored securely using Google Firebase (Firestore, Authentication, Cloud Messaging). We do not run third-party advertising trackers or sell your personal data.
+All data is stored securely using Cloudflare Workers, Cloudflare D1, and Supabase Storage. We do not run third-party advertising trackers or sell your personal data.
 
 Children's Privacy:
 The App is intended for students preparing for competitive exams and is not directed at children under 13.
@@ -76,7 +71,7 @@ For questions or data deletion requests, contact us at pronlike9@gmail.com.""",
             updatedAt = 1727000000000L,
             updatedBy = "admin"
         )
-        TYPE_TERMS -> AppContent(
+        "terms" -> AppContent(
             title = "Terms of Service",
             body = """Terms of Service for Eve
 
@@ -100,7 +95,7 @@ We may update these Terms periodically. Continued use of the app signifies accep
             updatedAt = 1727000000000L,
             updatedBy = "admin"
         )
-        TYPE_CONTACT -> AppContent(
+        "contact" -> AppContent(
             title = "Contact Us",
             body = "Have questions, feedback, or need help with your exam preparation? Reach out to our support team through any of the channels below.",
             updatedAt = 1727000000000L,

@@ -34,8 +34,7 @@ import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
+import com.eve.app.data.remote.ApiClient
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -416,18 +415,12 @@ class LoginActivity : AppCompatActivity() {
 
     private suspend fun recordUserStats(user: FirebaseUser) {
         try {
-            val ref = FirebaseFirestore.getInstance()
-                .collection("users").document(user.uid)
-            val existing = ref.get().await()
-            val data = hashMapOf<String, Any>(
-                "email" to (user.email ?: ""),
-                "displayName" to (user.displayName ?: ""),
-                "lastActive" to System.currentTimeMillis()
+            ApiClient.apiService.syncUser(
+                mapOf(
+                    "email" to (user.email ?: ""),
+                    "displayName" to (user.displayName ?: "")
+                )
             )
-            if (!existing.exists()) {
-                data["createdAt"] = System.currentTimeMillis()
-            }
-            ref.set(data, SetOptions.merge()).await()
         } catch (_: Exception) {
             // Stats optional
         }

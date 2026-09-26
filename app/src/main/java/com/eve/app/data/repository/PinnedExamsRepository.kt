@@ -1,59 +1,47 @@
 package com.eve.app.data.repository
 
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.channels.awaitClose
+import com.eve.app.data.remote.ApiClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
-/**
- * Task 4: Repository to manage pinned exams per user in Firestore.
- * Path: users/{userId}/pinned_exams/{examId}
- */
 class PinnedExamsRepository {
 
-    private val db = FirebaseFirestore.getInstance()
+    private val api = ApiClient.api
+    private val scope = CoroutineScope(Dispatchers.IO)
+    private val pinnedIdsFlow = MutableStateFlow<Set<String>>(emptySet())
 
-    fun observePinnedExamIds(userId: String): Flow<Set<String>> = callbackFlow {
-        if (userId.isBlank()) {
-            trySend(emptySet())
-            close()
-            return@callbackFlow
-        }
-
-        val listener = db.collection("users")
-            .document(userId)
-            .collection("pinned_exams")
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    trySend(emptySet())
-                    return@addSnapshotListener
-                }
-                val set = snapshot?.documents?.map { it.id }?.toSet().orEmpty()
-                trySend(set)
+    fun observePinnedExamIds(userId: String): Flow<Set<String>> {
+        if (userId.isNotBlank()) {
+            scope.launch {
+                refreshPinnedExams()
             }
+        }
+        return pinnedIdsFlow.asStateFlow()
+    }
 
-        awaitClose { listener.remove() }
+    private suspend fun refreshPinnedExams(): Set<String> = try {
+        val res = api.getPinnedExams()
+        val set = res.data?.toSet() ?: emptySet()
+        pinnedIdsFlow.value = set
+        set
+    } catch (_: Exception) {
+        pinnedIdsFlow.value
     }
 
     suspend fun pinExam(userId: String, examId: String): Result<Unit> = runCatching {
         if (userId.isBlank() || examId.isBlank()) return@runCatching
-        db.collection("users")
-            .document(userId)
-            .collection("pinned_exams")
-            .document(examId)
-            .set(hashMapOf("pinnedAt" to System.currentTimeMillis()))
-            .await()
+        api.pinExam(examId)
+        pinnedIdsFlow.value = pinnedIdsFlow.value + examId
     }
 
     suspend fun unpinExam(userId: String, examId: String): Result<Unit> = runCatching {
         if (userId.isBlank() || examId.isBlank()) return@runCatching
-        db.collection("users")
-            .document(userId)
-            .collection("pinned_exams")
-            .document(examId)
-            .delete()
-            .await()
+        api.unpinExam(examId)
+        pinnedIdsFlow.value = pinnedIdsFlow.value - examId
     }
 
     suspend fun togglePin(userId: String, examId: String, currentlyPinned: Boolean): Result<Unit> {

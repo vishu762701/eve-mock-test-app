@@ -17,9 +17,8 @@ import com.eve.app.data.repository.ExamRepository
 import com.eve.app.databinding.ActivityManageExamsBinding
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
-import com.google.firebase.functions.FirebaseFunctions
+import com.eve.app.data.remote.ApiClient
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -331,16 +330,16 @@ class ManageExamsActivity : AppCompatActivity() {
                 binding.progressBar.visibility = View.VISIBLE
                 lifecycleScope.launch {
                     try {
-                        val functions = FirebaseFunctions.getInstance()
-                        val data = hashMapOf(
+                        val data = mapOf<String, Any>(
                             "examId" to currentExamId,
                             "questionCount" to (binding.etQuestionCount.text?.toString()?.toIntOrNull() ?: 20),
                             "testNumber" to binding.etTestNumber.text?.toString()?.trim().orEmpty(),
                             "customPromptNotes" to binding.etGenerationPrompt.text?.toString()?.trim().orEmpty()
                         )
-                        functions.getHttpsCallable("triggerAiTestGeneration")
-                            .call(data)
-                            .await()
+                        val res = ApiClient.apiService.triggerAiTestGeneration(data)
+                        if (!res.success) {
+                            throw Exception(res.error ?: "Generation failed")
+                        }
 
                         binding.btnGenerateNow.isEnabled = true
                         binding.progressBar.visibility = View.GONE

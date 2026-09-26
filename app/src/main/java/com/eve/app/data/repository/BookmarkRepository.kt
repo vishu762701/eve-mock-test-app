@@ -2,19 +2,22 @@ package com.eve.app.data.repository
 
 import com.eve.app.data.model.BookmarkedQuestion
 import com.eve.app.data.model.Question
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.channels.awaitClose
+import com.eve.app.data.remote.ApiClient
+import com.eve.app.data.remote.EveApiService
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 
 /**
- * Repository to manage bookmarked questions per user in Firestore.
- * Path: users/{userId}/bookmarks/{questionId}
+ * Repository to manage bookmarked questions per user via Cloudflare Worker API.
  */
 class BookmarkRepository(
-    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val api: EveApiService = ApiClient.apiService
 ) {
+
+    private val _bookmarkIdsFlow = MutableStateFlow<Set<String>>(emptySet())
+    private val _bookmarksFlow = MutableStateFlow<List<BookmarkedQuestion>>(emptyList())
 
     fun getStableId(question: Question, questionNumber: Int = 1): String {
         if (question.id.isNotBlank()) return question.id
@@ -23,50 +26,34 @@ class BookmarkRepository(
         return "${safeExam}_q${questionNumber}_${safeText}".trim('_')
     }
 
-    fun observeBookmarkIds(userId: String): Flow<Set<String>> = callbackFlow {
+    fun observeBookmarkIds(userId: String): Flow<Set<String>> = flow {
         if (userId.isBlank()) {
-            trySend(emptySet())
-            close()
-            return@callbackFlow
+            emit(emptySet())
+            return@flow
         }
-
-        val listener = db.collection("users")
-            .document(userId)
-            .collection("bookmarks")
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    trySend(emptySet())
-                    return@addSnapshotListener
-                }
-                val set = snapshot?.documents?.map { it.id }?.toSet().orEmpty()
-                trySend(set)
+        try {
+            val res = api.getBookmarkIds()
+            if (res.success && res.data != null) {
+                _bookmarkIdsFlow.value = res.data.toSet()
             }
-
-        awaitClose { listener.remove() }
+        } catch (_: Exception) {
+        }
+        emitAll(_bookmarkIdsFlow)
     }
 
-    fun observeBookmarkedQuestions(userId: String): Flow<List<BookmarkedQuestion>> = callbackFlow {
+    fun observeBookmarkedQuestions(userId: String): Flow<List<BookmarkedQuestion>> = flow {
         if (userId.isBlank()) {
-            trySend(emptyList())
-            close()
-            return@callbackFlow
+            emit(emptyList())
+            return@flow
         }
-
-        val listener = db.collection("users")
-            .document(userId)
-            .collection("bookmarks")
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    trySend(emptyList())
-                    return@addSnapshotListener
-                }
-                val list = snapshot?.documents?.mapNotNull { doc ->
-                    doc.toObject(BookmarkedQuestion::class.java)?.copy(questionId = doc.id)
-                }?.sortedByDescending { it.bookmarkedAt }.orEmpty()
-                trySend(list)
+        try {
+            val res = api.getBookmarks()
+            if (res.success && res.data != null) {
+                _bookmarksFlow.value = res.data
             }
-
-        awaitClose { listener.remove() }
+        } catch (_: Exception) {
+        }
+        emitAll(_bookmarksFlow)
     }
 
     suspend fun bookmarkQuestion(
@@ -77,47 +64,47 @@ class BookmarkRepository(
     ): Result<Unit> = runCatching {
         if (userId.isBlank()) return@runCatching
         val qId = getStableId(question, questionNumber)
-        val bookmark = BookmarkedQuestion(
-            questionId = qId,
-            examId = question.examId,
-            examName = examName,
-            questionNumber = questionNumber,
-            questionText = question.questionText,
-            questionTextHi = question.questionTextHi,
-            optionA = question.optionA,
-            optionB = question.optionB,
-            optionC = question.optionC,
-            optionD = question.optionD,
-            optionAHi = question.optionAHi,
-            optionBHi = question.optionBHi,
-            optionCHi = question.optionCHi,
-            optionDHi = question.optionDHi,
-            correctAnswer = question.correctAnswer,
-            explanation = question.explanation,
-            explanationHi = question.explanationHi,
-            topic = question.topic,
-            isPyq = question.isPyq,
-            pyqYear = question.pyqYear,
-            pyqPaper = question.pyqPaper,
-            bookmarkedAt = System.currentTimeMillis()
+        val body = mapOf(
+            "questionId" to qId,
+            "examId" to question.examId,
+            "examName" to examName,
+            "questionNumber" to questionNumber,
+            "questionText" to question.questionText,
+            "questionTextHi" to question.questionTextHi,
+            "optionA" to question.optionA,
+            "optionB" to question.optionB,
+            "optionC" to question.optionC,
+            "optionD" to question.optionD,
+            "optionAHi" to question.optionAHi,
+            "optionBHi" to question.optionBHi,
+            "optionCHi" to question.optionCHi,
+            "optionDHi" to question.optionDHi,
+            "correctAnswer" to question.correctAnswer,
+            "explanation" to question.explanation,
+            "explanationHi" to question.explanationHi,
+            "topic" to question.topic,
+            "isPyq" to question.isPyq,
+            "pyqYear" to question.pyqYear,
+            "pyqPaper" to question.pyqPaper
         )
 
-        db.collection("users")
-            .document(userId)
-            .collection("bookmarks")
-            .document(qId)
-            .set(bookmark)
-            .await()
+        val res = api.addBookmark(body)
+        if (!res.success) throw Exception(res.error ?: "Failed to bookmark")
+        _bookmarkIdsFlow.value = _bookmarkIdsFlow.value + qId
+        try {
+            val updated = api.getBookmarks()
+            if (updated.success && updated.data != null) {
+                _bookmarksFlow.value = updated.data
+            }
+        } catch (_: Exception) {}
     }
 
     suspend fun unbookmarkQuestion(userId: String, questionId: String): Result<Unit> = runCatching {
         if (userId.isBlank() || questionId.isBlank()) return@runCatching
-        db.collection("users")
-            .document(userId)
-            .collection("bookmarks")
-            .document(questionId)
-            .delete()
-            .await()
+        val res = api.deleteBookmark(questionId)
+        if (!res.success) throw Exception(res.error ?: "Failed to unbookmark")
+        _bookmarkIdsFlow.value = _bookmarkIdsFlow.value - questionId
+        _bookmarksFlow.value = _bookmarksFlow.value.filter { it.questionId != questionId }
     }
 
     suspend fun toggleBookmark(

@@ -32,9 +32,7 @@ import com.eve.app.util.Constants
 import com.eve.app.util.ExamImageHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 class AdminActivity : AppCompatActivity() {
 

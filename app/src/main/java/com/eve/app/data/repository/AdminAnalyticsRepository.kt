@@ -2,28 +2,29 @@ package com.eve.app.data.repository
 
 import com.eve.app.data.model.ExamAnalytics
 import com.eve.app.data.model.QuestionAnalytics
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import kotlinx.coroutines.tasks.await
+import com.eve.app.data.remote.ApiClient
 
-class AdminAnalyticsRepository(
-    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
-) {
-    suspend fun getExamAnalytics(): List<ExamAnalytics> =
-        db.collection("admin_analytics_exams")
-            .get().await().documents.mapNotNull { d ->
-                d.toObject(ExamAnalytics::class.java)?.copy(examId = d.id)
-            }.sortedWith(compareByDescending<ExamAnalytics> { it.attemptCount }.thenBy { it.examName })
+class AdminAnalyticsRepository {
 
-    suspend fun getQuestionAnalytics(examId: String? = null): List<QuestionAnalytics> {
-        var query: Query = db.collection("admin_analytics_questions")
-        if (!examId.isNullOrBlank()) query = query.whereEqualTo("examId", examId)
-        return query.get().await().documents.mapNotNull { d ->
-            d.toObject(QuestionAnalytics::class.java)?.copy(id = d.id)
-        }.sortedWith(
+    private val api = ApiClient.api
+
+    suspend fun getExamAnalytics(): List<ExamAnalytics> = try {
+        val res = api.getExamAnalytics()
+        res.data?.sortedWith(
+            compareByDescending<ExamAnalytics> { it.attemptCount }.thenBy { it.examName }
+        ) ?: emptyList()
+    } catch (_: Exception) {
+        emptyList()
+    }
+
+    suspend fun getQuestionAnalytics(examId: String? = null): List<QuestionAnalytics> = try {
+        val res = api.getQuestionAnalytics(examId)
+        res.data?.sortedWith(
             compareByDescending<QuestionAnalytics> { it.wrongRate }
                 .thenByDescending { it.wrong }
                 .thenBy { it.questionNumber }
-        )
+        ) ?: emptyList()
+    } catch (_: Exception) {
+        emptyList()
     }
 }

@@ -94,9 +94,18 @@ We may update these Terms periodically. Continued use of the app signifies accep
   }
 }
 
+function normalizeContentType(type: string): string {
+  const t = type.toLowerCase();
+  if (t === "privacy_policy" || t === "privacy") return "privacy";
+  if (t === "terms_of_service" || t === "terms") return "terms";
+  if (t === "contact_us" || t === "contact") return "contact";
+  return t;
+}
+
 // GET /api/app-content/:type - Get content
 appContentRoutes.get("/:type", async (c) => {
-  const type = (c.req.param("type") || "").toLowerCase();
+  const rawType = (c.req.param("type") || "").toLowerCase();
+  const type = normalizeContentType(rawType);
   const db = c.env.DB;
 
   const row = await db.prepare("SELECT * FROM app_content WHERE id = ?").bind(type).first<AppContentRow>();
@@ -122,7 +131,8 @@ appContentRoutes.get("/:type", async (c) => {
 
 // PUT /api/app-content/:type - Update content (Admin)
 appContentRoutes.put("/:type", requireAdmin, async (c) => {
-  const type = (c.req.param("type") || "").toLowerCase();
+  const rawType = (c.req.param("type") || "").toLowerCase();
+  const type = normalizeContentType(rawType);
   const body = await c.req.json().catch(() => ({}));
   const user = c.get("user");
   const db = c.env.DB;

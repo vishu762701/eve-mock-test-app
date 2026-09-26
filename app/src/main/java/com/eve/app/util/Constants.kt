@@ -12,6 +12,9 @@ object Constants {
     // Per wrong answer negative marking (0.0 = koi negative marking nahi)
     const val NEGATIVE_MARK = 0.0
 
+    // Cloudflare Worker API Base URL
+    const val WORKER_BASE_URL = "https://eve-backend.a50b9cf54c5e84de0183a5d3a4b38844.workers.dev/"
+
     // Admin form ke Category spinner ke liye preset list. "Other" chuno to custom naam type kar sakte ho.
     val CATEGORIES = listOf(
         "SSC", "UPSC", "Banking", "Railway", "State PSC", "Police", "Defence", "Teaching", "Other"

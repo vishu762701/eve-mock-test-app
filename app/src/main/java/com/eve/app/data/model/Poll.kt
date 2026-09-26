@@ -1,9 +1,6 @@
 package com.eve.app.data.model
 
-import com.google.firebase.firestore.DocumentId
-
 data class Poll(
-    @DocumentId
     val id: String = "",
     val question: String = "",
     val options: List<String> = emptyList(),

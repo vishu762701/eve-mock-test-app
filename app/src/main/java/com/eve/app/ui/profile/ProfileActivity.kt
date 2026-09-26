@@ -31,9 +31,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
-import com.google.firebase.functions.FirebaseFunctions
+import com.eve.app.data.remote.ApiClient
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.Calendar
@@ -198,26 +196,18 @@ class ProfileActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                val snapshot = FirebaseFirestore.getInstance()
-                    .collection("users")
-                    .document(userId)
-                    .get()
-                    .await()
-
-                if (snapshot.exists()) {
-                    val name = snapshot.getString("displayName")
-                    val dob = snapshot.getString("dob")
-                    val category = snapshot.getString("category")
-
-                    if (!name.isNullOrBlank()) {
-                        binding.tvName.text = name
-                        binding.etName.setText(name)
+                val res = ApiClient.apiService.getProfile()
+                if (res.success && res.data != null) {
+                    val profile = res.data
+                    if (profile.displayName.isNotBlank()) {
+                        binding.tvName.text = profile.displayName
+                        binding.etName.setText(profile.displayName)
                     }
-                    if (!dob.isNullOrBlank()) {
-                        binding.etDob.setText(dob)
+                    if (profile.dob.isNotBlank()) {
+                        binding.etDob.setText(profile.dob)
                     }
-                    if (!category.isNullOrBlank()) {
-                        setCategoryChip(category)
+                    if (profile.category.isNotBlank()) {
+                        setCategoryChip(profile.category)
                     }
                 }
             } catch (e: Exception) {
@@ -261,19 +251,16 @@ class ProfileActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                val data = hashMapOf<String, Any>(
+                val data = mapOf<String, Any>(
                     "displayName" to name,
                     "dob" to dob,
-                    "category" to category,
-                    "email" to (user.email ?: ""),
-                    "lastUpdated" to System.currentTimeMillis()
+                    "category" to category
                 )
 
-                FirebaseFirestore.getInstance()
-                    .collection("users")
-                    .document(user.uid)
-                    .set(data, SetOptions.merge())
-                    .await()
+                val res = ApiClient.apiService.updateProfile(data)
+                if (!res.success) {
+                    throw Exception(res.error ?: "Failed to update profile")
+                }
 
                 try {
                     val profileUpdates = UserProfileChangeRequest.Builder()
@@ -335,12 +322,9 @@ class ProfileActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                // Call Cloud Function Admin SDK cleanup
+                // Call Cloudflare Worker account deletion
                 try {
-                    FirebaseFunctions.getInstance()
-                        .getHttpsCallable("deleteUserAccount")
-                        .call()
-                        .await()
+                    ApiClient.apiService.deleteAccount()
                 } catch (fnErr: Exception) {
                     android.util.Log.w("ProfileActivity", "Backend delete callable note: ${fnErr.message}")
                 }

@@ -9,22 +9,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.data.model.BroadcastMessage
+import com.eve.app.data.remote.ApiClient
+import com.eve.app.data.remote.EveApiService
 import com.eve.app.databinding.ActivitySendNotificationBinding
 import com.eve.app.ui.common.ErrorStateView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.Query
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 class SendNotificationActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySendNotificationBinding
-    private var sentListener: ListenerRegistration? = null
     private lateinit var sentAdapter: SentBroadcastAdapter
+    private val api: EveApiService = ApiClient.apiService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -155,117 +151,73 @@ class SendNotificationActivity : AppCompatActivity() {
         binding.compactErrorView.visibility = View.GONE
 
         lifecycleScope.launch {
-            val db = FirebaseFirestore.getInstance()
-            val chunks = idsToDelete.chunked(500)
-            var successCount = 0
-            var failCount = 0
-            var lastError: Exception? = null
-
-            for (chunk in chunks) {
-                try {
-                    val batch = db.batch()
-                    for (id in chunk) {
-                        batch.delete(db.collection("notifications").document(id))
-                    }
-                    batch.commit().await()
-                    successCount += chunk.size
-                } catch (e: Exception) {
-                    failCount += chunk.size
-                    lastError = e
-                }
-            }
-
-            binding.progressBarSent.visibility = View.GONE
-
-            if (failCount > 0) {
-                val errorMsg = if (successCount > 0) {
-                    "Deleted $successCount broadcasts, but $failCount failed: ${lastError?.localizedMessage ?: "Unknown error"}"
+            try {
+                val res = api.bulkDeleteBroadcasts(mapOf("ids" to idsToDelete))
+                binding.progressBarSent.visibility = View.GONE
+                if (!res.success) {
+                    val err = res.error ?: "Failed to delete broadcasts"
+                    binding.compactErrorView.visibility = View.VISIBLE
+                    binding.compactErrorView.show(
+                        type = ErrorStateView.ErrorType.SERVER_ERROR,
+                        customMessage = err,
+                        customTitle = "Delete Failed",
+                        onRetry = { deleteSelectedBroadcasts() }
+                    )
+                    Toast.makeText(this@SendNotificationActivity, err, Toast.LENGTH_LONG).show()
                 } else {
-                    "Failed to delete broadcasts: ${lastError?.localizedMessage ?: "Unknown error"}"
+                    Toast.makeText(
+                        this@SendNotificationActivity,
+                        "Successfully deleted ${idsToDelete.size} broadcast${if (idsToDelete.size > 1) "s" else ""}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    exitSelectionMode()
+                    listenToSentBroadcasts()
                 }
+            } catch (e: Exception) {
+                binding.progressBarSent.visibility = View.GONE
+                val err = "Failed to delete broadcasts: ${e.localizedMessage ?: "Unknown error"}"
                 binding.compactErrorView.visibility = View.VISIBLE
                 binding.compactErrorView.show(
                     type = ErrorStateView.ErrorType.SERVER_ERROR,
-                    customMessage = errorMsg,
+                    customMessage = err,
                     customTitle = "Delete Failed",
                     onRetry = { deleteSelectedBroadcasts() }
                 )
-                Toast.makeText(this@SendNotificationActivity, errorMsg, Toast.LENGTH_LONG).show()
-                // Keep remaining failed items selected
-                val remainingIds = idsToDelete.takeLast(failCount)
-                sentAdapter.selectAll(remainingIds)
-                updateSelectionCountUI()
-            } else {
-                Toast.makeText(
-                    this@SendNotificationActivity,
-                    "Successfully deleted $successCount broadcast${if (successCount > 1) "s" else ""}",
-                    Toast.LENGTH_SHORT
-                ).show()
-                exitSelectionMode()
+                Toast.makeText(this@SendNotificationActivity, err, Toast.LENGTH_LONG).show()
             }
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        sentListener?.remove()
-    }
-
     private fun listenToSentBroadcasts() {
         binding.progressBarSent.visibility = View.VISIBLE
-        sentListener = FirebaseFirestore.getInstance()
-            .collection("notifications")
-            .orderBy("sentAt", Query.Direction.DESCENDING)
-            .limit(100)
-            .addSnapshotListener { snapshot, error ->
+        lifecycleScope.launch {
+            try {
+                val res = api.getBroadcasts(100)
                 binding.progressBarSent.visibility = View.GONE
-                if (error != null) {
+                if (!res.success || res.data == null) {
                     binding.compactErrorView.visibility = View.VISIBLE
                     binding.compactErrorView.show(
                         type = ErrorStateView.ErrorType.SERVER_ERROR,
-                        customMessage = "Failed to load sent broadcasts: ${error.localizedMessage}",
+                        customMessage = "Failed to load sent broadcasts: ${res.error ?: "Unknown error"}",
                         customTitle = "Loading Error",
                         onRetry = { listenToSentBroadcasts() }
                     )
-                    return@addSnapshotListener
+                    return@launch
                 }
                 binding.compactErrorView.visibility = View.GONE
-                val broadcasts = snapshot?.documents?.mapNotNull { doc ->
-                    val title = doc.getString("title") ?: return@mapNotNull null
-                    val message = doc.getString("message") ?: return@mapNotNull null
-                    val sentAt = doc.getTimestamp("sentAt")?.toDate()?.time
-                        ?: doc.getLong("sentAt")
-                        ?: 0L
-                    val sentBy = doc.getString("sentBy").orEmpty()
-                    val type = doc.getString("type") ?: "general"
-                    BroadcastMessage(
-                        id = doc.id,
-                        title = title,
-                        message = message,
-                        sentAt = sentAt,
-                        sentBy = sentBy,
-                        type = type
-                    )
-                }.orEmpty()
-
-                sentAdapter.submitList(broadcasts)
-                binding.tvNoSentBroadcasts.visibility = if (broadcasts.isEmpty()) View.VISIBLE else View.GONE
+                sentAdapter.submitList(res.data)
+                binding.tvNoSentBroadcasts.visibility = if (res.data.isEmpty()) View.VISIBLE else View.GONE
+            } catch (e: Exception) {
+                binding.progressBarSent.visibility = View.GONE
+                binding.compactErrorView.visibility = View.VISIBLE
+                binding.compactErrorView.show(
+                    type = ErrorStateView.ErrorType.SERVER_ERROR,
+                    customMessage = "Failed to load sent broadcasts: ${e.localizedMessage ?: "Unknown error"}",
+                    customTitle = "Loading Error",
+                    onRetry = { listenToSentBroadcasts() }
+                )
             }
-    }
-
-    private fun showManageBroadcastDialog(broadcast: BroadcastMessage) {
-        val title = if (broadcast.title.isNotBlank()) broadcast.title else "Broadcast Message"
-        val options = arrayOf("🗑️ Delete This Message", "Cancel")
-        MaterialAlertDialogBuilder(this)
-            .setTitle(title)
-            .setMessage(broadcast.message)
-            .setItems(options) { dialog, which ->
-                when (which) {
-                    0 -> confirmDeleteBroadcast(broadcast)
-                    else -> dialog.dismiss()
-                }
-            }
-            .show()
+        }
     }
 
     private fun confirmDeleteBroadcast(broadcast: BroadcastMessage) {
@@ -289,12 +241,10 @@ class SendNotificationActivity : AppCompatActivity() {
         binding.compactErrorView.visibility = View.GONE
         lifecycleScope.launch {
             try {
-                FirebaseFirestore.getInstance()
-                    .collection("notifications")
-                    .document(broadcast.id)
-                    .delete()
-                    .await()
-
+                val res = api.deleteBroadcast(broadcast.id)
+                if (!res.success) {
+                    throw Exception(res.error ?: "Failed to delete broadcast")
+                }
                 Toast.makeText(this@SendNotificationActivity, "Broadcast deleted successfully", Toast.LENGTH_SHORT).show()
                 val updated = sentAdapter.currentList.filter { it.id != broadcast.id }
                 sentAdapter.submitList(updated)
@@ -348,33 +298,34 @@ class SendNotificationActivity : AppCompatActivity() {
         binding.btnSend.isEnabled = false
         binding.progressBar.visibility = View.VISIBLE
 
-        val adminEmail = FirebaseAuth.getInstance().currentUser?.email ?: "admin"
-
-        val doc = hashMapOf(
+        val body = mapOf(
             "title" to title,
             "message" to message,
-            "sentAt" to FieldValue.serverTimestamp(),
-            "sentBy" to adminEmail,
             "type" to "general"
         )
 
         lifecycleScope.launch {
             try {
-                FirebaseFirestore.getInstance()
-                    .collection("notifications")
-                    .add(doc)
-                    .await()
-
+                val res = api.sendBroadcast(body)
                 binding.btnSend.isEnabled = true
                 binding.progressBar.visibility = View.GONE
-                binding.etTitle.text?.clear()
-                binding.etMessage.text?.clear()
 
-                Toast.makeText(
-                    this@SendNotificationActivity,
-                    "Notification broadcast successfully!",
-                    Toast.LENGTH_SHORT
-                ).show()
+                if (!res.success) {
+                    Toast.makeText(
+                        this@SendNotificationActivity,
+                        "Failed to send: ${res.error ?: "Unknown error"}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } else {
+                    binding.etTitle.text?.clear()
+                    binding.etMessage.text?.clear()
+                    Toast.makeText(
+                        this@SendNotificationActivity,
+                        "Notification broadcast successfully!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    listenToSentBroadcasts()
+                }
             } catch (e: Exception) {
                 binding.btnSend.isEnabled = true
                 binding.progressBar.visibility = View.GONE

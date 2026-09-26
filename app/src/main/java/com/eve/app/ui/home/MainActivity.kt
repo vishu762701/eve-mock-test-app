@@ -61,9 +61,6 @@ import com.eve.app.util.VibrationHelper
 import com.eve.app.util.isHardcodedAdmin
 import com.google.android.material.chip.Chip
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.Query
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -81,8 +78,7 @@ class MainActivity : AppCompatActivity() {
     private var lastLoadedItems: List<HomeListItem> = emptyList()
     private var searchDebounceJob: Job? = null
 
-    private var firestoreNotifRegistration: ListenerRegistration? = null
-    private var homeBannerRegistration: ListenerRegistration? = null
+    private var notifJob: Job? = null
 
     private val bannerAdapter = HomeBannerAdapter()
     private val bannerRepo = com.eve.app.data.repository.HomeBannerRepository()
@@ -458,8 +454,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        firestoreNotifRegistration?.remove()
-        firestoreNotifRegistration = null
+        notifJob?.cancel()
+        notifJob = null
         stopBannerAutoScroll()
         bannerObserverJob?.cancel()
         bannerObserverJob = null
@@ -548,29 +544,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startListeningToNotifications() {
-        firestoreNotifRegistration?.remove()
-        firestoreNotifRegistration = FirebaseFirestore.getInstance()
-            .collection("notifications")
-            .orderBy("sentAt", Query.Direction.DESCENDING)
-            .limit(1)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null || snapshot == null || snapshot.isEmpty) return@addSnapshotListener
-                val doc = snapshot.documents.firstOrNull() ?: return@addSnapshotListener
-                val sentAt = doc.getTimestamp("sentAt")?.toDate()?.time
-                    ?: doc.getLong("sentAt")
-                    ?: 0L
-                val lastSeen = NotificationStore.getLastSeenTimestamp(this)
-                if (sentAt > lastSeen && lastSeen > 0L) {
-                    val title = doc.getString("title") ?: "New Notification"
-                    val body = doc.getString("message") ?: ""
-                    NotificationStore.add(this, title, body)
-                    VibrationHelper.vibrateNotification(this)
-                    binding.btnNotification.repeatCount = 0
-                    binding.btnNotification.progress = 0f
-                    binding.btnNotification.playAnimation()
-                    updateNotificationDot()
+        notifJob?.cancel()
+        notifJob = lifecycleScope.launch {
+            try {
+                val res = com.eve.app.data.remote.ApiClient.apiService.getBroadcasts(1)
+                if (res.success && !res.data.isNullOrEmpty()) {
+                    val doc = res.data.first()
+                    val sentAt = doc.sentAt
+                    val lastSeen = NotificationStore.getLastSeenTimestamp(this@MainActivity)
+                    if (sentAt > lastSeen && lastSeen > 0L) {
+                        NotificationStore.add(this@MainActivity, doc.title, doc.message)
+                        VibrationHelper.vibrateNotification(this@MainActivity)
+                        binding.btnNotification.repeatCount = 0
+                        binding.btnNotification.progress = 0f
+                        binding.btnNotification.playAnimation()
+                        updateNotificationDot()
+                    }
                 }
-            }
+            } catch (_: Exception) {}
+        }
     }
 
     private fun updateNotificationDot() {
