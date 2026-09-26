@@ -51,11 +51,25 @@ object ThemeManager {
     private const val TAG = "ThemeManager"
     private const val PREFS = "eve_prefs"
     private const val KEY_DARK_MODE = "key_dark_mode"
+    private const val KEY_LAST_REVEAL_END_ANCHOR = "key_last_reveal_end_anchor"
+    private const val ANCHOR_TOP_RIGHT = "top_right"
+    private const val ANCHOR_BOTTOM_LEFT = "bottom_left"
+
+    private data class TravelingCoords(
+        val startX: Float,
+        val startY: Float,
+        val endX: Float,
+        val endY: Float,
+        val targetAnchor: String
+    )
 
     private data class SnapshotHolder(
         val bitmap: Bitmap,
-        val originX: Int,
-        val originY: Int,
+        val startX: Float,
+        val startY: Float,
+        val endX: Float,
+        val endY: Float,
+        val targetAnchor: String,
         val oldActivityId: Int,
         val activityClassName: String,
         val captureTimestamp: Long
@@ -317,8 +331,13 @@ object ThemeManager {
     }
 
     /**
-     * Triggers theme toggle with a full-screen Telegram-style circular reveal expanding
-     * from the specified on-screen coordinates (originX, originY).
+     * Triggers theme toggle with a traveling corner-to-corner circular reveal.
+     * Alternates between:
+     * - Top-Right anchor (live center of 3-dot overflow button)
+     * - Bottom-Left anchor (fixed 24dp inset from bottom-left screen edge)
+     * Persists last ended anchor in SharedPreferences across app restarts.
+     * center(t) = start + (end - start) * t
+     * radius(t) = t * R_final
      */
     fun toggleWithCircularReveal(activity: Activity, originX: Int, originY: Int) {
         if (transitioning) {
@@ -344,7 +363,36 @@ object ThemeManager {
             return
         }
 
-        logDebug("Theme toggle initiated from anchor ($originX, $originY). Capturing bitmap...")
+        val insetPx = (24 * activity.resources.displayMetrics.density).toInt()
+        val trX = originX.toFloat()
+        val trY = originY.toFloat()
+        val blX = insetPx.toFloat()
+        val blY = (height - insetPx).toFloat()
+
+        val prefs = activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val lastEndedAt = prefs.getString(KEY_LAST_REVEAL_END_ANCHOR, null)
+
+        val coords = if (lastEndedAt == ANCHOR_BOTTOM_LEFT) {
+            // Previous toggle ended at bottom-left -> this toggle starts at bottom-left and travels to top-right
+            TravelingCoords(
+                startX = blX,
+                startY = blY,
+                endX = trX,
+                endY = trY,
+                targetAnchor = ANCHOR_TOP_RIGHT
+            )
+        } else {
+            // Initial toggle (null) or previous ended at top-right -> this toggle starts at top-right and travels to bottom-left
+            TravelingCoords(
+                startX = trX,
+                startY = trY,
+                endX = blX,
+                endY = blY,
+                targetAnchor = ANCHOR_BOTTOM_LEFT
+            )
+        }
+
+        logDebug("Theme toggle initiated: lastEndedAt=$lastEndedAt -> traveling from (${coords.startX}, ${coords.startY}) to (${coords.endX}, ${coords.endY}), target=${coords.targetAnchor}. Capturing bitmap...")
         ensureLifecycleRegistered(activity.application)
 
         // Capture static snapshot: PixelCopy on API 26+ with synchronous Canvas fallback
@@ -359,10 +407,10 @@ object ThemeManager {
                     { copyResult ->
                         if (copyResult == PixelCopy.SUCCESS) {
                             logDebug("PixelCopy capture SUCCESS")
-                            commitRevealTransition(activity, bitmap, originX, originY)
+                            commitRevealTransition(activity, bitmap, coords)
                         } else {
                             logDebug("PixelCopy failed with code $copyResult -> fallback to Canvas draw")
-                            fallbackSynchronousCaptureAndToggle(activity, decorView, originX, originY)
+                            fallbackSynchronousCaptureAndToggle(activity, decorView, coords)
                         }
                     },
                     mainHandler
@@ -373,14 +421,13 @@ object ThemeManager {
             }
         }
 
-        fallbackSynchronousCaptureAndToggle(activity, decorView, originX, originY)
+        fallbackSynchronousCaptureAndToggle(activity, decorView, coords)
     }
 
     private fun fallbackSynchronousCaptureAndToggle(
         activity: Activity,
         decorView: ViewGroup,
-        originX: Int,
-        originY: Int
+        coords: TravelingCoords
     ) {
         val bitmap = try {
             val bmp = Bitmap.createBitmap(decorView.width, decorView.height, Bitmap.Config.ARGB_8888)
@@ -398,21 +445,28 @@ object ThemeManager {
             return
         }
 
-        commitRevealTransition(activity, bitmap, originX, originY)
+        commitRevealTransition(activity, bitmap, coords)
     }
 
     private fun commitRevealTransition(
         activity: Activity,
         bitmap: Bitmap,
-        originX: Int,
-        originY: Int
+        coords: TravelingCoords
     ) {
+        // Persist target anchor so next toggle starts from where this one ends
+        activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+            .putString(KEY_LAST_REVEAL_END_ANCHOR, coords.targetAnchor)
+            .apply()
+
         transitioning = true
         sourceActivityRef = WeakReference(activity)
         pendingSnapshot = SnapshotHolder(
             bitmap = bitmap,
-            originX = originX,
-            originY = originY,
+            startX = coords.startX,
+            startY = coords.startY,
+            endX = coords.endX,
+            endY = coords.endY,
+            targetAnchor = coords.targetAnchor,
             oldActivityId = System.identityHashCode(activity),
             activityClassName = activity.javaClass.name,
             captureTimestamp = SystemClock.uptimeMillis()
@@ -466,8 +520,6 @@ object ThemeManager {
 
     private fun triggerCircularReveal(activity: Activity, holder: SnapshotHolder) {
         val bitmap = holder.bitmap
-        val cx = holder.originX
-        val cy = holder.originY
 
         val decorView = activity.window.decorView as? ViewGroup ?: run {
             cleanupPending("triggerCircularReveal_no_decor")
@@ -486,7 +538,35 @@ object ThemeManager {
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
         )
 
-        val overlayView = CircularRevealOverlayView(activity, bitmap, cx, cy) {
+        // Dynamically verify end anchor on new activity to ensure exact landing precision
+        val insetPx = (24 * activity.resources.displayMetrics.density).toInt()
+        val liveEndX: Float
+        val liveEndY: Float
+
+        if (holder.targetAnchor == ANCHOR_TOP_RIGHT) {
+            val overflowBtn = activity.findViewById<View>(R.id.btnOverflow)
+            if (overflowBtn != null && overflowBtn.isAttachedToWindow && overflowBtn.width > 0) {
+                val loc = IntArray(2)
+                overflowBtn.getLocationOnScreen(loc)
+                liveEndX = (loc[0] + overflowBtn.width / 2).toFloat()
+                liveEndY = (loc[1] + overflowBtn.height / 2).toFloat()
+            } else {
+                liveEndX = holder.endX
+                liveEndY = holder.endY
+            }
+        } else {
+            liveEndX = insetPx.toFloat()
+            liveEndY = (decorView.height - insetPx).toFloat()
+        }
+
+        val overlayView = CircularRevealOverlayView(
+            activity,
+            bitmap,
+            holder.startX,
+            holder.startY,
+            liveEndX,
+            liveEndY
+        ) {
             logDebug("Reveal animation completed -> cleaning up pending transition")
             cleanupPending("animation_complete")
         }
@@ -552,17 +632,21 @@ object ThemeManager {
 
     /**
      * Full-screen overlay that displays the captured snapshot of the old theme.
-     * Cuts an expanding circular hole centered at (cx, cy) from radius 0 to maxRadius,
-     * cleanly revealing the new theme underneath in both Light->Dark and Dark->Light.
+     * Cuts an expanding circular hole whose center travels linearly from (startX, startY)
+     * to (endX, endY) and whose radius expands as t * R_final, cleanly revealing the new theme underneath.
      */
     private class CircularRevealOverlayView(
         context: Context,
         private var bitmap: Bitmap?,
-        private val cx: Int,
-        private val cy: Int,
+        private val startX: Float,
+        private val startY: Float,
+        private val endX: Float,
+        private val endY: Float,
         private val onComplete: () -> Unit
     ) : View(context) {
 
+        private var currentX: Float = startX
+        private var currentY: Float = startY
         private var currentRadius: Float = 0f
         private val clipPath = Path()
         private var animator: ValueAnimator? = null
@@ -585,20 +669,23 @@ object ThemeManager {
                 return
             }
 
-            // Calculate exact distance to farthest of the four screen corners
-            val d1 = hypot(cx.toDouble(), cy.toDouble())
-            val d2 = hypot((w - cx).toDouble(), cy.toDouble())
-            val d3 = hypot(cx.toDouble(), (h - cy).toDouble())
-            val d4 = hypot((w - cx).toDouble(), (h - cy).toDouble())
-            val maxRadius = max(max(d1, d2), max(d3, d4)).toFloat()
+            // Calculate exact distance from the END anchor to all four screen corners
+            val d1 = hypot(endX.toDouble(), endY.toDouble())
+            val d2 = hypot((w - endX).toDouble(), endY.toDouble())
+            val d3 = hypot(endX.toDouble(), (h - endY).toDouble())
+            val d4 = hypot((w - endX).toDouble(), (h - endY).toDouble())
+            val rFinal = max(max(d1, d2), max(d3, d4)).toFloat()
 
-            logDebug("Starting reveal animation from ($cx, $cy) to radius $maxRadius (duration 400ms)")
+            logDebug("Starting traveling reveal: ($startX, $startY) -> ($endX, $endY), rFinal=$rFinal (duration 550ms)")
 
-            animator = ValueAnimator.ofFloat(0f, maxRadius).apply {
-                duration = 400L // 350-450ms specification
-                interpolator = AccelerateDecelerateInterpolator()
+            animator = ValueAnimator.ofFloat(0f, 1f).apply {
+                duration = 550L
+                interpolator = FastOutSlowInInterpolator()
                 addUpdateListener { va ->
-                    currentRadius = va.animatedValue as Float
+                    val t = va.animatedValue as Float
+                    currentX = startX + (endX - startX) * t
+                    currentY = startY + (endY - startY) * t
+                    currentRadius = t * rFinal
                     invalidate()
                 }
                 addListener(object : AnimatorListenerAdapter() {
@@ -622,7 +709,7 @@ object ThemeManager {
                 clipPath.reset()
                 clipPath.fillType = Path.FillType.EVEN_ODD
                 clipPath.addRect(0f, 0f, width.toFloat(), height.toFloat(), Path.Direction.CW)
-                clipPath.addCircle(cx.toFloat(), cy.toFloat(), currentRadius, Path.Direction.CW)
+                clipPath.addCircle(currentX, currentY, currentRadius, Path.Direction.CW)
 
                 canvas.save()
                 canvas.clipPath(clipPath)

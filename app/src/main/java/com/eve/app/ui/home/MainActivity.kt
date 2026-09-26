@@ -36,6 +36,7 @@ import com.eve.app.data.model.Exam
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.FeedbackRepository
 import com.eve.app.databinding.ActivityMainBinding
+import com.eve.app.ui.about.AboutActivity
 import com.eve.app.ui.admin.AdminActivity
 import com.eve.app.ui.bookmarks.BookmarksActivity
 import com.eve.app.ui.history.HistoryActivity
@@ -46,6 +47,7 @@ import com.eve.app.ui.performance.PerformanceActivity
 import com.eve.app.ui.practice.PracticeActivity
 import com.eve.app.ui.profile.ProfileActivity
 import com.eve.app.ui.pyq.PyqActivity
+import com.eve.app.ui.settings.SettingsActivity
 import com.eve.app.ui.syllabus.SyllabusActivity
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.Constants
@@ -768,6 +770,14 @@ class MainActivity : AppCompatActivity() {
         binding.layoutDrawerSyllabus.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
             startActivity(Intent(this, SyllabusActivity::class.java))
+        }
+        binding.layoutDrawerAbout.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            startActivity(Intent(this, AboutActivity::class.java))
+        }
+        binding.layoutDrawerSettings.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            startActivity(Intent(this, SettingsActivity::class.java))
         }
     }
 

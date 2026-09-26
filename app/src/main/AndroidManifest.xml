@@ -66,6 +66,7 @@
         <activity android:name=".ui.admin.GeneratedTestsActivity" android:exported="false" />
         <activity android:name=".ui.admin.ManagePollsActivity" android:exported="false" />
         <activity android:name=".ui.about.AboutActivity" android:exported="false" />
+        <activity android:name=".ui.settings.SettingsActivity" android:exported="false" />
         <activity android:name=".ui.about.ContentDisplayActivity" android:exported="false" />
         <activity android:name=".ui.admin.EditAboutActivity" android:exported="false" />
         <activity android:name=".ui.syllabus.SyllabusActivity" android:exported="false" />
