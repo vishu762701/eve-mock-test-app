@@ -33,6 +33,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import com.eve.app.BuildConfig
 import com.eve.app.R
+import java.lang.ref.WeakReference
 import kotlin.math.hypot
 import kotlin.math.max
 
@@ -61,13 +62,15 @@ object ThemeManager {
     )
 
     private var pendingSnapshot: SnapshotHolder? = null
+    private var sourceActivityRef: WeakReference<Activity>? = null
+    private var targetActivityRef: WeakReference<Activity>? = null
     private var isLifecycleRegistered = false
     private var transitioning = false
     private var activeOverlay: CircularRevealOverlayView? = null
     private val mainHandler = Handler(Looper.getMainLooper())
     private val timeoutRunnable = Runnable {
         logDebug("Timeout reached, cleaning up pending transition")
-        cleanupPending()
+        cleanupPending("timeout")
     }
 
     val isTransitioning: Boolean
@@ -148,6 +151,7 @@ object ThemeManager {
                 if (activity.javaClass.name == holder.activityClassName &&
                     System.identityHashCode(activity) != holder.oldActivityId
                 ) {
+                    targetActivityRef = WeakReference(activity)
                     logDebug("New Activity created under theme change -> Attaching full-screen pre-overlay")
                     activity.overridePendingTransition(0, 0)
                     attachStaticOverlayImmediately(activity, holder.bitmap)
@@ -161,6 +165,7 @@ object ThemeManager {
                 if (activity.javaClass.name == holder.activityClassName &&
                     System.identityHashCode(activity) != holder.oldActivityId
                 ) {
+                    targetActivityRef = WeakReference(activity)
                     logDebug("New Activity resumed -> Waiting for first draw before triggering reveal")
                     activity.overridePendingTransition(0, 0)
                     waitForNewThemeRenderAndReveal(activity, holder)
@@ -168,9 +173,21 @@ object ThemeManager {
             }
 
             override fun onActivityPaused(activity: Activity) {}
-            override fun onActivityStopped(activity: Activity) {}
+
+            override fun onActivityStopped(activity: Activity) {
+                val holder = pendingSnapshot ?: return
+                // Check if user navigated away while transition was in progress
+                if (activity.javaClass.name == holder.activityClassName) {
+                    logDebug("Activity stopped during transition (${activity.javaClass.simpleName}) -> cleaning up safely")
+                    detachAllOverlays(activity)
+                    cleanupPending("activity_stopped")
+                }
+            }
+
             override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
+
             override fun onActivityDestroyed(activity: Activity) {
+                detachAllOverlays(activity)
                 val holder = pendingSnapshot ?: return
                 if (System.identityHashCode(activity) == holder.oldActivityId) {
                     logDebug("Old Activity destroyed during recreate (expected)")
@@ -178,18 +195,55 @@ object ThemeManager {
                 }
                 if (activity.javaClass.name == holder.activityClassName) {
                     logDebug("Activity destroyed -> cleaning up overlay")
-                    activeOverlay?.cancelAnimation()
-                    (activity.window.decorView as? ViewGroup)?.removeView(activeOverlay)
-                    activeOverlay = null
-                    cleanupPending()
+                    cleanupPending("activity_destroyed")
                 }
             }
         })
     }
 
+    /**
+     * Safely detaches and clears all overlay views associated with the theme transition
+     * from the specified Activity's decorView.
+     * Crucial: nulls out image references and removes views from the hierarchy BEFORE
+     * any bitmap is recycled to prevent "Canvas: trying to use a recycled bitmap".
+     */
+    private fun detachAllOverlays(activity: Activity?) {
+        if (activity == null) return
+        try {
+            val decorView = activity.window?.decorView as? ViewGroup ?: return
+
+            // 1. Find and remove ALL views tagged "pre_reveal_overlay"
+            var preOverlay: View?
+            do {
+                preOverlay = decorView.findViewWithTag<View>("pre_reveal_overlay")
+                if (preOverlay != null) {
+                    (preOverlay as? ImageView)?.setImageDrawable(null)
+                    decorView.removeView(preOverlay)
+                    logDebug("Removed pre_reveal_overlay from ${activity.javaClass.simpleName}")
+                }
+            } while (preOverlay != null)
+
+            // 2. Remove and cancel activeOverlay if attached
+            activeOverlay?.let { overlay ->
+                if (overlay.parent == decorView || overlay.parent != null) {
+                    overlay.cancelAnimation()
+                    (overlay.parent as? ViewGroup)?.removeView(overlay)
+                    logDebug("Removed activeOverlay from ${activity.javaClass.simpleName}")
+                }
+            }
+
+            // 3. Clear window touch-blocking flag to prevent UI lockup
+            activity.window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        } catch (t: Throwable) {
+            logDebug("Error during detachAllOverlays: ${t.message}")
+        }
+    }
+
     private fun attachStaticOverlayImmediately(activity: Activity, bitmap: Bitmap) {
         val decorView = activity.window.decorView as? ViewGroup ?: return
         if (bitmap.isRecycled) return
+        // First ensure any previous overlay is detached
+        detachAllOverlays(activity)
         val overlay = ImageView(activity).apply {
             tag = "pre_reveal_overlay"
             setImageBitmap(bitmap)
@@ -205,13 +259,20 @@ object ThemeManager {
 
     private fun waitForNewThemeRenderAndReveal(activity: Activity, holder: SnapshotHolder) {
         val decorView = activity.window.decorView as? ViewGroup ?: run {
-            cleanupPending()
+            cleanupPending("waitForNewThemeRenderAndReveal_no_decor")
             return
         }
 
         decorView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {
-                decorView.viewTreeObserver.removeOnPreDrawListener(this)
+                if (decorView.viewTreeObserver.isAlive) {
+                    decorView.viewTreeObserver.removeOnPreDrawListener(this)
+                }
+                if (pendingSnapshot == null || holder.bitmap.isRecycled || activity.isFinishing || activity.isDestroyed) {
+                    logDebug("Aborting reveal: transition was cancelled, bitmap recycled, or activity finishing")
+                    cleanupPending("preDraw_cancelled_or_recycled")
+                    return true
+                }
                 logDebug("New theme preDraw confirmed -> Launching reveal animation")
                 triggerCircularReveal(activity, holder)
                 return true
@@ -220,16 +281,39 @@ object ThemeManager {
         decorView.invalidate()
     }
 
-    private fun cleanupPending() {
+    private fun cleanupPending(reason: String = "unknown") {
+        logDebug("cleanupPending triggered (reason: $reason)")
         mainHandler.removeCallbacks(timeoutRunnable)
-        pendingSnapshot?.bitmap?.let {
-            if (!it.isRecycled) {
-                it.recycle()
-                logDebug("Bitmap successfully recycled")
-            }
+
+        // Step 1: Detach and clear all overlays from both source and target activities before bitmap recycle
+        val source = sourceActivityRef?.get()
+        val target = targetActivityRef?.get()
+        detachAllOverlays(source)
+        detachAllOverlays(target)
+        sourceActivityRef = null
+        targetActivityRef = null
+
+        // Step 2: Ensure activeOverlay animation is cancelled and bitmap reference cleared
+        activeOverlay?.let { overlay ->
+            overlay.cancelAnimation()
+            (overlay.parent as? ViewGroup)?.removeView(overlay)
+            activeOverlay = null
         }
+
+        // Step 3: Now that all views referencing the bitmap have been removed from the
+        // view hierarchy and their ImageDrawables cleared, it is safe to recycle the bitmap.
+        val bmp = pendingSnapshot?.bitmap
         pendingSnapshot = null
         transitioning = false
+
+        if (bmp != null && !bmp.isRecycled) {
+            try {
+                bmp.recycle()
+                logDebug("Bitmap successfully and safely recycled")
+            } catch (t: Throwable) {
+                logDebug("Error while recycling bitmap: ${t.message}")
+            }
+        }
     }
 
     /**
@@ -324,6 +408,7 @@ object ThemeManager {
         originY: Int
     ) {
         transitioning = true
+        sourceActivityRef = WeakReference(activity)
         pendingSnapshot = SnapshotHolder(
             bitmap = bitmap,
             originX = originX,
@@ -337,6 +422,7 @@ object ThemeManager {
         val decorView = activity.window.decorView as? ViewGroup
         if (decorView != null && !bitmap.isRecycled) {
             val preOverlay = ImageView(activity).apply {
+                tag = "pre_reveal_overlay"
                 setImageBitmap(bitmap)
                 scaleType = ImageView.ScaleType.FIT_XY
                 fitsSystemWindows = false
@@ -384,7 +470,13 @@ object ThemeManager {
         val cy = holder.originY
 
         val decorView = activity.window.decorView as? ViewGroup ?: run {
-            cleanupPending()
+            cleanupPending("triggerCircularReveal_no_decor")
+            return
+        }
+
+        if (bitmap.isRecycled) {
+            logDebug("Bitmap already recycled before reveal started -> aborting")
+            cleanupPending("triggerCircularReveal_recycled_bitmap")
             return
         }
 
@@ -395,24 +487,28 @@ object ThemeManager {
         )
 
         val overlayView = CircularRevealOverlayView(activity, bitmap, cx, cy) {
-            logDebug("Reveal animation completed -> Removing overlay & restoring touch")
-            decorView.removeView(activeOverlay)
-            activity.window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-            activeOverlay = null
-            cleanupPending()
+            logDebug("Reveal animation completed -> cleaning up pending transition")
+            cleanupPending("animation_complete")
         }
         activeOverlay = overlayView
+
+        // Clean up any stale activeOverlay parent to prevent IllegalStateException
+        (overlayView.parent as? ViewGroup)?.removeView(overlayView)
         decorView.addView(overlayView)
 
         // Remove the temporary pre-overlay now that CircularRevealOverlayView is in place
-        val preOverlay = decorView.findViewWithTag<View>("pre_reveal_overlay")
-        if (preOverlay != null) {
-            decorView.removeView(preOverlay)
-        }
+        var preOverlay: View?
+        do {
+            preOverlay = decorView.findViewWithTag<View>("pre_reveal_overlay")
+            if (preOverlay != null) {
+                (preOverlay as? ImageView)?.setImageDrawable(null)
+                decorView.removeView(preOverlay)
+            }
+        } while (preOverlay != null)
 
         overlayView.post {
             if (activity.isFinishing || activity.isDestroyed) {
-                cleanupPending()
+                cleanupPending("activity_finishing_before_anim_start")
                 return@post
             }
             overlayView.startAnimation()
@@ -461,7 +557,7 @@ object ThemeManager {
      */
     private class CircularRevealOverlayView(
         context: Context,
-        private val bitmap: Bitmap,
+        private var bitmap: Bitmap?,
         private val cx: Int,
         private val cy: Int,
         private val onComplete: () -> Unit
@@ -515,11 +611,12 @@ object ThemeManager {
         }
 
         override fun onDraw(canvas: Canvas) {
-            if (bitmap.isRecycled) return
+            val bmp = bitmap ?: return
+            if (bmp.isRecycled) return
 
             if (currentRadius <= 0f) {
                 // Entire screen covered by old snapshot
-                canvas.drawBitmap(bitmap, 0f, 0f, paint)
+                canvas.drawBitmap(bmp, 0f, 0f, paint)
             } else {
                 // Expanding hole reveal: inside circle is new theme underneath, outside is old snapshot
                 clipPath.reset()
@@ -529,7 +626,7 @@ object ThemeManager {
 
                 canvas.save()
                 canvas.clipPath(clipPath)
-                canvas.drawBitmap(bitmap, 0f, 0f, paint)
+                canvas.drawBitmap(bmp, 0f, 0f, paint)
                 canvas.restore()
             }
         }
@@ -537,6 +634,7 @@ object ThemeManager {
         fun cancelAnimation() {
             animator?.cancel()
             animator = null
+            bitmap = null
         }
     }
 }

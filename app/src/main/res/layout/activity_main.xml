@@ -356,9 +356,9 @@
         android:layout_width="290dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@color/eve_menu_glass_bg"
+        android:background="@color/eve_surface"
         android:clickable="true"
-        android:elevation="8dp"
+        android:elevation="16dp"
         android:fitsSystemWindows="true"
         android:focusable="true"
         android:orientation="vertical">

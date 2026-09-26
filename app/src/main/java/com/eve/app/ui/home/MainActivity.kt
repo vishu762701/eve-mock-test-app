@@ -6,6 +6,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.graphics.RenderEffect
+import android.graphics.Shader
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
@@ -23,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -600,6 +604,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                binding.mainContentContainer.setRenderEffect(null)
+            } catch (_: Throwable) { }
+        }
         try {
             unregisterReceiver(foregroundNotificationReceiver)
         } catch (_: Exception) { }
@@ -714,6 +723,39 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupDrawer(user: com.google.firebase.auth.FirebaseUser) {
         updateDrawerHeader(user)
+
+        // Dim background behind sidebar with deep, premium scrim (#B3000000 - 70% dim)
+        binding.drawerLayout.setScrimColor(Color.parseColor("#B3000000"))
+
+        // Apply smooth, hardware-accelerated blur on the underlying screen when drawer slides
+        binding.drawerLayout.addDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    val maxBlur = 18f
+                    val blur = slideOffset * maxBlur
+                    if (blur > 0.5f) {
+                        try {
+                            binding.mainContentContainer.setRenderEffect(
+                                RenderEffect.createBlurEffect(blur, blur, Shader.TileMode.CLAMP)
+                            )
+                        } catch (_: Throwable) { }
+                    } else {
+                        try {
+                            binding.mainContentContainer.setRenderEffect(null)
+                        } catch (_: Throwable) { }
+                    }
+                }
+            }
+
+            override fun onDrawerClosed(drawerView: View) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    try {
+                        binding.mainContentContainer.setRenderEffect(null)
+                    } catch (_: Throwable) { }
+                }
+            }
+        })
+
         binding.layoutDrawerProfile.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
             startActivity(Intent(this, ProfileActivity::class.java))
