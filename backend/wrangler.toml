@@ -1,0 +1,20 @@
+name = "eve-backend"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+FIREBASE_PROJECT_ID = "eve-fb98f"
+SUPABASE_PROJECT_URL = "https://msfihtyllpodkfgxxxdd.supabase.co"
+SUPABASE_BUCKET_NAME = "eve-media"
+SUPABASE_PUBLISHABLE_KEY = "sb_publishable_2tExlJ_y8jUtFoM3dbetyg_mqIWOh5Z"
+GEMINI_MODEL = "gemini-1.5-flash-8b"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "eve-database"
+database_id = "6e112e5e-2d1f-4702-97f4-6050f4b0f3fd"
+migrations_dir = "migrations"
+
+[triggers]
+crons = ["*/5 * * * *"]

@@ -12,3 +12,6 @@ app/build/
 *.jks
 *service-account*.json
 functions/package-lock.json
+backend/node_modules/
+backend/.wrangler/
+backend/package-lock.json
