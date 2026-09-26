@@ -13,6 +13,7 @@ export async function authMiddleware(c: Context<{ Bindings: Env; Variables: { us
   // Public allowlist
   if (
     path === "/api/health" ||
+    path.startsWith("/api/health/") ||
     (path.startsWith("/api/app-content/") && method === "GET") ||
     (path === "/api/banners" && method === "GET")
   ) {
