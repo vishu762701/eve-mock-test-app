@@ -23,13 +23,15 @@ export class SupabaseStorage {
       );
     }
 
+    const cleanKey = this.env.SUPABASE_SERVICE_ROLE_KEY.trim();
     const cleanPath = path.startsWith("/") ? path.slice(1) : path;
     const url = `${this.env.SUPABASE_PROJECT_URL}/storage/v1/object/${this.env.SUPABASE_BUCKET_NAME}/${cleanPath}`;
 
     const res = await fetch(url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${this.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        apikey: cleanKey,
+        Authorization: `Bearer ${cleanKey}`,
         "Content-Type": contentType,
         "x-upsert": "true",
       },
@@ -51,13 +53,15 @@ export class SupabaseStorage {
       );
     }
 
+    const cleanKey = this.env.SUPABASE_SERVICE_ROLE_KEY.trim();
     const cleanPath = path.startsWith("/") ? path.slice(1) : path;
     const url = `${this.env.SUPABASE_PROJECT_URL}/storage/v1/object/${this.env.SUPABASE_BUCKET_NAME}/${cleanPath}`;
 
     const res = await fetch(url, {
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${this.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        apikey: cleanKey,
+        Authorization: `Bearer ${cleanKey}`,
       },
     });
 
