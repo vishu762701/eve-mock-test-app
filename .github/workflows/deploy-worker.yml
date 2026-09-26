@@ -78,20 +78,11 @@ jobs:
           accountId: 'a50b9cf54c5e84de0183a5d3a4b38844'
           workingDirectory: 'backend'
 
-      - name: Verify Worker Deployment & Discover Subdomain
+      - name: Run Live Production Smoke Tests
+        working-directory: backend
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
-          SUB_RES=$(curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/a50b9cf54c5e84de0183a5d3a4b38844/workers/subdomain")
-          echo "::notice title=Cloudflare Subdomain Response::$SUB_RES"
-          
-          # Enable workers.dev subdomain route if needed
-          curl -s -X POST -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" -d '{"enabled":true}' "https://api.cloudflare.com/client/v4/accounts/a50b9cf54c5e84de0183a5d3a4b38844/workers/services/eve-backend/environments/production/subdomain" || true
-          
-          SUBDOMAIN=$(echo "$SUB_RES" | grep -o '"subdomain":"[^"]*' | cut -d'"' -f4 || true)
-          if [ -n "$SUBDOMAIN" ]; then
-            URL="https://eve-backend.${SUBDOMAIN}.workers.dev"
-            echo "::notice title=Live Worker URL::$URL"
-            HEALTH=$(curl -s "$URL/api/health" || true)
-            echo "::notice title=Health Check Response::$HEALTH"
-          fi
+          chmod +x scripts/smoke-test.sh
+          ./scripts/smoke-test.sh
