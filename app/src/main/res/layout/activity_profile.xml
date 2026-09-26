@@ -183,7 +183,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:hint="Full Name">
+                    android:hint="Full Name"
+                    app:boxBackgroundColor="@color/eve_login_input_bg"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxStrokeColor="@color/eve_login_input_border"
+                    app:boxStrokeWidth="1dp">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etName"
@@ -203,6 +210,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:hint="Date of Birth (DD/MM/YYYY)"
+                    app:boxBackgroundColor="@color/eve_login_input_bg"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxStrokeColor="@color/eve_login_input_border"
+                    app:boxStrokeWidth="1dp"
                     app:endIconDrawable="@drawable/ic_calendar"
                     app:endIconMode="custom">
 

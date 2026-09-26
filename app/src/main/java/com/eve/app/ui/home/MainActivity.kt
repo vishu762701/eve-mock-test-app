@@ -718,14 +718,16 @@ class MainActivity : AppCompatActivity() {
     private fun setupDrawer(user: com.google.firebase.auth.FirebaseUser) {
         updateDrawerHeader(user)
 
-        // Dim background behind sidebar with deep, premium scrim (#B3000000 - 70% dim)
-        binding.drawerLayout.setScrimColor(Color.parseColor("#B3000000"))
+        // Frosted glass translucent scrim allowing underlying blurred content to be visible
+        val isDark = ThemeManager.isDarkMode(this)
+        val scrimColor = if (isDark) Color.parseColor("#4D000000") else Color.parseColor("#26000000")
+        binding.drawerLayout.setScrimColor(scrimColor)
 
         // Apply smooth, hardware-accelerated blur on the underlying screen when drawer slides
         binding.drawerLayout.addDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    val maxBlur = 18f
+                    val maxBlur = 24f
                     val blur = slideOffset * maxBlur
                     if (blur > 0.5f) {
                         try {

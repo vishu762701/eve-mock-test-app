@@ -65,7 +65,7 @@ class AmbientBackgroundView @JvmOverloads constructor(
     private val blob2X = FloatArray(nodeCount)
     private val blob2Y = FloatArray(nodeCount)
 
-    // Pre-allocated chrome reflection palette
+    // Pre-allocated chrome reflection palette (Dark Mode)
     private val chromeColors = intArrayOf(
         Color.parseColor("#F8FAFC"), // Ultra-bright specular edge
         Color.parseColor("#E2E8F0"), // Polished silver rim
@@ -82,12 +82,41 @@ class AmbientBackgroundView @JvmOverloads constructor(
     )
 
     private val glowColors = intArrayOf(
-        Color.argb(80, 200, 220, 245), // Soft cool-chrome glow
-        Color.argb(45, 140, 170, 210), // Mid blur glow
-        Color.argb(15, 70, 95, 130),   // Bleed edge
+        Color.argb(95, 210, 230, 255), // Soft cool-chrome luminous core
+        Color.argb(55, 140, 180, 220), // Frosted mid glow
+        Color.argb(20, 60, 95, 135),   // Diffused blur bleed edge
         Color.TRANSPARENT
     )
     private val glowStops = floatArrayOf(0.0f, 0.45f, 0.75f, 1.0f)
+
+    // Pre-allocated pearlescent liquid glass palette (Light Mode)
+    private val pearlColors = intArrayOf(
+        Color.parseColor("#FFFFFF"), // Pure white specular gleam
+        Color.parseColor("#F1F5F9"), // Luminous soft silver rim
+        Color.parseColor("#E2E8F0"), // Soft platinum body
+        Color.parseColor("#CBD5E1"), // Cool pearl refraction
+        Color.parseColor("#94A3B8"), // Subtle liquid depth
+        Color.parseColor("#CBD5E1"), // Reflected sky tint
+        Color.parseColor("#E2E8F0"), // Pearl gleam
+        Color.parseColor("#F8FAFC"), // High platinum sheen
+        Color.parseColor("#FFFFFF")  // Pure white specular glint
+    )
+
+    private val pearlGlowColors = intArrayOf(
+        Color.argb(90, 255, 255, 255), // Luminous core glow
+        Color.argb(50, 203, 213, 225), // Soft pearl bleed
+        Color.argb(20, 148, 163, 184), // Diffused edge
+        Color.TRANSPARENT
+    )
+
+    private fun isDarkMode(): Boolean {
+        return try {
+            val nightModeFlags = context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK
+            nightModeFlags == android.content.res.Configuration.UI_MODE_NIGHT_YES
+        } catch (_: Throwable) {
+            true
+        }
+    }
 
     init {
         isClickable = false
@@ -181,8 +210,13 @@ class AmbientBackgroundView @JvmOverloads constructor(
         val h = height.toFloat()
         if (w <= 0f || h <= 0f) return
 
-        // 1. Solid pure black background behind everything
-        canvas.drawColor(Color.BLACK)
+        // 1. Theme-appropriate canvas background behind everything
+        val isDark = isDarkMode()
+        if (isDark) {
+            canvas.drawColor(Color.BLACK)
+        } else {
+            canvas.drawColor(Color.parseColor("#EDF2F7"))
+        }
 
         val omega = (progress * 2.0 * Math.PI).toFloat()
 
@@ -210,7 +244,8 @@ class AmbientBackgroundView @JvmOverloads constructor(
             radius = baseR1,
             path = blob1Path,
             highlightPath = highlight1Path,
-            isTopRight = true
+            isTopRight = true,
+            isDark = isDark
         )
 
         // 3. BLOB 2 (Bottom-Left Area, partially overlapping modal bottom-left)
@@ -237,7 +272,8 @@ class AmbientBackgroundView @JvmOverloads constructor(
             radius = baseR2,
             path = blob2Path,
             highlightPath = highlight2Path,
-            isTopRight = false
+            isTopRight = false,
+            isDark = isDark
         )
     }
 
@@ -295,13 +331,14 @@ class AmbientBackgroundView @JvmOverloads constructor(
         radius: Float,
         path: Path,
         highlightPath: Path,
-        isTopRight: Boolean
+        isTopRight: Boolean,
+        isDark: Boolean
     ) {
         // Layer A: Outer Frosted Ambient Glow Halo
-        val glowRadius = radius * 1.75f
+        val glowRadius = radius * 2.2f
         glowPaint.shader = RadialGradient(
             cx, cy, glowRadius,
-            glowColors,
+            if (isDark) glowColors else pearlGlowColors,
             glowStops,
             Shader.TileMode.CLAMP
         )
@@ -315,13 +352,14 @@ class AmbientBackgroundView @JvmOverloads constructor(
         chromeBodyPaint.shader = LinearGradient(
             cx - dx, cy - dy,
             cx + dx, cy + dy,
-            chromeColors,
+            if (isDark) chromeColors else pearlColors,
             chromeStops,
             Shader.TileMode.CLAMP
         )
         canvas.drawPath(path, chromeBodyPaint)
 
         // Layer C: Subtle Rim Light Edge Stroke
+        rimGlowPaint.color = if (isDark) Color.argb(90, 240, 248, 255) else Color.argb(140, 255, 255, 255)
         canvas.drawPath(path, rimGlowPaint)
 
         // Layer D: 3D Surface Depth Curvature Glow (Fresnel volume)
@@ -331,11 +369,19 @@ class AmbientBackgroundView @JvmOverloads constructor(
 
         specularGlintPaint.shader = RadialGradient(
             cx + hlOffsetX, cy + hlOffsetY, hlRadius,
-            intArrayOf(
-                Color.argb(190, 255, 255, 255), // High specular white
-                Color.argb(70, 220, 235, 255),  // Soft spread bloom
-                Color.TRANSPARENT
-            ),
+            if (isDark) {
+                intArrayOf(
+                    Color.argb(190, 255, 255, 255), // High specular white
+                    Color.argb(70, 220, 235, 255),  // Soft spread bloom
+                    Color.TRANSPARENT
+                )
+            } else {
+                intArrayOf(
+                    Color.argb(230, 255, 255, 255),
+                    Color.argb(110, 255, 255, 255),
+                    Color.TRANSPARENT
+                )
+            },
             floatArrayOf(0.0f, 0.40f, 1.0f),
             Shader.TileMode.CLAMP
         )
@@ -359,12 +405,20 @@ class AmbientBackgroundView @JvmOverloads constructor(
         )
         specularGlintPaint.shader = RadialGradient(
             glintX, glintY, glintW,
-            intArrayOf(
-                Color.argb(230, 255, 255, 255),
-                Color.argb(100, 255, 255, 255),
-                Color.TRANSPARENT
-            ),
-            floatArrayOf(0.0f, 0.5f, 1.0f),
+            if (isDark) {
+                intArrayOf(
+                    Color.argb(230, 255, 255, 255),
+                    Color.argb(100, 255, 255, 255),
+                    Color.TRANSPARENT
+                )
+            } else {
+                intArrayOf(
+                    Color.argb(255, 255, 255, 255),
+                    Color.argb(140, 255, 255, 255),
+                    Color.TRANSPARENT
+                )
+            },
+            floatArrayOf(0.0f, 0.35f, 1.0f),
             Shader.TileMode.CLAMP
         )
         canvas.drawPath(highlightPath, specularGlintPaint)

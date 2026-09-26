@@ -5,7 +5,7 @@
     android:layout_width="250dp"
     android:layout_height="wrap_content"
     android:clipToOutline="true"
-    app:cardBackgroundColor="@color/eve_menu_glass_bg"
+    app:cardBackgroundColor="@android:color/transparent"
     app:cardCornerRadius="@dimen/eve_radius_md"
     app:cardElevation="8dp"
     app:cardMaxElevation="10dp"

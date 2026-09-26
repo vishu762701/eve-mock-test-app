@@ -4,6 +4,9 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.RenderEffect
+import android.graphics.Shader
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Patterns
@@ -13,6 +16,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.lifecycleScope
@@ -45,7 +49,7 @@ class LoginActivity : AppCompatActivity() {
     private var isSignUpMode = false
     private var isCheckingAuth = true
     private var originalSubmitText = "Sign In"
-    private var originalGoogleText = ""
+    private var originalGoogleText = "Continue with Google"
     private var lastAttemptedGoogle = false
 
     private val signInLauncher =
@@ -93,6 +97,16 @@ class LoginActivity : AppCompatActivity() {
         // Auth check resolved; user genuinely landed on Login
         isCheckingAuth = false
 
+        // Frosted-glass backdrop blur on Android 12+ (API 31+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                val blurEffect = RenderEffect.createBlurEffect(45f, 45f, Shader.TileMode.CLAMP)
+                binding.ambientBackground.setRenderEffect(blurEffect)
+            } catch (_: Throwable) {
+                // Graceful fallback if RenderEffect is unsupported
+            }
+        }
+
         // Task C: Staggered Entrance Animation
         playStaggeredEntranceAnimation()
 
@@ -118,16 +132,6 @@ class LoginActivity : AppCompatActivity() {
         }
         binding.btnCloseModal.setOnClickListener {
             finish()
-        }
-
-        binding.btnApple.setOnClickListener {
-            Toast.makeText(this, "Apple Sign-In coming soon", Toast.LENGTH_SHORT).show()
-        }
-        binding.btnX.setOnClickListener {
-            Toast.makeText(this, "X Sign-In coming soon", Toast.LENGTH_SHORT).show()
-        }
-        binding.btnDiscord.setOnClickListener {
-            Toast.makeText(this, "Discord Sign-In coming soon", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -308,23 +312,26 @@ class LoginActivity : AppCompatActivity() {
         isSignUpMode = !isSignUpMode
         binding.tvError.visibility = View.GONE
 
+        val activeColor = ContextCompat.getColor(this, R.color.eve_login_text)
+        val inactiveColor = ContextCompat.getColor(this, R.color.eve_login_text_secondary)
+
         if (isSignUpMode) {
             binding.tilName.visibility = View.VISIBLE
             originalSubmitText = "Join"
             binding.btnSubmit.text = originalSubmitText
             binding.btnToggleMode.text = "Already have an account? Sign In"
-            binding.tvTabSignIn.setTextColor(android.graphics.Color.parseColor("#6B7280"))
+            binding.tvTabSignIn.setTextColor(inactiveColor)
             binding.indicatorTabSignIn.visibility = View.INVISIBLE
-            binding.tvTabJoin.setTextColor(android.graphics.Color.WHITE)
+            binding.tvTabJoin.setTextColor(activeColor)
             binding.indicatorTabJoin.visibility = View.VISIBLE
         } else {
             binding.tilName.visibility = View.GONE
             originalSubmitText = "Sign In"
             binding.btnSubmit.text = originalSubmitText
             binding.btnToggleMode.text = "Don't have an account? Sign Up"
-            binding.tvTabSignIn.setTextColor(android.graphics.Color.WHITE)
+            binding.tvTabSignIn.setTextColor(activeColor)
             binding.indicatorTabSignIn.visibility = View.VISIBLE
-            binding.tvTabJoin.setTextColor(android.graphics.Color.parseColor("#6B7280"))
+            binding.tvTabJoin.setTextColor(inactiveColor)
             binding.indicatorTabJoin.visibility = View.INVISIBLE
         }
     }

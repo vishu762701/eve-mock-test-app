@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000">
+    android:background="@color/eve_bg">
 
     <!-- 1. Background: Animated 3D Liquid-Metal / Mercury Blob View -->
     <com.eve.app.ui.login.AmbientBackgroundView
@@ -34,10 +34,10 @@
                 android:id="@+id/cardLogin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="#E6121419"
+                app:cardBackgroundColor="@color/eve_login_glass_bg"
                 app:cardCornerRadius="24dp"
-                app:cardElevation="14dp"
-                app:strokeColor="#24FFFFFF"
+                app:cardElevation="8dp"
+                app:strokeColor="@color/eve_login_glass_border"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
@@ -74,7 +74,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Sign In"
-                                    android:textColor="#FFFFFF"
+                                    android:textColor="@color/eve_login_text"
                                     android:textSize="22sp"
                                     android:textStyle="bold" />
 
@@ -83,7 +83,7 @@
                                     android:layout_width="28dp"
                                     android:layout_height="3dp"
                                     android:layout_marginTop="5dp"
-                                    android:background="#FF7A00" />
+                                    android:background="@drawable/bg_indicator_active" />
                             </LinearLayout>
 
                             <View
@@ -102,7 +102,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Join"
-                                    android:textColor="#6B7280"
+                                    android:textColor="@color/eve_login_text_secondary"
                                     android:textSize="22sp"
                                     android:textStyle="bold" />
 
@@ -111,7 +111,7 @@
                                     android:layout_width="28dp"
                                     android:layout_height="3dp"
                                     android:layout_marginTop="5dp"
-                                    android:background="#FF7A00"
+                                    android:background="@drawable/bg_indicator_active"
                                     android:visibility="invisible" />
                             </LinearLayout>
 
@@ -126,7 +126,7 @@
                             android:contentDescription="Close"
                             android:padding="6dp"
                             android:src="@drawable/ic_close"
-                            app:tint="#9CA3AF" />
+                            app:tint="@color/eve_login_text_secondary" />
 
                     </LinearLayout>
 
@@ -158,16 +158,16 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="20dp"
                         android:hint="Full Name"
-                        android:textColorHint="#6B7280"
+                        android:textColorHint="@color/eve_login_text_secondary"
                         android:visibility="gone"
-                        app:boxBackgroundColor="#1A1C23"
+                        app:boxBackgroundColor="@color/eve_login_input_bg"
                         app:boxCornerRadiusBottomEnd="12dp"
                         app:boxCornerRadiusBottomStart="12dp"
                         app:boxCornerRadiusTopEnd="12dp"
                         app:boxCornerRadiusTopStart="12dp"
-                        app:boxStrokeColor="#2B2F3D"
+                        app:boxStrokeColor="@color/eve_login_input_border"
                         app:boxStrokeWidth="1dp"
-                        app:hintTextColor="#9CA3AF">
+                        app:hintTextColor="@color/eve_login_text_secondary">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etName"
@@ -175,7 +175,7 @@
                             android:layout_height="wrap_content"
                             android:inputType="textCapWords"
                             android:maxLines="1"
-                            android:textColor="#FFFFFF"
+                            android:textColor="@color/eve_login_text"
                             android:textSize="15sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -186,7 +186,7 @@
                         android:layout_marginTop="22dp"
                         android:layout_marginBottom="6dp"
                         android:text="Email"
-                        android:textColor="#9CA3AF"
+                        android:textColor="@color/eve_login_text_secondary"
                         android:textSize="13sp"
                         android:textStyle="bold" />
 
@@ -196,13 +196,13 @@
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColorHint="#5A6072"
-                        app:boxBackgroundColor="#1A1C23"
+                        android:textColorHint="@color/eve_login_text_secondary"
+                        app:boxBackgroundColor="@color/eve_login_input_bg"
                         app:boxCornerRadiusBottomEnd="12dp"
                         app:boxCornerRadiusBottomStart="12dp"
                         app:boxCornerRadiusTopEnd="12dp"
                         app:boxCornerRadiusTopStart="12dp"
-                        app:boxStrokeColor="#2B2F3D"
+                        app:boxStrokeColor="@color/eve_login_input_border"
                         app:boxStrokeWidth="1dp"
                         app:hintEnabled="false">
 
@@ -213,8 +213,8 @@
                             android:hint="name@example.com"
                             android:inputType="textEmailAddress"
                             android:maxLines="1"
-                            android:textColor="#FFFFFF"
-                            android:textColorHint="#5A6072"
+                            android:textColor="@color/eve_login_text"
+                            android:textColorHint="@color/eve_login_text_hint"
                             android:textSize="15sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -225,37 +225,37 @@
                         android:layout_marginTop="16dp"
                         android:layout_marginBottom="6dp"
                         android:text="Password"
-                        android:textColor="#9CA3AF"
+                        android:textColor="@color/eve_login_text_secondary"
                         android:textSize="13sp"
                         android:textStyle="bold" />
 
-                    <!-- Password input with eye icon and "At least 12 symbols..." placeholder -->
+                    <!-- Password input with eye icon and "At least 6 characters" placeholder -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilPassword"
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColorHint="#5A6072"
-                        app:boxBackgroundColor="#1A1C23"
+                        android:textColorHint="@color/eve_login_text_secondary"
+                        app:boxBackgroundColor="@color/eve_login_input_bg"
                         app:boxCornerRadiusBottomEnd="12dp"
                         app:boxCornerRadiusBottomStart="12dp"
                         app:boxCornerRadiusTopEnd="12dp"
                         app:boxCornerRadiusTopStart="12dp"
-                        app:boxStrokeColor="#2B2F3D"
+                        app:boxStrokeColor="@color/eve_login_input_border"
                         app:boxStrokeWidth="1dp"
                         app:endIconMode="password_toggle"
-                        app:endIconTint="#8E8E93"
+                        app:endIconTint="@color/eve_login_text_secondary"
                         app:hintEnabled="false">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etPassword"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="At least 12 symbols..."
+                            android:hint="At least 6 characters"
                             android:inputType="textPassword"
                             android:maxLines="1"
-                            android:textColor="#FFFFFF"
-                            android:textColorHint="#5A6072"
+                            android:textColor="@color/eve_login_text"
+                            android:textColorHint="@color/eve_login_text_hint"
                             android:textSize="15sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -286,7 +286,9 @@
                             android:textColor="#FFFFFF"
                             android:textSize="16sp"
                             android:textStyle="bold"
-                            app:cornerRadius="12dp" />
+                            app:cornerRadius="12dp"
+                            app:strokeColor="#50FFA040"
+                            app:strokeWidth="1dp" />
 
                         <ProgressBar
                             android:id="@+id/progressSubmit"
@@ -311,139 +313,58 @@
                             android:layout_width="0dp"
                             android:layout_height="1dp"
                             android:layout_weight="1"
-                            android:background="#24FFFFFF" />
+                            android:background="@color/eve_login_glass_border" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginHorizontal="12dp"
                             android:text="or"
-                            android:textColor="#6B7280"
+                            android:textColor="@color/eve_login_text_secondary"
                             android:textSize="13sp" />
 
                         <View
                             android:layout_width="0dp"
                             android:layout_height="1dp"
                             android:layout_weight="1"
-                            android:background="#24FFFFFF" />
+                            android:background="@color/eve_login_glass_border" />
                     </LinearLayout>
 
-                    <!-- 5. Social Login Buttons Row: Google, Apple, X/Twitter, Discord -->
-                    <LinearLayout
+                    <!-- 5. Social Login: Google Button (Horizontally centered, no empty side spacing) -->
+                    <FrameLayout
+                        android:id="@+id/layoutBtnGoogle"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="50dp"
                         android:layout_marginTop="16dp"
-                        android:gravity="center"
-                        android:orientation="horizontal"
-                        android:weightSum="4">
+                        android:layout_gravity="center_horizontal">
 
-                        <!-- Google (colored G logo on dark-green tint) -->
-                        <FrameLayout
-                            android:id="@+id/layoutBtnGoogle"
-                            android:layout_width="0dp"
-                            android:layout_height="48dp"
-                            android:layout_marginEnd="8dp"
-                            android:layout_weight="1">
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnGoogle"
-                                style="@style/Widget.Material3.Button.OutlinedButton"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:backgroundTint="#0E261D"
-                                android:insetLeft="0dp"
-                                android:insetTop="0dp"
-                                android:insetRight="0dp"
-                                android:insetBottom="0dp"
-                                android:padding="0dp"
-                                android:text=""
-                                app:cornerRadius="12dp"
-                                app:icon="@drawable/ic_social_google"
-                                app:iconGravity="textStart"
-                                app:iconPadding="0dp"
-                                app:iconTint="@null"
-                                app:strokeColor="#1E4735"
-                                app:strokeWidth="1dp" />
-
-                            <ProgressBar
-                                android:id="@+id/progressGoogle"
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:layout_gravity="center"
-                                android:indeterminate="true"
-                                android:indeterminateTint="#34A853"
-                                android:visibility="gone" />
-                        </FrameLayout>
-
-                        <!-- Apple (Apple logo on dark background) -->
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnApple"
+                            android:id="@+id/btnGoogle"
                             style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="48dp"
-                            android:layout_marginEnd="8dp"
-                            android:layout_weight="1"
-                            android:backgroundTint="#191B22"
-                            android:insetLeft="0dp"
-                            android:insetTop="0dp"
-                            android:insetRight="0dp"
-                            android:insetBottom="0dp"
-                            android:padding="0dp"
-                            android:text=""
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:backgroundTint="@color/eve_login_google_bg"
+                            android:text="Continue with Google"
+                            android:textColor="@color/eve_login_google_text"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
                             app:cornerRadius="12dp"
-                            app:icon="@drawable/ic_social_apple"
+                            app:icon="@drawable/ic_social_google"
                             app:iconGravity="textStart"
-                            app:iconPadding="0dp"
-                            app:iconTint="#FFFFFF"
-                            app:strokeColor="#2B2F3D"
+                            app:iconPadding="10dp"
+                            app:iconTint="@null"
+                            app:strokeColor="@color/eve_login_google_border"
                             app:strokeWidth="1dp" />
 
-                        <!-- X / Twitter (X logo on dark background) -->
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnX"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="48dp"
-                            android:layout_marginEnd="8dp"
-                            android:layout_weight="1"
-                            android:backgroundTint="#191B22"
-                            android:insetLeft="0dp"
-                            android:insetTop="0dp"
-                            android:insetRight="0dp"
-                            android:insetBottom="0dp"
-                            android:padding="0dp"
-                            android:text=""
-                            app:cornerRadius="12dp"
-                            app:icon="@drawable/ic_social_x"
-                            app:iconGravity="textStart"
-                            app:iconPadding="0dp"
-                            app:iconTint="#FFFFFF"
-                            app:strokeColor="#2B2F3D"
-                            app:strokeWidth="1dp" />
-
-                        <!-- Discord (Discord logo on blurple / dark-blue tint background) -->
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnDiscord"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="48dp"
-                            android:layout_weight="1"
-                            android:backgroundTint="#181B36"
-                            android:insetLeft="0dp"
-                            android:insetTop="0dp"
-                            android:insetRight="0dp"
-                            android:insetBottom="0dp"
-                            android:padding="0dp"
-                            android:text=""
-                            app:cornerRadius="12dp"
-                            app:icon="@drawable/ic_social_discord"
-                            app:iconGravity="textStart"
-                            app:iconPadding="0dp"
-                            app:iconTint="#5865F2"
-                            app:strokeColor="#2C3263"
-                            app:strokeWidth="1dp" />
-
-                    </LinearLayout>
+                        <ProgressBar
+                            android:id="@+id/progressGoogle"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="center"
+                            android:indeterminate="true"
+                            android:indeterminateTint="#34A853"
+                            android:visibility="gone" />
+                    </FrameLayout>
 
                     <!-- Toggle Mode (Sign In / Sign Up) -->
                     <com.google.android.material.button.MaterialButton
@@ -453,7 +374,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:text="Don't have an account? Sign Up"
-                        android:textColor="#9CA3AF"
+                        android:textColor="@color/eve_login_text_secondary"
                         android:textSize="13sp" />
 
                 </LinearLayout>

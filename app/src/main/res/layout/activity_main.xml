@@ -356,7 +356,7 @@
         android:layout_width="290dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@color/eve_surface"
+        android:background="@drawable/bg_drawer_glass"
         android:clickable="true"
         android:elevation="16dp"
         android:fitsSystemWindows="true"

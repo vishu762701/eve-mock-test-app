@@ -39,4 +39,18 @@
     <color name="eve_menu_glass_bg">#B3141820</color>
     <color name="eve_menu_glass_border">#2BFFFFFF</color>
     <color name="eve_menu_glass_divider">#1AFFFFFF</color>
+
+    <!-- Premium Liquid Glass Design Tokens (Dark Mode) -->
+    <color name="eve_login_glass_bg">#8C0D1117</color>
+    <color name="eve_login_glass_border">#24FFFFFF</color>
+    <color name="eve_login_input_bg">#55080A10</color>
+    <color name="eve_login_input_border">#24FFFFFF</color>
+    <color name="eve_login_text">#FFFFFF</color>
+    <color name="eve_login_text_secondary">#9CA3AF</color>
+    <color name="eve_login_text_hint">#5A6072</color>
+    <color name="eve_login_google_bg">#2610261C</color>
+    <color name="eve_login_google_border">#2E34A853</color>
+    <color name="eve_login_google_text">#FFFFFF</color>
+    <color name="eve_drawer_glass_bg">#8C0D1117</color>
+    <color name="eve_drawer_glass_border">#24FFFFFF</color>
 </resources>
