@@ -45,7 +45,7 @@ class LoginActivity : AppCompatActivity() {
     private var isSignUpMode = false
     private var isCheckingAuth = true
     private var originalSubmitText = "Sign In"
-    private var originalGoogleText = "Continue with Google"
+    private var originalGoogleText = ""
     private var lastAttemptedGoogle = false
 
     private val signInLauncher =
@@ -107,6 +107,27 @@ class LoginActivity : AppCompatActivity() {
         // Toggle between Sign In and Sign Up mode
         binding.btnToggleMode.setOnClickListener {
             toggleMode()
+        }
+
+        // Header Tabs & Close modal interactions
+        binding.tvTabSignIn.setOnClickListener {
+            if (isSignUpMode) toggleMode()
+        }
+        binding.tvTabJoin.setOnClickListener {
+            if (!isSignUpMode) toggleMode()
+        }
+        binding.btnCloseModal.setOnClickListener {
+            finish()
+        }
+
+        binding.btnApple.setOnClickListener {
+            Toast.makeText(this, "Apple Sign-In coming soon", Toast.LENGTH_SHORT).show()
+        }
+        binding.btnX.setOnClickListener {
+            Toast.makeText(this, "X Sign-In coming soon", Toast.LENGTH_SHORT).show()
+        }
+        binding.btnDiscord.setOnClickListener {
+            Toast.makeText(this, "Discord Sign-In coming soon", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -289,14 +310,22 @@ class LoginActivity : AppCompatActivity() {
 
         if (isSignUpMode) {
             binding.tilName.visibility = View.VISIBLE
-            originalSubmitText = "Create Account"
+            originalSubmitText = "Join"
             binding.btnSubmit.text = originalSubmitText
             binding.btnToggleMode.text = "Already have an account? Sign In"
+            binding.tvTabSignIn.setTextColor(android.graphics.Color.parseColor("#6B7280"))
+            binding.indicatorTabSignIn.visibility = View.INVISIBLE
+            binding.tvTabJoin.setTextColor(android.graphics.Color.WHITE)
+            binding.indicatorTabJoin.visibility = View.VISIBLE
         } else {
             binding.tilName.visibility = View.GONE
             originalSubmitText = "Sign In"
             binding.btnSubmit.text = originalSubmitText
             binding.btnToggleMode.text = "Don't have an account? Sign Up"
+            binding.tvTabSignIn.setTextColor(android.graphics.Color.WHITE)
+            binding.indicatorTabSignIn.visibility = View.VISIBLE
+            binding.tvTabJoin.setTextColor(android.graphics.Color.parseColor("#6B7280"))
+            binding.indicatorTabJoin.visibility = View.INVISIBLE
         }
     }
 

@@ -4,25 +4,31 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.LinearGradient
+import android.graphics.Matrix
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.RadialGradient
 import android.graphics.Shader
-import android.os.Build
 import android.provider.Settings
 import android.util.AttributeSet
 import android.view.View
 import android.view.animation.LinearInterpolator
-import androidx.core.content.ContextCompat
-import com.eve.app.R
-import com.eve.app.util.ThemeManager
 import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * Task D: Ambient Background Motion (Option 1).
- * Renders extremely subtle, slow-moving blurred color spots derived from the app's palette.
- * Lightweight, hardware-accelerated Canvas drawing with zero battery drain when paused or detached.
- * Touches are never intercepted.
+ * Animated 3D Liquid-Metal / Mercury Blob Background.
+ * Renders smooth morphing polished liquid chrome / mercury blobs positioned
+ * partially behind and overlapping the modal corners (top-right and bottom-left areas)
+ * on a solid black background.
+ *
+ * Polished liquid chrome features:
+ * 1. Ambient soft blur/glow halo extending around edges.
+ * 2. High-contrast multi-stop specular chrome gradient (horizon reflection + silver rim).
+ * 3. 3D surface depth curvature highlight.
+ * 4. Liquid surface tension highlight droplet for molten mercury appearance.
+ * 5. Hardware-accelerated, zero battery drain when paused or detached.
  */
 class AmbientBackgroundView @JvmOverloads constructor(
     context: Context,
@@ -30,11 +36,58 @@ class AmbientBackgroundView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    private val paintBlob1 = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val paintBlob2 = Paint(Paint.ANTI_ALIAS_FLAG)
     private var progress: Float = 0f
     private var animator: ValueAnimator? = null
     private var isPlaying = false
+
+    private val glowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val chromeBodyPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+    }
+    private val specularGlintPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+    }
+    private val rimGlowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 3f
+        color = Color.argb(90, 240, 248, 255)
+    }
+
+    private val blob1Path = Path()
+    private val blob2Path = Path()
+    private val highlight1Path = Path()
+    private val highlight2Path = Path()
+
+    // 16 morphing nodes for each organic fluid blob
+    private val nodeCount = 16
+    private val blob1X = FloatArray(nodeCount)
+    private val blob1Y = FloatArray(nodeCount)
+    private val blob2X = FloatArray(nodeCount)
+    private val blob2Y = FloatArray(nodeCount)
+
+    // Pre-allocated chrome reflection palette
+    private val chromeColors = intArrayOf(
+        Color.parseColor("#F8FAFC"), // Ultra-bright specular edge
+        Color.parseColor("#E2E8F0"), // Polished silver rim
+        Color.parseColor("#94A3B8"), // Platinum metallic body
+        Color.parseColor("#334155"), // Deep metallic contrast
+        Color.parseColor("#0F172A"), // Horizon shadow line (chrome contrast)
+        Color.parseColor("#1E293B"), // Reflected ground shadow
+        Color.parseColor("#64748B"), // Steel midtone
+        Color.parseColor("#CBD5E1"), // Secondary platinum gleam
+        Color.parseColor("#FFFFFF")  // Pure white specular glint
+    )
+    private val chromeStops = floatArrayOf(
+        0.00f, 0.14f, 0.30f, 0.44f, 0.50f, 0.62f, 0.74f, 0.88f, 1.00f
+    )
+
+    private val glowColors = intArrayOf(
+        Color.argb(80, 200, 220, 245), // Soft cool-chrome glow
+        Color.argb(45, 140, 170, 210), // Mid blur glow
+        Color.argb(15, 70, 95, 130),   // Bleed edge
+        Color.TRANSPARENT
+    )
+    private val glowStops = floatArrayOf(0.0f, 0.45f, 0.75f, 1.0f)
 
     init {
         isClickable = false
@@ -63,7 +116,7 @@ class AmbientBackgroundView @JvmOverloads constructor(
         }
         if (animator == null) {
             animator = ValueAnimator.ofFloat(0f, 1f).apply {
-                duration = 18000L // 18 seconds slow gentle loop
+                duration = 14000L // 14 seconds slow hypnotic liquid loop
                 repeatCount = ValueAnimator.INFINITE
                 repeatMode = ValueAnimator.RESTART
                 interpolator = LinearInterpolator()
@@ -128,44 +181,193 @@ class AmbientBackgroundView @JvmOverloads constructor(
         val h = height.toFloat()
         if (w <= 0f || h <= 0f) return
 
-        val isDark = ThemeManager.isDarkMode(context)
-        val angle = progress * 2.0 * Math.PI
+        // 1. Solid pure black background behind everything
+        canvas.drawColor(Color.BLACK)
 
-        // Primary blob: drifting around upper center
-        val blob1Radius = (w * 0.55f).coerceAtLeast(180f)
-        val cx1 = w * 0.35f + (cos(angle) * (w * 0.12f)).toFloat()
-        val cy1 = h * 0.28f + (sin(angle) * (h * 0.08f)).toFloat()
+        val omega = (progress * 2.0 * Math.PI).toFloat()
 
-        // Secondary blob: drifting around lower center
-        val blob2Radius = (w * 0.65f).coerceAtLeast(220f)
-        val cx2 = w * 0.68f + (sin(angle) * (w * 0.14f)).toFloat()
-        val cy2 = h * 0.72f + (cos(angle) * (h * 0.10f)).toFloat()
+        // 2. BLOB 1 (Top-Right Area, partially overlapping modal top-right)
+        val cx1 = w * 0.82f + (cos(omega.toDouble()) * (w * 0.035f)).toFloat()
+        val cy1 = h * 0.18f + (sin(omega.toDouble()) * (h * 0.025f)).toFloat()
+        val baseR1 = (w * 0.30f).coerceAtLeast(100f)
 
-        val color1 = if (isDark) {
-            Color.argb(16, 80, 80, 80) // 6% dark glow
-        } else {
-            Color.argb(12, 17, 17, 17) // 4.5% subtle contrast tint
+        buildMorphingPath(
+            cx = cx1,
+            cy = cy1,
+            baseR = baseR1,
+            omega = omega,
+            freqMul = 1.0f,
+            phaseOffset = 0.0f,
+            outPath = blob1Path,
+            outX = blob1X,
+            outY = blob1Y
+        )
+
+        drawLiquidChromeBlob(
+            canvas = canvas,
+            cx = cx1,
+            cy = cy1,
+            radius = baseR1,
+            path = blob1Path,
+            highlightPath = highlight1Path,
+            isTopRight = true
+        )
+
+        // 3. BLOB 2 (Bottom-Left Area, partially overlapping modal bottom-left)
+        val cx2 = w * 0.16f + (sin((omega * 1.15f).toDouble()) * (w * 0.035f)).toFloat()
+        val cy2 = h * 0.82f + (cos((omega * 0.95f).toDouble()) * (h * 0.028f)).toFloat()
+        val baseR2 = (w * 0.33f).coerceAtLeast(110f)
+
+        buildMorphingPath(
+            cx = cx2,
+            cy = cy2,
+            baseR = baseR2,
+            omega = omega,
+            freqMul = 1.25f,
+            phaseOffset = 2.1f,
+            outPath = blob2Path,
+            outX = blob2X,
+            outY = blob2Y
+        )
+
+        drawLiquidChromeBlob(
+            canvas = canvas,
+            cx = cx2,
+            cy = cy2,
+            radius = baseR2,
+            path = blob2Path,
+            highlightPath = highlight2Path,
+            isTopRight = false
+        )
+    }
+
+    /**
+     * Builds an organic, continuous C1-smooth closed Bezier path around 16 morphing harmonic nodes.
+     */
+    private fun buildMorphingPath(
+        cx: Float,
+        cy: Float,
+        baseR: Float,
+        omega: Float,
+        freqMul: Float,
+        phaseOffset: Float,
+        outPath: Path,
+        outX: FloatArray,
+        outY: FloatArray
+    ) {
+        val step = (2.0 * Math.PI / nodeCount).toFloat()
+        for (i in 0 until nodeCount) {
+            val theta = i * step
+            // Multi-frequency harmonic radius perturbation
+            val morph = 1.0f +
+                0.16f * sin((2 * theta + omega * freqMul + phaseOffset).toDouble()).toFloat() +
+                0.12f * cos((3 * theta - omega * 1.4f * freqMul).toDouble()).toFloat() +
+                0.08f * sin((4 * theta + omega * 2.1f + phaseOffset * 0.5f).toDouble()).toFloat()
+
+            val r = baseR * morph
+            outX[i] = cx + (r * cos(theta.toDouble())).toFloat()
+            outY[i] = cy + (r * sin(theta.toDouble())).toFloat()
         }
-        val color2 = if (isDark) {
-            Color.argb(14, 197, 155, 39) // ~5.5% warm gold subtle aura
-        } else {
-            Color.argb(11, 197, 155, 39) // ~4% subtle warm aura
-        }
 
-        paintBlob1.shader = RadialGradient(
-            cx1, cy1, blob1Radius,
-            intArrayOf(color1, Color.TRANSPARENT),
-            floatArrayOf(0f, 1f),
+        outPath.rewind()
+        // Mid-point quadratic Bezier curve interpolation for silky-smooth fluid curvature
+        val startMidX = (outX[0] + outX[nodeCount - 1]) / 2f
+        val startMidY = (outY[0] + outY[nodeCount - 1]) / 2f
+        outPath.moveTo(startMidX, startMidY)
+
+        for (i in 0 until nodeCount) {
+            val nextIdx = (i + 1) % nodeCount
+            val midX = (outX[i] + outX[nextIdx]) / 2f
+            val midY = (outY[i] + outY[nextIdx]) / 2f
+            outPath.quadTo(outX[i], outY[i], midX, midY)
+        }
+        outPath.close()
+    }
+
+    /**
+     * Renders a single polished 3D liquid mercury chrome blob with glow, metallic reflections,
+     * depth shading, and high-gloss glints.
+     */
+    private fun drawLiquidChromeBlob(
+        canvas: Canvas,
+        cx: Float,
+        cy: Float,
+        radius: Float,
+        path: Path,
+        highlightPath: Path,
+        isTopRight: Boolean
+    ) {
+        // Layer A: Outer Frosted Ambient Glow Halo
+        val glowRadius = radius * 1.75f
+        glowPaint.shader = RadialGradient(
+            cx, cy, glowRadius,
+            glowColors,
+            glowStops,
             Shader.TileMode.CLAMP
         )
-        canvas.drawCircle(cx1, cy1, blob1Radius, paintBlob1)
+        canvas.drawCircle(cx, cy, glowRadius, glowPaint)
 
-        paintBlob2.shader = RadialGradient(
-            cx2, cy2, blob2Radius,
-            intArrayOf(color2, Color.TRANSPARENT),
-            floatArrayOf(0f, 1f),
+        // Layer B: 3D Polished Chrome Fluid Body (inclined metallic horizon gradient)
+        val angle = if (isTopRight) 0.785f else 2.356f // 45 deg or 135 deg light incident
+        val dx = (radius * 1.2f * cos(angle.toDouble())).toFloat()
+        val dy = (radius * 1.2f * sin(angle.toDouble())).toFloat()
+
+        chromeBodyPaint.shader = LinearGradient(
+            cx - dx, cy - dy,
+            cx + dx, cy + dy,
+            chromeColors,
+            chromeStops,
             Shader.TileMode.CLAMP
         )
-        canvas.drawCircle(cx2, cy2, blob2Radius, paintBlob2)
+        canvas.drawPath(path, chromeBodyPaint)
+
+        // Layer C: Subtle Rim Light Edge Stroke
+        canvas.drawPath(path, rimGlowPaint)
+
+        // Layer D: 3D Surface Depth Curvature Glow (Fresnel volume)
+        val hlOffsetX = if (isTopRight) -radius * 0.28f else radius * 0.25f
+        val hlOffsetY = -radius * 0.26f
+        val hlRadius = radius * 0.85f
+
+        specularGlintPaint.shader = RadialGradient(
+            cx + hlOffsetX, cy + hlOffsetY, hlRadius,
+            intArrayOf(
+                Color.argb(190, 255, 255, 255), // High specular white
+                Color.argb(70, 220, 235, 255),  // Soft spread bloom
+                Color.TRANSPARENT
+            ),
+            floatArrayOf(0.0f, 0.40f, 1.0f),
+            Shader.TileMode.CLAMP
+        )
+
+        // Draw specular gleam inside the blob contour
+        canvas.save()
+        canvas.clipPath(path)
+        canvas.drawCircle(cx + hlOffsetX, cy + hlOffsetY, hlRadius, specularGlintPaint)
+
+        // Layer E: Molten Mercury Liquid Droplet Glint
+        highlightPath.rewind()
+        val glintX = cx + hlOffsetX * 1.15f
+        val glintY = cy + hlOffsetY * 1.15f
+        val glintW = radius * 0.35f
+        val glintH = radius * 0.18f
+
+        highlightPath.addOval(
+            glintX - glintW, glintY - glintH,
+            glintX + glintW, glintY + glintH,
+            Path.Direction.CW
+        )
+        specularGlintPaint.shader = RadialGradient(
+            glintX, glintY, glintW,
+            intArrayOf(
+                Color.argb(230, 255, 255, 255),
+                Color.argb(100, 255, 255, 255),
+                Color.TRANSPARENT
+            ),
+            floatArrayOf(0.0f, 0.5f, 1.0f),
+            Shader.TileMode.CLAMP
+        )
+        canvas.drawPath(highlightPath, specularGlintPaint)
+        canvas.restore()
     }
 }

@@ -3,8 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/eve_bg">
+    android:background="#000000">
 
+    <!-- 1. Background: Animated 3D Liquid-Metal / Mercury Blob View -->
     <com.eve.app.ui.login.AmbientBackgroundView
         android:id="@+id/ambientBackground"
         android:layout_width="match_parent"
@@ -22,74 +23,151 @@
             android:id="@+id/contentLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:gravity="center"
             android:orientation="vertical"
-            android:paddingHorizontal="24dp"
+            android:paddingHorizontal="20dp"
             android:paddingVertical="32dp">
 
+            <!-- 2. Modal Card: Dark near-black semi-transparent glassmorphism with ~24px rounded corners -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardLogin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/eve_surface"
-                app:cardCornerRadius="@dimen/eve_radius_lg"
-                app:cardElevation="1dp"
-                app:strokeWidth="0dp">
+                app:cardBackgroundColor="#E6121419"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="14dp"
+                app:strokeColor="#24FFFFFF"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="28dp">
+                    android:paddingHorizontal="24dp"
+                    android:paddingVertical="26dp">
 
+                    <!-- 3. Header / Tabs Row (Sign In / Join + Orange Underline + Close X icon) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <!-- Tabs: Sign In & Join -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <!-- Tab 1: Sign In -->
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="start"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tvTabSignIn"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Sign In"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="22sp"
+                                    android:textStyle="bold" />
+
+                                <View
+                                    android:id="@+id/indicatorTabSignIn"
+                                    android:layout_width="28dp"
+                                    android:layout_height="3dp"
+                                    android:layout_marginTop="5dp"
+                                    android:background="#FF7A00" />
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="22dp"
+                                android:layout_height="1dp" />
+
+                            <!-- Tab 2: Join -->
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="start"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tvTabJoin"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Join"
+                                    android:textColor="#6B7280"
+                                    android:textSize="22sp"
+                                    android:textStyle="bold" />
+
+                                <View
+                                    android:id="@+id/indicatorTabJoin"
+                                    android:layout_width="28dp"
+                                    android:layout_height="3dp"
+                                    android:layout_marginTop="5dp"
+                                    android:background="#FF7A00"
+                                    android:visibility="invisible" />
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <!-- Close (X) icon in top-right corner of the modal -->
+                        <ImageView
+                            android:id="@+id/btnCloseModal"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:background="@drawable/bg_circle_translucent"
+                            android:contentDescription="Close"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_close"
+                            app:tint="#9CA3AF" />
+
+                    </LinearLayout>
+
+                    <!-- Preserved legacy title views (retains zero-regression binding references) -->
                     <TextView
                         android:id="@+id/tvLogo"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:text="Eve"
-                        android:textColor="@color/eve_primary"
-                        android:textSize="40sp"
-                        android:textStyle="bold" />
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:visibility="gone" />
 
                     <TextView
                         android:id="@+id/tvTagline"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="6dp"
-                        android:gravity="center"
-                        android:text="Practice with confidence."
-                        android:textColor="@color/eve_text"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:visibility="gone" />
 
                     <TextView
                         android:id="@+id/tvSubtitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="6dp"
-                        android:gravity="center"
-                        android:text="Free mock tests for government and entrance exams."
-                        android:textColor="@color/eve_text_secondary"
-                        android:textSize="13sp" />
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:visibility="gone" />
 
-                    <!-- Name input (visible only during Sign Up) -->
+                    <!-- 4. Form Fields -->
+                    <!-- Full Name input (visible only during Join / Sign Up mode) -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilName"
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="24dp"
+                        android:layout_marginTop="20dp"
                         android:hint="Full Name"
+                        android:textColorHint="#6B7280"
                         android:visibility="gone"
-                        app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm"
-                        app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm"
-                        app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm"
-                        app:boxCornerRadiusTopStart="@dimen/eve_radius_sm"
-                        app:boxStrokeColor="@color/eve_text"
-                        app:hintTextColor="@color/eve_text">
+                        app:boxBackgroundColor="#1A1C23"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="#2B2F3D"
+                        app:boxStrokeWidth="1dp"
+                        app:hintTextColor="#9CA3AF">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etName"
@@ -97,9 +175,20 @@
                             android:layout_height="wrap_content"
                             android:inputType="textCapWords"
                             android:maxLines="1"
-                            android:textColor="@color/eve_text"
+                            android:textColor="#FFFFFF"
                             android:textSize="15sp" />
                     </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Email Label -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="22dp"
+                        android:layout_marginBottom="6dp"
+                        android:text="Email"
+                        android:textColor="#9CA3AF"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
 
                     <!-- Email input -->
                     <com.google.android.material.textfield.TextInputLayout
@@ -107,49 +196,66 @@
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:hint="Email address"
-                        app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm"
-                        app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm"
-                        app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm"
-                        app:boxCornerRadiusTopStart="@dimen/eve_radius_sm"
-                        app:boxStrokeColor="@color/eve_text"
-                        app:hintTextColor="@color/eve_text">
+                        android:textColorHint="#5A6072"
+                        app:boxBackgroundColor="#1A1C23"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="#2B2F3D"
+                        app:boxStrokeWidth="1dp"
+                        app:hintEnabled="false">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etEmail"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:hint="name@example.com"
                             android:inputType="textEmailAddress"
                             android:maxLines="1"
-                            android:textColor="@color/eve_text"
+                            android:textColor="#FFFFFF"
+                            android:textColorHint="#5A6072"
                             android:textSize="15sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Password input -->
+                    <!-- Password Label -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="6dp"
+                        android:text="Password"
+                        android:textColor="#9CA3AF"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <!-- Password input with eye icon and "At least 12 symbols..." placeholder -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilPassword"
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:hint="Password"
-                        app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm"
-                        app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm"
-                        app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm"
-                        app:boxCornerRadiusTopStart="@dimen/eve_radius_sm"
-                        app:boxStrokeColor="@color/eve_text"
+                        android:textColorHint="#5A6072"
+                        app:boxBackgroundColor="#1A1C23"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="#2B2F3D"
+                        app:boxStrokeWidth="1dp"
                         app:endIconMode="password_toggle"
-                        app:endIconTint="@color/eve_text_secondary"
-                        app:hintTextColor="@color/eve_text">
+                        app:endIconTint="#8E8E93"
+                        app:hintEnabled="false">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etPassword"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:hint="At least 12 symbols..."
                             android:inputType="textPassword"
                             android:maxLines="1"
-                            android:textColor="@color/eve_text"
+                            android:textColor="#FFFFFF"
+                            android:textColorHint="#5A6072"
                             android:textSize="15sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -159,7 +265,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:textColor="@color/eve_red"
+                        android:textColor="#EF4444"
                         android:textSize="13sp"
                         android:visibility="gone" />
 
@@ -167,7 +273,7 @@
                     <FrameLayout
                         android:id="@+id/layoutBtnSubmit"
                         android:layout_width="match_parent"
-                        android:layout_height="54dp"
+                        android:layout_height="50dp"
                         android:layout_marginTop="20dp">
 
                         <com.google.android.material.button.MaterialButton
@@ -175,34 +281,29 @@
                             style="@style/Widget.Eve.Button"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:text="Sign In" />
+                            android:backgroundTint="#FF7A00"
+                            android:text="Sign In"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            app:cornerRadius="12dp" />
 
                         <ProgressBar
                             android:id="@+id/progressSubmit"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
                             android:layout_gravity="center"
                             android:indeterminate="true"
-                            android:indeterminateTint="@color/eve_button_bg"
+                            android:indeterminateTint="#FFFFFF"
                             android:visibility="gone" />
                     </FrameLayout>
-
-                    <!-- Toggle Mode (Sign In / Sign Up) -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnToggleMode"
-                        style="@style/Widget.Eve.TextButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="Don't have an account? Sign Up"
-                        android:textColor="@color/eve_text_secondary" />
 
                     <!-- Divider -->
                     <LinearLayout
                         android:id="@+id/dividerLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="14dp"
+                        android:layout_marginTop="18dp"
                         android:gravity="center"
                         android:orientation="horizontal">
 
@@ -210,46 +311,150 @@
                             android:layout_width="0dp"
                             android:layout_height="1dp"
                             android:layout_weight="1"
-                            android:background="@color/eve_stroke" />
+                            android:background="#24FFFFFF" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginHorizontal="12dp"
                             android:text="or"
-                            android:textColor="@color/eve_text_secondary"
+                            android:textColor="#6B7280"
                             android:textSize="13sp" />
 
                         <View
                             android:layout_width="0dp"
                             android:layout_height="1dp"
                             android:layout_weight="1"
-                            android:background="@color/eve_stroke" />
+                            android:background="#24FFFFFF" />
                     </LinearLayout>
 
-                    <!-- Google Button with In-Button Loading Indicator -->
-                    <FrameLayout
-                        android:id="@+id/layoutBtnGoogle"
+                    <!-- 5. Social Login Buttons Row: Google, Apple, X/Twitter, Discord -->
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="52dp"
-                        android:layout_marginTop="14dp">
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:weightSum="4">
 
+                        <!-- Google (colored G logo on dark-green tint) -->
+                        <FrameLayout
+                            android:id="@+id/layoutBtnGoogle"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnGoogle"
+                                style="@style/Widget.Material3.Button.OutlinedButton"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:backgroundTint="#0E261D"
+                                android:insetLeft="0dp"
+                                android:insetTop="0dp"
+                                android:insetRight="0dp"
+                                android:insetBottom="0dp"
+                                android:padding="0dp"
+                                android:text=""
+                                app:cornerRadius="12dp"
+                                app:icon="@drawable/ic_social_google"
+                                app:iconGravity="textStart"
+                                app:iconPadding="0dp"
+                                app:iconTint="@null"
+                                app:strokeColor="#1E4735"
+                                app:strokeWidth="1dp" />
+
+                            <ProgressBar
+                                android:id="@+id/progressGoogle"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="center"
+                                android:indeterminate="true"
+                                android:indeterminateTint="#34A853"
+                                android:visibility="gone" />
+                        </FrameLayout>
+
+                        <!-- Apple (Apple logo on dark background) -->
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnGoogle"
-                            style="@style/Widget.Eve.OutlinedButton"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:text="Continue with Google" />
+                            android:id="@+id/btnApple"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1"
+                            android:backgroundTint="#191B22"
+                            android:insetLeft="0dp"
+                            android:insetTop="0dp"
+                            android:insetRight="0dp"
+                            android:insetBottom="0dp"
+                            android:padding="0dp"
+                            android:text=""
+                            app:cornerRadius="12dp"
+                            app:icon="@drawable/ic_social_apple"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp"
+                            app:iconTint="#FFFFFF"
+                            app:strokeColor="#2B2F3D"
+                            app:strokeWidth="1dp" />
 
-                        <ProgressBar
-                            android:id="@+id/progressGoogle"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_gravity="center"
-                            android:indeterminate="true"
-                            android:indeterminateTint="@color/eve_primary"
-                            android:visibility="gone" />
-                    </FrameLayout>
+                        <!-- X / Twitter (X logo on dark background) -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnX"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1"
+                            android:backgroundTint="#191B22"
+                            android:insetLeft="0dp"
+                            android:insetTop="0dp"
+                            android:insetRight="0dp"
+                            android:insetBottom="0dp"
+                            android:padding="0dp"
+                            android:text=""
+                            app:cornerRadius="12dp"
+                            app:icon="@drawable/ic_social_x"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp"
+                            app:iconTint="#FFFFFF"
+                            app:strokeColor="#2B2F3D"
+                            app:strokeWidth="1dp" />
+
+                        <!-- Discord (Discord logo on blurple / dark-blue tint background) -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnDiscord"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:backgroundTint="#181B36"
+                            android:insetLeft="0dp"
+                            android:insetTop="0dp"
+                            android:insetRight="0dp"
+                            android:insetBottom="0dp"
+                            android:padding="0dp"
+                            android:text=""
+                            app:cornerRadius="12dp"
+                            app:icon="@drawable/ic_social_discord"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp"
+                            app:iconTint="#5865F2"
+                            app:strokeColor="#2C3263"
+                            app:strokeWidth="1dp" />
+
+                    </LinearLayout>
+
+                    <!-- Toggle Mode (Sign In / Sign Up) -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnToggleMode"
+                        style="@style/Widget.Eve.TextButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Don't have an account? Sign Up"
+                        android:textColor="#9CA3AF"
+                        android:textSize="13sp" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
