@@ -503,6 +503,8 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        binding.ambientBackground.stopAmbientMotion()
+        if (::binding.isInitialized) {
+            binding.ambientBackground.stopAmbientMotion()
+        }
     }
 }
