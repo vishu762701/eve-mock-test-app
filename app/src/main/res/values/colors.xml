@@ -47,6 +47,7 @@
     <color name="eve_login_glass_border">#28000000</color>
     <color name="eve_login_input_bg">#4DEDF2F7</color>
     <color name="eve_login_input_border">#20000000</color>
+    <color name="eve_login_input_border_focused">#38000000</color>
     <color name="eve_login_text">#0F172A</color>
     <color name="eve_login_text_secondary">#64748B</color>
     <color name="eve_login_text_hint">#94A3B8</color>

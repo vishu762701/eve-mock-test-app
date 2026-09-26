@@ -363,11 +363,15 @@ object ThemeManager {
             return
         }
 
+        val insets = androidx.core.view.ViewCompat.getRootWindowInsets(decorView)
+        val sysBars = insets?.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+        val navBarLeft = sysBars?.left ?: 0
+        val navBarBottom = sysBars?.bottom ?: 0
         val insetPx = (24 * activity.resources.displayMetrics.density).toInt()
         val trX = originX.toFloat()
         val trY = originY.toFloat()
-        val blX = insetPx.toFloat()
-        val blY = (height - insetPx).toFloat()
+        val blX = (navBarLeft + insetPx).toFloat()
+        val blY = (height - navBarBottom - insetPx).toFloat()
 
         val prefs = activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val lastEndedAt = prefs.getString(KEY_LAST_REVEAL_END_ANCHOR, null)
@@ -555,8 +559,12 @@ object ThemeManager {
                 liveEndY = holder.endY
             }
         } else {
-            liveEndX = insetPx.toFloat()
-            liveEndY = (decorView.height - insetPx).toFloat()
+            val insets = androidx.core.view.ViewCompat.getRootWindowInsets(decorView)
+            val sysBars = insets?.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            val navBarLeft = sysBars?.left ?: 0
+            val navBarBottom = sysBars?.bottom ?: 0
+            liveEndX = (navBarLeft + insetPx).toFloat()
+            liveEndY = (decorView.height - navBarBottom - insetPx).toFloat()
         }
 
         val overlayView = CircularRevealOverlayView(

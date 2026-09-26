@@ -358,7 +358,7 @@
         android:layout_gravity="start"
         android:background="@drawable/bg_drawer_glass"
         android:clickable="true"
-        android:elevation="16dp"
+        android:elevation="8dp"
         android:fitsSystemWindows="true"
         android:focusable="true"
         android:orientation="vertical">

@@ -64,37 +64,8 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
 
-        setupThemeSetting()
         setupReminderSetting()
         setupDeleteAccountSetting()
-    }
-
-    private fun setupThemeSetting() {
-        val isDark = ThemeManager.isDarkMode(this)
-        binding.switchDarkMode.isChecked = isDark
-        binding.ivThemeIcon.setImageResource(if (isDark) R.drawable.ic_moon else R.drawable.ic_sun)
-
-        val performToggle = {
-            if (!ThemeManager.isTransitioning) {
-                ThemeManager.toggleWithCircularReveal(this, binding.switchDarkMode.let {
-                    val loc = IntArray(2)
-                    it.getLocationOnScreen(loc)
-                    loc[0] + it.width / 2
-                }, binding.switchDarkMode.let {
-                    val loc = IntArray(2)
-                    it.getLocationOnScreen(loc)
-                    loc[1] + it.height / 2
-                })
-            }
-        }
-
-        binding.switchDarkMode.setOnClickListener {
-            performToggle()
-        }
-
-        binding.rowDarkMode.setOnClickListener {
-            performToggle()
-        }
     }
 
     private fun setupReminderSetting() {

@@ -49,7 +49,7 @@ class LoginActivity : AppCompatActivity() {
     private var isSignUpMode = false
     private var isCheckingAuth = true
     private var originalSubmitText = "Sign In"
-    private var originalGoogleText = "Continue with Google"
+    private var originalGoogleText = ""
     private var lastAttemptedGoogle = false
 
     private val signInLauncher =
@@ -469,6 +469,7 @@ class LoginActivity : AppCompatActivity() {
     private fun setLoading(loading: Boolean, isGoogle: Boolean = lastAttemptedGoogle) {
         if (loading) {
             if (isGoogle) {
+                binding.btnGoogle.icon = null
                 binding.btnGoogle.text = ""
                 binding.progressGoogle.alpha = 0f
                 binding.progressGoogle.visibility = View.VISIBLE
@@ -488,7 +489,8 @@ class LoginActivity : AppCompatActivity() {
         } else {
             binding.progressGoogle.animate().alpha(0f).setDuration(150).withEndAction {
                 binding.progressGoogle.visibility = View.GONE
-                binding.btnGoogle.text = originalGoogleText
+                binding.btnGoogle.setIconResource(R.drawable.ic_social_google)
+                binding.btnGoogle.text = ""
             }.start()
 
             binding.progressSubmit.animate().alpha(0f).setDuration(150).withEndAction {
