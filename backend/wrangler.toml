@@ -2,6 +2,7 @@ name = "eve-backend"
 main = "src/index.ts"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
+account_id = "a50b9cf54c5e84de0183a5d3a4b38844"
 
 [vars]
 FIREBASE_PROJECT_ID = "eve-fb98f"
