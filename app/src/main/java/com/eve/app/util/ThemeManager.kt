@@ -25,7 +25,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.WindowManager
-import android.view.animation.DecelerateInterpolator
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -321,9 +321,9 @@ object ThemeManager {
     /**
      * Triggers theme toggle with a Telegram-style circular reveal originating
      * from the exact interaction coordinates (originX, originY).
-     * Standard Android SDK only, 400ms duration, DecelerateInterpolator.
+     * Standard Android SDK only, 400ms duration, AccelerateDecelerateInterpolator.
      */
-    fun toggleWithCircularReveal(activity: Activity, originX: Int, originY: Int) {
+    fun toggleWithCircularReveal(activity: Activity, originX: Int, originY: Int, applyAction: Runnable? = null) {
         if (transitioning) {
             logDebug("Rapid tap blocked: transition already in progress")
             return
@@ -331,19 +331,31 @@ object ThemeManager {
 
         if (!areAnimationsEnabled(activity)) {
             logDebug("Animations disabled in accessibility -> instant toggle")
-            toggle(activity)
+            if (applyAction != null) {
+                applyAction.run()
+            } else {
+                toggle(activity)
+            }
             return
         }
 
         val decorView = activity.window.decorView as? ViewGroup ?: run {
-            toggle(activity)
+            if (applyAction != null) {
+                applyAction.run()
+            } else {
+                toggle(activity)
+            }
             return
         }
 
         val width = decorView.width
         val height = decorView.height
         if (width <= 0 || height <= 0) {
-            toggle(activity)
+            if (applyAction != null) {
+                applyAction.run()
+            } else {
+                toggle(activity)
+            }
             return
         }
 
@@ -360,7 +372,7 @@ object ThemeManager {
                     if (!pixelCopyDone) {
                         pixelCopyDone = true
                         logDebug("PixelCopy timed out -> fallback to Canvas draw")
-                        fallbackSynchronousCaptureAndToggle(activity, decorView, originX.toFloat(), originY.toFloat())
+                        fallbackSynchronousCaptureAndToggle(activity, decorView, originX.toFloat(), originY.toFloat(), applyAction)
                     }
                 }
                 mainHandler.postDelayed(pixelCopyTimeout, 120)
@@ -375,10 +387,10 @@ object ThemeManager {
                             pixelCopyDone = true
                             if (copyResult == PixelCopy.SUCCESS) {
                                 logDebug("PixelCopy capture SUCCESS")
-                                commitRevealTransition(activity, bitmap, originX.toFloat(), originY.toFloat())
+                                commitRevealTransition(activity, bitmap, originX.toFloat(), originY.toFloat(), applyAction)
                             } else {
                                 logDebug("PixelCopy failed with code $copyResult -> fallback to Canvas draw")
-                                fallbackSynchronousCaptureAndToggle(activity, decorView, originX.toFloat(), originY.toFloat())
+                                fallbackSynchronousCaptureAndToggle(activity, decorView, originX.toFloat(), originY.toFloat(), applyAction)
                             }
                         }
                     },
@@ -390,14 +402,15 @@ object ThemeManager {
             }
         }
 
-        fallbackSynchronousCaptureAndToggle(activity, decorView, originX.toFloat(), originY.toFloat())
+        fallbackSynchronousCaptureAndToggle(activity, decorView, originX.toFloat(), originY.toFloat(), applyAction)
     }
 
     private fun fallbackSynchronousCaptureAndToggle(
         activity: Activity,
         decorView: ViewGroup,
         originX: Float,
-        originY: Float
+        originY: Float,
+        applyAction: Runnable? = null
     ) {
         val bitmap = try {
             val bmp = Bitmap.createBitmap(decorView.width, decorView.height, Bitmap.Config.ARGB_8888)
@@ -411,18 +424,23 @@ object ThemeManager {
         }
 
         if (bitmap == null) {
-            toggle(activity)
+            if (applyAction != null) {
+                applyAction.run()
+            } else {
+                toggle(activity)
+            }
             return
         }
 
-        commitRevealTransition(activity, bitmap, originX, originY)
+        commitRevealTransition(activity, bitmap, originX, originY, applyAction)
     }
 
     private fun commitRevealTransition(
         activity: Activity,
         bitmap: Bitmap,
         originX: Float,
-        originY: Float
+        originY: Float,
+        applyAction: Runnable? = null
     ) {
         transitioning = true
         sourceActivityRef = WeakReference(activity)
@@ -455,7 +473,11 @@ object ThemeManager {
         mainHandler.postDelayed(timeoutRunnable, 3500)
 
         logDebug("Applying new theme mode via AppCompatDelegate...")
-        toggle(activity)
+        if (applyAction != null) {
+            applyAction.run()
+        } else {
+            toggle(activity)
+        }
     }
 
     fun toggleWithCircularReveal(anchorView: View) {
@@ -489,8 +511,7 @@ object ThemeManager {
     ) {
         val activity = findActivity(rootView.context)
         if (activity != null) {
-            toggleWithCircularReveal(activity, touchX, touchY)
-            applyNewThemeAction?.run()
+            toggleWithCircularReveal(activity, touchX, touchY, applyNewThemeAction)
         } else {
             applyNewThemeAction?.run()
         }
@@ -566,6 +587,7 @@ object ThemeManager {
                 logDebug("Reveal animation completed -> cleaning up pending transition")
                 overlay.setImageDrawable(null)
                 overlay.visibility = View.GONE
+                (overlay.parent as? ViewGroup)?.removeView(overlay)
                 cleanupPending("animation_complete")
             }
         }
@@ -594,7 +616,7 @@ object ThemeManager {
      * Required theme overlay ImageView implementation.
      * Displays captured snapshot of old theme and cuts expanding circular hole
      * centered at the exact tap/switch origin (originX, originY) from 0 to maxRadius,
-     * revealing the new theme underneath with smooth ease-out (DecelerateInterpolator, 400ms).
+     * revealing the new theme underneath with standard AccelerateDecelerateInterpolator (400ms).
      */
     private class ThemeSwitchOverlayView(context: Context) : androidx.appcompat.widget.AppCompatImageView(context) {
 
@@ -622,8 +644,8 @@ object ThemeManager {
             onCompleteCallback = onComplete
 
             animator = ValueAnimator.ofFloat(0f, maxRadius).apply {
-                duration = 400L // 350-450 ms
-                interpolator = DecelerateInterpolator() // Smooth ease-out, no bounce, no overshoot
+                duration = 400L // 400ms duration per specification
+                interpolator = AccelerateDecelerateInterpolator() // Smooth ease-in-out, standard SDK
                 addUpdateListener { va ->
                     currentRadius = va.animatedValue as Float
                     invalidate()
