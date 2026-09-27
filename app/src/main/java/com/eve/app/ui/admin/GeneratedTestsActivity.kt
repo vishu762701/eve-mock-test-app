@@ -2,6 +2,7 @@ package com.eve.app.ui.admin
 
 import android.os.Bundle
 import android.view.View
+import com.eve.app.R
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.AppUndoBar
 import androidx.appcompat.app.AlertDialog
@@ -34,6 +35,7 @@ class GeneratedTestsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.setBackgroundDrawableResource(R.color.eve_bg)
         hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
         binding = ActivityGeneratedTestsBinding.inflate(layoutInflater)
         setContentView(binding.root)

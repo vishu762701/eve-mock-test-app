@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.eve.app.R
 import com.eve.app.data.model.Exam
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.databinding.ActivityManageExamsBinding
@@ -47,6 +48,7 @@ class ManageExamsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.setBackgroundDrawableResource(R.color.eve_bg)
         binding = ActivityManageExamsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

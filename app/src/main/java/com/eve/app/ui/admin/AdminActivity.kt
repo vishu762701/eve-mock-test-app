@@ -100,6 +100,12 @@ class AdminActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.setBackgroundDrawableResource(R.color.eve_bg)
+        binding = ActivityAdminBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        binding.btnBack.setOnClickListener { finish() }
+        binding.progressBarAdmin.visibility = View.VISIBLE
 
         val email = FirebaseAuth.getInstance().currentUser?.email
         lifecycleScope.launch {
@@ -107,13 +113,37 @@ class AdminActivity : AppCompatActivity() {
                 finish()
                 return@launch
             }
+            binding.progressBarAdmin.visibility = View.GONE
             setupUi()
         }
     }
 
     private fun setupUi() {
-        binding = ActivityAdminBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        // Tab Navigation
+        binding.tabLayoutAdmin.addOnTabSelectedListener(object : com.google.android.material.tabs.TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: com.google.android.material.tabs.TabLayout.Tab?) {
+                when (tab?.position) {
+                    0 -> {
+                        binding.scrollTabCreateExam.visibility = View.VISIBLE
+                        binding.scrollTabManageQuestions.visibility = View.GONE
+                        binding.scrollTabAdmins.visibility = View.GONE
+                    }
+                    1 -> {
+                        binding.scrollTabCreateExam.visibility = View.GONE
+                        binding.scrollTabManageQuestions.visibility = View.VISIBLE
+                        binding.scrollTabAdmins.visibility = View.GONE
+                        updateQuestionsUi(viewModel.questions.value)
+                    }
+                    2 -> {
+                        binding.scrollTabCreateExam.visibility = View.GONE
+                        binding.scrollTabManageQuestions.visibility = View.GONE
+                        binding.scrollTabAdmins.visibility = View.VISIBLE
+                    }
+                }
+            }
+            override fun onTabUnselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {}
+            override fun onTabReselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {}
+        })
 
         binding.spCategory.adapter = ArrayAdapter(
             this, android.R.layout.simple_spinner_dropdown_item, Constants.CATEGORIES
@@ -136,14 +166,18 @@ class AdminActivity : AppCompatActivity() {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val exam = exams.getOrNull(position)
                 viewModel.loadQuestions(exam?.id ?: "")
+                updateQuestionsUi(viewModel.questions.value)
             }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                updateQuestionsUi(viewModel.questions.value)
+            }
         }
 
         binding.btnChooseExamImage.setOnClickListener { pickNewExamImageLauncher.launch("image/*") }
         binding.btnRemoveExamImage.setOnClickListener {
             newExamImageBase64 = ""
-            binding.ivNewExamImagePreview.setImageResource(R.drawable.ic_exam_placeholder)
+            binding.ivNewExamImagePreview.setImageDrawable(null)
+            binding.ivNewExamImagePreview.visibility = View.GONE
             binding.btnRemoveExamImage.visibility = View.GONE
         }
         binding.btnAddExam.setOnClickListener { addExam() }
@@ -194,7 +228,23 @@ class AdminActivity : AppCompatActivity() {
             startActivity(Intent(this, AppConfigActivity::class.java))
         }
 
-        // Questions in Selected Exam
+        // Questions in Selected Exam: Manual Single-Question Add
+        binding.btnAddQuestionManual.setOnClickListener {
+            val selected = exams.getOrNull(binding.spExam.selectedItemPosition)
+            if (selected == null) {
+                AppBulletin.showError(this, "Please select an exam first to add a question")
+                return@setOnClickListener
+            }
+            showAddQuestionDialog(selected)
+        }
+        binding.btnEmptyAddQuestion.setOnClickListener {
+            binding.btnAddQuestionManual.performClick()
+        }
+        binding.btnEmptyBulkUpload.setOnClickListener {
+            binding.btnBulkUploadSelectedExam.performClick()
+        }
+
+        // Questions in Selected Exam: Bulk Upload
         binding.btnBulkUploadSelectedExam.setOnClickListener {
             val selected = exams.getOrNull(binding.spExam.selectedItemPosition)
             if (selected == null) {
@@ -226,13 +276,13 @@ class AdminActivity : AppCompatActivity() {
                         )
                         val selected = exams.getOrNull(binding.spExam.selectedItemPosition)
                         viewModel.loadQuestions(selected?.id ?: "")
+                        updateQuestionsUi(viewModel.questions.value)
                     }
                 }
                 launch {
                     viewModel.questions.collect { list ->
                         questionAdapter.submit(list)
-                        binding.tvNoQuestions.visibility =
-                            if (list.isEmpty()) View.VISIBLE else View.GONE
+                        updateQuestionsUi(list)
                     }
                 }
                 launch {
@@ -259,6 +309,48 @@ class AdminActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun updateQuestionsUi(questionsList: List<Question>) {
+        val selectedExam = exams.getOrNull(binding.spExam.selectedItemPosition)
+
+        if (selectedExam == null) {
+            // Case 1: No exam selected
+            binding.layoutEmptyQuestions.visibility = View.VISIBLE
+            binding.rvQuestions.visibility = View.GONE
+            binding.tvNoQuestions.visibility = View.GONE
+            binding.tvEmptyQuestionsTitle.text = "Select an exam above to view its questions"
+            binding.tvEmptyQuestionsSubtitle.text = "Choose an exam from the dropdown to manage questions or upload new ones."
+            binding.layoutEmptyActions.visibility = View.GONE
+            animateEmptyFolderIcon()
+        } else if (questionsList.isEmpty()) {
+            // Case 2: Exam selected but genuinely 0 questions
+            binding.layoutEmptyQuestions.visibility = View.VISIBLE
+            binding.rvQuestions.visibility = View.GONE
+            binding.tvNoQuestions.visibility = View.GONE
+            binding.tvEmptyQuestionsTitle.text = "No questions uploaded yet for ${selectedExam.examName}"
+            binding.tvEmptyQuestionsSubtitle.text = "Add questions manually or import them in bulk from CSV / Excel."
+            binding.layoutEmptyActions.visibility = View.VISIBLE
+            animateEmptyFolderIcon()
+        } else {
+            // Case 3: Exam selected with questions
+            binding.layoutEmptyQuestions.visibility = View.GONE
+            binding.rvQuestions.visibility = View.VISIBLE
+            binding.tvNoQuestions.visibility = View.GONE
+        }
+    }
+
+    private fun animateEmptyFolderIcon() {
+        binding.ivEmptyStateFolder.alpha = 0f
+        binding.ivEmptyStateFolder.scaleX = 0.8f
+        binding.ivEmptyStateFolder.scaleY = 0.8f
+        binding.ivEmptyStateFolder.animate()
+            .alpha(1f)
+            .scaleX(1f)
+            .scaleY(1f)
+            .setDuration(300)
+            .setInterpolator(android.view.animation.DecelerateInterpolator())
+            .start()
     }
 
     private fun addExam() {
@@ -290,9 +382,71 @@ class AdminActivity : AppCompatActivity() {
             binding.etOtherCategory.text?.clear()
             binding.etOtherCategory.visibility = View.GONE
             newExamImageBase64 = ""
-            binding.ivNewExamImagePreview.setImageResource(R.drawable.ic_exam_placeholder)
+            binding.ivNewExamImagePreview.setImageDrawable(null)
+            binding.ivNewExamImagePreview.visibility = View.GONE
             binding.btnRemoveExamImage.visibility = View.GONE
         }
+    }
+
+    private fun showAddQuestionDialog(selectedExam: Exam) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_question, null)
+        val etQuestion = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etQuestionText)
+        val etOptA = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etOptionA)
+        val etOptB = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etOptionB)
+        val etOptC = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etOptionC)
+        val etOptD = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etOptionD)
+        val rgCorrect = dialogView.findViewById<android.widget.RadioGroup>(R.id.rgCorrectAnswer)
+        val etExplanation = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etExplanation)
+        val etTopic = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etTopic)
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Add Question to ${selectedExam.examName}")
+            .setView(dialogView)
+            .setPositiveButton("Add") { _, _ ->
+                val qText = etQuestion.text?.toString()?.trim().orEmpty()
+                val a = etOptA.text?.toString()?.trim().orEmpty()
+                val b = etOptB.text?.toString()?.trim().orEmpty()
+                val c = etOptC.text?.toString()?.trim().orEmpty()
+                val d = etOptD.text?.toString()?.trim().orEmpty()
+                val exp = etExplanation.text?.toString()?.trim().orEmpty()
+                val topic = etTopic.text?.toString()?.trim().orEmpty()
+
+                if (qText.isBlank() || a.isBlank() || b.isBlank() || c.isBlank() || d.isBlank()) {
+                    AppBulletin.showError(this, "Question text and all 4 options are required")
+                    return@setPositiveButton
+                }
+
+                val correct = when (rgCorrect.checkedRadioButtonId) {
+                    R.id.rbA -> "A"
+                    R.id.rbB -> "B"
+                    R.id.rbC -> "C"
+                    R.id.rbD -> "D"
+                    else -> ""
+                }
+                if (correct.isBlank()) {
+                    AppBulletin.showError(this, "Please select the correct option")
+                    return@setPositiveButton
+                }
+
+                val newQuestion = Question(
+                    id = "",
+                    examId = selectedExam.id,
+                    questionText = qText,
+                    optionA = a,
+                    optionB = b,
+                    optionC = c,
+                    optionD = d,
+                    correctAnswer = correct,
+                    explanation = exp,
+                    topic = topic
+                )
+
+                viewModel.addQuestion(newQuestion) {
+                    AppBulletin.showSuccess(this@AdminActivity, "Question added successfully!")
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun showEditExamImageDialog() {
@@ -362,21 +516,13 @@ class AdminActivity : AppCompatActivity() {
 
     private fun confirmDeleteExam() {
         val exam = exams.getOrNull(binding.spExam.selectedItemPosition) ?: return
-        AlertDialog.Builder(this)
-            .setTitle("Delete Exam?")
-            .setMessage("Exam '${exam.examName}' and all its tests/questions will be permanently deleted. Are you sure? This cannot be undone.")
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Delete ${exam.examName}?")
+            .setMessage("Delete ${exam.examName}? This will permanently remove the exam and cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
-                AppUndoBar.show(
-                    context = this@AdminActivity,
-                    message = "Exam '${exam.examName}' deleted",
-                    timeLeftMs = AppUndoBar.TIME_IMPORTANT,
-                    onUndo = {
-                        AppBulletin.show(this@AdminActivity, "Delete cancelled")
-                    },
-                    onExecuteDelete = {
-                        viewModel.deleteExam(exam.id) { }
-                    }
-                )
+                viewModel.deleteExam(exam.id) {
+                    AppBulletin.showSuccess(this@AdminActivity, "Exam '${exam.examName}' deleted")
+                }
             }
             .setNegativeButton("Cancel", null)
             .show()
@@ -401,21 +547,12 @@ class AdminActivity : AppCompatActivity() {
     }
 
     private fun confirmDeleteQuestion(q: Question) {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle("Delete Question?")
-            .setMessage("${q.questionText}\n\nAre you sure? This cannot be undone.")
+            .setMessage("Delete this question? This will permanently remove the question and cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
-                AppUndoBar.show(
-                    context = this@AdminActivity,
-                    message = "Question deleted",
-                    timeLeftMs = AppUndoBar.TIME_IMPORTANT,
-                    onUndo = {
-                        AppBulletin.show(this@AdminActivity, "Delete cancelled")
-                    },
-                    onExecuteDelete = {
-                        viewModel.deleteQuestion(q)
-                    }
-                )
+                viewModel.deleteQuestion(q)
+                AppBulletin.showSuccess(this@AdminActivity, "Question deleted")
             }
             .setNegativeButton("Cancel", null)
             .show()
@@ -433,10 +570,13 @@ class AdminActivity : AppCompatActivity() {
     }
 
     private fun confirmRemoveAdmin(email: String) {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle("Remove Admin?")
-            .setMessage("$email will no longer have admin privileges. Are you sure? This cannot be undone.")
-            .setPositiveButton("Remove") { _, _ -> viewModel.removeAdmin(email) }
+            .setMessage("Remove $email? This will revoke admin privileges and cannot be undone.")
+            .setPositiveButton("Remove") { _, _ ->
+                viewModel.removeAdmin(email)
+                AppBulletin.showSuccess(this@AdminActivity, "Admin $email removed")
+            }
             .setNegativeButton("Cancel", null)
             .show()
     }

@@ -50,6 +50,7 @@ class EditExamActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.setBackgroundDrawableResource(R.color.eve_bg)
         binding = ActivityEditExamBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

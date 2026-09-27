@@ -1,573 +1,782 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/eve_bg"
+    android:clickable="true"
+    android:focusable="true"
     android:orientation="vertical">
 
-    <ScrollView
+    <!-- Top Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/eve_surface"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            android:padding="8dp"
+            android:src="@drawable/ic_back"
+            app:tint="@color/eve_text" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:fontFamily="@font/poppins_bold"
+            android:text="Admin Dashboard"
+            android:textColor="@color/eve_primary"
+            android:textSize="20sp" />
+
+        <ProgressBar
+            android:id="@+id/progressBarAdmin"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:indeterminate="true"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- Tabs: 1. Create Exam, 2. Manage Questions, 3. Admins -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayoutAdmin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/eve_surface"
+        app:tabIndicatorColor="@color/eve_primary"
+        app:tabIndicatorHeight="3dp"
+        app:tabMode="fixed"
+        app:tabGravity="fill"
+        app:tabSelectedTextColor="@color/eve_primary"
+        app:tabTextColor="@color/eve_text_secondary">
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create Exam" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Manage Questions" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Admins" />
+    </com.google.android.material.tabs.TabLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/eve_stroke" />
+
+    <!-- Container for Tab Contents -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <LinearLayout
+        <!-- ========================================================= -->
+        <!-- TAB 1: CREATE EXAM & CONTENT MANAGEMENT                  -->
+        <!-- ========================================================= -->
+        <ScrollView
+            android:id="@+id/scrollTabCreateExam"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:visibility="visible">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_bold"
-                android:text="Admin Dashboard"
-                android:textColor="@color/eve_primary"
-                android:textSize="24sp" />
-
-            <!-- ========================================================= -->
-            <!-- 1. USER MANAGEMENT -->
-            <!-- ========================================================= -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:fontFamily="@font/poppins_bold"
-                android:letterSpacing="0.08"
-                android:text="USER MANAGEMENT"
-                android:textColor="@color/eve_primary"
-                android:textSize="13sp" />
-
-            <!-- Stats Card (Tappable -> Manage Users) -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardUserStats"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                app:cardBackgroundColor="@color/eve_card_bg"
-                app:cardCornerRadius="14dp"
-                app:cardElevation="2dp"
-                app:strokeColor="@color/eve_stroke"
-                app:strokeWidth="1dp">
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- 1. Create New Exam -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:text="1. Create New Exam"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp" />
+
+                <EditText
+                    android:id="@+id/etExamName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/poppins"
+                    android:hint="Exam name (e.g. SSC CGL)"
+                    android:inputType="textCapWords" />
+
+                <EditText
+                    android:id="@+id/etExamMinutes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/poppins"
+                    android:hint="Time limit (minutes)"
+                    android:inputType="number" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:fontFamily="@font/poppins"
+                    android:text="Category"
+                    android:textColor="@color/eve_grey" />
+
+                <Spinner
+                    android:id="@+id/spCategory"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="4dp" />
+
+                <EditText
+                    android:id="@+id/etOtherCategory"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:fontFamily="@font/poppins"
+                    android:hint="Category name (e.g. Insurance)"
+                    android:inputType="textCapWords"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:fontFamily="@font/poppins"
+                    android:text="Exam Image (Optional)"
+                    android:textColor="@color/eve_grey" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <!-- Thumbnail preview shown after image selection -->
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/ivNewExamImagePreview"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@color/eve_surface_variant"
+                        android:contentDescription="New exam image preview"
+                        android:padding="4dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_exam_placeholder"
+                        android:visibility="gone"
+                        app:shapeAppearanceOverlay="@style/ShapeCircle" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnChooseExamImage"
+                        style="@style/Widget.Eve.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="Choose Image" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRemoveExamImage"
+                        style="@style/Widget.Eve.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="Remove"
+                        android:textColor="@color/eve_red"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAddExam"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:text="Add Exam" />
+
+                <!-- CONTENT MANAGEMENT SECTION -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="28dp"
+                    android:fontFamily="@font/poppins_bold"
+                    android:letterSpacing="0.08"
+                    android:text="CONTENT MANAGEMENT"
+                    android:textColor="@color/eve_primary"
+                    android:textSize="13sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnManageExistingExams"
+                    style="@style/Widget.Eve.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical|start"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp"
+                    android:text="Manage Existing Exams"
+                    app:icon="@drawable/ic_exam_placeholder"
+                    app:iconPadding="12dp"
+                    app:iconSize="20dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnManageExams"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical|start"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp"
+                    android:text="Manage Exams (Syllabus &amp; AI)"
+                    app:icon="@drawable/ic_edit"
+                    app:iconPadding="12dp"
+                    app:iconSize="20dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnGeneratedTests"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical|start"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp"
+                    android:text="AI Generated Tests"
+                    app:icon="@drawable/ic_robot"
+                    app:iconPadding="12dp"
+                    app:iconSize="20dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnHomeBanner"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical|start"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp"
+                    android:text="Home Banner Image"
+                    app:icon="@drawable/ic_image"
+                    app:iconPadding="12dp"
+                    app:iconSize="20dp" />
+
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- ========================================================= -->
+        <!-- TAB 2: MANAGE QUESTIONS (Sections 2 & 3 Combined)        -->
+        <!-- ========================================================= -->
+        <ScrollView
+            android:id="@+id/scrollTabManageQuestions"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- 2. Select Exam -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:text="2. Select Exam (to manage questions)"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <Spinner
+                        android:id="@+id/spExam"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnEditExamImage"
+                        style="@style/Widget.Eve.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="Image" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRenameExam"
+                        style="@style/Widget.Eve.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="Rename" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnDeleteExam"
+                        style="@style/Widget.Eve.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="Delete"
+                        android:textColor="@color/eve_red" />
+                </LinearLayout>
+
+                <!-- 3. Questions in Selected Exam -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:text="3. Questions in Selected Exam"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp" />
+
+                <!-- Action Buttons: Manual Single-Question Add + Bulk Upload -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAddQuestionManual"
+                        style="@style/Widget.Eve.Button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/poppins_semibold"
+                        android:text="+ Add Question" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBulkUploadSelectedExam"
+                        style="@style/Widget.Eve.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="📥 Bulk Upload" />
+                </LinearLayout>
+
+                <!-- Distinct Empty States Container -->
+                <LinearLayout
+                    android:id="@+id/layoutEmptyQuestions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="14dp">
+                    android:paddingHorizontal="24dp"
+                    android:paddingVertical="36dp">
+
+                    <ImageView
+                        android:id="@+id/ivEmptyStateFolder"
+                        android:layout_width="88dp"
+                        android:layout_height="88dp"
+                        android:contentDescription="No exam selected placeholder"
+                        android:src="@drawable/ic_empty_state_folder"
+                        app:tint="@color/eve_text_secondary" />
+
+                    <TextView
+                        android:id="@+id/tvEmptyQuestionsTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/poppins_semibold"
+                        android:gravity="center"
+                        android:text="Select an exam above to view its questions"
+                        android:textColor="@color/eve_text"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/tvEmptyQuestionsSubtitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="@font/poppins"
+                        android:gravity="center"
+                        android:text="Choose an exam from the dropdown to manage questions or upload new ones."
+                        android:textColor="@color/eve_text_secondary"
+                        android:textSize="13sp" />
+
+                    <!-- Quick jump-to actions when exam selected has 0 questions -->
+                    <LinearLayout
+                        android:id="@+id/layoutEmptyActions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnEmptyAddQuestion"
+                            style="@style/Widget.Eve.Button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_medium"
+                            android:text="+ Add Question"
+                            android:textSize="12sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnEmptyBulkUpload"
+                            style="@style/Widget.Eve.OutlinedButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:fontFamily="@font/poppins_medium"
+                            android:text="📥 Bulk Upload"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Kept for backward compatibility if referenced -->
+                <TextView
+                    android:id="@+id/tvNoQuestions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins"
+                    android:padding="12dp"
+                    android:text="No questions uploaded yet"
+                    android:textColor="@color/eve_grey"
+                    android:visibility="gone" />
+
+                <!-- Questions RecyclerView -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvQuestions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layoutAnimation="@anim/layout_enter"
+                    android:nestedScrollingEnabled="false"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- ========================================================= -->
+        <!-- TAB 3: ADMINS & DASHBOARD MONITORING                     -->
+        <!-- ========================================================= -->
+        <ScrollView
+            android:id="@+id/scrollTabAdmins"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- 1. USER MANAGEMENT -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_bold"
+                    android:letterSpacing="0.08"
+                    android:text="USER MANAGEMENT"
+                    android:textColor="@color/eve_primary"
+                    android:textSize="13sp" />
+
+                <!-- Stats Card (Tappable -> Manage Users) -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardUserStats"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    app:cardBackgroundColor="@color/eve_card_bg"
+                    app:cardCornerRadius="14dp"
+                    app:cardElevation="2dp"
+                    app:strokeColor="@color/eve_stroke"
+                    app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                        android:orientation="vertical"
+                        android:padding="14dp">
 
                         <LinearLayout
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
 
-                            <TextView
-                                android:id="@+id/tvTotalUsers"
-                                android:layout_width="wrap_content"
+                            <LinearLayout
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="@font/poppins_bold"
-                                android:text="—"
-                                android:textColor="@color/eve_text"
-                                android:textSize="22sp" />
+                                android:layout_weight="1"
+                                android:orientation="vertical">
 
-                            <TextView
-                                android:layout_width="wrap_content"
+                                <TextView
+                                    android:id="@+id/tvTotalUsers"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins_bold"
+                                    android:text="—"
+                                    android:textColor="@color/eve_text"
+                                    android:textSize="22sp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins"
+                                    android:text="Total Signups"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="@font/poppins"
-                                android:text="Total Signups"
-                                android:textColor="@color/eve_text_secondary"
-                                android:textSize="12sp" />
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tvOnlineUsers"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins_bold"
+                                    android:text="—"
+                                    android:textColor="@color/eve_green"
+                                    android:textSize="22sp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins"
+                                    android:text="Online Now"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+
+                            <ImageButton
+                                android:id="@+id/btnRefreshStats"
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="Refresh stats"
+                                android:padding="6dp"
+                                android:src="@drawable/ic_refresh"
+                                app:tint="@color/eve_text_secondary" />
                         </LinearLayout>
 
-                        <LinearLayout
-                            android:layout_width="0dp"
+                        <TextView
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/tvOnlineUsers"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/poppins_bold"
-                                android:text="—"
-                                android:textColor="@color/eve_green"
-                                android:textSize="22sp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/poppins"
-                                android:text="Online Now"
-                                android:textColor="@color/eve_text_secondary"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-
-                        <ImageButton
-                            android:id="@+id/btnRefreshStats"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:contentDescription="Refresh stats"
-                            android:padding="6dp"
-                            android:src="@drawable/ic_refresh"
-                            app:tint="@color/eve_text_secondary" />
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="@font/poppins_medium"
+                            android:text="Tap to manage users &amp; view test history →"
+                            android:textColor="@color/eve_primary"
+                            android:textSize="11sp" />
                     </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-                    <TextView
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnManageUsers"
+                    style="@style/Widget.Eve.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical|start"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp"
+                    android:text="Manage Users List"
+                    app:icon="@drawable/ic_users"
+                    app:iconPadding="12dp"
+                    app:iconSize="20dp" />
+
+                <!-- 4. Manage Admins Section -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="28dp"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:text="4. Manage Admins"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/poppins"
+                    android:text="Add new admin emails dynamically without requiring an app update."
+                    android:textColor="@color/eve_grey"
+                    android:textSize="13sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/etAdminEmail"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/poppins"
+                        android:hint="new-admin@gmail.com"
+                        android:inputType="textEmailAddress" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAddAdmin"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginStart="8dp"
                         android:fontFamily="@font/poppins_medium"
-                        android:text="Tap to manage users &amp; view test history →"
-                        android:textColor="@color/eve_primary"
-                        android:textSize="11sp" />
+                        android:text="Add" />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnManageUsers"
-                style="@style/Widget.Eve.Button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical|start"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="12dp"
-                android:text="Manage Users List"
-                app:icon="@drawable/ic_users"
-                app:iconPadding="12dp"
-                app:iconSize="20dp" />
-
-            <!-- ========================================================= -->
-            <!-- 2. CONTENT MANAGEMENT -->
-            <!-- ========================================================= -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
-                android:fontFamily="@font/poppins_bold"
-                android:letterSpacing="0.08"
-                android:text="CONTENT MANAGEMENT"
-                android:textColor="@color/eve_primary"
-                android:textSize="13sp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnManageExistingExams"
-                style="@style/Widget.Eve.Button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical|start"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="12dp"
-                android:text="Manage Existing Exams"
-                app:icon="@drawable/ic_exam_placeholder"
-                app:iconPadding="12dp"
-                app:iconSize="20dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnManageExams"
-                style="@style/Widget.Eve.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical|start"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="12dp"
-                android:text="Manage Exams (Syllabus &amp; AI)"
-                app:icon="@drawable/ic_edit"
-                app:iconPadding="12dp"
-                app:iconSize="20dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnGeneratedTests"
-                style="@style/Widget.Eve.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical|start"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="12dp"
-                android:text="AI Generated Tests"
-                app:icon="@drawable/ic_robot"
-                app:iconPadding="12dp"
-                app:iconSize="20dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnHomeBanner"
-                style="@style/Widget.Eve.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical|start"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="12dp"
-                android:text="Home Banner Image"
-                app:icon="@drawable/ic_image"
-                app:iconPadding="12dp"
-                app:iconSize="20dp" />
-
-            <!-- ========================================================= -->
-            <!-- 3. COMMUNICATION -->
-            <!-- ========================================================= -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
-                android:fontFamily="@font/poppins_bold"
-                android:letterSpacing="0.08"
-                android:text="COMMUNICATION"
-                android:textColor="@color/eve_primary"
-                android:textSize="13sp" />
-
-            <!-- Destructive / High-risk Action distinct visual styling -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSendNotification"
-                style="@style/Widget.Eve.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical|start"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="12dp"
-                android:text="Broadcast Notification (High-Risk)"
-                android:textColor="@color/eve_red"
-                app:icon="@drawable/ic_broadcast"
-                app:iconPadding="12dp"
-                app:iconSize="20dp"
-                app:iconTint="@color/eve_red"
-                app:strokeColor="@color/eve_red"
-                app:strokeWidth="1.5dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnFeedbackReplies"
-                style="@style/Widget.Eve.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical|start"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="12dp"
-                android:text="Feedback Replies"
-                app:icon="@drawable/ic_message_dots"
-                app:iconPadding="12dp"
-                app:iconSize="20dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCreateFeedbackPost"
-                style="@style/Widget.Eve.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical|start"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="12dp"
-                android:text="Create Feedback Post"
-                app:icon="@drawable/ic_campaign"
-                app:iconPadding="12dp"
-                app:iconSize="20dp" />
-
-            <!-- ========================================================= -->
-            <!-- 4. ANALYTICS & MONITORING -->
-            <!-- ========================================================= -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
-                android:fontFamily="@font/poppins_bold"
-                android:letterSpacing="0.08"
-                android:text="ANALYTICS &amp; MONITORING"
-                android:textColor="@color/eve_primary"
-                android:textSize="13sp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnAnalyticsAdmin"
-                style="@style/Widget.Eve.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical|start"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="12dp"
-                android:text="Admin Analytics &amp; Crash Reports"
-                app:icon="@drawable/ic_analytics"
-                app:iconPadding="12dp"
-                app:iconSize="20dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnAppConfig"
-                style="@style/Widget.Eve.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical|start"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="12dp"
-                android:text="App Config &amp; Maintenance Mode"
-                app:icon="@drawable/ic_maintenance"
-                app:iconPadding="12dp"
-                app:iconSize="20dp" />
-
-            <!-- Add Exam Section -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:fontFamily="@font/poppins_semibold"
-                android:text="1. Create New Exam"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="16sp" />
-
-            <EditText
-                android:id="@+id/etExamName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins"
-                android:hint="Exam name (e.g. SSC CGL)"
-                android:inputType="textCapWords" />
-
-            <EditText
-                android:id="@+id/etExamMinutes"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins"
-                android:hint="Time limit (minutes)"
-                android:inputType="number" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:fontFamily="@font/poppins"
-                android:text="Category"
-                android:textColor="@color/eve_grey" />
-
-            <Spinner
-                android:id="@+id/spCategory"
-                android:layout_width="match_parent"
-                android:layout_height="48dp" />
-
-            <EditText
-                android:id="@+id/etOtherCategory"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:fontFamily="@font/poppins"
-                android:hint="Category name (e.g. Insurance)"
-                android:inputType="textCapWords"
-                android:visibility="gone" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:fontFamily="@font/poppins"
-                android:text="Exam Image (Optional)"
-                android:textColor="@color/eve_grey" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/ivNewExamImagePreview"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@color/eve_surface_variant"
-                    android:contentDescription="New exam image preview"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_exam_placeholder"
-                    app:shapeAppearanceOverlay="@style/ShapeCircle" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnChooseExamImage"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/tvNoAdmins"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Choose Image" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnRemoveExamImage"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Remove"
-                    android:textColor="@color/eve_red"
-                    android:visibility="gone" />
-            </LinearLayout>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnAddExam"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:fontFamily="@font/poppins_semibold"
-                android:text="Add Exam" />
-
-            <!-- Manage Exam (select + delete) -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:fontFamily="@font/poppins_semibold"
-                android:text="2. Select Exam (to manage questions)"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="16sp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <Spinner
-                    android:id="@+id/spExam"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="1" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnEditExamImage"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Image" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnRenameExam"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Rename" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnDeleteExam"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Delete" />
-            </LinearLayout>
-
-            <!-- Existing Questions List -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:fontFamily="@font/poppins_semibold"
-                android:text="3. Questions in Selected Exam"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="16sp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnBulkUploadSelectedExam"
-                style="@style/Widget.Eve.Button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="📥 Bulk Upload Questions (CSV / Excel)" />
-
-            <TextView
-                android:id="@+id/tvNoQuestions"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins"
-                android:padding="12dp"
-                android:text="No questions uploaded yet"
-                android:textColor="@color/eve_grey"
-                android:visibility="gone" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvQuestions"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layoutAnimation="@anim/layout_enter"
-                android:nestedScrollingEnabled="false" />
-
-            <!-- Manage Admins Section -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:fontFamily="@font/poppins_semibold"
-                android:text="4. Manage Admins"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="16sp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="8dp"
-                android:fontFamily="@font/poppins"
-                android:text="Add new admin emails dynamically without requiring an app update."
-                android:textColor="@color/eve_grey"
-                android:textSize="13sp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <EditText
-                    android:id="@+id/etAdminEmail"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_marginTop="8dp"
                     android:fontFamily="@font/poppins"
-                    android:hint="new-admin@gmail.com"
-                    android:inputType="textEmailAddress" />
+                    android:padding="8dp"
+                    android:text="No extra dynamic admins added"
+                    android:textColor="@color/eve_grey"
+                    android:visibility="gone" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnAddAdmin"
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvAdmins"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layoutAnimation="@anim/layout_enter"
+                    android:layout_marginTop="4dp"
+                    android:nestedScrollingEnabled="false" />
+
+                <!-- COMMUNICATION SECTION -->
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Add" />
+                    android:layout_marginTop="28dp"
+                    android:fontFamily="@font/poppins_bold"
+                    android:letterSpacing="0.08"
+                    android:text="COMMUNICATION"
+                    android:textColor="@color/eve_primary"
+                    android:textSize="13sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSendNotification"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical|start"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp"
+                    android:text="Broadcast Notification (High-Risk)"
+                    android:textColor="@color/eve_red"
+                    app:icon="@drawable/ic_broadcast"
+                    app:iconPadding="12dp"
+                    app:iconSize="20dp"
+                    app:iconTint="@color/eve_red"
+                    app:strokeColor="@color/eve_red"
+                    app:strokeWidth="1.5dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnFeedbackReplies"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical|start"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp"
+                    android:text="Feedback Replies"
+                    app:icon="@drawable/ic_message_dots"
+                    app:iconPadding="12dp"
+                    app:iconSize="20dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCreateFeedbackPost"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical|start"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp"
+                    android:text="Create Feedback Post"
+                    app:icon="@drawable/ic_campaign"
+                    app:iconPadding="12dp"
+                    app:iconSize="20dp" />
+
+                <!-- ANALYTICS & MONITORING SECTION -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="28dp"
+                    android:fontFamily="@font/poppins_bold"
+                    android:letterSpacing="0.08"
+                    android:text="ANALYTICS &amp; MONITORING"
+                    android:textColor="@color/eve_primary"
+                    android:textSize="13sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAnalyticsAdmin"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical|start"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp"
+                    android:text="Admin Analytics &amp; Crash Reports"
+                    app:icon="@drawable/ic_analytics"
+                    app:iconPadding="12dp"
+                    app:iconSize="20dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAppConfig"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical|start"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp"
+                    android:text="App Config &amp; Maintenance Mode"
+                    app:icon="@drawable/ic_maintenance"
+                    app:iconPadding="12dp"
+                    app:iconSize="20dp" />
+
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/tvNoAdmins"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:fontFamily="@font/poppins"
-                android:padding="8dp"
-                android:text="No extra dynamic admins added"
-                android:textColor="@color/eve_grey"
-                android:visibility="gone" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvAdmins"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layoutAnimation="@anim/layout_enter"
-                android:layout_marginTop="4dp"
-                android:nestedScrollingEnabled="false" />
-
-        </LinearLayout>
-    </ScrollView>
+        </ScrollView>
+    </FrameLayout>
 </LinearLayout>
