@@ -26,7 +26,6 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
-import com.airbnb.lottie.LottieAnimationView
 import com.eve.app.R
 import java.lang.ref.WeakReference
 import kotlin.math.hypot
@@ -44,10 +43,7 @@ import kotlin.math.max
  *    - Switching to dark: circle expands outward from button (0 -> maxRadius).
  *    - Switching to light: screenshot overlay shrinks inward into button (maxRadius -> 0).
  *    - Duration: 400ms, Interpolator: smooth cubic ease-in-out (FastOutSlowInInterpolator).
- * 3. LOTTIE SUN/MOON MORPH:
- *    - Floating LottieAnimationView (sun_to_moon.json) positioned directly at tap location.
- *    - Plays forward (0 -> 1) when switching to dark, reverse (1 -> 0) when switching to light.
- * 4. PERSISTENCE & LIFECYCLE:
+ * 3. PERSISTENCE & LIFECYCLE:
  *    - Persists selection synchronously to SharedPreferences (eve_prefs, key_dark_mode).
  *    - Pre-measures overlays in onActivityCreated for zero-flicker activity recreation synchronization.
  *    - Full cleanup of overlays, touch locks, animators, and bitmaps on completion.
@@ -113,7 +109,7 @@ object ThemeSwitchAnimator {
                 if (activity.javaClass.name == state.activityClassName &&
                     System.identityHashCode(activity) != state.oldActivityId
                 ) {
-                    Log.i(TAG, "[ThemeSwitchAnimator] New activity created (${activity.javaClass.simpleName}) -> attaching pre-overlay and Lottie icon")
+                    Log.i(TAG, "[ThemeSwitchAnimator] New activity created (${activity.javaClass.simpleName}) -> attaching pre-overlay")
                     targetActivityRef = WeakReference(activity)
                     activity.overridePendingTransition(0, 0)
                     attachInitialOverlayToNewActivity(activity, state)
@@ -163,7 +159,7 @@ object ThemeSwitchAnimator {
 
     fun calculateIconCenter(view: View): Pair<Int, Int> {
         val pos = IntArray(2)
-        view.getLocationInWindow(pos)
+        view.getLocationOnScreen(pos)
         val w = if (view.measuredWidth > 0) view.measuredWidth else view.width
         val h = if (view.measuredHeight > 0) view.measuredHeight else view.height
         return (pos[0] + w / 2) to (pos[1] + h / 2)
@@ -176,7 +172,7 @@ object ThemeSwitchAnimator {
         staticIconView: View? = null
     ) {
         val pos = IntArray(2)
-        clickView.getLocationInWindow(pos)
+        clickView.getLocationOnScreen(pos)
         val w = if (clickView.measuredWidth > 0) clickView.measuredWidth else clickView.width
         val h = if (clickView.measuredHeight > 0) clickView.measuredHeight else clickView.height
         val clickScreenX = pos[0] + w / 2
@@ -428,27 +424,6 @@ object ThemeSwitchAnimator {
             // Switching to light: add overlay on top
             decorView.addView(overlay)
         }
-
-        // Add Lottie Sun/Moon Morph icon on top at tap location
-        val decorLoc = IntArray(2)
-        decorView.getLocationInWindow(decorLoc)
-        val cx = state.clickScreenX - decorLoc[0]
-        val cy = state.clickScreenY - decorLoc[1]
-
-        val lottieView = LottieAnimationView(activity).apply {
-            tag = "theme_switch_lottie_icon"
-            setAnimation(R.raw.sun_to_moon)
-            // Initial frame: 0.0 (Sun) if going dark, 1.0 (Moon) if going light
-            progress = if (state.isDarkModeTarget) 0f else 1f
-            elevation = 2000f
-        }
-        val btnLeft = cx - (state.clickWidth / 2)
-        val btnTop = cy - (state.clickHeight / 2)
-        val lottieLp = FrameLayout.LayoutParams(state.clickWidth, state.clickHeight).apply {
-            leftMargin = btnLeft
-            topMargin = btnTop
-        }
-        decorView.addView(lottieView, lottieLp)
     }
 
     private fun waitForNewThemeAndStartReveal(activity: Activity, state: TransitionState) {
@@ -468,14 +443,14 @@ object ThemeSwitchAnimator {
                     return true
                 }
 
-                executeCircularRevealAndLottieSync(activity, decorView, state)
+                executeCircularReveal(activity, decorView, state)
                 return true
             }
         })
         decorView.invalidate()
     }
 
-    private fun executeCircularRevealAndLottieSync(
+    private fun executeCircularReveal(
         activity: Activity,
         decorView: ViewGroup,
         state: TransitionState
@@ -486,37 +461,10 @@ object ThemeSwitchAnimator {
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
         )
 
-        val decorLoc = IntArray(2)
-        decorView.getLocationInWindow(decorLoc)
-        val cx = state.clickScreenX - decorLoc[0]
-        val cy = state.clickScreenY - decorLoc[1]
-
-        val w = decorView.width.toFloat()
-        val h = decorView.height.toFloat()
-
-        val maxRadius = calculateMaxRadius(cx.toFloat(), cy.toFloat(), w, h)
-
         val overlay = decorView.findViewWithTag<ImageView>("theme_switch_animating_overlay")
-        val lottieView = decorView.findViewWithTag<LottieAnimationView>("theme_switch_lottie_icon")
         val contentRoot = decorView.findViewById<View>(android.R.id.content) ?: decorView.getChildAt(0)
 
-        // Ensure floating Lottie icon is placed with exact precision at (cx, cy)
-        val btnLeft = cx - (state.clickWidth / 2)
-        val btnTop = cy - (state.clickHeight / 2)
-        lottieView?.let { lv ->
-            (lv.layoutParams as? ViewGroup.MarginLayoutParams)?.apply {
-                if (leftMargin != btnLeft || topMargin != btnTop) {
-                    leftMargin = btnLeft
-                    topMargin = btnTop
-                    lv.layoutParams = this
-                }
-            }
-        }
-
         val targetView = if (state.isDarkModeTarget && contentRoot != null) contentRoot else overlay
-        val (startRadius, endRadius) = getRevealRadii(state.isDarkModeTarget, maxRadius)
-
-        Log.i(TAG, "[ThemeSwitchAnimator] Starting reveal: target=${targetView?.javaClass?.simpleName}, cx=$cx, cy=$cy, r=$startRadius->$endRadius, maxRadius=$maxRadius")
 
         if (targetView == null || !targetView.isAttachedToWindow) {
             Log.w(TAG, "[ThemeSwitchAnimator] targetView is null or unattached -> direct cleanup")
@@ -524,28 +472,28 @@ object ThemeSwitchAnimator {
             return
         }
 
-        val revealAnimator = ViewAnimationUtils.createCircularReveal(
+        // Android coordinate system fix: circular reveal center must be relative to targetView
+        val targetLoc = IntArray(2)
+        targetView.getLocationOnScreen(targetLoc)
+        val revealCx = state.clickScreenX - targetLoc[0]
+        val revealCy = state.clickScreenY - targetLoc[1]
+
+        val targetW = targetView.width.toFloat()
+        val targetH = targetView.height.toFloat()
+        val maxRadius = calculateMaxRadius(revealCx.toFloat(), revealCy.toFloat(), targetW, targetH)
+        val (startRadius, endRadius) = getRevealRadii(state.isDarkModeTarget, maxRadius)
+
+        Log.i(TAG, "[ThemeSwitchAnimator] Starting reveal: target=${targetView.javaClass.simpleName}, revealCenter=($revealCx, $revealCy), r=$startRadius->$endRadius, maxRadius=$maxRadius")
+
+        ViewAnimationUtils.createCircularReveal(
             targetView,
-            cx,
-            cy,
+            revealCx,
+            revealCy,
             startRadius,
             endRadius
         ).apply {
             duration = ANIMATION_DURATION
             interpolator = FastOutSlowInInterpolator()
-        }
-
-        val (lottieStart, lottieEnd) = getLottieProgressRange(state.isDarkModeTarget)
-        val lottieAnimator = ValueAnimator.ofFloat(lottieStart, lottieEnd).apply {
-            duration = ANIMATION_DURATION
-            interpolator = FastOutSlowInInterpolator()
-            addUpdateListener { va ->
-                lottieView?.progress = va.animatedValue as Float
-            }
-        }
-
-        val animatorSet = android.animation.AnimatorSet().apply {
-            playTogether(revealAnimator, lottieAnimator)
             addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     Log.i(TAG, "[ThemeSwitchAnimator] Animation finished cleanly")
@@ -562,8 +510,7 @@ object ThemeSwitchAnimator {
 
         val tags = listOf(
             "theme_switch_freeze_overlay",
-            "theme_switch_animating_overlay",
-            "theme_switch_lottie_icon"
+            "theme_switch_animating_overlay"
         )
 
         for (tag in tags) {
@@ -591,14 +538,6 @@ object ThemeSwitchAnimator {
             0f to maxRadius
         } else {
             maxRadius to 0f
-        }
-    }
-
-    fun getLottieProgressRange(isDarkModeTarget: Boolean): Pair<Float, Float> {
-        return if (isDarkModeTarget) {
-            0f to 1f
-        } else {
-            1f to 0f
         }
     }
 

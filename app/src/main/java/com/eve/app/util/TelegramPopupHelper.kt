@@ -18,9 +18,9 @@ object TelegramPopupHelper {
 
             if (anchorView != null && pw > 0 && ph > 0) {
                 val anchorLoc = IntArray(2)
-                anchorView.getLocationInWindow(anchorLoc)
+                anchorView.getLocationOnScreen(anchorLoc)
                 val contentLoc = IntArray(2)
-                contentView.getLocationInWindow(contentLoc)
+                contentView.getLocationOnScreen(contentLoc)
 
                 val targetPivotX = (anchorLoc[0] + anchorView.width / 2f - contentLoc[0]).coerceIn(0f, pw)
                 val targetPivotY = (anchorLoc[1] + anchorView.height / 2f - contentLoc[1]).coerceIn(0f, ph)

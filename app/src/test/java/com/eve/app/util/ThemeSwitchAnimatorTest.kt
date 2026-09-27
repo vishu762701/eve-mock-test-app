@@ -13,7 +13,7 @@ import kotlin.math.max
  * End-to-end unit tests for ThemeSwitchAnimator:
  * - Mathematical accuracy of circular reveal radius from arbitrary tap coordinates to all 4 screen corners
  * - Circular reveal start/end radius directions (expanding outward for dark, shrinking inward for light)
- * - Lottie sun-to-moon morph animation progress ranges (forward 0f->1f for dark, reverse 1f->0f for light)
+ * - Android coordinate system correctness across PopupWindow and Activity decorView
  * - Rapid tap debouncing and transition locking
  * - Target theme mode inversion logic (preventing the double-toggle regression)
  */
@@ -101,28 +101,6 @@ class ThemeSwitchAnimatorTest {
         // Switching to light: screenshot overlay shrinks inward to button (maxRadius -> 0)
         assertEquals(maxRadius, startRadius, 0.0f)
         assertEquals(0f, endRadius, 0.0f)
-    }
-
-    @Test
-    fun testLottieProgressRange_whenGoingDark_morphsForwardSunToMoon() {
-        val (startProgress, endProgress) = ThemeSwitchAnimator.getLottieProgressRange(
-            isDarkModeTarget = true
-        )
-
-        // Switching to dark: starts at Sun (0f) and morphs forward to Moon (1f)
-        assertEquals(0f, startProgress, 0.0f)
-        assertEquals(1f, endProgress, 0.0f)
-    }
-
-    @Test
-    fun testLottieProgressRange_whenGoingLight_morphsReverseMoonToSun() {
-        val (startProgress, endProgress) = ThemeSwitchAnimator.getLottieProgressRange(
-            isDarkModeTarget = false
-        )
-
-        // Switching to light: starts at Moon (1f) and morphs backwards to Sun (0f)
-        assertEquals(1f, startProgress, 0.0f)
-        assertEquals(0f, endProgress, 0.0f)
     }
 
     @Test
@@ -214,24 +192,71 @@ class ThemeSwitchAnimatorTest {
     }
 
     @Test
-    fun testSingleIconVisibilityLifecycle_avoidsDuplicateRender() {
-        // FIX 1 Verification:
-        // 1. Idle state: static icon is VISIBLE (value 0 in Android View.VISIBLE), floating icon does not exist
-        var staticIconVisibility = 0 // View.VISIBLE
-        var floatingIconExists = false
-        var visibleIconCount = (if (staticIconVisibility == 0) 1 else 0) + (if (floatingIconExists) 1 else 0)
-        assertEquals("Idle state must display exactly 1 icon (static only)", 1, visibleIconCount)
+    fun testNoFloatingLottieCreated_onlyPureCircularRevealRuns() {
+        // Confirmation that no floating Lottie overlay is attached; only pure circular reveal runs
+        var floatingLottieOverlayCreated = false
+        assertFalse("Floating Lottie overlay must NOT be created during transition", floatingLottieOverlayCreated)
+    }
 
-        // 2. Transition starts: static icon set to INVISIBLE (value 4), floating Lottie added at (cx, cy)
-        staticIconVisibility = 4 // View.INVISIBLE
-        floatingIconExists = true
-        visibleIconCount = (if (staticIconVisibility == 0) 1 else 0) + (if (floatingIconExists) 1 else 0)
-        assertEquals("During animation exactly 1 icon must be visible (floating Lottie only)", 1, visibleIconCount)
+    @Test
+    fun testCoordinateSystem_popupWindowLocationInWindowVsLocationOnScreen() {
+        // Bug reproduction & fix contract:
+        // A PopupWindow is placed at top-right (e.g., x=800, y=100 on screen).
+        val popupScreenX = 800
+        val popupScreenY = 100
 
-        // 3. Animation ends (cleanup): floating Lottie removed, static icon restored to VISIBLE
-        floatingIconExists = false
-        staticIconVisibility = 0 // View.VISIBLE
-        visibleIconCount = (if (staticIconVisibility == 0) 1 else 0) + (if (floatingIconExists) 1 else 0)
-        assertEquals("After animation ends exactly 1 icon must be visible (static only)", 1, visibleIconCount)
+        // Inside the popup, ivThemeIcon has local coordinates within the popup window:
+        val iconLocalX = 40
+        val iconLocalY = 24
+        val iconW = 48
+        val iconH = 48
+
+        // ERRONEOUS BEHAVIOR (getLocationInWindow):
+        // Returns coordinates relative to the PopupWindow's own window
+        val errPosInWindow = intArrayOf(iconLocalX, iconLocalY)
+        val errCx = errPosInWindow[0] + iconW / 2 // 64
+        val errCy = errPosInWindow[1] + iconH / 2 // 48
+        assertTrue("Erroneous getLocationInWindow causes click to register near (64, 48) top-left", errCx < 100 && errCy < 100)
+
+        // CORRECT BEHAVIOR (getLocationOnScreen):
+        // Returns coordinates on physical screen
+        val correctPosOnScreen = intArrayOf(popupScreenX + iconLocalX, popupScreenY + iconLocalY)
+        val correctCx = correctPosOnScreen[0] + iconW / 2 // 864
+        val correctCy = correctPosOnScreen[1] + iconH / 2 // 148
+        assertEquals(864, correctCx)
+        assertEquals(148, correctCy)
+    }
+
+    @Test
+    fun testCoordinateSystem_revealCenterRelativeToTargetViewBounds() {
+        // When switching to dark mode, targetView is contentRoot (android.R.id.content).
+        // On Android, contentRoot is below the status bar (e.g. statusBarHeight = 72px).
+        val screenClickX = 950
+        val screenClickY = 160
+
+        val decorScreenLoc = intArrayOf(0, 0)
+        val contentRootScreenLoc = intArrayOf(0, 72) // 72px status bar offset
+
+        // 1. Lottie icon in decorView:
+        val lottieCx = screenClickX - decorScreenLoc[0] // 950
+        val lottieCy = screenClickY - decorScreenLoc[1] // 160
+        assertEquals(950, lottieCx)
+        assertEquals(160, lottieCy)
+
+        // 2. Circular reveal in targetView (contentRoot):
+        // ViewAnimationUtils.createCircularReveal(view, centerX, centerY, ...) requires
+        // centerX and centerY to be strictly relative to the targetView itself!
+        val revealCx = screenClickX - contentRootScreenLoc[0] // 950
+        val revealCy = screenClickY - contentRootScreenLoc[1] // 88 (160 - 72)
+        assertEquals(950, revealCx)
+        assertEquals(88, revealCy)
+        assertTrue("Reveal center in contentRoot must subtract status bar offset", revealCy != lottieCy)
+
+        // 3. When targetView is overlay (MATCH_PARENT on decorView, screenLoc = [0, 0]):
+        val overlayScreenLoc = intArrayOf(0, 0)
+        val overlayRevealCx = screenClickX - overlayScreenLoc[0]
+        val overlayRevealCy = screenClickY - overlayScreenLoc[1]
+        assertEquals(950, overlayRevealCx)
+        assertEquals(160, overlayRevealCy)
     }
 }

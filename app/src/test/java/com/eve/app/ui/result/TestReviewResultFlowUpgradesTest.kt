@@ -89,6 +89,102 @@ class TestReviewResultFlowUpgradesTest {
     }
 
     @Test
+    fun testMultiStudentAttemptAggregation_averageTimeAndPercentageCorrect() {
+        // Multi-submission scenario: 5 distinct students answer Question Q42
+        data class StudentAnswerSubmission(val studentId: String, val isCorrect: Boolean, val timeTakenSeconds: Long)
+
+        val submissions = listOf(
+            StudentAnswerSubmission("student_1", isCorrect = true, timeTakenSeconds = 25),
+            StudentAnswerSubmission("student_2", isCorrect = true, timeTakenSeconds = 45),
+            StudentAnswerSubmission("student_3", isCorrect = false, timeTakenSeconds = 60),
+            StudentAnswerSubmission("student_4", isCorrect = true, timeTakenSeconds = 30),
+            StudentAnswerSubmission("student_5", isCorrect = false, timeTakenSeconds = 50)
+        )
+
+        // Aggregation contract matching Firestore/QuestionStatsRepository/CloudFunction
+        var totalAttempts = 0L
+        var correctAttempts = 0L
+        var totalTimeSeconds = 0L
+
+        submissions.forEach { sub ->
+            totalAttempts++
+            if (sub.isCorrect) correctAttempts++
+            totalTimeSeconds += sub.timeTakenSeconds
+        }
+
+        val avgTimeSeconds = totalTimeSeconds.toDouble() / totalAttempts
+        val stat = QuestionStat(
+            questionId = "Q42",
+            examId = "exam_ssc",
+            totalAttempts = totalAttempts,
+            correctAttempts = correctAttempts,
+            totalTimeSeconds = totalTimeSeconds,
+            avgTimeSeconds = avgTimeSeconds
+        )
+
+        // Verify aggregation values
+        assertEquals("Total attempts must be 5", 5L, stat.totalAttempts)
+        assertEquals("Correct attempts must be 3", 3L, stat.correctAttempts)
+        assertEquals("Total time must be 210s", 210L, stat.totalTimeSeconds)
+        assertEquals("Average time must be exactly 42.0s", 42.0, stat.avgTimeSeconds, 0.001)
+
+        // Verify percentage-correct calculation (3/5 = 60%)
+        assertEquals("Correct percentage must be 60%", 60, stat.correctPercentage)
+        val badge = "${stat.correctPercentage}% got this right"
+        assertEquals("Badge must state '60% got this right'", "60% got this right", badge)
+
+        // Now verify post-answer popup for Student 6 who takes 35s and gets it right
+        val student6Time = 35L
+        val student6Correct = true
+        assertTrue("Student 6 (35s) is faster than average (42.0s)", student6Time < stat.avgTimeSeconds)
+        val student6Diff = (stat.avgTimeSeconds - student6Time).toInt() // 7s
+        assertEquals(7, student6Diff)
+
+        // Student 7 takes 55s and gets it right
+        val student7Time = 55L
+        assertTrue("Student 7 (55s) is slower than average (42.0s)", student7Time >= stat.avgTimeSeconds)
+    }
+
+    @Test
+    fun testMultiStudentSubmissions_realWorldRankAndPercentileDistribution() {
+        // Multi-submission scenario: 12 students complete an exam
+        val cohortScores = listOf(
+            142.0, 138.5, 131.0, 125.0, 120.0, 115.5,
+            110.0, 95.0, 88.0, 75.0, 60.0, 45.0
+        )
+        val totalParticipants = cohortScores.size // 12
+
+        fun computeRankAndPercentile(studentScore: Double): Pair<Int, Double> {
+            val higher = cohortScores.count { it > studentScore }
+            val rank = higher + 1
+            val lower = cohortScores.count { it < studentScore }
+            val percentile = if (totalParticipants <= 1) 100.0 else (lower * 100.0) / (totalParticipants - 1)
+            return rank to percentile
+        }
+
+        // Student with score 125.0 (4th position)
+        val (rankMid, pMid) = computeRankAndPercentile(125.0)
+        assertEquals("Score 125.0 rank should be #4 out of 12", 4, rankMid)
+        assertEquals("Score 125.0 percentile (8 lower out of 11) = 72.72%", 72.72, pMid, 0.01)
+
+        // Top student with score 142.0 (1st position)
+        val (rankTop, pTop) = computeRankAndPercentile(142.0)
+        assertEquals("Top student rank should be #1", 1, rankTop)
+        assertEquals("Top student percentile should be 100.0%", 100.0, pTop, 0.01)
+
+        // Bottom student with score 45.0 (last position)
+        val (rankBottom, pBottom) = computeRankAndPercentile(45.0)
+        assertEquals("Bottom student rank should be #12", 12, rankBottom)
+        assertEquals("Bottom student percentile should be 0.0%", 0.0, pBottom, 0.01)
+
+        // Verify ties: Two students with 120.0
+        val tiedCohort = listOf(140.0, 130.0, 120.0, 120.0, 110.0)
+        val higherThan120 = tiedCohort.count { it > 120.0 } // 2 (140, 130)
+        val tiedRank = higherThan120 + 1 // Rank #3 for both tied students
+        assertEquals("Tied students should both share rank #3", 3, tiedRank)
+    }
+
+    @Test
     fun testAccuracyVsPercentileDistinction() {
         val totalQuestions = 25
         val attemptedQuestions = 20
