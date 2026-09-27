@@ -286,6 +286,24 @@ interface EveApiService {
     @GET("api/admin/stats/users")
     suspend fun getUserStats(): ApiResponse<UserStatsResponse>
 
+    @GET("api/admin/users")
+    suspend fun getUsers(@Query("q") query: String? = null): ApiResponse<List<AdminUser>>
+
+    @POST("api/admin/users/{id}/status")
+    suspend fun toggleUserStatus(@Path("id") id: String, @Body body: Map<String, Boolean>): ApiResponse<Map<String, Any>>
+
+    @GET("api/admin/users/{id}/attempts")
+    suspend fun getUserAttempts(@Path("id") id: String): ApiResponse<List<TestAttempt>>
+
+    @POST("api/feedback/messages/{id}/reply")
+    suspend fun replyFeedbackMessage(@Path("id") id: String, @Body body: Map<String, String>): ApiResponse<Map<String, Any>>
+
+    @GET("api/app-config")
+    suspend fun getAppConfig(): ApiResponse<AppConfig>
+
+    @PUT("api/admin/config")
+    suspend fun updateAppConfig(@Body body: Map<String, @JvmSuppressWildcards Any>): ApiResponse<AppConfig>
+
     // --- Generated Tests ---
     @GET("api/generated-tests")
     suspend fun getGeneratedTests(@Query("examId") examId: String? = null): ApiResponse<List<GeneratedTest>>

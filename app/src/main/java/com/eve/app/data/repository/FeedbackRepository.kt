@@ -57,6 +57,13 @@ class FeedbackRepository(
         if (!res.success) throw Exception(res.error ?: "Failed to delete feedback message")
     }
 
+    suspend fun replyFeedbackMessage(id: String, replyText: String): Result<Unit> = runCatching {
+        val trimmed = replyText.trim()
+        require(trimmed.isNotEmpty()) { "Reply cannot be empty" }
+        val res = api.replyFeedbackMessage(id, mapOf("reply" to trimmed))
+        if (!res.success) throw Exception(res.error ?: "Failed to send reply")
+    }
+
     // --- Admin Feedback Posts ---
 
     suspend fun createFeedbackPost(

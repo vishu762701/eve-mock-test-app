@@ -40,6 +40,17 @@ class AdminAnalyticsActivity : AppCompatActivity() {
     private fun setup() {
         binding.btnBack.setOnClickListener { finish() }
         binding.btnRefresh.setOnClickListener { viewModel.load() }
+        binding.btnOpenCrashlyticsConsole.setOnClickListener {
+            try {
+                val intent = android.content.Intent(
+                    android.content.Intent.ACTION_VIEW,
+                    android.net.Uri.parse("https://console.firebase.google.com/u/0/project/_/crashlytics")
+                )
+                startActivity(intent)
+            } catch (e: Exception) {
+                AppBulletin.showError(this, "Could not open browser: ${e.message}")
+            }
+        }
         binding.rvExams.layoutManager = LinearLayoutManager(this)
         binding.rvExams.adapter = examAdapter
         binding.rvQuestions.layoutManager = LinearLayoutManager(this)

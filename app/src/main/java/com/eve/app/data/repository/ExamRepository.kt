@@ -143,6 +143,17 @@ class ExamRepository(
         if (!res.success) throw Exception(res.error ?: "Failed to delete exam")
     }
 
+    suspend fun updateExam(exam: Exam) {
+        val data = mapOf<String, Any>(
+            "examName" to exam.examName.trim(),
+            "timeLimitMinutes" to exam.timeLimitMinutes,
+            "category" to exam.categoryOrOther,
+            "questionCount" to exam.questionCount
+        )
+        val res = api.updateExam(exam.id, data)
+        if (!res.success) throw Exception(res.error ?: "Failed to update exam")
+    }
+
     suspend fun updateExamFullSettings(
         examId: String,
         examName: String,

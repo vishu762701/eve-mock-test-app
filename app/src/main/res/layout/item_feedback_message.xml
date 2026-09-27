@@ -67,6 +67,18 @@
                 android:visibility="gone"
                 tools:visibility="visible" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnReply"
+                style="@style/Widget.Eve.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:minHeight="0dp"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="Reply"
+                android:textSize="12sp" />
+
             <ImageButton
                 android:id="@+id/btnDeleteMessage"
                 android:layout_width="36dp"

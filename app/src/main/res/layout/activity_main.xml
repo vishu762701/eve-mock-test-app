@@ -631,4 +631,116 @@
         </LinearLayout>
         </LinearLayout>
     </FrameLayout>
+
+    <!-- Full-Screen Non-Dismissable Maintenance Mode Overlay -->
+    <FrameLayout
+        android:id="@+id/maintenanceOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/eve_bg"
+        android:clickable="true"
+        android:elevation="30dp"
+        android:focusable="true"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="32dp">
+
+            <ImageView
+                android:layout_width="88dp"
+                android:layout_height="88dp"
+                android:src="@drawable/ic_maintenance"
+                app:tint="@color/eve_primary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="Scheduled Maintenance"
+                android:textColor="@color/eve_text"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/tvMaintenanceMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/poppins"
+                android:gravity="center"
+                android:lineSpacingExtra="3dp"
+                android:text="Eve Mock Test is currently undergoing scheduled maintenance. Please check back shortly."
+                android:textColor="@color/eve_text_secondary"
+                android:textSize="14sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCheckMaintenanceAgain"
+                style="@style/Widget.Eve.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Check Again" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- Full-Screen Non-Dismissable Force Update Overlay -->
+    <FrameLayout
+        android:id="@+id/forceUpdateOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/eve_bg"
+        android:clickable="true"
+        android:elevation="30dp"
+        android:focusable="true"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="32dp">
+
+            <ImageView
+                android:layout_width="88dp"
+                android:layout_height="88dp"
+                android:src="@drawable/ic_refresh"
+                app:tint="@color/eve_primary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="Update Required"
+                android:textColor="@color/eve_text"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/tvForceUpdateMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/poppins"
+                android:gravity="center"
+                android:lineSpacingExtra="3dp"
+                android:text="A newer version of Eve Mock Test is required to continue. Please update to the latest version for improved stability, questions, and security."
+                android:textColor="@color/eve_text_secondary"
+                android:textSize="14sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnForceUpdateNow"
+                style="@style/Widget.Eve.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Update App Now" />
+        </LinearLayout>
+    </FrameLayout>
 </androidx.drawerlayout.widget.DrawerLayout>

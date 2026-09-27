@@ -301,10 +301,10 @@ class SendNotificationActivity : AppCompatActivity() {
             binding.tilMessage.error = null
         }
 
-        AlertDialog.Builder(this)
-            .setTitle("Broadcast Notification")
-            .setMessage("Are you sure you want to send this notification to all users?")
-            .setPositiveButton("Send") { _, _ ->
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Confirm Broadcast Notification")
+            .setMessage("Are you sure? This cannot be undone.\n\nThis notification will be dispatched to all students immediately:\n\n📢 Title: $title\n\n💬 Message:\n$message")
+            .setPositiveButton("Send Broadcast") { _, _ ->
                 sendNotification(title, message)
             }
             .setNegativeButton("Cancel", null)

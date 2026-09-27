@@ -32,6 +32,9 @@ import com.eve.app.databinding.DialogPostRepliesBinding
 import com.eve.app.util.Constants
 import com.eve.app.util.ExamImageHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import android.provider.OpenableColumns
+import com.eve.app.data.repository.ExamRepository
+import com.eve.app.util.QuestionImportHelper
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -77,6 +80,12 @@ class AdminActivity : AppCompatActivity() {
             } else {
                 AppBulletin.showError(this, "Failed to load image")
             }
+        }
+    }
+
+    private val pickBulkQuestionsLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        if (uri != null) {
+            handleBulkUploadForSelectedExam(uri)
         }
     }
 
@@ -143,11 +152,18 @@ class AdminActivity : AppCompatActivity() {
         binding.btnDeleteExam.setOnClickListener { confirmDeleteExam() }
         binding.btnAddAdmin.setOnClickListener { addAdmin() }
 
-        binding.btnAnalyticsAdmin.setOnClickListener {
-            startActivity(Intent(this, AdminAnalyticsActivity::class.java))
+        // Section 1: User Management
+        binding.cardUserStats.setOnClickListener {
+            startActivity(Intent(this, ManageUsersActivity::class.java))
         }
-        binding.btnSendNotification.setOnClickListener {
-            startActivity(Intent(this, SendNotificationActivity::class.java))
+        binding.btnManageUsers.setOnClickListener {
+            startActivity(Intent(this, ManageUsersActivity::class.java))
+        }
+        binding.btnRefreshStats.setOnClickListener { viewModel.loadUserStats() }
+
+        // Section 2: Content Management
+        binding.btnManageExistingExams.setOnClickListener {
+            startActivity(Intent(this, ManageExistingExamsActivity::class.java))
         }
         binding.btnManageExams.setOnClickListener {
             startActivity(Intent(this, ManageExamsActivity::class.java))
@@ -158,13 +174,35 @@ class AdminActivity : AppCompatActivity() {
         binding.btnHomeBanner.setOnClickListener {
             showHomeBannerOptionsDialog()
         }
+
+        // Section 3: Communication
+        binding.btnSendNotification.setOnClickListener {
+            startActivity(Intent(this, SendNotificationActivity::class.java))
+        }
         binding.btnFeedbackReplies.setOnClickListener {
-            showFeedbackRepliesDialog()
+            startActivity(Intent(this, FeedbackMessagesActivity::class.java))
         }
         binding.btnCreateFeedbackPost.setOnClickListener {
             showCreateFeedbackPostDialog()
         }
-        binding.btnRefreshStats.setOnClickListener { viewModel.loadUserStats() }
+
+        // Section 4: Analytics & Monitoring
+        binding.btnAnalyticsAdmin.setOnClickListener {
+            startActivity(Intent(this, AdminAnalyticsActivity::class.java))
+        }
+        binding.btnAppConfig.setOnClickListener {
+            startActivity(Intent(this, AppConfigActivity::class.java))
+        }
+
+        // Questions in Selected Exam
+        binding.btnBulkUploadSelectedExam.setOnClickListener {
+            val selected = exams.getOrNull(binding.spExam.selectedItemPosition)
+            if (selected == null) {
+                AppBulletin.showError(this, "Please select an exam first to upload questions to")
+                return@setOnClickListener
+            }
+            pickBulkQuestionsLauncher.launch("*/*")
+        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -326,7 +364,7 @@ class AdminActivity : AppCompatActivity() {
         val exam = exams.getOrNull(binding.spExam.selectedItemPosition) ?: return
         AlertDialog.Builder(this)
             .setTitle("Delete Exam?")
-            .setMessage("Exam '${exam.examName}' and all its tests/questions will be permanently deleted.")
+            .setMessage("Exam '${exam.examName}' and all its tests/questions will be permanently deleted. Are you sure? This cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
                 AppUndoBar.show(
                     context = this@AdminActivity,
@@ -365,7 +403,7 @@ class AdminActivity : AppCompatActivity() {
     private fun confirmDeleteQuestion(q: Question) {
         AlertDialog.Builder(this)
             .setTitle("Delete Question?")
-            .setMessage(q.questionText)
+            .setMessage("${q.questionText}\n\nAre you sure? This cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
                 AppUndoBar.show(
                     context = this@AdminActivity,
@@ -397,10 +435,96 @@ class AdminActivity : AppCompatActivity() {
     private fun confirmRemoveAdmin(email: String) {
         AlertDialog.Builder(this)
             .setTitle("Remove Admin?")
-            .setMessage("$email will no longer have admin privileges.")
+            .setMessage("$email will no longer have admin privileges. Are you sure? This cannot be undone.")
             .setPositiveButton("Remove") { _, _ -> viewModel.removeAdmin(email) }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+
+    private fun handleBulkUploadForSelectedExam(uri: Uri) {
+        val selectedExam = exams.getOrNull(binding.spExam.selectedItemPosition)
+        if (selectedExam == null) {
+            AppBulletin.showError(this, "No exam selected to upload questions")
+            return
+        }
+        val fileName = getFileName(uri) ?: "questions.csv"
+        try {
+            contentResolver.openInputStream(uri)?.use { stream ->
+                val result = QuestionImportHelper.parseQuestions(stream, fileName, selectedExam.id)
+                showBulkImportPreviewDialog(fileName, selectedExam, result)
+            }
+        } catch (e: Exception) {
+            AppBulletin.showError(this, "Failed to read file: ${e.message}")
+        }
+    }
+
+    private fun getFileName(uri: Uri): String? {
+        var name: String? = null
+        if (uri.scheme == "content") {
+            val cursor = contentResolver.query(uri, null, null, null, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val index = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    if (index >= 0) name = it.getString(index)
+                }
+            }
+        }
+        return name ?: uri.lastPathSegment
+    }
+
+    private fun showBulkImportPreviewDialog(
+        fileName: String,
+        selectedExam: Exam,
+        result: QuestionImportHelper.ImportResult
+    ) {
+        val validCount = result.validQuestions.size
+        val errorCount = result.errors.size
+
+        val message = buildString {
+            append("Exam: ${selectedExam.examName}\n")
+            append("File: $fileName\n\n")
+            append("✅ $validCount questions ready to import.\n")
+            if (errorCount > 0) {
+                append("⚠️ $errorCount rows skipped due to errors:\n\n")
+                result.errors.take(8).forEach { err ->
+                    append("• Row ${err.rowNumber}: ${err.reason}\n")
+                }
+                if (errorCount > 8) {
+                    append("...and ${errorCount - 8} more errors.\n")
+                }
+            }
+            if (validCount == 0) {
+                append("\nNo valid questions found to import. Please check file format.")
+            }
+        }
+
+        val builder = MaterialAlertDialogBuilder(this)
+            .setTitle("Bulk Question Import Preview")
+            .setMessage(message)
+
+        if (validCount > 0) {
+            builder.setPositiveButton("Import ($validCount questions)") { _, _ ->
+                importQuestionsForSelectedExam(selectedExam.id, result.validQuestions)
+            }
+            builder.setNegativeButton("Cancel", null)
+        } else {
+            builder.setPositiveButton("OK", null)
+        }
+
+        builder.show()
+    }
+
+    private fun importQuestionsForSelectedExam(examId: String, questions: List<Question>) {
+        lifecycleScope.launch {
+            try {
+                val examRepo = ExamRepository()
+                val added = examRepo.addQuestions(questions)
+                AppBulletin.showSuccess(this@AdminActivity, "Successfully imported $added questions!")
+                viewModel.loadQuestions(examId)
+            } catch (e: Exception) {
+                AppBulletin.showError(this@AdminActivity, "Import failed: ${e.message}")
+            }
+        }
     }
 
     private fun showCreateFeedbackPostDialog() {

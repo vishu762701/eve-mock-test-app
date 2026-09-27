@@ -53,6 +53,8 @@ import com.eve.app.ui.pyq.PyqActivity
 import com.eve.app.ui.settings.SettingsActivity
 import com.eve.app.ui.syllabus.SyllabusActivity
 import com.eve.app.ui.test.TestActivity
+import com.eve.app.BuildConfig
+import com.eve.app.util.AppConfigManager
 import com.eve.app.util.Constants
 import com.eve.app.util.CrashlyticsHelper
 import com.eve.app.util.NetworkUtil
@@ -243,6 +245,8 @@ class MainActivity : AppCompatActivity() {
 
         updateNotificationDot()
 
+        checkAppConfigAndMaintenance()
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { viewModel.state.collect { render(it) } }
@@ -251,6 +255,48 @@ class MainActivity : AppCompatActivity() {
                         binding.tvOfflineBanner.visibility = if (online) View.GONE else View.VISIBLE
                     }
                 }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        checkAppConfigAndMaintenance()
+    }
+
+    private fun checkAppConfigAndMaintenance() {
+        lifecycleScope.launch {
+            val config = AppConfigManager.fetchAppConfig()
+            val email = FirebaseAuth.getInstance().currentUser?.email
+            val isAdmin = email?.let { isHardcodedAdmin(it) || adminRepo.isAdmin(it) } ?: false
+
+            // 1. Force update check (applies to all users)
+            if (AppConfigManager.isUpdateRequired(config)) {
+                binding.forceUpdateOverlay.visibility = View.VISIBLE
+                binding.maintenanceOverlay.visibility = View.GONE
+                binding.tvForceUpdateMessage.text =
+                    "A newer version (v${config.minimum_supported_version_code}+) is required to continue. Your current version is ${BuildConfig.VERSION_CODE}."
+                binding.btnForceUpdateNow.setOnClickListener {
+                    AppConfigManager.openUpdateLink(this@MainActivity)
+                }
+                return@launch
+            } else {
+                binding.forceUpdateOverlay.visibility = View.GONE
+            }
+
+            // 2. Maintenance mode check (admins can bypass)
+            if (AppConfigManager.isMaintenanceActive(config)) {
+                if (!isAdmin) {
+                    binding.maintenanceOverlay.visibility = View.VISIBLE
+                    binding.tvMaintenanceMessage.text = config.maintenance_message
+                    binding.btnCheckMaintenanceAgain.setOnClickListener {
+                        checkAppConfigAndMaintenance()
+                    }
+                } else {
+                    binding.maintenanceOverlay.visibility = View.GONE
+                }
+            } else {
+                binding.maintenanceOverlay.visibility = View.GONE
             }
         }
     }

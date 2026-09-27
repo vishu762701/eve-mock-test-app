@@ -6,7 +6,8 @@ data class ExamAnalytics(
     val category: String = "",
     val attemptCount: Long = 0L,
     val uniqueUsers: Long = 0L,
-    val lastAttemptAt: Long = 0L
+    val lastAttemptAt: Long = 0L,
+    val averageScore: Double = 0.0
 ) {
     val participantText: String get() = "$uniqueUsers students"
 }

@@ -88,6 +88,40 @@ feedbackRoutes.delete("/messages/:id", requireAdmin, async (c) => {
   return c.json({ success: true });
 });
 
+// POST /api/feedback/messages/:id/reply - Admin reply to student feedback
+feedbackRoutes.post("/messages/:id/reply", requireAdmin, async (c) => {
+  const id = c.req.param("id");
+  const body = await c.req.json().catch(() => ({}));
+  const reply = String(body.reply || "").trim();
+
+  if (!reply) {
+    return c.json({ success: false, error: "Reply cannot be empty" }, 400);
+  }
+
+  const db = c.env.DB;
+  try {
+    await db.prepare("UPDATE feedback_messages SET read = 1 WHERE id = ?").bind(id).run();
+  } catch {}
+
+  try {
+    await db
+      .prepare("UPDATE feedback_messages SET reply_text = ?, replied_at = ? WHERE id = ?")
+      .bind(reply, Date.now(), id)
+      .run();
+  } catch {
+    try {
+      await db.prepare("ALTER TABLE feedback_messages ADD COLUMN reply_text TEXT DEFAULT ''").run();
+      await db.prepare("ALTER TABLE feedback_messages ADD COLUMN replied_at INTEGER DEFAULT 0").run();
+      await db
+        .prepare("UPDATE feedback_messages SET reply_text = ?, replied_at = ? WHERE id = ?")
+        .bind(reply, Date.now(), id)
+        .run();
+    } catch {}
+  }
+
+  return c.json({ success: true, data: { id, reply } });
+});
+
 // ----------------------------------------------------------------------------
 // Part 2: Feedback Discussion Posts (Admin Announcements)
 // ----------------------------------------------------------------------------

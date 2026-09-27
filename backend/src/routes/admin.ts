@@ -49,20 +49,52 @@ adminRoutes.delete("/admins/:email", async (c) => {
 // GET /api/admin/analytics/exams - Pre-aggregated exam analytics
 adminRoutes.get("/analytics/exams", async (c) => {
   const db = c.env.DB;
-  const { results } = await db
-    .prepare("SELECT * FROM admin_analytics_exams ORDER BY attempt_count DESC, exam_name ASC")
-    .all<any>();
+  try {
+    const { results } = await db
+      .prepare(`
+        SELECT 
+          e.id as exam_id,
+          e.exam_name,
+          e.category,
+          COUNT(a.id) as attempt_count,
+          COUNT(DISTINCT a.user_id) as unique_users,
+          COALESCE(MAX(a.timestamp), 0) as last_attempt_at,
+          COALESCE(AVG(a.score), 0.0) as average_score
+        FROM exams e
+        LEFT JOIN attempts a ON e.id = a.exam_id
+        GROUP BY e.id, e.exam_name, e.category
+        ORDER BY attempt_count DESC, e.exam_name ASC
+      `)
+      .all<any>();
 
-  const list = (results || []).map((r) => ({
-    examId: r.exam_id,
-    examName: r.exam_name,
-    category: r.category,
-    attemptCount: r.attempt_count,
-    uniqueUsers: r.unique_users,
-    lastAttemptAt: r.last_attempt_at,
-  }));
+    const list = (results || []).map((r) => ({
+      examId: r.exam_id,
+      examName: r.exam_name,
+      category: r.category,
+      attemptCount: r.attempt_count || 0,
+      uniqueUsers: r.unique_users || 0,
+      lastAttemptAt: r.last_attempt_at || 0,
+      averageScore: Math.round((r.average_score || 0.0) * 10.0) / 10.0,
+    }));
 
-  return c.json({ success: true, data: list });
+    return c.json({ success: true, data: list });
+  } catch (_: any) {
+    const { results } = await db
+      .prepare("SELECT * FROM admin_analytics_exams ORDER BY attempt_count DESC, exam_name ASC")
+      .all<any>();
+
+    const list = (results || []).map((r) => ({
+      examId: r.exam_id,
+      examName: r.exam_name,
+      category: r.category,
+      attemptCount: r.attempt_count,
+      uniqueUsers: r.unique_users,
+      lastAttemptAt: r.last_attempt_at,
+      averageScore: 0.0,
+    }));
+
+    return c.json({ success: true, data: list });
+  }
 });
 
 // GET /api/admin/analytics/questions - Pre-aggregated question analytics
@@ -126,4 +158,135 @@ adminRoutes.get("/stats/users", async (c) => {
       onlineUsers: online?.count || 0,
     },
   });
+});
+
+// GET /api/admin/users - List users with optional search
+adminRoutes.get("/users", async (c) => {
+  const db = c.env.DB;
+  const q = c.req.query("q")?.trim()?.toLowerCase();
+
+  let query = "SELECT id, email, display_name, dob, category, created_at, last_active, COALESCE(disabled, 0) as disabled FROM users";
+  const params: any[] = [];
+  if (q) {
+    query += " WHERE LOWER(email) LIKE ? OR LOWER(display_name) LIKE ?";
+    params.push(`%${q}%`, `%${q}%`);
+  }
+  query += " ORDER BY last_active DESC, created_at DESC LIMIT 200";
+
+  try {
+    const { results } = await db.prepare(query).bind(...params).all<any>();
+    const users = (results || []).map((u) => ({
+      id: u.id,
+      email: u.email,
+      displayName: u.display_name || "Student",
+      dob: u.dob || "",
+      category: u.category || "General",
+      createdAt: u.created_at || 0,
+      lastActive: u.last_active || 0,
+      disabled: Boolean(u.disabled),
+    }));
+    return c.json({ success: true, data: users });
+  } catch (_: any) {
+    // If disabled column does not exist yet
+    try {
+      const fallbackQuery = q
+        ? "SELECT id, email, display_name, dob, category, created_at, last_active FROM users WHERE LOWER(email) LIKE ? OR LOWER(display_name) LIKE ? ORDER BY last_active DESC, created_at DESC LIMIT 200"
+        : "SELECT id, email, display_name, dob, category, created_at, last_active FROM users ORDER BY last_active DESC, created_at DESC LIMIT 200";
+      const { results } = await db.prepare(fallbackQuery).bind(...params).all<any>();
+      const users = (results || []).map((u) => ({
+        id: u.id,
+        email: u.email,
+        displayName: u.display_name || "Student",
+        dob: u.dob || "",
+        category: u.category || "General",
+        createdAt: u.created_at || 0,
+        lastActive: u.last_active || 0,
+        disabled: false,
+      }));
+      return c.json({ success: true, data: users });
+    } catch (e: any) {
+      return c.json({ success: false, error: e.message }, 500);
+    }
+  }
+});
+
+// POST /api/admin/users/:id/status - Toggle user disabled/ban status
+adminRoutes.post("/users/:id/status", async (c) => {
+  const id = c.req.param("id");
+  const body = await c.req.json().catch(() => ({}));
+  const disabled = body.disabled === true ? 1 : 0;
+  const db = c.env.DB;
+
+  try {
+    await db.prepare("UPDATE users SET disabled = ? WHERE id = ?").bind(disabled, id).run();
+    return c.json({ success: true, data: { id, disabled: Boolean(disabled) } });
+  } catch (_: any) {
+    try {
+      await db.prepare("ALTER TABLE users ADD COLUMN disabled INTEGER DEFAULT 0").run();
+      await db.prepare("UPDATE users SET disabled = ? WHERE id = ?").bind(disabled, id).run();
+      return c.json({ success: true, data: { id, disabled: Boolean(disabled) } });
+    } catch (e: any) {
+      return c.json({ success: false, error: e.message }, 500);
+    }
+  }
+});
+
+// GET /api/admin/users/:id/attempts - Get user test attempts
+adminRoutes.get("/users/:id/attempts", async (c) => {
+  const userId = c.req.param("id");
+  const db = c.env.DB;
+  try {
+    const { results } = await db
+      .prepare("SELECT * FROM attempts WHERE user_id = ? ORDER BY timestamp DESC LIMIT 50")
+      .bind(userId)
+      .all<any>();
+    const attempts = (results || []).map((a) => ({
+      id: a.id,
+      userId: a.user_id,
+      displayName: a.display_name,
+      examId: a.exam_id,
+      examName: a.exam_name,
+      category: a.category,
+      score: a.score,
+      total: a.total,
+      correct: a.correct,
+      wrong: a.wrong,
+      unattempted: a.unattempted,
+      timestamp: a.timestamp,
+    }));
+    return c.json({ success: true, data: attempts });
+  } catch (err: any) {
+    return c.json({ success: false, error: err.message }, 500);
+  }
+});
+
+// PUT /api/admin/config - Update app configuration
+adminRoutes.put("/config", async (c) => {
+  const body = await c.req.json().catch(() => ({}));
+  const minVersion = Number(body.minimum_supported_version_code || 1);
+  const maintenanceMode = Boolean(body.maintenance_mode);
+  const maintenanceMessage = String(
+    body.maintenance_message ||
+      "Eve Mock Test is currently undergoing scheduled maintenance. Please check back shortly."
+  );
+  const db = c.env.DB;
+
+  const configObj = {
+    minimum_supported_version_code: minVersion,
+    maintenance_mode: maintenanceMode,
+    maintenance_message: maintenanceMessage,
+  };
+
+  try {
+    await db
+      .prepare(
+        "INSERT INTO app_content (id, title, body, updated_at, updated_by) VALUES ('app_config', 'App Configuration', ?, ?, 'admin') ON CONFLICT(id) DO UPDATE SET body = excluded.body, updated_at = excluded.updated_at"
+      )
+      .bind(JSON.stringify(configObj), Date.now())
+      .run();
+
+    return c.json({ success: true, data: configObj });
+  } catch (err: any) {
+    return c.json({ success: false, error: err.message }, 500);
+  }
 });

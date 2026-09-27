@@ -38,4 +38,44 @@ class AdminRepository {
         if (clean.isBlank()) return
         api.removeAdmin(clean)
     }
+
+    suspend fun getUsers(query: String? = null): List<com.eve.app.data.model.AdminUser> = try {
+        val response = api.getUsers(query)
+        response.data ?: emptyList()
+    } catch (_: Exception) {
+        emptyList()
+    }
+
+    suspend fun toggleUserStatus(userId: String, disabled: Boolean): Boolean = try {
+        val response = api.toggleUserStatus(userId, mapOf("disabled" to disabled))
+        response.success
+    } catch (_: Exception) {
+        false
+    }
+
+    suspend fun getUserAttempts(userId: String): List<com.eve.app.data.model.TestAttempt> = try {
+        val response = api.getUserAttempts(userId)
+        response.data ?: emptyList()
+    } catch (_: Exception) {
+        emptyList()
+    }
+
+    suspend fun getAppConfig(): com.eve.app.data.model.AppConfig = try {
+        val response = api.getAppConfig()
+        response.data ?: com.eve.app.data.model.AppConfig()
+    } catch (_: Exception) {
+        com.eve.app.data.model.AppConfig()
+    }
+
+    suspend fun updateAppConfig(config: com.eve.app.data.model.AppConfig): Boolean = try {
+        val body = mapOf(
+            "minimum_supported_version_code" to config.minimum_supported_version_code,
+            "maintenance_mode" to config.maintenance_mode,
+            "maintenance_message" to config.maintenance_message
+        )
+        val response = api.updateAppConfig(body)
+        response.success
+    } catch (_: Exception) {
+        false
+    }
 }

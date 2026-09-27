@@ -73,6 +73,10 @@
         <activity android:name=".ui.notifications.NotificationsActivity" android:exported="false" />
         <activity android:name=".ui.feedback.FeedbackActivity" android:exported="false" />
         <activity android:name=".ui.admin.FeedbackMessagesActivity" android:exported="false" />
+        <activity android:name=".ui.admin.ManageExistingExamsActivity" android:exported="false" />
+        <activity android:name=".ui.admin.EditExamActivity" android:exported="false" />
+        <activity android:name=".ui.admin.ManageUsersActivity" android:exported="false" />
+        <activity android:name=".ui.admin.AppConfigActivity" android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

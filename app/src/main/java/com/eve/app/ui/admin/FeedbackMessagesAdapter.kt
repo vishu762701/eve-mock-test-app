@@ -14,6 +14,7 @@ import java.util.Locale
 
 class FeedbackMessagesAdapter(
     private val onItemClick: (FeedbackMessage) -> Unit,
+    private val onReplyClick: (FeedbackMessage) -> Unit,
     private val onDeleteClick: (FeedbackMessage) -> Unit
 ) : ListAdapter<FeedbackMessage, FeedbackMessagesAdapter.ViewHolder>(DiffCallback) {
 
@@ -48,6 +49,7 @@ class FeedbackMessagesAdapter(
             }
 
             binding.cardMessage.setOnClickListener { onItemClick(item) }
+            binding.btnReply.setOnClickListener { onReplyClick(item) }
             binding.btnDeleteMessage.setOnClickListener { onDeleteClick(item) }
         }
     }

@@ -33,7 +33,13 @@ class FeedbackMessagesActivity : AppCompatActivity() {
         binding.swipeRefresh.setOnRefreshListener { loadMessages() }
 
         adapter = FeedbackMessagesAdapter(
-            onItemClick = { message -> markMessageRead(message) },
+            onItemClick = { message ->
+                markMessageRead(message)
+                showReplyDialog(message)
+            },
+            onReplyClick = { message ->
+                showReplyDialog(message)
+            },
             onDeleteClick = { message -> confirmDeleteMessage(message) }
         )
 
@@ -133,5 +139,58 @@ class FeedbackMessagesActivity : AppCompatActivity() {
                 AppBulletin.showError(this@FeedbackMessagesActivity, "Error: ${e.message}")
             }
         }
+    }
+
+    private fun showReplyDialog(message: FeedbackMessage) {
+        val dialogBinding = com.eve.app.databinding.DialogReplyFeedbackBinding.inflate(layoutInflater)
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setView(dialogBinding.root)
+            .create()
+
+        val dateFormat = java.text.SimpleDateFormat("dd MMM yyyy, hh:mm a", java.util.Locale.getDefault())
+
+        dialogBinding.tvOriginalSenderName.text = message.userName.ifBlank { "Student" }
+        dialogBinding.tvOriginalSenderEmail.text = message.userEmail.ifBlank { "No email provided" }
+        dialogBinding.tvOriginalTimestamp.text = dateFormat.format(java.util.Date(message.timestamp))
+
+        val bodyText = if (!message.postTitle.isNullOrEmpty()) {
+            "📌 In response to: ${message.postTitle}\n\n${message.message}"
+        } else {
+            message.message
+        }
+        dialogBinding.tvOriginalMessageText.text = bodyText
+
+        dialogBinding.btnCancelReply.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialogBinding.btnSendReply.setOnClickListener {
+            val replyText = dialogBinding.etReplyText.text?.toString()?.trim().orEmpty()
+            if (replyText.isBlank()) {
+                dialogBinding.tilReply.error = "Reply cannot be empty"
+                return@setOnClickListener
+            }
+            dialogBinding.tilReply.error = null
+
+            dialogBinding.btnSendReply.isEnabled = false
+            lifecycleScope.launch {
+                try {
+                    val result = repo.replyFeedbackMessage(message.id, replyText)
+                    result.onSuccess {
+                        AppBulletin.showSuccess(this@FeedbackMessagesActivity, "Reply sent successfully!")
+                        dialog.dismiss()
+                        loadMessages()
+                    }.onFailure { err ->
+                        dialogBinding.btnSendReply.isEnabled = true
+                        AppBulletin.showError(this@FeedbackMessagesActivity, "Failed to send reply: ${err.message}")
+                    }
+                } catch (e: Exception) {
+                    dialogBinding.btnSendReply.isEnabled = true
+                    AppBulletin.showError(this@FeedbackMessagesActivity, "Error: ${e.message}")
+                }
+            }
+        }
+
+        dialog.show()
     }
 }
