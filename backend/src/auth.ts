@@ -132,13 +132,23 @@ export async function verifyFirebaseIdToken(token: string, projectId: string): P
     throw new Error("Token expired");
   }
 
-  if (payload.aud !== projectId) {
-    throw new Error(`Invalid audience: expected ${projectId}, got ${payload.aud}`);
+  const allowedProjectIds = (projectId || "eve-fb0e3")
+    .split(",")
+    .map((p) => p.trim())
+    .filter(Boolean);
+  if (!allowedProjectIds.includes("eve-fb0e3")) {
+    allowedProjectIds.push("eve-fb0e3");
   }
 
-  const expectedIssuer = `https://securetoken.google.com/${projectId}`;
-  if (payload.iss !== expectedIssuer) {
-    throw new Error(`Invalid issuer: expected ${expectedIssuer}, got ${payload.iss}`);
+  if (!allowedProjectIds.includes(payload.aud)) {
+    throw new Error(`Invalid audience: expected one of [${allowedProjectIds.join(", ")}], got ${payload.aud}`);
+  }
+
+  const validIssuer = allowedProjectIds.some(
+    (pid) => payload.iss === `https://securetoken.google.com/${pid}`
+  );
+  if (!validIssuer) {
+    throw new Error(`Invalid issuer: got ${payload.iss}`);
   }
 
   if (!payload.sub || typeof payload.sub !== "string") {

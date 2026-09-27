@@ -2,7 +2,7 @@
 // Eve Mock Test App — Cloudflare Worker Backend API
 // ============================================================================
 
-import { Hono } from "hono";
+import { Context, Hono } from "hono";
 import { cors } from "hono/cors";
 import { handleScheduledTestGeneration } from "./cron/scheduledTestGeneration";
 import { authMiddleware } from "./middleware/authMiddleware";
@@ -23,6 +23,8 @@ import { pollRoutes } from "./routes/polls";
 import { questionRoutes } from "./routes/questions";
 import { SupabaseStorage } from "./supabase";
 import { AuthUser, Env } from "./types";
+
+type AppContext = Context<{ Bindings: Env; Variables: { user: AuthUser } }>;
 
 const app = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
@@ -47,12 +49,46 @@ app.get("/api/health", (c) => {
   });
 });
 
-// Diagnostic / Verification Endpoints (Public Allowlist)
-app.get("/api/health/d1", async (c) => {
+// Helper: Verify caller has admin privileges or diagnostic authorization key
+function isDiagnosticAuthorized(c: AppContext): boolean {
+  // 1. Admin Firebase user
+  const user = c.get("user");
+  if (user && user.isAdmin) return true;
+
+  // 2. Secret diagnostic key passed via header
+  const authHeader = c.req.header("Authorization");
+  const bearerToken = authHeader?.startsWith("Bearer ") ? authHeader.substring(7).trim() : null;
+  const diagKey =
+    c.req.header("X-Diagnostic-Key") ||
+    c.req.header("x-diagnostic-key") ||
+    bearerToken;
+
+  if (diagKey) {
+    if (c.env.DIAGNOSTIC_KEY && diagKey === c.env.DIAGNOSTIC_KEY.trim()) return true;
+    if (c.env.SUPABASE_SERVICE_ROLE_KEY && diagKey === c.env.SUPABASE_SERVICE_ROLE_KEY.trim()) return true;
+  }
+
+  return false;
+}
+
+// Diagnostic Handler for D1
+async function handleD1Diagnostic(c: AppContext) {
+  if (!isDiagnosticAuthorized(c)) {
+    return c.json(
+      {
+        success: false,
+        error: "Unauthorized: Diagnostic operations require admin privileges or diagnostic secret key.",
+      },
+      401
+    );
+  }
+
   try {
     const db = c.env.DB;
     const { results: tables } = await db
-      .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE '_cf_%' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'd1_%' ORDER BY name;")
+      .prepare(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE '_cf_%' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'd1_%' ORDER BY name;"
+      )
       .all<{ name: string }>();
 
     const { results: indexes } = await db
@@ -72,7 +108,7 @@ app.get("/api/health/d1", async (c) => {
       success: true,
       status: "connected",
       tableCount: (tables || []).length,
-      tables: (tables || []).map((t) => t.name),
+      tables: (tables || []).map((t: any) => t.name),
       indexCount: (indexes || []).length,
       triggerCount: (triggers || []).length,
       readWriteTest: "PASS",
@@ -80,14 +116,28 @@ app.get("/api/health/d1", async (c) => {
   } catch (err: any) {
     return c.json({ success: false, error: err.message }, 500);
   }
-});
+}
 
-app.get("/api/health/storage", async (c) => {
+// Diagnostic Handler for Supabase Storage
+async function handleStorageDiagnostic(c: AppContext) {
+  if (!isDiagnosticAuthorized(c)) {
+    return c.json(
+      {
+        success: false,
+        error: "Unauthorized: Diagnostic operations require admin privileges or diagnostic secret key.",
+      },
+      401
+    );
+  }
+
   if (!c.env.SUPABASE_SERVICE_ROLE_KEY) {
-    return c.json({
-      success: false,
-      error: "SUPABASE_SERVICE_ROLE_KEY is not configured on the Worker",
-    }, 500);
+    return c.json(
+      {
+        success: false,
+        error: "SUPABASE_SERVICE_ROLE_KEY is not configured on the Worker",
+      },
+      500
+    );
   }
 
   try {
@@ -119,7 +169,13 @@ app.get("/api/health/storage", async (c) => {
   } catch (err: any) {
     return c.json({ success: false, error: err.message }, 500);
   }
-});
+}
+
+// Diagnostic Endpoints (Protected: requires admin or X-Diagnostic-Key)
+app.get("/api/diag/d1", handleD1Diagnostic);
+app.get("/api/health/d1", handleD1Diagnostic);
+app.get("/api/diag/storage", handleStorageDiagnostic);
+app.get("/api/health/storage", handleStorageDiagnostic);
 
 // 3. Rate limiting middleware (120 req / minute per IP or UID)
 app.use("/api/*", rateLimit(120, 60));

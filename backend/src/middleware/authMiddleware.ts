@@ -10,10 +10,9 @@ export async function authMiddleware(c: Context<{ Bindings: Env; Variables: { us
   const path = c.req.path;
   const method = c.req.method;
 
-  // Public allowlist
+  // Public allowlist - ONLY GET /api/health (read-only), public GET app content, and public GET banners
   if (
-    path === "/api/health" ||
-    path.startsWith("/api/health/") ||
+    (path === "/api/health" && method === "GET") ||
     (path.startsWith("/api/app-content/") && method === "GET") ||
     (path === "/api/banners" && method === "GET")
   ) {

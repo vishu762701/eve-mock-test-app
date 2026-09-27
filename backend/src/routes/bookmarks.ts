@@ -13,11 +13,11 @@ bookmarkRoutes.get("/ids", async (c) => {
   const db = c.env.DB;
 
   const { results } = await db
-    .prepare("SELECT id FROM bookmarks WHERE user_id = ?")
+    .prepare("SELECT question_id, id FROM bookmarks WHERE user_id = ?")
     .bind(user.uid)
-    .all<{ id: string }>();
+    .all<{ question_id: string; id: string }>();
 
-  const list = (results || []).map((r) => r.id);
+  const list = (results || []).map((r) => r.question_id || r.id);
   return c.json({ success: true, data: list });
 });
 
@@ -32,7 +32,7 @@ bookmarkRoutes.get("/", async (c) => {
     .all<any>();
 
   const list = (results || []).map((r) => ({
-    questionId: r.id,
+    questionId: r.question_id || r.id,
     examId: r.exam_id,
     examName: r.exam_name,
     questionNumber: r.question_number,
@@ -71,6 +71,7 @@ bookmarkRoutes.post("/", async (c) => {
   }
 
   const now = Date.now();
+  const bookmarkId = `${user.uid}_${questionId}`;
 
   await db
     .prepare(
@@ -84,7 +85,7 @@ bookmarkRoutes.post("/", async (c) => {
         bookmarked_at = excluded.bookmarked_at`
     )
     .bind(
-      questionId,
+      bookmarkId,
       user.uid,
       questionId,
       String(body.examId || ""),
@@ -119,8 +120,12 @@ bookmarkRoutes.delete("/:id", async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   const db = c.env.DB;
+  const compositeId = `${user.uid}_${id}`;
 
-  await db.prepare("DELETE FROM bookmarks WHERE id = ? AND user_id = ?").bind(id, user.uid).run();
+  await db
+    .prepare("DELETE FROM bookmarks WHERE (id = ? OR id = ? OR question_id = ?) AND user_id = ?")
+    .bind(compositeId, id, id, user.uid)
+    .run();
   return c.json({ success: true });
 });
 
@@ -128,20 +133,24 @@ bookmarkRoutes.delete("/:id", async (c) => {
 bookmarkRoutes.post("/toggle", async (c) => {
   const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
-  const id = String(body.questionId || "").trim();
+  const questionId = String(body.questionId || "").trim();
   const db = c.env.DB;
 
-  if (!id) {
+  if (!questionId) {
     return c.json({ success: false, error: "questionId is required" }, 400);
   }
 
+  const compositeId = `${user.uid}_${questionId}`;
   const existing = await db
-    .prepare("SELECT 1 FROM bookmarks WHERE id = ? AND user_id = ?")
-    .bind(id, user.uid)
+    .prepare("SELECT 1 FROM bookmarks WHERE (id = ? OR id = ? OR question_id = ?) AND user_id = ?")
+    .bind(compositeId, questionId, questionId, user.uid)
     .first();
 
   if (existing) {
-    await db.prepare("DELETE FROM bookmarks WHERE id = ? AND user_id = ?").bind(id, user.uid).run();
+    await db
+      .prepare("DELETE FROM bookmarks WHERE (id = ? OR id = ? OR question_id = ?) AND user_id = ?")
+      .bind(compositeId, questionId, questionId, user.uid)
+      .run();
     return c.json({ success: true, data: { isBookmarked: false } });
   } else {
     const now = Date.now();
@@ -152,12 +161,14 @@ bookmarkRoutes.post("/toggle", async (c) => {
           question_text, question_text_hi, option_a, option_b, option_c, option_d,
           option_a_hi, option_b_hi, option_c_hi, option_d_hi, correct_answer,
           explanation, explanation_hi, topic, is_pyq, pyq_year, pyq_paper, bookmarked_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+          bookmarked_at = excluded.bookmarked_at`
       )
       .bind(
-        id,
+        compositeId,
         user.uid,
-        id,
+        questionId,
         String(body.examId || ""),
         String(body.examName || ""),
         Number(body.questionNumber || 1),

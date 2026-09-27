@@ -11,6 +11,7 @@ export interface Env {
   SUPABASE_SERVICE_ROLE_KEY?: string; // Cloudflare secret
   GEMINI_API_KEY?: string;           // Cloudflare secret
   GEMINI_MODEL?: string;
+  DIAGNOSTIC_KEY?: string;           // Cloudflare secret or environment variable
 }
 
 export interface AuthUser {
