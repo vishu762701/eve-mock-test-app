@@ -159,19 +159,29 @@ object ThemeSwitchAnimator {
         })
     }
 
+    fun calculateIconCenter(view: View): Pair<Int, Int> {
+        val pos = IntArray(2)
+        view.getLocationInWindow(pos)
+        val w = if (view.measuredWidth > 0) view.measuredWidth else view.width
+        val h = if (view.measuredHeight > 0) view.measuredHeight else view.height
+        return (pos[0] + w / 2) to (pos[1] + h / 2)
+    }
+
     fun animate(
         activity: Activity,
         clickView: View,
         isDarkModeTarget: Boolean
     ) {
-        val loc = IntArray(2)
-        clickView.getLocationOnScreen(loc)
-        val clickScreenX = loc[0] + clickView.width / 2
-        val clickScreenY = loc[1] + clickView.height / 2
-        val clickWidth = max(clickView.width, 24)
-        val clickHeight = max(clickView.height, 24)
+        val pos = IntArray(2)
+        clickView.getLocationInWindow(pos)
+        val w = if (clickView.measuredWidth > 0) clickView.measuredWidth else clickView.width
+        val h = if (clickView.measuredHeight > 0) clickView.measuredHeight else clickView.height
+        val clickScreenX = pos[0] + w / 2
+        val clickScreenY = pos[1] + h / 2
+        val clickWidth = max(w, 24)
+        val clickHeight = max(h, 24)
 
-        Log.i(TAG, "[ThemeSwitchAnimator] animate called from View '${clickView.javaClass.simpleName}' at ($clickScreenX, $clickScreenY), targetDark=$isDarkModeTarget")
+        Log.i(TAG, "[ThemeSwitchAnimator] animate called for View '${clickView.javaClass.simpleName}' at icon center ($clickScreenX, $clickScreenY), targetDark=$isDarkModeTarget")
         animateInternal(activity, clickScreenX, clickScreenY, clickWidth, clickHeight, isDarkModeTarget)
     }
 
@@ -183,7 +193,7 @@ object ThemeSwitchAnimator {
         clickWidth: Int = 48,
         clickHeight: Int = 48
     ) {
-        Log.i(TAG, "[ThemeSwitchAnimator] animateAt called at ($clickScreenX, $clickScreenY), targetDark=$isDarkModeTarget")
+        Log.i(TAG, "[ThemeSwitchAnimator] animateAt called at ($clickScreenX, $clickScreenY), size=${clickWidth}x${clickHeight}, targetDark=$isDarkModeTarget")
         animateInternal(activity, clickScreenX, clickScreenY, clickWidth, clickHeight, isDarkModeTarget)
     }
 
@@ -392,7 +402,7 @@ object ThemeSwitchAnimator {
 
         // Add Lottie Sun/Moon Morph icon on top at tap location
         val decorLoc = IntArray(2)
-        decorView.getLocationOnScreen(decorLoc)
+        decorView.getLocationInWindow(decorLoc)
         val cx = state.clickScreenX - decorLoc[0]
         val cy = state.clickScreenY - decorLoc[1]
 
@@ -448,7 +458,7 @@ object ThemeSwitchAnimator {
         )
 
         val decorLoc = IntArray(2)
-        decorView.getLocationOnScreen(decorLoc)
+        decorView.getLocationInWindow(decorLoc)
         val cx = state.clickScreenX - decorLoc[0]
         val cy = state.clickScreenY - decorLoc[1]
 
@@ -460,6 +470,19 @@ object ThemeSwitchAnimator {
         val overlay = decorView.findViewWithTag<ImageView>("theme_switch_animating_overlay")
         val lottieView = decorView.findViewWithTag<LottieAnimationView>("theme_switch_lottie_icon")
         val contentRoot = decorView.findViewById<View>(android.R.id.content) ?: decorView.getChildAt(0)
+
+        // Ensure floating Lottie icon is placed with exact precision at (cx, cy)
+        val btnLeft = cx - (state.clickWidth / 2)
+        val btnTop = cy - (state.clickHeight / 2)
+        lottieView?.let { lv ->
+            (lv.layoutParams as? ViewGroup.MarginLayoutParams)?.apply {
+                if (leftMargin != btnLeft || topMargin != btnTop) {
+                    leftMargin = btnLeft
+                    topMargin = btnTop
+                    lv.layoutParams = this
+                }
+            }
+        }
 
         val targetView = if (state.isDarkModeTarget && contentRoot != null) contentRoot else overlay
         val (startRadius, endRadius) = getRevealRadii(state.isDarkModeTarget, maxRadius)

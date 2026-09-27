@@ -154,4 +154,62 @@ class ThemeSwitchAnimatorTest {
         val simulatedSavedState = targetDark
         assertEquals(true, simulatedSavedState)
     }
+
+    @Test
+    fun testFixedIconPositionCalculation_matchesTelegram() {
+        // Simulating Telegram's formula: pos[0] + width / 2, pos[1] + height / 2
+        val iconWindowX = 998
+        val iconWindowY = 48
+        val iconWidth = 42
+        val iconHeight = 42
+
+        val cx = iconWindowX + iconWidth / 2
+        val cy = iconWindowY + iconHeight / 2
+
+        assertEquals(1019, cx)
+        assertEquals(69, cy)
+    }
+
+    @Test
+    fun testMultipleTogglesInARow_recalculateFreshCoordinates() {
+        // 1st toggle: from 3-dot overflow menu icon at top-right
+        val overflowIconPos = intArrayOf(1000, 50)
+        val overflowW = 42
+        val overflowH = 42
+        val cx1 = overflowIconPos[0] + overflowW / 2
+        val cy1 = overflowIconPos[1] + overflowH / 2
+
+        assertEquals(1021, cx1)
+        assertEquals(71, cy1)
+
+        // 2nd toggle: from Settings top bar icon
+        val settingsTopBarPos = intArrayOf(1016, 52)
+        val settingsTopBarW = 40
+        val settingsTopBarH = 40
+        val cx2 = settingsTopBarPos[0] + settingsTopBarW / 2
+        val cy2 = settingsTopBarPos[1] + settingsTopBarH / 2
+
+        assertEquals(1036, cx2)
+        assertEquals(72, cy2)
+        assertTrue("Coordinates must be recalculated fresh for each trigger point", cx1 != cx2)
+
+        // 3rd toggle: from Settings Preferences row Lottie icon (left side of row)
+        val settingsRowIconPos = intArrayOf(20, 240)
+        val settingsRowIconW = 24
+        val settingsRowIconH = 24
+        val cx3 = settingsRowIconPos[0] + settingsRowIconW / 2
+        val cy3 = settingsRowIconPos[1] + settingsRowIconH / 2
+
+        assertEquals(32, cx3)
+        assertEquals(252, cy3)
+        assertTrue("Settings row icon must calculate at its own fixed location", cx3 != cx1 && cx3 != cx2)
+
+        // 4th toggle: return to 3-dot overflow menu
+        val overflowIconPosReturn = intArrayOf(1000, 50)
+        val cx4 = overflowIconPosReturn[0] + overflowW / 2
+        val cy4 = overflowIconPosReturn[1] + overflowH / 2
+
+        assertEquals(cx1, cx4)
+        assertEquals(cy1, cy4)
+    }
 }

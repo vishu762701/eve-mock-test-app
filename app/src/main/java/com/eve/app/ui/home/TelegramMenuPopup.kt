@@ -21,7 +21,7 @@ import com.eve.app.util.ThemeSwitchAnimator
 
 class TelegramMenuPopup(
     private val context: Context,
-    private val onThemeToggle: (originX: Int, originY: Int) -> Unit,
+    private val onThemeToggle: (originX: Int, originY: Int, iconWidth: Int, iconHeight: Int) -> Unit,
     private val onHistory: () -> Unit,
     private val onBookmarks: () -> Unit,
     private val onTopic: () -> Unit,
@@ -65,58 +65,38 @@ class TelegramMenuPopup(
     }
 
     private fun setupListeners() {
-        var lastTouchX = -1f
-        var lastTouchY = -1f
-        binding.cardTheme.setOnTouchListener { v, event ->
-            android.util.Log.d("ThemeClickDiag", "cardTheme onTouch: action=${event.action}, x=${event.x}, y=${event.y}, rawX=${event.rawX}, rawY=${event.rawY}")
-            if (event.action == MotionEvent.ACTION_DOWN || event.action == MotionEvent.ACTION_UP) {
-                lastTouchX = event.rawX
-                lastTouchY = event.rawY
-            }
-            false
-        }
-
         binding.ivThemeIcon.setOnClickListener {
-            android.util.Log.d("ThemeClickDiag", "ivThemeIcon tapped directly -> delegating to cardTheme")
             binding.cardTheme.performClick()
         }
         binding.tvThemeTitle.setOnClickListener {
-            android.util.Log.d("ThemeClickDiag", "tvThemeTitle tapped directly -> delegating to cardTheme")
             binding.cardTheme.performClick()
         }
 
         binding.cardTheme.setOnClickListener { v ->
-            android.util.Log.d("ThemeClickDiag", ">>> cardTheme onClick FIRED! view=$v, isTransitioning=${ThemeSwitchAnimator.isTransitioning}")
-            android.widget.Toast.makeText(context, "Theme toggle tapped in popup menu", android.widget.Toast.LENGTH_SHORT).show()
             try {
                 if (ThemeSwitchAnimator.isTransitioning) {
                     android.util.Log.w("ThemeClickDiag", "Ignored click: ThemeSwitchAnimator.isTransitioning is true")
                     return@setOnClickListener
                 }
                 val isDark = ThemeSwitchAnimator.isDarkMode(context)
-                android.util.Log.d("ThemeClickDiag", "Current isDark=$isDark")
                 binding.ivThemeIcon.setImageResource(if (isDark) R.drawable.ic_moon else R.drawable.ic_sun)
 
-                // Calculate origin (cx, cy) from the exact touch position or on-screen center of the theme switch
-                val cx: Int
-                val cy: Int
-                if (lastTouchX > 0f && lastTouchY > 0f) {
-                    cx = lastTouchX.toInt()
-                    cy = lastTouchY.toInt()
-                } else {
-                    val loc = IntArray(2)
-                    binding.cardTheme.getLocationOnScreen(loc)
-                    cx = loc[0] + binding.cardTheme.width / 2
-                    cy = loc[1] + binding.cardTheme.height / 2
-                }
-                android.util.Log.d("ThemeClickDiag", "Calculated origin: cx=$cx, cy=$cy. Calling dismiss & onThemeToggle")
+                // Telegram's exact approach: always use fixed icon position via getLocationInWindow
+                val targetIcon: View = anchorViewRef ?: binding.ivThemeIcon
+                val pos = IntArray(2)
+                targetIcon.getLocationInWindow(pos)
+                val iconW = if (targetIcon.measuredWidth > 0) targetIcon.measuredWidth else targetIcon.width
+                val iconH = if (targetIcon.measuredHeight > 0) targetIcon.measuredHeight else targetIcon.height
+                val cx = pos[0] + iconW / 2
+                val cy = pos[1] + iconH / 2
+
+                android.util.Log.d("ThemeClickDiag", "Fixed icon position calculated: cx=$cx, cy=$cy, size=${iconW}x${iconH}")
 
                 GlassmorphismHelper.removeWindowBlur(binding.root, animate = false)
                 super.dismiss()
-                onThemeToggle(cx, cy)
+                onThemeToggle(cx, cy, iconW, iconH)
             } catch (t: Throwable) {
                 android.util.Log.e("ThemeClickDiag", "EXCEPTION in cardTheme onClick", t)
-                android.widget.Toast.makeText(context, "Theme error: ${t.message}", android.widget.Toast.LENGTH_LONG).show()
             }
         }
         binding.menuRowHistory.setOnClickListener {
