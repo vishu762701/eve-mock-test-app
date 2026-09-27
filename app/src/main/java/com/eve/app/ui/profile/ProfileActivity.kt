@@ -8,7 +8,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
+import com.eve.app.util.AppBulletin
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -236,10 +236,10 @@ class ProfileActivity : AppCompatActivity() {
 
                 binding.tvName.text = name
                 dismissProgress()
-                Toast.makeText(this@ProfileActivity, "Profile saved successfully", Toast.LENGTH_SHORT).show()
+                AppBulletin.showSuccess(this@ProfileActivity, "Profile saved successfully")
             } catch (e: Exception) {
                 dismissProgress()
-                Toast.makeText(this@ProfileActivity, "Failed to save profile: ${e.localizedMessage ?: "Unknown error"}", Toast.LENGTH_LONG).show()
+                AppBulletin.showError(this@ProfileActivity, "Failed to save profile: ${e.localizedMessage ?: "Unknown error"}")
             }
         }
     }
@@ -300,9 +300,9 @@ class ProfileActivity : AppCompatActivity() {
     private fun savePendingPhoto() {
         val uri = pendingPhotoUri ?: return
         if (ProfilePhotoManager.savePhoto(this, uri)) {
-            Toast.makeText(this, "Profile photo updated", Toast.LENGTH_SHORT).show()
+            AppBulletin.showSuccess(this, "Profile photo updated")
         } else {
-            Toast.makeText(this, "Failed to save photo", Toast.LENGTH_SHORT).show()
+            AppBulletin.showError(this, "Failed to save photo")
         }
         pendingPhotoUri = null
         binding.layoutPhotoActions.visibility = View.GONE

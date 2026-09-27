@@ -2,7 +2,8 @@ package com.eve.app.ui.admin
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
+import com.eve.app.util.AppBulletin
+import com.eve.app.util.AppUndoBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -70,11 +71,10 @@ class GeneratedTestsActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
-                Toast.makeText(
+                AppBulletin.showError(
                     this@GeneratedTestsActivity,
-                    "Failed to load generated tests: ${e.localizedMessage}",
-                    Toast.LENGTH_LONG
-                ).show()
+                    "Failed to load generated tests: ${e.localizedMessage}"
+                )
             }
         }
     }
@@ -84,18 +84,16 @@ class GeneratedTestsActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 examRepo.updateGeneratedTestStatus(test.id, newStatus)
-                Toast.makeText(
+                AppBulletin.showSuccess(
                     this@GeneratedTestsActivity,
-                    "Test is now ${newStatus.uppercase()}",
-                    Toast.LENGTH_SHORT
-                ).show()
+                    "Test is now ${newStatus.uppercase()}"
+                )
                 loadTests()
             } catch (e: Exception) {
-                Toast.makeText(
+                AppBulletin.showError(
                     this@GeneratedTestsActivity,
-                    "Failed to update status: ${e.localizedMessage}",
-                    Toast.LENGTH_LONG
-                ).show()
+                    "Failed to update status: ${e.localizedMessage}"
+                )
                 loadTests()
             }
         }
@@ -103,7 +101,7 @@ class GeneratedTestsActivity : AppCompatActivity() {
 
     private fun previewTest(test: GeneratedTest) {
         if (test.questions.isEmpty()) {
-            Toast.makeText(this, "No questions found in this test payload.", Toast.LENGTH_SHORT).show()
+            AppBulletin.showError(this, "No questions found in this test payload.")
             return
         }
 
@@ -133,19 +131,36 @@ class GeneratedTestsActivity : AppCompatActivity() {
             .setTitle("Delete Generated Test")
             .setMessage("Are you sure you want to permanently delete this test?")
             .setPositiveButton("Delete") { _, _ ->
-                lifecycleScope.launch {
-                    try {
-                        examRepo.deleteGeneratedTest(test.id)
-                        Toast.makeText(this@GeneratedTestsActivity, "Test deleted", Toast.LENGTH_SHORT).show()
-                        loadTests()
-                    } catch (e: Exception) {
-                        Toast.makeText(
-                            this@GeneratedTestsActivity,
-                            "Failed to delete: ${e.localizedMessage}",
-                            Toast.LENGTH_LONG
-                        ).show()
+                val originalList = adapter.getItems().toMutableList()
+                val filtered = originalList.filter { it.id != test.id }
+                adapter.submit(filtered)
+                binding.emptyGroup.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+
+                AppUndoBar.show(
+                    context = this@GeneratedTestsActivity,
+                    message = "Test deleted",
+                    timeLeftMs = AppUndoBar.TIME_IMPORTANT,
+                    onUndo = {
+                        adapter.submit(originalList)
+                        binding.emptyGroup.visibility = if (originalList.isEmpty()) View.VISIBLE else View.GONE
+                        AppBulletin.show(this@GeneratedTestsActivity, "Delete cancelled")
+                    },
+                    onExecuteDelete = {
+                        lifecycleScope.launch {
+                            try {
+                                examRepo.deleteGeneratedTest(test.id)
+                                loadTests()
+                            } catch (e: Exception) {
+                                adapter.submit(originalList)
+                                binding.emptyGroup.visibility = if (originalList.isEmpty()) View.VISIBLE else View.GONE
+                                AppBulletin.showError(
+                                    this@GeneratedTestsActivity,
+                                    "Failed to delete: ${e.localizedMessage}"
+                                )
+                            }
+                        }
                     }
-                }
+                )
             }
             .setNegativeButton("Cancel", null)
             .show()

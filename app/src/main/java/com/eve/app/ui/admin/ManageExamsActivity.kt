@@ -6,7 +6,7 @@ import android.provider.OpenableColumns
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Toast
+import com.eve.app.util.AppBulletin
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -267,12 +267,12 @@ class ManageExamsActivity : AppCompatActivity() {
         try {
             val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: return
             if (bytes.size > 20 * 1024 * 1024) {
-                Toast.makeText(this, "PDF exceeds 20MB limit.", Toast.LENGTH_LONG).show()
+                AppBulletin.showError(this, "PDF exceeds 20MB limit.")
                 return
             }
 
             if (currentExamId.isBlank()) {
-                Toast.makeText(this, "Please save the exam name first before uploading syllabus.", Toast.LENGTH_LONG).show()
+                AppBulletin.showError(this, "Please save the exam name first before uploading syllabus.")
                 return
             }
 
@@ -284,14 +284,14 @@ class ManageExamsActivity : AppCompatActivity() {
                     currentSyllabusFileName = displayName
                     binding.progressBarPdf.visibility = View.GONE
                     updateSyllabusUi(displayName, url)
-                    Toast.makeText(this@ManageExamsActivity, "Syllabus uploaded successfully!", Toast.LENGTH_SHORT).show()
+                    AppBulletin.showSuccess(this@ManageExamsActivity, "Syllabus uploaded successfully!")
                 } catch (e: Exception) {
                     binding.progressBarPdf.visibility = View.GONE
-                    Toast.makeText(this@ManageExamsActivity, "Upload failed: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                    AppBulletin.showError(this@ManageExamsActivity, "Upload failed: ${e.localizedMessage}")
                 }
             }
         } catch (e: Exception) {
-            Toast.makeText(this, "Failed to read PDF file: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+            AppBulletin.showError(this, "Failed to read PDF file: ${e.localizedMessage}")
         }
     }
 
@@ -308,10 +308,10 @@ class ManageExamsActivity : AppCompatActivity() {
                         currentSyllabusFileName = ""
                         binding.progressBarPdf.visibility = View.GONE
                         updateSyllabusUi("", "")
-                        Toast.makeText(this@ManageExamsActivity, "Syllabus removed", Toast.LENGTH_SHORT).show()
+                        AppBulletin.showSuccess(this@ManageExamsActivity, "Syllabus removed")
                     } catch (e: Exception) {
                         binding.progressBarPdf.visibility = View.GONE
-                        Toast.makeText(this@ManageExamsActivity, "Failed to remove: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                        AppBulletin.showError(this@ManageExamsActivity, "Failed to remove: ${e.localizedMessage}")
                     }
                 }
             }
@@ -344,7 +344,7 @@ class ManageExamsActivity : AppCompatActivity() {
                         binding.btnGenerateNow.isEnabled = true
                         binding.progressBar.visibility = View.GONE
                         binding.compactErrorView.hide()
-                        Toast.makeText(this@ManageExamsActivity, "Test generation complete! Check Generated Tests.", Toast.LENGTH_LONG).show()
+                        AppBulletin.showSuccess(this@ManageExamsActivity, "Test generation complete! Check Generated Tests.")
                         loadExams()
                     } catch (e: Exception) {
                         binding.btnGenerateNow.isEnabled = true
@@ -428,7 +428,7 @@ class ManageExamsActivity : AppCompatActivity() {
                         syllabusFileName = currentSyllabusFileName,
                         generationPrompt = prompt
                     )
-                    Toast.makeText(this@ManageExamsActivity, "Settings saved for '$name'", Toast.LENGTH_SHORT).show()
+                    AppBulletin.showSuccess(this@ManageExamsActivity, "Settings saved for '$name'")
                 } else {
                     // Create new
                     val newId = examRepo.addExam(
@@ -442,7 +442,7 @@ class ManageExamsActivity : AppCompatActivity() {
                         generationPrompt = prompt
                     )
                     currentExamId = newId
-                    Toast.makeText(this@ManageExamsActivity, "New exam '$name' created!", Toast.LENGTH_SHORT).show()
+                    AppBulletin.showSuccess(this@ManageExamsActivity, "New exam '$name' created!")
                 }
 
                 initialExam = getCurrentFormAsExam()

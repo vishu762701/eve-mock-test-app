@@ -2,7 +2,7 @@ package com.eve.app.ui.admin
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
+import com.eve.app.util.AppBulletin
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -156,16 +156,15 @@ class EditAboutActivity : AppCompatActivity() {
                 initialContent = current
                 binding.btnSave.isEnabled = true
                 binding.progressBar.visibility = View.GONE
-                Toast.makeText(this@EditAboutActivity, "Saved successfully!", Toast.LENGTH_SHORT).show()
+                AppBulletin.showSuccess(this@EditAboutActivity, "Saved successfully!")
                 onSuccess?.invoke()
             } catch (e: Exception) {
                 binding.btnSave.isEnabled = true
                 binding.progressBar.visibility = View.GONE
-                Toast.makeText(
+                AppBulletin.showError(
                     this@EditAboutActivity,
-                    "Failed to save: ${e.localizedMessage ?: "Unknown error"}",
-                    Toast.LENGTH_LONG
-                ).show()
+                    "Failed to save: ${e.localizedMessage ?: "Unknown error"}"
+                )
             }
         }
     }

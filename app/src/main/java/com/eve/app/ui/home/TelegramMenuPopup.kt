@@ -18,6 +18,7 @@ import com.eve.app.util.FastBlurHelper
 import com.eve.app.util.GlassmorphismHelper
 import com.eve.app.util.ThemeManager
 import com.eve.app.util.ThemeSwitchAnimator
+import com.eve.app.util.TelegramPopupHelper
 
 class TelegramMenuPopup(
     private val context: Context,
@@ -173,21 +174,8 @@ class TelegramMenuPopup(
         // Task C: Apply animated background blur on supported Android versions
         GlassmorphismHelper.applyWindowBlur(binding.root, blurRadius = GlassmorphismHelper.DEFAULT_BLUR_RADIUS, animate = true)
 
-        binding.root.post {
-            binding.root.pivotX = binding.root.width.toFloat()
-            binding.root.pivotY = 0f
-            binding.root.scaleX = 0.85f
-            binding.root.scaleY = 0.85f
-            binding.root.alpha = 0f
-
-            binding.root.animate()
-                .scaleX(1.0f)
-                .scaleY(1.0f)
-                .alpha(1.0f)
-                .setDuration(200)
-                .setInterpolator(FastOutSlowInInterpolator())
-                .start()
-        }
+        // Upgrade 7: Telegram-style anchored scale+fade popup entrance (ActionBarPopupWindow pattern)
+        TelegramPopupHelper.animateEntrance(binding.root, anchorView)
     }
 
     private fun dismissWithAction(action: () -> Unit) {
@@ -195,22 +183,14 @@ class TelegramMenuPopup(
         isDismissing = true
         GlassmorphismHelper.removeWindowBlur(binding.root, animate = true)
 
-        binding.root.pivotX = binding.root.width.toFloat()
-        binding.root.pivotY = 0f
-        binding.root.animate()
-            .scaleX(0.85f)
-            .scaleY(0.85f)
-            .alpha(0f)
-            .setDuration(150)
-            .setInterpolator(FastOutSlowInInterpolator())
-            .withEndAction {
-                isDismissing = false
-                super.dismiss()
-                binding.ivGlassBlurBackground.setImageDrawable(null)
-                blurBitmap = null
-                action()
-            }
-            .start()
+        // Upgrade 7: Telegram-style reverse scale+fade popup exit
+        TelegramPopupHelper.animateExit(binding.root) {
+            isDismissing = false
+            super.dismiss()
+            binding.ivGlassBlurBackground.setImageDrawable(null)
+            blurBitmap = null
+            action()
+        }
     }
 
     override fun dismiss() {
@@ -218,20 +198,12 @@ class TelegramMenuPopup(
         isDismissing = true
         GlassmorphismHelper.removeWindowBlur(binding.root, animate = true)
 
-        binding.root.pivotX = binding.root.width.toFloat()
-        binding.root.pivotY = 0f
-        binding.root.animate()
-            .scaleX(0.85f)
-            .scaleY(0.85f)
-            .alpha(0f)
-            .setDuration(150)
-            .setInterpolator(FastOutSlowInInterpolator())
-            .withEndAction {
-                isDismissing = false
-                super.dismiss()
-                binding.ivGlassBlurBackground.setImageDrawable(null)
-                blurBitmap = null
-            }
-            .start()
+        // Upgrade 7: Telegram-style reverse scale+fade popup exit
+        TelegramPopupHelper.animateExit(binding.root) {
+            isDismissing = false
+            super.dismiss()
+            binding.ivGlassBlurBackground.setImageDrawable(null)
+            blurBitmap = null
+        }
     }
 }

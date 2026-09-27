@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
+import com.eve.app.util.AppBulletin
 import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.data.model.Exam
 import com.eve.app.data.model.FeedbackPost
@@ -74,7 +74,7 @@ class ExamAdapter(
             b.btnSendReply.setOnClickListener {
                 val text = b.etReplyText.text?.toString()?.trim().orEmpty()
                 if (text.isEmpty()) {
-                    Toast.makeText(b.root.context, "Please enter your reply", Toast.LENGTH_SHORT).show()
+                    AppBulletin.showError(b.root.context, "Please enter your reply")
                     return@setOnClickListener
                 }
                 b.btnSendReply.isEnabled = false

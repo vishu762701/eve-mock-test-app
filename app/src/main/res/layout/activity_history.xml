@@ -62,6 +62,13 @@
             android:paddingTop="8dp"
             android:paddingBottom="16dp" />
 
+        <!-- Upgrade 3: Telegram-style list shimmer skeleton (LoadingDrawable pattern) -->
+        <com.eve.app.ui.common.ShimmerSkeletonView
+            android:id="@+id/shimmerSkeletonHistory"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
         <LinearLayout
             android:id="@+id/progressGroup"
             android:layout_width="wrap_content"

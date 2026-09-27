@@ -65,12 +65,21 @@ object ProfilePhotoManager {
     }
 
     /**
-     * Priority: locally saved custom photo -> Google account ki photo (agar hai) -> placeholder icon.
-     * [placeholderBg] screen ke hisaab se alag rakha hai (header ka background primary color hai
-     * isliye wahan translucent circle sahi lagta hai, Profile screen white bg par solid primary circle).
+     * Priority: locally saved custom photo -> Google account photo -> Telegram-style auto-generated gradient avatar.
      */
-    fun applyTo(context: Context, imageView: ImageView, googlePhotoUrl: String?, placeholderBg: Int) {
+    fun applyTo(
+        context: Context,
+        imageView: ImageView,
+        googlePhotoUrl: String?,
+        placeholderBg: Int = R.drawable.bg_circle_translucent,
+        userName: String? = null,
+        userId: String? = null
+    ) {
         val local = loadBitmap(context)
+        val authUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+        val effectiveName = userName ?: authUser?.displayName ?: "Student"
+        val effectiveId = userId ?: authUser?.uid ?: authUser?.email ?: effectiveName
+
         when {
             local != null -> {
                 imageView.background = null
@@ -82,20 +91,17 @@ object ProfilePhotoManager {
                 imageView.background = null
                 imageView.setPadding(0, 0, 0, 0)
                 imageView.scaleType = ImageView.ScaleType.CENTER_CROP
+                val fallbackDrawable = AvatarDrawable.create(effectiveName, effectiveId)
                 imageView.load(googlePhotoUrl) {
-                    placeholder(R.drawable.ic_person)
-                    error(R.drawable.ic_person)
+                    placeholder(fallbackDrawable)
+                    error(fallbackDrawable)
                 }
             }
             else -> {
-                val iconRes = if (imageView.id == R.id.ivProfile) R.drawable.ic_user_profile else R.drawable.ic_person
-                imageView.colorFilter = null
-                imageView.imageTintList = null
-                imageView.setImageResource(iconRes)
-                imageView.setBackgroundResource(placeholderBg)
-                imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
-                val pad = (imageView.layoutParams?.width ?: 96).coerceAtLeast(40) / 5
-                imageView.setPadding(pad, pad, pad, pad)
+                imageView.background = null
+                imageView.setPadding(0, 0, 0, 0)
+                imageView.scaleType = ImageView.ScaleType.CENTER_CROP
+                imageView.setImageDrawable(AvatarDrawable.create(effectiveName, effectiveId))
             }
         }
     }

@@ -17,6 +17,8 @@ class GeneratedTestAdapter(
 
     private var items: List<GeneratedTest> = emptyList()
 
+    fun getItems(): List<GeneratedTest> = items
+
     fun submit(list: List<GeneratedTest>) {
         items = list
         notifyDataSetChanged()

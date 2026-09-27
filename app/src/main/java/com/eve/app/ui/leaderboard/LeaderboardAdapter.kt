@@ -36,7 +36,9 @@ class LeaderboardAdapter(
                 )
             )
 
-            b.tvAvatarInitial.text = entry.initial
+            val avatar = com.eve.app.util.AvatarDrawable.create(entry.displayName, entry.userId)
+            (b.tvAvatarInitial.parent as? android.view.View)?.background = avatar
+            b.tvAvatarInitial.text = ""
             b.tvScore.text = "${entry.scoreText}/${entry.total}"
 
             val isMe = currentUserId != null && entry.userId == currentUserId

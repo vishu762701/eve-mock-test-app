@@ -2,7 +2,8 @@ package com.eve.app.ui.admin
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
+import com.eve.app.util.AppBulletin
+import com.eve.app.util.AppUndoBar
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -163,13 +164,12 @@ class SendNotificationActivity : AppCompatActivity() {
                         customTitle = "Delete Failed",
                         onRetry = { deleteSelectedBroadcasts() }
                     )
-                    Toast.makeText(this@SendNotificationActivity, err, Toast.LENGTH_LONG).show()
+                    AppBulletin.showError(this@SendNotificationActivity, err)
                 } else {
-                    Toast.makeText(
+                    AppBulletin.showSuccess(
                         this@SendNotificationActivity,
-                        "Successfully deleted ${idsToDelete.size} broadcast${if (idsToDelete.size > 1) "s" else ""}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                        "Successfully deleted ${idsToDelete.size} broadcast${if (idsToDelete.size > 1) "s" else ""}"
+                    )
                     exitSelectionMode()
                     listenToSentBroadcasts()
                 }
@@ -183,7 +183,7 @@ class SendNotificationActivity : AppCompatActivity() {
                     customTitle = "Delete Failed",
                     onRetry = { deleteSelectedBroadcasts() }
                 )
-                Toast.makeText(this@SendNotificationActivity, err, Toast.LENGTH_LONG).show()
+                AppBulletin.showError(this@SendNotificationActivity, err)
             }
         }
     }
@@ -226,7 +226,24 @@ class SendNotificationActivity : AppCompatActivity() {
             .setTitle("Delete Broadcast?")
             .setMessage("Delete $titleText? Only this individual broadcast will be deleted, leaving all other messages intact.")
             .setPositiveButton("Delete") { _, _ ->
-                deleteBroadcast(broadcast)
+                val originalList = sentAdapter.currentList.toMutableList()
+                val updated = originalList.filter { it.id != broadcast.id }
+                sentAdapter.submitList(updated)
+                binding.tvNoSentBroadcasts.visibility = if (updated.isEmpty()) View.VISIBLE else View.GONE
+
+                AppUndoBar.show(
+                    context = this@SendNotificationActivity,
+                    message = "Broadcast deleted",
+                    timeLeftMs = AppUndoBar.TIME_IMPORTANT,
+                    onUndo = {
+                        sentAdapter.submitList(originalList)
+                        binding.tvNoSentBroadcasts.visibility = if (originalList.isEmpty()) View.VISIBLE else View.GONE
+                        AppBulletin.show(this@SendNotificationActivity, "Delete cancelled")
+                    },
+                    onExecuteDelete = {
+                        deleteBroadcast(broadcast)
+                    }
+                )
             }
             .setNegativeButton("Cancel", null)
             .show()
@@ -234,7 +251,7 @@ class SendNotificationActivity : AppCompatActivity() {
 
     private fun deleteBroadcast(broadcast: BroadcastMessage) {
         if (broadcast.id.isBlank()) {
-            Toast.makeText(this, "Cannot delete broadcast: Invalid document ID", Toast.LENGTH_SHORT).show()
+            AppBulletin.showError(this, "Cannot delete broadcast: Invalid document ID")
             return
         }
         binding.progressBarSent.visibility = View.VISIBLE
@@ -245,7 +262,7 @@ class SendNotificationActivity : AppCompatActivity() {
                 if (!res.success) {
                     throw Exception(res.error ?: "Failed to delete broadcast")
                 }
-                Toast.makeText(this@SendNotificationActivity, "Broadcast deleted successfully", Toast.LENGTH_SHORT).show()
+                AppBulletin.showSuccess(this@SendNotificationActivity, "Broadcast deleted successfully")
                 val updated = sentAdapter.currentList.filter { it.id != broadcast.id }
                 sentAdapter.submitList(updated)
                 binding.tvNoSentBroadcasts.visibility = if (updated.isEmpty()) View.VISIBLE else View.GONE
@@ -257,7 +274,7 @@ class SendNotificationActivity : AppCompatActivity() {
                     customMessage = err,
                     customTitle = "Delete Error"
                 )
-                Toast.makeText(this@SendNotificationActivity, err, Toast.LENGTH_LONG).show()
+                AppBulletin.showError(this@SendNotificationActivity, err)
             } finally {
                 binding.progressBarSent.visibility = View.GONE
             }
@@ -311,29 +328,26 @@ class SendNotificationActivity : AppCompatActivity() {
                 binding.progressBar.visibility = View.GONE
 
                 if (!res.success) {
-                    Toast.makeText(
+                    AppBulletin.showError(
                         this@SendNotificationActivity,
-                        "Failed to send: ${res.error ?: "Unknown error"}",
-                        Toast.LENGTH_LONG
-                    ).show()
+                        "Failed to send: ${res.error ?: "Unknown error"}"
+                    )
                 } else {
                     binding.etTitle.text?.clear()
                     binding.etMessage.text?.clear()
-                    Toast.makeText(
+                    AppBulletin.showSuccess(
                         this@SendNotificationActivity,
-                        "Notification broadcast successfully!",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                        "Notification broadcast successfully!"
+                    )
                     listenToSentBroadcasts()
                 }
             } catch (e: Exception) {
                 binding.btnSend.isEnabled = true
                 binding.progressBar.visibility = View.GONE
-                Toast.makeText(
+                AppBulletin.showError(
                     this@SendNotificationActivity,
-                    "Failed to send: ${e.localizedMessage ?: "Unknown error"}",
-                    Toast.LENGTH_LONG
-                ).show()
+                    "Failed to send: ${e.localizedMessage ?: "Unknown error"}"
+                )
             }
         }
     }

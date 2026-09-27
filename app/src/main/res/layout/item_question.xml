@@ -44,28 +44,28 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <RadioButton
+            <com.eve.app.ui.common.TelegramRadioButton
                 android:id="@+id/rbA"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingVertical="10dp"
                 android:textSize="16sp" />
 
-            <RadioButton
+            <com.eve.app.ui.common.TelegramRadioButton
                 android:id="@+id/rbB"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingVertical="10dp"
                 android:textSize="16sp" />
 
-            <RadioButton
+            <com.eve.app.ui.common.TelegramRadioButton
                 android:id="@+id/rbC"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingVertical="10dp"
                 android:textSize="16sp" />
 
-            <RadioButton
+            <com.eve.app.ui.common.TelegramRadioButton
                 android:id="@+id/rbD"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

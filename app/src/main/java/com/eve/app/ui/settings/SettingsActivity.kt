@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
+import com.eve.app.util.AppBulletin
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -45,15 +45,15 @@ class SettingsActivity : AppCompatActivity() {
                         }
                         ?.addOnFailureListener { e ->
                             dismissProgress()
-                            Toast.makeText(this, "Re-authentication failed: ${e.message}", Toast.LENGTH_LONG).show()
+                            AppBulletin.showError(this, "Re-authentication failed: ${e.message}")
                         }
                 } else {
                     dismissProgress()
-                    Toast.makeText(this, "Could not get authentication token", Toast.LENGTH_SHORT).show()
+                    AppBulletin.showError(this, "Could not get authentication token")
                 }
             } catch (e: Exception) {
                 dismissProgress()
-                Toast.makeText(this, "Re-authentication failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                AppBulletin.showError(this, "Re-authentication failed: ${e.message}")
             }
         }
 
@@ -154,7 +154,7 @@ class SettingsActivity : AppCompatActivity() {
                 GoogleSignIn.getClient(this@SettingsActivity, gso).signOut()
 
                 dismissProgress()
-                Toast.makeText(this@SettingsActivity, "Account deleted successfully", Toast.LENGTH_LONG).show()
+                AppBulletin.showSuccess(this@SettingsActivity, "Account deleted successfully")
 
                 val intent = Intent(this@SettingsActivity, LoginActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

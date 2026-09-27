@@ -24,6 +24,8 @@ class PollsAdminAdapter(
     private val expandedPollIds = mutableSetOf<String>()
     private val dateFormat = SimpleDateFormat("MMM d, yyyy h:mm a", Locale.getDefault())
 
+    fun getItems(): List<Poll> = polls.toList()
+
     fun submitList(list: List<Poll>) {
         polls.clear()
         polls.addAll(list)

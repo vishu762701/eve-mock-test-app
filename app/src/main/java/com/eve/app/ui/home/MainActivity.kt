@@ -127,7 +127,7 @@ class MainActivity : AppCompatActivity() {
         onSendReply = { post, text, onComplete ->
             val user = FirebaseAuth.getInstance().currentUser
             if (user == null) {
-                Toast.makeText(this, "Please sign in to reply", Toast.LENGTH_SHORT).show()
+                com.eve.app.util.AppBulletin.show(this, "Please sign in to reply")
                 onComplete(false)
             } else {
                 lifecycleScope.launch {
@@ -140,10 +140,10 @@ class MainActivity : AppCompatActivity() {
                         text = text
                     )
                     result.onSuccess {
-                        Toast.makeText(this@MainActivity, "Reply sent", Toast.LENGTH_SHORT).show()
+                        com.eve.app.util.AppBulletin.showSuccess(this@MainActivity, "Reply sent")
                         onComplete(true)
                     }.onFailure { err ->
-                        Toast.makeText(this@MainActivity, "Failed to send: ${err.localizedMessage ?: "Unknown error"}", Toast.LENGTH_SHORT).show()
+                        com.eve.app.util.AppBulletin.showError(this@MainActivity, "Failed to send: ${err.localizedMessage ?: "Unknown error"}")
                         onComplete(false)
                     }
                 }
@@ -403,7 +403,7 @@ class MainActivity : AppCompatActivity() {
             // Task B: Fire exactly one haptic event per pin and per unpin action
             com.eve.app.util.VibrationHelper.vibrateLightHaptic(this)
             val msg = if (isPinned) "Test unpinned" else "Test pinned to top"
-            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+            com.eve.app.util.AppBulletin.showSuccess(this, msg)
             true
         }
         popup.show()
@@ -425,8 +425,17 @@ class MainActivity : AppCompatActivity() {
                     .setTitle("Delete Feedback Post?")
                     .setMessage("Are you sure you want to delete '${post.title}'?")
                     .setPositiveButton("Delete") { _, _ ->
-                        viewModel.deleteFeedbackPost(post.id)
-                        Toast.makeText(this@MainActivity, "Post deleted", Toast.LENGTH_SHORT).show()
+                        com.eve.app.util.AppUndoBar.show(
+                            context = this@MainActivity,
+                            message = "Post '${post.title}' deleted",
+                            timeLeftMs = com.eve.app.util.AppUndoBar.TIME_IMPORTANT,
+                            onUndo = {
+                                com.eve.app.util.AppBulletin.show(this@MainActivity, "Delete cancelled")
+                            },
+                            onExecuteDelete = {
+                                viewModel.deleteFeedbackPost(post.id)
+                            }
+                        )
                     }
                     .setNegativeButton("Cancel", null)
                     .show()
@@ -661,7 +670,9 @@ class MainActivity : AppCompatActivity() {
     private fun render(state: UiState<HomeUiData>) {
         when (state) {
             is UiState.Loading -> {
-                binding.progressGroup.visibility = View.VISIBLE
+                binding.shimmerSkeletonHome.visibility = View.VISIBLE
+                binding.rvExams.visibility = View.GONE
+                binding.progressGroup.visibility = View.GONE
                 binding.messageGroup.visibility = View.GONE
                 binding.chipGroupCategory.visibility = View.GONE
             }
@@ -672,10 +683,12 @@ class MainActivity : AppCompatActivity() {
                 lastLoadedItems = data.items
                 renderChips(data.categories, data.selectedCategory)
                 applyCurrentList()
+                com.eve.app.util.ShimmerHelper.crossFade(binding.shimmerSkeletonHome, binding.rvExams)
                 binding.chipGroupCategory.visibility =
                     if (data.categories.size <= 1 || isSearchActive) View.GONE else View.VISIBLE
             }
             is UiState.Error -> {
+                binding.shimmerSkeletonHome.visibility = View.GONE
                 binding.progressGroup.visibility = View.GONE
                 binding.messageGroup.visibility = View.VISIBLE
                 binding.btnRetry.visibility = View.VISIBLE

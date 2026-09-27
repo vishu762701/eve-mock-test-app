@@ -4,7 +4,7 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.net.Uri
 import android.os.Bundle
-import android.widget.Toast
+import com.eve.app.util.AppBulletin
 import androidx.appcompat.app.AppCompatActivity
 import com.eve.app.databinding.ActivityAboutBinding
 import com.eve.app.util.Constants
@@ -36,7 +36,7 @@ class AboutActivity : AppCompatActivity() {
         // "Crashlytics" section me 2-3 min me report dikhega). Release build me kuch nahi hota.
         binding.tvVersion.setOnLongClickListener {
             if ((applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
-                Toast.makeText(this, "Test crash triggering…", Toast.LENGTH_SHORT).show()
+                AppBulletin.show(this, "Test crash triggering…")
                 throw RuntimeException("Eve: Crashlytics test crash (About screen long-press)")
             }
             true

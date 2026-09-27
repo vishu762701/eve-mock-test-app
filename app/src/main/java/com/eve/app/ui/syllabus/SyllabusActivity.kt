@@ -14,7 +14,7 @@ import android.os.Environment
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
-import android.widget.Toast
+import com.eve.app.util.AppBulletin
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -45,7 +45,7 @@ class SyllabusActivity : AppCompatActivity() {
         if (isGranted) {
             pendingDownloadExam?.let { startDownload(it) }
         } else {
-            Toast.makeText(this, "Storage permission is required to save downloads", Toast.LENGTH_SHORT).show()
+            AppBulletin.showError(this, "Storage permission is required to save downloads")
         }
         pendingDownloadExam = null
     }
@@ -63,13 +63,15 @@ class SyllabusActivity : AppCompatActivity() {
                 if (fileUri != null) {
                     examIdToUri[exam.id] = fileUri
                     adapter.setDownloaded(exam.id)
-                    Snackbar.make(binding.root, "Syllabus downloaded: ${exam.examName}", Snackbar.LENGTH_LONG)
-                        .setAction("OPEN") {
-                            openPdf(fileUri)
-                        }
-                        .show()
+                    AppBulletin.show(
+                        context = this@SyllabusActivity,
+                        message = "Syllabus downloaded: ${exam.examName}",
+                        durationMs = AppBulletin.DURATION_PROLONG,
+                        actionText = "OPEN",
+                        onAction = { openPdf(fileUri) }
+                    )
                 } else {
-                    Toast.makeText(this@SyllabusActivity, "Failed to download syllabus", Toast.LENGTH_SHORT).show()
+                    AppBulletin.showError(this@SyllabusActivity, "Failed to download syllabus")
                 }
             }
         }
@@ -191,7 +193,7 @@ class SyllabusActivity : AppCompatActivity() {
 
     private fun startDownload(exam: Exam) {
         if (exam.syllabusUrl.isBlank()) {
-            Toast.makeText(this, "Syllabus not available for this exam", Toast.LENGTH_SHORT).show()
+            AppBulletin.showError(this, "Syllabus not available for this exam")
             return
         }
 
@@ -214,9 +216,9 @@ class SyllabusActivity : AppCompatActivity() {
             downloadIdToExam[downloadId] = exam
             adapter.setDownloading(exam.id, true)
 
-            Toast.makeText(this, "Downloading $fileName...", Toast.LENGTH_SHORT).show()
+            AppBulletin.show(this, "Downloading $fileName...")
         } catch (e: Exception) {
-            Toast.makeText(this, "Download failed: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+            AppBulletin.showError(this, "Download failed: ${e.localizedMessage}")
         }
     }
 
@@ -229,7 +231,7 @@ class SyllabusActivity : AppCompatActivity() {
             }
             startActivity(Intent.createChooser(intent, "Open Syllabus PDF"))
         } catch (_: Exception) {
-            Toast.makeText(this, "No PDF viewer app found on device", Toast.LENGTH_SHORT).show()
+            AppBulletin.showError(this, "No PDF viewer app found on device")
         }
     }
 }

@@ -2,11 +2,11 @@ package com.eve.app.ui.feedback
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.data.repository.FeedbackRepository
 import com.eve.app.databinding.ActivityFeedbackBinding
+import com.eve.app.util.AppBulletin
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -57,11 +57,11 @@ class FeedbackActivity : AppCompatActivity() {
                 binding.btnSendFeedback.isEnabled = true
 
                 result.onSuccess {
-                    Toast.makeText(this@FeedbackActivity, "Thank you! Your feedback has been sent.", Toast.LENGTH_LONG).show()
+                    AppBulletin.showSuccess(this@FeedbackActivity, "Thank you! Your feedback has been sent.")
                     binding.etFeedbackMessage.text = null
                     finish()
                 }.onFailure { err ->
-                    Toast.makeText(this@FeedbackActivity, "Failed to send: ${err.localizedMessage ?: "Unknown error"}", Toast.LENGTH_SHORT).show()
+                    AppBulletin.showError(this@FeedbackActivity, "Failed to send: ${err.localizedMessage ?: "Unknown error"}")
                 }
             }
         }

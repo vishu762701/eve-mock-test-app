@@ -4,7 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
+import com.eve.app.util.AppBulletin
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.data.model.AppContent
@@ -112,7 +112,7 @@ class ContentDisplayActivity : AppCompatActivity() {
             }
             startActivity(intent)
         } catch (_: Exception) {
-            Toast.makeText(this, "No email app found", Toast.LENGTH_SHORT).show()
+            AppBulletin.showError(this, "No email app found")
         }
     }
 
@@ -121,7 +121,7 @@ class ContentDisplayActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phone"))
             startActivity(intent)
         } catch (_: Exception) {
-            Toast.makeText(this, "Cannot open dialer", Toast.LENGTH_SHORT).show()
+            AppBulletin.showError(this, "Cannot open dialer")
         }
     }
 
@@ -132,7 +132,7 @@ class ContentDisplayActivity : AppCompatActivity() {
             } else url
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(formatted)))
         } catch (_: Exception) {
-            Toast.makeText(this, "Cannot open link", Toast.LENGTH_SHORT).show()
+            AppBulletin.showError(this, "Cannot open link")
         }
     }
 }

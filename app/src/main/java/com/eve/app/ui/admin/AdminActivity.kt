@@ -6,7 +6,8 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Toast
+import com.eve.app.util.AppBulletin
+import com.eve.app.util.AppUndoBar
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -60,7 +61,7 @@ class AdminActivity : AppCompatActivity() {
                 ExamImageHelper.loadExamImage(binding.ivNewExamImagePreview, base64)
                 binding.btnRemoveExamImage.visibility = View.VISIBLE
             } else {
-                Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show()
+                AppBulletin.showError(this, "Failed to load image")
             }
         }
     }
@@ -74,7 +75,7 @@ class AdminActivity : AppCompatActivity() {
                     selectedExamForImageUpdate = null
                 }
             } else {
-                Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show()
+                AppBulletin.showError(this, "Failed to load image")
             }
         }
     }
@@ -213,7 +214,7 @@ class AdminActivity : AppCompatActivity() {
                 launch {
                     viewModel.message.collect { msg ->
                         if (msg != null) {
-                            Toast.makeText(this@AdminActivity, msg, Toast.LENGTH_LONG).show()
+                            AppBulletin.show(this@AdminActivity, msg)
                             viewModel.consumeMessage()
                         }
                     }
@@ -232,16 +233,16 @@ class AdminActivity : AppCompatActivity() {
             selectedCategory
         }
         if (name.length < 2 || minutes == null || minutes <= 0) {
-            Toast.makeText(this, "Please enter exam name (min 2 characters) and valid duration in minutes", Toast.LENGTH_SHORT).show()
+            AppBulletin.showError(this, "Please enter exam name (min 2 characters) and valid duration in minutes")
             return
         }
         if (category.isEmpty()) {
-            Toast.makeText(this, "Please select or type a category", Toast.LENGTH_SHORT).show()
+            AppBulletin.showError(this, "Please select or type a category")
             return
         }
         // Duplicate check within same category
         if (exams.any { it.categoryOrOther.equals(category, ignoreCase = true) && it.examName.trim().equals(name, ignoreCase = true) }) {
-            Toast.makeText(this, "An exam named '$name' already exists in category '$category'", Toast.LENGTH_LONG).show()
+            AppBulletin.showError(this, "An exam named '$name' already exists in category '$category'")
             return
         }
         viewModel.addExam(name, minutes, category, imageUrl = newExamImageBase64) {
@@ -259,7 +260,7 @@ class AdminActivity : AppCompatActivity() {
     private fun showEditExamImageDialog() {
         val exam = exams.getOrNull(binding.spExam.selectedItemPosition)
         if (exam == null) {
-            Toast.makeText(this, "Please select an exam first", Toast.LENGTH_SHORT).show()
+            AppBulletin.showError(this, "Please select an exam first")
             return
         }
         selectedExamForImageUpdate = exam
@@ -290,7 +291,7 @@ class AdminActivity : AppCompatActivity() {
     private fun promptRenameExam() {
         val exam = exams.getOrNull(binding.spExam.selectedItemPosition)
         if (exam == null) {
-            Toast.makeText(this, "Please select an exam to rename", Toast.LENGTH_SHORT).show()
+            AppBulletin.showError(this, "Please select an exam to rename")
             return
         }
 
@@ -308,11 +309,11 @@ class AdminActivity : AppCompatActivity() {
             .setPositiveButton("Rename") { _, _ ->
                 val newName = input.text.toString().trim()
                 if (newName.length < 2) {
-                    Toast.makeText(this, "Exam name must be at least 2 characters", Toast.LENGTH_SHORT).show()
+                    AppBulletin.showError(this, "Exam name must be at least 2 characters")
                     return@setPositiveButton
                 }
                 if (exams.any { it.id != exam.id && it.categoryOrOther.equals(exam.categoryOrOther, ignoreCase = true) && it.examName.trim().equals(newName, ignoreCase = true) }) {
-                    Toast.makeText(this, "An exam named '$newName' already exists in category '${exam.categoryOrOther}'", Toast.LENGTH_LONG).show()
+                    AppBulletin.showError(this, "An exam named '$newName' already exists in category '${exam.categoryOrOther}'")
                     return@setPositiveButton
                 }
                 viewModel.renameExam(exam.id, newName) { }
@@ -327,7 +328,17 @@ class AdminActivity : AppCompatActivity() {
             .setTitle("Delete Exam?")
             .setMessage("Exam '${exam.examName}' and all its tests/questions will be permanently deleted.")
             .setPositiveButton("Delete") { _, _ ->
-                viewModel.deleteExam(exam.id) { }
+                AppUndoBar.show(
+                    context = this@AdminActivity,
+                    message = "Exam '${exam.examName}' deleted",
+                    timeLeftMs = AppUndoBar.TIME_IMPORTANT,
+                    onUndo = {
+                        AppBulletin.show(this@AdminActivity, "Delete cancelled")
+                    },
+                    onExecuteDelete = {
+                        viewModel.deleteExam(exam.id) { }
+                    }
+                )
             }
             .setNegativeButton("Cancel", null)
             .show()
@@ -356,7 +367,17 @@ class AdminActivity : AppCompatActivity() {
             .setTitle("Delete Question?")
             .setMessage(q.questionText)
             .setPositiveButton("Delete") { _, _ ->
-                viewModel.deleteQuestion(q)
+                AppUndoBar.show(
+                    context = this@AdminActivity,
+                    message = "Question deleted",
+                    timeLeftMs = AppUndoBar.TIME_IMPORTANT,
+                    onUndo = {
+                        AppBulletin.show(this@AdminActivity, "Delete cancelled")
+                    },
+                    onExecuteDelete = {
+                        viewModel.deleteQuestion(q)
+                    }
+                )
             }
             .setNegativeButton("Cancel", null)
             .show()
@@ -365,7 +386,7 @@ class AdminActivity : AppCompatActivity() {
     private fun addAdmin() {
         val email = binding.etAdminEmail.text.toString().trim()
         if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show()
+            AppBulletin.showError(this, "Please enter a valid email address")
             return
         }
         viewModel.addAdmin(email) {
@@ -422,10 +443,10 @@ class AdminActivity : AppCompatActivity() {
                 val result = feedbackRepo.createFeedbackPost(title, message, authorId, authorEmail)
                 dialogBinding.btnPublishPost.isEnabled = true
                 result.onSuccess {
-                    Toast.makeText(this@AdminActivity, "Feedback post published successfully!", Toast.LENGTH_SHORT).show()
+                    AppBulletin.showSuccess(this@AdminActivity, "Feedback post published successfully!")
                     dialog.dismiss()
                 }.onFailure { err ->
-                    Toast.makeText(this@AdminActivity, "Failed to publish: ${err.localizedMessage ?: "Unknown error"}", Toast.LENGTH_SHORT).show()
+                    AppBulletin.showError(this@AdminActivity, "Failed to publish: ${err.localizedMessage ?: "Unknown error"}")
                 }
             }
         }
@@ -448,7 +469,7 @@ class AdminActivity : AppCompatActivity() {
                         bannerRepo.reorderBanner(banner.id, moveUp = true)
                         refreshBannerList(dialogBinding)
                     } catch (e: Exception) {
-                        Toast.makeText(this@AdminActivity, "Error reordering: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                        AppBulletin.showError(this@AdminActivity, "Error reordering: ${e.localizedMessage}")
                     }
                 }
             },
@@ -458,7 +479,7 @@ class AdminActivity : AppCompatActivity() {
                         bannerRepo.reorderBanner(banner.id, moveUp = false)
                         refreshBannerList(dialogBinding)
                     } catch (e: Exception) {
-                        Toast.makeText(this@AdminActivity, "Error reordering: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                        AppBulletin.showError(this@AdminActivity, "Error reordering: ${e.localizedMessage}")
                     }
                 }
             },
@@ -508,7 +529,7 @@ class AdminActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 val result = bannerRepo.uploadBanner(this@AdminActivity, uri, email)
                 if (result.isSuccess) {
-                    Toast.makeText(this@AdminActivity, "Banner published successfully!", Toast.LENGTH_SHORT).show()
+                    AppBulletin.showSuccess(this@AdminActivity, "Banner published successfully!")
                     dialogBinding.cardPreviewBanner.visibility = View.GONE
                     dialogBinding.btnSaveBanner.visibility = View.GONE
                     dialogBinding.btnSaveBanner.isEnabled = true
@@ -544,7 +565,7 @@ class AdminActivity : AppCompatActivity() {
                 dialogBinding.tvNoBanners.visibility = if (banners.isEmpty()) View.VISIBLE else View.GONE
                 dialogBinding.rvAdminBanners.visibility = if (banners.isEmpty()) View.GONE else View.VISIBLE
             } catch (e: Exception) {
-                Toast.makeText(this@AdminActivity, "Failed to load banners: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                AppBulletin.showError(this@AdminActivity, "Failed to load banners: ${e.localizedMessage}")
             }
         }
     }
@@ -554,15 +575,24 @@ class AdminActivity : AppCompatActivity() {
             .setTitle("Delete Home Banner?")
             .setMessage("This will remove this banner from the student Home screen carousel immediately.")
             .setPositiveButton("Delete") { _, _ ->
-                lifecycleScope.launch {
-                    try {
-                        bannerRepo.deleteBanner(banner.id)
-                        Toast.makeText(this@AdminActivity, "Banner deleted", Toast.LENGTH_SHORT).show()
-                        onDeleted()
-                    } catch (e: Exception) {
-                        Toast.makeText(this@AdminActivity, "Failed to delete: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                AppUndoBar.show(
+                    context = this@AdminActivity,
+                    message = "Banner deleted",
+                    timeLeftMs = AppUndoBar.TIME_IMPORTANT,
+                    onUndo = {
+                        AppBulletin.show(this@AdminActivity, "Delete cancelled")
+                    },
+                    onExecuteDelete = {
+                        lifecycleScope.launch {
+                            try {
+                                bannerRepo.deleteBanner(banner.id)
+                                onDeleted()
+                            } catch (e: Exception) {
+                                AppBulletin.showError(this@AdminActivity, "Failed to delete: ${e.localizedMessage}")
+                            }
+                        }
                     }
-                }
+                )
             }
             .setNegativeButton("Cancel", null)
             .show()
@@ -573,7 +603,7 @@ class AdminActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val posts = feedbackRepo.getFeedbackPosts()
             if (posts.isEmpty()) {
-                Toast.makeText(this@AdminActivity, "No feedback posts found.", Toast.LENGTH_SHORT).show()
+                AppBulletin.show(this@AdminActivity, "No feedback posts found.")
                 return@launch
             }
             if (posts.size == 1) {
@@ -598,7 +628,7 @@ class AdminActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val posts = feedbackRepo.getFeedbackPosts()
             if (posts.isEmpty()) {
-                Toast.makeText(this@AdminActivity, "No feedback posts published yet.", Toast.LENGTH_SHORT).show()
+                AppBulletin.show(this@AdminActivity, "No feedback posts published yet.")
                 return@launch
             }
             val titles = posts.map { "${it.title} (${it.message.take(30)}...)" }.toTypedArray()
@@ -626,10 +656,19 @@ class AdminActivity : AppCompatActivity() {
                             .setTitle("Delete Post?")
                             .setMessage("Delete '${post.title}' from Home screen? All its student replies will also be permanently deleted.")
                             .setPositiveButton("Delete") { _, _ ->
-                                lifecycleScope.launch {
-                                    feedbackRepo.deleteFeedbackPost(post.id)
-                                    Toast.makeText(this@AdminActivity, "Post and replies deleted", Toast.LENGTH_SHORT).show()
-                                }
+                                AppUndoBar.show(
+                                    context = this@AdminActivity,
+                                    message = "Post '${post.title}' deleted",
+                                    timeLeftMs = AppUndoBar.TIME_IMPORTANT,
+                                    onUndo = {
+                                        AppBulletin.show(this@AdminActivity, "Delete cancelled")
+                                    },
+                                    onExecuteDelete = {
+                                        lifecycleScope.launch {
+                                            feedbackRepo.deleteFeedbackPost(post.id)
+                                        }
+                                    }
+                                )
                             }
                             .setNegativeButton("Cancel", null)
                             .show()
@@ -659,7 +698,7 @@ class AdminActivity : AppCompatActivity() {
                     feedbackRepo.markReplyAsRead(post.id, reply.id).onSuccess {
                         currentReplies = currentReplies.map { if (it.id == reply.id) it.copy(read = true) else it }
                         repliesAdapter.submitList(currentReplies)
-                        Toast.makeText(this@AdminActivity, "Marked as read", Toast.LENGTH_SHORT).show()
+                        AppBulletin.showSuccess(this@AdminActivity, "Marked as read")
                     }
                 }
             },
@@ -673,7 +712,7 @@ class AdminActivity : AppCompatActivity() {
                                 currentReplies = currentReplies.filter { it.id != reply.id }
                                 repliesAdapter.submitList(currentReplies)
                                 dialogBinding.tvNoReplies.visibility = if (currentReplies.isEmpty()) View.VISIBLE else View.GONE
-                                Toast.makeText(this@AdminActivity, "Reply deleted", Toast.LENGTH_SHORT).show()
+                                AppBulletin.showSuccess(this@AdminActivity, "Reply deleted")
                             }
                         }
                     }
@@ -690,11 +729,20 @@ class AdminActivity : AppCompatActivity() {
                 .setTitle("Delete Post?")
                 .setMessage("Delete '${post.title}' from Home screen? All its student replies will also be permanently deleted.")
                 .setPositiveButton("Delete") { _, _ ->
-                    lifecycleScope.launch {
-                        feedbackRepo.deleteFeedbackPost(post.id)
-                        dialog.dismiss()
-                        Toast.makeText(this@AdminActivity, "Post and replies deleted", Toast.LENGTH_SHORT).show()
-                    }
+                    dialog.dismiss()
+                    AppUndoBar.show(
+                        context = this@AdminActivity,
+                        message = "Post '${post.title}' deleted",
+                        timeLeftMs = AppUndoBar.TIME_IMPORTANT,
+                        onUndo = {
+                            AppBulletin.show(this@AdminActivity, "Delete cancelled")
+                        },
+                        onExecuteDelete = {
+                            lifecycleScope.launch {
+                                feedbackRepo.deleteFeedbackPost(post.id)
+                            }
+                        }
+                    )
                 }
                 .setNegativeButton("Cancel", null)
                 .show()

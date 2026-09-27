@@ -37,6 +37,7 @@ class HistoryActivity : AppCompatActivity() {
         hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
         binding = ActivityHistoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.shimmerSkeletonHistory.skeletonType = com.eve.app.ui.common.ShimmerSkeletonView.TYPE_LIST_ITEMS
 
         binding.btnBack.setOnClickListener { finish() }
 
@@ -65,7 +66,9 @@ class HistoryActivity : AppCompatActivity() {
     private fun render(state: UiState<List<TestAttempt>>) {
         when (state) {
             is UiState.Loading -> {
-                binding.progressGroup.visibility = View.VISIBLE
+                binding.shimmerSkeletonHistory.visibility = View.VISIBLE
+                binding.rvHistory.visibility = View.GONE
+                binding.progressGroup.visibility = View.GONE
                 binding.messageGroup.visibility = View.GONE
             }
             is UiState.Success -> {
@@ -75,6 +78,8 @@ class HistoryActivity : AppCompatActivity() {
                 val empty = state.data.isEmpty()
                 binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
                 if (empty) {
+                    binding.shimmerSkeletonHistory.visibility = View.GONE
+                    binding.rvHistory.visibility = View.GONE
                     hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(
                         binding.ivMessageIcon,
                         hasEmptyPlayed
@@ -83,9 +88,11 @@ class HistoryActivity : AppCompatActivity() {
                     binding.tvMessageSub.text = "Submitted tests will appear here"
                 } else {
                     hasEmptyPlayed = false
+                    com.eve.app.util.ShimmerHelper.crossFade(binding.shimmerSkeletonHistory, binding.rvHistory)
                 }
             }
             is UiState.Error -> {
+                binding.shimmerSkeletonHistory.visibility = View.GONE
                 binding.progressGroup.visibility = View.GONE
                 binding.messageGroup.visibility = View.VISIBLE
                 binding.btnRetry.visibility = View.VISIBLE

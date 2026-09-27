@@ -59,9 +59,22 @@ class ResultActivity : AppCompatActivity() {
         val wrong = total - correct - unattempted
         val score = correct - wrong * Constants.NEGATIVE_MARK
 
-        val scoreText = if (score % 1.0 == 0.0) score.toInt().toString() else String.format("%.2f", score)
-        binding.tvScore.text = "$scoreText / $total"
-        binding.tvStats.text = "Correct: $correct   Wrong: $wrong   Unattempted: $unattempted"
+        // Upgrade 4: Telegram-style Number Count-Up Animation (NumberTextView pattern)
+        com.eve.app.util.NumberCountUpHelper.animateScoreCountUp(
+            textView = binding.tvScore,
+            targetScore = score,
+            total = total,
+            durationMs = 950L,
+            onFinished = {
+                com.eve.app.util.NumberCountUpHelper.animateStatsCountUp(
+                    textView = binding.tvStats,
+                    correct = correct,
+                    wrong = wrong,
+                    unattempted = unattempted,
+                    durationMs = 650L
+                )
+            }
+        )
 
         binding.chipAll.text = "All ($total)"
         binding.chipCorrect.text = "Correct ($correct)"

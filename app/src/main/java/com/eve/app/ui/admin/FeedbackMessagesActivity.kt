@@ -2,7 +2,8 @@ package com.eve.app.ui.admin
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
+import com.eve.app.util.AppBulletin
+import com.eve.app.util.AppUndoBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -90,7 +91,29 @@ class FeedbackMessagesActivity : AppCompatActivity() {
             .setTitle("Delete Feedback")
             .setMessage("Are you sure you want to delete this message? This action cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
-                deleteMessage(message.id)
+                val originalList = adapter.currentList.toMutableList()
+                val filtered = originalList.filter { it.id != message.id }
+                adapter.submitList(filtered)
+                if (filtered.isEmpty()) {
+                    binding.emptyStateView.show(
+                        title = "No feedback messages yet",
+                        message = "Messages sent by students will appear here."
+                    )
+                }
+
+                AppUndoBar.show(
+                    context = this@FeedbackMessagesActivity,
+                    message = "Message deleted",
+                    timeLeftMs = AppUndoBar.TIME_IMPORTANT,
+                    onUndo = {
+                        adapter.submitList(originalList)
+                        binding.emptyStateView.hide()
+                        AppBulletin.show(this@FeedbackMessagesActivity, "Delete cancelled")
+                    },
+                    onExecuteDelete = {
+                        deleteMessage(message.id)
+                    }
+                )
             }
             .setNegativeButton("Cancel", null)
             .show()
@@ -101,13 +124,13 @@ class FeedbackMessagesActivity : AppCompatActivity() {
             try {
                 val result = repo.deleteFeedbackMessage(id)
                 result.onSuccess {
-                    Toast.makeText(this@FeedbackMessagesActivity, "Message deleted", Toast.LENGTH_SHORT).show()
+                    AppBulletin.showSuccess(this@FeedbackMessagesActivity, "Message deleted")
                     loadMessages()
                 }.onFailure { err ->
-                    Toast.makeText(this@FeedbackMessagesActivity, "Failed to delete: ${err.message}", Toast.LENGTH_SHORT).show()
+                    AppBulletin.showError(this@FeedbackMessagesActivity, "Failed to delete: ${err.message}")
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@FeedbackMessagesActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                AppBulletin.showError(this@FeedbackMessagesActivity, "Error: ${e.message}")
             }
         }
     }

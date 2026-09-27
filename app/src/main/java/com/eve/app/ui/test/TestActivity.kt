@@ -52,6 +52,7 @@ class TestActivity : AppCompatActivity() {
         SecurityHelper.applyScreenProtection(this)
         binding = ActivityTestBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.shimmerSkeletonTest.skeletonType = com.eve.app.ui.common.ShimmerSkeletonView.TYPE_QUESTION
 
         examId = intent.getStringExtra(Constants.EXTRA_EXAM_ID) ?: ""
         examName = intent.getStringExtra(Constants.EXTRA_EXAM_NAME) ?: "Test"
@@ -113,11 +114,10 @@ class TestActivity : AppCompatActivity() {
                 launch {
                     viewModel.alreadyAttempted.collect { blocked ->
                         if (blocked && !isFinishing) {
-                            android.widget.Toast.makeText(
+                            com.eve.app.util.AppBulletin.showError(
                                 this@TestActivity,
-                                getString(com.eve.app.R.string.exam_already_attempted),
-                                android.widget.Toast.LENGTH_LONG
-                            ).show()
+                                getString(com.eve.app.R.string.exam_already_attempted)
+                            )
                             finish()
                         }
                     }
@@ -141,10 +141,13 @@ class TestActivity : AppCompatActivity() {
     private fun renderQuestions(state: UiState<List<Question>>) {
         when (state) {
             is UiState.Loading -> {
-                binding.progressGroup.visibility = View.VISIBLE
+                binding.shimmerSkeletonTest.visibility = View.VISIBLE
+                binding.viewPager.visibility = View.GONE
+                binding.progressGroup.visibility = View.GONE
                 binding.messageGroup.visibility = View.GONE
             }
             is UiState.Error -> {
+                binding.shimmerSkeletonTest.visibility = View.GONE
                 binding.progressGroup.visibility = View.GONE
                 binding.messageGroup.visibility = View.VISIBLE
                 binding.btnRetry.visibility = View.VISIBLE
@@ -164,6 +167,7 @@ class TestActivity : AppCompatActivity() {
                 val list = state.data
                 totalQuestions = list.size
                 if (list.isEmpty()) {
+                    binding.shimmerSkeletonTest.visibility = View.GONE
                     binding.messageGroup.visibility = View.VISIBLE
                     binding.btnRetry.visibility = View.GONE
                     hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(
@@ -196,6 +200,7 @@ class TestActivity : AppCompatActivity() {
                         isHindi = { LanguageManager.isHindi(this) }
                     )
                 }
+                com.eve.app.util.ShimmerHelper.crossFade(binding.shimmerSkeletonTest, binding.viewPager)
                 if (!initialNavDone && !initialQuestionId.isNullOrBlank()) {
                     initialNavDone = true
                     val targetIndex = list.indexOfFirst { it.id == initialQuestionId }
@@ -204,11 +209,10 @@ class TestActivity : AppCompatActivity() {
                             binding.viewPager.setCurrentItem(targetIndex, false)
                         }
                     } else {
-                        android.widget.Toast.makeText(
+                        com.eve.app.util.AppBulletin.showError(
                             this@TestActivity,
-                            "Bookmarked question was not found in this test.",
-                            android.widget.Toast.LENGTH_SHORT
-                        ).show()
+                            "Bookmarked question was not found in this test."
+                        )
                     }
                 }
                 updateNav(binding.viewPager.currentItem)
@@ -221,7 +225,7 @@ class TestActivity : AppCompatActivity() {
         val m = seconds / 60
         val s = seconds % 60
         binding.tvTimer.text = String.format("%02d:%02d", m, s)
-        binding.tvTimer.setTextColor(if (seconds <= 60) getColor(com.eve.app.R.color.eve_timer_warning) else getColor(com.eve.app.R.color.eve_on_primary))
+        binding.circularTimerView.setTime(seconds, total = (timeLimit * 60L).coerceAtLeast(seconds))
     }
 
     private fun updateNav(position: Int) {

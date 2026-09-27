@@ -14,15 +14,26 @@
         android:paddingHorizontal="16dp"
         android:paddingVertical="14dp">
 
-        <TextView
-            android:id="@+id/tvTimer"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="--:--"
-            android:textColor="@color/eve_on_primary"
-            android:textSize="22sp"
-            android:textStyle="bold" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <!-- Upgrade 6: Telegram-style circular countdown timer (RadialProgressView pattern) -->
+            <com.eve.app.ui.common.CircularTimerView
+                android:id="@+id/circularTimerView"
+                android:layout_width="48dp"
+                android:layout_height="48dp" />
+
+            <TextView
+                android:id="@+id/tvTimer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:text="--:--" />
+        </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLanguage"
@@ -75,6 +86,13 @@
             android:id="@+id/viewPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
+        <!-- Upgrade 3: Telegram-style question shimmer skeleton (LoadingDrawable pattern) -->
+        <com.eve.app.ui.common.ShimmerSkeletonView
+            android:id="@+id/shimmerSkeletonTest"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/progressGroup"

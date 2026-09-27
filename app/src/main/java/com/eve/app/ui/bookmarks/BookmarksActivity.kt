@@ -41,8 +41,39 @@ class BookmarksActivity : AppCompatActivity() {
         adapter = BookmarkAdapter(
             onOpenQuestion = { bookmark -> openQuestionInTest(bookmark) },
             onUnbookmark = { bookmark ->
-                viewModel.unbookmark(bookmark.questionId)
-                Toast.makeText(this, "Bookmark removed", Toast.LENGTH_SHORT).show()
+                val currentList = adapter.currentList.toMutableList()
+                val index = currentList.indexOfFirst { it.questionId == bookmark.questionId }
+                if (index >= 0) {
+                    val removedItem = currentList.removeAt(index)
+                    adapter.submitList(currentList)
+                    val empty = currentList.isEmpty()
+                    binding.tvBookmarkCount.visibility = if (empty) View.GONE else View.VISIBLE
+                    binding.tvBookmarkCount.text = "${currentList.size} saved"
+                    binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
+                    binding.rvBookmarks.visibility = if (empty) View.GONE else View.VISIBLE
+
+                    com.eve.app.util.AppUndoBar.show(
+                        context = this@BookmarksActivity,
+                        message = "Bookmark removed",
+                        timeLeftMs = com.eve.app.util.AppUndoBar.TIME_LIGHT,
+                        onUndo = {
+                            val restoredList = adapter.currentList.toMutableList()
+                            val insertPos = index.coerceAtMost(restoredList.size)
+                            restoredList.add(insertPos, removedItem)
+                            adapter.submitList(restoredList)
+                            binding.tvBookmarkCount.visibility = View.VISIBLE
+                            binding.tvBookmarkCount.text = "${restoredList.size} saved"
+                            binding.messageGroup.visibility = View.GONE
+                            binding.rvBookmarks.visibility = View.VISIBLE
+                            com.eve.app.util.AppBulletin.show(this@BookmarksActivity, "Bookmark restored")
+                        },
+                        onExecuteDelete = {
+                            viewModel.unbookmark(bookmark.questionId)
+                        }
+                    )
+                } else {
+                    viewModel.unbookmark(bookmark.questionId)
+                }
             },
             isHindi = { LanguageManager.isHindi(this) }
         )
@@ -119,7 +150,7 @@ class BookmarksActivity : AppCompatActivity() {
 
     private fun openQuestionInTest(bookmark: BookmarkedQuestion) {
         if (bookmark.examId.isBlank() && bookmark.questionId.isBlank()) {
-            Toast.makeText(this, "Question details unavailable", Toast.LENGTH_SHORT).show()
+            com.eve.app.util.AppBulletin.showError(this, "Question details unavailable")
             return
         }
 

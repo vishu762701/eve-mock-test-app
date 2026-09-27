@@ -2,7 +2,7 @@ package com.eve.app.ui.admin
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
+import com.eve.app.util.AppBulletin
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
@@ -58,7 +58,7 @@ class AdminAnalyticsActivity : AppCompatActivity() {
                             is UiState.Error -> {
                                 binding.progress.visibility = View.GONE
                                 binding.content.visibility = View.VISIBLE
-                                Toast.makeText(this@AdminAnalyticsActivity, state.message, Toast.LENGTH_LONG).show()
+                                AppBulletin.showError(this@AdminAnalyticsActivity, state.message)
                             }
                             is UiState.Success -> {
                                 binding.progress.visibility = View.GONE
