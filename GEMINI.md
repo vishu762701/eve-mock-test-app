@@ -20,3 +20,9 @@ Only stop and ask directly if:
 - **Lockfile Hygiene**: `functions/package-lock.json` must remain untouched and untracked. Do not stage, commit, or delete it.
 - **Admin Consistency**: Keep `Constants.ADMIN_EMAILS` in `Constants.kt` strictly synchronized with `isHardcodedAdmin()` in `firestore.rules`.
 - **Verification Integrity**: Never claim a feature or fix works without executing actual verification (e.g., `./gradlew assembleDebug`, `git diff --check`, or syntax/resource validation).
+## Strict Scope Discipline (Critical)
+- **Only touch what the current prompt asks for.** Do not re-open, re-edit, "improve," refactor, or re-verify code that was implemented for a previous, already-completed prompt — even if you notice something you'd personally do differently, even if it seems related.
+- If you notice an unrelated bug or improvement opportunity outside the current prompt's scope while working, do NOT fix it. Just note it in one line in the final summary under a "Noticed but not touched (outside scope)" heading, and move on.
+- Treat every previous prompt's implementation as **frozen/completed** unless the current prompt explicitly names that exact feature/file/bug to be changed again.
+- Before editing any file, ask: "Does this specific prompt require changing this file?" If the answer is no, do not open or modify it — even for a "quick unrelated fix."
+- This rule exists because re-touching completed work wastes build time and reintroduces risk of breaking things that were already verified working. Violating this rule is a failure condition for the task.
