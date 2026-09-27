@@ -22,10 +22,13 @@ data class AnswerItem(
     val questionTextHi: String = "",
     val selectedTextHi: String = "",
     val correctTextHi: String = "",
-    val explanationHi: String = ""
+    val explanationHi: String = "",
+    val timeTakenSeconds: Long = 0L
 ) : Parcelable {
     val isAttempted: Boolean get() = selected.isNotEmpty()
     val isCorrect: Boolean get() = selected.isNotEmpty() && selected == correct
+    val isUnattempted: Boolean get() = selected.isEmpty()
+    val isWrong: Boolean get() = selected.isNotEmpty() && selected != correct
 
     fun displayQuestionText(hindi: Boolean): String =
         if (hindi && questionTextHi.isNotBlank()) questionTextHi else questionText

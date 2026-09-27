@@ -11,8 +11,18 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
+import androidx.core.content.ContextCompat
+import com.eve.app.R
 import com.eve.app.data.model.Question
+import com.eve.app.data.repository.AdminRepository
+import com.eve.app.data.repository.QuestionStatsRepository
 import com.eve.app.databinding.ActivityTestBinding
+import com.eve.app.ui.common.PaletteItem
+import com.eve.app.ui.common.PaletteState
+import com.eve.app.ui.common.QuestionPaletteAdapter
 import com.eve.app.ui.result.ResultActivity
 import com.eve.app.ui.result.ResultDataHolder
 import com.eve.app.util.AnalyticsHelper
@@ -22,7 +32,6 @@ import com.eve.app.util.NetworkUtil
 import com.eve.app.util.SecurityHelper
 import com.eve.app.util.UiState
 import com.eve.app.util.isHardcodedAdmin
-import com.eve.app.data.repository.AdminRepository
 import kotlinx.coroutines.launch
 
 class TestActivity : AppCompatActivity() {
@@ -45,6 +54,12 @@ class TestActivity : AppCompatActivity() {
     private var fromBookmark = false
     private var initialQuestionId: String? = null
     private var initialNavDone = false
+
+    private lateinit var paletteAdapter: QuestionPaletteAdapter
+    private var questionStartTimeMs: Long = SystemClock.elapsedRealtime()
+    private val questionStatsRepo = QuestionStatsRepository()
+    private val timerPopupHandler = Handler(Looper.getMainLooper())
+    private var timerPopupRunnable: Runnable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,6 +90,15 @@ class TestActivity : AppCompatActivity() {
         // Phase 15: exam start event — is exam ko kitni baar attempt kiya gaya, yeh track karta hai
         AnalyticsHelper.logExamStart(this, examId, examName, examCategory)
 
+        paletteAdapter = QuestionPaletteAdapter { pos ->
+            binding.viewPager.setCurrentItem(pos, true)
+        }
+        binding.rvQuestionPalette.adapter = paletteAdapter
+
+        binding.timerPopup.btnTimerDismiss.setOnClickListener {
+            binding.timerPopup.cardTimerComparison.visibility = View.GONE
+        }
+
         binding.btnPrev.setOnClickListener {
             binding.viewPager.currentItem = binding.viewPager.currentItem - 1
         }
@@ -89,7 +113,12 @@ class TestActivity : AppCompatActivity() {
         }
 
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) = updateNav(position)
+            override fun onPageSelected(position: Int) {
+                questionStartTimeMs = SystemClock.elapsedRealtime()
+                binding.timerPopup.cardTimerComparison.visibility = View.GONE
+                updateNav(position)
+                updatePalette(position)
+            }
         })
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -194,7 +223,16 @@ class TestActivity : AppCompatActivity() {
                     binding.viewPager.adapter = QuestionAdapter(
                         list,
                         getSelected = { viewModel.getAnswer(it) },
-                        onSelect = { pos, letter -> viewModel.setAnswer(pos, letter) },
+                        onSelect = { pos, letter ->
+                            val spent = ((SystemClock.elapsedRealtime() - questionStartTimeMs) / 1000).coerceAtLeast(1)
+                            viewModel.recordQuestionTime(pos, spent)
+                            viewModel.setAnswer(pos, letter)
+                            updatePalette(pos)
+                            val q = list.getOrNull(pos)
+                            if (q != null) {
+                                showTimerComparisonPopup(q, letter, spent)
+                            }
+                        },
                         getBookmarked = { viewModel.isBookmarked(it) },
                         onToggleBookmark = { viewModel.toggleBookmark(it) },
                         isHindi = { LanguageManager.isHindi(this) }
@@ -216,6 +254,7 @@ class TestActivity : AppCompatActivity() {
                     }
                 }
                 updateNav(binding.viewPager.currentItem)
+                updatePalette(binding.viewPager.currentItem)
             }
         }
     }
@@ -255,6 +294,17 @@ class TestActivity : AppCompatActivity() {
         val attemptName = sessionTitle()
         viewModel.saveAttempt(examId, attemptName, examCategory, items)
 
+        for (item in items) {
+            if (item.questionId.isNotBlank()) {
+                questionStatsRepo.recordQuestionAttempt(
+                    questionId = item.questionId,
+                    examId = examId,
+                    isCorrect = item.isCorrect,
+                    timeSeconds = item.timeTakenSeconds
+                )
+            }
+        }
+
         // Phase 15: exam submit event + score summary (average score / weak exams Console me dikhenge)
         AnalyticsHelper.logExamSubmit(
             context = this,
@@ -290,5 +340,71 @@ class TestActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("key_empty_played", hasEmptyPlayed)
+    }
+
+    private fun showTimerComparisonPopup(question: Question, selectedLetter: String, timeSpent: Long) {
+        lifecycleScope.launch {
+            val stat = questionStatsRepo.getQuestionStat(question.id)
+            val avgTime = stat?.calculatedAvgSeconds ?: 45
+            val isFaster = timeSpent <= avgTime
+            val isCorrect = selectedLetter.equals(question.correctAnswer, ignoreCase = true)
+
+            val emoji = when {
+                isFaster && isCorrect -> "🎉"
+                isFaster -> "⚡"
+                isCorrect -> "🎯"
+                else -> "⏱️"
+            }
+
+            val message = when {
+                isFaster && isCorrect -> "Yay! You took less time than average and answered it right. Keep it up."
+                isFaster -> "Fast pace! You took ${timeSpent}s (avg: ${avgTime}s). Double-check your accuracy."
+                isCorrect -> "Correct! You took ${timeSpent}s (avg: ${avgTime}s). Great job on accuracy."
+                else -> "You took longer than average (${timeSpent}s vs ${avgTime}s). Pace yourself!"
+            }
+
+            binding.timerPopup.tvTimerEmoji.text = emoji
+            binding.timerPopup.tvTimerMessage.text = message
+            binding.timerPopup.tvYouTimeLabel.text = "You: ${timeSpent}s"
+            binding.timerPopup.tvAvgTimeLabel.text = "Avg: ${avgTime}s"
+
+            val maxTime = maxOf(timeSpent, avgTime.toLong(), 60L).toInt()
+            binding.timerPopup.progressYouTime.max = maxTime
+            binding.timerPopup.progressYouTime.progress = timeSpent.toInt()
+
+            val youColor = if (isCorrect) {
+                ContextCompat.getColor(this@TestActivity, R.color.eve_green)
+            } else {
+                ContextCompat.getColor(this@TestActivity, R.color.eve_red)
+            }
+            binding.timerPopup.progressYouTime.setIndicatorColor(youColor)
+            binding.timerPopup.tvYouTimeLabel.setTextColor(youColor)
+
+            binding.timerPopup.progressAvgTime.max = maxTime
+            binding.timerPopup.progressAvgTime.progress = avgTime
+
+            binding.timerPopup.cardTimerComparison.visibility = View.VISIBLE
+
+            timerPopupRunnable?.let { timerPopupHandler.removeCallbacks(it) }
+            timerPopupRunnable = Runnable {
+                binding.timerPopup.cardTimerComparison.visibility = View.GONE
+            }
+            timerPopupHandler.postDelayed(timerPopupRunnable!!, 4500L)
+        }
+    }
+
+    private fun updatePalette(activePosition: Int) {
+        if (totalQuestions <= 0) return
+        val items = (0 until totalQuestions).map { i ->
+            val ans = viewModel.getAnswer(i)
+            val state = if (ans.isNotEmpty()) PaletteState.ANSWERED else PaletteState.UNATTEMPTED
+            PaletteItem(
+                number = i + 1,
+                state = state,
+                isActive = (i == activePosition)
+            )
+        }
+        paletteAdapter.submit(items)
+        binding.rvQuestionPalette.scrollToPosition(activePosition)
     }
 }

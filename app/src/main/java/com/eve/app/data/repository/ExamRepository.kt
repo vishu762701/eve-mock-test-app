@@ -49,6 +49,19 @@ class ExamRepository(
         }
     }
 
+    suspend fun getExam(id: String): Exam? {
+        return try {
+            val res = api.getExam(id)
+            if (res.success && res.data != null) {
+                res.data
+            } else {
+                getExams().find { it.id == id }
+            }
+        } catch (_: Exception) {
+            getExams().find { it.id == id }
+        }
+    }
+
     suspend fun getQuestions(examId: String): List<Question> {
         return try {
             val res = api.getQuestions(examId)
@@ -148,7 +161,8 @@ class ExamRepository(
             "examName" to exam.examName.trim(),
             "timeLimitMinutes" to exam.timeLimitMinutes,
             "category" to exam.categoryOrOther,
-            "questionCount" to exam.questionCount
+            "questionCount" to exam.questionCount,
+            "cutoffs" to exam.cutoffs
         )
         val res = api.updateExam(exam.id, data)
         if (!res.success) throw Exception(res.error ?: "Failed to update exam")

@@ -39,6 +39,9 @@ class TestViewModel : ViewModel() {
     // position -> "A".."D". Swipe karne par selection yahin se wapas milta hai.
     private val answers = mutableMapOf<Int, String>()
 
+    // position -> time taken in seconds
+    private val timeTaken = mutableMapOf<Int, Long>()
+
     // position -> bookmarked? "Review ke liye flag" state, swipe karne par bhi yaad rehta hai.
     private val bookmarks = mutableMapOf<Int, Boolean>()
 
@@ -180,6 +183,13 @@ class TestViewModel : ViewModel() {
         if (letter.isEmpty()) answers.remove(position) else answers[position] = letter
     }
 
+    fun recordQuestionTime(position: Int, seconds: Long) {
+        val current = timeTaken[position] ?: 0L
+        timeTaken[position] = current + seconds
+    }
+
+    fun getQuestionTime(position: Int): Long = timeTaken[position] ?: 0L
+
     fun isBookmarked(position: Int): Boolean = bookmarks[position] ?: false
 
     fun toggleBookmark(position: Int) {
@@ -219,7 +229,8 @@ class TestViewModel : ViewModel() {
                     explanation = q.explanation,
                     explanationHi = q.explanationHi,
                     isBookmarked = isBookmarked(index),
-                    topic = q.topic
+                    topic = q.topic,
+                    timeTakenSeconds = getQuestionTime(index)
                 )
             )
         }

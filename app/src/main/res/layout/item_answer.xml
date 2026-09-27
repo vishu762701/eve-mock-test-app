@@ -66,6 +66,35 @@
             android:textColor="@color/eve_green"
             android:textSize="15sp" />
 
+        <!-- X% got this right stat badge -->
+        <LinearLayout
+            android:id="@+id/layoutAccuracyStat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:background="@color/eve_surface_variant"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="3dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📊"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/tvAccuracyStat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:fontFamily="@font/poppins_medium"
+                android:text="--% got this right"
+                android:textColor="@color/eve_primary"
+                android:textSize="12sp" />
+        </LinearLayout>
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnToggleExplanation"
             style="@style/Widget.Eve.TextButton"
@@ -77,16 +106,62 @@
             android:textSize="13sp"
             android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/tvExplanation"
+        <!-- Solution Container: Key Points Structure -->
+        <LinearLayout
+            android:id="@+id/layoutSolution"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="10dp"
             android:background="@color/eve_bg"
-            android:lineSpacingExtra="3dp"
-            android:padding="10dp"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="14sp"
-            android:visibility="gone" />
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <!-- Bold one-line summary stating the correct answer -->
+            <TextView
+                android:id="@+id/tvCorrectSummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_bold"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="14sp" />
+
+            <!-- Key Points Section Header with Key Icon -->
+            <LinearLayout
+                android:id="@+id/layoutKeyPointsHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:contentDescription="Key Points"
+                    android:src="@drawable/ic_key"
+                    app:tint="@color/eve_primary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:fontFamily="@font/poppins_bold"
+                    android:letterSpacing="0.04"
+                    android:text="Key Points"
+                    android:textColor="@color/eve_primary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <!-- Explanation with bulleted concept-labeled points -->
+            <TextView
+                android:id="@+id/tvExplanation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:fontFamily="@font/poppins"
+                android:lineSpacingExtra="4dp"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="13sp" />
+        </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

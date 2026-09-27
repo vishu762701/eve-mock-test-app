@@ -12,7 +12,7 @@ class FlaggedQuestionRepository {
     private val firestore get() = FirebaseFirestore.getInstance()
     private val auth get() = FirebaseAuth.getInstance()
 
-    /** Student action: Flag / report a questionable question */
+    /** Student action: Flag / report a questionable question or technical bug */
     suspend fun flagQuestion(
         questionId: String,
         examId: String,
@@ -21,8 +21,15 @@ class FlaggedQuestionRepository {
         reason: String,
         comment: String
     ): Boolean {
+        if (!FlaggedQuestion.isCommentValid(comment)) {
+            return false
+        }
         return try {
             val user = auth.currentUser
+            val isContent = FlaggedQuestion.isContentIssue(reason)
+            val collectionName = if (isContent) "flagged_questions" else "reported_bugs"
+            val reportType = if (isContent) FlaggedQuestion.TYPE_CONTENT else FlaggedQuestion.TYPE_TECHNICAL
+
             val doc = hashMapOf(
                 "questionId" to questionId,
                 "examId" to examId,
@@ -33,9 +40,10 @@ class FlaggedQuestionRepository {
                 "studentId" to (user?.uid ?: "anonymous"),
                 "studentEmail" to (user?.email ?: "Anonymous"),
                 "timestamp" to System.currentTimeMillis(),
-                "status" to FlaggedQuestion.STATUS_PENDING
+                "status" to FlaggedQuestion.STATUS_PENDING,
+                "reportType" to reportType
             )
-            firestore.collection("flagged_questions").add(doc).await()
+            firestore.collection(collectionName).add(doc).await()
             true
         } catch (e: Exception) {
             e.printStackTrace()
@@ -43,10 +51,11 @@ class FlaggedQuestionRepository {
         }
     }
 
-    /** Admin action: Fetch pending flagged questions grouped by questionId */
-    suspend fun getPendingFlaggedQuestions(): List<AggregatedFlaggedQuestion> {
+    /** Admin action: Fetch pending reports grouped by questionId, separated by tab */
+    suspend fun getPendingFlaggedQuestions(isTechnical: Boolean = false): List<AggregatedFlaggedQuestion> {
         return try {
-            val snap = firestore.collection("flagged_questions")
+            val collectionName = if (isTechnical) "reported_bugs" else "flagged_questions"
+            val snap = firestore.collection(collectionName)
                 .whereEqualTo("status", FlaggedQuestion.STATUS_PENDING)
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get()
@@ -64,6 +73,7 @@ class FlaggedQuestionRepository {
                 val sEmail = doc.getString("studentEmail").orEmpty()
                 val time = doc.getLong("timestamp") ?: 0L
                 val status = doc.getString("status") ?: FlaggedQuestion.STATUS_PENDING
+                val reportType = doc.getString("reportType") ?: if (isTechnical) FlaggedQuestion.TYPE_TECHNICAL else FlaggedQuestion.TYPE_CONTENT
 
                 FlaggedQuestion(
                     id = id,
@@ -76,7 +86,8 @@ class FlaggedQuestionRepository {
                     studentId = sId,
                     studentEmail = sEmail,
                     timestamp = time,
-                    status = status
+                    status = status,
+                    reportType = reportType
                 )
             }
 
@@ -98,7 +109,8 @@ class FlaggedQuestionRepository {
                     reasons = allReasons,
                     comments = allComments,
                     flagIds = allFlagIds,
-                    latestTimestamp = maxTime
+                    latestTimestamp = maxTime,
+                    reportType = first.reportType
                 )
             }.sortedByDescending { it.flagCount }
         } catch (e: Exception) {
@@ -107,12 +119,13 @@ class FlaggedQuestionRepository {
         }
     }
 
-    /** Admin action: Dismiss flags for this question */
-    suspend fun dismissFlags(flagIds: List<String>): Boolean {
+    /** Admin action: Dismiss flags for this question or bug */
+    suspend fun dismissFlags(flagIds: List<String>, isTechnical: Boolean = false): Boolean {
         return try {
+            val collectionName = if (isTechnical) "reported_bugs" else "flagged_questions"
             val batch = firestore.batch()
             for (id in flagIds) {
-                val ref = firestore.collection("flagged_questions").document(id)
+                val ref = firestore.collection(collectionName).document(id)
                 batch.update(ref, "status", FlaggedQuestion.STATUS_DISMISSED)
             }
             batch.commit().await()

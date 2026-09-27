@@ -328,5 +328,21 @@ service cloud.firestore {
       allow create: if isSignedIn();
       allow read, update, delete: if isAdmin();
     }
+
+    // ------------------------------------------------------------------------
+    // 21. REPORTED BUGS (Technical Issues)
+    // ------------------------------------------------------------------------
+    match /reported_bugs/{bugId} {
+      allow create: if isSignedIn();
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ------------------------------------------------------------------------
+    // 22. QUESTION STATS (Running Aggregates & Accuracy)
+    // ------------------------------------------------------------------------
+    match /question_stats/{questionId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
   }
 }

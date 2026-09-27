@@ -1,80 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="20dp">
+    android:maxHeight="480dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/poppins_semibold"
-        android:text="Why are you reporting this question?"
-        android:textColor="@color/eve_text"
-        android:textSize="14sp" />
-
-    <RadioGroup
-        android:id="@+id/rgReportReason"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp">
+        android:orientation="vertical"
+        android:padding="20dp">
 
-        <RadioButton
-            android:id="@+id/rbReasonWrongAnswer"
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_semibold"
+            android:text="Select Issue Category"
+            android:textColor="@color/eve_text"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/poppins_bold"
+            android:letterSpacing="0.04"
+            android:text="CONTENT ISSUES"
+            android:textColor="@color/eve_primary"
+            android:textSize="11sp" />
+
+        <RadioGroup
+            android:id="@+id/rgReportReason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/rbReasonWrongQuestion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:fontFamily="@font/poppins"
+                android:text="Wrong Question"
+                android:textSize="13sp" />
+
+            <RadioButton
+                android:id="@+id/rbReasonNoSolution"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins"
+                android:text="No Solution"
+                android:textSize="13sp" />
+
+            <RadioButton
+                android:id="@+id/rbReasonWrongTranslation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins"
+                android:text="Wrong Translation"
+                android:textSize="13sp" />
+
+            <RadioButton
+                android:id="@+id/rbReasonOutOfSyllabus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins"
+                android:text="Out of Syllabus"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/poppins_bold"
+                android:letterSpacing="0.04"
+                android:text="TECHNICAL ISSUES"
+                android:textColor="@color/eve_primary"
+                android:textSize="11sp" />
+
+            <RadioButton
+                android:id="@+id/rbReasonNotVisible"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins"
+                android:text="Question and Options not visible"
+                android:textSize="13sp" />
+
+            <RadioButton
+                android:id="@+id/rbReasonBlinking"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins"
+                android:text="Blinking Screen Issue"
+                android:textSize="13sp" />
+
+            <RadioButton
+                android:id="@+id/rbReasonFormatting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins"
+                android:text="Formatting Issues"
+                android:textSize="13sp" />
+
+            <RadioButton
+                android:id="@+id/rbReasonScroll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins"
+                android:text="Scroll Not Working"
+                android:textSize="13sp" />
+
+            <RadioButton
+                android:id="@+id/rbReasonDarkMode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins"
+                android:text="Dark Mode Issue"
+                android:textSize="13sp" />
+
+            <RadioButton
+                android:id="@+id/rbReasonQuestionMissingOptionsVisible"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins"
+                android:text="Question not visible but Options visible"
+                android:textSize="13sp" />
+
+            <RadioButton
+                android:id="@+id/rbReasonOther"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins"
+                android:text="Other"
+                android:textSize="13sp" />
+        </RadioGroup>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilComment"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:checked="true"
-            android:fontFamily="@font/poppins"
-            android:text="Wrong answer marked correct"
-            android:textSize="13sp" />
+            android:layout_marginTop="12dp"
+            android:hint="Details (Min 7 words / 40 characters)">
 
-        <RadioButton
-            android:id="@+id/rbReasonConfusing"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etReportComment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins"
+                android:gravity="top|start"
+                android:inputType="textMultiLine"
+                android:minLines="3"
+                android:textSize="13sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Inline comment validation error -->
+        <TextView
+            android:id="@+id/tvCommentError"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:fontFamily="@font/poppins"
-            android:text="Confusing wording"
-            android:textSize="13sp" />
-
-        <RadioButton
-            android:id="@+id/rbReasonTypo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins"
-            android:text="Typo / formatting issue"
-            android:textSize="13sp" />
-
-        <RadioButton
-            android:id="@+id/rbReasonSyllabus"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins"
-            android:text="Out of syllabus"
-            android:textSize="13sp" />
-
-        <RadioButton
-            android:id="@+id/rbReasonOther"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins"
-            android:text="Other"
-            android:textSize="13sp" />
-    </RadioGroup>
-
-    <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:hint="Optional details or explanation">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etReportComment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins"
-            android:inputType="textMultiLine"
-            android:minLines="2" />
-    </com.google.android.material.textfield.TextInputLayout>
-</LinearLayout>
+            android:text="Please enter at least 7 words or 40 characters explaining the issue."
+            android:textColor="@color/eve_red"
+            android:textSize="12sp"
+            android:visibility="gone" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

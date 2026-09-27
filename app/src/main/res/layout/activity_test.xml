@@ -55,6 +55,18 @@
             android:text="Submit" />
     </LinearLayout>
 
+    <!-- QUESTION PALETTE NAVIGATION -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvQuestionPalette"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/eve_surface"
+        android:clipToPadding="false"
+        android:orientation="horizontal"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="6dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
     <TextView
         android:id="@+id/tvOfflineBanner"
         android:layout_width="match_parent"
@@ -73,7 +85,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingHorizontal="16dp"
-        android:paddingVertical="10dp"
+        android:paddingVertical="8dp"
         android:textColor="@color/eve_grey"
         android:textSize="14sp" />
 
@@ -86,6 +98,14 @@
             android:id="@+id/viewPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
+        <!-- Post-answer timer comparison popup -->
+        <include
+            android:id="@+id/timerPopup"
+            layout="@layout/layout_timer_comparison_popup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom" />
 
         <!-- Upgrade 3: Telegram-style question shimmer skeleton (LoadingDrawable pattern) -->
         <com.eve.app.ui.common.ShimmerSkeletonView

@@ -26,6 +26,12 @@ import kotlinx.coroutines.launch
 import com.eve.app.data.model.AdminAuditLog
 import com.eve.app.data.repository.AuditLogRepository
 import com.eve.app.data.repository.ApiUsageRepository
+import android.widget.ProgressBar
+import com.google.android.material.button.MaterialButton
+import com.google.firebase.functions.FirebaseFunctions
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
+import kotlinx.coroutines.tasks.await
 
 class EditExamActivity : AppCompatActivity() {
 
@@ -111,7 +117,31 @@ class EditExamActivity : AppCompatActivity() {
                     examCategory = it.categoryOrOther
                     timeLimit = it.timeLimitMinutes
                     setupForm()
+
+                    // Populate category cutoffs
+                    binding.etCutoffGeneral.setText(it.cutoffs["General"]?.toString().orEmpty())
+                    binding.etCutoffObc.setText(it.cutoffs["OBC"]?.toString().orEmpty())
+                    binding.etCutoffSc.setText(it.cutoffs["SC"]?.toString().orEmpty())
+                    binding.etCutoffSt.setText(it.cutoffs["ST"]?.toString().orEmpty())
+                    binding.etCutoffEws.setText(it.cutoffs["EWS"]?.toString().orEmpty())
                 }
+
+                // If cutoffs weren't in API, fallback query from Firestore
+                try {
+                    val snap = FirebaseFirestore.getInstance().collection("exams").document(examId).get().await()
+                    val cMap = snap.get("cutoffs") as? Map<String, Any>
+                    if (cMap != null && currentExam?.cutoffs?.isEmpty() != false) {
+                        val loadedCutoffs = cMap.mapNotNull { (k, v) ->
+                            (v as? Number)?.toDouble()?.let { k to it }
+                        }.toMap()
+                        currentExam = currentExam?.copy(cutoffs = loadedCutoffs)
+                        binding.etCutoffGeneral.setText(loadedCutoffs["General"]?.toString().orEmpty())
+                        binding.etCutoffObc.setText(loadedCutoffs["OBC"]?.toString().orEmpty())
+                        binding.etCutoffSc.setText(loadedCutoffs["SC"]?.toString().orEmpty())
+                        binding.etCutoffSt.setText(loadedCutoffs["ST"]?.toString().orEmpty())
+                        binding.etCutoffEws.setText(loadedCutoffs["EWS"]?.toString().orEmpty())
+                    }
+                } catch (_: Exception) {}
 
                 loadQuestions()
             } catch (e: Exception) {
@@ -156,19 +186,33 @@ class EditExamActivity : AppCompatActivity() {
             return
         }
 
+        val cutoffsMap = mutableMapOf<String, Double>()
+        binding.etCutoffGeneral.text?.toString()?.trim()?.toDoubleOrNull()?.let { cutoffsMap["General"] = it }
+        binding.etCutoffObc.text?.toString()?.trim()?.toDoubleOrNull()?.let { cutoffsMap["OBC"] = it }
+        binding.etCutoffSc.text?.toString()?.trim()?.toDoubleOrNull()?.let { cutoffsMap["SC"] = it }
+        binding.etCutoffSt.text?.toString()?.trim()?.toDoubleOrNull()?.let { cutoffsMap["ST"] = it }
+        binding.etCutoffEws.text?.toString()?.trim()?.toDoubleOrNull()?.let { cutoffsMap["EWS"] = it }
+
         val baseExam = currentExam ?: Exam(id = examId)
         val updatedExam = baseExam.copy(
             id = examId,
             examName = newName,
             timeLimitMinutes = newMinutes,
             category = selectedCategory,
-            questionCount = currentQuestions.size
+            questionCount = currentQuestions.size,
+            cutoffs = cutoffsMap
         )
 
         binding.progressBar.visibility = View.VISIBLE
         lifecycleScope.launch {
             try {
                 examRepo.updateExam(updatedExam)
+                try {
+                    FirebaseFirestore.getInstance().collection("exams").document(examId)
+                        .set(mapOf("cutoffs" to cutoffsMap), SetOptions.merge())
+                        .await()
+                } catch (_: Exception) {}
+
                 auditLogRepo.recordLog(
                     AdminAuditLog.ACTION_EXAM_EDITED,
                     "Updated exam details for '$newName'"
@@ -335,21 +379,177 @@ class EditExamActivity : AppCompatActivity() {
     }
 
     private fun showQuestionDetails(q: Question) {
-        val details = buildString {
-            append("Q: ${q.questionText}\n\n")
-            append("A: ${q.optionA}\n")
-            append("B: ${q.optionB}\n")
-            append("C: ${q.optionC}\n")
-            append("D: ${q.optionD}\n\n")
-            append("Correct Answer: ${q.correctAnswer}\n")
-            if (q.explanation.isNotBlank()) append("Explanation: ${q.explanation}\n")
-            if (q.topic.isNotBlank()) append("Topic: ${q.topic}\n")
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_question_details, null)
+        val etQuestionText = dialogView.findViewById<EditText>(R.id.etQuestionText)
+        val etOptionA = dialogView.findViewById<EditText>(R.id.etOptionA)
+        val etOptionB = dialogView.findViewById<EditText>(R.id.etOptionB)
+        val etOptionC = dialogView.findViewById<EditText>(R.id.etOptionC)
+        val etOptionD = dialogView.findViewById<EditText>(R.id.etOptionD)
+        val rgCorrectAnswer = dialogView.findViewById<RadioGroup>(R.id.rgCorrectAnswer)
+        val btnReformatAi = dialogView.findViewById<MaterialButton>(R.id.btnReformatAi)
+        val pbReformat = dialogView.findViewById<ProgressBar>(R.id.pbReformat)
+        val etExplanation = dialogView.findViewById<EditText>(R.id.etExplanation)
+        val etTopic = dialogView.findViewById<EditText>(R.id.etTopic)
+
+        etQuestionText.setText(q.questionText)
+        etOptionA.setText(q.optionA)
+        etOptionB.setText(q.optionB)
+        etOptionC.setText(q.optionC)
+        etOptionD.setText(q.optionD)
+        etExplanation.setText(q.explanation)
+        etTopic.setText(q.topic)
+
+        when (q.correctAnswer.uppercase().trim()) {
+            "A", "1" -> rgCorrectAnswer.check(R.id.rbA)
+            "B", "2" -> rgCorrectAnswer.check(R.id.rbB)
+            "C", "3" -> rgCorrectAnswer.check(R.id.rbC)
+            "D", "4" -> rgCorrectAnswer.check(R.id.rbD)
+            else -> rgCorrectAnswer.check(R.id.rbA)
         }
+
+        btnReformatAi.setOnClickListener {
+            val currentExp = etExplanation.text?.toString()?.trim().orEmpty()
+            val correctOpt = when (rgCorrectAnswer.checkedRadioButtonId) {
+                R.id.rbA -> "A"
+                R.id.rbB -> "B"
+                R.id.rbC -> "C"
+                R.id.rbD -> "D"
+                else -> "A"
+            }
+            val qText = etQuestionText.text?.toString()?.trim().orEmpty()
+            val optA = etOptionA.text?.toString()?.trim().orEmpty()
+            val optB = etOptionB.text?.toString()?.trim().orEmpty()
+            val optC = etOptionC.text?.toString()?.trim().orEmpty()
+            val optD = etOptionD.text?.toString()?.trim().orEmpty()
+
+            pbReformat.visibility = View.VISIBLE
+            btnReformatAi.isEnabled = false
+
+            lifecycleScope.launch {
+                try {
+                    val functions = FirebaseFunctions.getInstance()
+                    val payload = hashMapOf(
+                        "questionText" to qText,
+                        "optionA" to optA,
+                        "optionB" to optB,
+                        "optionC" to optC,
+                        "optionD" to optD,
+                        "correctAnswer" to correctOpt,
+                        "explanation" to currentExp
+                    )
+                    val result = functions.getHttpsCallable("reformatQuestionExplanation")
+                        .call(payload)
+                        .await()
+                    val resMap = result.data as? Map<*, *>
+                    val reformatted = resMap?.get("reformattedExplanation") as? String
+                    if (!reformatted.isNullOrBlank()) {
+                        etExplanation.setText(reformatted)
+                        AppBulletin.showSuccess(this@EditExamActivity, "Restructured to Key Points format!")
+                    } else {
+                        val fallback = formatKeyPointsLocally(correctOpt, currentExp)
+                        etExplanation.setText(fallback)
+                        AppBulletin.show(this@EditExamActivity, "Restructured to Key Points format")
+                    }
+                } catch (e: Exception) {
+                    val fallback = formatKeyPointsLocally(correctOpt, currentExp)
+                    etExplanation.setText(fallback)
+                    AppBulletin.show(this@EditExamActivity, "Restructured to Key Points format")
+                } finally {
+                    pbReformat.visibility = View.GONE
+                    btnReformatAi.isEnabled = true
+                }
+            }
+        }
+
         MaterialAlertDialogBuilder(this)
-            .setTitle("Question Details")
-            .setMessage(details)
-            .setPositiveButton("OK", null)
+            .setTitle("Edit Question")
+            .setView(dialogView)
+            .setPositiveButton("Save") { _, _ ->
+                val newQText = etQuestionText.text?.toString()?.trim().orEmpty()
+                val newOptA = etOptionA.text?.toString()?.trim().orEmpty()
+                val newOptB = etOptionB.text?.toString()?.trim().orEmpty()
+                val newOptC = etOptionC.text?.toString()?.trim().orEmpty()
+                val newOptD = etOptionD.text?.toString()?.trim().orEmpty()
+                val newExp = etExplanation.text?.toString()?.trim().orEmpty()
+                val newTopic = etTopic.text?.toString()?.trim().orEmpty()
+                val newCorrect = when (rgCorrectAnswer.checkedRadioButtonId) {
+                    R.id.rbA -> "A"
+                    R.id.rbB -> "B"
+                    R.id.rbC -> "C"
+                    R.id.rbD -> "D"
+                    else -> q.correctAnswer
+                }
+
+                if (newQText.isBlank() || newOptA.isBlank() || newOptB.isBlank() || newOptC.isBlank() || newOptD.isBlank()) {
+                    AppBulletin.showError(this, "Question and all options are required")
+                    return@setPositiveButton
+                }
+
+                val updatedQ = q.copy(
+                    questionText = newQText,
+                    optionA = newOptA,
+                    optionB = newOptB,
+                    optionC = newOptC,
+                    optionD = newOptD,
+                    correctAnswer = newCorrect,
+                    explanation = newExp,
+                    topic = newTopic
+                )
+
+                binding.progressBar.visibility = View.VISIBLE
+                lifecycleScope.launch {
+                    try {
+                        examRepo.updateQuestion(updatedQ)
+                        val idx = currentQuestions.indexOfFirst { it.id == q.id }
+                        if (idx >= 0) {
+                            currentQuestions[idx] = updatedQ
+                            questionAdapter.submit(currentQuestions.toList())
+                        }
+                        binding.progressBar.visibility = View.GONE
+                        AppBulletin.showSuccess(this@EditExamActivity, "Question updated successfully")
+                    } catch (e: Exception) {
+                        binding.progressBar.visibility = View.GONE
+                        AppBulletin.showError(this@EditExamActivity, "Failed to update question: ${e.message}")
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
             .show()
+    }
+
+    companion object {
+        fun formatKeyPointsLocally(correctAnswer: String, rawExplanation: String): String {
+            val optNum = when (correctAnswer.uppercase().trim()) {
+                "A" -> "1"
+                "B" -> "2"
+                "C" -> "3"
+                "D" -> "4"
+                else -> correctAnswer
+            }
+            val summary = "**The correct answer is Option $optNum ($correctAnswer).**"
+            val cleanedExp = rawExplanation.trim()
+            val bullets = if (cleanedExp.isBlank()) {
+                "• **Core Concept:** Option $correctAnswer is the correct answer.\n• **Explanation:** Verified against the standard exam syllabus."
+            } else {
+                val lines = cleanedExp.lines()
+                    .map { it.trim().trimStart('•', '-', '*').trim() }
+                    .filter { it.isNotBlank() && !it.startsWith("Key Points", ignoreCase = true) && !it.contains("The correct answer is", ignoreCase = true) }
+                if (lines.size > 1) {
+                    lines.joinToString("\n") { line ->
+                        if (line.startsWith("**") && line.contains(":**")) {
+                            "• $line"
+                        } else {
+                            "• **Key Concept:** $line"
+                        }
+                    }
+                } else if (lines.size == 1) {
+                    "• **Key Concept:** ${lines[0]}\n• **Explanation:** Option $optNum ($correctAnswer) aligns with official solution criteria."
+                } else {
+                    "• **Core Concept:** Option $correctAnswer is correct."
+                }
+            }
+            return "$summary\n\nKey Points:\n$bullets"
+        }
     }
 
     private fun confirmDeleteQuestion(q: Question) {

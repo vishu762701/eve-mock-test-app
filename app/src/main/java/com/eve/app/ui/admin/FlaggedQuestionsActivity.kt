@@ -29,6 +29,7 @@ class FlaggedQuestionsActivity : AppCompatActivity() {
     private val flagRepo = FlaggedQuestionRepository()
     private val examRepo = ExamRepository()
     private lateinit var adapter: FlaggedQuestionsAdapter
+    private var isTechnicalSelected: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +52,11 @@ class FlaggedQuestionsActivity : AppCompatActivity() {
         binding.btnBack.setOnClickListener { finish() }
         binding.btnRefresh.setOnClickListener { loadFlaggedQuestions() }
 
+        binding.chipGroupReportType.setOnCheckedStateChangeListener { _, checkedIds ->
+            isTechnicalSelected = (checkedIds.firstOrNull() == binding.chipTechnicalIssues.id)
+            loadFlaggedQuestions()
+        }
+
         adapter = FlaggedQuestionsAdapter(
             onEdit = { item -> showEditDialog(item) },
             onDismiss = { item -> confirmDismissFlag(item) }
@@ -65,10 +71,19 @@ class FlaggedQuestionsActivity : AppCompatActivity() {
         binding.tvEmpty.visibility = View.GONE
         lifecycleScope.launch {
             try {
-                val list = flagRepo.getPendingFlaggedQuestions()
+                val list = flagRepo.getPendingFlaggedQuestions(isTechnical = isTechnicalSelected)
                 binding.progressBar.visibility = View.GONE
                 adapter.submit(list)
-                binding.tvEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
+                if (list.isEmpty()) {
+                    binding.tvEmpty.visibility = View.VISIBLE
+                    binding.tvEmpty.text = if (isTechnicalSelected) {
+                        "🎉 No pending technical / bug reports!\nAll systems operational."
+                    } else {
+                        "🎉 No pending flagged questions!\nAll reported issues have been resolved."
+                    }
+                } else {
+                    binding.tvEmpty.visibility = View.GONE
+                }
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
                 AppBulletin.showError(this@FlaggedQuestionsActivity, "Failed to load flags: ${e.message}")
@@ -77,20 +92,27 @@ class FlaggedQuestionsActivity : AppCompatActivity() {
     }
 
     private fun confirmDismissFlag(item: AggregatedFlaggedQuestion) {
+        val title = if (isTechnicalSelected) "Dismiss Bug Report?" else "Dismiss Flag?"
+        val msg = if (isTechnicalSelected) {
+            "Mark this technical issue as resolved? (${item.flagCount} report(s))"
+        } else {
+            "Dismiss ${item.flagCount} flag(s) for this question? It will be marked as resolved."
+        }
+
         MaterialAlertDialogBuilder(this)
-            .setTitle("Dismiss Flag?")
-            .setMessage("Dismiss ${item.flagCount} flag(s) for this question? It will be marked as resolved.")
+            .setTitle(title)
+            .setMessage(msg)
             .setPositiveButton("Dismiss") { _, _ ->
                 binding.progressBar.visibility = View.VISIBLE
                 lifecycleScope.launch {
                     try {
-                        val success = flagRepo.dismissFlags(item.flagIds)
+                        val success = flagRepo.dismissFlags(item.flagIds, isTechnical = isTechnicalSelected)
                         binding.progressBar.visibility = View.GONE
                         if (success) {
-                            AppBulletin.showSuccess(this@FlaggedQuestionsActivity, "Flags dismissed")
+                            AppBulletin.showSuccess(this@FlaggedQuestionsActivity, "Reports dismissed")
                             loadFlaggedQuestions()
                         } else {
-                            AppBulletin.showError(this@FlaggedQuestionsActivity, "Failed to dismiss flags")
+                            AppBulletin.showError(this@FlaggedQuestionsActivity, "Failed to dismiss reports")
                         }
                     } catch (e: Exception) {
                         binding.progressBar.visibility = View.GONE

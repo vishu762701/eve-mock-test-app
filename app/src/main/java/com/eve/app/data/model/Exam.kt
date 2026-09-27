@@ -26,7 +26,8 @@ data class Exam(
     val lastGenerationError: String = "",
     val lastGenerationTime: Long = 0L,
     val imageUrl: String = "",
-    val syllabusUploadedAt: Long = 0L
+    val syllabusUploadedAt: Long = 0L,
+    val cutoffs: Map<String, Double> = emptyMap()
 ) {
     val categoryOrOther: String get() = category.ifBlank { "Other" }
     val autoGenEnabled: Boolean get() = autoGenerationEnabled

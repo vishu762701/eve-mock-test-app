@@ -397,7 +397,8 @@ exports.submitAttempt = onCall(async (request) => {
       questionTextHi: String(q.questionTextHi || ""),
       selectedTextHi: pick.selected ? questionOptionTextHi(q, pick.selected) : "",
       correctTextHi: questionOptionTextHi(q, correctAnswer),
-      explanationHi: String(q.explanationHi || "")
+      explanationHi: String(q.explanationHi || ""),
+      timeTakenSeconds: Number(pick.timeTakenSeconds || 0)
     });
   }
 
@@ -444,6 +445,43 @@ exports.submitAttempt = onCall(async (request) => {
     }, { merge: true });
   } catch (err) {
     console.warn("Could not increment usage_stats testSubmissions:", err.message);
+  }
+
+  // Update running question statistics (accuracy & average time)
+  for (const a of answersData) {
+    if (!a.questionId) continue;
+    try {
+      const qStatsRef = db.collection("question_stats").doc(a.questionId);
+      const isAttempted = Boolean(a.selected);
+      const isAnsCorrect = isAttempted && a.selected === a.correct;
+      const timeSpent = Number(a.timeTakenSeconds || 0);
+
+      const snap = await qStatsRef.get();
+      if (!snap.exists) {
+        await qStatsRef.set({
+          questionId: a.questionId,
+          examId: examId,
+          totalAttempts: isAttempted ? 1 : 0,
+          correctAttempts: isAnsCorrect ? 1 : 0,
+          totalTimeSeconds: timeSpent,
+          avgTimeSeconds: timeSpent > 0 ? timeSpent : 45.0,
+          lastUpdatedAt: Date.now()
+        });
+      } else {
+        const prevTotal = (snap.data().totalAttempts || 0) + (isAttempted ? 1 : 0);
+        const prevTime = (snap.data().totalTimeSeconds || 0) + timeSpent;
+        const newAvg = prevTotal > 0 ? Math.round((prevTime / prevTotal) * 10) / 10 : 45.0;
+        await qStatsRef.set({
+          totalAttempts: FieldValue.increment(isAttempted ? 1 : 0),
+          correctAttempts: FieldValue.increment(isAnsCorrect ? 1 : 0),
+          totalTimeSeconds: FieldValue.increment(timeSpent),
+          avgTimeSeconds: newAvg,
+          lastUpdatedAt: Date.now()
+        }, { merge: true });
+      }
+    } catch (err) {
+      console.warn("Could not update question_stats for", a.questionId, err.message);
+    }
   }
 
   return { attemptId: attemptRef.id, score, total, correct, wrong, unattempted };
@@ -776,7 +814,11 @@ Rules:
 1. Each question must match the real competitive exam format and difficulty level.
 2. Factually verify each question and step-by-step solve before matching to options.
 3. Every question must have 4 distinct, plausible options (A, B, C, D).
-4. Provide a detailed, pedagogical explanation (3-4 sentences) for why the correct answer is right.
+4. Explanations must strictly follow this exact "Key Points" step-by-step structure:
+   - A bold one-line summary stating the correct answer (e.g. "**The correct answer is Option A.**" or "**सही उत्तर विकल्प 1 है।**").
+   - Followed by "Key Points:" section header.
+   - Followed by short bullet points, each bold-labeling the concept before explaining it (e.g. "• **Concept Name:** Detailed reasoning...", "• **Formula / Given Values:** ...", "• **Step-by-step Solution:** ...").
+   Never output a single unformatted paragraph.
 5. Output ONLY a valid JSON array of objects with the exact schema below. No markdown fences, no surrounding prose.
 
 JSON Schema:
@@ -1244,5 +1286,60 @@ exports.updateRemoteConfigMaintenance = onCall(async (request) => {
   }
 
   return { success: true, maintenanceMode, maintenanceMessage, minVersionCode };
+});
+
+/**
+ * Callable function for Admin: Reformat existing plain explanation into Key Points structure with Gemini AI.
+ */
+exports.reformatQuestionExplanation = onCall(async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) {
+    throw new HttpsError("unauthenticated", "Authentication required.");
+  }
+  const db = getFirestore();
+  const callerEmail = String(request.auth?.token?.email || "");
+  const isAdmin = await verifyIsAdmin(db, callerEmail);
+  if (!isAdmin) {
+    throw new HttpsError("permission-denied", "Admin privileges required.");
+  }
+
+  const data = request.data || {};
+  const questionText = String(data.questionText || "").trim();
+  const optionA = String(data.optionA || "").trim();
+  const optionB = String(data.optionB || "").trim();
+  const optionC = String(data.optionC || "").trim();
+  const optionD = String(data.optionD || "").trim();
+  const correctAnswer = String(data.correctAnswer || "A").trim().toUpperCase();
+  const explanation = String(data.explanation || "").trim();
+
+  const prompt = `You are an expert educational content writer and teacher for Indian competitive exams.
+Restructure the following question's explanation into the exact "Key Points" step-by-step format:
+1. Start with a bold one-line summary stating the correct answer (e.g. "**The correct answer is Option ${correctAnswer}.**").
+2. Followed by a "Key Points:" section header.
+3. Followed by short bullet points, each bold-labeling the concept before explaining it (e.g. "• **Concept Name:** Detailed reasoning...", "• **Given Values:** ...", "• **Step-by-step Calculation:** ...").
+Never output a single unformatted paragraph.
+
+Question: ${questionText}
+Option A: ${optionA}
+Option B: ${optionB}
+Option C: ${optionC}
+Option D: ${optionD}
+Correct Answer: Option ${correctAnswer}
+Original Explanation: ${explanation || "Option " + correctAnswer + " is the correct answer."}
+
+Output ONLY the reformatted explanation text in the exact Key Points format:`;
+
+  try {
+    const poolSize = getGeminiApiKeys().length || 4;
+    let keyIndex = await getLastUsedKeyIndex(db, poolSize);
+    const { text, usedKeyIndex } = await callGeminiWithRotation(db, prompt, keyIndex);
+    await persistLastUsedKeyIndex(db, (usedKeyIndex + 1) % poolSize);
+    await incrementGeminiUsage(db);
+
+    return { success: true, reformattedExplanation: text.trim() };
+  } catch (err) {
+    console.error("Failed to reformat explanation with Gemini:", err);
+    throw new HttpsError("internal", err.message || "Failed to reformat explanation with AI.");
+  }
 });
 
