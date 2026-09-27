@@ -737,6 +737,20 @@
                     app:iconPadding="12dp"
                     app:iconSize="20dp" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnManageFeedbackPosts"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical|start"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp"
+                    android:text="Manage Feedback Posts"
+                    app:icon="@drawable/ic_edit"
+                    app:iconPadding="12dp"
+                    app:iconSize="20dp" />
+
                 <!-- ANALYTICS & MONITORING SECTION -->
                 <TextView
                     android:layout_width="wrap_content"

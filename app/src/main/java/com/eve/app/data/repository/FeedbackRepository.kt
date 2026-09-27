@@ -110,6 +110,20 @@ class FeedbackRepository(
         }
     }
 
+    suspend fun updateFeedbackPost(postId: String, title: String, message: String): Result<Unit> = runCatching {
+        val trimmedTitle = title.trim()
+        val trimmedMessage = message.trim()
+        require(trimmedTitle.isNotEmpty()) { "Title cannot be empty" }
+        require(trimmedMessage.isNotEmpty()) { "Message cannot be empty" }
+
+        val body = mapOf(
+            "title" to trimmedTitle,
+            "message" to trimmedMessage
+        )
+        val res = api.updateFeedbackPost(postId, body)
+        if (!res.success) throw Exception(res.error ?: "Failed to update feedback post")
+    }
+
     suspend fun deleteFeedbackPost(postId: String): Result<Unit> = runCatching {
         val res = api.deleteFeedbackPost(postId)
         if (!res.success) throw Exception(res.error ?: "Failed to delete feedback post")

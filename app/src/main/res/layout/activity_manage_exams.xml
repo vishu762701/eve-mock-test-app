@@ -284,18 +284,33 @@
                     android:src="@drawable/ic_description"
                     app:tint="@color/eve_primary" />
 
-                <TextView
-                    android:id="@+id/tvSyllabusFileName"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    android:ellipsize="middle"
-                    android:fontFamily="@font/poppins_medium"
-                    android:maxLines="1"
-                    android:textColor="@color/eve_text"
-                    android:textSize="13sp"
-                    tools:text="ssc_cgl_syllabus.pdf" />
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvSyllabusFileName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="middle"
+                        android:fontFamily="@font/poppins_medium"
+                        android:maxLines="1"
+                        android:textColor="@color/eve_text"
+                        android:textSize="13sp"
+                        tools:text="ssc_cgl_syllabus.pdf" />
+
+                    <TextView
+                        android:id="@+id/tvSyllabusUploadDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins"
+                        android:textColor="@color/eve_text_secondary"
+                        android:textSize="11sp"
+                        tools:text="Uploaded: 24 Sep 2026, 11:30 AM" />
+                </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnReplacePdf"
@@ -364,6 +379,51 @@
                     android:textColor="@color/eve_text"
                     android:textSize="14sp" />
             </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- 8. View Generated Tests -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="8. Generated Tests for this Exam"
+                android:textColor="@color/eve_text"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:fontFamily="@font/poppins"
+                android:text="Review or delete AI-generated question batches for this exam."
+                android:textColor="@color/eve_text_secondary"
+                android:textSize="12sp" />
+
+            <ProgressBar
+                android:id="@+id/progressBarGenTests"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="8dp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvNoGenTests"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/poppins"
+                android:text="No generated tests for this exam yet."
+                android:textColor="@color/eve_text_secondary"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvGeneratedTestsForExam"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false" />
         </LinearLayout>
     </ScrollView>
 

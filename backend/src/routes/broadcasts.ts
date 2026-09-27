@@ -18,13 +18,14 @@ broadcastRoutes.get("/", async (c) => {
     .bind(limit)
     .all<NotificationRow>();
 
-  const list = (results || []).map((r) => ({
+  const list = (results || []).map((r: any) => ({
     id: r.id,
     title: r.title,
     message: r.message,
     sentAt: r.sent_at,
     sentBy: r.sent_by,
     type: r.type,
+    targetCategory: r.target_category || "All Users",
   }));
 
   return c.json({ success: true, data: list });
@@ -37,6 +38,7 @@ broadcastRoutes.post("/", requireAdmin, async (c) => {
   const title = String(body.title || "").trim();
   const message = String(body.message || body.body || "").trim();
   const type = String(body.type || "general").trim();
+  const targetCategory = String(body.targetCategory || body.target_category || "All Users").trim();
   const db = c.env.DB;
 
   if (!title && !message) {
@@ -46,14 +48,33 @@ broadcastRoutes.post("/", requireAdmin, async (c) => {
   const id = crypto.randomUUID();
   const now = Date.now();
 
-  await db
-    .prepare(
-      "INSERT INTO notifications (id, title, message, sent_at, sent_by, type) VALUES (?, ?, ?, ?, ?, ?)"
-    )
-    .bind(id, title, message, now, user.email, type)
-    .run();
+  try {
+    await db
+      .prepare(
+        "INSERT INTO notifications (id, title, message, sent_at, sent_by, type, target_category) VALUES (?, ?, ?, ?, ?, ?, ?)"
+      )
+      .bind(id, title, message, now, user.email, type, targetCategory)
+      .run();
+  } catch {
+    try {
+      await db.prepare("ALTER TABLE notifications ADD COLUMN target_category TEXT DEFAULT 'All Users'").run();
+      await db
+        .prepare(
+          "INSERT INTO notifications (id, title, message, sent_at, sent_by, type, target_category) VALUES (?, ?, ?, ?, ?, ?, ?)"
+        )
+        .bind(id, title, message, now, user.email, type, targetCategory)
+        .run();
+    } catch {
+      await db
+        .prepare(
+          "INSERT INTO notifications (id, title, message, sent_at, sent_by, type) VALUES (?, ?, ?, ?, ?, ?)"
+        )
+        .bind(id, title, message, now, user.email, type)
+        .run();
+    }
+  }
 
-  return c.json({ success: true, data: { id, title, message, sentAt: now } }, 201);
+  return c.json({ success: true, data: { id, title, message, sentAt: now, targetCategory } }, 201);
 });
 
 // DELETE /api/broadcasts/:id - Delete single broadcast (Admin)

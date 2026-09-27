@@ -138,6 +138,7 @@ export interface NotificationRow {
   sent_at: number;
   sent_by: string;
   type: string;
+  target_category?: string;
 }
 
 export interface FeedbackMessageRow {

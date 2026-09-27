@@ -26,7 +26,7 @@ class GeneratedTestAdapter(
 
     inner class VH(private val b: ItemGeneratedTestBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(test: GeneratedTest) {
-            b.tvExamName.text = test.examName.ifBlank { "Exam Test" }
+            b.tvExamName.text = test.displayTitle
             val timeAgo = if (test.generatedAt > 0) {
                 DateUtils.getRelativeTimeSpanString(
                     test.generatedAt,

@@ -6,5 +6,6 @@ data class BroadcastMessage(
     val message: String = "",
     val sentAt: Long = 0L,
     val sentBy: String = "",
-    val type: String = "general"
+    val type: String = "general",
+    val targetCategory: String = "All Users"
 )

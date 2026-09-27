@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.View
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.AppUndoBar
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -22,6 +24,7 @@ class SendNotificationActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySendNotificationBinding
     private lateinit var sentAdapter: SentBroadcastAdapter
     private val api: EveApiService = ApiClient.apiService
+    private val categoryList = mutableListOf("All Users")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,9 +64,47 @@ class SendNotificationActivity : AppCompatActivity() {
             validateAndConfirm()
         }
 
+        setupTargetCategorySpinner()
         setupSelectionTopBar()
         setupBackPressed()
         listenToSentBroadcasts()
+    }
+
+    private fun setupTargetCategorySpinner() {
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categoryList)
+        binding.spTargetCategory.adapter = adapter
+
+        binding.spTargetCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selected = categoryList.getOrNull(position) ?: "All Users"
+                binding.btnSend.text = if (selected == "All Users") {
+                    "Send to All Users"
+                } else {
+                    "Send to $selected Students"
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        // Fetch categories from exams
+        lifecycleScope.launch {
+            try {
+                val examsRes = api.getExams()
+                if (examsRes.success && examsRes.data != null) {
+                    val categories = examsRes.data
+                        .map { it.category.trim() }
+                        .filter { it.isNotBlank() }
+                        .distinct()
+                    if (categories.isNotEmpty()) {
+                        categoryList.clear()
+                        categoryList.add("All Users")
+                        categoryList.addAll(categories)
+                        adapter.notifyDataSetChanged()
+                    }
+                }
+            } catch (_: Exception) {}
+        }
     }
 
     private fun setupSelectionTopBar() {
@@ -221,29 +262,12 @@ class SendNotificationActivity : AppCompatActivity() {
     }
 
     private fun confirmDeleteBroadcast(broadcast: BroadcastMessage) {
-        val titleText = if (broadcast.title.isNotBlank()) "'${broadcast.title}'" else "this message"
+        val titleText = if (broadcast.title.isNotBlank()) "'${broadcast.title}'" else "this broadcast"
         MaterialAlertDialogBuilder(this)
             .setTitle("Delete Broadcast?")
-            .setMessage("Delete $titleText? Only this individual broadcast will be deleted, leaving all other messages intact.")
+            .setMessage("Are you sure you want to delete $titleText?\n\n💬 Message:\n${broadcast.message}\n\nThis will remove it from all students' in-app notification lists and cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
-                val originalList = sentAdapter.currentList.toMutableList()
-                val updated = originalList.filter { it.id != broadcast.id }
-                sentAdapter.submitList(updated)
-                binding.tvNoSentBroadcasts.visibility = if (updated.isEmpty()) View.VISIBLE else View.GONE
-
-                AppUndoBar.show(
-                    context = this@SendNotificationActivity,
-                    message = "Broadcast deleted",
-                    timeLeftMs = AppUndoBar.TIME_IMPORTANT,
-                    onUndo = {
-                        sentAdapter.submitList(originalList)
-                        binding.tvNoSentBroadcasts.visibility = if (originalList.isEmpty()) View.VISIBLE else View.GONE
-                        AppBulletin.show(this@SendNotificationActivity, "Delete cancelled")
-                    },
-                    onExecuteDelete = {
-                        deleteBroadcast(broadcast)
-                    }
-                )
+                deleteBroadcast(broadcast)
             }
             .setNegativeButton("Cancel", null)
             .show()
@@ -301,24 +325,32 @@ class SendNotificationActivity : AppCompatActivity() {
             binding.tilMessage.error = null
         }
 
+        val targetCategory = binding.spTargetCategory.selectedItem?.toString() ?: "All Users"
+        val audienceDesc = if (targetCategory == "All Users") {
+            "all registered students"
+        } else {
+            "all students in '$targetCategory'"
+        }
+
         MaterialAlertDialogBuilder(this)
             .setTitle("Confirm Broadcast Notification")
-            .setMessage("Are you sure? This cannot be undone.\n\nThis notification will be dispatched to all students immediately:\n\n📢 Title: $title\n\n💬 Message:\n$message")
-            .setPositiveButton("Send Broadcast") { _, _ ->
-                sendNotification(title, message)
+            .setMessage("Are you sure? Delivered notifications cannot be recalled.\n\nThis notification will be dispatched to $audienceDesc immediately:\n\n📢 Title: $title\n🎯 Target Audience: $targetCategory\n\n💬 Message:\n$message")
+            .setPositiveButton(if (targetCategory == "All Users") "Send to All Users" else "Send to $targetCategory") { _, _ ->
+                sendNotification(title, message, targetCategory)
             }
             .setNegativeButton("Cancel", null)
             .show()
     }
 
-    private fun sendNotification(title: String, message: String) {
+    private fun sendNotification(title: String, message: String, targetCategory: String = "All Users") {
         binding.btnSend.isEnabled = false
         binding.progressBar.visibility = View.VISIBLE
 
         val body = mapOf(
             "title" to title,
             "message" to message,
-            "type" to "general"
+            "type" to "general",
+            "targetCategory" to targetCategory
         )
 
         lifecycleScope.launch {

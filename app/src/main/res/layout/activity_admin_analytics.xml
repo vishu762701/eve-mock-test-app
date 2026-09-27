@@ -20,6 +20,40 @@
             android:fillViewport="true">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:orientation="vertical" android:padding="16dp">
+                <!-- Time Range Filter -->
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupTimeRange"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    app:singleSelection="true">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipLast7Days"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="Last 7 days" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipLast30Days"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="Last 30 days" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipAllTime"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="All time" />
+                </com.google.android.material.chip.ChipGroup>
+
                 <TextView android:id="@+id/tvSummary" android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:textColor="?attr/colorOnSurface" android:textSize="14sp"/>
                 <TextView android:id="@+id/tvMostAttempted" android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -148,8 +182,43 @@
                             android:textSize="12sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
+
+                <!-- Bar Chart Section -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardBarChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    app:cardBackgroundColor="@color/eve_card_bg"
+                    app:cardCornerRadius="14dp"
+                    app:cardElevation="2dp"
+                    app:strokeColor="@color/eve_stroke"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:text="📊 Exam Attempts Distribution"
+                            android:textColor="@color/eve_text"
+                            android:textSize="15sp" />
+
+                        <com.eve.app.ui.admin.ExamAttemptsBarChartView
+                            android:id="@+id/barChartView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
                 <TextView android:id="@+id/tvExamHeading" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="22dp" android:text="Exam attempts" android:textColor="?attr/colorOnSurface"
+                    android:layout_marginTop="22dp" android:text="Exam attempts breakdown" android:textColor="?attr/colorOnSurface"
                     android:textSize="16sp" android:textStyle="bold"/>
                 <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvExams" android:layout_width="match_parent"
                     android:layout_height="wrap_content" android:nestedScrollingEnabled="false" android:layout_marginTop="8dp"

@@ -8,8 +8,8 @@ class AdminAnalyticsRepository {
 
     private val api = ApiClient.api
 
-    suspend fun getExamAnalytics(): List<ExamAnalytics> = try {
-        val res = api.getExamAnalytics()
+    suspend fun getExamAnalytics(days: Int = 0): List<ExamAnalytics> = try {
+        val res = api.getExamAnalytics(if (days > 0) days else null)
         res.data?.sortedWith(
             compareByDescending<ExamAnalytics> { it.attemptCount }.thenBy { it.examName }
         ) ?: emptyList()

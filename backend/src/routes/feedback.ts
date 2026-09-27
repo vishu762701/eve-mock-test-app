@@ -170,6 +170,26 @@ feedbackRoutes.post("/posts", requireAdmin, async (c) => {
   return c.json({ success: true, data: { id } }, 201);
 });
 
+// PUT /api/feedback/posts/:id - Edit post (Admin)
+feedbackRoutes.put("/posts/:id", requireAdmin, async (c) => {
+  const id = c.req.param("id");
+  const body = await c.req.json().catch(() => ({}));
+  const title = String(body.title || "").trim();
+  const message = String(body.message || "").trim();
+
+  if (!title || !message) {
+    return c.json({ success: false, error: "Title and message are required" }, 400);
+  }
+
+  const db = c.env.DB;
+  await db
+    .prepare("UPDATE feedback_posts SET title = ?, message = ? WHERE id = ?")
+    .bind(title, message, id)
+    .run();
+
+  return c.json({ success: true });
+});
+
 // DELETE /api/feedback/posts/:id - Delete post & cascade replies (Admin)
 feedbackRoutes.delete("/posts/:id", requireAdmin, async (c) => {
   const id = c.req.param("id");

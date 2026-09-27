@@ -12,10 +12,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.R
 import com.eve.app.data.model.Exam
+import com.eve.app.data.model.GeneratedTest
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.databinding.ActivityManageExamsBinding
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import com.eve.app.data.remote.ApiClient
@@ -31,11 +34,24 @@ class ManageExamsActivity : AppCompatActivity() {
     private var examList: MutableList<Exam> = mutableListOf()
     private var selectedIndex: Int = -1
 
+    private val genTestAdapter = GeneratedTestAdapter(
+        onStatusToggle = { test, isLive ->
+            toggleTestStatus(test, isLive)
+        },
+        onPreview = { test ->
+            previewTest(test)
+        },
+        onDelete = { test ->
+            confirmDeleteTest(test)
+        }
+    )
+
     // State of currently loaded exam for dirty checking
     private var initialExam: Exam? = null
     private var currentExamId: String = ""
     private var currentSyllabusUrl: String = ""
     private var currentSyllabusFileName: String = ""
+    private var currentSyllabusUploadedAt: Long = 0L
     private var currentAutoGenTime: String = "00:00"
 
     private val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
@@ -54,6 +70,9 @@ class ManageExamsActivity : AppCompatActivity() {
 
         binding.btnBack.setOnClickListener { handleBack() }
         binding.compactErrorView.displayMode = com.eve.app.ui.common.ErrorStateView.DisplayMode.COMPACT
+
+        binding.rvGeneratedTestsForExam.layoutManager = LinearLayoutManager(this)
+        binding.rvGeneratedTestsForExam.adapter = genTestAdapter
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -168,17 +187,22 @@ class ManageExamsActivity : AppCompatActivity() {
             currentExamId = exam.id
             currentSyllabusUrl = exam.syllabusUrl
             currentSyllabusFileName = exam.syllabusFileName
+            currentSyllabusUploadedAt = exam.syllabusUploadedAt
             currentAutoGenTime = exam.autoGenTime.ifBlank { "00:00" }
 
             binding.etExamName.setText(exam.examName)
             binding.etTestNumber.setText(exam.testNumber.ifBlank { "Test 1" })
             binding.etQuestionCount.setText(if (exam.questionCount > 0) exam.questionCount.toString() else "20")
+            
+            // Saved exam: auto-generation toggle can be toggled
+            binding.switchAutoGen.isEnabled = true
+            binding.switchAutoGen.alpha = 1.0f
             binding.switchAutoGen.isChecked = exam.autoGenerationEnabled
             updateTimePickerState(exam.autoGenerationEnabled)
             binding.btnPickTime.text = "Time: $currentAutoGenTime (IST)"
 
             updateLastRunUi(exam)
-            updateSyllabusUi(currentSyllabusFileName, currentSyllabusUrl)
+            updateSyllabusUi(currentSyllabusFileName, currentSyllabusUrl, currentSyllabusUploadedAt)
 
             binding.etGenerationPrompt.setText(
                 if (exam.generationPrompt.isNotBlank()) exam.generationPrompt else exam.customPromptNotes
@@ -186,26 +210,33 @@ class ManageExamsActivity : AppCompatActivity() {
 
             initialExam = getCurrentFormAsExam()
             binding.btnGenerateNow.visibility = View.VISIBLE
+            loadGeneratedTestsForExam()
         } else {
-            // "+ Add new exam" entry selected
+            // "+ Add new exam" entry selected:
+            // Auto-generation toggle must default to OFF and be disabled until saved
             currentExamId = ""
             currentSyllabusUrl = ""
             currentSyllabusFileName = ""
+            currentSyllabusUploadedAt = 0L
             currentAutoGenTime = "00:00"
 
             binding.etExamName.setText("")
             binding.etTestNumber.setText("Test 1")
             binding.etQuestionCount.setText("20")
-            binding.switchAutoGen.isChecked = true
-            updateTimePickerState(true)
+            
+            binding.switchAutoGen.isChecked = false
+            binding.switchAutoGen.isEnabled = false
+            binding.switchAutoGen.alpha = 0.5f
+            updateTimePickerState(false)
             binding.btnPickTime.text = "Time: 00:00 (IST)"
 
-            binding.tvLastRunStatus.text = "New exam — not saved yet"
-            updateSyllabusUi("", "")
+            binding.tvLastRunStatus.text = "New exam — save exam before enabling auto-generation"
+            updateSyllabusUi("", "", 0L)
             binding.etGenerationPrompt.setText("")
 
             initialExam = getCurrentFormAsExam()
             binding.btnGenerateNow.visibility = View.GONE
+            loadGeneratedTestsForExam()
         }
     }
 
@@ -246,11 +277,16 @@ class ManageExamsActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateSyllabusUi(fileName: String, url: String) {
+    private fun updateSyllabusUi(fileName: String, url: String, uploadedAt: Long = 0L) {
         if (url.isNotBlank() && fileName.isNotBlank()) {
             binding.layoutSyllabusUploaded.visibility = View.VISIBLE
             binding.btnUploadPdf.visibility = View.GONE
             binding.tvSyllabusFileName.text = fileName
+            binding.tvSyllabusUploadDate.text = if (uploadedAt > 0) {
+                "Uploaded: ${dateFormat.format(Date(uploadedAt))}"
+            } else {
+                "Uploaded syllabus PDF"
+            }
         } else {
             binding.layoutSyllabusUploaded.visibility = View.GONE
             binding.btnUploadPdf.visibility = View.VISIBLE
@@ -298,7 +334,7 @@ class ManageExamsActivity : AppCompatActivity() {
     }
 
     private fun confirmRemovePdf() {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle("Remove Syllabus?")
             .setMessage("Are you sure you want to remove the uploaded syllabus PDF?")
             .setPositiveButton("Remove") { _, _ ->
@@ -308,8 +344,9 @@ class ManageExamsActivity : AppCompatActivity() {
                         examRepo.removeSyllabusPdf(currentExamId, currentSyllabusUrl)
                         currentSyllabusUrl = ""
                         currentSyllabusFileName = ""
+                        currentSyllabusUploadedAt = 0L
                         binding.progressBarPdf.visibility = View.GONE
-                        updateSyllabusUi("", "")
+                        updateSyllabusUi("", "", 0L)
                         AppBulletin.showSuccess(this@ManageExamsActivity, "Syllabus removed")
                     } catch (e: Exception) {
                         binding.progressBarPdf.visibility = View.GONE
@@ -324,7 +361,7 @@ class ManageExamsActivity : AppCompatActivity() {
     private fun triggerGenerateNow() {
         if (currentExamId.isBlank()) return
 
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle("Generate Test Now?")
             .setMessage("This will trigger AI to generate a fresh test for '${binding.etExamName.text}' immediately using the configured prompt and question count.")
             .setPositiveButton("Generate") { _, _ ->
@@ -332,29 +369,143 @@ class ManageExamsActivity : AppCompatActivity() {
                 binding.progressBar.visibility = View.VISIBLE
                 lifecycleScope.launch {
                     try {
+                        val count = binding.etQuestionCount.text?.toString()?.toIntOrNull() ?: 20
                         val data = mapOf<String, Any>(
                             "examId" to currentExamId,
-                            "questionCount" to (binding.etQuestionCount.text?.toString()?.toIntOrNull() ?: 20),
+                            "questionCount" to count,
                             "testNumber" to binding.etTestNumber.text?.toString()?.trim().orEmpty(),
                             "customPromptNotes" to binding.etGenerationPrompt.text?.toString()?.trim().orEmpty()
                         )
                         val res = ApiClient.apiService.triggerAiTestGeneration(data)
-                        if (!res.success) {
-                            throw Exception(res.error ?: "Generation failed")
-                        }
-
                         binding.btnGenerateNow.isEnabled = true
                         binding.progressBar.visibility = View.GONE
                         binding.compactErrorView.hide()
-                        AppBulletin.showSuccess(this@ManageExamsActivity, "Test generation complete! Check Generated Tests.")
-                        loadExams()
+
+                        if (!res.success) {
+                            val err = res.error ?: "Generation failed"
+                            MaterialAlertDialogBuilder(this@ManageExamsActivity)
+                                .setTitle("Generation Failed")
+                                .setMessage("Failed to generate test questions:\n\n$err")
+                                .setPositiveButton("OK", null)
+                                .show()
+                        } else {
+                            val generatedCount = res.data?.get("count") ?: count
+                            MaterialAlertDialogBuilder(this@ManageExamsActivity)
+                                .setTitle("Generation Successful")
+                                .setMessage("Successfully generated $generatedCount questions for '${binding.etExamName.text}'.\n\nYou can review or publish them in the Generated Tests section below.")
+                                .setPositiveButton("OK", null)
+                                .show()
+                            loadExams()
+                            loadGeneratedTestsForExam()
+                        }
                     } catch (e: Exception) {
                         binding.btnGenerateNow.isEnabled = true
                         binding.progressBar.visibility = View.GONE
-                        binding.compactErrorView.show(
-                            type = com.eve.app.ui.common.ErrorStateView.ErrorType.SERVER_ERROR,
-                            customMessage = "Generation failed: ${e.localizedMessage ?: "Unknown error"}"
-                        )
+                        val err = e.localizedMessage ?: "Unknown error"
+                        MaterialAlertDialogBuilder(this@ManageExamsActivity)
+                            .setTitle("Generation Failed")
+                            .setMessage("Failed to generate test questions:\n\n$err")
+                            .setPositiveButton("OK", null)
+                            .show()
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun loadGeneratedTestsForExam() {
+        if (currentExamId.isBlank()) {
+            genTestAdapter.submit(emptyList())
+            binding.progressBarGenTests.visibility = View.GONE
+            binding.tvNoGenTests.visibility = View.VISIBLE
+            binding.tvNoGenTests.text = "Save exam first to view and generate test batches."
+            return
+        }
+
+        binding.progressBarGenTests.visibility = View.VISIBLE
+        binding.tvNoGenTests.visibility = View.GONE
+
+        lifecycleScope.launch {
+            try {
+                val tests = examRepo.getGeneratedTests(currentExamId)
+                binding.progressBarGenTests.visibility = View.GONE
+                genTestAdapter.submit(tests)
+                if (tests.isEmpty()) {
+                    binding.tvNoGenTests.visibility = View.VISIBLE
+                    binding.tvNoGenTests.text = "No generated tests for this exam yet."
+                } else {
+                    binding.tvNoGenTests.visibility = View.GONE
+                }
+            } catch (e: Exception) {
+                binding.progressBarGenTests.visibility = View.GONE
+                binding.tvNoGenTests.visibility = View.VISIBLE
+                binding.tvNoGenTests.text = "Error loading tests: ${e.localizedMessage ?: "Unknown error"}"
+            }
+        }
+    }
+
+    private fun toggleTestStatus(test: GeneratedTest, isLive: Boolean) {
+        val newStatus = if (isLive) "live" else "paused"
+        lifecycleScope.launch {
+            try {
+                examRepo.updateGeneratedTestStatus(test.id, newStatus)
+                AppBulletin.showSuccess(
+                    this@ManageExamsActivity,
+                    "Test is now ${newStatus.uppercase()}"
+                )
+                loadGeneratedTestsForExam()
+            } catch (e: Exception) {
+                AppBulletin.showError(
+                    this@ManageExamsActivity,
+                    "Failed to update status: ${e.localizedMessage}"
+                )
+                loadGeneratedTestsForExam()
+            }
+        }
+    }
+
+    private fun previewTest(test: GeneratedTest) {
+        if (test.questions.isEmpty()) {
+            AppBulletin.showError(this, "No questions found in this test payload.")
+            return
+        }
+
+        val formattedText = StringBuilder()
+        test.questions.forEachIndexed { index, q ->
+            formattedText.append("Q${index + 1}: ${q.questionText}\n")
+            formattedText.append("A) ${q.optionA}\n")
+            formattedText.append("B) ${q.optionB}\n")
+            formattedText.append("C) ${q.optionC}\n")
+            formattedText.append("D) ${q.optionD}\n")
+            formattedText.append("Correct: ${q.correctAnswer}\n")
+            if (q.explanation.isNotBlank()) {
+                formattedText.append("Explanation: ${q.explanation}\n")
+            }
+            formattedText.append("\n--------------------\n\n")
+        }
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(test.displayTitle)
+            .setMessage(formattedText.toString())
+            .setPositiveButton("Close", null)
+            .show()
+    }
+
+    private fun confirmDeleteTest(test: GeneratedTest) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Delete Generated Test?")
+            .setMessage("Are you sure you want to permanently delete '${test.displayTitle}'? This batch of questions will be removed.")
+            .setPositiveButton("Delete") { _, _ ->
+                binding.progressBarGenTests.visibility = View.VISIBLE
+                lifecycleScope.launch {
+                    try {
+                        examRepo.deleteGeneratedTest(test.id)
+                        AppBulletin.showSuccess(this@ManageExamsActivity, "Test batch deleted")
+                        loadGeneratedTestsForExam()
+                    } catch (e: Exception) {
+                        binding.progressBarGenTests.visibility = View.GONE
+                        AppBulletin.showError(this@ManageExamsActivity, "Failed to delete: ${e.localizedMessage}")
                     }
                 }
             }
@@ -373,6 +524,7 @@ class ManageExamsActivity : AppCompatActivity() {
             autoGenTime = currentAutoGenTime,
             syllabusUrl = currentSyllabusUrl,
             syllabusFileName = currentSyllabusFileName,
+            syllabusUploadedAt = currentSyllabusUploadedAt,
             generationPrompt = binding.etGenerationPrompt.text?.toString()?.trim().orEmpty()
         )
     }
@@ -444,6 +596,10 @@ class ManageExamsActivity : AppCompatActivity() {
                         generationPrompt = prompt
                     )
                     currentExamId = newId
+                    // Once saved at least once, enable auto-generation toggle!
+                    binding.switchAutoGen.isEnabled = true
+                    binding.switchAutoGen.alpha = 1.0f
+                    binding.btnGenerateNow.visibility = View.VISIBLE
                     AppBulletin.showSuccess(this@ManageExamsActivity, "New exam '$name' created!")
                 }
 
@@ -452,6 +608,7 @@ class ManageExamsActivity : AppCompatActivity() {
                 binding.progressBar.visibility = View.GONE
                 binding.compactErrorView.hide()
                 loadExams()
+                loadGeneratedTestsForExam()
                 onSuccess?.invoke()
             } catch (e: Exception) {
                 binding.btnSave.isEnabled = true

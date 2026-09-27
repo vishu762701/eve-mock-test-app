@@ -25,7 +25,8 @@ data class Exam(
     val lastGenerationStatus: String = "",
     val lastGenerationError: String = "",
     val lastGenerationTime: Long = 0L,
-    val imageUrl: String = ""
+    val imageUrl: String = "",
+    val syllabusUploadedAt: Long = 0L
 ) {
     val categoryOrOther: String get() = category.ifBlank { "Other" }
     val autoGenEnabled: Boolean get() = autoGenerationEnabled

@@ -178,6 +178,9 @@ interface EveApiService {
     @POST("api/feedback/posts")
     suspend fun createFeedbackPost(@Body body: Map<String, @JvmSuppressWildcards Any>): ApiResponse<Map<String, String>>
 
+    @PUT("api/feedback/posts/{id}")
+    suspend fun updateFeedbackPost(@Path("id") id: String, @Body body: Map<String, @JvmSuppressWildcards Any>): ApiResponse<Unit>
+
     @DELETE("api/feedback/posts/{id}")
     suspend fun deleteFeedbackPost(@Path("id") id: String): ApiResponse<Unit>
 
@@ -278,7 +281,7 @@ interface EveApiService {
     suspend fun removeAdmin(@Path("email") email: String): ApiResponse<Unit>
 
     @GET("api/admin/analytics/exams")
-    suspend fun getExamAnalytics(): ApiResponse<List<ExamAnalytics>>
+    suspend fun getExamAnalytics(@Query("days") days: Int? = null): ApiResponse<List<ExamAnalytics>>
 
     @GET("api/admin/analytics/questions")
     suspend fun getQuestionAnalytics(@Query("examId") examId: String? = null): ApiResponse<List<QuestionAnalytics>>

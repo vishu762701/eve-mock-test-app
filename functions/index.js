@@ -959,18 +959,22 @@ exports.scheduledTestGeneration = onSchedule(
 
         console.log(`[Scheduler] Successfully generated test ${genTestRef.id} (${questions.length} Qs) for ${examName}. Next: ${nextTestNumber}`);
       } catch (err) {
-        console.error(`[Scheduler] Generation failed for ${examName} (${examId}):`, err.message);
+        const isRateLimit = err.message && (err.message.includes("429") || err.message.toLowerCase().includes("quota") || err.message.toLowerCase().includes("rate limit"));
+        const errorDetail = isRateLimit
+          ? `Gemini Rate Limit (HTTP 429): ${err.message}`
+          : `API Error: ${err.message || "Unknown error"}`;
+        console.error(`[Scheduler] Generation failed for ${examName} (${examId}):`, errorDetail);
 
         await examRef.update({
           generatingLockUntil: 0,
           lastGenerationStatus: "failed",
-          lastGenerationError: String(err.message || "Unknown error").slice(0, 200),
+          lastGenerationError: String(errorDetail).slice(0, 200),
           lastGenerationTime: Date.now(),
         });
       }
 
-      // Short delay between exams to prevent burst quota consumption
-      await sleep(2000);
+      // Requirement 4e: Stagger delay between exams to prevent burst quota consumption and simultaneous API hits
+      await sleep(10000);
     }
   }
 );

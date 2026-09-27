@@ -49,9 +49,25 @@ adminRoutes.delete("/admins/:email", async (c) => {
 // GET /api/admin/analytics/exams - Pre-aggregated exam analytics
 adminRoutes.get("/analytics/exams", async (c) => {
   const db = c.env.DB;
+  const days = parseInt(c.req.query("days") || "0", 10);
+  const cutoff = days > 0 ? Date.now() - days * 24 * 60 * 60 * 1000 : 0;
   try {
-    const { results } = await db
-      .prepare(`
+    const query = cutoff > 0
+      ? `
+        SELECT 
+          e.id as exam_id,
+          e.exam_name,
+          e.category,
+          COUNT(a.id) as attempt_count,
+          COUNT(DISTINCT a.user_id) as unique_users,
+          COALESCE(MAX(a.timestamp), 0) as last_attempt_at,
+          COALESCE(AVG(a.score), 0.0) as average_score
+        FROM exams e
+        LEFT JOIN attempts a ON e.id = a.exam_id AND a.timestamp >= ?
+        GROUP BY e.id, e.exam_name, e.category
+        ORDER BY attempt_count DESC, e.exam_name ASC
+      `
+      : `
         SELECT 
           e.id as exam_id,
           e.exam_name,
@@ -64,8 +80,10 @@ adminRoutes.get("/analytics/exams", async (c) => {
         LEFT JOIN attempts a ON e.id = a.exam_id
         GROUP BY e.id, e.exam_name, e.category
         ORDER BY attempt_count DESC, e.exam_name ASC
-      `)
-      .all<any>();
+      `;
+
+    const stmt = cutoff > 0 ? db.prepare(query).bind(cutoff) : db.prepare(query);
+    const { results } = await stmt.all<any>();
 
     const list = (results || []).map((r) => ({
       examId: r.exam_id,

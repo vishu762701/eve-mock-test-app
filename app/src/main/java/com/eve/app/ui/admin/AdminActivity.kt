@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.LinearLayout
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.AppUndoBar
 import androidx.activity.result.contract.ActivityResultContracts
@@ -218,6 +219,9 @@ class AdminActivity : AppCompatActivity() {
         }
         binding.btnCreateFeedbackPost.setOnClickListener {
             showCreateFeedbackPostDialog()
+        }
+        binding.btnManageFeedbackPosts.setOnClickListener {
+            showManageFeedbackPostsDialog()
         }
 
         // Section 4: Analytics & Monitoring
@@ -677,10 +681,6 @@ class AdminActivity : AppCompatActivity() {
             dialog.dismiss()
         }
 
-        dialogBinding.btnManageExistingPosts.setOnClickListener {
-            showManageFeedbackPostsDialog()
-        }
-
         dialogBinding.btnPublishPost.setOnClickListener {
             val title = dialogBinding.etPostTitle.text?.toString()?.trim().orEmpty()
             val message = dialogBinding.etPostMessage.text?.toString()?.trim().orEmpty()
@@ -909,13 +909,14 @@ class AdminActivity : AppCompatActivity() {
 
     private fun showPostActionsDialog(post: FeedbackPost) {
         val feedbackRepo = FeedbackRepository()
-        val options = arrayOf("👁️ View Replies", "🗑️ Delete Post")
+        val options = arrayOf("✏️ Edit Post", "👁️ View Replies", "🗑️ Delete Post")
         MaterialAlertDialogBuilder(this)
             .setTitle(post.title)
             .setItems(options) { _, which ->
                 when (which) {
-                    0 -> showPostRepliesDialog(post)
-                    1 -> {
+                    0 -> showEditPostDialog(post)
+                    1 -> showPostRepliesDialog(post)
+                    2 -> {
                         MaterialAlertDialogBuilder(this)
                             .setTitle("Delete Post?")
                             .setMessage("Delete '${post.title}' from Home screen? All its student replies will also be permanently deleted.")
@@ -940,6 +941,59 @@ class AdminActivity : AppCompatActivity() {
                 }
             }
             .setNegativeButton("Back", null)
+            .show()
+    }
+
+    private fun showEditPostDialog(post: FeedbackPost) {
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(48, 32, 48, 16)
+        }
+        val etTitle = com.google.android.material.textfield.TextInputEditText(this).apply {
+            hint = "Post Title"
+            setText(post.title)
+        }
+        val tilTitle = com.google.android.material.textfield.TextInputLayout(this, null, com.google.android.material.R.attr.textInputOutlinedStyle).apply {
+            hint = "Post Title"
+            addView(etTitle)
+        }
+        val etMessage = com.google.android.material.textfield.TextInputEditText(this).apply {
+            hint = "Message / Prompt"
+            setText(post.message)
+            minLines = 3
+        }
+        val tilMessage = com.google.android.material.textfield.TextInputLayout(this, null, com.google.android.material.R.attr.textInputOutlinedStyle).apply {
+            hint = "Message / Prompt"
+            val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                topMargin = 24
+            }
+            layoutParams = params
+            addView(etMessage)
+        }
+        layout.addView(tilTitle)
+        layout.addView(tilMessage)
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Edit Feedback Post")
+            .setView(layout)
+            .setPositiveButton("Save Changes") { _, _ ->
+                val newTitle = etTitle.text?.toString()?.trim().orEmpty()
+                val newMessage = etMessage.text?.toString()?.trim().orEmpty()
+                if (newTitle.isBlank() || newMessage.isBlank()) {
+                    AppBulletin.showError(this, "Title and message cannot be empty")
+                    return@setPositiveButton
+                }
+                lifecycleScope.launch {
+                    val feedbackRepo = FeedbackRepository()
+                    val res = feedbackRepo.updateFeedbackPost(post.id, newTitle, newMessage)
+                    res.onSuccess {
+                        AppBulletin.showSuccess(this@AdminActivity, "Feedback post updated successfully!")
+                    }.onFailure { e ->
+                        AppBulletin.showError(this@AdminActivity, "Failed to update: ${e.localizedMessage}")
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
             .show()
     }
 

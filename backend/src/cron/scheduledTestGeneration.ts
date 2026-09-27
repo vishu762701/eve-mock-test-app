@@ -21,6 +21,7 @@ export async function handleScheduledTestGeneration(event: ScheduledEvent, env: 
     return;
   }
 
+  let executedCount = 0;
   for (const exam of exams) {
     const examId = exam.id;
     const examName = exam.exam_name || "Mock Test";
@@ -60,6 +61,13 @@ export async function handleScheduledTestGeneration(event: ScheduledEvent, env: 
       console.log(`[Scheduler] Failed to acquire lock for '${examName}'. Skipping.`);
       continue;
     }
+
+    // Requirement 4e: Stagger execution when multiple exams are scheduled at the same time
+    if (executedCount > 0) {
+      console.log(`[Scheduler] Staggering next generation for '${examName}' to prevent API rate limits...`);
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+    }
+    executedCount++;
 
     console.log(`[Scheduler] Starting AI test generation for '${examName}' scheduled at ${autoGenTime}...`);
 

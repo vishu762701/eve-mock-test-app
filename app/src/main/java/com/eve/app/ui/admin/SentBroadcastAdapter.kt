@@ -61,6 +61,7 @@ class SentBroadcastAdapter(
                 "—"
             }
             binding.tvBroadcastTime.text = formattedTime
+            binding.tvBroadcastTarget.text = "Target: ${item.targetCategory}"
 
             if (isSelectionMode) {
                 binding.cbSelect.visibility = View.VISIBLE
