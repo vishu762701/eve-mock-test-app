@@ -38,6 +38,17 @@
                 android:contentDescription="Bookmarked"
                 android:src="@drawable/ic_star_filled"
                 android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/ivReportQuestion"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_marginStart="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Report this question"
+                android:padding="2dp"
+                android:src="@drawable/ic_flag"
+                app:tint="@color/eve_text_secondary" />
         </LinearLayout>
 
         <TextView

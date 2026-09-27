@@ -26,11 +26,16 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.eve.app.data.model.AdminAuditLog
+import com.eve.app.data.repository.AuditLogRepository
+import com.eve.app.data.repository.ApiUsageRepository
 
 class ManageExamsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityManageExamsBinding
     private val examRepo = ExamRepository()
+    private val auditLogRepo = AuditLogRepository()
+    private val apiUsageRepo = ApiUsageRepository()
     private var examList: MutableList<Exam> = mutableListOf()
     private var selectedIndex: Int = -1
 
@@ -390,6 +395,11 @@ class ManageExamsActivity : AppCompatActivity() {
                                 .show()
                         } else {
                             val generatedCount = res.data?.get("count") ?: count
+                            auditLogRepo.recordLog(
+                                AdminAuditLog.ACTION_GENERATE_NOW_TRIGGERED,
+                                "Triggered manual generation for '${binding.etExamName.text}': $generatedCount questions"
+                            )
+                            apiUsageRepo.incrementGeminiCalls()
                             MaterialAlertDialogBuilder(this@ManageExamsActivity)
                                 .setTitle("Generation Successful")
                                 .setMessage("Successfully generated $generatedCount questions for '${binding.etExamName.text}'.\n\nYou can review or publish them in the Generated Tests section below.")
@@ -582,6 +592,11 @@ class ManageExamsActivity : AppCompatActivity() {
                         syllabusFileName = currentSyllabusFileName,
                         generationPrompt = prompt
                     )
+                    auditLogRepo.recordLog(
+                        AdminAuditLog.ACTION_EXAM_EDITED,
+                        "Updated exam settings & AI config for '$name'"
+                    )
+                    apiUsageRepo.incrementDocumentWrites(1)
                     AppBulletin.showSuccess(this@ManageExamsActivity, "Settings saved for '$name'")
                 } else {
                     // Create new
@@ -596,6 +611,11 @@ class ManageExamsActivity : AppCompatActivity() {
                         generationPrompt = prompt
                     )
                     currentExamId = newId
+                    auditLogRepo.recordLog(
+                        AdminAuditLog.ACTION_EXAM_CREATED,
+                        "Created exam '$name' with AI generation settings"
+                    )
+                    apiUsageRepo.incrementDocumentWrites(1)
                     // Once saved at least once, enable auto-generation toggle!
                     binding.switchAutoGen.isEnabled = true
                     binding.switchAutoGen.alpha = 1.0f

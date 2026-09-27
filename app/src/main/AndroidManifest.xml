@@ -77,6 +77,9 @@
         <activity android:name=".ui.admin.EditExamActivity" android:exported="false" />
         <activity android:name=".ui.admin.ManageUsersActivity" android:exported="false" />
         <activity android:name=".ui.admin.AppConfigActivity" android:exported="false" />
+        <activity android:name=".ui.admin.ActivityLogActivity" android:exported="false" />
+        <activity android:name=".ui.admin.FlaggedQuestionsActivity" android:exported="false" />
+        <activity android:name=".ui.admin.ApiUsageActivity" android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

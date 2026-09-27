@@ -5,8 +5,10 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.BuildConfig
+import com.eve.app.data.model.AdminAuditLog
 import com.eve.app.data.model.AppConfig
 import com.eve.app.data.repository.AdminRepository
+import com.eve.app.data.repository.AuditLogRepository
 import com.eve.app.databinding.ActivityAppConfigBinding
 import com.eve.app.util.AppBulletin
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -16,6 +18,7 @@ class AppConfigActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAppConfigBinding
     private val adminRepo = AdminRepository()
+    private val auditLogRepo = AuditLogRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,6 +80,10 @@ class AppConfigActivity : AppCompatActivity() {
                 val success = adminRepo.updateAppConfig(config)
                 binding.progressBar.visibility = View.GONE
                 if (success) {
+                    auditLogRepo.recordLog(
+                        AdminAuditLog.ACTION_MAINTENANCE_TOGGLED,
+                        if (config.maintenance_mode) "Enabled maintenance mode: ${config.maintenance_message}" else "Disabled maintenance mode"
+                    )
                     AppBulletin.showSuccess(this@AppConfigActivity, "Configuration saved successfully!")
                 } else {
                     AppBulletin.showError(this@AppConfigActivity, "Failed to save configuration")

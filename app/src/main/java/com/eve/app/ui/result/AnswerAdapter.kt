@@ -9,7 +9,9 @@ import com.eve.app.R
 import com.eve.app.data.model.AnswerItem
 import com.eve.app.databinding.ItemAnswerBinding
 
-class AnswerAdapter : RecyclerView.Adapter<AnswerAdapter.VH>() {
+class AnswerAdapter(
+    private val onReport: ((AnswerItem) -> Unit)? = null
+) : RecyclerView.Adapter<AnswerAdapter.VH>() {
 
     private var items: List<AnswerItem> = emptyList()
     private var hindi = false
@@ -30,6 +32,7 @@ class AnswerAdapter : RecyclerView.Adapter<AnswerAdapter.VH>() {
             val ctx = b.root.context
 
             b.ivBookmark.visibility = if (item.isBookmarked) View.VISIBLE else View.GONE
+            b.ivReportQuestion.setOnClickListener { onReport?.invoke(item) }
 
             when {
                 !item.isAttempted -> {

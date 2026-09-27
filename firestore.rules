@@ -298,5 +298,35 @@ service cloud.firestore {
     match /admin_analytics_exam_users/{markerId} {
       allow read, write: if false;
     }
+
+    // ------------------------------------------------------------------------
+    // 18. ADMIN AUDIT LOG (Activity History)
+    // ------------------------------------------------------------------------
+    // - Sirf Admin read aur create kar sakta hai.
+    // - Immutable (update aur delete blocked hai client UI se).
+    match /admin_audit_log/{logId} {
+      allow read, create: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    // ------------------------------------------------------------------------
+    // 19. USAGE STATS / COST MONITOR
+    // ------------------------------------------------------------------------
+    // - Sirf Admin read kar sakta hai.
+    // - Write sirf Admin ya Cloud Functions Admin SDK se ho sakta hai.
+    match /usage_stats/{monthKey} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // ------------------------------------------------------------------------
+    // 20. FLAGGED QUESTIONS (Student Reporting & Admin Review)
+    // ------------------------------------------------------------------------
+    // - Authenticated students can flag a question (create).
+    // - Admin can read, update (dismiss flag), or delete flag records.
+    match /flagged_questions/{flagId} {
+      allow create: if isSignedIn();
+      allow read, update, delete: if isAdmin();
+    }
   }
 }

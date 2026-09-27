@@ -23,11 +23,16 @@ import com.eve.app.util.Constants
 import com.eve.app.util.QuestionImportHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
+import com.eve.app.data.model.AdminAuditLog
+import com.eve.app.data.repository.AuditLogRepository
+import com.eve.app.data.repository.ApiUsageRepository
 
 class EditExamActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityEditExamBinding
     private val examRepo = ExamRepository()
+    private val auditLogRepo = AuditLogRepository()
+    private val apiUsageRepo = ApiUsageRepository()
 
     private var examId: String = ""
     private var examName: String = ""
@@ -164,6 +169,11 @@ class EditExamActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 examRepo.updateExam(updatedExam)
+                auditLogRepo.recordLog(
+                    AdminAuditLog.ACTION_EXAM_EDITED,
+                    "Updated exam details for '$newName'"
+                )
+                apiUsageRepo.incrementDocumentWrites(1)
                 currentExam = updatedExam
                 examName = newName
                 examCategory = selectedCategory

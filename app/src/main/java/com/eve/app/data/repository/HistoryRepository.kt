@@ -44,7 +44,12 @@ class HistoryRepository(
             for (attempt in 1..maxAttempts) {
                 try {
                     val res = api.submitAttempt(payload)
-                    if (res.success) return@launch
+                    if (res.success) {
+                        try {
+                            ApiUsageRepository().incrementTestSubmissions()
+                        } catch (_: Exception) {}
+                        return@launch
+                    }
                     Log.w("HistoryRepository", "submitAttempt try $attempt/$maxAttempts failed: ${res.error}")
                 } catch (e: Exception) {
                     Log.w("HistoryRepository", "submitAttempt try $attempt/$maxAttempts exception", e)

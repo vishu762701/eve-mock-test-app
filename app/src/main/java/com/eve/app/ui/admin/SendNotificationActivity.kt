@@ -18,12 +18,17 @@ import com.eve.app.databinding.ActivitySendNotificationBinding
 import com.eve.app.ui.common.ErrorStateView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
+import com.eve.app.data.model.AdminAuditLog
+import com.eve.app.data.repository.AuditLogRepository
+import com.eve.app.data.repository.ApiUsageRepository
 
 class SendNotificationActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySendNotificationBinding
     private lateinit var sentAdapter: SentBroadcastAdapter
     private val api: EveApiService = ApiClient.apiService
+    private val auditLogRepo = AuditLogRepository()
+    private val apiUsageRepo = ApiUsageRepository()
     private val categoryList = mutableListOf("All Users")
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -207,6 +212,10 @@ class SendNotificationActivity : AppCompatActivity() {
                     )
                     AppBulletin.showError(this@SendNotificationActivity, err)
                 } else {
+                    auditLogRepo.recordLog(
+                        AdminAuditLog.ACTION_BROADCAST_DELETED,
+                        "Batch deleted ${idsToDelete.size} broadcast messages"
+                    )
                     AppBulletin.showSuccess(
                         this@SendNotificationActivity,
                         "Successfully deleted ${idsToDelete.size} broadcast${if (idsToDelete.size > 1) "s" else ""}"
@@ -286,6 +295,10 @@ class SendNotificationActivity : AppCompatActivity() {
                 if (!res.success) {
                     throw Exception(res.error ?: "Failed to delete broadcast")
                 }
+                auditLogRepo.recordLog(
+                    AdminAuditLog.ACTION_BROADCAST_DELETED,
+                    "Deleted broadcast '${broadcast.title}'"
+                )
                 AppBulletin.showSuccess(this@SendNotificationActivity, "Broadcast deleted successfully")
                 val updated = sentAdapter.currentList.filter { it.id != broadcast.id }
                 sentAdapter.submitList(updated)
@@ -365,6 +378,11 @@ class SendNotificationActivity : AppCompatActivity() {
                         "Failed to send: ${res.error ?: "Unknown error"}"
                     )
                 } else {
+                    auditLogRepo.recordLog(
+                        AdminAuditLog.ACTION_BROADCAST_SENT,
+                        "Sent broadcast '$title' to $targetCategory"
+                    )
+                    apiUsageRepo.incrementDocumentWrites(1)
                     binding.etTitle.text?.clear()
                     binding.etMessage.text?.clear()
                     AppBulletin.showSuccess(

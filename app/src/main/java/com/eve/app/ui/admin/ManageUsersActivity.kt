@@ -15,11 +15,14 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.eve.app.data.model.AdminAuditLog
+import com.eve.app.data.repository.AuditLogRepository
 
 class ManageUsersActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityManageUsersBinding
     private val adminRepo = AdminRepository()
+    private val auditLogRepo = AuditLogRepository()
     private lateinit var adapter: UserAdminAdapter
 
     private var allUsers: List<AdminUser> = emptyList()
@@ -150,6 +153,10 @@ class ManageUsersActivity : AppCompatActivity() {
                         val success = adminRepo.toggleUserStatus(user.id, disable)
                         binding.progressBar.visibility = View.GONE
                         if (success) {
+                            auditLogRepo.recordLog(
+                                AdminAuditLog.ACTION_USER_STATUS_TOGGLED,
+                                if (disable) "Disabled/banned user: ${user.displayName} (${user.email})" else "Enabled user: ${user.displayName} (${user.email})"
+                            )
                             val msg = if (disable) "Account disabled successfully" else "Account enabled successfully"
                             AppBulletin.showSuccess(this@ManageUsersActivity, msg)
                             allUsers = allUsers.map {

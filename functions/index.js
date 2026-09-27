@@ -33,6 +33,7 @@ const { initializeApp } = require("firebase-admin/app");
 const { getMessaging } = require("firebase-admin/messaging");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 const { getAuth } = require("firebase-admin/auth");
+const { getRemoteConfig } = require("firebase-admin/remote-config");
 const crypto = require("crypto");
 
 const geminiKey1 = defineSecret("GEMINI_API_KEY_1");
@@ -433,6 +434,18 @@ exports.submitAttempt = onCall(async (request) => {
     answers: answersData
   });
 
+  try {
+    const now = new Date();
+    const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    await db.collection("usage_stats").doc(ym).set({
+      testSubmissions: FieldValue.increment(1),
+      month: ym,
+      updatedAt: Date.now()
+    }, { merge: true });
+  } catch (err) {
+    console.warn("Could not increment usage_stats testSubmissions:", err.message);
+  }
+
   return { attemptId: attemptRef.id, score, total, correct, wrong, unattempted };
 });
 
@@ -575,6 +588,24 @@ async function persistLastUsedKeyIndex(db, index) {
   }
 }
 
+async function incrementGeminiUsage(db) {
+  try {
+    const now = new Date();
+    const yearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const usageRef = db.collection("usage_stats").doc(yearMonth);
+    await usageRef.set(
+      {
+        geminiCalls: FieldValue.increment(1),
+        month: yearMonth,
+        updatedAt: Date.now(),
+      },
+      { merge: true }
+    );
+  } catch (e) {
+    console.warn("[UsageStats] Could not increment Gemini usage:", e.message);
+  }
+}
+
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function callGeminiWithRotation(db, promptText, startingIndex = 0) {
@@ -648,6 +679,7 @@ async function callGeminiWithRotation(db, promptText, startingIndex = 0) {
       }
 
       await persistLastUsedKeyIndex(db, keyIndex);
+      await incrementGeminiUsage(db);
       return { text, usedKeyIndex: keyIndex };
     } catch (err) {
       if (err.message && err.message.includes("not found or shut down")) {
@@ -1150,3 +1182,67 @@ exports.deleteUserAccount = onCall(async (request) => {
     throw new HttpsError("internal", err.message || "Failed to delete account data.");
   }
 });
+
+/**
+ * Callable function for Admin: Update Remote Config & Maintenance mode server-side.
+ * Command to deploy from Termux / local machine: firebase deploy --only functions
+ */
+exports.updateRemoteConfigMaintenance = onCall(async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) {
+    throw new HttpsError("unauthenticated", "Authentication required.");
+  }
+
+  const db = getFirestore();
+  const callerEmail = String(request.auth?.token?.email || "");
+  const isAdmin = await verifyIsAdmin(db, callerEmail);
+  if (!isAdmin) {
+    throw new HttpsError("permission-denied", "Admin privileges required.");
+  }
+
+  const data = request.data || {};
+  const maintenanceMode = Boolean(data.maintenanceMode);
+  const maintenanceMessage = String(data.maintenanceMessage || "").trim();
+  const minVersionCode = Number(data.minVersionCode || 1);
+
+  // 1. Update system_config/app_config in Firestore so client can read it immediately
+  await db.collection("system_config").doc("app_config").set({
+    maintenance_mode: maintenanceMode,
+    maintenance_message: maintenanceMessage || "Scheduled maintenance is currently in progress. Please check back shortly.",
+    minimum_supported_version_code: minVersionCode,
+    updated_at: Date.now(),
+    updated_by: callerEmail,
+  }, { merge: true });
+
+  // 2. Update Firebase Remote Config via Admin SDK
+  try {
+    const rc = getRemoteConfig();
+    const template = await rc.getTemplate();
+    if (!template.parameters) template.parameters = {};
+
+    template.parameters.maintenance_mode = {
+      defaultValue: { value: String(maintenanceMode) },
+      description: "Controls whether the app is in maintenance mode",
+    };
+    if (maintenanceMessage) {
+      template.parameters.maintenance_message = {
+        defaultValue: { value: maintenanceMessage },
+        description: "Message displayed during maintenance",
+      };
+    }
+    if (minVersionCode) {
+      template.parameters.minimum_supported_version_code = {
+        defaultValue: { value: String(minVersionCode) },
+        description: "Minimum app version required",
+      };
+    }
+
+    await rc.publishTemplate(template);
+    console.log(`[RemoteConfig] Updated template successfully by ${callerEmail}`);
+  } catch (rcErr) {
+    console.warn(`[RemoteConfig] Note: Remote Config template publish note (fallback to Firestore config): ${rcErr.message}`);
+  }
+
+  return { success: true, maintenanceMode, maintenanceMessage, minVersionCode };
+});
+

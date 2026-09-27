@@ -2,22 +2,33 @@ package com.eve.app.ui.result
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.widget.EditText
+import android.widget.RadioGroup
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.eve.app.R
 import com.eve.app.data.model.AnswerItem
+import com.eve.app.data.repository.FlaggedQuestionRepository
 import com.eve.app.databinding.ActivityResultBinding
 import com.eve.app.ui.home.MainActivity
 import com.eve.app.ui.leaderboard.LeaderboardActivity
+import com.eve.app.util.AppBulletin
 import com.eve.app.util.Constants
 import com.eve.app.util.LanguageManager
 import com.eve.app.util.SecurityHelper
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.launch
 
 class ResultActivity : AppCompatActivity() {
 
     private val viewModel: ResultViewModel by viewModels()
     private lateinit var allItems: List<AnswerItem>
-    private val adapter = AnswerAdapter()
+    private val adapter = AnswerAdapter(
+        onReport = { item -> showReportQuestionDialog(item) }
+    )
     private var fromHistory = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -128,6 +139,47 @@ class ResultActivity : AppCompatActivity() {
         if (isFinishing) {
             ResultDataHolder.clear()
         }
+    }
+
+    private fun showReportQuestionDialog(item: AnswerItem) {
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_report_question, null)
+        val rgReason = dialogView.findViewById<RadioGroup>(R.id.rgReportReason)
+        val etComment = dialogView.findViewById<EditText>(R.id.etReportComment)
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Report Question")
+            .setView(dialogView)
+            .setPositiveButton("Submit Report") { _, _ ->
+                val reason = when (rgReason.checkedRadioButtonId) {
+                    R.id.rbReasonWrongAnswer -> "Wrong answer marked correct"
+                    R.id.rbReasonConfusing -> "Confusing wording"
+                    R.id.rbReasonTypo -> "Typo / formatting issue"
+                    R.id.rbReasonSyllabus -> "Out of syllabus"
+                    else -> "Other"
+                }
+                val comment = etComment.text?.toString()?.trim().orEmpty()
+                val examId = intent.getStringExtra(Constants.EXTRA_EXAM_ID).orEmpty()
+                val examName = intent.getStringExtra(Constants.EXTRA_EXAM_NAME).orEmpty()
+
+                lifecycleScope.launch {
+                    val repo = FlaggedQuestionRepository()
+                    val ok = repo.flagQuestion(
+                        questionId = item.questionId,
+                        examId = examId,
+                        examName = examName,
+                        questionText = item.questionText,
+                        reason = reason,
+                        comment = comment
+                    )
+                    if (ok) {
+                        AppBulletin.showSuccess(this@ResultActivity, "Thank you! Question reported for review.")
+                    } else {
+                        AppBulletin.showError(this@ResultActivity, "Could not submit report. Please try again.")
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     /** History se review khola tha to bas finish karo (History list par wapas), warna Home pe jao. */

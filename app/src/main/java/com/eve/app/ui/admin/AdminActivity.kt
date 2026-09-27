@@ -34,10 +34,21 @@ import com.eve.app.util.Constants
 import com.eve.app.util.ExamImageHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.provider.OpenableColumns
+import com.eve.app.BuildConfig
+import com.eve.app.data.model.AdminAuditLog
+import com.eve.app.data.repository.AuditLogRepository
+import com.eve.app.data.repository.ApiUsageRepository
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.util.QuestionImportHelper
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.functions.FirebaseFunctions
+import androidx.core.content.FileProvider
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class AdminActivity : AppCompatActivity() {
 
@@ -45,6 +56,9 @@ class AdminActivity : AppCompatActivity() {
     private val viewModel: AdminViewModel by viewModels()
     private val adminRepo = AdminRepository()
     private val bannerRepo = HomeBannerRepository()
+    private val examRepo = ExamRepository()
+    private val auditLogRepo = AuditLogRepository()
+    private val apiUsageRepo = ApiUsageRepository()
 
     private var exams: List<Exam> = emptyList()
     private var newExamImageBase64: String = ""
@@ -214,6 +228,9 @@ class AdminActivity : AppCompatActivity() {
         binding.btnSendNotification.setOnClickListener {
             startActivity(Intent(this, SendNotificationActivity::class.java))
         }
+        binding.btnFlaggedQuestions.setOnClickListener {
+            startActivity(Intent(this, FlaggedQuestionsActivity::class.java))
+        }
         binding.btnFeedbackReplies.setOnClickListener {
             startActivity(Intent(this, FeedbackMessagesActivity::class.java))
         }
@@ -228,9 +245,22 @@ class AdminActivity : AppCompatActivity() {
         binding.btnAnalyticsAdmin.setOnClickListener {
             startActivity(Intent(this, AdminAnalyticsActivity::class.java))
         }
+        binding.btnActivityLog.setOnClickListener {
+            startActivity(Intent(this, ActivityLogActivity::class.java))
+        }
+        binding.btnApiUsage.setOnClickListener {
+            startActivity(Intent(this, ApiUsageActivity::class.java))
+        }
+        binding.btnExportData.setOnClickListener {
+            exportExamData()
+        }
         binding.btnAppConfig.setOnClickListener {
             startActivity(Intent(this, AppConfigActivity::class.java))
         }
+
+        // System Maintenance & Version Status
+        setupMaintenanceControls()
+        loadAppConfigAndMaintenance()
 
         // Questions in Selected Exam: Manual Single-Question Add
         binding.btnAddQuestionManual.setOnClickListener {
@@ -380,6 +410,11 @@ class AdminActivity : AppCompatActivity() {
             return
         }
         viewModel.addExam(name, minutes, category, imageUrl = newExamImageBase64) {
+            auditLogRepo.recordLog(
+                AdminAuditLog.ACTION_EXAM_CREATED,
+                "Created exam '$name' ($category, $minutes mins)"
+            )
+            apiUsageRepo.incrementDocumentWrites(1)
             binding.etExamName.text?.clear()
             binding.etExamMinutes.text?.clear()
             binding.spCategory.setSelection(0)
@@ -446,6 +481,11 @@ class AdminActivity : AppCompatActivity() {
                 )
 
                 viewModel.addQuestion(newQuestion) {
+                    auditLogRepo.recordLog(
+                        AdminAuditLog.ACTION_EXAM_EDITED,
+                        "Added question to ${selectedExam.examName}"
+                    )
+                    apiUsageRepo.incrementDocumentWrites(1)
                     AppBulletin.showSuccess(this@AdminActivity, "Question added successfully!")
                 }
             }
@@ -512,7 +552,12 @@ class AdminActivity : AppCompatActivity() {
                     AppBulletin.showError(this, "An exam named '$newName' already exists in category '${exam.categoryOrOther}'")
                     return@setPositiveButton
                 }
-                viewModel.renameExam(exam.id, newName) { }
+                viewModel.renameExam(exam.id, newName) {
+                    auditLogRepo.recordLog(
+                        AdminAuditLog.ACTION_EXAM_EDITED,
+                        "Renamed exam '${exam.examName}' to '$newName'"
+                    )
+                }
             }
             .setNegativeButton("Cancel", null)
             .show()
@@ -525,6 +570,10 @@ class AdminActivity : AppCompatActivity() {
             .setMessage("Delete ${exam.examName}? This will permanently remove the exam and cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
                 viewModel.deleteExam(exam.id) {
+                    auditLogRepo.recordLog(
+                        AdminAuditLog.ACTION_EXAM_DELETED,
+                        "Deleted exam '${exam.examName}'"
+                    )
                     AppBulletin.showSuccess(this@AdminActivity, "Exam '${exam.examName}' deleted")
                 }
             }
@@ -556,6 +605,10 @@ class AdminActivity : AppCompatActivity() {
             .setMessage("Delete this question? This will permanently remove the question and cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
                 viewModel.deleteQuestion(q)
+                auditLogRepo.recordLog(
+                    AdminAuditLog.ACTION_EXAM_EDITED,
+                    "Deleted question: ${q.questionText.take(40)}"
+                )
                 AppBulletin.showSuccess(this@AdminActivity, "Question deleted")
             }
             .setNegativeButton("Cancel", null)
@@ -569,6 +622,10 @@ class AdminActivity : AppCompatActivity() {
             return
         }
         viewModel.addAdmin(email) {
+            auditLogRepo.recordLog(
+                AdminAuditLog.ACTION_ADMIN_ADDED,
+                "Added new admin email: $email"
+            )
             binding.etAdminEmail.text?.clear()
         }
     }
@@ -579,6 +636,10 @@ class AdminActivity : AppCompatActivity() {
             .setMessage("Remove $email? This will revoke admin privileges and cannot be undone.")
             .setPositiveButton("Remove") { _, _ ->
                 viewModel.removeAdmin(email)
+                auditLogRepo.recordLog(
+                    AdminAuditLog.ACTION_ADMIN_REMOVED,
+                    "Revoked admin privileges for: $email"
+                )
                 AppBulletin.showSuccess(this@AdminActivity, "Admin $email removed")
             }
             .setNegativeButton("Cancel", null)
@@ -661,8 +722,12 @@ class AdminActivity : AppCompatActivity() {
     private fun importQuestionsForSelectedExam(examId: String, questions: List<Question>) {
         lifecycleScope.launch {
             try {
-                val examRepo = ExamRepository()
                 val added = examRepo.addQuestions(questions)
+                auditLogRepo.recordLog(
+                    AdminAuditLog.ACTION_EXAM_EDITED,
+                    "Imported $added questions to exam"
+                )
+                apiUsageRepo.incrementDocumentWrites(added)
                 AppBulletin.showSuccess(this@AdminActivity, "Successfully imported $added questions!")
                 viewModel.loadQuestions(examId)
             } catch (e: Exception) {
@@ -707,6 +772,11 @@ class AdminActivity : AppCompatActivity() {
                 val result = feedbackRepo.createFeedbackPost(title, message, authorId, authorEmail)
                 dialogBinding.btnPublishPost.isEnabled = true
                 result.onSuccess {
+                    auditLogRepo.recordLog(
+                        AdminAuditLog.ACTION_FEEDBACK_POST_CREATED,
+                        "Created feedback post '$title'"
+                    )
+                    apiUsageRepo.incrementDocumentWrites(1)
                     AppBulletin.showSuccess(this@AdminActivity, "Feedback post published successfully!")
                     dialog.dismiss()
                 }.onFailure { err ->
@@ -931,6 +1001,10 @@ class AdminActivity : AppCompatActivity() {
                                     onExecuteDelete = {
                                         lifecycleScope.launch {
                                             feedbackRepo.deleteFeedbackPost(post.id)
+                                            auditLogRepo.recordLog(
+                                                AdminAuditLog.ACTION_FEEDBACK_POST_DELETED,
+                                                "Deleted feedback post '${post.title}'"
+                                            )
                                         }
                                     }
                                 )
@@ -987,6 +1061,10 @@ class AdminActivity : AppCompatActivity() {
                     val feedbackRepo = FeedbackRepository()
                     val res = feedbackRepo.updateFeedbackPost(post.id, newTitle, newMessage)
                     res.onSuccess {
+                        auditLogRepo.recordLog(
+                            AdminAuditLog.ACTION_FEEDBACK_POST_EDITED,
+                            "Updated feedback post '$newTitle'"
+                        )
                         AppBulletin.showSuccess(this@AdminActivity, "Feedback post updated successfully!")
                     }.onFailure { e ->
                         AppBulletin.showError(this@AdminActivity, "Failed to update: ${e.localizedMessage}")
@@ -1058,6 +1136,10 @@ class AdminActivity : AppCompatActivity() {
                         onExecuteDelete = {
                             lifecycleScope.launch {
                                 feedbackRepo.deleteFeedbackPost(post.id)
+                                auditLogRepo.recordLog(
+                                    AdminAuditLog.ACTION_FEEDBACK_POST_DELETED,
+                                    "Deleted feedback post '${post.title}'"
+                                )
                             }
                         }
                     )
@@ -1077,5 +1159,220 @@ class AdminActivity : AppCompatActivity() {
         }
 
         dialog.show()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadAppConfigAndMaintenance()
+    }
+
+    private fun setupMaintenanceControls() {
+        binding.switchMaintenanceMode.setOnClickListener {
+            val willBeOn = binding.switchMaintenanceMode.isChecked
+            if (willBeOn) {
+                // Must show confirmation dialog before turning ON
+                binding.switchMaintenanceMode.isChecked = false
+                MaterialAlertDialogBuilder(this)
+                    .setTitle("Enable Maintenance Mode?")
+                    .setMessage("Are you sure? Turning ON maintenance mode will immediately block all students from accessing the app. Only enable this during planned outages.")
+                    .setPositiveButton("Enable Maintenance") { _, _ ->
+                        binding.switchMaintenanceMode.isChecked = true
+                        updateMaintenanceStatusBadge(true)
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+            } else {
+                // Turning OFF does not require confirmation dialog
+                updateMaintenanceStatusBadge(false)
+            }
+        }
+
+        binding.btnApplyMaintenance.setOnClickListener {
+            applyMaintenanceSettings()
+        }
+    }
+
+    private fun updateMaintenanceStatusBadge(isModeActive: Boolean) {
+        if (isModeActive) {
+            binding.tvLiveMaintenanceStatus.text = "ACTIVE (Restricted)"
+            binding.tvLiveMaintenanceStatus.setTextColor(getColor(R.color.eve_red))
+        } else {
+            binding.tvLiveMaintenanceStatus.text = "OFF (Live)"
+            binding.tvLiveMaintenanceStatus.setTextColor(getColor(R.color.eve_green))
+        }
+    }
+
+    private fun loadAppConfigAndMaintenance() {
+        binding.tvInstalledVersion.text = "v${BuildConfig.VERSION_NAME} (Code ${BuildConfig.VERSION_CODE})"
+
+        lifecycleScope.launch {
+            try {
+                val config = adminRepo.getAppConfig()
+                binding.tvMinSupportedVersion.text = config.minimum_supported_version_code.toString()
+
+                val isSupported = BuildConfig.VERSION_CODE >= config.minimum_supported_version_code
+                binding.tvVersionStatusBadge.text = if (isSupported) "Supported" else "Update Required"
+                binding.tvVersionStatusBadge.setTextColor(getColor(if (isSupported) R.color.eve_green else R.color.eve_red))
+
+                binding.switchMaintenanceMode.isChecked = config.maintenance_mode
+                binding.etMaintenanceMessage.setText(config.maintenance_message)
+                updateMaintenanceStatusBadge(config.maintenance_mode)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun applyMaintenanceSettings() {
+        val isModeOn = binding.switchMaintenanceMode.isChecked
+        val message = binding.etMaintenanceMessage.text?.toString()?.trim().orEmpty()
+            .ifBlank { "Scheduled maintenance is currently in progress. Please check back shortly." }
+
+        binding.progressBarMaintenance.visibility = View.VISIBLE
+        binding.btnApplyMaintenance.isEnabled = false
+
+        lifecycleScope.launch {
+            try {
+                // 1. Invoke Callable Cloud Function
+                try {
+                    val functions = FirebaseFunctions.getInstance()
+                    val payload = hashMapOf(
+                        "maintenanceMode" to isModeOn,
+                        "maintenanceMessage" to message
+                    )
+                    functions.getHttpsCallable("updateRemoteConfigMaintenance").call(payload).await()
+                } catch (fnErr: Exception) {
+                    // Fallback to direct Firestore update if callable function is unavailable
+                }
+
+                // 2. Ensure Firestore app_config is always updated
+                val currentConfig = adminRepo.getAppConfig()
+                adminRepo.updateAppConfig(
+                    currentConfig.copy(
+                        maintenance_mode = isModeOn,
+                        maintenance_message = message
+                    )
+                )
+
+                // 3. Record in Audit Log
+                auditLogRepo.recordLog(
+                    AdminAuditLog.ACTION_MAINTENANCE_TOGGLED,
+                    if (isModeOn) "Turned ON maintenance mode: $message" else "Turned OFF maintenance mode"
+                )
+
+                binding.progressBarMaintenance.visibility = View.GONE
+                binding.btnApplyMaintenance.isEnabled = true
+                updateMaintenanceStatusBadge(isModeOn)
+                AppBulletin.showSuccess(
+                    this@AdminActivity,
+                    if (isModeOn) "Maintenance mode published and ACTIVE" else "Maintenance mode turned OFF (Normal operation)"
+                )
+            } catch (e: Exception) {
+                binding.progressBarMaintenance.visibility = View.GONE
+                binding.btnApplyMaintenance.isEnabled = true
+                AppBulletin.showError(this@AdminActivity, "Failed to apply maintenance settings: ${e.localizedMessage}")
+            }
+        }
+    }
+
+    private fun exportExamData() {
+        val progressDialog = MaterialAlertDialogBuilder(this)
+            .setTitle("Exporting Exam Data")
+            .setMessage("Fetching all exams and questions from database... Please wait.")
+            .setCancelable(false)
+            .create()
+        progressDialog.show()
+
+        lifecycleScope.launch {
+            try {
+                val allExams = examRepo.getExams()
+                val exportList = mutableListOf<Map<String, Any?>>()
+
+                for (exam in allExams) {
+                    val questions = examRepo.getQuestions(exam.id)
+                    val examMap = linkedMapOf<String, Any?>(
+                        "id" to exam.id,
+                        "examName" to exam.examName,
+                        "category" to exam.categoryOrOther,
+                        "timeLimitMinutes" to exam.timeLimitMinutes,
+                        "questionCount" to questions.size,
+                        "autoGenerationEnabled" to exam.autoGenerationEnabled,
+                        "autoGenTime" to exam.autoGenTime,
+                        "generationPrompt" to exam.generationPrompt,
+                        "syllabusFileName" to exam.syllabusFileName,
+                        "syllabusUrl" to exam.syllabusUrl,
+                        "questions" to questions.map { q ->
+                            linkedMapOf(
+                                "id" to q.id,
+                                "examId" to q.examId,
+                                "questionText" to q.questionText,
+                                "optionA" to q.optionA,
+                                "optionB" to q.optionB,
+                                "optionC" to q.optionC,
+                                "optionD" to q.optionD,
+                                "correctAnswer" to q.correctAnswer,
+                                "explanation" to q.explanation,
+                                "topic" to q.topic,
+                                "questionTextHi" to q.questionTextHi,
+                                "optionAHi" to q.optionAHi,
+                                "optionBHi" to q.optionBHi,
+                                "optionCHi" to q.optionCHi,
+                                "optionDHi" to q.optionDHi,
+                                "explanationHi" to q.explanationHi
+                            )
+                        }
+                    )
+                    exportList.add(examMap)
+                }
+
+                val dateStr = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
+                val fileName = "eve_backup_$dateStr.json"
+                val jsonString = com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(exportList)
+
+                // Write to cache directory for reliable FileProvider sharing
+                val cacheFile = File(cacheDir, fileName)
+                cacheFile.writeText(jsonString)
+
+                // Also try saving to public Downloads or App External Files Dir
+                var savedPath = cacheFile.absolutePath
+                try {
+                    val extDir = getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS)
+                    if (extDir != null) {
+                        val extFile = File(extDir, fileName)
+                        extFile.writeText(jsonString)
+                        savedPath = extFile.absolutePath
+                    }
+                } catch (_: Exception) {}
+
+                progressDialog.dismiss()
+
+                // Record audit log
+                auditLogRepo.recordLog(
+                    AdminAuditLog.ACTION_EXAM_EDITED,
+                    "Exported backup of ${allExams.size} exams and ${exportList.sumOf { (it["questions"] as? List<*>)?.size ?: 0 }} questions to $fileName"
+                )
+
+                // Present success dialog with share action
+                val contentUri = FileProvider.getUriForFile(this@AdminActivity, "${packageName}.fileprovider", cacheFile)
+                MaterialAlertDialogBuilder(this@AdminActivity)
+                    .setTitle("Export Complete")
+                    .setMessage("Successfully exported ${allExams.size} exams to:\n$savedPath\n\nYou can also share or save this file to Google Drive / Downloads now.")
+                    .setPositiveButton("Share / Save As") { _, _ ->
+                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                            type = "application/json"
+                            putExtra(Intent.EXTRA_STREAM, contentUri)
+                            putExtra(Intent.EXTRA_SUBJECT, fileName)
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        startActivity(Intent.createChooser(shareIntent, "Save or Share Exam Backup"))
+                    }
+                    .setNegativeButton("Done", null)
+                    .show()
+
+            } catch (e: Exception) {
+                progressDialog.dismiss()
+                AppBulletin.showError(this@AdminActivity, "Export failed: ${e.localizedMessage ?: "Unknown error"}")
+            }
+        }
     }
 }

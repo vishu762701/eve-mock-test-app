@@ -710,6 +710,20 @@
                     app:strokeWidth="1.5dp" />
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnFlaggedQuestions"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical|start"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp"
+                    android:text="Flagged Questions Inbox"
+                    app:icon="@drawable/ic_flag"
+                    app:iconPadding="12dp"
+                    app:iconSize="20dp" />
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnFeedbackReplies"
                     style="@style/Widget.Eve.OutlinedButton"
                     android:layout_width="match_parent"
@@ -777,6 +791,48 @@
                     app:iconSize="20dp" />
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnActivityLog"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical|start"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp"
+                    android:text="Activity &amp; Audit Log"
+                    app:icon="@drawable/ic_history"
+                    app:iconPadding="12dp"
+                    app:iconSize="20dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnApiUsage"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical|start"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp"
+                    android:text="API Usage &amp; Cost Monitor"
+                    app:icon="@drawable/ic_analytics"
+                    app:iconPadding="12dp"
+                    app:iconSize="20dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnExportData"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical|start"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp"
+                    android:text="Export All Exam Data (JSON)"
+                    app:icon="@drawable/ic_download"
+                    app:iconPadding="12dp"
+                    app:iconSize="20dp" />
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAppConfig"
                     style="@style/Widget.Eve.OutlinedButton"
                     android:layout_width="match_parent"
@@ -789,6 +845,255 @@
                     app:icon="@drawable/ic_maintenance"
                     app:iconPadding="12dp"
                     app:iconSize="20dp" />
+
+                <!-- APP VERSION & BUILD STATUS SECTION -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="28dp"
+                    android:fontFamily="@font/poppins_bold"
+                    android:letterSpacing="0.08"
+                    android:text="APP VERSION &amp; BUILD STATUS"
+                    android:textColor="@color/eve_primary"
+                    android:textSize="13sp" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:cardBackgroundColor="@color/eve_card_bg"
+                    app:cardCornerRadius="14dp"
+                    app:cardElevation="2dp"
+                    app:strokeColor="@color/eve_stroke"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:contentDescription="Build Info"
+                                android:src="@drawable/ic_info"
+                                app:tint="@color/eve_primary" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/poppins_semibold"
+                                android:text="Version Enforcement Status"
+                                android:textColor="@color/eve_text"
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:id="@+id/tvVersionStatusBadge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@color/eve_surface_variant"
+                                android:fontFamily="@font/poppins_medium"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="3dp"
+                                android:text="Active"
+                                android:textColor="@color/eve_green"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins"
+                                    android:text="Installed Version"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="11sp" />
+
+                                <TextView
+                                    android:id="@+id/tvInstalledVersion"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins_bold"
+                                    android:text="v1.0 (Code 1)"
+                                    android:textColor="@color/eve_text"
+                                    android:textSize="13sp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins"
+                                    android:text="Min Supported Code"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="11sp" />
+
+                                <TextView
+                                    android:id="@+id/tvMinSupportedVersion"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins_bold"
+                                    android:text="1"
+                                    android:textColor="@color/eve_primary"
+                                    android:textSize="13sp" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:fontFamily="@font/poppins"
+                            android:text="To enforce an immediate update on older student devices, update 'minimum_supported_version_code' in Firebase Remote Config or using App Config."
+                            android:textColor="@color/eve_grey"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- MAINTENANCE MODE CONTROL PANEL -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="28dp"
+                    android:fontFamily="@font/poppins_bold"
+                    android:letterSpacing="0.08"
+                    android:text="SYSTEM MAINTENANCE"
+                    android:textColor="@color/eve_primary"
+                    android:textSize="13sp" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="24dp"
+                    app:cardBackgroundColor="@color/eve_card_bg"
+                    app:cardCornerRadius="14dp"
+                    app:cardElevation="2dp"
+                    app:strokeColor="@color/eve_stroke"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:contentDescription="Maintenance Mode"
+                                android:src="@drawable/ic_maintenance"
+                                app:tint="@color/eve_red" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/poppins_semibold"
+                                android:text="Maintenance Mode"
+                                android:textColor="@color/eve_text"
+                                android:textSize="15sp" />
+
+                            <TextView
+                                android:id="@+id/tvLiveMaintenanceStatus"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@color/eve_surface_variant"
+                                android:fontFamily="@font/poppins_semibold"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="3dp"
+                                android:text="OFF (Live)"
+                                android:textColor="@color/eve_green"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:fontFamily="@font/poppins"
+                            android:text="When active, all students are immediately blocked by a maintenance screen with your custom message."
+                            android:textColor="@color/eve_text_secondary"
+                            android:textSize="12sp" />
+
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switchMaintenanceMode"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:fontFamily="@font/poppins_medium"
+                            android:text="Enable Maintenance Mode"
+                            android:textColor="@color/eve_text" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:hint="Custom Maintenance Notice Message">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etMaintenanceMessage"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins"
+                                android:gravity="top|start"
+                                android:lines="2"
+                                android:maxLines="4"
+                                android:textSize="13sp" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnApplyMaintenance"
+                            style="@style/Widget.Eve.Button"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:text="Publish Maintenance Settings" />
+
+                        <ProgressBar
+                            android:id="@+id/progressBarMaintenance"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="8dp"
+                            android:indeterminate="true"
+                            android:visibility="gone" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
             </LinearLayout>
         </ScrollView>
