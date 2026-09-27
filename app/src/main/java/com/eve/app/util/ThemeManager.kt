@@ -77,7 +77,7 @@ object ThemeManager {
     }
 
     val isTransitioning: Boolean
-        get() = transitioning
+        get() = ThemeSwitchAnimator.isTransitioning || transitioning
 
     private fun logDebug(message: String) {
         if (BuildConfig.DEBUG) {
@@ -87,7 +87,10 @@ object ThemeManager {
 
     fun applySavedMode(context: Context) {
         val app = (context as? Application) ?: (context.applicationContext as? Application)
-        app?.let { ensureLifecycleRegistered(it) }
+        app?.let { 
+            ensureLifecycleRegistered(it)
+            ThemeSwitchAnimator.ensureLifecycleRegistered(it)
+        }
 
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val mode = if (prefs.contains(KEY_DARK_MODE)) {
@@ -103,14 +106,7 @@ object ThemeManager {
     }
 
     fun isDarkMode(context: Context): Boolean {
-        return when (AppCompatDelegate.getDefaultNightMode()) {
-            AppCompatDelegate.MODE_NIGHT_YES -> true
-            AppCompatDelegate.MODE_NIGHT_NO -> false
-            else -> {
-                val uiMode = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-                uiMode == Configuration.UI_MODE_NIGHT_YES
-            }
-        }
+        return ThemeSwitchAnimator.isDarkMode(context)
     }
 
     fun toggle(context: Context) {
@@ -484,23 +480,15 @@ object ThemeManager {
     }
 
     fun toggleWithCircularReveal(anchorView: View) {
-        if (transitioning) return
-        val loc = IntArray(2)
-        anchorView.getLocationOnScreen(loc)
-        val cx = loc[0] + anchorView.width / 2
-        val cy = loc[1] + anchorView.height / 2
+        if (isTransitioning) return
         val activity = findActivity(anchorView.context) ?: return
-        toggleWithCircularReveal(activity, cx, cy)
+        ThemeSwitchAnimator.animate(activity, anchorView, !ThemeSwitchAnimator.isDarkMode(activity))
     }
 
     fun toggleWithReveal(context: Context, anchorView: View) {
         val activity = (context as? Activity) ?: findActivity(anchorView.context)
         if (activity != null) {
-            val loc = IntArray(2)
-            anchorView.getLocationOnScreen(loc)
-            val cx = loc[0] + anchorView.width / 2
-            val cy = loc[1] + anchorView.height / 2
-            toggleWithCircularReveal(activity, cx, cy)
+            ThemeSwitchAnimator.animate(activity, anchorView, !ThemeSwitchAnimator.isDarkMode(activity))
         } else {
             toggleWithCircularReveal(anchorView)
         }
@@ -514,7 +502,13 @@ object ThemeManager {
     ) {
         val activity = findActivity(rootView.context)
         if (activity != null) {
-            toggleWithCircularReveal(activity, touchX, touchY, applyNewThemeAction)
+            ThemeSwitchAnimator.animateAt(
+                activity,
+                touchX,
+                touchY,
+                !ThemeSwitchAnimator.isDarkMode(activity),
+                onThemeApplied = { applyNewThemeAction?.run() }
+            )
         } else {
             applyNewThemeAction?.run()
         }
@@ -597,7 +591,10 @@ object ThemeManager {
 
     fun setupToggleButton(context: Context, button: ImageButton) {
         val activity = findActivity(button.context) ?: findActivity(context)
-        activity?.application?.let { ensureLifecycleRegistered(it) }
+        activity?.application?.let {
+            ensureLifecycleRegistered(it)
+            ThemeSwitchAnimator.ensureLifecycleRegistered(it)
+        }
 
         val isDark = isDarkMode(context)
         button.setImageResource(if (isDark) R.drawable.ic_moon else R.drawable.ic_sun)
@@ -606,11 +603,13 @@ object ThemeManager {
             if (isDark) R.string.theme_toggle_to_light else R.string.theme_toggle_to_dark
         )
         button.setOnClickListener {
-            if (transitioning) return@setOnClickListener
-
-            // Theme toggle icon switches as part of this reveal directly without rotating animation
-            button.setImageResource(if (isDark) R.drawable.ic_sun else R.drawable.ic_moon)
-            toggleWithCircularReveal(button)
+            if (isTransitioning) return@setOnClickListener
+            val goingDark = !isDarkMode(context)
+            if (activity != null) {
+                ThemeSwitchAnimator.animate(activity, button, goingDark)
+            } else {
+                toggleWithCircularReveal(button)
+            }
         }
     }
 

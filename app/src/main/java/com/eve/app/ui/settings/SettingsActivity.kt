@@ -16,6 +16,7 @@ import com.eve.app.ui.login.LoginActivity
 import com.eve.app.util.ProfilePhotoManager
 import com.eve.app.util.ReminderScheduler
 import com.eve.app.util.ThemeManager
+import com.eve.app.util.ThemeSwitchAnimator
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
@@ -65,7 +66,28 @@ class SettingsActivity : AppCompatActivity() {
         binding.btnBack.setOnClickListener { finish() }
 
         setupReminderSetting()
+        setupThemeSetting()
         setupDeleteAccountSetting()
+    }
+
+    private fun setupThemeSetting() {
+        val isDark = ThemeSwitchAnimator.isDarkMode(this)
+        binding.switchTheme.isChecked = isDark
+        binding.lottieThemeIcon.progress = if (isDark) 1f else 0f
+
+        val toggleTheme: () -> Unit = {
+            if (!ThemeSwitchAnimator.isTransitioning) {
+                val goingDark = !ThemeSwitchAnimator.isDarkMode(this)
+                ThemeSwitchAnimator.animate(this, binding.switchTheme, goingDark)
+            }
+        }
+
+        binding.switchTheme.setOnClickListener {
+            toggleTheme()
+        }
+        binding.rowTheme.setOnClickListener {
+            toggleTheme()
+        }
     }
 
     private fun setupReminderSetting() {
