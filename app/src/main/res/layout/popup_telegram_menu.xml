@@ -56,7 +56,7 @@
                 android:layout_height="24dp"
                 android:background="@android:color/transparent"
                 android:contentDescription="Theme mode"
-                android:src="@drawable/ic_sun"
+                android:src="@drawable/ic_theme_sun"
                 app:tint="@color/eve_text" />
 
             <TextView

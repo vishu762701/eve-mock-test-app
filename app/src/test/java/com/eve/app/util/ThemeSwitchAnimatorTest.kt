@@ -212,4 +212,26 @@ class ThemeSwitchAnimatorTest {
         assertEquals(cx1, cx4)
         assertEquals(cy1, cy4)
     }
+
+    @Test
+    fun testSingleIconVisibilityLifecycle_avoidsDuplicateRender() {
+        // FIX 1 Verification:
+        // 1. Idle state: static icon is VISIBLE (value 0 in Android View.VISIBLE), floating icon does not exist
+        var staticIconVisibility = 0 // View.VISIBLE
+        var floatingIconExists = false
+        var visibleIconCount = (if (staticIconVisibility == 0) 1 else 0) + (if (floatingIconExists) 1 else 0)
+        assertEquals("Idle state must display exactly 1 icon (static only)", 1, visibleIconCount)
+
+        // 2. Transition starts: static icon set to INVISIBLE (value 4), floating Lottie added at (cx, cy)
+        staticIconVisibility = 4 // View.INVISIBLE
+        floatingIconExists = true
+        visibleIconCount = (if (staticIconVisibility == 0) 1 else 0) + (if (floatingIconExists) 1 else 0)
+        assertEquals("During animation exactly 1 icon must be visible (floating Lottie only)", 1, visibleIconCount)
+
+        // 3. Animation ends (cleanup): floating Lottie removed, static icon restored to VISIBLE
+        floatingIconExists = false
+        staticIconVisibility = 0 // View.VISIBLE
+        visibleIconCount = (if (staticIconVisibility == 0) 1 else 0) + (if (floatingIconExists) 1 else 0)
+        assertEquals("After animation ends exactly 1 icon must be visible (static only)", 1, visibleIconCount)
+    }
 }

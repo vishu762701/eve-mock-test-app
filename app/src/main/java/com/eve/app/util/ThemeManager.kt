@@ -592,7 +592,7 @@ object ThemeManager {
         }
 
         val isDark = isDarkMode(context)
-        button.setImageResource(if (isDark) R.drawable.ic_moon else R.drawable.ic_sun)
+        button.setImageResource(if (isDark) R.drawable.ic_theme_sun else R.drawable.ic_theme_moon)
         button.setColorFilter(androidx.core.content.ContextCompat.getColor(context, R.color.eve_text))
         button.contentDescription = context.getString(
             if (isDark) R.string.theme_toggle_to_light else R.string.theme_toggle_to_dark

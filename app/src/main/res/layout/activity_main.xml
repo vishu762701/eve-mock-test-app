@@ -352,7 +352,7 @@
     </LinearLayout>
 
     <!-- Left Profile Navigation Drawer Panel -->
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/navDrawerPanel"
         android:layout_width="290dp"
         android:layout_height="match_parent"
@@ -361,8 +361,29 @@
         android:clickable="true"
         android:elevation="8dp"
         android:fitsSystemWindows="true"
-        android:focusable="true"
-        android:orientation="vertical">
+        android:focusable="true">
+
+        <!-- Layer 1: Heavily blurred background slice of content directly behind drawer -->
+        <ImageView
+            android:id="@+id/ivDrawerGlassBlurBackground"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:importantForAccessibility="no" />
+
+        <!-- Layer 2: Frosted glass tint overlay ensuring perfect contrast -->
+        <View
+            android:id="@+id/viewDrawerGlassTintOverlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/eve_menu_glass_bg" />
+
+        <!-- Layer 3: Drawer Content -->
+        <LinearLayout
+            android:id="@+id/navDrawerContent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
         <!-- Drawer Header with Avatar, Name, Email -->
         <LinearLayout
@@ -599,5 +620,6 @@
                     android:textSize="15sp" />
             </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
 </androidx.drawerlayout.widget.DrawerLayout>

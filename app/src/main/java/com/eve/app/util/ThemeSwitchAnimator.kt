@@ -68,12 +68,14 @@ object ThemeSwitchAnimator {
         val isDarkModeTarget: Boolean,
         val oldActivityId: Int,
         val activityClassName: String,
-        val timestamp: Long
+        val timestamp: Long,
+        val iconIdsToHide: List<Int> = emptyList()
     )
 
     private var activeState: TransitionState? = null
     private var sourceActivityRef: WeakReference<Activity>? = null
     private var targetActivityRef: WeakReference<Activity>? = null
+    private val hiddenViewsRef = mutableListOf<WeakReference<View>>()
     private var isLifecycleRegistered = false
     private var inTransition = false
 
@@ -170,7 +172,8 @@ object ThemeSwitchAnimator {
     fun animate(
         activity: Activity,
         clickView: View,
-        isDarkModeTarget: Boolean
+        isDarkModeTarget: Boolean,
+        staticIconView: View? = null
     ) {
         val pos = IntArray(2)
         clickView.getLocationInWindow(pos)
@@ -182,7 +185,12 @@ object ThemeSwitchAnimator {
         val clickHeight = max(h, 24)
 
         Log.i(TAG, "[ThemeSwitchAnimator] animate called for View '${clickView.javaClass.simpleName}' at icon center ($clickScreenX, $clickScreenY), targetDark=$isDarkModeTarget")
-        animateInternal(activity, clickScreenX, clickScreenY, clickWidth, clickHeight, isDarkModeTarget)
+        val viewsToHide = mutableListOf<View>()
+        viewsToHide.add(clickView)
+        if (staticIconView != null && staticIconView !== clickView) {
+            viewsToHide.add(staticIconView)
+        }
+        animateInternal(activity, clickScreenX, clickScreenY, clickWidth, clickHeight, isDarkModeTarget, viewsToHide)
     }
 
     fun animateAt(
@@ -191,10 +199,12 @@ object ThemeSwitchAnimator {
         clickScreenY: Int,
         isDarkModeTarget: Boolean,
         clickWidth: Int = 48,
-        clickHeight: Int = 48
+        clickHeight: Int = 48,
+        staticIconView: View? = null
     ) {
         Log.i(TAG, "[ThemeSwitchAnimator] animateAt called at ($clickScreenX, $clickScreenY), size=${clickWidth}x${clickHeight}, targetDark=$isDarkModeTarget")
-        animateInternal(activity, clickScreenX, clickScreenY, clickWidth, clickHeight, isDarkModeTarget)
+        val viewsToHide = if (staticIconView != null) listOf(staticIconView) else emptyList()
+        animateInternal(activity, clickScreenX, clickScreenY, clickWidth, clickHeight, isDarkModeTarget, viewsToHide)
     }
 
     fun toggle(activity: Activity, clickView: View) {
@@ -211,7 +221,8 @@ object ThemeSwitchAnimator {
         clickScreenY: Int,
         clickWidth: Int,
         clickHeight: Int,
-        isDarkModeTarget: Boolean
+        isDarkModeTarget: Boolean,
+        viewsToHide: List<View> = emptyList()
     ) {
         if (inTransition) {
             Log.w(TAG, "[ThemeSwitchAnimator] Theme transition already in flight. Ignoring tap.")
@@ -236,10 +247,22 @@ object ThemeSwitchAnimator {
         sourceActivityRef = WeakReference(activity)
         ensureLifecycleRegistered(activity.application)
 
+        // FIX 1: Hide static icons immediately before capture so screen capture has clean background without duplicate icon
+        hiddenViewsRef.clear()
+        viewsToHide.forEach {
+            hiddenViewsRef.add(WeakReference(it))
+            it.visibility = View.INVISIBLE
+        }
+        val iconIdsToHide = viewsToHide.mapNotNull { v ->
+            if (v.id != View.NO_ID && v.id != 0) v.id else null
+        }.distinct()
+
         // 1. CAPTURE SCREENSHOT (Synchronous Canvas draw with PixelCopy support)
         captureScreenBitmap(activity, decorView, width, height) { bitmap ->
             if (bitmap == null || bitmap.isRecycled) {
                 Log.w(TAG, "[ThemeSwitchAnimator] Screen capture failed -> applying theme directly without animation")
+                hiddenViewsRef.forEach { it.get()?.visibility = View.VISIBLE }
+                hiddenViewsRef.clear()
                 inTransition = false
                 applyThemeDirectly(activity, isDarkModeTarget)
                 return@captureScreenBitmap
@@ -256,7 +279,8 @@ object ThemeSwitchAnimator {
                 isDarkModeTarget = isDarkModeTarget,
                 oldActivityId = System.identityHashCode(activity),
                 activityClassName = activity.javaClass.name,
-                timestamp = SystemClock.uptimeMillis()
+                timestamp = SystemClock.uptimeMillis(),
+                iconIdsToHide = iconIdsToHide
             )
 
             // Freeze the old activity screen immediately with static overlay
@@ -378,6 +402,11 @@ object ThemeSwitchAnimator {
         if (state.bitmap.isRecycled) return
 
         removeOverlays(activity)
+
+        // FIX 1: Ensure static icons at entry points remain INVISIBLE in the new activity during the reveal
+        state.iconIdsToHide.forEach { id ->
+            activity.findViewById<View>(id)?.visibility = View.INVISIBLE
+        }
 
         val overlay = ImageView(activity).apply {
             tag = "theme_switch_animating_overlay"
@@ -578,6 +607,7 @@ object ThemeSwitchAnimator {
         activeState = null
         sourceActivityRef = null
         targetActivityRef = null
+        hiddenViewsRef.clear()
     }
 
     fun setInTransitionForTesting(transitioning: Boolean) {
@@ -593,6 +623,15 @@ object ThemeSwitchAnimator {
 
         removeOverlays(src)
         removeOverlays(tgt)
+
+        // FIX 1: Restore visibility of static icons on completion
+        val state = activeState
+        state?.iconIdsToHide?.forEach { id ->
+            tgt?.findViewById<View>(id)?.visibility = View.VISIBLE
+            src?.findViewById<View>(id)?.visibility = View.VISIBLE
+        }
+        hiddenViewsRef.forEach { it.get()?.visibility = View.VISIBLE }
+        hiddenViewsRef.clear()
 
         src?.window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
         tgt?.window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)

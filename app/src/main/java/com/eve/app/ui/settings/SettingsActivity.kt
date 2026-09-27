@@ -76,7 +76,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.switchTheme.isChecked = isDark
         binding.lottieThemeIcon.progress = if (isDark) 1f else 0f
 
-        binding.btnThemeToggle.setImageResource(if (isDark) R.drawable.ic_moon else R.drawable.ic_sun)
+        binding.btnThemeToggle.setImageResource(if (isDark) R.drawable.ic_sun else R.drawable.ic_theme_moon)
         binding.btnThemeToggle.contentDescription = getString(
             if (isDark) R.string.theme_toggle_to_light else R.string.theme_toggle_to_dark
         )
@@ -91,11 +91,11 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
 
-        val toggleThemeFromView: (View) -> Unit = { targetView ->
+        val toggleThemeFromView: (View, View?) -> Unit = { targetView, staticIcon ->
             try {
                 if (!ThemeSwitchAnimator.isTransitioning) {
                     val goingDark = !ThemeSwitchAnimator.isDarkMode(this)
-                    ThemeSwitchAnimator.animate(this, targetView, goingDark)
+                    ThemeSwitchAnimator.animate(this, targetView, goingDark, staticIconView = staticIcon)
                 }
             } catch (t: Throwable) {
                 android.util.Log.e("ThemeClickDiag", "EXCEPTION in toggleTheme listener", t)
@@ -103,13 +103,13 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         binding.switchTheme.setOnClickListener {
-            toggleThemeFromView(binding.switchTheme)
+            toggleThemeFromView(binding.switchTheme, binding.lottieThemeIcon)
         }
         binding.lottieThemeIcon.setOnClickListener {
-            toggleThemeFromView(binding.lottieThemeIcon)
+            toggleThemeFromView(binding.lottieThemeIcon, null)
         }
         binding.rowTheme.setOnClickListener {
-            toggleThemeFromView(binding.lottieThemeIcon)
+            toggleThemeFromView(binding.lottieThemeIcon, null)
         }
     }
 

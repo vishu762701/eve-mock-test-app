@@ -6,10 +6,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.RenderEffect
-import android.graphics.Shader
+import android.graphics.Outline
+import android.view.ViewOutlineProvider
 import android.os.Build
+import com.eve.app.util.FastBlurHelper
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -178,6 +181,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.ivProfile.setOnClickListener {
+            captureDrawerBlur()
             binding.drawerLayout.openDrawer(GravityCompat.START)
         }
         loadProfilePhoto(user)
@@ -192,7 +196,7 @@ class MainActivity : AppCompatActivity() {
                 onThemeToggle = { cx, cy, iconWidth, iconHeight ->
                     try {
                         val goingDark = !ThemeSwitchAnimator.isDarkMode(this)
-                        ThemeSwitchAnimator.animateAt(this, cx, cy, goingDark, iconWidth, iconHeight)
+                        ThemeSwitchAnimator.animateAt(this, cx, cy, goingDark, iconWidth, iconHeight, staticIconView = binding.btnOverflow)
                     } catch (t: Throwable) {
                         android.util.Log.e("ThemeClickDiag", "EXCEPTION in MainActivity onThemeToggle", t)
                     }
@@ -728,40 +732,69 @@ class MainActivity : AppCompatActivity() {
         goToLogin()
     }
 
+    private var drawerBlurBitmap: Bitmap? = null
+
+    private fun captureDrawerBlur() {
+        if (drawerBlurBitmap != null) return
+        try {
+            val container = binding.mainContentContainer
+            if (container.width <= 0 || container.height <= 0) return
+
+            val drawerW = binding.navDrawerPanel.width.takeIf { it > 0 }
+                ?: (290 * resources.displayMetrics.density).toInt()
+            val drawerH = container.height
+
+            val scale = 4
+            val sampleW = (drawerW / scale).coerceAtLeast(1)
+            val sampleH = (drawerH / scale).coerceAtLeast(1)
+
+            val bmp = Bitmap.createBitmap(sampleW, sampleH, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bmp)
+            canvas.scale(1f / scale, 1f / scale)
+            container.draw(canvas)
+
+            val blurred = FastBlurHelper.blur(bmp, radius = 20, canReuseInBitmap = true)
+            drawerBlurBitmap = blurred
+            binding.ivDrawerGlassBlurBackground.setImageBitmap(blurred)
+        } catch (_: Throwable) {
+            // Fallback gracefully
+        }
+    }
+
     private fun setupDrawer(user: com.google.firebase.auth.FirebaseUser) {
         updateDrawerHeader(user)
 
-        // Frosted glass translucent scrim allowing underlying blurred content to be visible
+        // Frosted glass translucent scrim allowing underlying content to remain sharp and visible outside drawer
         val isDark = ThemeManager.isDarkMode(this)
         val scrimColor = if (isDark) Color.parseColor("#4D000000") else Color.parseColor("#26000000")
         binding.drawerLayout.setScrimColor(scrimColor)
 
-        // Apply smooth, hardware-accelerated blur on the underlying screen when drawer slides
+        // Clip drawer panel rounded right edge (24dp) so blur background and tint conform to rounded corners
+        binding.navDrawerPanel.outlineProvider = object : ViewOutlineProvider() {
+            override fun getOutline(view: View, outline: Outline) {
+                val radius = 24 * resources.displayMetrics.density
+                outline.setRoundRect(-radius.toInt(), 0, view.width, view.height, radius)
+            }
+        }
+        binding.navDrawerPanel.clipToOutline = true
+
+        // Scoped frosted-glass blur: blur ONLY the drawer panel, never the rest of the screen
         binding.drawerLayout.addDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    val maxBlur = 24f
-                    val blur = slideOffset * maxBlur
-                    if (blur > 0.5f) {
-                        try {
-                            binding.mainContentContainer.setRenderEffect(
-                                RenderEffect.createBlurEffect(blur, blur, Shader.TileMode.CLAMP)
-                            )
-                        } catch (_: Throwable) { }
-                    } else {
-                        try {
-                            binding.mainContentContainer.setRenderEffect(null)
-                        } catch (_: Throwable) { }
-                    }
+                if (slideOffset > 0f && drawerBlurBitmap == null) {
+                    captureDrawerBlur()
+                }
+            }
+
+            override fun onDrawerStateChanged(newState: Int) {
+                if ((newState == DrawerLayout.STATE_DRAGGING || newState == DrawerLayout.STATE_SETTLING) && drawerBlurBitmap == null) {
+                    captureDrawerBlur()
                 }
             }
 
             override fun onDrawerClosed(drawerView: View) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    try {
-                        binding.mainContentContainer.setRenderEffect(null)
-                    } catch (_: Throwable) { }
-                }
+                binding.ivDrawerGlassBlurBackground.setImageDrawable(null)
+                drawerBlurBitmap = null
             }
         })
 

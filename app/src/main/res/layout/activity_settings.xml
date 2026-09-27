@@ -44,7 +44,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/theme_toggle_to_dark"
             android:padding="8dp"
-            android:src="@drawable/ic_sun"
+            android:src="@drawable/ic_theme_sun"
             app:tint="@color/eve_on_primary" />
     </LinearLayout>
 
