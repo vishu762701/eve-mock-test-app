@@ -80,10 +80,10 @@ class TelegramMenuPopup(
                     return@setOnClickListener
                 }
                 val isDark = ThemeSwitchAnimator.isDarkMode(context)
-                binding.ivThemeIcon.setImageResource(if (isDark) R.drawable.ic_theme_moon else R.drawable.ic_sun)
+                binding.ivThemeIcon.setImageResource(if (isDark) R.drawable.ic_theme_moon else R.drawable.ic_theme_sun)
 
                 // Telegram's exact approach: always use fixed icon position via getLocationInWindow
-                val targetIcon: View = anchorViewRef ?: binding.ivThemeIcon
+                val targetIcon: View = binding.ivThemeIcon
                 val pos = IntArray(2)
                 targetIcon.getLocationInWindow(pos)
                 val iconW = if (targetIcon.measuredWidth > 0) targetIcon.measuredWidth else targetIcon.width
@@ -91,7 +91,7 @@ class TelegramMenuPopup(
                 val cx = pos[0] + iconW / 2
                 val cy = pos[1] + iconH / 2
 
-                android.util.Log.d("ThemeClickDiag", "Fixed icon position calculated: cx=$cx, cy=$cy, size=${iconW}x${iconH}")
+                android.util.Log.d("ThemeClickDiag", "Fixed icon position calculated from ivThemeIcon: cx=$cx, cy=$cy, size=${iconW}x${iconH}")
 
                 // FIX 1: Hide static icon immediately so it does not render alongside the floating Lottie icon
                 binding.ivThemeIcon.visibility = View.INVISIBLE

@@ -35,17 +35,6 @@
             android:textColor="@color/eve_on_primary"
             android:textSize="20sp"
             android:textStyle="bold" />
-
-        <ImageButton
-            android:id="@+id/btnThemeToggle"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="4dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/theme_toggle_to_dark"
-            android:padding="8dp"
-            android:src="@drawable/ic_theme_sun"
-            app:tint="@color/eve_on_primary" />
     </LinearLayout>
 
     <ScrollView
@@ -119,59 +108,6 @@
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/switchReminder"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
-            <!-- Theme Mode Toggle Row -->
-            <LinearLayout
-                android:id="@+id/rowTheme"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="1dp"
-                android:background="@color/eve_surface"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="20dp"
-                android:paddingVertical="14dp">
-
-                <com.airbnb.lottie.LottieAnimationView
-                    android:id="@+id/lottieThemeIcon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:contentDescription="Theme mode"
-                    app:lottie_rawRes="@raw/sun_to_moon" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tvThemeTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_medium"
-                        android:text="Dark Mode"
-                        android:textColor="@color/eve_text"
-                        android:textSize="15sp" />
-
-                    <TextView
-                        android:id="@+id/tvThemeSubtitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Switch between light and dark theme"
-                        android:textColor="@color/eve_grey"
-                        android:textSize="12sp" />
-                </LinearLayout>
-
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/switchTheme"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
             </LinearLayout>

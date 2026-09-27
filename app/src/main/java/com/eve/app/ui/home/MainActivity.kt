@@ -58,6 +58,7 @@ import com.eve.app.util.CrashlyticsHelper
 import com.eve.app.util.NetworkUtil
 import com.eve.app.util.NotificationHelper
 import com.eve.app.util.NotificationStore
+import com.eve.app.util.RippleHelper
 import com.eve.app.util.ProfilePhotoManager
 import com.eve.app.util.ReminderScheduler
 import com.eve.app.util.ThemeManager
@@ -196,7 +197,7 @@ class MainActivity : AppCompatActivity() {
                 onThemeToggle = { cx, cy, iconWidth, iconHeight ->
                     try {
                         val goingDark = !ThemeSwitchAnimator.isDarkMode(this)
-                        ThemeSwitchAnimator.animateAt(this, cx, cy, goingDark, iconWidth, iconHeight, staticIconView = binding.btnOverflow)
+                        ThemeSwitchAnimator.animateAt(this, cx, cy, goingDark, iconWidth, iconHeight)
                     } catch (t: Throwable) {
                         android.util.Log.e("ThemeClickDiag", "EXCEPTION in MainActivity onThemeToggle", t)
                     }
@@ -797,6 +798,26 @@ class MainActivity : AppCompatActivity() {
                 drawerBlurBitmap = null
             }
         })
+
+        // FIX 7: Telegram-style premium masked, bounded RippleDrawable on avatar and drawer rows
+        binding.ivDrawerAvatar.foreground = RippleHelper.createPremiumRippleDrawable(this, cornerRadiusDp = -1f, isDark = isDark)
+        binding.ivDrawerAvatar.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            startActivity(Intent(this, ProfileActivity::class.java))
+        }
+
+        val drawerRowRadiusDp = 12f
+        val drawerRows = listOf(
+            binding.layoutDrawerProfile,
+            binding.layoutDrawerPerformance,
+            binding.layoutDrawerLeaderboard,
+            binding.layoutDrawerSyllabus,
+            binding.layoutDrawerAbout,
+            binding.layoutDrawerSettings
+        )
+        drawerRows.forEach { row ->
+            row.foreground = RippleHelper.createPremiumRippleDrawable(this, cornerRadiusDp = drawerRowRadiusDp, isDark = isDark)
+        }
 
         binding.layoutDrawerProfile.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.START)

@@ -128,6 +128,9 @@ dependencies {
     // Lottie animation library
     implementation("com.airbnb.android:lottie:6.4.1")
 
+    // Real-time frosted-glass BlurView for dialog cards
+    implementation("com.github.Dimezis:BlurView:version-2.0.6")
+
     // Unit Testing
     testImplementation("junit:junit:4.13.2")
 }

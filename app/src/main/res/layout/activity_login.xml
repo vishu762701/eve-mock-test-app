@@ -24,15 +24,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <!-- 2. Modal Card: Dark near-black semi-transparent glassmorphism with ~24px rounded corners -->
+            <!-- 2. Modal Card: Fixed 340dp, centered horizontally and vertically, real-time frosted-glass blur on card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardLogin"
-                android:layout_width="wrap_content"
+                android:layout_width="340dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|top"
-                android:layout_marginTop="32dp"
-                android:layout_marginBottom="32dp"
-                app:cardBackgroundColor="@color/eve_menu_glass_bg"
+                android:layout_gravity="center"
+                app:cardBackgroundColor="@android:color/transparent"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="8dp"
                 app:cardMaxElevation="10dp"
@@ -40,6 +38,13 @@
                 app:cardUseCompatPadding="false"
                 app:strokeColor="@color/eve_menu_glass_border"
                 app:strokeWidth="1dp">
+
+                <!-- Real-time BlurView layer for frosted-glass card effect -->
+                <eightbitlab.com.blurview.BlurView
+                    android:id="@+id/blurViewLogin"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:blurOverlayColor="@color/eve_menu_glass_bg" />
 
                 <androidx.core.widget.NestedScrollView
                     android:id="@+id/cardScrollView"

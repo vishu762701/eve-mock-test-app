@@ -16,8 +16,6 @@ import com.eve.app.databinding.ActivitySettingsBinding
 import com.eve.app.ui.login.LoginActivity
 import com.eve.app.util.ProfilePhotoManager
 import com.eve.app.util.ReminderScheduler
-import com.eve.app.util.ThemeManager
-import com.eve.app.util.ThemeSwitchAnimator
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
@@ -67,50 +65,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.btnBack.setOnClickListener { finish() }
 
         setupReminderSetting()
-        setupThemeSetting()
         setupDeleteAccountSetting()
-    }
-
-    private fun setupThemeSetting() {
-        val isDark = ThemeSwitchAnimator.isDarkMode(this)
-        binding.switchTheme.isChecked = isDark
-        binding.lottieThemeIcon.progress = if (isDark) 1f else 0f
-
-        binding.btnThemeToggle.setImageResource(if (isDark) R.drawable.ic_sun else R.drawable.ic_theme_moon)
-        binding.btnThemeToggle.contentDescription = getString(
-            if (isDark) R.string.theme_toggle_to_light else R.string.theme_toggle_to_dark
-        )
-        binding.btnThemeToggle.setOnClickListener {
-            try {
-                if (!ThemeSwitchAnimator.isTransitioning) {
-                    val goingDark = !ThemeSwitchAnimator.isDarkMode(this)
-                    ThemeSwitchAnimator.animate(this, binding.btnThemeToggle, goingDark)
-                }
-            } catch (t: Throwable) {
-                android.util.Log.e("ThemeClickDiag", "EXCEPTION in btnThemeToggle click listener", t)
-            }
-        }
-
-        val toggleThemeFromView: (View, View?) -> Unit = { targetView, staticIcon ->
-            try {
-                if (!ThemeSwitchAnimator.isTransitioning) {
-                    val goingDark = !ThemeSwitchAnimator.isDarkMode(this)
-                    ThemeSwitchAnimator.animate(this, targetView, goingDark, staticIconView = staticIcon)
-                }
-            } catch (t: Throwable) {
-                android.util.Log.e("ThemeClickDiag", "EXCEPTION in toggleTheme listener", t)
-            }
-        }
-
-        binding.switchTheme.setOnClickListener {
-            toggleThemeFromView(binding.switchTheme, binding.lottieThemeIcon)
-        }
-        binding.lottieThemeIcon.setOnClickListener {
-            toggleThemeFromView(binding.lottieThemeIcon, null)
-        }
-        binding.rowTheme.setOnClickListener {
-            toggleThemeFromView(binding.lottieThemeIcon, null)
-        }
     }
 
     private fun setupReminderSetting() {

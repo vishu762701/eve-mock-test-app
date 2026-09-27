@@ -13,6 +13,7 @@ import android.util.Patterns
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -101,18 +102,12 @@ class LoginActivity : AppCompatActivity() {
         // Auth check resolved; user genuinely landed on Login
         isCheckingAuth = false
 
-        // Frosted-glass backdrop blur on Android 12+ (API 31+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            try {
-                val blurEffect = RenderEffect.createBlurEffect(45f, 45f, Shader.TileMode.CLAMP)
-                binding.ambientBackground.setRenderEffect(blurEffect)
-            } catch (_: Throwable) {
-                // Graceful fallback if RenderEffect is unsupported
-            }
-        }
+        // FIX 6: Outside screen area remains completely sharp with zero dim/blur
+        window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+        window.setDimAmount(0f)
 
-        // Part A: Responsive reference panel sizing (width = 85.46%, height = 69.37% of usable viewport)
-        setupResponsiveLoginPanel()
+        // Real-time frosted-glass card blur effect on cardLogin
+        setupCardBlurView()
 
         // Task C: Staggered Entrance Animation
         playStaggeredEntranceAnimation()
@@ -143,72 +138,24 @@ class LoginActivity : AppCompatActivity() {
     }
 
     /**
-     * Sizing and positioning panel responsively:
-     * panelWidth = availableWidth * 0.8546 (629 / 736)
-     * panelHeight = WRAP_CONTENT (large enough to comfortably contain all login features without bottom compression)
-     * Reduces excessive top empty space and preserves visible, intentional bottom spacing below "Don't have an account?".
+     * Real-time frosted-glass blur effect on the 340dp centered Sign In card.
      */
-    private fun setupResponsiveLoginPanel() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
-            val sysBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            applyResponsivePanelSize(sysBars)
-            insets
-        }
-
-        binding.root.addOnLayoutChangeListener { _, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
-            val w = right - left
-            val h = bottom - top
-            if (w > 0 && h > 0 && (w != (oldRight - oldLeft) || h != (oldBottom - oldTop))) {
-                val insets = ViewCompat.getRootWindowInsets(binding.root)?.getInsets(WindowInsetsCompat.Type.systemBars())
-                applyResponsivePanelSize(insets)
+    private fun setupCardBlurView() {
+        try {
+            val radius = 20f
+            val rootView = binding.root as ViewGroup
+            val cornerRadiusPx = 24 * resources.displayMetrics.density
+            binding.blurViewLogin.outlineProvider = object : android.view.ViewOutlineProvider() {
+                override fun getOutline(view: View, outline: android.graphics.Outline) {
+                    outline.setRoundRect(0, 0, view.width, view.height, cornerRadiusPx)
+                }
             }
-        }
-
-        binding.root.post {
-            val insets = ViewCompat.getRootWindowInsets(binding.root)?.getInsets(WindowInsetsCompat.Type.systemBars())
-            applyResponsivePanelSize(insets)
-        }
-    }
-
-    private fun applyResponsivePanelSize(sysBars: androidx.core.graphics.Insets?) {
-        val rootW = binding.root.width
-        val rootH = binding.root.height
-        if (rootW <= 0 || rootH <= 0) return
-
-        val insetLeft = sysBars?.left ?: 0
-        val insetRight = sysBars?.right ?: 0
-        val insetTop = sysBars?.top ?: 0
-        val insetBottom = sysBars?.bottom ?: 0
-
-        val availableWidth = (rootW - insetLeft - insetRight).coerceAtLeast(1)
-        val availableHeight = (rootH - insetTop - insetBottom).coerceAtLeast(1)
-
-        val targetWidth = (availableWidth * 0.8546f).roundToInt().coerceAtMost(availableWidth)
-        val lp = binding.cardLogin.layoutParams as? FrameLayout.LayoutParams ?: return
-
-        // Distribute vertical space intelligently:
-        // Reduce excessive empty space above the Sign In section while keeping central content area
-        // large enough to comfortably contain all login features with visible bottom breathing room.
-        val topMargin = (availableHeight * 0.08f).roundToInt().coerceIn(24, 72)
-        val bottomMargin = (availableHeight * 0.06f).roundToInt().coerceIn(24, 60)
-
-        var changed = false
-        if (lp.width != targetWidth) {
-            lp.width = targetWidth
-            changed = true
-        }
-        if (lp.height != android.view.ViewGroup.LayoutParams.WRAP_CONTENT) {
-            lp.height = android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-            changed = true
-        }
-        if (lp.topMargin != topMargin || lp.bottomMargin != bottomMargin) {
-            lp.topMargin = topMargin
-            lp.bottomMargin = bottomMargin
-            lp.gravity = android.view.Gravity.CENTER_HORIZONTAL or android.view.Gravity.TOP
-            changed = true
-        }
-        if (changed) {
-            binding.cardLogin.layoutParams = lp
+            binding.blurViewLogin.clipToOutline = true
+            binding.blurViewLogin.setupWith(rootView)
+                .setBlurRadius(radius)
+                .setBlurAutoUpdate(true)
+        } catch (t: Throwable) {
+            android.util.Log.e("LoginActivity", "Failed to setup card BlurView", t)
         }
     }
 

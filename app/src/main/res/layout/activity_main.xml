@@ -399,6 +399,8 @@
                 android:layout_width="60dp"
                 android:layout_height="60dp"
                 android:background="@drawable/bg_circle_translucent"
+                android:clickable="true"
+                android:focusable="true"
                 android:contentDescription="Profile photo"
                 android:padding="3dp"
                 android:scaleType="centerCrop"
@@ -445,12 +447,12 @@
                 android:id="@+id/layoutDrawerProfile"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
+                android:layout_marginHorizontal="8dp"
                 android:clickable="true"
                 android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingHorizontal="20dp">
+                android:paddingHorizontal="16dp">
 
                 <ImageView
                     android:layout_width="24dp"
@@ -475,12 +477,12 @@
                 android:id="@+id/layoutDrawerPerformance"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
+                android:layout_marginHorizontal="8dp"
                 android:clickable="true"
                 android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingHorizontal="20dp">
+                android:paddingHorizontal="16dp">
 
                 <ImageView
                     android:layout_width="24dp"
@@ -505,12 +507,12 @@
                 android:id="@+id/layoutDrawerLeaderboard"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
+                android:layout_marginHorizontal="8dp"
                 android:clickable="true"
                 android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingHorizontal="20dp">
+                android:paddingHorizontal="16dp">
 
                 <ImageView
                     android:layout_width="24dp"
@@ -535,12 +537,12 @@
                 android:id="@+id/layoutDrawerSyllabus"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
+                android:layout_marginHorizontal="8dp"
                 android:clickable="true"
                 android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingHorizontal="20dp">
+                android:paddingHorizontal="16dp">
 
                 <ImageView
                     android:layout_width="24dp"
@@ -565,12 +567,12 @@
                 android:id="@+id/layoutDrawerAbout"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
+                android:layout_marginHorizontal="8dp"
                 android:clickable="true"
                 android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingHorizontal="20dp">
+                android:paddingHorizontal="16dp">
 
                 <ImageView
                     android:layout_width="24dp"
@@ -595,12 +597,12 @@
                 android:id="@+id/layoutDrawerSettings"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
+                android:layout_marginHorizontal="8dp"
                 android:clickable="true"
                 android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingHorizontal="20dp">
+                android:paddingHorizontal="16dp">
 
                 <ImageView
                     android:layout_width="24dp"
