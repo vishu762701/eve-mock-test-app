@@ -64,17 +64,33 @@ class TelegramMenuPopup(
     }
 
     private fun setupListeners() {
+        var lastTouchX = -1f
+        var lastTouchY = -1f
+        binding.cardTheme.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_DOWN || event.action == MotionEvent.ACTION_UP) {
+                lastTouchX = event.rawX
+                lastTouchY = event.rawY
+            }
+            false
+        }
+
         binding.cardTheme.setOnClickListener {
             if (ThemeManager.isTransitioning) return@setOnClickListener
             val isDark = ThemeManager.isDarkMode(context)
             binding.ivThemeIcon.setImageResource(if (isDark) R.drawable.ic_moon else R.drawable.ic_sun)
 
-            // Task B: Always calculate origin (cx, cy) from the live screen position of the 3-DOT ANCHOR BUTTON
-            val anchor = anchorViewRef ?: binding.cardTheme
-            val loc = IntArray(2)
-            anchor.getLocationOnScreen(loc)
-            val cx = loc[0] + anchor.width / 2
-            val cy = loc[1] + anchor.height / 2
+            // Calculate origin (cx, cy) from the exact touch position or on-screen center of the theme switch
+            val cx: Int
+            val cy: Int
+            if (lastTouchX > 0f && lastTouchY > 0f) {
+                cx = lastTouchX.toInt()
+                cy = lastTouchY.toInt()
+            } else {
+                val loc = IntArray(2)
+                binding.cardTheme.getLocationOnScreen(loc)
+                cx = loc[0] + binding.cardTheme.width / 2
+                cy = loc[1] + binding.cardTheme.height / 2
+            }
 
             GlassmorphismHelper.removeWindowBlur(binding.root, animate = false)
             super.dismiss()

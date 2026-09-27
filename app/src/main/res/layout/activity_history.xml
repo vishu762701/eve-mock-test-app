@@ -98,8 +98,9 @@
                 android:id="@+id/ivMessageIcon"
                 android:layout_width="160dp"
                 android:layout_height="160dp"
-                app:lottie_autoPlay="true"
-                app:lottie_loop="true"
+                android:background="@android:color/transparent"
+                app:lottie_autoPlay="false"
+                app:lottie_loop="false"
                 app:lottie_rawRes="@raw/error_404" />
 
             <TextView

@@ -13,6 +13,7 @@ import android.util.Patterns
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -142,11 +143,10 @@ class LoginActivity : AppCompatActivity() {
     }
 
     /**
-     * Part A: Sizing panel responsively to match reference screenshot proportions:
+     * Sizing and positioning panel responsively:
      * panelWidth = availableWidth * 0.8546 (629 / 736)
-     * panelHeight = availableHeight * 0.6937 (1066 / 1536)
-     * Uses actual usable viewport after existing safe-area/inset handling.
-     * Panel remains horizontally and vertically centered.
+     * panelHeight = WRAP_CONTENT (large enough to comfortably contain all login features without bottom compression)
+     * Reduces excessive top empty space and preserves visible, intentional bottom spacing below "Don't have an account?".
      */
     private fun setupResponsiveLoginPanel() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
@@ -183,13 +183,31 @@ class LoginActivity : AppCompatActivity() {
         val availableWidth = (rootW - insetLeft - insetRight).coerceAtLeast(1)
         val availableHeight = (rootH - insetTop - insetBottom).coerceAtLeast(1)
 
-        val targetWidth = (availableWidth * 0.8546f).roundToInt()
-        val targetHeight = (availableHeight * 0.6937f).roundToInt()
+        val targetWidth = (availableWidth * 0.8546f).roundToInt().coerceAtMost(availableWidth)
+        val lp = binding.cardLogin.layoutParams as? FrameLayout.LayoutParams ?: return
 
-        val lp = binding.cardLogin.layoutParams
-        if (lp.width != targetWidth || lp.height != targetHeight) {
+        // Distribute vertical space intelligently:
+        // Reduce excessive empty space above the Sign In section while keeping central content area
+        // large enough to comfortably contain all login features with visible bottom breathing room.
+        val topMargin = (availableHeight * 0.08f).roundToInt().coerceIn(24, 72)
+        val bottomMargin = (availableHeight * 0.06f).roundToInt().coerceIn(24, 60)
+
+        var changed = false
+        if (lp.width != targetWidth) {
             lp.width = targetWidth
-            lp.height = targetHeight
+            changed = true
+        }
+        if (lp.height != android.view.ViewGroup.LayoutParams.WRAP_CONTENT) {
+            lp.height = android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            changed = true
+        }
+        if (lp.topMargin != topMargin || lp.bottomMargin != bottomMargin) {
+            lp.topMargin = topMargin
+            lp.bottomMargin = bottomMargin
+            lp.gravity = android.view.Gravity.CENTER_HORIZONTAL or android.view.Gravity.TOP
+            changed = true
+        }
+        if (changed) {
             binding.cardLogin.layoutParams = lp
         }
     }

@@ -188,7 +188,11 @@ class MainActivity : AppCompatActivity() {
         binding.btnOverflow.setOnClickListener { anchor ->
             TelegramMenuPopup(
                 context = this,
-                onThemeToggle = { cx, cy -> ThemeManager.toggleWithCircularReveal(this, cx, cy) },
+                onThemeToggle = { cx, cy ->
+                    animateThemeChange(binding.drawerLayout, cx, cy) {
+                        ThemeManager.toggle(this)
+                    }
+                },
                 onHistory = { startActivity(Intent(this, HistoryActivity::class.java)) },
                 onBookmarks = { startActivity(Intent(this, BookmarksActivity::class.java)) },
                 onTopic = { startActivity(Intent(this, PracticeActivity::class.java)) },
@@ -608,6 +612,11 @@ class MainActivity : AppCompatActivity() {
         } catch (_: Exception) { }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("key_empty_played", hasEmptyPlayed)
+    }
+
     private fun loadProfilePhoto(user: com.google.firebase.auth.FirebaseUser) {
         ProfilePhotoManager.applyTo(
             this, binding.ivProfile, user.photoUrl?.toString(), R.drawable.bg_circle_translucent
@@ -787,5 +796,14 @@ class MainActivity : AppCompatActivity() {
         ProfilePhotoManager.applyTo(this, binding.ivDrawerAvatar, user.photoUrl?.toString(), R.drawable.bg_circle_translucent)
         binding.tvDrawerUserName.text = user.displayName?.takeIf { it.isNotBlank() } ?: "Student"
         binding.tvDrawerUserEmail.text = user.email ?: ""
+    }
+
+    private fun animateThemeChange(
+        rootView: View,
+        touchX: Int,
+        touchY: Int,
+        applyNewThemeAction: Runnable? = null
+    ) {
+        ThemeManager.animateThemeChange(rootView, touchX, touchY, applyNewThemeAction)
     }
 }

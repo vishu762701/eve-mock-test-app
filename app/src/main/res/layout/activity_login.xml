@@ -29,7 +29,9 @@
                 android:id="@+id/cardLogin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_gravity="center_horizontal|top"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="32dp"
                 app:cardBackgroundColor="@color/eve_menu_glass_bg"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="8dp"
@@ -42,7 +44,7 @@
                 <androidx.core.widget.NestedScrollView
                     android:id="@+id/cardScrollView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:fillViewport="true"
                     android:overScrollMode="never"
                     android:scrollbars="none">
@@ -52,7 +54,8 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:paddingHorizontal="24dp"
-                        android:paddingVertical="26dp">
+                        android:paddingTop="26dp"
+                        android:paddingBottom="30dp">
 
                     <!-- 3. Header / Tabs Row (Sign In / Join + Orange Underline + Close X icon) -->
                     <LinearLayout
@@ -344,7 +347,7 @@
                     <FrameLayout
                         android:id="@+id/layoutBtnGoogle"
                         android:layout_width="match_parent"
-                        android:layout_height="50dp"
+                        android:layout_height="38dp"
                         android:layout_marginTop="16dp"
                         android:layout_gravity="center_horizontal">
 
@@ -359,6 +362,7 @@
                             android:insetTop="0dp"
                             android:insetRight="0dp"
                             android:insetBottom="0dp"
+                            android:minHeight="0dp"
                             android:text=""
                             app:cornerRadius="12dp"
                             app:icon="@drawable/ic_social_google"
@@ -371,8 +375,8 @@
 
                         <ProgressBar
                             android:id="@+id/progressGoogle"
-                            android:layout_width="22dp"
-                            android:layout_height="22dp"
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
                             android:layout_gravity="center"
                             android:indeterminate="true"
                             android:indeterminateTint="#34A853"
