@@ -12,7 +12,10 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
+import android.graphics.RectF
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -25,7 +28,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.WindowManager
-import android.view.animation.AccelerateDecelerateInterpolator
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -553,7 +556,7 @@ object ThemeManager {
         val maxRadius = max(max(d1, d2), max(d3, d4)).toFloat()
 
         val overlay = ThemeSwitchOverlayView(activity).apply {
-            setImageBitmap(bitmap)
+            setSnapshot(bitmap)
             visibility = View.VISIBLE
         }
         themeSwitchOverlay = overlay
@@ -585,7 +588,6 @@ object ThemeManager {
             }
             overlay.startReveal(cx, cy, maxRadius) {
                 logDebug("Reveal animation completed -> cleaning up pending transition")
-                overlay.setImageDrawable(null)
                 overlay.visibility = View.GONE
                 (overlay.parent as? ViewGroup)?.removeView(overlay)
                 cleanupPending("animation_complete")
@@ -613,28 +615,38 @@ object ThemeManager {
     }
 
     /**
-     * Required theme overlay ImageView implementation.
-     * Displays captured snapshot of old theme and cuts expanding circular hole
-     * centered at the exact tap/switch origin (originX, originY) from 0 to maxRadius,
-     * revealing the new theme underneath with standard AccelerateDecelerateInterpolator (400ms).
+     * Telegram exact Day/Night theme-switch overlay.
+     * Displays captured snapshot of old theme and punches an expanding anti-aliased circular
+     * hole centered at the exact tap/switch origin (originX, originY) from 0 to maxRadius,
+     * revealing the new theme underneath using hardware-layer PorterDuff.Mode.CLEAR masking
+     * and cubic bezier easing (FastOutSlowInInterpolator, 400ms).
      */
-    private class ThemeSwitchOverlayView(context: Context) : androidx.appcompat.widget.AppCompatImageView(context) {
+    private class ThemeSwitchOverlayView(context: Context) : View(context) {
 
+        private var snapshotBitmap: Bitmap? = null
         private var originX: Float = 0f
         private var originY: Float = 0f
         private var currentRadius: Float = 0f
-        private val clipPath = Path()
         private var animator: ValueAnimator? = null
-        private val dstRect = android.graphics.RectF()
+        private val dstRect = RectF()
         private var onCompleteCallback: (() -> Unit)? = null
+
+        private val bitmapPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+        private val clearPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+        }
 
         init {
             fitsSystemWindows = false
-            scaleType = ScaleType.FIT_XY
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
+        }
+
+        fun setSnapshot(bitmap: Bitmap) {
+            snapshotBitmap = bitmap
+            invalidate()
         }
 
         fun startReveal(cx: Float, cy: Float, maxRadius: Float, onComplete: () -> Unit) {
@@ -645,7 +657,7 @@ object ThemeManager {
 
             animator = ValueAnimator.ofFloat(0f, maxRadius).apply {
                 duration = 400L // 400ms duration per specification
-                interpolator = AccelerateDecelerateInterpolator() // Smooth ease-in-out, standard SDK
+                interpolator = FastOutSlowInInterpolator() // Telegram-exact cubic bezier curve
                 addUpdateListener { va ->
                     currentRadius = va.animatedValue as Float
                     invalidate()
@@ -661,31 +673,28 @@ object ThemeManager {
         }
 
         override fun onDraw(canvas: Canvas) {
-            val d = drawable ?: return
+            val bmp = snapshotBitmap ?: return
+            if (bmp.isRecycled) return
 
-            if (dstRect.isEmpty) {
-                dstRect.set(0f, 0f, width.toFloat(), height.toFloat())
-            }
+            dstRect.set(0f, 0f, width.toFloat(), height.toFloat())
 
             if (currentRadius <= 0f) {
-                super.onDraw(canvas)
+                // Initial static frame: display old theme snapshot
+                canvas.drawBitmap(bmp, null, dstRect, bitmapPaint)
             } else {
-                clipPath.reset()
-                clipPath.fillType = Path.FillType.EVEN_ODD
-                clipPath.addRect(0f, 0f, width.toFloat(), height.toFloat(), Path.Direction.CW)
-                clipPath.addCircle(originX, originY, currentRadius, Path.Direction.CW)
-
-                canvas.save()
-                canvas.clipPath(clipPath)
-                super.onDraw(canvas)
-                canvas.restore()
+                // Telegram exact technique: off-screen layer with PorterDuff.Mode.CLEAR
+                // Produces perfectly anti-aliased sub-pixel circular hole revealing new theme
+                val saveCount = canvas.saveLayer(0f, 0f, width.toFloat(), height.toFloat(), null)
+                canvas.drawBitmap(bmp, null, dstRect, bitmapPaint)
+                canvas.drawCircle(originX, originY, currentRadius, clearPaint)
+                canvas.restoreToCount(saveCount)
             }
         }
 
         fun cancelAnimation() {
             animator?.cancel()
             animator = null
-            setImageDrawable(null)
+            snapshotBitmap = null
             onCompleteCallback = null
         }
     }
