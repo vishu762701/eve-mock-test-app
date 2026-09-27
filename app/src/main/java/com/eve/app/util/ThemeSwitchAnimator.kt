@@ -33,13 +33,12 @@ import kotlin.math.hypot
 import kotlin.math.max
 
 /**
- * ThemeSwitchAnimator: Standalone, reusable animator implementing Telegram's exact
+ * ThemeSwitchAnimator: Robust, standalone, production animator implementing Telegram's exact
  * Day/Night theme-switch mechanism.
  *
  * Fully compatible with minSdk 24:
  * 1. SCREENSHOT CAPTURE:
- *    - PixelCopy on API 26+ (hardware accelerated surface capture).
- *    - Synchronous Canvas draw fallback for API 24-25 and PixelCopy timeouts.
+ *    - Instantaneous, high-fidelity synchronous Canvas draw fallback combined with PixelCopy on API 26+.
  * 2. CIRCULAR REVEAL:
  *    - Uses ViewAnimationUtils.createCircularReveal(targetView, x, y, startRadius, endRadius).
  *    - Switching to dark: circle expands outward from button (0 -> maxRadius).
@@ -48,19 +47,19 @@ import kotlin.math.max
  * 3. LOTTIE SUN/MOON MORPH:
  *    - Floating LottieAnimationView (sun_to_moon.json) positioned directly at tap location.
  *    - Plays forward (0 -> 1) when switching to dark, reverse (1 -> 0) when switching to light.
- * 4. PERSISTENCE & INTEGRATION:
- *    - Persists selection to SharedPreferences (eve_prefs, key_dark_mode).
- *    - Zero-flicker activity recreation lifecycle synchronization.
- *    - Complete cleanup of overlays, animators, and bitmaps on completion.
+ * 4. PERSISTENCE & LIFECYCLE:
+ *    - Persists selection synchronously to SharedPreferences (eve_prefs, key_dark_mode).
+ *    - Pre-measures overlays in onActivityCreated for zero-flicker activity recreation synchronization.
+ *    - Full cleanup of overlays, touch locks, animators, and bitmaps on completion.
  */
 object ThemeSwitchAnimator {
 
-    private const val TAG = "ThemeSwitchAnimator"
-    private const val PREFS = "eve_prefs"
-    private const val KEY_DARK_MODE = "key_dark_mode"
-    private const val ANIMATION_DURATION = 400L
+    const val TAG = "ThemeSwitchAnimator"
+    const val PREFS = "eve_prefs"
+    const val KEY_DARK_MODE = "key_dark_mode"
+    const val ANIMATION_DURATION = 400L
 
-    private data class TransitionState(
+    data class TransitionState(
         val bitmap: Bitmap,
         val clickScreenX: Int,
         val clickScreenY: Int,
@@ -78,9 +77,9 @@ object ThemeSwitchAnimator {
     private var isLifecycleRegistered = false
     private var inTransition = false
 
-    private val mainHandler = Handler(Looper.getMainLooper())
+    private val mainHandler by lazy { Handler(Looper.getMainLooper()) }
     private val safetyTimeoutRunnable = Runnable {
-        Log.d(TAG, "Safety timeout reached -> cleaning up transition state")
+        Log.w(TAG, "[ThemeSwitchAnimator] Safety timeout reached -> forcing cleanup")
         cleanup("safety_timeout")
     }
 
@@ -112,6 +111,7 @@ object ThemeSwitchAnimator {
                 if (activity.javaClass.name == state.activityClassName &&
                     System.identityHashCode(activity) != state.oldActivityId
                 ) {
+                    Log.i(TAG, "[ThemeSwitchAnimator] New activity created (${activity.javaClass.simpleName}) -> attaching pre-overlay and Lottie icon")
                     targetActivityRef = WeakReference(activity)
                     activity.overridePendingTransition(0, 0)
                     attachInitialOverlayToNewActivity(activity, state)
@@ -125,6 +125,7 @@ object ThemeSwitchAnimator {
                 if (activity.javaClass.name == state.activityClassName &&
                     System.identityHashCode(activity) != state.oldActivityId
                 ) {
+                    Log.i(TAG, "[ThemeSwitchAnimator] New activity resumed -> waiting for pre-draw")
                     targetActivityRef = WeakReference(activity)
                     activity.overridePendingTransition(0, 0)
                     waitForNewThemeAndStartReveal(activity, state)
@@ -135,10 +136,9 @@ object ThemeSwitchAnimator {
 
             override fun onActivityStopped(activity: Activity) {
                 val state = activeState ?: return
-                if (activity.javaClass.name == state.activityClassName &&
-                    System.identityHashCode(activity) != state.oldActivityId
-                ) {
-                    cleanup("activity_stopped")
+                if (System.identityHashCode(activity) == state.oldActivityId) {
+                    Log.d(TAG, "[ThemeSwitchAnimator] Old activity stopped during recreate (expected)")
+                    return
                 }
             }
 
@@ -146,28 +146,23 @@ object ThemeSwitchAnimator {
 
             override fun onActivityDestroyed(activity: Activity) {
                 val state = activeState ?: return
-                if (activity.javaClass.name == state.activityClassName &&
-                    System.identityHashCode(activity) != state.oldActivityId
-                ) {
+                if (System.identityHashCode(activity) == state.oldActivityId) {
+                    Log.d(TAG, "[ThemeSwitchAnimator] Old activity destroyed during recreate (expected)")
+                    removeOverlays(activity)
+                    return
+                }
+                if (activity.javaClass.name == state.activityClassName) {
+                    Log.i(TAG, "[ThemeSwitchAnimator] Target activity destroyed -> cleaning up")
                     cleanup("activity_destroyed")
                 }
             }
         })
     }
 
-    /**
-     * Primary entry point: Triggers Telegram's exact Day/Night theme animation from a tapped View.
-     *
-     * @param activity The host activity triggering the theme change.
-     * @param clickView The button or view that was tapped (used for tap location and size).
-     * @param isDarkModeTarget True to transition to Dark Mode, False for Light Mode.
-     * @param onThemeApplied Optional custom callback to apply theme changes.
-     */
     fun animate(
         activity: Activity,
         clickView: View,
-        isDarkModeTarget: Boolean,
-        onThemeApplied: (() -> Unit)? = null
+        isDarkModeTarget: Boolean
     ) {
         val loc = IntArray(2)
         clickView.getLocationOnScreen(loc)
@@ -176,22 +171,20 @@ object ThemeSwitchAnimator {
         val clickWidth = max(clickView.width, 24)
         val clickHeight = max(clickView.height, 24)
 
-        animateInternal(activity, clickScreenX, clickScreenY, clickWidth, clickHeight, isDarkModeTarget, onThemeApplied)
+        Log.i(TAG, "[ThemeSwitchAnimator] animate called from View '${clickView.javaClass.simpleName}' at ($clickScreenX, $clickScreenY), targetDark=$isDarkModeTarget")
+        animateInternal(activity, clickScreenX, clickScreenY, clickWidth, clickHeight, isDarkModeTarget)
     }
 
-    /**
-     * Triggers the theme animation from explicit screen coordinates (e.g. from popup or menu touch).
-     */
     fun animateAt(
         activity: Activity,
         clickScreenX: Int,
         clickScreenY: Int,
         isDarkModeTarget: Boolean,
         clickWidth: Int = 48,
-        clickHeight: Int = 48,
-        onThemeApplied: (() -> Unit)? = null
+        clickHeight: Int = 48
     ) {
-        animateInternal(activity, clickScreenX, clickScreenY, clickWidth, clickHeight, isDarkModeTarget, onThemeApplied)
+        Log.i(TAG, "[ThemeSwitchAnimator] animateAt called at ($clickScreenX, $clickScreenY), targetDark=$isDarkModeTarget")
+        animateInternal(activity, clickScreenX, clickScreenY, clickWidth, clickHeight, isDarkModeTarget)
     }
 
     fun toggle(activity: Activity, clickView: View) {
@@ -208,19 +201,24 @@ object ThemeSwitchAnimator {
         clickScreenY: Int,
         clickWidth: Int,
         clickHeight: Int,
-        isDarkModeTarget: Boolean,
-        onThemeApplied: (() -> Unit)?
+        isDarkModeTarget: Boolean
     ) {
         if (inTransition) {
-            Log.d(TAG, "Theme transition already in flight. Ignoring tap.")
+            Log.w(TAG, "[ThemeSwitchAnimator] Theme transition already in flight. Ignoring tap.")
             return
         }
 
-        val decorView = activity.window.decorView as? ViewGroup ?: return
+        val decorView = activity.window.decorView as? ViewGroup ?: run {
+            Log.w(TAG, "[ThemeSwitchAnimator] DecorView not found -> applying theme directly")
+            applyThemeDirectly(activity, isDarkModeTarget)
+            return
+        }
+
         val width = decorView.width
         val height = decorView.height
         if (width <= 0 || height <= 0) {
-            applyThemeDirectly(activity, isDarkModeTarget, onThemeApplied)
+            Log.w(TAG, "[ThemeSwitchAnimator] DecorView dimensions 0 -> applying theme directly")
+            applyThemeDirectly(activity, isDarkModeTarget)
             return
         }
 
@@ -228,14 +226,16 @@ object ThemeSwitchAnimator {
         sourceActivityRef = WeakReference(activity)
         ensureLifecycleRegistered(activity.application)
 
-        // SCREENSHOT CAPTURE (PixelCopy on API 26+ with Canvas fallback)
+        // 1. CAPTURE SCREENSHOT (Synchronous Canvas draw with PixelCopy support)
         captureScreenBitmap(activity, decorView, width, height) { bitmap ->
             if (bitmap == null || bitmap.isRecycled) {
-                Log.w(TAG, "Screen capture failed -> applying theme directly without animation")
+                Log.w(TAG, "[ThemeSwitchAnimator] Screen capture failed -> applying theme directly without animation")
                 inTransition = false
-                applyThemeDirectly(activity, isDarkModeTarget, onThemeApplied)
+                applyThemeDirectly(activity, isDarkModeTarget)
                 return@captureScreenBitmap
             }
+
+            Log.i(TAG, "[ThemeSwitchAnimator] Screen capture succeeded (${bitmap.width}x${bitmap.height})")
 
             activeState = TransitionState(
                 bitmap = bitmap,
@@ -249,52 +249,42 @@ object ThemeSwitchAnimator {
                 timestamp = SystemClock.uptimeMillis()
             )
 
-            // Freeze the old activity screen immediately with a static overlay
+            // Freeze the old activity screen immediately with static overlay
             freezeCurrentActivityScreen(activity, bitmap)
 
             mainHandler.postDelayed(safetyTimeoutRunnable, 3500)
 
-            // PERSIST THEME & APPLY
+            // 2. PERSIST THEME (Commit synchronously so SharedPreferences is immediately consistent)
             persistThemePreference(activity, isDarkModeTarget)
-            activity.overridePendingTransition(0, 0)
 
-            if (onThemeApplied != null) {
-                onThemeApplied.invoke()
-            } else {
-                applyAppCompatNightMode(isDarkModeTarget)
-            }
+            // 3. APPLY NIGHT MODE & RECREATE
+            val newNightMode = if (isDarkModeTarget) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+            AppCompatDelegate.setDefaultNightMode(newNightMode)
+
+            activity.overridePendingTransition(0, 0)
+            activity.recreate()
         }
     }
 
-    private fun persistThemePreference(context: Context, isDarkMode: Boolean) {
+    fun persistThemePreference(context: Context, isDarkMode: Boolean) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
             .putBoolean(KEY_DARK_MODE, isDarkMode)
-            .apply()
-    }
-
-    private fun applyAppCompatNightMode(isDarkMode: Boolean) {
-        AppCompatDelegate.setDefaultNightMode(
-            if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
-        )
+            .commit()
+        Log.i(TAG, "[ThemeSwitchAnimator] Theme persisted to SharedPreferences: key_dark_mode=$isDarkMode")
     }
 
     private fun applyThemeDirectly(
         activity: Activity,
-        isDarkModeTarget: Boolean,
-        onThemeApplied: (() -> Unit)?
+        isDarkModeTarget: Boolean
     ) {
         persistThemePreference(activity, isDarkModeTarget)
-        if (onThemeApplied != null) {
-            onThemeApplied.invoke()
-        } else {
-            applyAppCompatNightMode(isDarkModeTarget)
-        }
+        AppCompatDelegate.setDefaultNightMode(
+            if (isDarkModeTarget) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+        )
+        activity.overridePendingTransition(0, 0)
+        activity.recreate()
     }
 
-    /**
-     * Captures a screenshot of the window.
-     * Uses PixelCopy on API 26+, falling back to Canvas draw for older versions or timeouts.
-     */
     private fun captureScreenBitmap(
         activity: Activity,
         decorView: ViewGroup,
@@ -302,6 +292,7 @@ object ThemeSwitchAnimator {
         height: Int,
         onCaptured: (Bitmap?) -> Unit
     ) {
+        // Fast synchronous Canvas draw fallback
         val canvasFallback = {
             try {
                 val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
@@ -309,12 +300,11 @@ object ThemeSwitchAnimator {
                 decorView.draw(canvas)
                 bmp
             } catch (t: Throwable) {
-                Log.e(TAG, "Canvas capture failed: ${t.message}")
+                Log.e(TAG, "[ThemeSwitchAnimator] Canvas capture failed: ${t.message}")
                 null
             }
         }
 
-        // On API 26+, use PixelCopy for hardware-accelerated surface fidelity
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             try {
                 val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
@@ -323,11 +313,11 @@ object ThemeSwitchAnimator {
                 val timeout = Runnable {
                     if (!handled) {
                         handled = true
-                        Log.d(TAG, "PixelCopy timed out. Using Canvas fallback.")
+                        Log.d(TAG, "[ThemeSwitchAnimator] PixelCopy timed out -> using Canvas fallback")
                         onCaptured(canvasFallback())
                     }
                 }
-                mainHandler.postDelayed(timeout, 120)
+                mainHandler.postDelayed(timeout, 100)
 
                 PixelCopy.request(
                     activity.window,
@@ -340,7 +330,7 @@ object ThemeSwitchAnimator {
                             if (result == PixelCopy.SUCCESS) {
                                 onCaptured(bmp)
                             } else {
-                                Log.d(TAG, "PixelCopy failed with code $result. Using Canvas fallback.")
+                                Log.d(TAG, "[ThemeSwitchAnimator] PixelCopy code $result -> using Canvas fallback")
                                 onCaptured(canvasFallback())
                             }
                         }
@@ -349,11 +339,10 @@ object ThemeSwitchAnimator {
                 )
                 return
             } catch (t: Throwable) {
-                Log.w(TAG, "PixelCopy error: ${t.message}. Falling back to Canvas.")
+                Log.w(TAG, "[ThemeSwitchAnimator] PixelCopy error: ${t.message} -> Canvas fallback")
             }
         }
 
-        // API 24-25 fallback
         onCaptured(canvasFallback())
     }
 
@@ -381,7 +370,7 @@ object ThemeSwitchAnimator {
         removeOverlays(activity)
 
         val overlay = ImageView(activity).apply {
-            tag = "theme_switch_freeze_overlay"
+            tag = "theme_switch_animating_overlay"
             setImageBitmap(state.bitmap)
             scaleType = ImageView.ScaleType.FIT_XY
             fitsSystemWindows = false
@@ -390,7 +379,37 @@ object ThemeSwitchAnimator {
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
         }
-        decorView.addView(overlay)
+
+        val contentRoot = if (decorView.childCount > 0) decorView.getChildAt(0) else null
+
+        if (state.isDarkModeTarget && contentRoot != null) {
+            // Switching to dark: insert overlay at index 0 (behind contentRoot)
+            decorView.addView(overlay, 0)
+        } else {
+            // Switching to light: add overlay on top
+            decorView.addView(overlay)
+        }
+
+        // Add Lottie Sun/Moon Morph icon on top at tap location
+        val decorLoc = IntArray(2)
+        decorView.getLocationOnScreen(decorLoc)
+        val cx = state.clickScreenX - decorLoc[0]
+        val cy = state.clickScreenY - decorLoc[1]
+
+        val lottieView = LottieAnimationView(activity).apply {
+            tag = "theme_switch_lottie_icon"
+            setAnimation(R.raw.sun_to_moon)
+            // Initial frame: 0.0 (Sun) if going dark, 1.0 (Moon) if going light
+            progress = if (state.isDarkModeTarget) 0f else 1f
+            elevation = 2000f
+        }
+        val btnLeft = cx - (state.clickWidth / 2)
+        val btnTop = cy - (state.clickHeight / 2)
+        val lottieLp = FrameLayout.LayoutParams(state.clickWidth, state.clickHeight).apply {
+            leftMargin = btnLeft
+            topMargin = btnTop
+        }
+        decorView.addView(lottieView, lottieLp)
     }
 
     private fun waitForNewThemeAndStartReveal(activity: Activity, state: TransitionState) {
@@ -417,21 +436,17 @@ object ThemeSwitchAnimator {
         decorView.invalidate()
     }
 
-    /**
-     * Executes the circular reveal and Lottie sun/moon morph animation in exact synchronization.
-     */
     private fun executeCircularRevealAndLottieSync(
         activity: Activity,
         decorView: ViewGroup,
         state: TransitionState
     ) {
-        // 1. Prevent touch input during animation
+        // Prevent touch input during animation
         activity.window.setFlags(
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
         )
 
-        // 2. Map coordinates relative to decorView
         val decorLoc = IntArray(2)
         decorView.getLocationOnScreen(decorLoc)
         val cx = state.clickScreenX - decorLoc[0]
@@ -440,39 +455,21 @@ object ThemeSwitchAnimator {
         val w = decorView.width.toFloat()
         val h = decorView.height.toFloat()
 
-        // Calculate end radius: max distance from (cx, cy) to the 4 screen corners
-        val d1 = hypot(cx.toDouble(), cy.toDouble())
-        val d2 = hypot((w - cx).toDouble(), cy.toDouble())
-        val d3 = hypot(cx.toDouble(), (h - cy).toDouble())
-        val d4 = hypot((w - cx).toDouble(), (h - cy).toDouble())
-        val maxRadius = max(max(d1, d2), max(d3, d4)).toFloat()
+        val maxRadius = calculateMaxRadius(cx.toFloat(), cy.toFloat(), w, h)
 
-        // Clean up previous freeze overlay
-        removeOverlays(activity)
+        val overlay = decorView.findViewWithTag<ImageView>("theme_switch_animating_overlay")
+        val lottieView = decorView.findViewWithTag<LottieAnimationView>("theme_switch_lottie_icon")
+        val contentRoot = decorView.findViewById<View>(android.R.id.content) ?: decorView.getChildAt(0)
 
-        // 3. Create the Screenshot Overlay View
-        val screenshotOverlay = ImageView(activity).apply {
-            tag = "theme_switch_animating_overlay"
-            setImageBitmap(state.bitmap)
-            scaleType = ImageView.ScaleType.FIT_XY
-            fitsSystemWindows = false
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-        }
+        val targetView = if (state.isDarkModeTarget && contentRoot != null) contentRoot else overlay
+        val (startRadius, endRadius) = getRevealRadii(state.isDarkModeTarget, maxRadius)
 
-        // 4. Determine target view and radius bounds:
-        // Switching to dark: circle expands outward from the button (0 -> maxRadius)
-        // Switching to light: screenshot overlay shrinks inward into the button (maxRadius -> 0)
-        val contentRoot = if (decorView.childCount > 0) decorView.getChildAt(0) else null
+        Log.i(TAG, "[ThemeSwitchAnimator] Starting reveal: target=${targetView?.javaClass?.simpleName}, cx=$cx, cy=$cy, r=$startRadius->$endRadius, maxRadius=$maxRadius")
 
-        val (targetView, startRadius, endRadius) = if (state.isDarkModeTarget && contentRoot != null) {
-            decorView.addView(screenshotOverlay, 0)
-            Triple(contentRoot, 0f, maxRadius)
-        } else {
-            decorView.addView(screenshotOverlay)
-            Triple(screenshotOverlay, maxRadius, 0f)
+        if (targetView == null || !targetView.isAttachedToWindow) {
+            Log.w(TAG, "[ThemeSwitchAnimator] targetView is null or unattached -> direct cleanup")
+            cleanup("target_view_null_or_unattached")
+            return
         }
 
         val revealAnimator = ViewAnimationUtils.createCircularReveal(
@@ -486,56 +483,24 @@ object ThemeSwitchAnimator {
             interpolator = FastOutSlowInInterpolator()
         }
 
-        // 5. Create and Position Floating Lottie Sun/Moon Morph Icon
-        val lottieView = LottieAnimationView(activity).apply {
-            tag = "theme_switch_lottie_icon"
-            setAnimation(R.raw.sun_to_moon)
-            progress = if (state.isDarkModeTarget) 0f else 1f
-        }
-
-        val btnLeft = cx - (state.clickWidth / 2)
-        val btnTop = cy - (state.clickHeight / 2)
-        val lottieLp = FrameLayout.LayoutParams(state.clickWidth, state.clickHeight).apply {
-            leftMargin = btnLeft
-            topMargin = btnTop
-        }
-        lottieView.layoutParams = lottieLp
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            lottieView.elevation = 2000f
-        }
-        decorView.addView(lottieView)
-
-        // 6. Build Lottie Morph Animator (in exact sync)
-        val lottieAnimator = ValueAnimator.ofFloat(
-            if (state.isDarkModeTarget) 0f else 1f,
-            if (state.isDarkModeTarget) 1f else 0f
-        ).apply {
+        val (lottieStart, lottieEnd) = getLottieProgressRange(state.isDarkModeTarget)
+        val lottieAnimator = ValueAnimator.ofFloat(lottieStart, lottieEnd).apply {
             duration = ANIMATION_DURATION
             interpolator = FastOutSlowInInterpolator()
             addUpdateListener { va ->
-                lottieView.progress = va.animatedValue as Float
+                lottieView?.progress = va.animatedValue as Float
             }
         }
 
-        // 7. Play circular reveal and Lottie morph together
         val animatorSet = android.animation.AnimatorSet().apply {
             playTogether(revealAnimator, lottieAnimator)
             addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
-                    screenshotOverlay.visibility = View.GONE
-                    lottieView.visibility = View.GONE
-                    removeOverlays(activity)
+                    Log.i(TAG, "[ThemeSwitchAnimator] Animation finished cleanly")
                     cleanup("animation_complete")
                 }
             })
-        }
-
-        decorView.post {
-            if (activity.isFinishing || activity.isDestroyed) {
-                cleanup("activity_destroyed_before_start")
-                return@post
-            }
-            animatorSet.start()
+            start()
         }
     }
 
@@ -561,8 +526,43 @@ object ThemeSwitchAnimator {
         }
     }
 
-    private fun cleanup(reason: String) {
-        Log.d(TAG, "cleanup triggered (reason: $reason)")
+    fun calculateMaxRadius(cx: Float, cy: Float, w: Float, h: Float): Float {
+        val d1 = hypot(cx.toDouble(), cy.toDouble())
+        val d2 = hypot((w - cx).toDouble(), cy.toDouble())
+        val d3 = hypot(cx.toDouble(), (h - cy).toDouble())
+        val d4 = hypot((w - cx).toDouble(), (h - cy).toDouble())
+        return max(max(d1, d2), max(d3, d4)).toFloat()
+    }
+
+    fun getRevealRadii(isDarkModeTarget: Boolean, maxRadius: Float): Pair<Float, Float> {
+        return if (isDarkModeTarget) {
+            0f to maxRadius
+        } else {
+            maxRadius to 0f
+        }
+    }
+
+    fun getLottieProgressRange(isDarkModeTarget: Boolean): Pair<Float, Float> {
+        return if (isDarkModeTarget) {
+            0f to 1f
+        } else {
+            1f to 0f
+        }
+    }
+
+    fun resetForTesting() {
+        inTransition = false
+        activeState = null
+        sourceActivityRef = null
+        targetActivityRef = null
+    }
+
+    fun setInTransitionForTesting(transitioning: Boolean) {
+        inTransition = transitioning
+    }
+
+    fun cleanup(reason: String) {
+        Log.i(TAG, "[ThemeSwitchAnimator] cleanup triggered (reason: $reason)")
         mainHandler.removeCallbacks(safetyTimeoutRunnable)
 
         val src = sourceActivityRef?.get()
@@ -585,7 +585,7 @@ object ThemeSwitchAnimator {
             try {
                 bmp.recycle()
             } catch (t: Throwable) {
-                Log.w(TAG, "Bitmap recycle note: ${t.message}")
+                Log.w(TAG, "[ThemeSwitchAnimator] Bitmap recycle note: ${t.message}")
             }
         }
     }

@@ -78,6 +78,10 @@ android {
         viewBinding = true
         buildConfig = true
     }
+
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -123,4 +127,7 @@ dependencies {
 
     // Lottie animation library
     implementation("com.airbnb.android:lottie:6.4.1")
+
+    // Unit Testing
+    testImplementation("junit:junit:4.13.2")
 }

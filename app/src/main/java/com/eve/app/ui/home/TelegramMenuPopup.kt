@@ -17,6 +17,7 @@ import com.eve.app.databinding.PopupTelegramMenuBinding
 import com.eve.app.util.FastBlurHelper
 import com.eve.app.util.GlassmorphismHelper
 import com.eve.app.util.ThemeManager
+import com.eve.app.util.ThemeSwitchAnimator
 
 class TelegramMenuPopup(
     private val context: Context,
@@ -53,7 +54,7 @@ class TelegramMenuPopup(
     }
 
     private fun setupThemeCard() {
-        val isDark = ThemeManager.isDarkMode(context)
+        val isDark = ThemeSwitchAnimator.isDarkMode(context)
         if (isDark) {
             binding.ivThemeIcon.setImageResource(R.drawable.ic_sun)
             binding.tvThemeTitle.text = "Day Mode"
@@ -66,7 +67,8 @@ class TelegramMenuPopup(
     private fun setupListeners() {
         var lastTouchX = -1f
         var lastTouchY = -1f
-        binding.cardTheme.setOnTouchListener { _, event ->
+        binding.cardTheme.setOnTouchListener { v, event ->
+            android.util.Log.d("ThemeClickDiag", "cardTheme onTouch: action=${event.action}, x=${event.x}, y=${event.y}, rawX=${event.rawX}, rawY=${event.rawY}")
             if (event.action == MotionEvent.ACTION_DOWN || event.action == MotionEvent.ACTION_UP) {
                 lastTouchX = event.rawX
                 lastTouchY = event.rawY
@@ -74,27 +76,48 @@ class TelegramMenuPopup(
             false
         }
 
-        binding.cardTheme.setOnClickListener {
-            if (ThemeManager.isTransitioning) return@setOnClickListener
-            val isDark = ThemeManager.isDarkMode(context)
-            binding.ivThemeIcon.setImageResource(if (isDark) R.drawable.ic_moon else R.drawable.ic_sun)
+        binding.ivThemeIcon.setOnClickListener {
+            android.util.Log.d("ThemeClickDiag", "ivThemeIcon tapped directly -> delegating to cardTheme")
+            binding.cardTheme.performClick()
+        }
+        binding.tvThemeTitle.setOnClickListener {
+            android.util.Log.d("ThemeClickDiag", "tvThemeTitle tapped directly -> delegating to cardTheme")
+            binding.cardTheme.performClick()
+        }
 
-            // Calculate origin (cx, cy) from the exact touch position or on-screen center of the theme switch
-            val cx: Int
-            val cy: Int
-            if (lastTouchX > 0f && lastTouchY > 0f) {
-                cx = lastTouchX.toInt()
-                cy = lastTouchY.toInt()
-            } else {
-                val loc = IntArray(2)
-                binding.cardTheme.getLocationOnScreen(loc)
-                cx = loc[0] + binding.cardTheme.width / 2
-                cy = loc[1] + binding.cardTheme.height / 2
+        binding.cardTheme.setOnClickListener { v ->
+            android.util.Log.d("ThemeClickDiag", ">>> cardTheme onClick FIRED! view=$v, isTransitioning=${ThemeSwitchAnimator.isTransitioning}")
+            android.widget.Toast.makeText(context, "Theme toggle tapped in popup menu", android.widget.Toast.LENGTH_SHORT).show()
+            try {
+                if (ThemeSwitchAnimator.isTransitioning) {
+                    android.util.Log.w("ThemeClickDiag", "Ignored click: ThemeSwitchAnimator.isTransitioning is true")
+                    return@setOnClickListener
+                }
+                val isDark = ThemeSwitchAnimator.isDarkMode(context)
+                android.util.Log.d("ThemeClickDiag", "Current isDark=$isDark")
+                binding.ivThemeIcon.setImageResource(if (isDark) R.drawable.ic_moon else R.drawable.ic_sun)
+
+                // Calculate origin (cx, cy) from the exact touch position or on-screen center of the theme switch
+                val cx: Int
+                val cy: Int
+                if (lastTouchX > 0f && lastTouchY > 0f) {
+                    cx = lastTouchX.toInt()
+                    cy = lastTouchY.toInt()
+                } else {
+                    val loc = IntArray(2)
+                    binding.cardTheme.getLocationOnScreen(loc)
+                    cx = loc[0] + binding.cardTheme.width / 2
+                    cy = loc[1] + binding.cardTheme.height / 2
+                }
+                android.util.Log.d("ThemeClickDiag", "Calculated origin: cx=$cx, cy=$cy. Calling dismiss & onThemeToggle")
+
+                GlassmorphismHelper.removeWindowBlur(binding.root, animate = false)
+                super.dismiss()
+                onThemeToggle(cx, cy)
+            } catch (t: Throwable) {
+                android.util.Log.e("ThemeClickDiag", "EXCEPTION in cardTheme onClick", t)
+                android.widget.Toast.makeText(context, "Theme error: ${t.message}", android.widget.Toast.LENGTH_LONG).show()
             }
-
-            GlassmorphismHelper.removeWindowBlur(binding.root, animate = false)
-            super.dismiss()
-            onThemeToggle(cx, cy)
         }
         binding.menuRowHistory.setOnClickListener {
             dismissWithAction { onHistory() }

@@ -502,13 +502,8 @@ object ThemeManager {
     ) {
         val activity = findActivity(rootView.context)
         if (activity != null) {
-            ThemeSwitchAnimator.animateAt(
-                activity,
-                touchX,
-                touchY,
-                !ThemeSwitchAnimator.isDarkMode(activity),
-                onThemeApplied = { applyNewThemeAction?.run() }
-            )
+            val goingDark = !ThemeSwitchAnimator.isDarkMode(activity)
+            ThemeSwitchAnimator.animateAt(activity, touchX, touchY, goingDark)
         } else {
             applyNewThemeAction?.run()
         }

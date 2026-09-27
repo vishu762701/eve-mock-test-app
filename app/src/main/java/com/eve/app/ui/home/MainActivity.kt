@@ -58,6 +58,7 @@ import com.eve.app.util.NotificationStore
 import com.eve.app.util.ProfilePhotoManager
 import com.eve.app.util.ReminderScheduler
 import com.eve.app.util.ThemeManager
+import com.eve.app.util.ThemeSwitchAnimator
 import com.eve.app.util.UiState
 import com.eve.app.util.VibrationHelper
 import com.eve.app.util.isHardcodedAdmin
@@ -186,11 +187,19 @@ class MainActivity : AppCompatActivity() {
 
         // Telegram-style overflow menu setup
         binding.btnOverflow.setOnClickListener { anchor ->
+            android.util.Log.d("ThemeClickDiag", ">>> btnOverflow clicked on MainActivity! anchor=$anchor")
             TelegramMenuPopup(
                 context = this,
                 onThemeToggle = { cx, cy ->
-                    animateThemeChange(binding.drawerLayout, cx, cy) {
-                        ThemeManager.toggle(this)
+                    android.util.Log.d("ThemeClickDiag", ">>> onThemeToggle callback invoked with cx=$cx, cy=$cy")
+                    android.widget.Toast.makeText(this, "Theme toggle initiated ($cx, $cy)", android.widget.Toast.LENGTH_SHORT).show()
+                    try {
+                        val goingDark = !ThemeSwitchAnimator.isDarkMode(this)
+                        android.util.Log.d("ThemeClickDiag", "Calling ThemeSwitchAnimator.animateAt(this, $cx, $cy, goingDark=$goingDark)")
+                        ThemeSwitchAnimator.animateAt(this, cx, cy, goingDark)
+                    } catch (t: Throwable) {
+                        android.util.Log.e("ThemeClickDiag", "EXCEPTION in MainActivity onThemeToggle", t)
+                        android.widget.Toast.makeText(this, "Error in theme toggle: ${t.message}", android.widget.Toast.LENGTH_LONG).show()
                     }
                 },
                 onHistory = { startActivity(Intent(this, HistoryActivity::class.java)) },

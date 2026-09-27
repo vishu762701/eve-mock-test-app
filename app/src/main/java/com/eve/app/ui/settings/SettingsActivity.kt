@@ -75,10 +75,41 @@ class SettingsActivity : AppCompatActivity() {
         binding.switchTheme.isChecked = isDark
         binding.lottieThemeIcon.progress = if (isDark) 1f else 0f
 
+        binding.btnThemeToggle.setImageResource(if (isDark) R.drawable.ic_moon else R.drawable.ic_sun)
+        binding.btnThemeToggle.contentDescription = getString(
+            if (isDark) R.string.theme_toggle_to_light else R.string.theme_toggle_to_dark
+        )
+        binding.btnThemeToggle.setOnClickListener {
+            android.util.Log.d("ThemeClickDiag", ">>> SettingsActivity btnThemeToggle clicked!")
+            Toast.makeText(this, "Settings btnThemeToggle tapped!", Toast.LENGTH_SHORT).show()
+            try {
+                if (!ThemeSwitchAnimator.isTransitioning) {
+                    val goingDark = !ThemeSwitchAnimator.isDarkMode(this)
+                    android.util.Log.d("ThemeClickDiag", "Calling ThemeSwitchAnimator.animate for btnThemeToggle, goingDark=$goingDark")
+                    ThemeSwitchAnimator.animate(this, binding.btnThemeToggle, goingDark)
+                } else {
+                    android.util.Log.w("ThemeClickDiag", "SettingsActivity btnThemeToggle: isTransitioning is true")
+                }
+            } catch (t: Throwable) {
+                android.util.Log.e("ThemeClickDiag", "EXCEPTION in btnThemeToggle click listener", t)
+                Toast.makeText(this, "Error: ${t.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+
         val toggleTheme: () -> Unit = {
-            if (!ThemeSwitchAnimator.isTransitioning) {
-                val goingDark = !ThemeSwitchAnimator.isDarkMode(this)
-                ThemeSwitchAnimator.animate(this, binding.switchTheme, goingDark)
+            android.util.Log.d("ThemeClickDiag", ">>> SettingsActivity toggleTheme invoked!")
+            Toast.makeText(this, "Settings theme row tapped!", Toast.LENGTH_SHORT).show()
+            try {
+                if (!ThemeSwitchAnimator.isTransitioning) {
+                    val goingDark = !ThemeSwitchAnimator.isDarkMode(this)
+                    android.util.Log.d("ThemeClickDiag", "Calling ThemeSwitchAnimator.animate for switchTheme, goingDark=$goingDark")
+                    ThemeSwitchAnimator.animate(this, binding.switchTheme, goingDark)
+                } else {
+                    android.util.Log.w("ThemeClickDiag", "SettingsActivity toggleTheme: isTransitioning is true")
+                }
+            } catch (t: Throwable) {
+                android.util.Log.e("ThemeClickDiag", "EXCEPTION in toggleTheme listener", t)
+                Toast.makeText(this, "Error: ${t.message}", Toast.LENGTH_LONG).show()
             }
         }
 
