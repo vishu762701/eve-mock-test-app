@@ -54,10 +54,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minHeight="48dp"
-            android:backgroundTint="@color/eve_on_primary"
-            android:textColor="@color/eve_primary"
             android:enabled="false"
-            android:text="Submit" />
+            android:text="Submit"
+            app:backgroundTint="@color/btn_submit_bg"
+            android:textColor="@color/btn_submit_text"
+            app:strokeColor="@color/btn_submit_stroke"
+            app:strokeWidth="1dp" />
     </LinearLayout>
 
     <!-- QUESTION PALETTE NAVIGATION -->

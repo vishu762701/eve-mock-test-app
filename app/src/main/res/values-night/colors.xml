@@ -63,4 +63,5 @@
     <color name="caution">#FB923C</color>
     <color name="timer_normal">#111111</color>
     <color name="timer_warning">#C62828</color>
+    <color name="eve_stat_mini_bg">#18000000</color>
 </resources>

@@ -96,7 +96,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins"
                     android:text="Rank"
-                    android:textColor="@color/eve_banner_text"
+                    android:textColor="@color/eve_on_primary"
                     android:textSize="11sp" />
 
                 <TextView
@@ -125,7 +125,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins"
                     android:text="Percentile"
-                    android:textColor="@color/eve_banner_text"
+                    android:textColor="@color/eve_on_primary"
                     android:textSize="11sp" />
 
                 <TextView
@@ -154,7 +154,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins"
                     android:text="Accuracy"
-                    android:textColor="@color/eve_banner_text"
+                    android:textColor="@color/eve_on_primary"
                     android:textSize="11sp" />
 
                 <TextView
@@ -183,7 +183,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins"
                     android:text="Best / Avg"
-                    android:textColor="@color/eve_banner_text"
+                    android:textColor="@color/eve_on_primary"
                     android:textSize="11sp" />
 
                 <TextView
@@ -210,7 +210,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_medium"
                 android:text="Cutoff:"
-                android:textColor="@color/eve_banner_text"
+                android:textColor="@color/eve_on_primary"
                 android:textSize="12sp" />
 
             <HorizontalScrollView
