@@ -24,8 +24,12 @@ import com.eve.app.databinding.ActivityResultBinding
 import com.eve.app.ui.common.PaletteItem
 import com.eve.app.ui.common.PaletteState
 import com.eve.app.ui.common.QuestionPaletteAdapter
+import com.eve.app.ui.common.ReportQuestionDialog
+import com.eve.app.data.remote.ApiClient
+import com.eve.app.ui.home.HomeViewModel
 import com.eve.app.ui.home.MainActivity
 import com.eve.app.ui.leaderboard.LeaderboardActivity
+import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.Constants
 import com.eve.app.util.LanguageManager
@@ -43,7 +47,11 @@ class ResultActivity : AppCompatActivity() {
     private lateinit var binding: ActivityResultBinding
 
     private val adapter = AnswerAdapter(
-        onReport = { item -> showReportQuestionDialog(item) }
+        onReport = { item ->
+            val examId = intent.getStringExtra(Constants.EXTRA_EXAM_ID).orEmpty()
+            val examName = intent.getStringExtra(Constants.EXTRA_EXAM_NAME).orEmpty()
+            ReportQuestionDialog.show(this, item, examId, examName)
+        }
     )
     private lateinit var paletteAdapter: QuestionPaletteAdapter
 
@@ -86,6 +94,14 @@ class ResultActivity : AppCompatActivity() {
                 examName
             }
             binding.btnHome.text = "Close"
+        }
+
+        val canReattempt = intent.getBooleanExtra(Constants.EXTRA_CAN_REATTEMPT, false)
+        if (canReattempt) {
+            binding.btnReattempt.visibility = View.VISIBLE
+            binding.btnReattempt.setOnClickListener {
+                showReattemptDialog(examId, examName ?: "this test")
+            }
         }
 
         val total = allItems.size
@@ -144,6 +160,7 @@ class ResultActivity : AppCompatActivity() {
         binding.rvAnswers.adapter = adapter
         adapter.submit(allItems)
         adapter.setHindi(LanguageManager.isHindi(this))
+        adapter.setShowTimeInsight(!fromHistory)
 
         LanguageManager.setupToggleButton(this, binding.btnLanguage) { hindi ->
             adapter.setHindi(hindi)
@@ -258,7 +275,7 @@ class ResultActivity : AppCompatActivity() {
             // 1. Load Question Stats for Accuracy & Overtime
             try {
                 val qIds = allItems.map { it.questionId }.filter { it.isNotBlank() }
-                loadedQuestionStats = questionStatsRepo.getQuestionStats(qIds)
+                loadedQuestionStats = viewModel.getOrFetchQuestionStats(qIds)
                 adapter.setQuestionStats(loadedQuestionStats)
             } catch (_: Exception) {}
 
@@ -329,10 +346,10 @@ class ResultActivity : AppCompatActivity() {
                 binding.tvCutoffValue.text = "Cutoff: $cutoff"
                 if (currentScore >= cutoff) {
                     binding.tvCutoffVerdict.text = "Above Cutoff (Qualified) ✓"
-                    binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.eve_green))
+                    binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.success))
                 } else {
                     binding.tvCutoffVerdict.text = "Below Cutoff ✗"
-                    binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.eve_red))
+                    binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.error))
                 }
             } else {
                 // If no cutoff has been set for this category, omit comparison (don't show zero)
@@ -356,72 +373,58 @@ class ResultActivity : AppCompatActivity() {
         updateCutoffVerdict("General")
     }
 
-    private fun showReportQuestionDialog(item: AnswerItem) {
-        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_report_question, null)
-        val rgReason = dialogView.findViewById<RadioGroup>(R.id.rgReportReason)
-        val etComment = dialogView.findViewById<EditText>(R.id.etReportComment)
-        val tvError = dialogView.findViewById<TextView>(R.id.tvCommentError)
-
+    private fun showReattemptDialog(examId: String, examName: String) {
         val dialog = MaterialAlertDialogBuilder(this)
-            .setTitle("Report Question")
-            .setView(dialogView)
-            .setPositiveButton("Submit Report", null) // Overridden below to prevent auto-dismiss on error
+            .setTitle("Reattempt this test?")
+            .setMessage("Your previous result for \"$examName\" (score, answers and rank) will be permanently deleted and replaced by your new attempt. This cannot be undone.")
             .setNegativeButton("Cancel", null)
+            .setPositiveButton("Clear & Reattempt", null)
             .create()
 
-        dialog.show()
+        dialog.setOnShowListener {
+            val confirmBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            val cancelBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+            confirmBtn.setTextColor(ContextCompat.getColor(this, R.color.eve_status_error))
 
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            val selectedReason = when (rgReason.checkedRadioButtonId) {
-                R.id.rbReasonWrongQuestion -> "Wrong Question"
-                R.id.rbReasonNoSolution -> "No Solution"
-                R.id.rbReasonWrongTranslation -> "Wrong Translation"
-                R.id.rbReasonOutOfSyllabus -> "Out of Syllabus"
-                R.id.rbReasonNotVisible -> "Question and Options not visible"
-                R.id.rbReasonBlinking -> "Blinking Screen Issue"
-                R.id.rbReasonFormatting -> "Formatting Issues"
-                R.id.rbReasonScroll -> "Scroll Not Working"
-                R.id.rbReasonDarkMode -> "Dark Mode Issue"
-                R.id.rbReasonQuestionMissingOptionsVisible -> "Question not visible but Options visible"
-                else -> "Other"
-            }
+            confirmBtn.setOnClickListener {
+                confirmBtn.isEnabled = false
+                cancelBtn.isEnabled = false
+                confirmBtn.text = "Resetting..."
 
-            val comment = etComment.text?.toString()?.trim().orEmpty()
-
-            // Validate minimum comment length (at least 7 words or roughly 40 characters)
-            if (!FlaggedQuestion.isCommentValid(comment)) {
-                tvError.visibility = View.VISIBLE
-                tvError.text = "Please enter at least 7 words or 40 characters explaining the issue."
-                return@setOnClickListener
-            }
-
-            tvError.visibility = View.GONE
-            val examId = intent.getStringExtra(Constants.EXTRA_EXAM_ID).orEmpty()
-            val examName = intent.getStringExtra(Constants.EXTRA_EXAM_NAME).orEmpty()
-
-            lifecycleScope.launch {
-                val ok = flaggedRepo.flagQuestion(
-                    questionId = item.questionId,
-                    examId = examId,
-                    examName = examName,
-                    questionText = item.questionText,
-                    reason = selectedReason,
-                    comment = comment
-                )
-                if (ok) {
-                    val isContent = FlaggedQuestion.isContentIssue(selectedReason)
-                    val msg = if (isContent) {
-                        "Thank you! Content issue reported for review."
-                    } else {
-                        "Thank you! Technical bug report submitted to engineering."
+                lifecycleScope.launch {
+                    try {
+                        val response = ApiClient.apiService.resetAttemptPost(mapOf("examId" to examId))
+                        if (response.success) {
+                            ResultDataHolder.clear()
+                            HomeViewModel.markAttemptCleared(examId)
+                            val timeLimit = intent.getIntExtra(Constants.EXTRA_TIME_LIMIT, 60)
+                            val category = intent.getStringExtra(Constants.EXTRA_EXAM_CATEGORY).orEmpty()
+                            val testIntent = Intent(this@ResultActivity, TestActivity::class.java).apply {
+                                putExtra(Constants.EXTRA_EXAM_ID, examId)
+                                putExtra(Constants.EXTRA_EXAM_NAME, examName)
+                                putExtra(Constants.EXTRA_EXAM_CATEGORY, category)
+                                putExtra(Constants.EXTRA_TIME_LIMIT, timeLimit)
+                            }
+                            dialog.dismiss()
+                            startActivity(testIntent)
+                            finish()
+                        } else {
+                            confirmBtn.isEnabled = true
+                            cancelBtn.isEnabled = true
+                            confirmBtn.text = "Clear & Reattempt"
+                            AppBulletin.showError(this@ResultActivity, response.error ?: "Failed to reset attempt")
+                        }
+                    } catch (e: Exception) {
+                        confirmBtn.isEnabled = true
+                        cancelBtn.isEnabled = true
+                        confirmBtn.text = "Clear & Reattempt"
+                        AppBulletin.showError(this@ResultActivity, e.localizedMessage ?: "Failed to reset attempt")
                     }
-                    AppBulletin.showSuccess(this@ResultActivity, msg)
-                    dialog.dismiss()
-                } else {
-                    AppBulletin.showError(this@ResultActivity, "Could not submit report. Please try again.")
                 }
             }
         }
+
+        dialog.show()
     }
 
     private fun close() {

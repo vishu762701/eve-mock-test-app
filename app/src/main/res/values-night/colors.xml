@@ -64,4 +64,15 @@
     <color name="timer_normal">#111111</color>
     <color name="timer_warning">#C62828</color>
     <color name="eve_stat_mini_bg">#18000000</color>
+
+    <!-- Semantic status & UI tokens (T1) -->
+    <color name="eve_status_success">#4ADE80</color>
+    <color name="eve_status_error">#FF6B6B</color>
+    <color name="eve_status_warning">#FFC53D</color>
+    <color name="eve_status_info">#6CB6FF</color>
+    <color name="eve_status_warning_container">#2A2110</color>
+    <color name="eve_status_warning_stroke">#59FFC53D</color>
+    <color name="eve_header_warning">#C62828</color>
+    <color name="eve_lottie_tile_bg">#F2F2F2</color>
+    <color name="eve_floating_chip_stroke">@android:color/transparent</color>
 </resources>

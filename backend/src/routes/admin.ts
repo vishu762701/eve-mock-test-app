@@ -308,3 +308,80 @@ adminRoutes.put("/config", async (c) => {
     return c.json({ success: false, error: err.message }, 500);
   }
 });
+
+function validateFloatingLinkUrl(rawUrl: string): { valid: boolean; error?: string; cleanUrl: string } {
+  const trimmed = rawUrl.trim();
+  if (!trimmed) {
+    return { valid: true, cleanUrl: "" };
+  }
+
+  if (trimmed.length > 500) {
+    return { valid: false, error: "URL exceeds maximum length of 500 characters", cleanUrl: "" };
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(trimmed);
+  } catch {
+    return { valid: false, error: "Invalid URL format", cleanUrl: "" };
+  }
+
+  if (parsed.protocol !== "https:") {
+    return { valid: false, error: "Only HTTPS URLs are allowed", cleanUrl: "" };
+  }
+
+  if (parsed.username || parsed.password) {
+    return { valid: false, error: "Embedded credentials are not allowed", cleanUrl: "" };
+  }
+
+  return { valid: true, cleanUrl: parsed.toString() };
+}
+
+// GET /api/admin/floating-link
+adminRoutes.get("/floating-link", async (c) => {
+  const db = c.env.DB;
+  try {
+    const row = await db.prepare("SELECT body FROM app_content WHERE id = 'floating_link'").first<{ body: string }>();
+    const url = row?.body?.trim() || "";
+    return c.json({ success: true, data: { url }, url });
+  } catch (err: any) {
+    return c.json({ success: false, error: err.message }, 500);
+  }
+});
+
+// PUT /api/admin/floating-link
+adminRoutes.put("/floating-link", async (c) => {
+  const body = await c.req.json().catch(() => ({}));
+  let rawUrl = String(body.url ?? body.link ?? "").trim();
+  if (rawUrl && !rawUrl.startsWith("http://") && !rawUrl.startsWith("https://")) {
+    rawUrl = `https://${rawUrl}`;
+  }
+  const validation = validateFloatingLinkUrl(rawUrl);
+  if (!validation.valid) {
+    return c.json({ success: false, error: validation.error }, 400);
+  }
+
+  const db = c.env.DB;
+  const user = c.get("user");
+  const updatedBy = user?.email || "admin";
+  const now = Date.now();
+
+  try {
+    if (!validation.cleanUrl) {
+      await db.prepare("DELETE FROM app_content WHERE id = 'floating_link'").run();
+      return c.json({ success: true, data: { url: "" }, url: "" });
+    }
+
+    await db
+      .prepare(
+        "INSERT INTO app_content (id, title, body, updated_at, updated_by) VALUES ('floating_link', 'Floating Link', ?, ?, ?) ON CONFLICT(id) DO UPDATE SET body = excluded.body, updated_at = excluded.updated_at, updated_by = excluded.updated_by"
+      )
+      .bind(validation.cleanUrl, now, updatedBy)
+      .run();
+
+    return c.json({ success: true, data: { url: validation.cleanUrl }, url: validation.cleanUrl });
+  } catch (err: any) {
+    return c.json({ success: false, error: err.message }, 500);
+  }
+});
+

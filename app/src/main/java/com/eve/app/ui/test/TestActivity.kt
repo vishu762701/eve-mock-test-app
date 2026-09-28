@@ -11,7 +11,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
-import android.os.SystemClock
 import androidx.core.content.ContextCompat
 import com.eve.app.R
 import com.eve.app.data.model.Question
@@ -21,6 +20,7 @@ import com.eve.app.databinding.ActivityTestBinding
 import com.eve.app.ui.common.PaletteItem
 import com.eve.app.ui.common.PaletteState
 import com.eve.app.ui.common.QuestionPaletteAdapter
+import com.eve.app.ui.common.ReportQuestionDialog
 import com.eve.app.ui.result.ResultActivity
 import com.eve.app.ui.result.ResultDataHolder
 import com.eve.app.util.AnalyticsHelper
@@ -30,6 +30,7 @@ import com.eve.app.util.NetworkUtil
 import com.eve.app.util.SecurityHelper
 import com.eve.app.util.UiState
 import com.eve.app.util.isHardcodedAdmin
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class TestActivity : AppCompatActivity() {
@@ -55,7 +56,6 @@ class TestActivity : AppCompatActivity() {
 
     private lateinit var paletteAdapter: QuestionPaletteAdapter
     private var currentQuestionPosition: Int = 0
-    private var questionStartTimeMs: Long = SystemClock.elapsedRealtime()
     private val questionStatsRepo = QuestionStatsRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -108,16 +108,31 @@ class TestActivity : AppCompatActivity() {
 
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                val now = SystemClock.elapsedRealtime()
-                val spent = ((now - questionStartTimeMs) / 1000).coerceAtLeast(0)
-                viewModel.recordQuestionTime(currentQuestionPosition, spent)
                 currentQuestionPosition = position
-                questionStartTimeMs = now
                 updateNav(position)
                 updatePalette(position)
-                updateQuestionTimerDisplay(position)
+                (binding.viewPager.adapter as? QuestionAdapter)?.notifyItemChanged(
+                    position,
+                    QuestionAdapter.PAYLOAD_TIMER
+                )
             }
         })
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                while (!submitted) {
+                    delay(1000)
+                    if (!submitted && totalQuestions > 0) {
+                        val currentPos = binding.viewPager.currentItem
+                        viewModel.addQuestionSecond(currentPos)
+                        (binding.viewPager.adapter as? QuestionAdapter)?.notifyItemChanged(
+                            currentPos,
+                            QuestionAdapter.PAYLOAD_TIMER
+                        )
+                    }
+                }
+            }
+        }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -230,20 +245,19 @@ class TestActivity : AppCompatActivity() {
                 binding.btnSubmit.isEnabled = true
                 if (binding.viewPager.adapter == null) {
                     binding.viewPager.adapter = QuestionAdapter(
-                        list,
+                        questions = list,
                         getSelected = { viewModel.getAnswer(it) },
                         onSelect = { pos, letter ->
-                            val now = SystemClock.elapsedRealtime()
-                            val spent = ((now - questionStartTimeMs) / 1000).coerceAtLeast(1)
-                            viewModel.recordQuestionTime(pos, spent)
-                            questionStartTimeMs = now
                             viewModel.setAnswer(pos, letter)
                             updatePalette(pos)
-                            updateQuestionTimerDisplay(pos)
                         },
                         getBookmarked = { viewModel.isBookmarked(it) },
                         onToggleBookmark = { viewModel.toggleBookmark(it) },
-                        isHindi = { LanguageManager.isHindi(this) }
+                        isHindi = { LanguageManager.isHindi(this) },
+                        onReport = { q ->
+                            ReportQuestionDialog.show(this@TestActivity, q, examId, examName)
+                        },
+                        getQuestionTime = { pos -> viewModel.getQuestionTime(pos) }
                     )
                 }
                 com.eve.app.util.ShimmerHelper.crossFade(binding.shimmerSkeletonTest, binding.viewPager)
@@ -264,8 +278,10 @@ class TestActivity : AppCompatActivity() {
                 updateNav(binding.viewPager.currentItem)
                 updatePalette(binding.viewPager.currentItem)
                 currentQuestionPosition = binding.viewPager.currentItem
-                questionStartTimeMs = SystemClock.elapsedRealtime()
-                updateQuestionTimerDisplay(currentQuestionPosition)
+                (binding.viewPager.adapter as? QuestionAdapter)?.notifyItemChanged(
+                    currentQuestionPosition,
+                    QuestionAdapter.PAYLOAD_TIMER
+                )
             }
         }
     }
@@ -276,17 +292,6 @@ class TestActivity : AppCompatActivity() {
         val s = seconds % 60
         binding.tvTimer.text = String.format("%02d:%02d", m, s)
         binding.circularTimerView.setTime(seconds, total = (timeLimit * 60L).coerceAtLeast(seconds))
-        updateQuestionTimerDisplay(currentQuestionPosition)
-    }
-
-    private fun updateQuestionTimerDisplay(position: Int) {
-        if (totalQuestions <= 0) return
-        val baseSec = viewModel.getQuestionTime(position)
-        val currentSec = ((SystemClock.elapsedRealtime() - questionStartTimeMs) / 1000).coerceAtLeast(0)
-        val totalSec = baseSec + currentSec
-        val m = totalSec / 60
-        val s = totalSec % 60
-        binding.tvQuestionTimer.text = String.format("%02d:%02d", m, s)
     }
 
     private fun updateNav(position: Int) {
@@ -311,17 +316,13 @@ class TestActivity : AppCompatActivity() {
     private fun submit() {
         if (submitted) return
         submitted = true
-        val now = SystemClock.elapsedRealtime()
-        val spent = ((now - questionStartTimeMs) / 1000).coerceAtLeast(0)
-        viewModel.recordQuestionTime(currentQuestionPosition, spent)
-        questionStartTimeMs = now
         viewModel.stopTimer()
         val items = viewModel.buildAnswerItems()
         val attemptName = sessionTitle()
         viewModel.saveAttempt(examId, attemptName, examCategory, items)
 
         for (item in items) {
-            if (item.questionId.isNotBlank()) {
+            if (item.questionId.isNotBlank() && item.isAttempted) {
                 questionStatsRepo.recordQuestionAttempt(
                     questionId = item.questionId,
                     examId = examId,
@@ -363,33 +364,9 @@ class TestActivity : AppCompatActivity() {
         else -> examName
     }
 
-    override fun onPause() {
-        super.onPause()
-        if (!submitted) {
-            val now = SystemClock.elapsedRealtime()
-            val spent = ((now - questionStartTimeMs) / 1000).coerceAtLeast(0)
-            viewModel.recordQuestionTime(currentQuestionPosition, spent)
-            questionStartTimeMs = now
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (!submitted) {
-            questionStartTimeMs = SystemClock.elapsedRealtime()
-            updateQuestionTimerDisplay(currentQuestionPosition)
-        }
-    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("key_empty_played", hasEmptyPlayed)
-        if (!submitted) {
-            val now = SystemClock.elapsedRealtime()
-            val spent = ((now - questionStartTimeMs) / 1000).coerceAtLeast(0)
-            viewModel.recordQuestionTime(currentQuestionPosition, spent)
-            questionStartTimeMs = now
-        }
         outState.putInt("saved_question_position", currentQuestionPosition)
     }
 

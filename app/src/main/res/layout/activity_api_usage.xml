@@ -42,7 +42,8 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Refresh"
             android:padding="8dp"
-            android:src="@drawable/ic_refresh" />
+            android:src="@drawable/ic_refresh"
+            app:tint="@color/eve_on_primary" />
     </LinearLayout>
 
     <ScrollView

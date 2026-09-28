@@ -11,6 +11,35 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Live Per-Question Timer Chip -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/bg_question_timer_chip"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:contentDescription="Timer"
+                android:src="@drawable/ic_timer"
+                app:tint="@color/eve_text_secondary" />
+
+            <TextView
+                android:id="@+id/tvQuestionTimer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:fontFamily="@font/poppins_medium"
+                android:text="0:00"
+                android:textColor="@color/eve_text_secondary"
+                android:textSize="12sp" />
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -36,6 +65,18 @@
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_star_outline"
                 app:tint="@color/eve_text" />
+
+            <ImageButton
+                android:id="@+id/btnReport"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_btn_report"
+                android:contentDescription="Report this question"
+                android:padding="12dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_flag"
+                app:tint="@color/eve_status_warning" />
         </LinearLayout>
 
         <View

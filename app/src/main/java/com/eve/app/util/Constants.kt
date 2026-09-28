@@ -37,6 +37,7 @@ object Constants {
     // Test History (Phase 10)
     const val EXTRA_ATTEMPT_DATE = "extra_attempt_date"
     const val EXTRA_FROM_HISTORY = "extra_from_history"
+    const val EXTRA_CAN_REATTEMPT = "extra_can_reattempt"
 
     // Bookmarks
     const val EXTRA_INITIAL_QUESTION_ID = "extra_initial_question_id"

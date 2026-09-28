@@ -16,11 +16,37 @@ class QuestionAdapter(
     private val onSelect: (Int, String) -> Unit,
     private val getBookmarked: (Int) -> Boolean,
     private val onToggleBookmark: (Int) -> Unit,
-    private val isHindi: () -> Boolean
+    private val isHindi: () -> Boolean,
+    private val onReport: (Question) -> Unit,
+    private val getQuestionTime: (Int) -> Long
 ) : RecyclerView.Adapter<QuestionAdapter.VH>() {
 
+    companion object {
+        const val PAYLOAD_TIMER = "PAYLOAD_TIMER"
+
+        fun formatQuestionTime(seconds: Long): String {
+            val h = seconds / 3600
+            val m = (seconds % 3600) / 60
+            val s = seconds % 60
+            return if (h > 0) {
+                String.format("%d:%02d:%02d", h, m, s)
+            } else {
+                String.format("%d:%02d", m, s)
+            }
+        }
+    }
+
     inner class VH(private val b: ItemQuestionBinding) : RecyclerView.ViewHolder(b.root) {
+        fun updateTimer(seconds: Long) {
+            b.tvQuestionTimer.text = formatQuestionTime(seconds)
+        }
+
         fun bind(position: Int, q: Question) {
+            updateTimer(getQuestionTime(position))
+            b.btnReport.setOnClickListener {
+                onReport(q)
+            }
+
             val hindi = isHindi()
             b.tvQuestion.text = "Q${position + 1}. ${q.displayQuestionText(hindi)}"
             b.rbA.text = "A. ${q.displayOptionText("A", hindi)}"
@@ -100,6 +126,14 @@ class QuestionAdapter(
 
     override fun onBindViewHolder(holder: VH, position: Int) =
         holder.bind(position, questions[position])
+
+    override fun onBindViewHolder(holder: VH, position: Int, payloads: MutableList<Any>) {
+        if (payloads.contains(PAYLOAD_TIMER)) {
+            holder.updateTimer(getQuestionTime(position))
+        } else {
+            super.onBindViewHolder(holder, position, payloads)
+        }
+    }
 
     override fun getItemCount() = questions.size
 }

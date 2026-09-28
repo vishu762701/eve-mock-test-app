@@ -277,7 +277,7 @@
             android:clipToPadding="false"
             android:layoutAnimation="@anim/layout_enter"
             android:paddingHorizontal="16dp"
-            android:paddingBottom="24dp" />
+            android:paddingBottom="96dp" />
 
         <!-- Upgrade 3: Telegram-style shimmer skeleton placeholder (LoadingDrawable pattern) -->
         <com.eve.app.ui.common.ShimmerSkeletonView
@@ -355,6 +355,34 @@
                 android:text="Try again"
                 android:visibility="gone" />
         </LinearLayout>
+
+        <!-- Floating Airplane Chip (T7) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardFloatingAirplane"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone"
+            app:cardBackgroundColor="@android:color/white"
+            app:cardCornerRadius="36dp"
+            app:cardElevation="6dp"
+            app:strokeColor="@color/eve_floating_chip_stroke"
+            app:strokeWidth="1dp">
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/lottieFloatingAirplane"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_gravity="center"
+                android:contentDescription="Open community link"
+                app:lottie_autoPlay="false"
+                app:lottie_loop="true"
+                app:lottie_rawRes="@raw/man_flying_on_paper_airplane" />
+        </com.google.android.material.card.MaterialCardView>
     </FrameLayout>
     </LinearLayout>
 

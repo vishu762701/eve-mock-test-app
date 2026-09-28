@@ -23,7 +23,12 @@ data class UserVoteResponse(
 )
 
 data class AttemptLockResponse(
-    val hasLock: Boolean
+    val hasLock: Boolean,
+    val timestamp: Long? = null
+)
+
+data class FloatingLinkResponse(
+    val url: String? = null
 )
 
 data class SyllabusUploadResponse(
@@ -134,6 +139,9 @@ interface EveApiService {
 
     @GET("api/attempts/locks/{examId}")
     suspend fun checkAttemptLock(@Path("examId") examId: String): ApiResponse<AttemptLockResponse>
+
+    @POST("api/attempts/reset")
+    suspend fun resetAttemptPost(@Body body: Map<String, String>): ApiResponse<Map<String, @JvmSuppressWildcards Any>>
 
     @DELETE("api/attempts/exam/{examId}")
     suspend fun resetAttempt(@Path("examId") examId: String): ApiResponse<Map<String, @JvmSuppressWildcards Any>>
@@ -322,4 +330,14 @@ interface EveApiService {
 
     @POST("api/generated-tests/generate-now")
     suspend fun triggerAiTestGeneration(@Body body: Map<String, @JvmSuppressWildcards Any>): ApiResponse<Map<String, Any>>
+
+    // --- Floating Community Link ---
+    @GET("api/floating-link")
+    suspend fun getFloatingLink(): ApiResponse<FloatingLinkResponse>
+
+    @GET("api/admin/floating-link")
+    suspend fun getAdminFloatingLink(): ApiResponse<FloatingLinkResponse>
+
+    @PUT("api/admin/floating-link")
+    suspend fun updateAdminFloatingLink(@Body body: Map<String, String>): ApiResponse<FloatingLinkResponse>
 }

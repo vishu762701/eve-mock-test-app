@@ -66,4 +66,15 @@
     <color name="timer_normal">#FFFFFF</color>
     <color name="timer_warning">#FF5252</color>
     <color name="eve_stat_mini_bg">#26FFFFFF</color>
+
+    <!-- Semantic status & UI tokens (T1) -->
+    <color name="eve_status_success">#1B7A3D</color>
+    <color name="eve_status_error">#C62828</color>
+    <color name="eve_status_warning">#B45309</color>
+    <color name="eve_status_info">#1D5FB8</color>
+    <color name="eve_status_warning_container">#FFF4D6</color>
+    <color name="eve_status_warning_stroke">#59B45309</color>
+    <color name="eve_header_warning">#FF5252</color>
+    <color name="eve_lottie_tile_bg">#F5F5F5</color>
+    <color name="eve_floating_chip_stroke">@color/eve_stroke</color>
 </resources>

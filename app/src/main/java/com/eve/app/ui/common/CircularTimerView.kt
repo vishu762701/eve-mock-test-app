@@ -30,16 +30,16 @@ class CircularTimerView @JvmOverloads constructor(
     private val strokePx = 3f * density
 
     private val normalColor: Int
-        get() = ContextCompat.getColor(context, R.color.timer_normal)
+        get() = ContextCompat.getColor(context, R.color.eve_on_primary)
 
     private val warningColor: Int
-        get() = ContextCompat.getColor(context, R.color.timer_warning)
+        get() = ContextCompat.getColor(context, R.color.eve_header_warning)
 
     private val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = strokePx
         val nc = normalColor
-        color = Color.argb(60, Color.red(nc), Color.green(nc), Color.blue(nc))
+        color = Color.argb(64, Color.red(nc), Color.green(nc), Color.blue(nc))
     }
 
     private val progressPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -91,9 +91,8 @@ class CircularTimerView @JvmOverloads constructor(
 
         // 1. Background ring track
         val nc = normalColor
-        trackPaint.color = Color.argb(60, Color.red(nc), Color.green(nc), Color.blue(nc))
+        trackPaint.color = Color.argb(64, Color.red(nc), Color.green(nc), Color.blue(nc))
         canvas.drawOval(oval, trackPaint)
-
         // 2. Depleting progress arc
         val sweepAngle = 360f * currentProgress
         canvas.drawArc(oval, -90f, sweepAngle, false, progressPaint)
@@ -162,7 +161,7 @@ class CircularTimerView @JvmOverloads constructor(
 
     fun updateThemeColors() {
         val nc = normalColor
-        trackPaint.color = Color.argb(60, Color.red(nc), Color.green(nc), Color.blue(nc))
+        trackPaint.color = Color.argb(64, Color.red(nc), Color.green(nc), Color.blue(nc))
         if (colorAnimator == null && currentColor != warningColor) {
             currentColor = nc
             progressPaint.color = nc

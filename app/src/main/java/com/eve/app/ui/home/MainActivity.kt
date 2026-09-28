@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -20,6 +21,12 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.DecelerateInterpolator
+import android.view.animation.OvershootInterpolator
+import android.provider.Settings
+import android.view.ViewGroup
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import com.eve.app.util.AppBulletin
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -97,6 +104,9 @@ class MainActivity : AppCompatActivity() {
     private var currentBannerCount = 0
     private var isUserDraggingBanner = false
 
+    private val floatingLinkRepo = com.eve.app.data.repository.FloatingLinkRepository()
+    private var activeFloatingLinkUrl: String? = null
+
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* ignored */ }
 
@@ -114,25 +124,36 @@ class MainActivity : AppCompatActivity() {
     private val adapter = ExamAdapter(
         onClick = { exam, attempted, attempt ->
             if (attempted) {
-                com.eve.app.ui.common.CompletedExamBottomSheet.show(
-                    activity = this,
-                    examId = exam.id,
-                    examName = exam.examName,
-                    attempt = attempt,
-                    onReattemptConfirmed = {
-                        val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
-                        if (user != null) {
-                            viewModel.loadForUser(user.uid, isAdminUser)
+                lifecycleScope.launch {
+                    val user = FirebaseAuth.getInstance().currentUser ?: return@launch
+                    try {
+                        val lockRes = com.eve.app.data.remote.ApiClient.apiService.checkAttemptLock(exam.id)
+                        val lockTimestamp = lockRes.data?.timestamp
+                        val attempts = com.eve.app.data.repository.HistoryRepository().getAttempts(user.uid).filter { it.examId == exam.id }
+                        val targetAttempt = (if (lockTimestamp != null) {
+                            attempts.find { it.timestamp == lockTimestamp }
+                        } else null) ?: attempts.maxByOrNull { it.timestamp }
+
+                        if (targetAttempt != null) {
+                            com.eve.app.ui.result.ResultDataHolder.setAnswers(targetAttempt.answers)
+                            val dateFormat = java.text.SimpleDateFormat("dd MMM yyyy, hh:mm a", java.util.Locale.getDefault())
+                            startActivity(
+                                Intent(this@MainActivity, com.eve.app.ui.result.ResultActivity::class.java)
+                                    .putExtra(Constants.EXTRA_EXAM_ID, exam.id)
+                                    .putExtra(Constants.EXTRA_EXAM_NAME, exam.examName)
+                                    .putExtra(Constants.EXTRA_ATTEMPT_DATE, dateFormat.format(java.util.Date(targetAttempt.timestamp)))
+                                    .putExtra(Constants.EXTRA_FROM_HISTORY, true)
+                                    .putExtra(Constants.EXTRA_CAN_REATTEMPT, true)
+                                    .putExtra(Constants.EXTRA_TIME_LIMIT, exam.timeLimitMinutes)
+                                    .putExtra(Constants.EXTRA_EXAM_CATEGORY, exam.categoryOrOther)
+                            )
+                        } else {
+                            AppBulletin.showError(this@MainActivity, "Couldn't load previous attempt")
                         }
-                        startActivity(
-                            Intent(this, TestActivity::class.java)
-                                .putExtra(Constants.EXTRA_EXAM_ID, exam.id)
-                                .putExtra(Constants.EXTRA_EXAM_NAME, exam.examName)
-                                .putExtra(Constants.EXTRA_EXAM_CATEGORY, exam.categoryOrOther)
-                                .putExtra(Constants.EXTRA_TIME_LIMIT, exam.timeLimitMinutes)
-                        )
+                    } catch (e: Exception) {
+                        AppBulletin.showError(this@MainActivity, "Couldn't load previous attempt: ${e.localizedMessage}")
                     }
-                )
+                }
             } else {
                 startActivity(
                     Intent(this, TestActivity::class.java)
@@ -266,6 +287,8 @@ class MainActivity : AppCompatActivity() {
         binding.rvExams.layoutManager = LinearLayoutManager(this)
         binding.rvExams.adapter = adapter
 
+        setupFloatingAirplane()
+
         binding.btnRetry.setOnClickListener { viewModel.load() }
 
         updateNotificationDot()
@@ -287,6 +310,25 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         checkAppConfigAndMaintenance()
+        FirebaseAuth.getInstance().currentUser?.let { current ->
+            lifecycleScope.launch {
+                val admin = isHardcodedAdmin(current.email) || adminRepo.isAdmin(current.email)
+                viewModel.loadForUser(current.uid, admin)
+            }
+        }
+        if (::binding.isInitialized && binding.cardFloatingAirplane.visibility == View.VISIBLE) {
+            val animScale = Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
+            if (animScale > 0f && !binding.lottieFloatingAirplane.isAnimating) {
+                binding.lottieFloatingAirplane.resumeAnimation()
+            }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (::binding.isInitialized && binding.cardFloatingAirplane.visibility == View.VISIBLE) {
+            binding.lottieFloatingAirplane.pauseAnimation()
+        }
     }
 
     private fun checkAppConfigAndMaintenance() {
@@ -514,8 +556,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private var isReturningFromStopped = false
+
     override fun onStart() {
         super.onStart()
+        if (isReturningFromStopped) {
+            isReturningFromStopped = false
+            adapter.resetPlayedAnimations()
+            if (::binding.isInitialized) {
+                binding.rvExams.post {
+                    adapter.replayVisible(binding.rvExams)
+                }
+            }
+        }
         if (::binding.isInitialized) {
             FirebaseAuth.getInstance().currentUser?.let { current ->
                 binding.tvWelcome.text = "Hi, ${current.displayName ?: "Student"}"
@@ -544,16 +597,96 @@ class MainActivity : AppCompatActivity() {
 
             startListeningToNotifications()
             startListeningToHomeBanner()
+
+            lifecycleScope.launch {
+                val link = floatingLinkRepo.getFloatingLink()
+                activeFloatingLinkUrl = link
+                updateFloatingAirplaneState(link)
+            }
         }
     }
 
     override fun onStop() {
         super.onStop()
+        isReturningFromStopped = true
         notifJob?.cancel()
         notifJob = null
         stopBannerAutoScroll()
         bannerObserverJob?.cancel()
         bannerObserverJob = null
+        if (::binding.isInitialized && binding.cardFloatingAirplane.visibility == View.VISIBLE) {
+            binding.lottieFloatingAirplane.pauseAnimation()
+        }
+    }
+
+    private fun setupFloatingAirplane() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.cardFloatingAirplane) { view, windowInsets ->
+            val navInsets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            val baseMarginPx = (16 * resources.displayMetrics.density).toInt()
+            (view.layoutParams as? ViewGroup.MarginLayoutParams)?.let { lp ->
+                lp.bottomMargin = baseMarginPx + navInsets.bottom
+                lp.marginEnd = baseMarginPx + navInsets.right
+                view.layoutParams = lp
+            }
+            windowInsets
+        }
+
+        binding.cardFloatingAirplane.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    v.animate().scaleX(0.92f).scaleY(0.92f).setDuration(100).start()
+                }
+                MotionEvent.ACTION_UP -> {
+                    v.animate().scaleX(1f).scaleY(1f).setDuration(100).start()
+                    v.performClick()
+                }
+                MotionEvent.ACTION_CANCEL -> {
+                    v.animate().scaleX(1f).scaleY(1f).setDuration(100).start()
+                }
+            }
+            true
+        }
+
+        binding.cardFloatingAirplane.setOnClickListener {
+            val url = activeFloatingLinkUrl ?: return@setOnClickListener
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                startActivity(intent)
+            } catch (_: Exception) {
+                AppBulletin.showError(this, "Couldn't open link")
+            }
+        }
+    }
+
+    private fun updateFloatingAirplaneState(link: String?) {
+        if (!link.isNullOrBlank()) {
+            val isCurrentlyGone = binding.cardFloatingAirplane.visibility != View.VISIBLE
+            if (isCurrentlyGone) {
+                binding.cardFloatingAirplane.scaleX = 0f
+                binding.cardFloatingAirplane.scaleY = 0f
+                binding.cardFloatingAirplane.alpha = 0f
+                binding.cardFloatingAirplane.visibility = View.VISIBLE
+                binding.cardFloatingAirplane.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .alpha(1f)
+                    .setDuration(250)
+                    .setInterpolator(OvershootInterpolator(1.2f))
+                    .start()
+            }
+            val animScale = Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
+            if (animScale == 0f) {
+                binding.lottieFloatingAirplane.progress = 1f
+            } else {
+                binding.lottieFloatingAirplane.repeatCount = com.airbnb.lottie.LottieDrawable.INFINITE
+                if (!binding.lottieFloatingAirplane.isAnimating) {
+                    binding.lottieFloatingAirplane.playAnimation()
+                }
+            }
+        } else {
+            binding.cardFloatingAirplane.visibility = View.GONE
+            binding.lottieFloatingAirplane.cancelAnimation()
+        }
     }
 
     private fun setupBannerCarousel() {

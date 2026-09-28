@@ -60,6 +60,26 @@ class HomeViewModel : ViewModel() {
         }
     }
 
+    companion object {
+        private val _clearedAttemptedIds = mutableSetOf<String>()
+        fun markAttemptCleared(examId: String) {
+            _clearedAttemptedIds.add(examId)
+        }
+        fun isAttemptCleared(examId: String): Boolean = _clearedAttemptedIds.contains(examId)
+        fun clearAttemptCleared(examId: String) {
+            _clearedAttemptedIds.remove(examId)
+        }
+    }
+
+    fun dropAttemptedId(examId: String) {
+        markAttemptCleared(examId)
+        val current = _attemptInfo.value
+        _attemptInfo.value = AttemptInfo(
+            ids = current.ids - examId,
+            map = current.map - examId
+        )
+    }
+
     fun loadForUser(userId: String, isAdmin: Boolean) {
         viewModelScope.launch {
             _examState.value = UiState.Loading
@@ -69,11 +89,11 @@ class HomeViewModel : ViewModel() {
                 if (isAdmin) {
                     _attemptInfo.value = AttemptInfo()
                 } else {
-                    val locks = repo.getAttemptedExamIds(userId)
-                    val attempts = historyRepo.getAttempts(userId)
+                    val locks = repo.getAttemptedExamIds(userId).filter { !isAttemptCleared(it) }
+                    val attempts = historyRepo.getAttempts(userId).filter { !isAttemptCleared(it.examId) }
                     val ids = locks + attempts.map { it.examId }
                     val map = attempts.associateBy { it.examId }
-                    _attemptInfo.value = AttemptInfo(ids, map)
+                    _attemptInfo.value = AttemptInfo(ids.toSet(), map)
                 }
             } catch (e: Exception) {
                 _examState.value = UiState.Error(e.message ?: "Failed to load exams")

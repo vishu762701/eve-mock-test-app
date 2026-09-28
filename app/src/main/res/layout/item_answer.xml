@@ -44,12 +44,12 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginStart="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="@drawable/bg_btn_report"
                 android:contentDescription="Report this question"
                 android:padding="12dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_flag"
-                app:tint="@color/eve_text" />
+                app:tint="@color/eve_status_warning" />
         </LinearLayout>
 
         <TextView
@@ -64,7 +64,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:textColor="@color/success"
+            android:textColor="@color/eve_status_success"
             android:textSize="15sp" />
 
         <!-- X% got this right stat badge -->
@@ -96,30 +96,102 @@
                 android:textSize="12sp" />
         </LinearLayout>
 
-        <!-- Per-question Time vs Average Insight -->
-        <LinearLayout
+        <!-- Per-question Time vs Average Insight Card -->
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/layoutTimeInsight"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:orientation="vertical">
+            android:layout_marginTop="8dp"
+            app:cardBackgroundColor="@color/eve_surface_variant"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp">
 
-            <TextView
-                android:id="@+id/tvTimeVsAvg"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_semibold"
-                android:textSize="12sp" />
+                android:orientation="vertical"
+                android:padding="10dp">
 
-            <TextView
-                android:id="@+id/tvTimeInsightMessage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:fontFamily="@font/poppins"
-                android:textColor="@color/eve_text_secondary"
-                android:textSize="12sp" />
-        </LinearLayout>
+                <!-- You row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="32dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="You"
+                        android:textColor="@color/eve_text"
+                        android:textSize="12sp" />
+
+                    <ProgressBar
+                        android:id="@+id/pbTimeYou"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="6dp"
+                        android:layout_marginHorizontal="8dp"
+                        android:layout_weight="1"
+                        android:max="100" />
+
+                    <TextView
+                        android:id="@+id/tvTimeYou"
+                        android:layout_width="40dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_medium"
+                        android:gravity="end"
+                        android:textColor="@color/eve_text"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Avg row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="32dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="Avg"
+                        android:textColor="@color/eve_text_secondary"
+                        android:textSize="12sp" />
+
+                    <ProgressBar
+                        android:id="@+id/pbTimeAvg"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="6dp"
+                        android:layout_marginHorizontal="8dp"
+                        android:layout_weight="1"
+                        android:max="100" />
+
+                    <TextView
+                        android:id="@+id/tvTimeAvg"
+                        android:layout_width="40dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_medium"
+                        android:gravity="end"
+                        android:textColor="@color/eve_text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Insight message -->
+                <TextView
+                    android:id="@+id/tvTimeInsightMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:fontFamily="@font/poppins"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnToggleExplanation"

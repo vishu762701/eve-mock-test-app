@@ -75,11 +75,15 @@ object ExamImageHelper {
         }
     }
 
-    fun loadExamImage(imageView: ImageView, imageUrl: String?) {
+    fun loadExamImage(imageView: ImageView, imageUrl: String?, onFailure: (() -> Unit)? = null) {
         if (imageUrl.isNullOrBlank()) {
-            imageView.setImageResource(R.drawable.ic_exam_placeholder)
-            imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
-            imageView.setPadding(10, 10, 10, 10)
+            if (onFailure != null) {
+                onFailure.invoke()
+            } else {
+                imageView.setImageResource(R.drawable.ic_exam_placeholder)
+                imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
+                imageView.setPadding(10, 10, 10, 10)
+            }
             return
         }
 
@@ -93,8 +97,14 @@ object ExamImageHelper {
                     imageView.scaleType = ImageView.ScaleType.CENTER_CROP
                     imageView.setImageBitmap(bmp)
                     return
+                } else {
+                    onFailure?.invoke()
+                    return
                 }
-            } catch (_: Exception) { }
+            } catch (_: Exception) {
+                onFailure?.invoke()
+                return
+            }
         }
 
         imageView.setPadding(0, 0, 0, 0)
@@ -102,6 +112,9 @@ object ExamImageHelper {
         imageView.load(imageUrl) {
             placeholder(R.drawable.ic_exam_placeholder)
             error(R.drawable.ic_exam_placeholder)
+            listener(
+                onError = { _, _ -> onFailure?.invoke() }
+            )
         }
     }
 

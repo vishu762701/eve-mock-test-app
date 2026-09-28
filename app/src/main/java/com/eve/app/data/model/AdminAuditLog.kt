@@ -21,6 +21,7 @@ data class AdminAuditLog(
         const val ADMIN_REMOVED = "ADMIN_REMOVED"
         const val MAINTENANCE_TOGGLED = "MAINTENANCE_TOGGLED"
         const val GENERATE_NOW_TRIGGERED = "GENERATE_NOW_TRIGGERED"
+        const val FLOATING_LINK_UPDATED = "FLOATING_LINK_UPDATED"
 
         // Aliases with ACTION_ prefix for seamless compatibility
         const val ACTION_EXAM_CREATED = EXAM_CREATED
@@ -36,6 +37,7 @@ data class AdminAuditLog(
         const val ACTION_ADMIN_REMOVED = ADMIN_REMOVED
         const val ACTION_MAINTENANCE_TOGGLED = MAINTENANCE_TOGGLED
         const val ACTION_GENERATE_NOW_TRIGGERED = GENERATE_NOW_TRIGGERED
+        const val ACTION_FLOATING_LINK_UPDATED = FLOATING_LINK_UPDATED
     }
 
     val actionBadge: String get() = when (actionType) {
@@ -52,6 +54,7 @@ data class AdminAuditLog(
         ADMIN_REMOVED -> "🛡️ Admin Removed"
         MAINTENANCE_TOGGLED -> "🔧 Maintenance Mode"
         GENERATE_NOW_TRIGGERED -> "⚡ Generate Now"
+        FLOATING_LINK_UPDATED -> "🔗 Floating Link"
         else -> "📋 $actionType"
     }
 

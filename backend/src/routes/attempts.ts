@@ -406,9 +406,151 @@ attemptRoutes.get("/locks/:examId", async (c) => {
   const db = c.env.DB;
 
   const lockKey = `${user.uid}_${examId}`;
-  const row = await db.prepare("SELECT 1 FROM attempt_locks WHERE id = ?").bind(lockKey).first();
+  const row = await db.prepare("SELECT timestamp FROM attempt_locks WHERE id = ?").bind(lockKey).first<{ timestamp: number }>();
 
-  return c.json({ success: true, data: { hasLock: Boolean(row) } });
+  return c.json({
+    success: true,
+    data: {
+      hasLock: Boolean(row),
+      timestamp: row ? Number(row.timestamp) : null,
+    },
+  });
+});
+
+// POST /api/attempts/reset - Atomic mock attempt & lock reset for standard mock reattempt flow
+attemptRoutes.post("/reset", async (c) => {
+  const user = c.get("user");
+  const uid = user.uid;
+  const db = c.env.DB;
+  const body = await c.req.json().catch(() => ({}));
+  const examId = String(body.examId || "").trim();
+
+  if (!examId) {
+    return c.json({ success: false, error: "Exam ID is required" }, 400);
+  }
+
+  const lockKey = `${uid}_${examId}`;
+  const lbKey = `${examId}_${uid}`;
+
+  // 1. Read the lock
+  const lock = await db
+    .prepare("SELECT id, user_id, exam_id, timestamp FROM attempt_locks WHERE id = ?")
+    .bind(lockKey)
+    .first<{ id: string; user_id: string; exam_id: string; timestamp: number }>();
+
+  if (!lock) {
+    return c.json({ success: true, data: { cleared: false } });
+  }
+
+  const lockTimestamp = Number(lock.timestamp || 0);
+
+  // 2. Identify the mock attempt matching lock.timestamp
+  let targetAttempt = await db
+    .prepare("SELECT id, score, total, correct FROM attempts WHERE user_id = ? AND exam_id = ? AND timestamp = ?")
+    .bind(uid, examId, lockTimestamp)
+    .first<{ id: string; score: number; total: number; correct: number }>();
+
+  // If no exact match, use the nearest timestamp within 60 s
+  if (!targetAttempt && lockTimestamp > 0) {
+    targetAttempt = await db
+      .prepare(
+        "SELECT id, score, total, correct FROM attempts WHERE user_id = ? AND exam_id = ? AND timestamp >= ? AND timestamp <= ? ORDER BY ABS(timestamp - ?) ASC LIMIT 1"
+      )
+      .bind(uid, examId, lockTimestamp - 60000, lockTimestamp + 60000, lockTimestamp)
+      .first<{ id: string; score: number; total: number; correct: number }>();
+  }
+
+  // If still none, delete only the lock and return clearedAttempts: 0
+  if (!targetAttempt) {
+    await db.prepare("DELETE FROM attempt_locks WHERE id = ?").bind(lockKey).run();
+    return c.json({ success: true, data: { cleared: true, clearedAttempts: 0 } });
+  }
+
+  const batchStatements: D1PreparedStatement[] = [];
+
+  // A. Delete attempt_answers for this attempt
+  batchStatements.push(
+    db.prepare("DELETE FROM attempt_answers WHERE attempt_id = ?").bind(targetAttempt.id)
+  );
+
+  // B. Delete the attempts row
+  batchStatements.push(
+    db.prepare("DELETE FROM attempts WHERE id = ?").bind(targetAttempt.id)
+  );
+
+  // C. Recompute leaderboard row ${examId}_${uid} from remaining attempts (best score), or delete row
+  const { results: remainingAttempts } = await db
+    .prepare("SELECT score, total, timestamp, display_name, category, exam_name FROM attempts WHERE user_id = ? AND exam_id = ? AND id != ? ORDER BY score DESC, timestamp DESC")
+    .bind(uid, examId, targetAttempt.id)
+    .all<{ score: number; total: number; timestamp: number; display_name: string; category: string; exam_name: string }>();
+
+  if (remainingAttempts && remainingAttempts.length > 0) {
+    const best = remainingAttempts[0];
+    batchStatements.push(
+      db
+        .prepare(
+          `INSERT INTO leaderboard (id, user_id, exam_id, exam_name, category, display_name, score, total, timestamp)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+           ON CONFLICT(id) DO UPDATE SET
+             score = excluded.score,
+             total = excluded.total,
+             display_name = excluded.display_name,
+             timestamp = excluded.timestamp`
+        )
+        .bind(lbKey, uid, examId, best.exam_name, best.category, best.display_name, best.score, best.total, best.timestamp)
+    );
+  } else {
+    batchStatements.push(
+      db.prepare("DELETE FROM leaderboard WHERE id = ?").bind(lbKey)
+    );
+  }
+
+  // D. Adjust overall_leaderboard: subtract score, total, correct; decrement tests_taken; recompute accuracy; delete if tests_taken reaches 0
+  const overallRow = await db
+    .prepare("SELECT score, total_score, total, tests_taken, total_correct FROM overall_leaderboard WHERE user_id = ?")
+    .bind(uid)
+    .first<{ score: number; total_score: number; total: number; tests_taken: number; total_correct: number }>();
+
+  if (overallRow) {
+    const newTestsTaken = Math.max(0, overallRow.tests_taken - 1);
+    if (newTestsTaken === 0) {
+      batchStatements.push(
+        db.prepare("DELETE FROM overall_leaderboard WHERE user_id = ?").bind(uid)
+      );
+    } else {
+      const newScore = Math.max(0, Math.round((overallRow.score - targetAttempt.score) * 100) / 100);
+      const newTotal = Math.max(0, overallRow.total - targetAttempt.total);
+      const newCorrect = Math.max(0, overallRow.total_correct - targetAttempt.correct);
+      const newAccuracy = newTotal > 0 ? Math.round((newCorrect * 100.0) / newTotal) : 0;
+      batchStatements.push(
+        db
+          .prepare(
+            `UPDATE overall_leaderboard
+             SET score = ?, total_score = ?, total = ?, tests_taken = ?, total_correct = ?, accuracy = ?, timestamp = ?
+             WHERE user_id = ?`
+          )
+          .bind(newScore, newScore, newTotal, newTestsTaken, newCorrect, newAccuracy, Date.now(), uid)
+      );
+    }
+  }
+
+  // E. Delete the attempt_locks row
+  batchStatements.push(
+    db.prepare("DELETE FROM attempt_locks WHERE id = ?").bind(lockKey)
+  );
+
+  // Execute in ONE atomic batch
+  await db.batch(batchStatements);
+
+  return c.json({
+    success: true,
+    data: {
+      cleared: true,
+      clearedAttempts: 1,
+      attemptId: targetAttempt.id,
+      examId,
+    },
+  });
 });
 
 // DELETE /api/attempts/exam/:examId - Reset attempts & lock for an exam (reattempt flow)

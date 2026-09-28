@@ -28,6 +28,19 @@ class ExamAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var items: List<HomeListItem> = emptyList()
+    private val playedExamIds = mutableSetOf<String>()
+
+    fun resetPlayedAnimations() {
+        playedExamIds.clear()
+    }
+
+    fun replayVisible(recyclerView: RecyclerView) {
+        for (i in 0 until recyclerView.childCount) {
+            val child = recyclerView.getChildAt(i)
+            val vh = recyclerView.getChildViewHolder(child) as? ExamVH
+            vh?.playLottieIfEligible()
+        }
+    }
 
     fun submit(list: List<HomeListItem>) {
         items = list
@@ -41,15 +54,14 @@ class ExamAdapter(
     }
 
     inner class ExamVH(private val b: ItemExamBinding) : RecyclerView.ViewHolder(b.root) {
+        private var currentExamId: String? = null
+        private var isLottieMode: Boolean = false
+
         fun bind(exam: Exam, attempted: Boolean, isPinned: Boolean, attempt: com.eve.app.data.model.TestAttempt?) {
+            currentExamId = exam.id
             b.tvExamName.text = exam.examName
             b.tvExamTime.text = if (attempted) {
-                if (attempt != null) {
-                    val scoreStr = if (attempt.score % 1.0 == 0.0) attempt.score.toInt().toString() else attempt.score.toString()
-                    b.root.context.getString(com.eve.app.R.string.exam_completed_score, scoreStr, attempt.total)
-                } else {
-                    b.root.context.getString(com.eve.app.R.string.exam_completed_badge)
-                }
+                b.root.context.getString(com.eve.app.R.string.exam_submitted_tap_to_view)
             } else {
                 b.root.context.getString(
                     com.eve.app.R.string.exam_time_category,
@@ -57,7 +69,22 @@ class ExamAdapter(
                     exam.categoryOrOther
                 )
             }
-            com.eve.app.util.ExamImageHelper.loadExamImage(b.ivExamImage, exam.imageUrl)
+
+            val hasLogo = exam.imageUrl.isNotBlank()
+            if (hasLogo) {
+                showLogoMode()
+                com.eve.app.util.ExamImageHelper.loadExamImage(b.ivExamImage, exam.imageUrl) {
+                    if (currentExamId == exam.id) {
+                        showLottieMode()
+                        if (itemView.isAttachedToWindow) {
+                            playLottieIfEligible()
+                        }
+                    }
+                }
+            } else {
+                showLottieMode()
+            }
+
             b.ivPinned.visibility = if (isPinned) View.VISIBLE else View.GONE
             b.root.isEnabled = true
             b.root.alpha = 1f
@@ -67,6 +94,57 @@ class ExamAdapter(
                 onLongClick?.invoke(exam, isPinned, view)
                 true
             }
+        }
+
+        private fun showLogoMode() {
+            isLottieMode = false
+            b.examIconContainer.setCardBackgroundColor(
+                androidx.core.content.ContextCompat.getColor(b.root.context, android.R.color.transparent)
+            )
+            b.ivExamImage.visibility = View.VISIBLE
+            b.lottieExamIcon.visibility = View.GONE
+            b.lottieExamIcon.cancelAnimation()
+        }
+
+        private fun showLottieMode() {
+            isLottieMode = true
+            b.examIconContainer.setCardBackgroundColor(
+                androidx.core.content.ContextCompat.getColor(b.root.context, com.eve.app.R.color.eve_lottie_tile_bg)
+            )
+            b.ivExamImage.visibility = View.GONE
+            b.lottieExamIcon.visibility = View.VISIBLE
+            val examId = currentExamId
+            if (examId != null && playedExamIds.contains(examId)) {
+                b.lottieExamIcon.progress = 1f
+            }
+        }
+
+        fun playLottieIfEligible() {
+            val examId = currentExamId ?: return
+            if (!isLottieMode) return
+
+            val animScale = android.provider.Settings.Global.getFloat(
+                b.root.context.contentResolver,
+                android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,
+                1.0f
+            )
+            if (animScale == 0f) {
+                b.lottieExamIcon.progress = 1f
+                playedExamIds.add(examId)
+                return
+            }
+
+            if (!playedExamIds.contains(examId)) {
+                playedExamIds.add(examId)
+                b.lottieExamIcon.progress = 0f
+                b.lottieExamIcon.playAnimation()
+            } else {
+                b.lottieExamIcon.progress = 1f
+            }
+        }
+
+        fun cancelAnimation() {
+            b.lottieExamIcon.cancelAnimation()
         }
     }
 
@@ -136,6 +214,27 @@ class ExamAdapter(
             is HomeListItem.Header -> (holder as HeaderVH).bind(item)
             is HomeListItem.ExamRow -> (holder as ExamVH).bind(item.exam, item.attempted, item.isPinned, item.attempt)
             is HomeListItem.FeedbackPostRow -> (holder as FeedbackPostVH).bind(item.post)
+        }
+    }
+
+    override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
+        super.onViewAttachedToWindow(holder)
+        if (holder is ExamVH) {
+            holder.playLottieIfEligible()
+        }
+    }
+
+    override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
+        super.onViewDetachedFromWindow(holder)
+        if (holder is ExamVH) {
+            holder.cancelAnimation()
+        }
+    }
+
+    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
+        super.onViewRecycled(holder)
+        if (holder is ExamVH) {
+            holder.cancelAnimation()
         }
     }
 

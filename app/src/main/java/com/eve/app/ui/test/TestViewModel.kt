@@ -188,6 +188,11 @@ class TestViewModel : ViewModel() {
         timeTaken[position] = current + seconds
     }
 
+    fun addQuestionSecond(position: Int) {
+        val current = timeTaken[position] ?: 0L
+        timeTaken[position] = current + 1L
+    }
+
     fun getQuestionTime(position: Int): Long = timeTaken[position] ?: 0L
 
     fun isBookmarked(position: Int): Boolean = bookmarks[position] ?: false

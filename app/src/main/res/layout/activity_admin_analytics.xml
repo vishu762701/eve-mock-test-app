@@ -13,7 +13,8 @@
             android:text="Admin Analytics" android:textColor="@color/eve_on_primary" android:textSize="20sp" android:textStyle="bold"/>
         <ImageButton android:id="@+id/btnRefresh" android:layout_width="40dp" android:layout_height="40dp"
             android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="Refresh"
-            android:padding="8dp" android:src="@drawable/ic_refresh"/>
+            android:padding="8dp" android:src="@drawable/ic_refresh"
+            app:tint="@color/eve_on_primary"/>
     </LinearLayout>
     <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
         <ScrollView android:id="@+id/content" android:layout_width="match_parent" android:layout_height="match_parent"

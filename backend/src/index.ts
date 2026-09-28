@@ -69,6 +69,18 @@ app.get("/api/app-config", async (c) => {
   });
 });
 
+// Public Floating Community Link
+app.get("/api/floating-link", async (c) => {
+  const db = c.env.DB;
+  try {
+    const row = await db.prepare("SELECT body FROM app_content WHERE id = 'floating_link'").first<{ body: string }>();
+    const url = row?.body?.trim() || "";
+    return c.json({ success: true, data: { url }, url });
+  } catch (err: any) {
+    return c.json({ success: false, error: err.message }, 500);
+  }
+});
+
 // Helper: Verify caller has admin privileges or diagnostic authorization key
 function isDiagnosticAuthorized(c: AppContext): boolean {
   // 1. Admin Firebase user

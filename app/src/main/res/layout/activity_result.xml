@@ -315,7 +315,7 @@
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="2dp"
                 android:text="Above Cutoff (Qualified) ✓"
-                android:textColor="@color/eve_green"
+                android:textColor="@color/success"
                 android:textSize="11sp" />
         </LinearLayout>
     </LinearLayout>
@@ -429,6 +429,16 @@
         android:layout_weight="1"
         android:clipToPadding="false"
         android:padding="8dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnReattempt"
+        style="@style/Widget.Eve.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginTop="8dp"
+        android:text="Reattempt Test"
+        android:visibility="gone" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnLeaderboard"

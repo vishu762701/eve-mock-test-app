@@ -18,6 +18,7 @@ class AnswerAdapter(
     private var items: List<AnswerItem> = emptyList()
     private var hindi = false
     private var questionStats: Map<String, QuestionStat> = emptyMap()
+    private var showTimeInsight = true
 
     fun submit(newItems: List<AnswerItem>) {
         items = newItems
@@ -26,6 +27,11 @@ class AnswerAdapter(
 
     fun setHindi(value: Boolean) {
         hindi = value
+        notifyDataSetChanged()
+    }
+
+    fun setShowTimeInsight(value: Boolean) {
+        showTimeInsight = value
         notifyDataSetChanged()
     }
 
@@ -49,15 +55,15 @@ class AnswerAdapter(
                 }
                 item.isCorrect -> {
                     b.tvYourAnswer.text = "Your answer: ${item.selected}. ${item.displaySelectedText(hindi)}  ✓ Correct"
-                    b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.success))
+                    b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.eve_status_success))
                 }
                 else -> {
                     b.tvYourAnswer.text = "Your answer: ${item.selected}. ${item.displaySelectedText(hindi)}  ✗ Incorrect"
-                    b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.error))
+                    b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.eve_status_error))
                 }
             }
             b.tvCorrectAnswer.text = "Correct answer: ${item.correct}. ${item.displayCorrectText(hindi)}  ✓"
-            b.tvCorrectAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.success))
+            b.tvCorrectAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.eve_status_success))
 
             // X% got this right stat
             val stat = questionStats[item.questionId]
@@ -68,36 +74,35 @@ class AnswerAdapter(
             }
             b.tvAccuracyStat.text = "$pct% got this right"
 
-            // Per-question Time vs Average Insight
+            // Per-question Time vs Average Insight (only when fresh submit, in-memory time, and stats exist)
             val timeSpent = item.timeTakenSeconds
-            if (item.isAttempted && timeSpent > 0) {
+            if (showTimeInsight && item.isAttempted && timeSpent > 0 && stat != null && stat.totalAttempts > 0) {
                 b.layoutTimeInsight.visibility = View.VISIBLE
-                val avgTime = stat?.calculatedAvgSeconds ?: 45
-                val isFaster = timeSpent <= avgTime
-                val isCorrect = item.isCorrect
+                val avgTime = stat.calculatedAvgSeconds.toLong().coerceAtLeast(1L)
+                val comparison = com.eve.app.util.TimeComparisonFormatter.format(
+                    timeSpent = timeSpent,
+                    avgTime = avgTime,
+                    isCorrect = item.isCorrect
+                )
 
-                val emoji = when {
-                    isFaster && isCorrect -> "🎉"
-                    isFaster -> "⚡"
-                    isCorrect -> "🎯"
-                    else -> "⏱️"
-                }
+                val maxTime = maxOf(timeSpent, avgTime, 1L).toFloat()
+                val youPct = ((timeSpent.toFloat() / maxTime) * 100f).toInt().coerceIn(5, 100)
+                val avgPct = ((avgTime.toFloat() / maxTime) * 100f).toInt().coerceIn(5, 100)
 
-                val message = when {
-                    isFaster && isCorrect -> "Yay! You took less time than average and answered it right. Keep it up."
-                    isFaster -> "Fast pace! You took ${timeSpent}s (avg: ${avgTime}s). Double-check your accuracy."
-                    isCorrect -> "Correct! You took ${timeSpent}s (avg: ${avgTime}s). Great job on accuracy."
-                    else -> "You took longer than average (${timeSpent}s vs ${avgTime}s). Pace yourself!"
-                }
+                b.pbTimeYou.progress = youPct
+                b.pbTimeAvg.progress = avgPct
 
-                b.tvTimeVsAvg.text = "$emoji You: ${timeSpent}s  •  Avg: ${avgTime}s"
-                val timeColor = if (isFaster) {
-                    ContextCompat.getColor(ctx, R.color.success)
-                } else {
-                    ContextCompat.getColor(ctx, R.color.warning)
-                }
-                b.tvTimeVsAvg.setTextColor(timeColor)
-                b.tvTimeInsightMessage.text = message
+                val statusColor = ContextCompat.getColor(ctx, comparison.statusColorRes)
+                b.pbTimeYou.progressTintList = android.content.res.ColorStateList.valueOf(statusColor)
+                b.pbTimeAvg.progressTintList = android.content.res.ColorStateList.valueOf(
+                    ContextCompat.getColor(ctx, R.color.eve_grey)
+                )
+
+                b.tvTimeYou.text = "${timeSpent}s"
+                b.tvTimeAvg.text = "${avgTime}s"
+
+                b.tvTimeInsightMessage.text = comparison.message
+                b.tvTimeInsightMessage.setTextColor(statusColor)
             } else {
                 b.layoutTimeInsight.visibility = View.GONE
             }

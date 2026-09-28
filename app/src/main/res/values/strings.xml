@@ -17,6 +17,7 @@
     <string name="exam_already_attempted">You have already completed this test.</string>
     <string name="exam_completed_badge">Completed</string>
     <string name="exam_completed_score">Completed • Score: %1$s/%2$d</string>
+    <string name="exam_submitted_tap_to_view">Submitted • Tap to view result</string>
     <string name="view_my_result">View my result</string>
     <string name="reattempt">Reattempt</string>
     <string name="reattempt_confirm_title">Reattempt Test</string>

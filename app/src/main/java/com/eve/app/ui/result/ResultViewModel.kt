@@ -2,15 +2,21 @@ package com.eve.app.ui.result
 
 import androidx.lifecycle.ViewModel
 import com.eve.app.data.model.AnswerItem
+import com.eve.app.data.model.QuestionStat
+import com.eve.app.data.repository.QuestionStatsRepository
 
 /**
  * ViewModel for [ResultActivity] that preserves the submitted [AnswerItem] list
- * across configuration changes (e.g. screen rotation, theme changes) without
- * re-reading from Binder / Intent extras.
+ * and caches community question stats across configuration changes.
  */
 class ResultViewModel : ViewModel() {
 
+    private val questionStatsRepo = QuestionStatsRepository()
+
     var allItems: List<AnswerItem> = emptyList()
+        private set
+
+    var questionStats: Map<String, QuestionStat>? = null
         private set
 
     fun initAnswers(answers: List<AnswerItem>) {
@@ -18,4 +24,16 @@ class ResultViewModel : ViewModel() {
             allItems = answers
         }
     }
+
+    suspend fun getOrFetchQuestionStats(qIds: List<String>): Map<String, QuestionStat> {
+        questionStats?.let { return it }
+        val loaded = try {
+            questionStatsRepo.getQuestionStats(qIds)
+        } catch (_: Exception) {
+            emptyMap()
+        }
+        questionStats = loaded
+        return loaded
+    }
 }
+

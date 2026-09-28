@@ -7,6 +7,10 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.LinearLayout
+import android.widget.EditText
+import android.widget.FrameLayout
+import android.text.InputType
+import com.eve.app.data.repository.FloatingLinkRepository
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.AppUndoBar
 import androidx.activity.result.contract.ActivityResultContracts
@@ -222,6 +226,9 @@ class AdminActivity : AppCompatActivity() {
         }
         binding.btnHomeBanner.setOnClickListener {
             showHomeBannerOptionsDialog()
+        }
+        binding.btnFloatingLink.setOnClickListener {
+            showFloatingLinkDialog()
         }
 
         // Section 3: Communication
@@ -930,6 +937,111 @@ class AdminActivity : AppCompatActivity() {
             }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+
+    private fun showFloatingLinkDialog() {
+        val floatingLinkRepo = FloatingLinkRepository()
+        val input = EditText(this).apply {
+            hint = "https://t.me/..."
+            inputType = InputType.TYPE_TEXT_VARIATION_URI
+            isSingleLine = true
+            val padding = (16 * resources.displayMetrics.density).toInt()
+            setPadding(padding, padding, padding, padding)
+        }
+
+        val container = FrameLayout(this).apply {
+            val marginH = (20 * resources.displayMetrics.density).toInt()
+            val marginV = (8 * resources.displayMetrics.density).toInt()
+            setPadding(marginH, marginV, marginH, marginV)
+            addView(input)
+        }
+
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setTitle("Floating Link")
+            .setMessage("Set the HTTPS community link for the floating paper airplane chip on the Home screen.")
+            .setView(container)
+            .setPositiveButton("Save", null)
+            .setNegativeButton("Clear", null)
+            .setNeutralButton("Cancel", null)
+            .create()
+
+        dialog.setOnShowListener {
+            lifecycleScope.launch {
+                floatingLinkRepo.getAdminFloatingLink()
+                    .onSuccess { currentUrl ->
+                        input.setText(currentUrl)
+                        input.setSelection(input.text.length)
+                    }
+            }
+
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val rawText = input.text.toString().trim()
+                if (rawText.isEmpty()) {
+                    lifecycleScope.launch {
+                        floatingLinkRepo.clearFloatingLink()
+                            .onSuccess {
+                                auditLogRepo.recordLog(
+                                    AdminAuditLog.ACTION_FLOATING_LINK_UPDATED,
+                                    "Cleared floating community link"
+                                )
+                                AppBulletin.showSuccess(this@AdminActivity, "Floating link cleared")
+                                dialog.dismiss()
+                            }
+                            .onFailure { e ->
+                                AppBulletin.showError(this@AdminActivity, e.localizedMessage ?: "Failed to clear link")
+                            }
+                    }
+                    return@setOnClickListener
+                }
+
+                val finalUrl = if (!rawText.startsWith("http://", ignoreCase = true) &&
+                    !rawText.startsWith("https://", ignoreCase = true)
+                ) {
+                    "https://$rawText"
+                } else {
+                    rawText
+                }
+
+                if (!FloatingLinkRepository.isValidHttpsUrl(finalUrl)) {
+                    AppBulletin.showError(this@AdminActivity, "Invalid URL. Must be a valid HTTPS URL up to 500 characters.")
+                    return@setOnClickListener
+                }
+
+                lifecycleScope.launch {
+                    floatingLinkRepo.updateFloatingLink(finalUrl)
+                        .onSuccess { cleanUrl ->
+                            auditLogRepo.recordLog(
+                                AdminAuditLog.ACTION_FLOATING_LINK_UPDATED,
+                                "Updated floating community link to $cleanUrl"
+                            )
+                            AppBulletin.showSuccess(this@AdminActivity, "Floating link updated")
+                            dialog.dismiss()
+                        }
+                        .onFailure { e ->
+                            AppBulletin.showError(this@AdminActivity, e.localizedMessage ?: "Failed to update link")
+                        }
+                }
+            }
+
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener {
+                lifecycleScope.launch {
+                    floatingLinkRepo.clearFloatingLink()
+                        .onSuccess {
+                            auditLogRepo.recordLog(
+                                AdminAuditLog.ACTION_FLOATING_LINK_UPDATED,
+                                "Cleared floating community link"
+                            )
+                            AppBulletin.showSuccess(this@AdminActivity, "Floating link cleared")
+                            dialog.dismiss()
+                        }
+                        .onFailure { e ->
+                            AppBulletin.showError(this@AdminActivity, e.localizedMessage ?: "Failed to clear link")
+                        }
+                }
+            }
+        }
+
+        dialog.show()
     }
 
     private fun showFeedbackRepliesDialog() {
