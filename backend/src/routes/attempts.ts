@@ -431,6 +431,16 @@ attemptRoutes.delete("/exam/:examId", async (c) => {
     .bind(uid, examId)
     .all<{ id: string; score: number; total: number; correct: number }>();
 
+  // Fetch evaluated answers for these attempts to clean up derived per-question stats in admin_analytics_questions
+  const { results: existingAnswers } = await db
+    .prepare(`
+      SELECT question_id, selected, correct
+      FROM attempt_answers
+      WHERE attempt_id IN (SELECT id FROM attempts WHERE user_id = ? AND exam_id = ?)
+    `)
+    .bind(uid, examId)
+    .all<{ question_id: string; selected: string; correct: string }>();
+
   const batchStatements: D1PreparedStatement[] = [];
 
   // 1. Delete lock
@@ -438,24 +448,52 @@ attemptRoutes.delete("/exam/:examId", async (c) => {
     db.prepare("DELETE FROM attempt_locks WHERE id = ?").bind(lockKey)
   );
 
-  // 2. Delete evaluated answers
+  // 2. Decrement derived per-question metrics in admin_analytics_questions
+  if (existingAnswers && existingAnswers.length > 0) {
+    for (const ans of existingAnswers) {
+      const qKey = `${examId}_${ans.question_id}`;
+      const isAttempted = Boolean(ans.selected && ans.selected.length > 0);
+      const isCorrect = isAttempted && ans.selected === ans.correct;
+      const isWrong = isAttempted && ans.selected !== ans.correct;
+      const isUnattempted = !isAttempted;
+
+      batchStatements.push(
+        db.prepare(`
+          UPDATE admin_analytics_questions
+          SET attempts = MAX(0, attempts - ?),
+              correct = MAX(0, correct - ?),
+              wrong = MAX(0, wrong - ?),
+              unattempted = MAX(0, unattempted - ?)
+          WHERE id = ?
+        `).bind(
+          isAttempted ? 1 : 0,
+          isCorrect ? 1 : 0,
+          isWrong ? 1 : 0,
+          isUnattempted ? 1 : 0,
+          qKey
+        )
+      );
+    }
+  }
+
+  // 3. Delete evaluated answers
   batchStatements.push(
     db.prepare(
       "DELETE FROM attempt_answers WHERE attempt_id IN (SELECT id FROM attempts WHERE user_id = ? AND exam_id = ?)"
     ).bind(uid, examId)
   );
 
-  // 3. Delete attempts
+  // 4. Delete attempts
   batchStatements.push(
     db.prepare("DELETE FROM attempts WHERE user_id = ? AND exam_id = ?").bind(uid, examId)
   );
 
-  // 4. Delete per-exam leaderboard row
+  // 5. Delete per-exam leaderboard row
   batchStatements.push(
     db.prepare("DELETE FROM leaderboard WHERE id = ?").bind(lbKey)
   );
 
-  // 5. Clean up overall_leaderboard if attempts existed
+  // 6. Clean up overall_leaderboard if attempts existed (floored at 0)
   if (existingAttempts && existingAttempts.length > 0) {
     let scoreToDeduct = 0;
     let questionsToDeduct = 0;
@@ -476,8 +514,8 @@ attemptRoutes.delete("/exam/:examId", async (c) => {
             total = MAX(0, total - ?),
             tests_taken = MAX(0, tests_taken - ?),
             total_correct = MAX(0, total_correct - ?),
-            accuracy = CASE WHEN (total - ?) > 0
-                            THEN ROUND(((total_correct - ?) * 100.0) / (total - ?))
+            accuracy = CASE WHEN MAX(0, total - ?) > 0
+                            THEN ROUND((MAX(0, total_correct - ?) * 100.0) / MAX(0, total - ?))
                             ELSE 0 END,
             timestamp = ?
         WHERE user_id = ?

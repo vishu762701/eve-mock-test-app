@@ -10,16 +10,27 @@ export async function handleScheduledTestGeneration(event: ScheduledEvent, env: 
   const { todayDate, currentTime } = getIstTimeAndDate();
   const now = Date.now();
 
-  console.log(`[Scheduler Start] IST: ${todayDate} ${currentTime}, checking exams...`);
+  const model = env.GEMINI_MODEL || "gemini-3.5-flash";
 
   const { results: exams } = await db
-    .prepare("SELECT * FROM exams WHERE auto_generation_enabled = 1")
+    .prepare("SELECT * FROM exams WHERE auto_generation_enabled IS NULL OR auto_generation_enabled != 0")
     .all<ExamRow>();
 
   if (!exams || exams.length === 0) {
+    console.log(`[Scheduler Start] IST: ${todayDate} ${currentTime}, Model: ${model}, Exams Scanned: 0, Eligible: 0`);
     console.log("[Scheduler] No active auto-generation exams found.");
     return;
   }
+
+  const eligibleExams = exams.filter((e) => {
+    const autoGenTime = String(e.auto_gen_time || "00:00").trim();
+    const lastGenDate = String(e.last_generated_date || "").trim();
+    return currentTime >= autoGenTime && lastGenDate !== todayDate;
+  });
+
+  console.log(
+    `[Scheduler Start] IST: ${todayDate} ${currentTime}, Model: ${model}, Exams Scanned: ${exams.length}, Eligible: ${eligibleExams.length}`
+  );
 
   let executedCount = 0;
   for (const exam of exams) {
@@ -30,17 +41,19 @@ export async function handleScheduledTestGeneration(event: ScheduledEvent, env: 
 
     // Condition 1: Current IST time must be >= scheduled autoGenTime
     if (currentTime < autoGenTime) {
+      console.log(`[Scheduler] Exam '${examName}' (${examId}) skipped: time not reached (${currentTime} < ${autoGenTime})`);
       continue;
     }
 
     // Condition 2: Must not have already generated today
     if (lastGenDate === todayDate) {
+      console.log(`[Scheduler] Exam '${examName}' (${examId}) skipped: already generated today (${todayDate})`);
       continue;
     }
 
     // Condition 3: Lock check for idempotency (10 minute lock)
     if (exam.generating_lock_until && now < exam.generating_lock_until) {
-      console.log(`[Scheduler] Exam '${examName}' is currently locked. Skipping.`);
+      console.log(`[Scheduler] Exam '${examName}' (${examId}) skipped: locked (generatingLockUntil: ${exam.generating_lock_until})`);
       continue;
     }
 
@@ -61,6 +74,7 @@ export async function handleScheduledTestGeneration(event: ScheduledEvent, env: 
       console.log(`[Scheduler] Failed to acquire lock for '${examName}'. Skipping.`);
       continue;
     }
+    console.log(`[Scheduler] Lock acquired for '${examName}' until ${new Date(lockExpiry).toISOString()}`);
 
     // Requirement 4e: Stagger execution when multiple exams are scheduled at the same time
     if (executedCount > 0) {
@@ -69,7 +83,7 @@ export async function handleScheduledTestGeneration(event: ScheduledEvent, env: 
     }
     executedCount++;
 
-    console.log(`[Scheduler] Starting AI test generation for '${examName}' scheduled at ${autoGenTime}...`);
+    console.log(`[Scheduler] Exam '${examName}' selected for generation. Calling Gemini (${model})...`);
 
     const targetCount = Math.max(1, Math.min(200, Number(exam.question_count || 20)));
     const testNumber = exam.test_number || "Test 1";
@@ -82,6 +96,10 @@ export async function handleScheduledTestGeneration(event: ScheduledEvent, env: 
         exam.syllabus || "",
         targetCount,
         prompt
+      );
+
+      console.log(
+        `[Scheduler] Gemini generation succeeded for '${examName}' (${questions.length} questions received). Inserting test and updating exam metadata...`
       );
 
       const testId = crypto.randomUUID();
@@ -133,7 +151,9 @@ export async function handleScheduledTestGeneration(event: ScheduledEvent, env: 
           ),
       ]);
 
-      console.log(`[Scheduler] Successfully generated test for '${examName}' (${questions.length} questions).`);
+      console.log(
+        `[Scheduler] Successfully inserted test '${title}' (${questions.length} questions). Exam metadata updated and lock released for '${examName}'.`
+      );
     } catch (err: any) {
       console.error(`[Scheduler] Generation failed for '${examName}':`, err.message);
 
@@ -162,6 +182,8 @@ export async function handleScheduledTestGeneration(event: ScheduledEvent, env: 
             finishTime
           ),
       ]);
+
+      console.log(`[Scheduler] Released lock and recorded failed status for '${examName}'.`);
     }
   }
 }

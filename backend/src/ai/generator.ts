@@ -154,7 +154,7 @@ export async function generateQuestions(
     throw new Error("GEMINI_API_KEY is not configured on Cloudflare Worker.");
   }
 
-  const model = env.GEMINI_MODEL || "gemini-1.5-flash-8b";
+  const model = env.GEMINI_MODEL || "gemini-3.5-flash";
   const CHUNK_SIZE = 25;
   const numChunks = Math.ceil(targetCount / CHUNK_SIZE);
   const collected: GeneratedQuestionItem[] = [];
