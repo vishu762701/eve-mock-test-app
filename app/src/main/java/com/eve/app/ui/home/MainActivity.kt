@@ -81,6 +81,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val viewModel: HomeViewModel by viewModels()
     private val adminRepo = AdminRepository()
+    private var isAdminUser: Boolean = false
 
     private var isSearchActive = false
     private var currentSearchQuery = ""
@@ -111,14 +112,36 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val adapter = ExamAdapter(
-        onClick = { exam ->
-            startActivity(
-                Intent(this, TestActivity::class.java)
-                    .putExtra(Constants.EXTRA_EXAM_ID, exam.id)
-                    .putExtra(Constants.EXTRA_EXAM_NAME, exam.examName)
-                    .putExtra(Constants.EXTRA_EXAM_CATEGORY, exam.categoryOrOther)
-                    .putExtra(Constants.EXTRA_TIME_LIMIT, exam.timeLimitMinutes)
-            )
+        onClick = { exam, attempted, attempt ->
+            if (attempted) {
+                com.eve.app.ui.common.CompletedExamBottomSheet.show(
+                    activity = this,
+                    examId = exam.id,
+                    examName = exam.examName,
+                    attempt = attempt,
+                    onReattemptConfirmed = {
+                        val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+                        if (user != null) {
+                            viewModel.loadForUser(user.uid, isAdminUser)
+                        }
+                        startActivity(
+                            Intent(this, TestActivity::class.java)
+                                .putExtra(Constants.EXTRA_EXAM_ID, exam.id)
+                                .putExtra(Constants.EXTRA_EXAM_NAME, exam.examName)
+                                .putExtra(Constants.EXTRA_EXAM_CATEGORY, exam.categoryOrOther)
+                                .putExtra(Constants.EXTRA_TIME_LIMIT, exam.timeLimitMinutes)
+                        )
+                    }
+                )
+            } else {
+                startActivity(
+                    Intent(this, TestActivity::class.java)
+                        .putExtra(Constants.EXTRA_EXAM_ID, exam.id)
+                        .putExtra(Constants.EXTRA_EXAM_NAME, exam.examName)
+                        .putExtra(Constants.EXTRA_EXAM_CATEGORY, exam.categoryOrOther)
+                        .putExtra(Constants.EXTRA_TIME_LIMIT, exam.timeLimitMinutes)
+                )
+            }
         },
         onLongClick = { exam: Exam, isPinned: Boolean, anchorView: View ->
             showPinPopupMenu(exam, isPinned, anchorView)
@@ -228,11 +251,13 @@ class MainActivity : AppCompatActivity() {
         })
 
         if (isHardcodedAdmin(user.email)) {
+            isAdminUser = true
             showAdminButton()
             viewModel.loadForUser(user.uid, true)
         } else {
             lifecycleScope.launch {
                 val admin = adminRepo.isAdmin(user.email)
+                isAdminUser = admin
                 if (admin) showAdminButton()
                 viewModel.loadForUser(user.uid, admin)
             }

@@ -15,5 +15,13 @@
     <string name="exam_completed_view_history">Completed • View Result in History</string>
     <string name="exam_time_category">Time: %1$d minutes • %2$s</string>
     <string name="exam_already_attempted">You have already completed this test.</string>
-
+    <string name="exam_completed_badge">Completed</string>
+    <string name="exam_completed_score">Completed • Score: %1$s/%2$d</string>
+    <string name="view_my_result">View my result</string>
+    <string name="reattempt">Reattempt</string>
+    <string name="reattempt_confirm_title">Reattempt Test</string>
+    <string name="reattempt_warning_message">Your previous result, score and answers for this test will be permanently deleted once you start. This cannot be undone.</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete_and_start">Delete &amp; Start</string>
+    <string name="reset_attempt_failed">Failed to reset test. Please try again.</string>
 </resources>

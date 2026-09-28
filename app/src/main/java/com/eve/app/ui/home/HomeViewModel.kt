@@ -22,9 +22,15 @@ class HomeViewModel : ViewModel() {
     private val repo = ExamRepository()
     private val pinnedRepo = PinnedExamsRepository()
     private val feedbackRepo = FeedbackRepository()
+    private val historyRepo = com.eve.app.data.repository.HistoryRepository()
+
+    private data class AttemptInfo(
+        val ids: Set<String> = emptySet(),
+        val map: Map<String, com.eve.app.data.model.TestAttempt> = emptyMap()
+    )
 
     private val _examState = MutableStateFlow<UiState<List<Exam>>>(UiState.Loading)
-    private val _attemptedIds = MutableStateFlow<Set<String>>(emptySet())
+    private val _attemptInfo = MutableStateFlow(AttemptInfo())
     private val _pinnedIds = MutableStateFlow<Set<String>>(emptySet())
     private val _feedbackPosts = MutableStateFlow<List<FeedbackPost>>(emptyList())
     private val _selectedCategory = MutableStateFlow(Constants.CATEGORY_ALL)
@@ -33,11 +39,11 @@ class HomeViewModel : ViewModel() {
     private var feedbackObserverJob: Job? = null
 
     val state: StateFlow<UiState<HomeUiData>> =
-        combine(_examState, _selectedCategory, _attemptedIds, _pinnedIds, _feedbackPosts) { examState, selected, attempted, pinned, feedbackPosts ->
+        combine(_examState, _selectedCategory, _attemptInfo, _pinnedIds, _feedbackPosts) { examState, selected, attemptInfo, pinned, feedbackPosts ->
             when (examState) {
                 is UiState.Loading -> UiState.Loading
                 is UiState.Error -> UiState.Error(examState.message)
-                is UiState.Success -> UiState.Success(buildUiData(examState.data, selected, attempted, pinned, feedbackPosts))
+                is UiState.Success -> UiState.Success(buildUiData(examState.data, selected, attemptInfo.ids, attemptInfo.map, pinned, feedbackPosts))
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState.Loading)
 
@@ -58,8 +64,17 @@ class HomeViewModel : ViewModel() {
         viewModelScope.launch {
             _examState.value = UiState.Loading
             try {
-                _examState.value = UiState.Success(repo.getExams())
-                _attemptedIds.value = if (isAdmin) emptySet() else repo.getAttemptedExamIds(userId)
+                val exams = repo.getExams()
+                _examState.value = UiState.Success(exams)
+                if (isAdmin) {
+                    _attemptInfo.value = AttemptInfo()
+                } else {
+                    val locks = repo.getAttemptedExamIds(userId)
+                    val attempts = historyRepo.getAttempts(userId)
+                    val ids = locks + attempts.map { it.examId }
+                    val map = attempts.associateBy { it.examId }
+                    _attemptInfo.value = AttemptInfo(ids, map)
+                }
             } catch (e: Exception) {
                 _examState.value = UiState.Error(e.message ?: "Failed to load exams")
             }
@@ -100,6 +115,7 @@ class HomeViewModel : ViewModel() {
         all: List<Exam>,
         selected: String,
         attempted: Set<String>,
+        attemptsMap: Map<String, com.eve.app.data.model.TestAttempt>,
         pinned: Set<String>,
         feedbackPosts: List<FeedbackPost>
     ): HomeUiData {
@@ -121,18 +137,18 @@ class HomeViewModel : ViewModel() {
 
             if (pinnedExams.isNotEmpty()) {
                 items.add(HomeListItem.Header("Pinned Tests"))
-                items.addAll(pinnedExams.map { HomeListItem.ExamRow(it, it.id in attempted, isPinned = true) })
+                items.addAll(pinnedExams.map { HomeListItem.ExamRow(it, it.id in attempted, isPinned = true, attempt = attemptsMap[it.id]) })
             }
 
             unpinnedExams.groupBy { it.categoryOrOther }.toSortedMap().forEach { (category, exams) ->
                 items.add(HomeListItem.Header(category))
-                items.addAll(exams.sortedBy { it.examName }.map { HomeListItem.ExamRow(it, it.id in attempted, isPinned = false) })
+                items.addAll(exams.sortedBy { it.examName }.map { HomeListItem.ExamRow(it, it.id in attempted, isPinned = false, attempt = attemptsMap[it.id]) })
             }
         } else {
             if (pinnedExams.isNotEmpty()) {
-                items.addAll(pinnedExams.map { HomeListItem.ExamRow(it, it.id in attempted, isPinned = true) })
+                items.addAll(pinnedExams.map { HomeListItem.ExamRow(it, it.id in attempted, isPinned = true, attempt = attemptsMap[it.id]) })
             }
-            items.addAll(unpinnedExams.sortedBy { it.examName }.map { HomeListItem.ExamRow(it, it.id in attempted, isPinned = false) })
+            items.addAll(unpinnedExams.sortedBy { it.examName }.map { HomeListItem.ExamRow(it, it.id in attempted, isPinned = false, attempt = attemptsMap[it.id]) })
         }
 
         return HomeUiData(categories, effectiveSelected, items)

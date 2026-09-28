@@ -9,7 +9,8 @@ sealed class HomeListItem {
     data class ExamRow(
         val exam: Exam,
         val attempted: Boolean = false,
-        val isPinned: Boolean = false
+        val isPinned: Boolean = false,
+        val attempt: com.eve.app.data.model.TestAttempt? = null
     ) : HomeListItem()
     data class FeedbackPostRow(val post: FeedbackPost) : HomeListItem()
 }

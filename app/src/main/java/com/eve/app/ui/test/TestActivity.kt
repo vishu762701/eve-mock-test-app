@@ -141,11 +141,22 @@ class TestActivity : AppCompatActivity() {
                 launch {
                     viewModel.alreadyAttempted.collect { blocked ->
                         if (blocked && !isFinishing) {
-                            com.eve.app.util.AppBulletin.showError(
-                                this@TestActivity,
-                                getString(com.eve.app.R.string.exam_already_attempted)
+                            com.eve.app.ui.common.CompletedExamBottomSheet.show(
+                                activity = this@TestActivity,
+                                examId = examId,
+                                examName = examName,
+                                attempt = null,
+                                onReattemptConfirmed = {
+                                    val restartIntent = intent
+                                    finish()
+                                    startActivity(restartIntent)
+                                },
+                                onDismiss = {
+                                    if (!isFinishing) {
+                                        finish()
+                                    }
+                                }
                             )
-                            finish()
                         }
                     }
                 }

@@ -410,3 +410,102 @@ attemptRoutes.get("/locks/:examId", async (c) => {
 
   return c.json({ success: true, data: { hasLock: Boolean(row) } });
 });
+
+// DELETE /api/attempts/exam/:examId - Reset attempts & lock for an exam (reattempt flow)
+attemptRoutes.delete("/exam/:examId", async (c) => {
+  const user = c.get("user");
+  const uid = user.uid;
+  const examId = String(c.req.param("examId") || "").trim();
+  const db = c.env.DB;
+
+  if (!examId) {
+    return c.json({ success: false, error: "Exam ID is required" }, 400);
+  }
+
+  const lockKey = `${uid}_${examId}`;
+  const lbKey = `${examId}_${uid}`;
+
+  // Fetch existing attempts for this user and exam to adjust overall_leaderboard
+  const { results: existingAttempts } = await db
+    .prepare("SELECT id, score, total, correct FROM attempts WHERE user_id = ? AND exam_id = ?")
+    .bind(uid, examId)
+    .all<{ id: string; score: number; total: number; correct: number }>();
+
+  const batchStatements: D1PreparedStatement[] = [];
+
+  // 1. Delete lock
+  batchStatements.push(
+    db.prepare("DELETE FROM attempt_locks WHERE id = ?").bind(lockKey)
+  );
+
+  // 2. Delete evaluated answers
+  batchStatements.push(
+    db.prepare(
+      "DELETE FROM attempt_answers WHERE attempt_id IN (SELECT id FROM attempts WHERE user_id = ? AND exam_id = ?)"
+    ).bind(uid, examId)
+  );
+
+  // 3. Delete attempts
+  batchStatements.push(
+    db.prepare("DELETE FROM attempts WHERE user_id = ? AND exam_id = ?").bind(uid, examId)
+  );
+
+  // 4. Delete per-exam leaderboard row
+  batchStatements.push(
+    db.prepare("DELETE FROM leaderboard WHERE id = ?").bind(lbKey)
+  );
+
+  // 5. Clean up overall_leaderboard if attempts existed
+  if (existingAttempts && existingAttempts.length > 0) {
+    let scoreToDeduct = 0;
+    let questionsToDeduct = 0;
+    let correctToDeduct = 0;
+    const testsToDeduct = existingAttempts.length;
+
+    for (const att of existingAttempts) {
+      scoreToDeduct += Number(att.score || 0);
+      questionsToDeduct += Number(att.total || 0);
+      correctToDeduct += Number(att.correct || 0);
+    }
+
+    batchStatements.push(
+      db.prepare(`
+        UPDATE overall_leaderboard
+        SET score = MAX(0.0, ROUND(score - ?, 2)),
+            total_score = MAX(0.0, ROUND(total_score - ?, 2)),
+            total = MAX(0, total - ?),
+            tests_taken = MAX(0, tests_taken - ?),
+            total_correct = MAX(0, total_correct - ?),
+            accuracy = CASE WHEN (total - ?) > 0
+                            THEN ROUND(((total_correct - ?) * 100.0) / (total - ?))
+                            ELSE 0 END,
+            timestamp = ?
+        WHERE user_id = ?
+      `).bind(
+        scoreToDeduct,
+        scoreToDeduct,
+        questionsToDeduct,
+        testsToDeduct,
+        correctToDeduct,
+        questionsToDeduct,
+        correctToDeduct,
+        questionsToDeduct,
+        Date.now(),
+        uid
+      )
+    );
+  }
+
+  // Execute in ONE atomic batch
+  await db.batch(batchStatements);
+
+  return c.json({
+    success: true,
+    data: {
+      examId,
+      deletedAttemptsCount: existingAttempts?.length || 0,
+      message: "Attempt data and lock reset successfully."
+    }
+  });
+});
+

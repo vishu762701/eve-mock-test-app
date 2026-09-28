@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/eve_card_bg"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <!-- Handle drag indicator -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:background="@color/eve_stroke" />
+
+    <TextView
+        android:id="@+id/tvCompletedTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_semibold"
+        android:textColor="@color/eve_text"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/tvCompletedScore"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/poppins_medium"
+        android:textColor="@color/eve_text_secondary"
+        android:textSize="14sp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnViewResult"
+        style="@style/Widget.Eve.Button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/view_my_result"
+        app:icon="@drawable/ic_history"
+        app:iconGravity="textStart"
+        app:iconTint="@color/eve_on_primary" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnReattempt"
+        style="@style/Widget.Eve.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/reattempt"
+        android:textColor="@color/error"
+        app:strokeColor="@color/error"
+        app:icon="@drawable/ic_refresh"
+        app:iconGravity="textStart"
+        app:iconTint="@color/error" />
+
+</LinearLayout>

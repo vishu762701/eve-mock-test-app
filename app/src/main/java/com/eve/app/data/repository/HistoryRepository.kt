@@ -79,4 +79,16 @@ class HistoryRepository(
             emptyList()
         }
     }
+
+    /** Reset attempt and lock for an exam so user can reattempt. */
+    suspend fun resetAttempt(examId: String): Boolean {
+        if (examId.isBlank()) return false
+        return try {
+            val res = api.resetAttempt(examId)
+            res.success
+        } catch (e: Exception) {
+            Log.w("HistoryRepository", "resetAttempt failed for examId=$examId", e)
+            false
+        }
+    }
 }

@@ -135,6 +135,9 @@ interface EveApiService {
     @GET("api/attempts/locks/{examId}")
     suspend fun checkAttemptLock(@Path("examId") examId: String): ApiResponse<AttemptLockResponse>
 
+    @DELETE("api/attempts/exam/{examId}")
+    suspend fun resetAttempt(@Path("examId") examId: String): ApiResponse<Map<String, @JvmSuppressWildcards Any>>
+
     // --- Leaderboard ---
     @GET("api/leaderboard")
     suspend fun getLeaderboard(
