@@ -56,6 +56,7 @@ class TestActivity : AppCompatActivity() {
     private var initialNavDone = false
 
     private lateinit var paletteAdapter: QuestionPaletteAdapter
+    private var currentQuestionPosition: Int = 0
     private var questionStartTimeMs: Long = SystemClock.elapsedRealtime()
     private val questionStatsRepo = QuestionStatsRepository()
     private val timerPopupHandler = Handler(Looper.getMainLooper())
@@ -64,6 +65,7 @@ class TestActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
+        currentQuestionPosition = savedInstanceState?.getInt("saved_question_position", 0) ?: 0
         SecurityHelper.applyScreenProtection(this)
         binding = ActivityTestBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -114,10 +116,15 @@ class TestActivity : AppCompatActivity() {
 
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                questionStartTimeMs = SystemClock.elapsedRealtime()
+                val now = SystemClock.elapsedRealtime()
+                val spent = ((now - questionStartTimeMs) / 1000).coerceAtLeast(0)
+                viewModel.recordQuestionTime(currentQuestionPosition, spent)
+                currentQuestionPosition = position
+                questionStartTimeMs = now
                 binding.timerPopup.cardTimerComparison.visibility = View.GONE
                 updateNav(position)
                 updatePalette(position)
+                updateQuestionTimerDisplay(position)
             }
         })
 
@@ -224,14 +231,17 @@ class TestActivity : AppCompatActivity() {
                         list,
                         getSelected = { viewModel.getAnswer(it) },
                         onSelect = { pos, letter ->
-                            val spent = ((SystemClock.elapsedRealtime() - questionStartTimeMs) / 1000).coerceAtLeast(1)
+                            val now = SystemClock.elapsedRealtime()
+                            val spent = ((now - questionStartTimeMs) / 1000).coerceAtLeast(1)
                             viewModel.recordQuestionTime(pos, spent)
+                            questionStartTimeMs = now
                             viewModel.setAnswer(pos, letter)
                             updatePalette(pos)
                             val q = list.getOrNull(pos)
                             if (q != null) {
                                 showTimerComparisonPopup(q, letter, spent)
                             }
+                            updateQuestionTimerDisplay(pos)
                         },
                         getBookmarked = { viewModel.isBookmarked(it) },
                         onToggleBookmark = { viewModel.toggleBookmark(it) },
@@ -255,6 +265,9 @@ class TestActivity : AppCompatActivity() {
                 }
                 updateNav(binding.viewPager.currentItem)
                 updatePalette(binding.viewPager.currentItem)
+                currentQuestionPosition = binding.viewPager.currentItem
+                questionStartTimeMs = SystemClock.elapsedRealtime()
+                updateQuestionTimerDisplay(currentQuestionPosition)
             }
         }
     }
@@ -265,6 +278,17 @@ class TestActivity : AppCompatActivity() {
         val s = seconds % 60
         binding.tvTimer.text = String.format("%02d:%02d", m, s)
         binding.circularTimerView.setTime(seconds, total = (timeLimit * 60L).coerceAtLeast(seconds))
+        updateQuestionTimerDisplay(currentQuestionPosition)
+    }
+
+    private fun updateQuestionTimerDisplay(position: Int) {
+        if (totalQuestions <= 0) return
+        val baseSec = viewModel.getQuestionTime(position)
+        val currentSec = ((SystemClock.elapsedRealtime() - questionStartTimeMs) / 1000).coerceAtLeast(0)
+        val totalSec = baseSec + currentSec
+        val m = totalSec / 60
+        val s = totalSec % 60
+        binding.tvQuestionTimer.text = String.format("%02d:%02d", m, s)
     }
 
     private fun updateNav(position: Int) {
@@ -289,6 +313,10 @@ class TestActivity : AppCompatActivity() {
     private fun submit() {
         if (submitted) return
         submitted = true
+        val now = SystemClock.elapsedRealtime()
+        val spent = ((now - questionStartTimeMs) / 1000).coerceAtLeast(0)
+        viewModel.recordQuestionTime(currentQuestionPosition, spent)
+        questionStartTimeMs = now
         viewModel.stopTimer()
         val items = viewModel.buildAnswerItems()
         val attemptName = sessionTitle()
@@ -337,9 +365,34 @@ class TestActivity : AppCompatActivity() {
         else -> examName
     }
 
+    override fun onPause() {
+        super.onPause()
+        if (!submitted) {
+            val now = SystemClock.elapsedRealtime()
+            val spent = ((now - questionStartTimeMs) / 1000).coerceAtLeast(0)
+            viewModel.recordQuestionTime(currentQuestionPosition, spent)
+            questionStartTimeMs = now
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!submitted) {
+            questionStartTimeMs = SystemClock.elapsedRealtime()
+            updateQuestionTimerDisplay(currentQuestionPosition)
+        }
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("key_empty_played", hasEmptyPlayed)
+        if (!submitted) {
+            val now = SystemClock.elapsedRealtime()
+            val spent = ((now - questionStartTimeMs) / 1000).coerceAtLeast(0)
+            viewModel.recordQuestionTime(currentQuestionPosition, spent)
+            questionStartTimeMs = now
+        }
+        outState.putInt("saved_question_position", currentQuestionPosition)
     }
 
     private fun showTimerComparisonPopup(question: Question, selectedLetter: String, timeSpent: Long) {

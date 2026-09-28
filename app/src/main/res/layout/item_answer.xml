@@ -41,14 +41,15 @@
 
             <ImageView
                 android:id="@+id/ivReportQuestion"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_marginStart="8dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Report this question"
-                android:padding="2dp"
+                android:padding="12dp"
+                android:scaleType="fitCenter"
                 android:src="@drawable/ic_flag"
-                app:tint="@color/eve_text_secondary" />
+                app:tint="@color/eve_text" />
         </LinearLayout>
 
         <TextView

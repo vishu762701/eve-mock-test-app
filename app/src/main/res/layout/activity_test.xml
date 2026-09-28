@@ -40,17 +40,22 @@
             style="@style/Widget.Eve.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="4dp"
-            android:minWidth="0dp"
+            android:layout_marginEnd="8dp"
+            android:minWidth="48dp"
+            android:minHeight="48dp"
             android:paddingHorizontal="10dp"
             android:text="HI"
+            app:strokeColor="@color/eve_on_primary"
+            app:strokeWidth="1dp"
             android:textColor="@color/eve_on_primary" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSubmit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/eve_button_bg"
+            android:minHeight="48dp"
+            android:backgroundTint="@color/eve_on_primary"
+            android:textColor="@color/eve_primary"
             android:enabled="false"
             android:text="Submit" />
     </LinearLayout>
@@ -80,14 +85,31 @@
         android:textStyle="bold"
         android:visibility="gone" />
 
-    <TextView
-        android:id="@+id/tvProgress"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:paddingHorizontal="16dp"
-        android:paddingVertical="8dp"
-        android:textColor="@color/eve_grey"
-        android:textSize="14sp" />
+        android:paddingVertical="8dp">
+
+        <TextView
+            android:id="@+id/tvProgress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/eve_grey"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvQuestionTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:00"
+            android:textColor="@color/eve_grey"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
     <FrameLayout
         android:layout_width="match_parent"

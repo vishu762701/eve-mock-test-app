@@ -11,6 +11,7 @@ import android.graphics.Typeface
 import android.util.AttributeSet
 import android.view.View
 import android.view.animation.LinearInterpolator
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.eve.app.R
 
@@ -28,22 +29,29 @@ class CircularTimerView @JvmOverloads constructor(
     private val density = resources.displayMetrics.density
     private val strokePx = 3f * density
 
+    private val normalColor: Int
+        get() = ContextCompat.getColor(context, R.color.timer_normal)
+
+    private val warningColor: Int
+        get() = ContextCompat.getColor(context, R.color.timer_warning)
+
     private val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = strokePx
-        color = Color.argb(60, 255, 255, 255)
+        val nc = normalColor
+        color = Color.argb(60, Color.red(nc), Color.green(nc), Color.blue(nc))
     }
 
     private val progressPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = strokePx
         strokeCap = Paint.Cap.ROUND
-        color = Color.WHITE
+        color = normalColor
     }
 
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textAlign = Paint.Align.CENTER
-        color = Color.WHITE
+        color = normalColor
         textSize = sp(15f)
         typeface = try {
             ResourcesCompat.getFont(context, R.font.poppins_bold) ?: Typeface.DEFAULT_BOLD
@@ -59,7 +67,7 @@ class CircularTimerView @JvmOverloads constructor(
     private var progressAnimator: ValueAnimator? = null
     private var isFirstUpdate = true
 
-    private var currentColor = Color.WHITE
+    private var currentColor = normalColor
     private var colorAnimator: ValueAnimator? = null
 
     private var displayText: String = "--:--"
@@ -82,6 +90,8 @@ class CircularTimerView @JvmOverloads constructor(
         if (oval.isEmpty) return
 
         // 1. Background ring track
+        val nc = normalColor
+        trackPaint.color = Color.argb(60, Color.red(nc), Color.green(nc), Color.blue(nc))
         canvas.drawOval(oval, trackPaint)
 
         // 2. Depleting progress arc
@@ -127,7 +137,7 @@ class CircularTimerView @JvmOverloads constructor(
 
         // Color transition: warning red if <= 60s or remaining <= 10%
         val isWarning = (remainingSeconds <= 60L || targetProgress <= 0.10f)
-        val targetColor = if (isWarning) Color.parseColor("#FF5252") else Color.WHITE
+        val targetColor = if (isWarning) warningColor else normalColor
 
         if (targetColor != currentColor && colorAnimator == null) {
             colorAnimator = ValueAnimator.ofObject(argbEvaluator, currentColor, targetColor).apply {
@@ -148,6 +158,27 @@ class CircularTimerView @JvmOverloads constructor(
             }
         }
         invalidate()
+    }
+
+    fun updateThemeColors() {
+        val nc = normalColor
+        trackPaint.color = Color.argb(60, Color.red(nc), Color.green(nc), Color.blue(nc))
+        if (colorAnimator == null && currentColor != warningColor) {
+            currentColor = nc
+            progressPaint.color = nc
+            textPaint.color = nc
+        }
+        invalidate()
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        updateThemeColors()
+    }
+
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration?) {
+        super.onConfigurationChanged(newConfig)
+        updateThemeColors()
     }
 
     override fun onDetachedFromWindow() {

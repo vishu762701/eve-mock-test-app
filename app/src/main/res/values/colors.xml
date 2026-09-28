@@ -57,4 +57,12 @@
     <color name="eve_login_google_text">#0F172A</color>
     <color name="eve_drawer_glass_bg">#80F1F5F9</color>
     <color name="eve_drawer_glass_border">#28000000</color>
+
+    <!-- Paired light/dark tokens for theme contrast (WCAG compliant) -->
+    <color name="success">#1B5E20</color>
+    <color name="error">#B71C1C</color>
+    <color name="warning">#B45309</color>
+    <color name="caution">#C2410C</color>
+    <color name="timer_normal">#FFFFFF</color>
+    <color name="timer_warning">#FF5252</color>
 </resources>

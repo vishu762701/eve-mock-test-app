@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatRadioButton
+import androidx.core.content.ContextCompat
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import com.eve.app.R
 import com.eve.app.util.ThemeSwitchAnimator
@@ -83,9 +84,8 @@ class TelegramRadioButton @JvmOverloads constructor(
     }
 
     override fun onDraw(canvas: Canvas) {
-        val isDark = ThemeSwitchAnimator.isDarkMode(context)
-        val unselectedColor = if (isDark) Color.parseColor("#757575") else Color.parseColor("#9E9E9E")
-        val selectedColor = if (isDark) Color.WHITE else Color.parseColor("#111111")
+        val unselectedColor = ContextCompat.getColor(context, R.color.eve_grey)
+        val selectedColor = ContextCompat.getColor(context, R.color.eve_text)
 
         val currentRingColor = argbEvaluator.evaluate(checkProgress, unselectedColor, selectedColor) as Int
         ringPaint.color = currentRingColor

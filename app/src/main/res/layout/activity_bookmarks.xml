@@ -45,7 +45,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_regular"
-                android:textColor="#D0FFFFFF"
+                android:textColor="@color/eve_on_primary"
+                android:alpha="0.85"
                 android:textSize="12sp"
                 android:visibility="gone"
                 tools:text="3 questions saved"
@@ -58,9 +59,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="4dp"
-            android:minWidth="0dp"
+            android:minWidth="48dp"
+            android:minHeight="48dp"
             android:paddingHorizontal="10dp"
             android:text="HI"
+            app:strokeColor="@color/eve_on_primary"
+            app:strokeWidth="1dp"
             android:textColor="@color/eve_on_primary" />
     </LinearLayout>
 

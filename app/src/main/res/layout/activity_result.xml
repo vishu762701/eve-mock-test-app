@@ -27,7 +27,7 @@
                 android:layout_weight="1"
                 android:fontFamily="@font/poppins_medium"
                 android:text="Your Score"
-                android:textColor="@color/eve_banner_text"
+                android:textColor="@color/eve_on_primary"
                 android:textSize="14sp" />
 
             <com.google.android.material.button.MaterialButton
@@ -35,9 +35,12 @@
                 style="@style/Widget.Eve.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="0dp"
+                android:minWidth="48dp"
+                android:minHeight="48dp"
                 android:paddingHorizontal="10dp"
                 android:text="HI"
+                app:strokeColor="@color/eve_on_primary"
+                app:strokeWidth="1dp"
                 android:textColor="@color/eve_on_primary" />
         </LinearLayout>
 
@@ -65,7 +68,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:fontFamily="@font/poppins"
-            android:textColor="@color/eve_banner_text"
+            android:textColor="@color/eve_on_primary"
             android:textSize="12sp"
             android:visibility="gone" />
 
