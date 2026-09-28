@@ -10,7 +10,7 @@ FIREBASE_PROJECT_ID = "eve-fb0e3"
 SUPABASE_PROJECT_URL = "https://msfihtyllpodkfgxxxdd.supabase.co"
 SUPABASE_BUCKET_NAME = "eve-media"
 SUPABASE_PUBLISHABLE_KEY = "sb_publishable_2tExlJ_y8jUtFoM3dbetyg_mqIWOh5Z"
-GEMINI_MODEL = "gemini-3.5-flash"
+GEMINI_MODEL = "gemini-3.5-flash-lite"
 
 [[d1_databases]]
 binding = "DB"

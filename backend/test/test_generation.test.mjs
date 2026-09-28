@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
  * End-to-End Test Suite: AI Test Generation Pipeline
  *
  * Verifies the complete lifecycle of test generation:
- * 1. Prompt formatting & model endpoint targeting (gemini-3.5-flash)
+ * 1. Prompt formatting & model endpoint targeting (gemini-3.5-flash-lite)
  * 2. Response parsing, sanitization (markdown stripping, answer normalization, choice uniqueness)
  * 3. Test number progression (Test 1 -> Test 2, Mock 9 -> Mock 10)
  * 4. On-demand generation flow: exam lookup, running lock, generation, paused test creation, exam update
@@ -158,9 +158,9 @@ test("end-to-end on-demand test generation creates paused test, advances test nu
 
   const generatedTests = new Map();
 
-  // Simulated AI API Generator using gemini-3.5-flash
+  // Simulated AI API Generator using gemini-3.5-flash-lite
   async function mockGenerateQuestions(env, examName, syllabus, count, prompt) {
-    assert.equal(env.GEMINI_MODEL, "gemini-3.5-flash");
+    assert.equal(env.GEMINI_MODEL, "gemini-3.5-flash-lite");
     assert.ok(env.GEMINI_API_KEY);
 
     return [
@@ -204,7 +204,7 @@ test("end-to-end on-demand test generation creates paused test, advances test nu
     exam.last_generation_time = Date.now();
 
     // 2. Execute AI generation
-    const fakeEnv = { GEMINI_MODEL: "gemini-3.5-flash", GEMINI_API_KEY: "secret-key-123" };
+    const fakeEnv = { GEMINI_MODEL: "gemini-3.5-flash-lite", GEMINI_API_KEY: "secret-key-123" };
     const questions = await mockGenerateQuestions(
       fakeEnv,
       exam.exam_name,

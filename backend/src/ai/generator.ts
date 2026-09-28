@@ -154,7 +154,7 @@ export async function generateQuestions(
     throw new Error("GEMINI_API_KEY is not configured on Cloudflare Worker.");
   }
 
-  const model = env.GEMINI_MODEL || "gemini-3.5-flash";
+  const model = env.GEMINI_MODEL || "gemini-3.5-flash-lite";
   const CHUNK_SIZE = 25;
   const numChunks = Math.ceil(targetCount / CHUNK_SIZE);
   const collected: GeneratedQuestionItem[] = [];
@@ -174,7 +174,7 @@ export async function generateQuestions(
       },
     };
 
-    const res = await fetch(endpoint, {
+    let res = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -182,6 +182,22 @@ export async function generateQuestions(
       },
       body: JSON.stringify(body),
     });
+
+    // If primary model returns 503 (high demand) or 404, fallback to gemini-3.5-flash-lite
+    if (!res.ok && (res.status === 503 || res.status === 404) && model !== "gemini-3.5-flash-lite") {
+      const fallbackEndpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent";
+      const fallbackRes = await fetch(fallbackEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey,
+        },
+        body: JSON.stringify(body),
+      });
+      if (fallbackRes.ok) {
+        res = fallbackRes;
+      }
+    }
 
     if (!res.ok) {
       const errText = await res.text();

@@ -10,7 +10,7 @@ export async function handleScheduledTestGeneration(event: ScheduledEvent, env: 
   const { todayDate, currentTime } = getIstTimeAndDate();
   const now = Date.now();
 
-  const model = env.GEMINI_MODEL || "gemini-3.5-flash";
+  const model = env.GEMINI_MODEL || "gemini-3.5-flash-lite";
 
   const { results: exams } = await db
     .prepare("SELECT * FROM exams WHERE auto_generation_enabled IS NULL OR auto_generation_enabled != 0")
