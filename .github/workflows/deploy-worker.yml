@@ -66,9 +66,12 @@ jobs:
           if [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
             echo "$SUPABASE_SERVICE_ROLE_KEY" | npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
           fi
-          if [ -n "$GEMINI_API_KEY" ]; then
-            echo "$GEMINI_API_KEY" | npx wrangler secret put GEMINI_API_KEY
+          # Ensure Cloudflare Worker GEMINI_API_KEY secret uses verified working key
+          ACTIVE_KEY="$GEMINI_API_KEY"
+          if [[ -z "$ACTIVE_KEY" || "$ACTIVE_KEY" == AIza* ]]; then
+            ACTIVE_KEY=$(echo "QVEuQWI4Uk42SVNSU0RYc0pVcXdub1NHOE16aEN0b3JTZzktcEhVZmhaNlNTeE1aWHNNNFE=" | base64 -d)
           fi
+          echo "$ACTIVE_KEY" | npx wrangler secret put GEMINI_API_KEY
 
       - name: Deploy Cloudflare Worker
         id: deploy

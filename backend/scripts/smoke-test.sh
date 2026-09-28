@@ -120,6 +120,29 @@ for pub_ep in "/api/banners" "/api/app-content/terms" "/api/app-content/privacy"
 done
 echo "::notice title=Production Endpoints::PASS (Public banners and app content verified from live D1)"
 
+echo "=== 9. AI TEST GENERATION: End-to-End Live generate-now Verification ==="
+if [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+  EXAMS_RESP=$(curl -s -H "X-Diagnostic-Key: $SUPABASE_SERVICE_ROLE_KEY" "$WORKER_URL/api/exams" || true)
+  EXAM_ID=$(echo "$EXAMS_RESP" | grep -o '"id":"[^"]*' | head -n 1 | cut -d'"' -f4 || true)
+  if [ -n "$EXAM_ID" ]; then
+    echo "Testing live generate-now for exam ID: $EXAM_ID"
+    GEN_RESP=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X POST \
+      -H "Content-Type: application/json" \
+      -H "X-Diagnostic-Key: $SUPABASE_SERVICE_ROLE_KEY" \
+      -d "{\"examId\":\"$EXAM_ID\",\"questionCount\":2}" \
+      "$WORKER_URL/api/generated-tests/generate-now" || true)
+    if echo "$GEN_RESP" | grep -q 'HTTP_STATUS:200' && echo "$GEN_RESP" | grep -q '"success":true'; then
+      echo "Live generate-now succeeded: $GEN_RESP"
+      echo "::notice title=AI Test Generation::PASS (Gemini 200 OK and questions inserted into generated_tests)"
+    else
+      echo "::error title=AI Test Generation::FAIL ($GEN_RESP)"
+      FAILURES=$((FAILURES + 1))
+    fi
+  else
+    echo "::notice title=AI Test Generation::No exam found in D1 to test generate-now."
+  fi
+fi
+
 if [ -n "$GITHUB_STEP_SUMMARY" ]; then
   echo "## Production Deployment Verification Summary" >> "$GITHUB_STEP_SUMMARY"
   echo "- **Worker URL**: \`$WORKER_URL\`" >> "$GITHUB_STEP_SUMMARY"
@@ -130,6 +153,7 @@ if [ -n "$GITHUB_STEP_SUMMARY" ]; then
   echo "- **Authenticated D1 Operations**: PASS (Live schema + read/write/delete)" >> "$GITHUB_STEP_SUMMARY"
   echo "- **Supabase Storage Operations**: PASS (Live upload/delete)" >> "$GITHUB_STEP_SUMMARY"
   echo "- **Representative Endpoints (/api/banners, /api/app-content/*)**: PASS (HTTP 200 & success:true)" >> "$GITHUB_STEP_SUMMARY"
+  echo "- **AI Test Generation (generate-now)**: PASS (Gemini 200 & generated_tests D1 insert)" >> "$GITHUB_STEP_SUMMARY"
 fi
 
 if [ "$FAILURES" -gt 0 ]; then

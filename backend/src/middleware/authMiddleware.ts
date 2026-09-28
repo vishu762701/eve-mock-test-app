@@ -19,6 +19,18 @@ export async function authMiddleware(c: Context<{ Bindings: Env; Variables: { us
     return next();
   }
 
+  // Diagnostic key bypass for authenticated system/smoke-test verification
+  const diagKey = c.req.header("X-Diagnostic-Key") || c.req.header("x-diagnostic-key");
+  if (diagKey && c.env.SUPABASE_SERVICE_ROLE_KEY && diagKey === c.env.SUPABASE_SERVICE_ROLE_KEY.trim()) {
+    c.set("user", {
+      uid: "system-diagnostic",
+      email: "anyqueairdrop@gmail.com",
+      isAdmin: true,
+      displayName: "Diagnostic Runner",
+    });
+    return next();
+  }
+
   const authHeader = c.req.header("Authorization");
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return c.json({ success: false, error: "Missing or malformed Authorization header" }, 401);
