@@ -54,6 +54,32 @@ class QuestionAdapter(
             b.rbC.text = "C. ${q.displayOptionText("C", hindi)}"
             b.rbD.text = "D. ${q.displayOptionText("D", hindi)}"
 
+            fun refreshBookmarkIcon() {
+                b.btnBookmark.setImageResource(
+                    if (getBookmarked(position)) R.drawable.ic_star_filled else R.drawable.ic_star_outline
+                )
+            }
+            refreshBookmarkIcon()
+            b.btnBookmark.setOnClickListener {
+                onToggleBookmark(position)
+                b.btnBookmark.animate().cancel()
+                b.btnBookmark.animate()
+                    .scaleX(0.6f).scaleY(0.6f)
+                    .setDuration(90)
+                    .setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator) {
+                            refreshBookmarkIcon()
+                            b.btnBookmark.animate()
+                                .scaleX(1f).scaleY(1f)
+                                .setDuration(220)
+                                .setInterpolator(OvershootInterpolator(3f))
+                                .setListener(null)
+                                .start()
+                        }
+                    })
+                    .start()
+            }
+
 
 
             // Recycled view me purana state / listener saaf karo, phir saved answer restore karo

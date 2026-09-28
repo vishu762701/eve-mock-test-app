@@ -49,22 +49,24 @@
 
             <ImageView
                 android:id="@+id/ivBookmark"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:layout_marginEnd="8dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:contentDescription="Bookmarked"
+                android:padding="8dp"
+                android:scaleType="fitCenter"
                 android:src="@drawable/ic_star_filled"
                 android:visibility="gone" />
 
             <ImageView
                 android:id="@+id/ivReportQuestion"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="8dp"
                 android:background="@drawable/bg_btn_report"
                 android:contentDescription="Report this question"
-                android:padding="9dp"
+                android:padding="8dp"
                 android:scaleType="fitCenter"
-                android:src="@drawable/ic_warning"
+                android:src="@drawable/ic_flag"
                 app:tint="@color/eve_status_warning" />
         </LinearLayout>
 

@@ -3,9 +3,13 @@ package com.eve.app.ui.common
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.RippleDrawable
+import android.graphics.drawable.StateListDrawable
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatRadioButton
 import androidx.core.content.ContextCompat
@@ -45,6 +49,41 @@ class TelegramRadioButton @JvmOverloads constructor(
     init {
         // Clear default Android radio graphic
         buttonDrawable = null
+
+        // 2b & 2c: Bounded, theme-adaptive 12dp rounded-rect ripple and selected subtle background
+        val cornerPx = 12f * density
+        val isDark = ThemeSwitchAnimator.isDarkMode(context)
+        val rippleColor = if (isDark) {
+            Color.argb(38, 255, 255, 255) // ~15% white
+        } else {
+            Color.argb(31, 0, 0, 0) // ~12% dark
+        }
+
+        val checkedBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = cornerPx
+            setColor(ContextCompat.getColor(context, R.color.eve_surface_variant))
+        }
+
+        val uncheckedBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = cornerPx
+            setColor(Color.TRANSPARENT)
+        }
+
+        val contentStateList = StateListDrawable().apply {
+            addState(intArrayOf(android.R.attr.state_checked), checkedBg)
+            addState(intArrayOf(), uncheckedBg)
+        }
+
+        val maskDrawable = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = cornerPx
+            setColor(Color.WHITE)
+        }
+
+        background = RippleDrawable(ColorStateList.valueOf(rippleColor), contentStateList, maskDrawable)
+
         // Ensure sufficient left padding for custom-drawn indicator
         val desiredLeftPad = (34f * density).toInt()
         val currentLeft = paddingLeft
@@ -56,6 +95,7 @@ class TelegramRadioButton @JvmOverloads constructor(
     override fun setChecked(checked: Boolean) {
         val changed = (checked != isChecked)
         super.setChecked(checked)
+        refreshDrawableState()
         if (changed) {
             animateCheckProgress(if (checked) 1f else 0f)
         } else {

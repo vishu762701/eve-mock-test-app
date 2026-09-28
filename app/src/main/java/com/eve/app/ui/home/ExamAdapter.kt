@@ -109,7 +109,7 @@ class ExamAdapter(
         private fun showLottieMode() {
             isLottieMode = true
             b.examIconContainer.setCardBackgroundColor(
-                androidx.core.content.ContextCompat.getColor(b.root.context, com.eve.app.R.color.eve_lottie_tile_bg)
+                androidx.core.content.ContextCompat.getColor(b.root.context, android.R.color.transparent)
             )
             b.ivExamImage.visibility = View.GONE
             b.lottieExamIcon.visibility = View.VISIBLE

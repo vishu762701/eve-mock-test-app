@@ -54,6 +54,8 @@ class ResultActivity : AppCompatActivity() {
         }
     )
     private lateinit var paletteAdapter: QuestionPaletteAdapter
+    private var paletteItems: List<PaletteItem> = emptyList()
+    private var isolatedQuestionIndex: Int? = null
 
     private val examRepo = ExamRepository()
     private val questionStatsRepo = QuestionStatsRepository()
@@ -97,8 +99,8 @@ class ResultActivity : AppCompatActivity() {
         }
 
         val canReattempt = intent.getBooleanExtra(Constants.EXTRA_CAN_REATTEMPT, false)
+        binding.btnReattempt.visibility = if (canReattempt) View.VISIBLE else View.GONE
         if (canReattempt) {
-            binding.btnReattempt.visibility = View.VISIBLE
             binding.btnReattempt.setOnClickListener {
                 showReattemptDialog(examId, examName ?: "this test")
             }
@@ -175,8 +177,9 @@ class ResultActivity : AppCompatActivity() {
         // Setup Cutoff comparison and Depth stats (Item 2)
         loadDepthStatsAndCutoffs(examId)
 
-        if (examId.isNotBlank()) {
-            binding.btnLeaderboard.visibility = View.VISIBLE
+        val showLeaderboard = examId.isNotBlank()
+        binding.btnLeaderboard.visibility = if (showLeaderboard) View.VISIBLE else View.GONE
+        if (showLeaderboard) {
             binding.btnLeaderboard.setOnClickListener {
                 startActivity(
                     Intent(this, LeaderboardActivity::class.java)
@@ -185,24 +188,65 @@ class ResultActivity : AppCompatActivity() {
                 )
             }
         }
+        binding.layoutActionCluster.visibility = if (canReattempt || showLeaderboard) View.VISIBLE else View.GONE
 
         binding.btnHome.setOnClickListener { close() }
     }
 
     private fun setupQuestionPalette() {
-        val paletteItems = allItems.mapIndexed { index, item ->
+        paletteItems = allItems.mapIndexed { index, item ->
             val state = when {
                 item.isCorrect -> PaletteState.CORRECT
                 item.isAttempted -> PaletteState.WRONG
                 else -> PaletteState.UNATTEMPTED
             }
-            PaletteItem(number = index + 1, state = state, isActive = (index == 0))
+            PaletteItem(number = index + 1, state = state, isActive = false)
         }
         paletteAdapter = QuestionPaletteAdapter { pos ->
-            binding.rvAnswers.smoothScrollToPosition(pos)
+            if (isolatedQuestionIndex == pos) {
+                clearQuestionIsolation()
+            } else {
+                isolateQuestion(pos)
+            }
         }
         binding.rvResultPalette.adapter = paletteAdapter
         paletteAdapter.submit(paletteItems)
+
+        binding.chipIsolatedQuestion.setOnClickListener {
+            clearQuestionIsolation()
+        }
+        binding.chipIsolatedQuestion.setOnCloseIconClickListener {
+            clearQuestionIsolation()
+        }
+    }
+
+    private fun isolateQuestion(pos: Int) {
+        if (pos !in allItems.indices) return
+        isolatedQuestionIndex = pos
+        binding.chipIsolatedQuestion.text = "Question ${pos + 1} • Tap to see all"
+        binding.chipIsolatedQuestion.visibility = View.VISIBLE
+
+        paletteItems = paletteItems.mapIndexed { idx, item ->
+            item.copy(isActive = (idx == pos))
+        }
+        paletteAdapter.submit(paletteItems)
+
+        binding.rvAnswers.visibility = View.VISIBLE
+        binding.layoutEmptyFilter.visibility = View.GONE
+        adapter.submit(listOf(allItems[pos]))
+        binding.rvAnswers.scrollToPosition(0)
+    }
+
+    private fun clearQuestionIsolation() {
+        isolatedQuestionIndex = null
+        binding.chipIsolatedQuestion.visibility = View.GONE
+
+        paletteItems = paletteItems.mapIndexed { _, item ->
+            item.copy(isActive = false)
+        }
+        paletteAdapter.submit(paletteItems)
+
+        applyReviewFilters()
     }
 
     private fun setupFilters(total: Int, correct: Int, wrong: Int, unattempted: Int) {
@@ -211,6 +255,12 @@ class ResultActivity : AppCompatActivity() {
         binding.chipNotAttempted.text = "Unattempted ($unattempted)"
 
         binding.chipGroupFilter.setOnCheckedStateChangeListener { _, _ ->
+            if (isolatedQuestionIndex != null) {
+                isolatedQuestionIndex = null
+                binding.chipIsolatedQuestion.visibility = View.GONE
+                paletteItems = paletteItems.mapIndexed { _, item -> item.copy(isActive = false) }
+                paletteAdapter.submit(paletteItems)
+            }
             applyReviewFilters()
         }
     }
@@ -304,6 +354,10 @@ class ResultActivity : AppCompatActivity() {
 
                     binding.tvRank.text = "#$rank / $totalAttempts"
                     binding.tvPercentile.text = "${String.format("%.1f", percentile)}%"
+                    if (percentile >= 50.0 || rank == 1) {
+                        binding.tvPercentile.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.eve_status_success))
+                        binding.tvRank.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.eve_status_success))
+                    }
 
                     // Student's historical best and average
                     val myPastScores = snap.documents
@@ -342,14 +396,17 @@ class ResultActivity : AppCompatActivity() {
                 if (currentScore >= cutoff) {
                     binding.tvCutoffVerdict.text = "Qualified ✓"
                     binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.eve_status_success))
+                    binding.tvCutoffVerdict.setBackgroundResource(R.drawable.bg_stat_mini)
                 } else {
                     binding.tvCutoffVerdict.text = "Not Qualified ✗"
                     binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.eve_status_error))
+                    binding.tvCutoffVerdict.setBackgroundResource(R.drawable.bg_stat_mini)
                 }
             } else {
                 binding.tvCutoffValue.text = "$category Cutoff: Not Configured"
                 binding.tvCutoffVerdict.text = "No Cutoff Set"
                 binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.eve_text_secondary))
+                binding.tvCutoffVerdict.setBackgroundResource(R.drawable.bg_stat_mini)
             }
         }
 

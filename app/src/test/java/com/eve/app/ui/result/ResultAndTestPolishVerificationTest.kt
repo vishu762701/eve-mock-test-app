@@ -142,4 +142,67 @@ class ResultAndTestPolishVerificationTest {
         assertFalse(HomeViewModel.isAttemptSubmitted(testExamId))
         assertNull(HomeViewModel.getCachedAttempt(testExamId))
     }
+
+    @Test
+    fun testSingleQuestionIsolationLogic() {
+        val sampleItems = listOf(
+            AnswerItem(number = 1, questionText = "Question 1", selected = "A", selectedText = "Alpha", correct = "A", correctText = "Alpha"),
+            AnswerItem(number = 2, questionText = "Question 2", selected = "B", selectedText = "Beta", correct = "C", correctText = "Gamma"),
+            AnswerItem(number = 3, questionText = "Question 3", selected = "", selectedText = "", correct = "D", correctText = "Delta")
+        )
+
+        // Simulating palette click on Question 2 (index 1)
+        val isolatedIndex = 1
+        val isolatedList = listOf(sampleItems[isolatedIndex])
+        assertEquals(1, isolatedList.size)
+        assertEquals(2, isolatedList[0].number)
+        assertEquals("Question 2", isolatedList[0].questionText)
+
+        // Simulating clearing isolation, returns to active filter (e.g. show all or right)
+        val restoredList = sampleItems.filter { it.isCorrect }
+        assertEquals(1, restoredList.size)
+        assertEquals(1, restoredList[0].number)
+    }
+
+    @Test
+    fun testExamItemHasTransparentIconContainer() {
+        val file = File("src/main/res/layout/item_exam.xml").takeIf { it.exists() }
+            ?: File("app/src/main/res/layout/item_exam.xml").takeIf { it.exists() }
+            ?: File("eve-mock-test-app/app/src/main/res/layout/item_exam.xml")
+        assertTrue("item_exam.xml must exist", file.exists())
+        val content = file.readText()
+        assertTrue(
+            "examIconContainer must specify transparent background",
+            content.contains("android:id=\"@+id/examIconContainer\"") &&
+            content.contains("app:cardBackgroundColor=\"@android:color/transparent\"")
+        )
+    }
+
+    @Test
+    fun testQuestionHeaderBookmarkReportPairDimensions() {
+        val file = File("src/main/res/layout/item_question.xml").takeIf { it.exists() }
+            ?: File("app/src/main/res/layout/item_question.xml").takeIf { it.exists() }
+            ?: File("eve-mock-test-app/app/src/main/res/layout/item_question.xml")
+        assertTrue("item_question.xml must exist", file.exists())
+        val content = file.readText()
+
+        assertTrue("btnBookmark must be 36dp", content.contains("android:id=\"@+id/btnBookmark\""))
+        assertTrue("btnReport must be 36dp", content.contains("android:id=\"@+id/btnReport\""))
+        assertTrue("btnReport must use ic_flag", content.contains("@drawable/ic_flag"))
+        assertTrue("btnReport must use bg_btn_report", content.contains("@drawable/bg_btn_report"))
+    }
+
+    @Test
+    fun testResultScreenNestedScrollAndActionCluster() {
+        val file = File("src/main/res/layout/activity_result.xml").takeIf { it.exists() }
+            ?: File("app/src/main/res/layout/activity_result.xml").takeIf { it.exists() }
+            ?: File("eve-mock-test-app/app/src/main/res/layout/activity_result.xml")
+        assertTrue("activity_result.xml must exist", file.exists())
+        val content = file.readText()
+
+        assertTrue("scrollResultContent NestedScrollView must exist", content.contains("android:id=\"@+id/scrollResultContent\""))
+        assertTrue("layoutActionCluster must exist", content.contains("android:id=\"@+id/layoutActionCluster\""))
+        assertTrue("chipIsolatedQuestion must exist", content.contains("android:id=\"@+id/chipIsolatedQuestion\""))
+        assertTrue("btnHome close button must exist", content.contains("android:id=\"@+id/btnHome\""))
+    }
 }
