@@ -87,7 +87,7 @@ class TestViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val isStandardMock = topic.isBlank() && pyqYear == 0
-                if (!isAdmin && !fromBookmark && user != null && examId.isNotBlank() && isStandardMock && historyRepo.hasAttempted(user.uid, examId)) {
+                if (!isAdmin && !fromBookmark && user != null && examId.isNotBlank() && isStandardMock && (historyRepo.hasAttempted(user.uid, examId) || com.eve.app.ui.home.HomeViewModel.isAttemptSubmitted(examId))) {
                     _alreadyAttempted.value = true
                     started = false
                     return@launch
@@ -252,5 +252,11 @@ class TestViewModel : ViewModel() {
         val user = FirebaseAuth.getInstance().currentUser ?: return
         val displayName = user.displayName?.ifBlank { null } ?: "Student"
         historyRepo.saveAttempt(examId, examName, category, displayName, items)
+    }
+
+    suspend fun saveAttemptSync(examId: String, examName: String, category: String, items: List<AnswerItem>): Boolean {
+        val user = FirebaseAuth.getInstance().currentUser ?: return false
+        val displayName = user.displayName?.ifBlank { null } ?: "Student"
+        return historyRepo.submitAttemptSync(examId, examName, category, displayName, items)
     }
 }

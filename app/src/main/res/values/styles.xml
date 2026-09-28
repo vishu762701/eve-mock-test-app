@@ -77,4 +77,22 @@
     <style name="Eve.Text.Title" parent="Eve.Title" />
     <style name="Eve.Body" parent=""><item name="android:textColor">@color/eve_text</item><item name="android:textSize">15sp</item><item name="android:fontFamily">@font/source_serif_4</item><item name="fontFamily">@font/source_serif_4</item></style>
     <style name="Eve.Secondary" parent=""><item name="android:textColor">@color/eve_text_secondary</item><item name="android:textSize">13sp</item><item name="android:fontFamily">@font/source_serif_4</item><item name="fontFamily">@font/source_serif_4</item></style>
+
+    <style name="Widget.Eve.CutoffChip" parent="Widget.Material3.Chip.Filter">
+        <item name="android:minHeight">30dp</item>
+        <item name="chipMinHeight">30dp</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="fontFamily">@font/poppins_medium</item>
+        <item name="chipCornerRadius">15dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="chipStartPadding">10dp</item>
+        <item name="chipEndPadding">10dp</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="chipStrokeColor">@color/cutoff_chip_stroke</item>
+        <item name="android:textColor">@color/cutoff_chip_text</item>
+        <item name="chipBackgroundColor">@color/cutoff_chip_bg</item>
+        <item name="checkedIconVisible">false</item>
+    </style>
 </resources>

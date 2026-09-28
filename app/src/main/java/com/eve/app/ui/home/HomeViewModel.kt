@@ -62,13 +62,28 @@ class HomeViewModel : ViewModel() {
 
     companion object {
         private val _clearedAttemptedIds = mutableSetOf<String>()
+        private val _submittedAttemptedIds = mutableSetOf<String>()
+        private val _cachedSubmittedAttempts = mutableMapOf<String, com.eve.app.data.model.TestAttempt>()
+
         fun markAttemptCleared(examId: String) {
             _clearedAttemptedIds.add(examId)
+            _submittedAttemptedIds.remove(examId)
+            _cachedSubmittedAttempts.remove(examId)
         }
         fun isAttemptCleared(examId: String): Boolean = _clearedAttemptedIds.contains(examId)
         fun clearAttemptCleared(examId: String) {
             _clearedAttemptedIds.remove(examId)
         }
+
+        fun markAttemptSubmitted(examId: String, attempt: com.eve.app.data.model.TestAttempt? = null) {
+            _clearedAttemptedIds.remove(examId)
+            _submittedAttemptedIds.add(examId)
+            if (attempt != null) {
+                _cachedSubmittedAttempts[examId] = attempt
+            }
+        }
+        fun isAttemptSubmitted(examId: String): Boolean = _submittedAttemptedIds.contains(examId)
+        fun getCachedAttempt(examId: String): com.eve.app.data.model.TestAttempt? = _cachedSubmittedAttempts[examId]
     }
 
     fun dropAttemptedId(examId: String) {
@@ -91,8 +106,13 @@ class HomeViewModel : ViewModel() {
                 } else {
                     val locks = repo.getAttemptedExamIds(userId).filter { !isAttemptCleared(it) }
                     val attempts = historyRepo.getAttempts(userId).filter { !isAttemptCleared(it.examId) }
-                    val ids = locks + attempts.map { it.examId }
-                    val map = attempts.associateBy { it.examId }
+                    val ids = (locks + attempts.map { it.examId } + _submittedAttemptedIds).filter { !isAttemptCleared(it) }
+                    val map = attempts.associateBy { it.examId }.toMutableMap()
+                    _cachedSubmittedAttempts.forEach { (k, v) ->
+                        if (!map.containsKey(k) && !isAttemptCleared(k)) {
+                            map[k] = v
+                        }
+                    }
                     _attemptInfo.value = AttemptInfo(ids.toSet(), map)
                 }
             } catch (e: Exception) {

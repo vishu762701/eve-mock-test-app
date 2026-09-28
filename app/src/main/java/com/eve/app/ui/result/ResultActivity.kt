@@ -206,37 +206,12 @@ class ResultActivity : AppCompatActivity() {
     }
 
     private fun setupFilters(total: Int, correct: Int, wrong: Int, unattempted: Int) {
-        binding.chipAll.text = "All ($total)"
-        binding.chipCorrect.text = "Correct ($correct)"
+        binding.chipCorrect.text = "Right ($correct)"
         binding.chipWrong.text = "Wrong ($wrong)"
         binding.chipNotAttempted.text = "Unattempted ($unattempted)"
 
-        val filterChangeListener = {
+        binding.chipGroupFilter.setOnCheckedStateChangeListener { _, _ ->
             applyReviewFilters()
-        }
-
-        binding.chipAll.setOnClickListener {
-            binding.chipCorrect.isChecked = false
-            binding.chipWrong.isChecked = false
-            binding.chipNotAttempted.isChecked = false
-            binding.chipAll.isChecked = true
-            applyReviewFilters()
-        }
-
-        binding.chipCorrect.setOnClickListener {
-            binding.chipAll.isChecked = false
-            filterChangeListener()
-        }
-        binding.chipWrong.setOnClickListener {
-            binding.chipAll.isChecked = false
-            filterChangeListener()
-        }
-        binding.chipNotAttempted.setOnClickListener {
-            binding.chipAll.isChecked = false
-            filterChangeListener()
-        }
-        binding.chipOvertimeOnly.setOnClickListener {
-            filterChangeListener()
         }
     }
 
@@ -244,30 +219,40 @@ class ResultActivity : AppCompatActivity() {
         val showCorrect = binding.chipCorrect.isChecked
         val showWrong = binding.chipWrong.isChecked
         val showUnattempted = binding.chipNotAttempted.isChecked
-        val onlyOvertime = binding.chipOvertimeOnly.isChecked
 
-        val showAll = binding.chipAll.isChecked || (!showCorrect && !showWrong && !showUnattempted)
+        val showAll = !showCorrect && !showWrong && !showUnattempted
 
         val filtered = allItems.filter { item ->
-            val matchesStatus = when {
+            when {
                 showAll -> true
-                item.isCorrect && showCorrect -> true
-                (item.isAttempted && !item.isCorrect) && showWrong -> true
-                !item.isAttempted && showUnattempted -> true
-                else -> false
-            }
-            if (!matchesStatus) return@filter false
-
-            if (onlyOvertime) {
-                val stat = loadedQuestionStats[item.questionId]
-                val avg = stat?.calculatedAvgSeconds ?: 45
-                item.timeTakenSeconds > avg
-            } else {
-                true
+                showCorrect -> item.isCorrect
+                showWrong -> item.isAttempted && !item.isCorrect
+                showUnattempted -> !item.isAttempted
+                else -> true
             }
         }
-        adapter.submit(filtered)
-        binding.rvAnswers.scrollToPosition(0)
+
+        if (filtered.isEmpty()) {
+            binding.rvAnswers.visibility = View.GONE
+            binding.layoutEmptyFilter.visibility = View.VISIBLE
+            val filterName = when {
+                showCorrect -> "Right"
+                showWrong -> "Wrong"
+                showUnattempted -> "Unattempted"
+                else -> "matching"
+            }
+            binding.tvEmptyFilterTitle.text = "No $filterName questions"
+            binding.tvEmptyFilterSub.text = when {
+                showWrong -> "Great job! You didn't get any questions wrong."
+                showUnattempted -> "Great job! You attempted every question."
+                else -> "Try selecting another filter above to view your questions."
+            }
+        } else {
+            binding.rvAnswers.visibility = View.VISIBLE
+            binding.layoutEmptyFilter.visibility = View.GONE
+            adapter.submit(filtered)
+            binding.rvAnswers.scrollToPosition(0)
+        }
     }
 
     private fun loadDepthStatsAndCutoffs(examId: String) {
@@ -283,8 +268,17 @@ class ResultActivity : AppCompatActivity() {
             if (examId.isNotBlank()) {
                 try {
                     val exam = examRepo.getExam(examId)
-                    if (exam != null) {
+                    if (exam != null && exam.cutoffs.isNotEmpty()) {
                         examCutoffs = exam.cutoffs
+                    } else {
+                        val snap = FirebaseFirestore.getInstance().collection("exams").document(examId).get().await()
+                        val cMap = snap.get("cutoffs") as? Map<*, *>
+                        if (cMap != null) {
+                            examCutoffs = cMap.mapNotNull { (k, v) ->
+                                val d = (v as? Number)?.toDouble() ?: v?.toString()?.toDoubleOrNull()
+                                if (d != null && k != null) k.toString() to d else null
+                            }.toMap()
+                        }
                     }
                 } catch (_: Exception) {}
             }
@@ -340,20 +334,22 @@ class ResultActivity : AppCompatActivity() {
 
     private fun setupCutoffSelector() {
         fun updateCutoffVerdict(category: String) {
+            binding.layoutCutoffComparison.visibility = View.VISIBLE
             val cutoff = examCutoffs[category]
-            if (cutoff != null) {
-                binding.layoutCutoffComparison.visibility = View.VISIBLE
-                binding.tvCutoffValue.text = "Cutoff: $cutoff"
+            if (cutoff != null && cutoff > 0) {
+                val cutoffStr = if (cutoff % 1.0 == 0.0) cutoff.toInt().toString() else cutoff.toString()
+                binding.tvCutoffValue.text = "$category Cutoff: $cutoffStr"
                 if (currentScore >= cutoff) {
-                    binding.tvCutoffVerdict.text = "Above Cutoff (Qualified) ✓"
-                    binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.success))
+                    binding.tvCutoffVerdict.text = "Qualified ✓"
+                    binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.eve_status_success))
                 } else {
-                    binding.tvCutoffVerdict.text = "Below Cutoff ✗"
-                    binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.error))
+                    binding.tvCutoffVerdict.text = "Not Qualified ✗"
+                    binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.eve_status_error))
                 }
             } else {
-                // If no cutoff has been set for this category, omit comparison (don't show zero)
-                binding.layoutCutoffComparison.visibility = View.GONE
+                binding.tvCutoffValue.text = "$category Cutoff: Not Configured"
+                binding.tvCutoffVerdict.text = "No Cutoff Set"
+                binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.eve_text_secondary))
             }
         }
 
@@ -369,8 +365,23 @@ class ResultActivity : AppCompatActivity() {
             updateCutoffVerdict(cat)
         }
 
-        // Initialize with General
-        updateCutoffVerdict("General")
+        // Initialize with default or matching category from exam
+        val defaultCategory = intent.getStringExtra(Constants.EXTRA_EXAM_CATEGORY)?.trim()?.uppercase() ?: "GENERAL"
+        when (defaultCategory) {
+            "OBC" -> binding.chipCatObc.isChecked = true
+            "SC" -> binding.chipCatSc.isChecked = true
+            "ST" -> binding.chipCatSt.isChecked = true
+            "EWS" -> binding.chipCatEws.isChecked = true
+            else -> binding.chipCatGeneral.isChecked = true
+        }
+        val initialCat = when {
+            binding.chipCatObc.isChecked -> "OBC"
+            binding.chipCatSc.isChecked -> "SC"
+            binding.chipCatSt.isChecked -> "ST"
+            binding.chipCatEws.isChecked -> "EWS"
+            else -> "General"
+        }
+        updateCutoffVerdict(initialCat)
     }
 
     private fun showReattemptDialog(examId: String, examName: String) {

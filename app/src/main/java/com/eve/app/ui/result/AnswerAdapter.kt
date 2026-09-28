@@ -42,8 +42,16 @@ class AnswerAdapter(
 
     inner class VH(private val b: ItemAnswerBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(item: AnswerItem) {
-            b.tvQ.text = "Q${item.number}. ${item.displayQuestionText(hindi)}"
             val ctx = b.root.context
+
+            val statusDrawable = when {
+                !item.isAttempted -> R.drawable.ic_status_circle_unattempted
+                item.isCorrect -> R.drawable.ic_status_circle_right
+                else -> R.drawable.ic_status_circle_wrong
+            }
+            b.ivStatusCircle.setImageResource(statusDrawable)
+            b.tvQuestionNum.text = "Q${item.number}"
+            b.tvQ.text = item.displayQuestionText(hindi)
 
             b.ivBookmark.visibility = if (item.isBookmarked) View.VISIBLE else View.GONE
             b.ivReportQuestion.setOnClickListener { onReport?.invoke(item) }

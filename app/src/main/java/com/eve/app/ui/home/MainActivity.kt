@@ -123,7 +123,8 @@ class MainActivity : AppCompatActivity() {
 
     private val adapter = ExamAdapter(
         onClick = { exam, attempted, attempt ->
-            if (attempted) {
+            val isSubmitted = attempted || com.eve.app.ui.home.HomeViewModel.isAttemptSubmitted(exam.id)
+            if (isSubmitted) {
                 lifecycleScope.launch {
                     val user = FirebaseAuth.getInstance().currentUser ?: return@launch
                     try {
@@ -132,7 +133,7 @@ class MainActivity : AppCompatActivity() {
                         val attempts = com.eve.app.data.repository.HistoryRepository().getAttempts(user.uid).filter { it.examId == exam.id }
                         val targetAttempt = (if (lockTimestamp != null) {
                             attempts.find { it.timestamp == lockTimestamp }
-                        } else null) ?: attempts.maxByOrNull { it.timestamp }
+                        } else null) ?: attempts.maxByOrNull { it.timestamp } ?: com.eve.app.ui.home.HomeViewModel.getCachedAttempt(exam.id)
 
                         if (targetAttempt != null) {
                             com.eve.app.ui.result.ResultDataHolder.setAnswers(targetAttempt.answers)
@@ -151,7 +152,23 @@ class MainActivity : AppCompatActivity() {
                             AppBulletin.showError(this@MainActivity, "Couldn't load previous attempt")
                         }
                     } catch (e: Exception) {
-                        AppBulletin.showError(this@MainActivity, "Couldn't load previous attempt: ${e.localizedMessage}")
+                        val fallback = com.eve.app.ui.home.HomeViewModel.getCachedAttempt(exam.id)
+                        if (fallback != null) {
+                            com.eve.app.ui.result.ResultDataHolder.setAnswers(fallback.answers)
+                            val dateFormat = java.text.SimpleDateFormat("dd MMM yyyy, hh:mm a", java.util.Locale.getDefault())
+                            startActivity(
+                                Intent(this@MainActivity, com.eve.app.ui.result.ResultActivity::class.java)
+                                    .putExtra(Constants.EXTRA_EXAM_ID, exam.id)
+                                    .putExtra(Constants.EXTRA_EXAM_NAME, exam.examName)
+                                    .putExtra(Constants.EXTRA_ATTEMPT_DATE, dateFormat.format(java.util.Date(fallback.timestamp)))
+                                    .putExtra(Constants.EXTRA_FROM_HISTORY, true)
+                                    .putExtra(Constants.EXTRA_CAN_REATTEMPT, true)
+                                    .putExtra(Constants.EXTRA_TIME_LIMIT, exam.timeLimitMinutes)
+                                    .putExtra(Constants.EXTRA_EXAM_CATEGORY, exam.categoryOrOther)
+                            )
+                        } else {
+                            AppBulletin.showError(this@MainActivity, "Couldn't load previous attempt: ${e.localizedMessage}")
+                        }
                     }
                 }
             } else {

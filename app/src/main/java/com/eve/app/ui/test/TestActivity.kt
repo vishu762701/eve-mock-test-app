@@ -156,22 +156,43 @@ class TestActivity : AppCompatActivity() {
                 launch {
                     viewModel.alreadyAttempted.collect { blocked ->
                         if (blocked && !isFinishing) {
-                            com.eve.app.ui.common.CompletedExamBottomSheet.show(
-                                activity = this@TestActivity,
-                                examId = examId,
-                                examName = examName,
-                                attempt = null,
-                                onReattemptConfirmed = {
-                                    val restartIntent = intent
+                            lifecycleScope.launch {
+                                val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+                                val attempts = if (user != null) com.eve.app.data.repository.HistoryRepository().getAttempts(user.uid).filter { it.examId == examId } else emptyList()
+                                val target = attempts.maxByOrNull { it.timestamp } ?: com.eve.app.ui.home.HomeViewModel.getCachedAttempt(examId)
+                                if (target != null && target.answers.isNotEmpty()) {
+                                    ResultDataHolder.setAnswers(target.answers)
+                                    val dateFormat = java.text.SimpleDateFormat("dd MMM yyyy, hh:mm a", java.util.Locale.getDefault())
+                                    startActivity(
+                                        Intent(this@TestActivity, ResultActivity::class.java)
+                                            .putExtra(Constants.EXTRA_EXAM_ID, examId)
+                                            .putExtra(Constants.EXTRA_EXAM_NAME, examName)
+                                            .putExtra(Constants.EXTRA_ATTEMPT_DATE, dateFormat.format(java.util.Date(target.timestamp)))
+                                            .putExtra(Constants.EXTRA_FROM_HISTORY, true)
+                                            .putExtra(Constants.EXTRA_CAN_REATTEMPT, true)
+                                            .putExtra(Constants.EXTRA_TIME_LIMIT, timeLimit)
+                                            .putExtra(Constants.EXTRA_EXAM_CATEGORY, examCategory)
+                                    )
                                     finish()
-                                    startActivity(restartIntent)
-                                },
-                                onDismiss = {
-                                    if (!isFinishing) {
-                                        finish()
-                                    }
+                                } else {
+                                    com.eve.app.ui.common.CompletedExamBottomSheet.show(
+                                        activity = this@TestActivity,
+                                        examId = examId,
+                                        examName = examName,
+                                        attempt = target,
+                                        onReattemptConfirmed = {
+                                            val restartIntent = intent
+                                            finish()
+                                            startActivity(restartIntent)
+                                        },
+                                        onDismiss = {
+                                            if (!isFinishing) {
+                                                finish()
+                                            }
+                                        }
+                                    )
                                 }
-                            )
+                            }
                         }
                     }
                 }
@@ -319,7 +340,30 @@ class TestActivity : AppCompatActivity() {
         viewModel.stopTimer()
         val items = viewModel.buildAnswerItems()
         val attemptName = sessionTitle()
-        viewModel.saveAttempt(examId, attemptName, examCategory, items)
+        val isStandardMock = topic.isBlank() && pyqYear == 0
+
+        val total = items.size
+        val correct = items.count { it.isCorrect }
+        val wrong = items.count { it.isAttempted && !it.isCorrect }
+        val unattempted = items.count { !it.isAttempted }
+        val score = correct.toDouble()
+        val localAttempt = com.eve.app.data.model.TestAttempt(
+            id = "local_${System.currentTimeMillis()}",
+            userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid.orEmpty(),
+            examId = examId,
+            examName = attemptName,
+            category = examCategory,
+            score = score,
+            total = total,
+            correct = correct,
+            wrong = wrong,
+            unattempted = unattempted,
+            timestamp = System.currentTimeMillis(),
+            answers = items
+        )
+        if (isStandardMock) {
+            com.eve.app.ui.home.HomeViewModel.markAttemptSubmitted(examId, localAttempt)
+        }
 
         for (item in items) {
             if (item.questionId.isNotBlank() && item.isAttempted) {
@@ -338,21 +382,33 @@ class TestActivity : AppCompatActivity() {
             examId = examId,
             examName = attemptName,
             category = examCategory,
-            correct = items.count { it.isCorrect },
-            wrong = items.count { it.isAttempted && !it.isCorrect },
-            unattempted = items.count { !it.isAttempted },
-            total = items.size
+            correct = correct,
+            wrong = wrong,
+            unattempted = unattempted,
+            total = total
         )
 
         ResultDataHolder.setAnswers(items)
 
-        startActivity(
-            Intent(this, ResultActivity::class.java)
-                .putExtra(Constants.EXTRA_EXAM_ID, examId)
-                .putExtra(Constants.EXTRA_EXAM_NAME, attemptName)
-                .putExtra(Constants.EXTRA_EXAM_CATEGORY, examCategory)
-        )
-        finish()
+        lifecycleScope.launch {
+            try {
+                kotlinx.coroutines.withTimeoutOrNull(4000L) {
+                    viewModel.saveAttemptSync(examId, attemptName, examCategory, items)
+                }
+            } catch (_: Exception) {
+                viewModel.saveAttempt(examId, attemptName, examCategory, items)
+            }
+
+            startActivity(
+                Intent(this@TestActivity, ResultActivity::class.java)
+                    .putExtra(Constants.EXTRA_EXAM_ID, examId)
+                    .putExtra(Constants.EXTRA_EXAM_NAME, attemptName)
+                    .putExtra(Constants.EXTRA_EXAM_CATEGORY, examCategory)
+                    .putExtra(Constants.EXTRA_TIME_LIMIT, timeLimit)
+                    .putExtra(Constants.EXTRA_CAN_REATTEMPT, isStandardMock)
+            )
+            finish()
+        }
     }
 
     private fun sessionTitle(): String = when {

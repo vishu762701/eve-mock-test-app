@@ -11,73 +11,66 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Live Per-Question Timer Chip -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/bg_question_timer_chip"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="10dp"
-            android:paddingVertical="4dp">
-
-            <ImageView
-                android:layout_width="14dp"
-                android:layout_height="14dp"
-                android:contentDescription="Timer"
-                android:src="@drawable/ic_timer"
-                app:tint="@color/eve_text_secondary" />
-
-            <TextView
-                android:id="@+id/tvQuestionTimer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:fontFamily="@font/poppins_medium"
-                android:text="0:00"
-                android:textColor="@color/eve_text_secondary"
-                android:textSize="12sp" />
-        </LinearLayout>
-
+        <!-- Question Header Row: Timer Chip (left) & Warning Report Button (right) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="top"
+            android:layout_marginBottom="12dp"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/tvQuestion"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="18sp" />
+                android:background="@drawable/bg_question_timer_chip"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp">
 
-            <ImageButton
-                android:id="@+id/btnBookmark"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Mark for review"
-                android:padding="12dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_star_outline"
-                app:tint="@color/eve_text" />
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:contentDescription="Timer"
+                    android:src="@drawable/ic_timer"
+                    app:tint="@color/eve_text_secondary" />
+
+                <TextView
+                    android:id="@+id/tvQuestionTimer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="0:00"
+                    android:textColor="@color/eve_text_secondary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
             <ImageButton
                 android:id="@+id/btnReport"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="8dp"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
                 android:background="@drawable/bg_btn_report"
                 android:contentDescription="Report this question"
-                android:padding="12dp"
+                android:padding="10dp"
                 android:scaleType="fitCenter"
-                android:src="@drawable/ic_flag"
+                android:src="@drawable/ic_warning"
                 app:tint="@color/eve_status_warning" />
         </LinearLayout>
+
+        <!-- Full Width Question Text without side action controls -->
+        <TextView
+            android:id="@+id/tvQuestion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="4dp"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="18sp" />
 
         <View
             android:layout_width="match_parent"

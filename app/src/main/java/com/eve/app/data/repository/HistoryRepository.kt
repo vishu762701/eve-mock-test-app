@@ -17,13 +17,13 @@ class HistoryRepository(
 
     private val submitScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    fun saveAttempt(
+    suspend fun submitAttemptSync(
         examId: String,
         examName: String,
         category: String,
         displayName: String,
         items: List<AnswerItem>
-    ) {
+    ): Boolean {
         val payload = mapOf(
             "examId" to examId,
             "examName" to examName,
@@ -38,22 +38,35 @@ class HistoryRepository(
                 )
             }
         )
+        return try {
+            val res = api.submitAttempt(payload)
+            if (res.success) {
+                try {
+                    ApiUsageRepository().incrementTestSubmissions()
+                } catch (_: Exception) {}
+                true
+            } else {
+                Log.w("HistoryRepository", "submitAttempt failed: ${res.error}")
+                false
+            }
+        } catch (e: Exception) {
+            Log.w("HistoryRepository", "submitAttempt exception", e)
+            false
+        }
+    }
 
+    fun saveAttempt(
+        examId: String,
+        examName: String,
+        category: String,
+        displayName: String,
+        items: List<AnswerItem>
+    ) {
         submitScope.launch {
             val maxAttempts = 3
             for (attempt in 1..maxAttempts) {
-                try {
-                    val res = api.submitAttempt(payload)
-                    if (res.success) {
-                        try {
-                            ApiUsageRepository().incrementTestSubmissions()
-                        } catch (_: Exception) {}
-                        return@launch
-                    }
-                    Log.w("HistoryRepository", "submitAttempt try $attempt/$maxAttempts failed: ${res.error}")
-                } catch (e: Exception) {
-                    Log.w("HistoryRepository", "submitAttempt try $attempt/$maxAttempts exception", e)
-                }
+                val ok = submitAttemptSync(examId, examName, category, displayName, items)
+                if (ok) return@launch
                 if (attempt < maxAttempts) delay(2000L * attempt)
             }
         }

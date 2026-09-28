@@ -239,62 +239,51 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipCatGeneral"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Eve.CutoffChip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
-                        android:text="General"
-                        android:textColor="@color/eve_on_primary"
-                        android:textSize="11sp" />
+                        android:text="General" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipCatObc"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Eve.CutoffChip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="OBC"
-                        android:textColor="@color/eve_on_primary"
-                        android:textSize="11sp" />
+                        android:text="OBC" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipCatSc"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Eve.CutoffChip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="SC"
-                        android:textColor="@color/eve_on_primary"
-                        android:textSize="11sp" />
+                        android:text="SC" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipCatSt"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Eve.CutoffChip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="ST"
-                        android:textColor="@color/eve_on_primary"
-                        android:textSize="11sp" />
+                        android:text="ST" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipCatEws"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.Eve.CutoffChip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="EWS"
-                        android:textColor="@color/eve_on_primary"
-                        android:textSize="11sp" />
+                        android:text="EWS" />
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
         </LinearLayout>
 
-        <!-- Cutoff Comparison Verdict Badge (Omitted if cutoff not configured) -->
+        <!-- Cutoff Comparison Verdict Badge -->
         <LinearLayout
             android:id="@+id/layoutCutoffComparison"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="8dp"
             android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:visibility="gone">
+            android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/tvCutoffValue"
@@ -315,7 +304,7 @@
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="2dp"
                 android:text="Above Cutoff (Qualified) ✓"
-                android:textColor="@color/success"
+                android:textColor="@color/eve_status_success"
                 android:textSize="11sp" />
         </LinearLayout>
     </LinearLayout>
@@ -381,22 +370,14 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             app:singleLine="true"
-            app:singleSelection="false">
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipAll"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="All" />
+            app:singleSelection="true">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipCorrect"
                 style="@style/Widget.Material3.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Correct" />
+                android:text="Right" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipWrong"
@@ -411,24 +392,56 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Unattempted" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipOvertimeOnly"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="⏱️ Overtime Questions" />
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvAnswers"
+    <!-- Answer Cards List with Empty State for 0-result Filter -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layoutAnimation="@anim/layout_enter"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:padding="8dp" />
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvAnswers"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layoutAnimation="@anim/layout_enter"
+            android:clipToPadding="false"
+            android:paddingHorizontal="12dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="16dp" />
+
+        <LinearLayout
+            android:id="@+id/layoutEmptyFilter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="28dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvEmptyFilterTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_bold"
+                android:text="No questions found"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tvEmptyFilterSub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:fontFamily="@font/poppins"
+                android:gravity="center"
+                android:text="Select another filter or tap to see all questions."
+                android:textColor="@color/eve_text_secondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </FrameLayout>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnReattempt"
