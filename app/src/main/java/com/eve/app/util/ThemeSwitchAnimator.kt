@@ -25,7 +25,7 @@ import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import android.view.animation.PathInterpolator
 import com.eve.app.R
 import java.lang.ref.WeakReference
 import kotlin.math.hypot
@@ -42,7 +42,7 @@ import kotlin.math.max
  *    - Uses ViewAnimationUtils.createCircularReveal(targetView, x, y, startRadius, endRadius).
  *    - Switching to dark: circle expands outward from button (0 -> maxRadius).
  *    - Switching to light: screenshot overlay shrinks inward into button (maxRadius -> 0).
- *    - Duration: 400ms, Interpolator: smooth cubic ease-in-out (FastOutSlowInInterpolator).
+ *    - Duration: 400ms, Interpolator: Telegram easeInOutQuad (PathInterpolator(0.455f, 0.03f, 0.515f, 0.955f)).
  * 3. PERSISTENCE & LIFECYCLE:
  *    - Persists selection synchronously to SharedPreferences (eve_prefs, key_dark_mode).
  *    - Pre-measures overlays in onActivityCreated for zero-flicker activity recreation synchronization.
@@ -493,7 +493,7 @@ object ThemeSwitchAnimator {
             endRadius
         ).apply {
             duration = ANIMATION_DURATION
-            interpolator = FastOutSlowInInterpolator()
+            interpolator = PathInterpolator(0.455f, 0.03f, 0.515f, 0.955f)
             addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     Log.i(TAG, "[ThemeSwitchAnimator] Animation finished cleanly")

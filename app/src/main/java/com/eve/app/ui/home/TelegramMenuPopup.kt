@@ -83,19 +83,17 @@ class TelegramMenuPopup(
                 val isDark = ThemeSwitchAnimator.isDarkMode(context)
                 binding.ivThemeIcon.setImageResource(if (isDark) R.drawable.ic_theme_moon else R.drawable.ic_theme_sun)
 
-                // Telegram's exact approach: always use fixed icon position on screen via getLocationOnScreen
-                val targetIcon: View = binding.ivThemeIcon
-                val pos = IntArray(2)
-                targetIcon.getLocationOnScreen(pos)
-                val iconW = if (targetIcon.measuredWidth > 0) targetIcon.measuredWidth else targetIcon.width
-                val iconH = if (targetIcon.measuredHeight > 0) targetIcon.measuredHeight else targetIcon.height
-                val cx = pos[0] + iconW / 2
-                val cy = pos[1] + iconH / 2
-
-                android.util.Log.d("ThemeClickDiag", "Fixed icon position calculated from ivThemeIcon: cx=$cx, cy=$cy, size=${iconW}x${iconH}")
-
-                // Hide static icon immediately so it does not render alongside the floating Lottie icon
-                binding.ivThemeIcon.visibility = View.INVISIBLE
+                val anchor = anchorViewRef
+                if (anchor == null) {
+                    android.util.Log.e("ThemeOrigin", "anchorViewRef is null, cannot start theme reveal")
+                    return@setOnClickListener
+                }
+                val loc = IntArray(2)
+                anchor.getLocationOnScreen(loc)
+                val iconW = if (anchor.measuredWidth > 0) anchor.measuredWidth else anchor.width
+                val iconH = if (anchor.measuredHeight > 0) anchor.measuredHeight else anchor.height
+                val cx = loc[0] + iconW / 2
+                val cy = loc[1] + iconH / 2
 
                 GlassmorphismHelper.removeWindowBlur(binding.root, animate = false)
                 super.dismiss()

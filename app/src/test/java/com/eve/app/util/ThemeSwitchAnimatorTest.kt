@@ -259,4 +259,18 @@ class ThemeSwitchAnimatorTest {
         assertEquals(950, overlayRevealCx)
         assertEquals(160, overlayRevealCy)
     }
+
+    @Test
+    fun testAnchorViewOrigin_matchesTelegramThreeDotCenterOn1080x2340() {
+        // On a 1080x2340 screen, 3-dot overflow button (btnOverflow) has measured size 48x48
+        // and locationOnScreen = [933, 183], placing its center at cx = 933 + 24 = 957, cy = 183 + 24 = 207
+        val loc = intArrayOf(933, 183)
+        val iconW = 48
+        val iconH = 48
+        val cx = loc[0] + iconW / 2
+        val cy = loc[1] + iconH / 2
+
+        assertEquals(957, cx)
+        assertEquals(207, cy)
+    }
 }

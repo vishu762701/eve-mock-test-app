@@ -890,10 +890,13 @@ async function generateQuestionsForExam(db, exam, targetCount, customPrompt) {
 }
 
 /**
- * Task K: Redesigned Scheduled Test Generation (runs every 5 minutes with timeZone Asia/Kolkata).
- * Checks each exam where autoGenerationEnabled == true, current IST time >= autoGenTime,
- * and lastGeneratedDate != todayDate. Uses idempotent transactional locking.
+ * Task K / Duplicate Scheduler Resolution:
+ * scheduledTestGeneration in Firebase Functions is DISABLED.
+ * Primary scheduler is Cloudflare Worker (backend/src/cron/scheduledTestGeneration.ts with D1 database),
+ * which is the single source of truth for the Android app's exam generation and management.
+ * Disabling here eliminates duplicate concurrent test generations and race conditions.
  */
+/*
 exports.scheduledTestGeneration = onSchedule(
   {
     schedule: "every 5 minutes",
@@ -1052,6 +1055,7 @@ exports.scheduledTestGeneration = onSchedule(
     }
   }
 );
+*/
 
 /**
  * Callable function for Admin: "Generate test now" on-demand from Manage Exam page.
