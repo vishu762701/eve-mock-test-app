@@ -64,7 +64,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:textColor="@color/eve_green"
+            android:textColor="@color/success"
             android:textSize="15sp" />
 
         <!-- X% got this right stat badge -->
@@ -93,6 +93,31 @@
                 android:fontFamily="@font/poppins_medium"
                 android:text="--% got this right"
                 android:textColor="@color/eve_primary"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Per-question Time vs Average Insight -->
+        <LinearLayout
+            android:id="@+id/layoutTimeInsight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvTimeVsAvg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_semibold"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tvTimeInsightMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:fontFamily="@font/poppins"
+                android:textColor="@color/eve_text_secondary"
                 android:textSize="12sp" />
         </LinearLayout>
 

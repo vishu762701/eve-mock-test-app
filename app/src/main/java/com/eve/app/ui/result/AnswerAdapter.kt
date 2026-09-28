@@ -48,15 +48,16 @@ class AnswerAdapter(
                     b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.eve_grey))
                 }
                 item.isCorrect -> {
-                    b.tvYourAnswer.text = "Your answer: ${item.selected}. ${item.displaySelectedText(hindi)}  ✓"
-                    b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.eve_green))
+                    b.tvYourAnswer.text = "Your answer: ${item.selected}. ${item.displaySelectedText(hindi)}  ✓ Correct"
+                    b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.success))
                 }
                 else -> {
-                    b.tvYourAnswer.text = "Your answer: ${item.selected}. ${item.displaySelectedText(hindi)}  ✗"
-                    b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.eve_red))
+                    b.tvYourAnswer.text = "Your answer: ${item.selected}. ${item.displaySelectedText(hindi)}  ✗ Incorrect"
+                    b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.error))
                 }
             }
-            b.tvCorrectAnswer.text = "Correct answer: ${item.correct}. ${item.displayCorrectText(hindi)}"
+            b.tvCorrectAnswer.text = "Correct answer: ${item.correct}. ${item.displayCorrectText(hindi)}  ✓"
+            b.tvCorrectAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.success))
 
             // X% got this right stat
             val stat = questionStats[item.questionId]
@@ -66,6 +67,40 @@ class AnswerAdapter(
                 else -> 0
             }
             b.tvAccuracyStat.text = "$pct% got this right"
+
+            // Per-question Time vs Average Insight
+            val timeSpent = item.timeTakenSeconds
+            if (item.isAttempted && timeSpent > 0) {
+                b.layoutTimeInsight.visibility = View.VISIBLE
+                val avgTime = stat?.calculatedAvgSeconds ?: 45
+                val isFaster = timeSpent <= avgTime
+                val isCorrect = item.isCorrect
+
+                val emoji = when {
+                    isFaster && isCorrect -> "🎉"
+                    isFaster -> "⚡"
+                    isCorrect -> "🎯"
+                    else -> "⏱️"
+                }
+
+                val message = when {
+                    isFaster && isCorrect -> "Yay! You took less time than average and answered it right. Keep it up."
+                    isFaster -> "Fast pace! You took ${timeSpent}s (avg: ${avgTime}s). Double-check your accuracy."
+                    isCorrect -> "Correct! You took ${timeSpent}s (avg: ${avgTime}s). Great job on accuracy."
+                    else -> "You took longer than average (${timeSpent}s vs ${avgTime}s). Pace yourself!"
+                }
+
+                b.tvTimeVsAvg.text = "$emoji You: ${timeSpent}s  •  Avg: ${avgTime}s"
+                val timeColor = if (isFaster) {
+                    ContextCompat.getColor(ctx, R.color.success)
+                } else {
+                    ContextCompat.getColor(ctx, R.color.warning)
+                }
+                b.tvTimeVsAvg.setTextColor(timeColor)
+                b.tvTimeInsightMessage.text = message
+            } else {
+                b.layoutTimeInsight.visibility = View.GONE
+            }
 
             // Solution in Key Points Format
             val rawExp = item.displayExplanation(hindi)

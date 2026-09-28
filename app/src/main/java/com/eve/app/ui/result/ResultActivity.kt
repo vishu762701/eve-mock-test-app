@@ -114,7 +114,30 @@ class ResultActivity : AppCompatActivity() {
         // Accuracy Calculation
         val attempted = correct + wrong
         val accuracy = if (attempted > 0) (correct * 100.0 / attempted) else 0.0
-        binding.tvAccuracy.text = "${String.format("%.1f", accuracy)}%"
+        val accFormatted = String.format(java.util.Locale.US, "%.1f", accuracy)
+        binding.tvAccuracy.text = "$accFormatted%"
+
+        // Summary at top: accuracy %, avg time per question, fastest and slowest question
+        val timedItems = allItems.filter { it.timeTakenSeconds > 0 }
+        if (timedItems.isNotEmpty()) {
+            val avgSeconds = kotlin.math.round(timedItems.map { it.timeTakenSeconds }.average()).toLong()
+            val fastest = timedItems.minByOrNull { it.timeTakenSeconds }
+            val slowest = timedItems.maxByOrNull { it.timeTakenSeconds }
+            val timeParts = mutableListOf<String>()
+            timeParts.add("Accuracy: $accFormatted%")
+            timeParts.add("Avg: ${avgSeconds}s/q")
+            if (fastest != null && slowest != null && fastest.number != slowest.number) {
+                timeParts.add("Fastest: Q${fastest.number} (${fastest.timeTakenSeconds}s)")
+                timeParts.add("Slowest: Q${slowest.number} (${slowest.timeTakenSeconds}s)")
+            } else if (fastest != null) {
+                timeParts.add("Fastest: Q${fastest.number} (${fastest.timeTakenSeconds}s)")
+            }
+            binding.tvTimeSummary.text = timeParts.joinToString("  •  ")
+            binding.tvTimeSummary.visibility = View.VISIBLE
+        } else {
+            binding.tvTimeSummary.text = "Accuracy: $accFormatted%"
+            binding.tvTimeSummary.visibility = View.VISIBLE
+        }
 
         // Setup Answers RecyclerView
         binding.rvAnswers.layoutManager = LinearLayoutManager(this)

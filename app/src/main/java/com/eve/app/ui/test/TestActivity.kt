@@ -11,8 +11,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
-import android.os.Handler
-import android.os.Looper
 import android.os.SystemClock
 import androidx.core.content.ContextCompat
 import com.eve.app.R
@@ -59,8 +57,6 @@ class TestActivity : AppCompatActivity() {
     private var currentQuestionPosition: Int = 0
     private var questionStartTimeMs: Long = SystemClock.elapsedRealtime()
     private val questionStatsRepo = QuestionStatsRepository()
-    private val timerPopupHandler = Handler(Looper.getMainLooper())
-    private var timerPopupRunnable: Runnable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,10 +93,6 @@ class TestActivity : AppCompatActivity() {
         }
         binding.rvQuestionPalette.adapter = paletteAdapter
 
-        binding.timerPopup.btnTimerDismiss.setOnClickListener {
-            binding.timerPopup.cardTimerComparison.visibility = View.GONE
-        }
-
         binding.btnPrev.setOnClickListener {
             binding.viewPager.currentItem = binding.viewPager.currentItem - 1
         }
@@ -121,7 +113,6 @@ class TestActivity : AppCompatActivity() {
                 viewModel.recordQuestionTime(currentQuestionPosition, spent)
                 currentQuestionPosition = position
                 questionStartTimeMs = now
-                binding.timerPopup.cardTimerComparison.visibility = View.GONE
                 updateNav(position)
                 updatePalette(position)
                 updateQuestionTimerDisplay(position)
@@ -237,10 +228,6 @@ class TestActivity : AppCompatActivity() {
                             questionStartTimeMs = now
                             viewModel.setAnswer(pos, letter)
                             updatePalette(pos)
-                            val q = list.getOrNull(pos)
-                            if (q != null) {
-                                showTimerComparisonPopup(q, letter, spent)
-                            }
                             updateQuestionTimerDisplay(pos)
                         },
                         getBookmarked = { viewModel.isBookmarked(it) },
@@ -393,57 +380,6 @@ class TestActivity : AppCompatActivity() {
             questionStartTimeMs = now
         }
         outState.putInt("saved_question_position", currentQuestionPosition)
-    }
-
-    private fun showTimerComparisonPopup(question: Question, selectedLetter: String, timeSpent: Long) {
-        lifecycleScope.launch {
-            val stat = questionStatsRepo.getQuestionStat(question.id)
-            val avgTime = stat?.calculatedAvgSeconds ?: 45
-            val isFaster = timeSpent <= avgTime
-            val isCorrect = selectedLetter.equals(question.correctAnswer, ignoreCase = true)
-
-            val emoji = when {
-                isFaster && isCorrect -> "🎉"
-                isFaster -> "⚡"
-                isCorrect -> "🎯"
-                else -> "⏱️"
-            }
-
-            val message = when {
-                isFaster && isCorrect -> "Yay! You took less time than average and answered it right. Keep it up."
-                isFaster -> "Fast pace! You took ${timeSpent}s (avg: ${avgTime}s). Double-check your accuracy."
-                isCorrect -> "Correct! You took ${timeSpent}s (avg: ${avgTime}s). Great job on accuracy."
-                else -> "You took longer than average (${timeSpent}s vs ${avgTime}s). Pace yourself!"
-            }
-
-            binding.timerPopup.tvTimerEmoji.text = emoji
-            binding.timerPopup.tvTimerMessage.text = message
-            binding.timerPopup.tvYouTimeLabel.text = "You: ${timeSpent}s"
-            binding.timerPopup.tvAvgTimeLabel.text = "Avg: ${avgTime}s"
-
-            val maxTime = maxOf(timeSpent, avgTime.toLong(), 60L).toInt()
-            binding.timerPopup.progressYouTime.max = maxTime
-            binding.timerPopup.progressYouTime.progress = timeSpent.toInt()
-
-            val youColor = if (isCorrect) {
-                ContextCompat.getColor(this@TestActivity, R.color.eve_green)
-            } else {
-                ContextCompat.getColor(this@TestActivity, R.color.eve_red)
-            }
-            binding.timerPopup.progressYouTime.setIndicatorColor(youColor)
-            binding.timerPopup.tvYouTimeLabel.setTextColor(youColor)
-
-            binding.timerPopup.progressAvgTime.max = maxTime
-            binding.timerPopup.progressAvgTime.progress = avgTime
-
-            binding.timerPopup.cardTimerComparison.visibility = View.VISIBLE
-
-            timerPopupRunnable?.let { timerPopupHandler.removeCallbacks(it) }
-            timerPopupRunnable = Runnable {
-                binding.timerPopup.cardTimerComparison.visibility = View.GONE
-            }
-            timerPopupHandler.postDelayed(timerPopupRunnable!!, 4500L)
-        }
     }
 
     private fun updatePalette(activePosition: Int) {

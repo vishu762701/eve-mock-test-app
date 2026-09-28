@@ -123,14 +123,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <!-- Post-answer timer comparison popup -->
-        <include
-            android:id="@+id/timerPopup"
-            layout="@layout/layout_timer_comparison_popup"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom" />
-
         <!-- Upgrade 3: Telegram-style question shimmer skeleton (LoadingDrawable pattern) -->
         <com.eve.app.ui.common.ShimmerSkeletonView
             android:id="@+id/shimmerSkeletonTest"

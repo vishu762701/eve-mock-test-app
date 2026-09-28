@@ -63,6 +63,16 @@
             android:textSize="14sp" />
 
         <TextView
+            android:id="@+id/tvTimeSummary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="@font/poppins_medium"
+            android:textColor="@color/eve_on_primary"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <TextView
             android:id="@+id/tvResultSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
