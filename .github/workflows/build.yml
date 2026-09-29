@@ -14,7 +14,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
 
       - name: Check google-services.json
         run: |
@@ -22,6 +22,11 @@ jobs:
             echo "ERROR: app/google-services.json missing. Firebase console se download karke app/ folder me daalo."
             exit 1
           fi
+
+      - name: Accept Android SDK licenses and install Platform 36
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-36"
 
       - uses: gradle/actions/setup-gradle@v4
         with:
