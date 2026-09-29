@@ -55,7 +55,7 @@ class ResultActivity : AppCompatActivity() {
     )
     private lateinit var paletteAdapter: QuestionPaletteAdapter
     private var paletteItems: List<PaletteItem> = emptyList()
-    private var isolatedQuestionIndex: Int? = null
+    private var selectedQuestionIndex: Int = 0
 
     private val examRepo = ExamRepository()
     private val questionStatsRepo = QuestionStatsRepository()
@@ -185,7 +185,6 @@ class ResultActivity : AppCompatActivity() {
         // Setup Answers RecyclerView
         binding.rvAnswers.layoutManager = LinearLayoutManager(this)
         binding.rvAnswers.adapter = adapter
-        adapter.submit(allItems)
         adapter.setHindi(LanguageManager.isHindi(this))
         adapter.setShowTimeInsight(!fromHistory)
 
@@ -225,31 +224,22 @@ class ResultActivity : AppCompatActivity() {
                 item.isAttempted -> PaletteState.WRONG
                 else -> PaletteState.UNATTEMPTED
             }
-            PaletteItem(number = index + 1, state = state, isActive = false)
+            PaletteItem(number = index + 1, state = state, isActive = (index == selectedQuestionIndex))
         }
         paletteAdapter = QuestionPaletteAdapter { pos ->
-            if (isolatedQuestionIndex == pos) {
-                clearQuestionIsolation()
-            } else {
-                isolateQuestion(pos)
-            }
+            selectQuestion(pos)
         }
         binding.rvResultPalette.adapter = paletteAdapter
         paletteAdapter.submit(paletteItems)
 
-        binding.chipIsolatedQuestion.setOnClickListener {
-            clearQuestionIsolation()
-        }
-        binding.chipIsolatedQuestion.setOnCloseIconClickListener {
-            clearQuestionIsolation()
+        if (allItems.isNotEmpty()) {
+            selectQuestion(selectedQuestionIndex)
         }
     }
 
-    private fun isolateQuestion(pos: Int) {
+    private fun selectQuestion(pos: Int) {
         if (pos !in allItems.indices) return
-        isolatedQuestionIndex = pos
-        binding.chipIsolatedQuestion.text = "Question ${pos + 1} • Tap to see all"
-        binding.chipIsolatedQuestion.visibility = View.VISIBLE
+        selectedQuestionIndex = pos
 
         paletteItems = paletteItems.mapIndexed { idx, item ->
             item.copy(isActive = (idx == pos))
@@ -262,30 +252,12 @@ class ResultActivity : AppCompatActivity() {
         binding.rvAnswers.scrollToPosition(0)
     }
 
-    private fun clearQuestionIsolation() {
-        isolatedQuestionIndex = null
-        binding.chipIsolatedQuestion.visibility = View.GONE
-
-        paletteItems = paletteItems.mapIndexed { _, item ->
-            item.copy(isActive = false)
-        }
-        paletteAdapter.submit(paletteItems)
-
-        applyReviewFilters()
-    }
-
     private fun setupFilters(total: Int, correct: Int, wrong: Int, unattempted: Int) {
         binding.chipCorrect.text = "Right ($correct)"
         binding.chipWrong.text = "Wrong ($wrong)"
         binding.chipNotAttempted.text = "Unattempted ($unattempted)"
 
         binding.chipGroupFilter.setOnCheckedStateChangeListener { _, _ ->
-            if (isolatedQuestionIndex != null) {
-                isolatedQuestionIndex = null
-                binding.chipIsolatedQuestion.visibility = View.GONE
-                paletteItems = paletteItems.mapIndexed { _, item -> item.copy(isActive = false) }
-                paletteAdapter.submit(paletteItems)
-            }
             applyReviewFilters()
         }
     }
@@ -297,7 +269,8 @@ class ResultActivity : AppCompatActivity() {
 
         val showAll = !showCorrect && !showWrong && !showUnattempted
 
-        val filtered = allItems.filter { item ->
+        val matchingIndices = allItems.indices.filter { idx ->
+            val item = allItems[idx]
             when {
                 showAll -> true
                 showCorrect -> item.isCorrect
@@ -307,7 +280,7 @@ class ResultActivity : AppCompatActivity() {
             }
         }
 
-        if (filtered.isEmpty()) {
+        if (matchingIndices.isEmpty()) {
             binding.rvAnswers.visibility = View.GONE
             binding.layoutEmptyFilter.visibility = View.VISIBLE
             val filterName = when {
@@ -325,8 +298,8 @@ class ResultActivity : AppCompatActivity() {
         } else {
             binding.rvAnswers.visibility = View.VISIBLE
             binding.layoutEmptyFilter.visibility = View.GONE
-            adapter.submit(filtered)
-            binding.rvAnswers.scrollToPosition(0)
+            val targetIndex = if (showAll) 0 else matchingIndices.first()
+            selectQuestion(targetIndex)
         }
     }
 

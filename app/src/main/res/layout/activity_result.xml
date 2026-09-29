@@ -413,18 +413,6 @@
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
 
-            <!-- 3a: Dismissible Single-Question Isolation Indicator Chip -->
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipIsolatedQuestion"
-                style="@style/Widget.Material3.Chip.Assist"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="8dp"
-                android:text="Question 1 • Tap to see all"
-                app:closeIconVisible="true"
-                android:visibility="gone" />
-
             <!-- Answer Cards List with Empty State for 0-result Filter -->
             <FrameLayout
                 android:layout_width="match_parent"

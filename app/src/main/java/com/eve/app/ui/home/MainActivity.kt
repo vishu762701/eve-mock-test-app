@@ -22,10 +22,14 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.OvershootInterpolator
+import android.content.res.Configuration
 import android.provider.Settings
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.airbnb.lottie.LottieProperty
+import com.airbnb.lottie.model.KeyPath
+import com.airbnb.lottie.value.SimpleLottieValueCallback
 import com.eve.app.util.AppBulletin
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -640,6 +644,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupFloatingAirplane() {
+        applyFloatingAirplaneTheme()
+
         ViewCompat.setOnApplyWindowInsetsListener(binding.cardFloatingAirplane) { view, windowInsets ->
             val navInsets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
             val baseMarginPx = (16 * resources.displayMetrics.density).toInt()
@@ -676,6 +682,40 @@ class MainActivity : AppCompatActivity() {
                 AppBulletin.showError(this, "Couldn't open link")
             }
         }
+    }
+
+    private fun applyFloatingAirplaneTheme() {
+        val isDark = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        val keyPathAll = KeyPath("**")
+
+        // Dark mode: remap #000000 and #231f20 (RGB) to ContextCompat.getColor(this, R.color.eve_text).
+        // Light mode: remap #ffffff and #fcfcfc to ContextCompat.getColor(this, R.color.eve_stroke).
+        val targetColor = if (isDark) {
+            ContextCompat.getColor(this, R.color.eve_text)
+        } else {
+            ContextCompat.getColor(this, R.color.eve_stroke)
+        }
+
+        val callback = SimpleLottieValueCallback<Int> { frameInfo ->
+            val orig = frameInfo?.startValue ?: return@SimpleLottieValueCallback 0
+            val rgb = orig and 0x00FFFFFF
+            val alpha = orig and 0xFF000000.toInt()
+
+            if (isDark) {
+                when (rgb) {
+                    0x000000, 0x231F20 -> alpha or (targetColor and 0x00FFFFFF)
+                    else -> orig
+                }
+            } else {
+                when (rgb) {
+                    0xFFFFFF, 0xFCFCFC -> alpha or (targetColor and 0x00FFFFFF)
+                    else -> orig
+                }
+            }
+        }
+
+        binding.lottieFloatingAirplane.addValueCallback(keyPathAll, LottieProperty.COLOR, callback)
+        binding.lottieFloatingAirplane.addValueCallback(keyPathAll, LottieProperty.STROKE_COLOR, callback)
     }
 
     private fun updateFloatingAirplaneState(link: String?) {

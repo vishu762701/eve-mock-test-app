@@ -202,7 +202,7 @@ class ResultAndTestPolishVerificationTest {
 
         assertTrue("scrollResultContent NestedScrollView must exist", content.contains("android:id=\"@+id/scrollResultContent\""))
         assertTrue("layoutActionCluster must exist", content.contains("android:id=\"@+id/layoutActionCluster\""))
-        assertTrue("chipIsolatedQuestion must exist", content.contains("android:id=\"@+id/chipIsolatedQuestion\""))
+        assertFalse("chipIsolatedQuestion must not exist", content.contains("android:id=\"@+id/chipIsolatedQuestion\""))
         assertTrue("btnHome close button must exist", content.contains("android:id=\"@+id/btnHome\""))
     }
 }
