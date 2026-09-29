@@ -65,26 +65,12 @@ class AdminActivity : AppCompatActivity() {
     private val apiUsageRepo = ApiUsageRepository()
 
     private var exams: List<Exam> = emptyList()
-    private var newExamImageBase64: String = ""
     private var selectedExamForImageUpdate: Exam? = null
     private var onBannerImageSelected: ((Uri) -> Unit)? = null
 
     private val pickBannerImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) {
             onBannerImageSelected?.invoke(uri)
-        }
-    }
-
-    private val pickNewExamImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        if (uri != null) {
-            val base64 = ExamImageHelper.uriToBase64(this, uri)
-            if (base64 != null) {
-                newExamImageBase64 = base64
-                ExamImageHelper.loadExamImage(binding.ivNewExamImagePreview, base64)
-                binding.btnRemoveExamImage.visibility = View.VISIBLE
-            } else {
-                AppBulletin.showError(this, "Failed to load image")
-            }
         }
     }
 
@@ -164,17 +150,6 @@ class AdminActivity : AppCompatActivity() {
             override fun onTabReselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {}
         })
 
-        binding.spCategory.adapter = ArrayAdapter(
-            this, android.R.layout.simple_spinner_dropdown_item, Constants.CATEGORIES
-        )
-        binding.spCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                binding.etOtherCategory.visibility =
-                    if (Constants.CATEGORIES.getOrNull(position) == Constants.CATEGORY_OTHER) View.VISIBLE else View.GONE
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
-
         binding.rvQuestions.layoutManager = LinearLayoutManager(this)
         binding.rvQuestions.adapter = questionAdapter
 
@@ -192,14 +167,6 @@ class AdminActivity : AppCompatActivity() {
             }
         }
 
-        binding.btnChooseExamImage.setOnClickListener { pickNewExamImageLauncher.launch("image/*") }
-        binding.btnRemoveExamImage.setOnClickListener {
-            newExamImageBase64 = ""
-            binding.ivNewExamImagePreview.setImageDrawable(null)
-            binding.ivNewExamImagePreview.visibility = View.GONE
-            binding.btnRemoveExamImage.visibility = View.GONE
-        }
-        binding.btnAddExam.setOnClickListener { addExam() }
         binding.btnEditExamImage.setOnClickListener { showEditExamImageDialog() }
         binding.btnRenameExam.setOnClickListener { promptRenameExam() }
         binding.btnDeleteExam.setOnClickListener { confirmDeleteExam() }
@@ -335,7 +302,6 @@ class AdminActivity : AppCompatActivity() {
                 }
                 launch {
                     viewModel.busy.collect { busy ->
-                        binding.btnAddExam.isEnabled = !busy
                         binding.btnRenameExam.isEnabled = !busy
                         binding.btnDeleteExam.isEnabled = !busy
                     }
@@ -392,46 +358,6 @@ class AdminActivity : AppCompatActivity() {
             .setDuration(300)
             .setInterpolator(android.view.animation.DecelerateInterpolator())
             .start()
-    }
-
-    private fun addExam() {
-        val name = binding.etExamName.text.toString().trim()
-        val minutes = binding.etExamMinutes.text.toString().trim().toIntOrNull()
-        val selectedCategory = binding.spCategory.selectedItem as? String ?: Constants.CATEGORY_OTHER
-        val category = if (selectedCategory == Constants.CATEGORY_OTHER) {
-            binding.etOtherCategory.text.toString().trim()
-        } else {
-            selectedCategory
-        }
-        if (name.length < 2 || minutes == null || minutes <= 0) {
-            AppBulletin.showError(this, "Please enter exam name (min 2 characters) and valid duration in minutes")
-            return
-        }
-        if (category.isEmpty()) {
-            AppBulletin.showError(this, "Please select or type a category")
-            return
-        }
-        // Duplicate check within same category
-        if (exams.any { it.categoryOrOther.equals(category, ignoreCase = true) && it.examName.trim().equals(name, ignoreCase = true) }) {
-            AppBulletin.showError(this, "An exam named '$name' already exists in category '$category'")
-            return
-        }
-        viewModel.addExam(name, minutes, category, imageUrl = newExamImageBase64) {
-            auditLogRepo.recordLog(
-                AdminAuditLog.ACTION_EXAM_CREATED,
-                "Created exam '$name' ($category, $minutes mins)"
-            )
-            apiUsageRepo.incrementDocumentWrites(1)
-            binding.etExamName.text?.clear()
-            binding.etExamMinutes.text?.clear()
-            binding.spCategory.setSelection(0)
-            binding.etOtherCategory.text?.clear()
-            binding.etOtherCategory.visibility = View.GONE
-            newExamImageBase64 = ""
-            binding.ivNewExamImagePreview.setImageDrawable(null)
-            binding.ivNewExamImagePreview.visibility = View.GONE
-            binding.btnRemoveExamImage.visibility = View.GONE
-        }
     }
 
     private fun showAddQuestionDialog(selectedExam: Exam) {

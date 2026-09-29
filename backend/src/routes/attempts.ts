@@ -7,7 +7,6 @@ import { AttemptAnswerRow, AttemptRow, AuthUser, Env, QuestionRow } from "../typ
 
 export const attemptRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
-const NEGATIVE_MARK = 0.0;
 const VALID_OPTIONS = new Set(["A", "B", "C", "D"]);
 
 function questionOptionText(q: any, letter: string): string {
@@ -181,7 +180,17 @@ attemptRoutes.post("/submit", async (c) => {
   }
 
   const total = answersData.length;
-  const score = Math.round((correct - wrong * NEGATIVE_MARK) * 100) / 100;
+
+  let negativeMarking = 0.0;
+  const examRow = await db
+    .prepare("SELECT negative_marking_value FROM exams WHERE id = ?")
+    .bind(examId)
+    .first<{ negative_marking_value: number }>();
+  if (examRow && typeof examRow.negative_marking_value === "number") {
+    negativeMarking = examRow.negative_marking_value;
+  }
+
+  const score = Math.round((correct - wrong * negativeMarking) * 100) / 100;
   const attemptId = crypto.randomUUID();
   const now = Date.now();
 

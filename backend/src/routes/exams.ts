@@ -9,6 +9,28 @@ import { AuthUser, Env, ExamRow } from "../types";
 
 export const examRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
+export function parseNegativeMarking(raw: string): { text: string; value: number } | null {
+  const trimmed = (raw ?? "").toString().trim();
+  if (!trimmed || trimmed.includes(" ")) return null;
+  if (trimmed === "0" || trimmed === "0.0" || trimmed === "0.00") {
+    return { text: trimmed, value: 0 };
+  }
+  if (trimmed.includes("/")) {
+    const parts = trimmed.split("/");
+    if (parts.length !== 2) return null;
+    if (!/^\d+$/.test(parts[0]) || !/^\d+$/.test(parts[1])) return null;
+    const a = parseInt(parts[0], 10);
+    const b = parseInt(parts[1], 10);
+    if (isNaN(a) || isNaN(b)) return null;
+    if (a < 1 || b < 1 || a > b || b > 100) return null;
+    return { text: trimmed, value: a / b };
+  }
+  if (!/^\d+(\.\d+)?$/.test(trimmed)) return null;
+  const num = Number(trimmed);
+  if (isNaN(num) || num < 0 || num > 1) return null;
+  return { text: trimmed, value: num };
+}
+
 function mapExamRow(row: ExamRow) {
   return {
     id: row.id,
@@ -30,6 +52,8 @@ function mapExamRow(row: ExamRow) {
     lastGenerationStatus: row.last_generation_status || "",
     lastGenerationError: row.last_generation_error || "",
     lastGenerationTime: row.last_generation_time || 0,
+    negativeMarkingText: row.negative_marking_text || "0",
+    negativeMarkingValue: row.negative_marking_value ?? 0,
   };
 }
 
@@ -61,7 +85,7 @@ examRoutes.get("/:id", async (c) => {
 examRoutes.post("/", requireAdmin, async (c) => {
   const body = await c.req.json().catch(() => ({}));
   const name = String(body.examName || "").trim();
-  const minutes = Number(body.timeLimitMinutes) || 30;
+  const minutes = body.timeLimitMinutes !== undefined ? Number(body.timeLimitMinutes) : 30;
   const category = String(body.category || "Other").trim();
   const testNumber = String(body.testNumber || "Test 1").trim();
   const questionCount = Number(body.questionCount) || 20;
@@ -74,6 +98,20 @@ examRoutes.post("/", requireAdmin, async (c) => {
   if (!name) {
     return c.json({ success: false, error: "Exam name cannot be empty" }, 400);
   }
+  if (isNaN(minutes) || minutes < 1 || minutes > 600) {
+    return c.json({ success: false, error: "Enter minutes between 1 and 600" }, 400);
+  }
+
+  let negText = "0";
+  let negValue = 0;
+  if (body.negativeMarkingText !== undefined && body.negativeMarkingText !== null) {
+    const parsed = parseNegativeMarking(String(body.negativeMarkingText));
+    if (!parsed) {
+      return c.json({ success: false, error: "Enter like 1/3, 1/4, 0.25 or 0" }, 400);
+    }
+    negText = parsed.text;
+    negValue = parsed.value;
+  }
 
   const id = crypto.randomUUID();
   const db = c.env.DB;
@@ -82,8 +120,9 @@ examRoutes.post("/", requireAdmin, async (c) => {
     .prepare(
       `INSERT INTO exams (
         id, exam_name, time_limit_minutes, category, test_number, question_count,
-        auto_generation_enabled, auto_gen_time, timezone, generation_prompt, image_url
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        auto_generation_enabled, auto_gen_time, timezone, generation_prompt, image_url,
+        negative_marking_text, negative_marking_value
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .bind(
       id,
@@ -96,7 +135,9 @@ examRoutes.post("/", requireAdmin, async (c) => {
       autoGenTime,
       timezone,
       generationPrompt,
-      imageUrl
+      imageUrl,
+      negText,
+      negValue
     )
     .run();
 
@@ -109,34 +150,68 @@ examRoutes.put("/:id", requireAdmin, async (c) => {
   const body = await c.req.json().catch(() => ({}));
   const db = c.env.DB;
 
-  const examName = String(body.examName || "").trim();
-  const testNumber = String(body.testNumber || "Test 1").trim();
-  const questionCount = Number(body.questionCount) || 20;
-  const autoGenEnabled = body.autoGenEnabled !== false && body.autoGenerationEnabled !== false ? 1 : 0;
-  const autoGenTime = String(body.autoGenTime || "00:00").trim();
-  const syllabusUrl = String(body.syllabusUrl || "").trim();
-  const syllabusFileName = String(body.syllabusFileName || "").trim();
-  const generationPrompt = String(body.generationPrompt || "").trim();
+  const existing = await db.prepare("SELECT * FROM exams WHERE id = ?").bind(id).first<ExamRow>();
+  if (!existing) {
+    return c.json({ success: false, error: "Exam not found" }, 404);
+  }
 
+  const examName = body.examName !== undefined ? String(body.examName).trim() : existing.exam_name;
   if (!examName) {
     return c.json({ success: false, error: "Exam name cannot be empty" }, 400);
   }
+
+  let minutes = existing.time_limit_minutes;
+  if (body.timeLimitMinutes !== undefined && body.timeLimitMinutes !== null) {
+    const parsed = Number(body.timeLimitMinutes);
+    if (isNaN(parsed) || parsed < 1 || parsed > 600) {
+      return c.json({ success: false, error: "Enter minutes between 1 and 600" }, 400);
+    }
+    minutes = parsed;
+  }
+
+  let negText = existing.negative_marking_text || "0";
+  let negValue = existing.negative_marking_value ?? 0;
+  if (body.negativeMarkingText !== undefined && body.negativeMarkingText !== null) {
+    const parsed = parseNegativeMarking(String(body.negativeMarkingText));
+    if (!parsed) {
+      return c.json({ success: false, error: "Enter like 1/3, 1/4, 0.25 or 0" }, 400);
+    }
+    negText = parsed.text;
+    negValue = parsed.value;
+  }
+
+  const testNumber = body.testNumber !== undefined ? String(body.testNumber).trim() : existing.test_number;
+  const questionCount = body.questionCount !== undefined ? Number(body.questionCount) : existing.question_count;
+  const autoGenEnabled = body.autoGenEnabled !== undefined
+    ? (body.autoGenEnabled ? 1 : 0)
+    : (body.autoGenerationEnabled !== undefined ? (body.autoGenerationEnabled ? 1 : 0) : existing.auto_generation_enabled);
+  const autoGenTime = body.autoGenTime !== undefined ? String(body.autoGenTime).trim() : existing.auto_gen_time;
+  const syllabusUrl = body.syllabusUrl !== undefined ? String(body.syllabusUrl).trim() : (existing.syllabus_url || "");
+  const syllabusFileName = body.syllabusFileName !== undefined ? String(body.syllabusFileName).trim() : (existing.syllabus_file_name || "");
+  const generationPrompt = body.generationPrompt !== undefined ? String(body.generationPrompt).trim() : (existing.generation_prompt || "");
+  const category = body.category !== undefined ? String(body.category).trim() : existing.category;
 
   await db
     .prepare(
       `UPDATE exams SET
         exam_name = ?,
+        time_limit_minutes = ?,
+        category = ?,
         test_number = ?,
         question_count = ?,
         auto_generation_enabled = ?,
         auto_gen_time = ?,
         syllabus_url = ?,
         syllabus_file_name = ?,
-        generation_prompt = ?
+        generation_prompt = ?,
+        negative_marking_text = ?,
+        negative_marking_value = ?
        WHERE id = ?`
     )
     .bind(
       examName,
+      minutes,
+      category,
       testNumber,
       questionCount,
       autoGenEnabled,
@@ -144,6 +219,8 @@ examRoutes.put("/:id", requireAdmin, async (c) => {
       syllabusUrl,
       syllabusFileName,
       generationPrompt,
+      negText,
+      negValue,
       id
     )
     .run();

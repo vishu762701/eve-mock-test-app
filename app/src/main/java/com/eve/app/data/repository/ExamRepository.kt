@@ -116,7 +116,9 @@ class ExamRepository(
         autoGenTime: String = "00:00",
         timezone: String = "Asia/Kolkata",
         generationPrompt: String = "",
-        imageUrl: String = ""
+        imageUrl: String = "",
+        negativeMarkingText: String = "0",
+        negativeMarkingValue: Double = 0.0
     ): String {
         val trimmed = name.trim()
         val data = mapOf(
@@ -131,7 +133,9 @@ class ExamRepository(
             "generationPrompt" to generationPrompt,
             "syllabusUrl" to "",
             "syllabusFileName" to "",
-            "imageUrl" to imageUrl
+            "imageUrl" to imageUrl,
+            "negativeMarkingText" to negativeMarkingText,
+            "negativeMarkingValue" to negativeMarkingValue
         )
         val res = api.createExam(data)
         if (!res.success || res.data == null) {
@@ -162,7 +166,9 @@ class ExamRepository(
             "timeLimitMinutes" to exam.timeLimitMinutes,
             "category" to exam.categoryOrOther,
             "questionCount" to exam.questionCount,
-            "cutoffs" to exam.cutoffs
+            "cutoffs" to exam.cutoffs,
+            "negativeMarkingText" to exam.negativeMarkingText,
+            "negativeMarkingValue" to exam.negativeMarkingValue
         )
         val res = api.updateExam(exam.id, data)
         if (!res.success) throw Exception(res.error ?: "Failed to update exam")
@@ -177,17 +183,23 @@ class ExamRepository(
         autoGenTime: String,
         syllabusUrl: String,
         syllabusFileName: String,
-        generationPrompt: String
+        generationPrompt: String,
+        timeLimitMinutes: Int = 30,
+        negativeMarkingText: String = "0",
+        negativeMarkingValue: Double = 0.0
     ) {
         val data = mapOf<String, Any>(
             "examName" to examName.trim(),
+            "timeLimitMinutes" to timeLimitMinutes,
             "testNumber" to testNumber.trim(),
             "questionCount" to questionCount,
             "autoGenerationEnabled" to autoGenEnabled,
             "autoGenTime" to autoGenTime.trim(),
             "syllabusUrl" to syllabusUrl,
             "syllabusFileName" to syllabusFileName,
-            "generationPrompt" to generationPrompt.trim()
+            "generationPrompt" to generationPrompt.trim(),
+            "negativeMarkingText" to negativeMarkingText,
+            "negativeMarkingValue" to negativeMarkingValue
         )
         val res = api.updateExam(examId, data)
         if (!res.success) throw Exception(res.error ?: "Failed to update exam settings")

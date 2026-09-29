@@ -65,36 +65,9 @@
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                app:cardBackgroundColor="@color/eve_surface"
-                app:cardCornerRadius="@dimen/eve_radius_sm"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/eve_border"
-                app:strokeWidth="1dp">
-
-                <Spinner
-                    android:id="@+id/spExam"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:paddingHorizontal="8dp" />
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- 2. Exam Name -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:fontFamily="@font/poppins_semibold"
-                android:text="2. Exam Name"
-                android:textColor="@color/eve_text"
-                android:textSize="14sp" />
-
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilExamName"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:id="@+id/tilSelectExam"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
@@ -103,13 +76,49 @@
                 app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm"
                 app:boxCornerRadiusTopStart="@dimen/eve_radius_sm">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etExamName"
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/actvExam"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins"
-                    android:hint="Exam Name"
+                    android:hint="Select or type exam name"
                     android:inputType="textCapWords"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:textColor="@color/eve_text"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- 2. Test Duration (minutes) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="2. Test Duration (minutes)"
+                android:textColor="@color/eve_text"
+                android:textSize="14sp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilDuration"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm"
+                app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm"
+                app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm"
+                app:boxCornerRadiusTopStart="@dimen/eve_radius_sm"
+                app:helperText="Valid range: 1 to 600 minutes">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etDuration"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins"
+                    android:hint="Duration in minutes"
+                    android:inputType="number"
+                    android:maxLength="3"
                     android:maxLines="1"
                     android:textColor="@color/eve_text"
                     android:textSize="14sp" />
@@ -183,13 +192,49 @@
                     android:textSize="14sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- 5. Auto-generation time + Switch -->
+            <!-- 5. Negative Marking -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
                 android:fontFamily="@font/poppins_semibold"
-                android:text="5. Scheduled Auto-Generation"
+                android:text="5. Negative Marking"
+                android:textColor="@color/eve_text"
+                android:textSize="14sp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilNegativeMarking"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm"
+                app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm"
+                app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm"
+                app:boxCornerRadiusTopStart="@dimen/eve_radius_sm"
+                app:helperText="Deducted per wrong answer">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etNegativeMarking"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins"
+                    android:hint="e.g. 1/3, 1/4, 0.25 or 0"
+                    android:inputType="text"
+                    android:maxLength="10"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:textColor="@color/eve_text"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- 6. Scheduled Auto-Generation -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="6. Scheduled Auto-Generation"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
 
@@ -239,13 +284,13 @@
                 android:text="⚡ Generate Test Now (Admin On-Demand)"
                 android:textColor="@color/eve_primary" />
 
-            <!-- 6. Exam Syllabus (PDF) Upload -->
+            <!-- 7. Exam Syllabus (PDF) Upload -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:fontFamily="@font/poppins_semibold"
-                android:text="6. Exam Syllabus (PDF)"
+                android:text="7. Exam Syllabus (PDF)"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
 
@@ -345,13 +390,13 @@
                 android:text="Upload Syllabus PDF"
                 app:icon="@drawable/ic_upload" />
 
-            <!-- 7. AI Prompt for this Exam -->
+            <!-- 8. AI Prompt for this Exam -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:fontFamily="@font/poppins_semibold"
-                android:text="7. AI Prompt for this Exam"
+                android:text="8. AI Prompt for this Exam"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
 
@@ -365,7 +410,9 @@
                 app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm"
                 app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm"
                 app:boxCornerRadiusTopStart="@dimen/eve_radius_sm"
-                app:helperText="Custom instructions appended to Gemini base prompt for this exam">
+                app:counterEnabled="true"
+                app:counterMaxLength="20000"
+                app:helperText="Main instruction used to generate this exam's questions">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etGenerationPrompt"
@@ -375,18 +422,20 @@
                     android:gravity="top|start"
                     android:hint="Custom syllabus topics, focus areas, pattern notes..."
                     android:inputType="textMultiLine|textCapSentences"
-                    android:minLines="5"
+                    android:maxLength="20000"
+                    android:minHeight="240dp"
+                    android:scrollbars="vertical"
                     android:textColor="@color/eve_text"
                     android:textSize="14sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- 8. View Generated Tests -->
+            <!-- 9. Generated Tests for this Exam -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="22dp"
                 android:fontFamily="@font/poppins_semibold"
-                android:text="8. Generated Tests for this Exam"
+                android:text="9. Generated Tests for this Exam"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
 

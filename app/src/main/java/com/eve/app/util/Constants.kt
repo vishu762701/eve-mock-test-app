@@ -26,6 +26,7 @@ object Constants {
     const val EXTRA_EXAM_NAME = "extra_exam_name"
     const val EXTRA_EXAM_CATEGORY = "extra_exam_category"
     const val EXTRA_TIME_LIMIT = "extra_time_limit"
+    const val EXTRA_NEGATIVE_MARKING = "extra_negative_marking"
     const val EXTRA_TOPIC = "extra_topic"
     const val EXTRA_PRACTICE_MODE = "extra_practice_mode"
     const val EXTRA_PYQ_MODE = "extra_pyq_mode"

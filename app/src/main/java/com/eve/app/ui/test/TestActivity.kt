@@ -40,6 +40,7 @@ class TestActivity : AppCompatActivity() {
 
     private lateinit var examId: String
     private var timeLimit = 30
+    private var negativeMarking = Constants.NEGATIVE_MARK
     private var examName = ""
     private var examCategory = ""
     private var topic = ""
@@ -71,6 +72,7 @@ class TestActivity : AppCompatActivity() {
         examName = intent.getStringExtra(Constants.EXTRA_EXAM_NAME) ?: "Test"
         examCategory = intent.getStringExtra(Constants.EXTRA_EXAM_CATEGORY) ?: ""
         timeLimit = intent.getIntExtra(Constants.EXTRA_TIME_LIMIT, 30)
+        negativeMarking = intent.getDoubleExtra(Constants.EXTRA_NEGATIVE_MARKING, Constants.NEGATIVE_MARK)
         topic = intent.getStringExtra(Constants.EXTRA_TOPIC).orEmpty()
         pyqYear = intent.getIntExtra(Constants.EXTRA_PYQ_YEAR, 0)
         pyqPaper = intent.getStringExtra(Constants.EXTRA_PYQ_PAPER).orEmpty()
@@ -171,6 +173,7 @@ class TestActivity : AppCompatActivity() {
                                             .putExtra(Constants.EXTRA_FROM_HISTORY, true)
                                             .putExtra(Constants.EXTRA_CAN_REATTEMPT, true)
                                             .putExtra(Constants.EXTRA_TIME_LIMIT, timeLimit)
+                                            .putExtra(Constants.EXTRA_NEGATIVE_MARKING, negativeMarking)
                                             .putExtra(Constants.EXTRA_EXAM_CATEGORY, examCategory)
                                     )
                                     finish()
@@ -405,6 +408,7 @@ class TestActivity : AppCompatActivity() {
                     .putExtra(Constants.EXTRA_EXAM_NAME, attemptName)
                     .putExtra(Constants.EXTRA_EXAM_CATEGORY, examCategory)
                     .putExtra(Constants.EXTRA_TIME_LIMIT, timeLimit)
+                    .putExtra(Constants.EXTRA_NEGATIVE_MARKING, negativeMarking)
                     .putExtra(Constants.EXTRA_CAN_REATTEMPT, isStandardMock)
             )
             finish()

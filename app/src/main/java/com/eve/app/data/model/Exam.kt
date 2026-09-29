@@ -1,10 +1,11 @@
 package com.eve.app.data.model
 
 /**
- * Firestore collection: exams.
+ * Firestore/D1 collection: exams.
  * Per-exam fields: examName, testNumber, questionCount, autoGenEnabled, autoGenTime, timezone,
- * syllabusUrl, syllabusFileName, generationPrompt, lastGeneratedDate, lastGenerationStatus, lastGenerationError.
- * Existing exams default autoGenEnabled=true, autoGenTime="00:00" without destructive migration.
+ * syllabusUrl, syllabusFileName, generationPrompt, lastGeneratedDate, lastGenerationStatus, lastGenerationError,
+ * negativeMarkingText, negativeMarkingValue.
+ * Existing exams default autoGenEnabled=true, autoGenTime="00:00", negativeMarkingText="0", negativeMarkingValue=0.0 without destructive migration.
  */
 data class Exam(
     val id: String = "",
@@ -27,7 +28,9 @@ data class Exam(
     val lastGenerationTime: Long = 0L,
     val imageUrl: String = "",
     val syllabusUploadedAt: Long = 0L,
-    val cutoffs: Map<String, Double> = emptyMap()
+    val cutoffs: Map<String, Double> = emptyMap(),
+    val negativeMarkingText: String = "0",
+    val negativeMarkingValue: Double = 0.0
 ) {
     val categoryOrOther: String get() = category.ifBlank { "Other" }
     val autoGenEnabled: Boolean get() = autoGenerationEnabled

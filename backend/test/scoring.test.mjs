@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 
 const NEGATIVE_MARK = 0.0;
 
-function evaluateAnswers(picks, questionsMap) {
+function evaluateAnswers(picks, questionsMap, negativeMark = NEGATIVE_MARK) {
   let correct = 0;
   let wrong = 0;
   let unattempted = 0;
@@ -20,7 +20,7 @@ function evaluateAnswers(picks, questionsMap) {
     else wrong++;
   }
 
-  const score = correct - wrong * NEGATIVE_MARK;
+  const score = Math.round((correct - wrong * negativeMark) * 100) / 100;
   return { correct, wrong, unattempted, score };
 }
 
@@ -58,6 +58,46 @@ test("evaluateAnswers correctly calculates wrong and unattempted answers", () =>
   assert.equal(result.wrong, 1);
   assert.equal(result.unattempted, 1);
   assert.equal(result.score, 1.0);
+});
+
+test("evaluateAnswers with negative marking 1/3", () => {
+  const questionsMap = new Map([
+    ["q1", { correctAnswer: "A" }],
+    ["q2", { correctAnswer: "B" }],
+    ["q3", { correctAnswer: "C" }],
+    ["q4", { correctAnswer: "D" }],
+  ]);
+  const picks = [
+    { questionId: "q1", selected: "A" }, // correct
+    { questionId: "q2", selected: "B" }, // correct
+    { questionId: "q3", selected: "A" }, // wrong
+    { questionId: "q4", selected: "" },  // unattempted
+  ];
+
+  const result = evaluateAnswers(picks, questionsMap, 1 / 3);
+  assert.equal(result.correct, 2);
+  assert.equal(result.wrong, 1);
+  assert.equal(result.unattempted, 1);
+  assert.equal(result.score, 1.67);
+});
+
+test("evaluateAnswers with negative marking 0.25", () => {
+  const questionsMap = new Map([
+    ["q1", { correctAnswer: "A" }],
+    ["q2", { correctAnswer: "B" }],
+    ["q3", { correctAnswer: "C" }],
+  ]);
+  const picks = [
+    { questionId: "q1", selected: "A" }, // correct
+    { questionId: "q2", selected: "A" }, // wrong
+    { questionId: "q3", selected: "B" }, // wrong
+  ];
+
+  const result = evaluateAnswers(picks, questionsMap, 0.25);
+  assert.equal(result.correct, 1);
+  assert.equal(result.wrong, 2);
+  assert.equal(result.unattempted, 0);
+  assert.equal(result.score, 0.5);
 });
 
 test("hardcoded admin email check", () => {

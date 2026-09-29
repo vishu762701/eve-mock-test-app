@@ -146,6 +146,7 @@ class MainActivity : AppCompatActivity() {
                                     .putExtra(Constants.EXTRA_FROM_HISTORY, true)
                                     .putExtra(Constants.EXTRA_CAN_REATTEMPT, true)
                                     .putExtra(Constants.EXTRA_TIME_LIMIT, exam.timeLimitMinutes)
+                                    .putExtra(Constants.EXTRA_NEGATIVE_MARKING, exam.negativeMarkingValue)
                                     .putExtra(Constants.EXTRA_EXAM_CATEGORY, exam.categoryOrOther)
                             )
                         } else {
@@ -164,6 +165,7 @@ class MainActivity : AppCompatActivity() {
                                     .putExtra(Constants.EXTRA_FROM_HISTORY, true)
                                     .putExtra(Constants.EXTRA_CAN_REATTEMPT, true)
                                     .putExtra(Constants.EXTRA_TIME_LIMIT, exam.timeLimitMinutes)
+                                    .putExtra(Constants.EXTRA_NEGATIVE_MARKING, exam.negativeMarkingValue)
                                     .putExtra(Constants.EXTRA_EXAM_CATEGORY, exam.categoryOrOther)
                             )
                         } else {
@@ -178,6 +180,7 @@ class MainActivity : AppCompatActivity() {
                         .putExtra(Constants.EXTRA_EXAM_NAME, exam.examName)
                         .putExtra(Constants.EXTRA_EXAM_CATEGORY, exam.categoryOrOther)
                         .putExtra(Constants.EXTRA_TIME_LIMIT, exam.timeLimitMinutes)
+                        .putExtra(Constants.EXTRA_NEGATIVE_MARKING, exam.negativeMarkingValue)
                 )
             }
         },

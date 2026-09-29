@@ -49,6 +49,8 @@ export interface ExamRow {
   last_generation_error: string;
   last_generation_time: number;
   generating_lock_until: number;
+  negative_marking_text: string;
+  negative_marking_value: number;
 }
 
 export interface QuestionRow {

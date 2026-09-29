@@ -110,7 +110,32 @@ class ResultActivity : AppCompatActivity() {
         val correct = allItems.count { it.isCorrect }
         val unattempted = allItems.count { !it.isAttempted }
         val wrong = total - correct - unattempted
-        currentScore = correct - wrong * Constants.NEGATIVE_MARK
+
+        var negMark = if (intent.hasExtra(Constants.EXTRA_NEGATIVE_MARKING)) {
+            intent.getDoubleExtra(Constants.EXTRA_NEGATIVE_MARKING, Constants.NEGATIVE_MARK)
+        } else {
+            Constants.NEGATIVE_MARK
+        }
+        currentScore = Math.round((correct - wrong * negMark) * 100.0) / 100.0
+
+        if (examId.isNotBlank() && !intent.hasExtra(Constants.EXTRA_NEGATIVE_MARKING)) {
+            lifecycleScope.launch {
+                try {
+                    val exam = ExamRepository().getExam(examId)
+                    val examNeg = exam?.negativeMarkingValue ?: 0.0
+                    val updatedScore = Math.round((correct - wrong * examNeg) * 100.0) / 100.0
+                    if (updatedScore != currentScore) {
+                        currentScore = updatedScore
+                        val finalStr = if (currentScore % 1.0 == 0.0) {
+                            currentScore.toInt().toString()
+                        } else {
+                            String.format(java.util.Locale.US, "%.2f", currentScore)
+                        }
+                        binding.tvScore.text = "$finalStr / $total"
+                    }
+                } catch (_: Exception) {}
+            }
+        }
 
         // Number count-up animation
         com.eve.app.util.NumberCountUpHelper.animateScoreCountUp(
