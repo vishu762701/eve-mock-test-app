@@ -54,6 +54,7 @@ function mapExamRow(row: ExamRow) {
     lastGenerationTime: row.last_generation_time || 0,
     negativeMarkingText: row.negative_marking_text || "0",
     negativeMarkingValue: row.negative_marking_value ?? 0,
+    parentExamId: row.parent_exam_id || "",
   };
 }
 
@@ -94,6 +95,7 @@ examRoutes.post("/", requireAdmin, async (c) => {
   const timezone = String(body.timezone || "Asia/Kolkata").trim();
   const generationPrompt = String(body.generationPrompt || "").trim();
   const imageUrl = String(body.imageUrl || "").trim();
+  const parentExamId = String(body.parentExamId || "").trim();
 
   if (!name) {
     return c.json({ success: false, error: "Exam name cannot be empty" }, 400);
@@ -113,16 +115,35 @@ examRoutes.post("/", requireAdmin, async (c) => {
     negValue = parsed.value;
   }
 
-  const id = crypto.randomUUID();
   const db = c.env.DB;
+
+  if (parentExamId) {
+    const parent = await db.prepare("SELECT id, parent_exam_id FROM exams WHERE id = ?").bind(parentExamId).first<ExamRow>();
+    if (!parent) {
+      return c.json({ success: false, error: "Parent exam not found" }, 400);
+    }
+    if (parent.parent_exam_id && parent.parent_exam_id.trim() !== "") {
+      return c.json({ success: false, error: "Parent exam cannot be a sub-exam (only one level of nesting allowed)" }, 400);
+    }
+  }
+
+  const duplicate = await db
+    .prepare("SELECT 1 FROM exams WHERE LOWER(exam_name) = LOWER(?) AND parent_exam_id = ?")
+    .bind(name, parentExamId)
+    .first();
+  if (duplicate) {
+    return c.json({ success: false, error: "An exam with this name already exists here" }, 409);
+  }
+
+  const id = crypto.randomUUID();
 
   await db
     .prepare(
       `INSERT INTO exams (
         id, exam_name, time_limit_minutes, category, test_number, question_count,
         auto_generation_enabled, auto_gen_time, timezone, generation_prompt, image_url,
-        negative_marking_text, negative_marking_value
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        negative_marking_text, negative_marking_value, parent_exam_id
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .bind(
       id,
@@ -137,7 +158,8 @@ examRoutes.post("/", requireAdmin, async (c) => {
       generationPrompt,
       imageUrl,
       negText,
-      negValue
+      negValue,
+      parentExamId
     )
     .run();
 
@@ -190,6 +212,36 @@ examRoutes.put("/:id", requireAdmin, async (c) => {
   const syllabusFileName = body.syllabusFileName !== undefined ? String(body.syllabusFileName).trim() : (existing.syllabus_file_name || "");
   const generationPrompt = body.generationPrompt !== undefined ? String(body.generationPrompt).trim() : (existing.generation_prompt || "");
   const category = body.category !== undefined ? String(body.category).trim() : existing.category;
+  const parentExamId = body.parentExamId !== undefined ? String(body.parentExamId).trim() : (existing.parent_exam_id || "");
+
+  if (parentExamId) {
+    if (parentExamId === id) {
+      return c.json({ success: false, error: "An exam cannot be its own parent" }, 400);
+    }
+    const parent = await db.prepare("SELECT id, parent_exam_id FROM exams WHERE id = ?").bind(parentExamId).first<ExamRow>();
+    if (!parent) {
+      return c.json({ success: false, error: "Parent exam not found" }, 400);
+    }
+    if (parent.parent_exam_id && parent.parent_exam_id.trim() !== "") {
+      return c.json({ success: false, error: "Parent exam cannot be a sub-exam (only one level of nesting allowed)" }, 400);
+    }
+    const hasChildren = await db.prepare("SELECT 1 FROM exams WHERE parent_exam_id = ? LIMIT 1").bind(id).first();
+    if (hasChildren) {
+      return c.json({ success: false, error: "This exam has sub-exams and cannot become a sub-exam" }, 400);
+    }
+  }
+
+  const nameChanged = examName.toLowerCase() !== existing.exam_name.toLowerCase();
+  const parentChanged = parentExamId !== (existing.parent_exam_id || "");
+  if (nameChanged || parentChanged) {
+    const duplicate = await db
+      .prepare("SELECT 1 FROM exams WHERE LOWER(exam_name) = LOWER(?) AND parent_exam_id = ? AND id != ?")
+      .bind(examName, parentExamId, id)
+      .first();
+    if (duplicate) {
+      return c.json({ success: false, error: "An exam with this name already exists here" }, 409);
+    }
+  }
 
   await db
     .prepare(
@@ -205,7 +257,8 @@ examRoutes.put("/:id", requireAdmin, async (c) => {
         syllabus_file_name = ?,
         generation_prompt = ?,
         negative_marking_text = ?,
-        negative_marking_value = ?
+        negative_marking_value = ?,
+        parent_exam_id = ?
        WHERE id = ?`
     )
     .bind(
@@ -221,6 +274,7 @@ examRoutes.put("/:id", requireAdmin, async (c) => {
       generationPrompt,
       negText,
       negValue,
+      parentExamId,
       id
     )
     .run();
@@ -265,6 +319,11 @@ examRoutes.put("/:id/rename", requireAdmin, async (c) => {
 examRoutes.delete("/:id", requireAdmin, async (c) => {
   const id = c.req.param("id");
   const db = c.env.DB;
+
+  const hasSubExams = await db.prepare("SELECT 1 FROM exams WHERE parent_exam_id = ? LIMIT 1").bind(id).first();
+  if (hasSubExams) {
+    return c.json({ success: false, error: "This exam has sub-exams. Delete them first." }, 409);
+  }
 
   // Retrieve syllabus URL to cleanup Supabase Storage if present
   const exam = await db.prepare("SELECT syllabus_url FROM exams WHERE id = ?").bind(id).first<ExamRow>();

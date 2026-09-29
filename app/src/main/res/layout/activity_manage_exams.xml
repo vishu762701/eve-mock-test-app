@@ -56,7 +56,7 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- 1. Select Exam Dropdown -->
+            <!-- 1. Select Exam Dropdown & + New Exam button -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -65,8 +65,62 @@
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilSelectExam"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm"
+                    app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm"
+                    app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm"
+                    app:boxCornerRadiusTopStart="@dimen/eve_radius_sm">
+
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        android:id="@+id/actvExam"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:fontFamily="@font/poppins"
+                        android:hint="Select exam"
+                        android:inputType="textCapWords"
+                        android:maxLines="1"
+                        android:popupBackground="@color/eve_surface"
+                        android:singleLine="true"
+                        android:textColor="@color/eve_text"
+                        android:textSize="14sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNewExam"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="56dp"
+                    android:layout_marginStart="8dp"
+                    android:contentDescription="Create New Exam"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:minWidth="48dp"
+                    android:text="+ New Exam" />
+            </LinearLayout>
+
+            <!-- 2. Main Exam (optional) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="2. Main Exam (optional)"
+                android:textColor="@color/eve_text"
+                android:textSize="14sp" />
+
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilSelectExam"
+                android:id="@+id/tilParentExam"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -74,28 +128,29 @@
                 app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm"
                 app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm"
                 app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm"
-                app:boxCornerRadiusTopStart="@dimen/eve_radius_sm">
+                app:boxCornerRadiusTopStart="@dimen/eve_radius_sm"
+                app:helperText="Leave as None for a main exam. Choose a main exam to make this a sub-exam (e.g. a subject under 3rd Grade)."
+                app:helperTextTextColor="@color/eve_text_secondary">
 
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                    android:id="@+id/actvExam"
+                    android:id="@+id/actvParentExam"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="56dp"
                     android:fontFamily="@font/poppins"
-                    android:hint="Select or type exam name"
-                    android:inputType="textCapWords"
-                    android:maxLines="1"
-                    android:singleLine="true"
+                    android:hint="Main Exam (optional)"
+                    android:inputType="none"
+                    android:popupBackground="@color/eve_surface"
                     android:textColor="@color/eve_text"
                     android:textSize="14sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- 2. Test Duration (minutes) -->
+            <!-- 3. Test Duration (minutes) -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
                 android:fontFamily="@font/poppins_semibold"
-                android:text="2. Test Duration (minutes)"
+                android:text="3. Test Duration (minutes)"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
 
@@ -124,13 +179,13 @@
                     android:textSize="14sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- 3. Test Number -->
+            <!-- 4. Test Number -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
                 android:fontFamily="@font/poppins_semibold"
-                android:text="3. Test Number"
+                android:text="4. Test Number"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
 
@@ -158,13 +213,13 @@
                     android:textSize="14sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- 4. Number of Questions -->
+            <!-- 5. Number of Questions -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
                 android:fontFamily="@font/poppins_semibold"
-                android:text="4. Number of Questions"
+                android:text="5. Number of Questions"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
 
@@ -192,13 +247,13 @@
                     android:textSize="14sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- 5. Negative Marking -->
+            <!-- 6. Negative Marking -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
                 android:fontFamily="@font/poppins_semibold"
-                android:text="5. Negative Marking"
+                android:text="6. Negative Marking"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
 
@@ -228,13 +283,13 @@
                     android:textSize="14sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- 6. Scheduled Auto-Generation -->
+            <!-- 7. Scheduled Auto-Generation -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="18dp"
                 android:fontFamily="@font/poppins_semibold"
-                android:text="6. Scheduled Auto-Generation"
+                android:text="7. Scheduled Auto-Generation"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
 
@@ -284,13 +339,13 @@
                 android:text="⚡ Generate Test Now (Admin On-Demand)"
                 android:textColor="@color/eve_primary" />
 
-            <!-- 7. Exam Syllabus (PDF) Upload -->
+            <!-- 8. Exam Syllabus (PDF) Upload -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="18dp"
                 android:fontFamily="@font/poppins_semibold"
-                android:text="7. Exam Syllabus (PDF)"
+                android:text="8. Exam Syllabus (PDF)"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
 
@@ -390,13 +445,13 @@
                 android:text="Upload Syllabus PDF"
                 app:icon="@drawable/ic_upload" />
 
-            <!-- 8. AI Prompt for this Exam -->
+            <!-- 9. AI Prompt for this Exam -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="18dp"
                 android:fontFamily="@font/poppins_semibold"
-                android:text="8. AI Prompt for this Exam"
+                android:text="9. AI Prompt for this Exam"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
 
@@ -429,13 +484,13 @@
                     android:textSize="14sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- 9. Generated Tests for this Exam -->
+            <!-- 10. Generated Tests for this Exam -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
+                android:layout_marginTop="18dp"
                 android:fontFamily="@font/poppins_semibold"
-                android:text="9. Generated Tests for this Exam"
+                android:text="10. Generated Tests for this Exam"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
 

@@ -31,6 +31,7 @@ import com.eve.app.ui.home.MainActivity
 import com.eve.app.ui.leaderboard.LeaderboardActivity
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.AppBulletin
+import com.eve.app.util.AttemptKey
 import com.eve.app.util.Constants
 import com.eve.app.util.LanguageManager
 import com.eve.app.util.SecurityHelper
@@ -50,7 +51,7 @@ class ResultActivity : AppCompatActivity() {
         onReport = { item ->
             val examId = intent.getStringExtra(Constants.EXTRA_EXAM_ID).orEmpty()
             val examName = intent.getStringExtra(Constants.EXTRA_EXAM_NAME).orEmpty()
-            ReportQuestionDialog.show(this, item, examId, examName)
+            ReportQuestionDialog.show(this, item, AttemptKey.sourceExamId(examId), examName)
         }
     )
     private lateinit var paletteAdapter: QuestionPaletteAdapter
@@ -121,7 +122,7 @@ class ResultActivity : AppCompatActivity() {
         if (examId.isNotBlank() && !intent.hasExtra(Constants.EXTRA_NEGATIVE_MARKING)) {
             lifecycleScope.launch {
                 try {
-                    val exam = ExamRepository().getExam(examId)
+                    val exam = ExamRepository().getExam(AttemptKey.sourceExamId(examId))
                     val examNeg = exam?.negativeMarkingValue ?: 0.0
                     val updatedScore = Math.round((correct - wrong * examNeg) * 100.0) / 100.0
                     if (updatedScore != currentScore) {
@@ -313,13 +314,14 @@ class ResultActivity : AppCompatActivity() {
             } catch (_: Exception) {}
 
             // 2. Load Cutoffs & Exam Info
-            if (examId.isNotBlank()) {
+            val sourceId = AttemptKey.sourceExamId(examId)
+            if (sourceId.isNotBlank()) {
                 try {
-                    val exam = examRepo.getExam(examId)
+                    val exam = examRepo.getExam(sourceId)
                     if (exam != null && exam.cutoffs.isNotEmpty()) {
                         examCutoffs = exam.cutoffs
                     } else {
-                        val snap = FirebaseFirestore.getInstance().collection("exams").document(examId).get().await()
+                        val snap = FirebaseFirestore.getInstance().collection("exams").document(sourceId).get().await()
                         val cMap = snap.get("cutoffs") as? Map<*, *>
                         if (cMap != null) {
                             examCutoffs = cMap.mapNotNull { (k, v) ->
@@ -463,7 +465,13 @@ class ResultActivity : AppCompatActivity() {
                         if (response.success) {
                             ResultDataHolder.clear()
                             HomeViewModel.markAttemptCleared(examId)
-                            val timeLimit = intent.getIntExtra(Constants.EXTRA_TIME_LIMIT, 60)
+                            val timeLimit = if (intent.hasExtra(Constants.EXTRA_TIME_LIMIT)) {
+                                intent.getIntExtra(Constants.EXTRA_TIME_LIMIT, 60)
+                            } else {
+                                try {
+                                    examRepo.getExam(AttemptKey.sourceExamId(examId))?.timeLimitMinutes ?: 60
+                                } catch (_: Exception) { 60 }
+                            }
                             val category = intent.getStringExtra(Constants.EXTRA_EXAM_CATEGORY).orEmpty()
                             val testIntent = Intent(this@ResultActivity, TestActivity::class.java).apply {
                                 putExtra(Constants.EXTRA_EXAM_ID, examId)

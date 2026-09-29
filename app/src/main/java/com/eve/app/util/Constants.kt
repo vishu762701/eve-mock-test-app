@@ -23,6 +23,7 @@ object Constants {
     const val CATEGORY_ALL = "All"
 
     const val EXTRA_EXAM_ID = "extra_exam_id"
+    const val EXTRA_TEST_ID = "extra_test_id"
     const val EXTRA_EXAM_NAME = "extra_exam_name"
     const val EXTRA_EXAM_CATEGORY = "extra_exam_category"
     const val EXTRA_TIME_LIMIT = "extra_time_limit"

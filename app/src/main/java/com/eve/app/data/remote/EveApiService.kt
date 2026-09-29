@@ -322,6 +322,9 @@ interface EveApiService {
     @GET("api/generated-tests")
     suspend fun getGeneratedTests(@Query("examId") examId: String? = null): ApiResponse<List<GeneratedTest>>
 
+    @GET("api/generated-tests/{id}")
+    suspend fun getGeneratedTest(@Path("id") id: String): ApiResponse<GeneratedTest>
+
     @PUT("api/generated-tests/{id}/status")
     suspend fun updateGeneratedTestStatus(@Path("id") id: String, @Body body: Map<String, String>): ApiResponse<Unit>
 

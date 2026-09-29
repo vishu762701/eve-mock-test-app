@@ -39,6 +39,16 @@ export async function handleScheduledTestGeneration(event: ScheduledEvent, env: 
     const autoGenTime = String(exam.auto_gen_time || "00:00").trim();
     const lastGenDate = String(exam.last_generated_date || "").trim();
 
+    // Skip auto-generation for any exam that has sub-exams
+    const hasSubExams = await db
+      .prepare("SELECT 1 FROM exams WHERE parent_exam_id = ? LIMIT 1")
+      .bind(examId)
+      .first();
+    if (hasSubExams) {
+      console.log(`[Scheduler] Exam '${examName}' (${examId}) skipped: has sub-exams`);
+      continue;
+    }
+
     // Condition 1: Current IST time must be >= scheduled autoGenTime
     if (currentTime < autoGenTime) {
       console.log(`[Scheduler] Exam '${examName}' (${examId}) skipped: time not reached (${currentTime} < ${autoGenTime})`);

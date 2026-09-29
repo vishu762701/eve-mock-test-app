@@ -7,6 +7,19 @@ import { AttemptAnswerRow, AttemptRow, AuthUser, Env, QuestionRow } from "../typ
 
 export const attemptRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
+export const ATTEMPT_KEY_SEP = "__";
+
+export function parseAttemptKey(key: string): { sourceExamId: string; generatedTestId: string | null } {
+  const trimmed = (key || "").trim();
+  if (trimmed.includes(ATTEMPT_KEY_SEP)) {
+    const parts = trimmed.split(ATTEMPT_KEY_SEP);
+    const sourceExamId = parts[0] || trimmed;
+    const generatedTestId = parts.slice(1).join(ATTEMPT_KEY_SEP).trim();
+    return { sourceExamId, generatedTestId: generatedTestId || null };
+  }
+  return { sourceExamId: trimmed, generatedTestId: null };
+}
+
 const VALID_OPTIONS = new Set(["A", "B", "C", "D"]);
 
 function questionOptionText(q: any, letter: string): string {
@@ -182,9 +195,10 @@ attemptRoutes.post("/submit", async (c) => {
   const total = answersData.length;
 
   let negativeMarking = 0.0;
+  const { sourceExamId } = parseAttemptKey(examId);
   const examRow = await db
     .prepare("SELECT negative_marking_value FROM exams WHERE id = ?")
-    .bind(examId)
+    .bind(sourceExamId)
     .first<{ negative_marking_value: number }>();
   if (examRow && typeof examRow.negative_marking_value === "number") {
     negativeMarking = examRow.negative_marking_value;

@@ -59,6 +59,42 @@ generatedTestRoutes.get("/", async (c) => {
   return c.json({ success: true, data: list });
 });
 
+// GET /api/generated-tests/:id - Single generated test details
+generatedTestRoutes.get("/:id", async (c) => {
+  const id = c.req.param("id");
+  const user = c.get("user");
+  const db = c.env.DB;
+
+  const row = await db.prepare("SELECT * FROM generated_tests WHERE id = ?").bind(id).first<GeneratedTestRow>();
+  if (!row) {
+    return c.json({ success: false, error: "Test not found" }, 404);
+  }
+
+  if (!user.isAdmin && row.status !== "live" && row.status !== "published") {
+    return c.json({ success: false, error: "Test is not available" }, 403);
+  }
+
+  let questions: any[] = [];
+  try {
+    questions = JSON.parse(row.questions_json);
+  } catch (_e) {}
+
+  return c.json({
+    success: true,
+    data: {
+      id: row.id,
+      examId: row.exam_id,
+      examName: row.exam_name,
+      testNumber: row.test_number,
+      title: row.title,
+      generatedAt: row.generated_at,
+      status: row.status,
+      questionCount: row.question_count || questions.length,
+      questions,
+    },
+  });
+});
+
 // PUT /api/generated-tests/:id/status - Update test status (Admin)
 generatedTestRoutes.put("/:id/status", requireAdmin, async (c) => {
   const id = c.req.param("id");

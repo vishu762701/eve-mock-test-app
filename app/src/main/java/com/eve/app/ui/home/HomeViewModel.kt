@@ -37,6 +37,10 @@ class HomeViewModel : ViewModel() {
 
     private var pinnedObserverJob: Job? = null
     private var feedbackObserverJob: Job? = null
+    private var allLoadedExams: List<Exam> = emptyList()
+
+    fun hasSubExams(examId: String): Boolean = allLoadedExams.any { it.parentExamId == examId }
+    fun getSubExams(examId: String): List<Exam> = allLoadedExams.filter { it.parentExamId == examId }.sortedBy { it.examName }
 
     val state: StateFlow<UiState<HomeUiData>> =
         combine(_examState, _selectedCategory, _attemptInfo, _pinnedIds, _feedbackPosts) { examState, selected, attemptInfo, pinned, feedbackPosts ->
@@ -52,8 +56,11 @@ class HomeViewModel : ViewModel() {
     fun load() {
         viewModelScope.launch {
             _examState.value = UiState.Loading
-            _examState.value = try { UiState.Success(repo.getExams()) }
-            catch (e: Exception) { UiState.Error(e.message ?: "Failed to load exams") }
+            _examState.value = try {
+                val exams = repo.getExams()
+                allLoadedExams = exams
+                UiState.Success(exams)
+            } catch (e: Exception) { UiState.Error(e.message ?: "Failed to load exams") }
         }
         viewModelScope.launch {
             _feedbackPosts.value = feedbackRepo.getFeedbackPosts()
@@ -100,6 +107,7 @@ class HomeViewModel : ViewModel() {
             _examState.value = UiState.Loading
             try {
                 val exams = repo.getExams()
+                allLoadedExams = exams
                 _examState.value = UiState.Success(exams)
                 if (isAdmin) {
                     _attemptInfo.value = AttemptInfo()
@@ -159,9 +167,10 @@ class HomeViewModel : ViewModel() {
         pinned: Set<String>,
         feedbackPosts: List<FeedbackPost>
     ): HomeUiData {
-        val categories = listOf(Constants.CATEGORY_ALL) + all.map { it.categoryOrOther }.distinct().sorted()
+        val mainExams = all.filter { it.isMainExam }
+        val categories = listOf(Constants.CATEGORY_ALL) + mainExams.map { it.categoryOrOther }.distinct().sorted()
         val effectiveSelected = if (selected in categories) selected else Constants.CATEGORY_ALL
-        val filtered = if (effectiveSelected == Constants.CATEGORY_ALL) all else all.filter { it.categoryOrOther == effectiveSelected }
+        val filtered = if (effectiveSelected == Constants.CATEGORY_ALL) mainExams else mainExams.filter { it.categoryOrOther == effectiveSelected }
 
         val pinnedExams = filtered.filter { it.id in pinned }.sortedBy { it.examName }
         val unpinnedExams = filtered.filter { it.id !in pinned }

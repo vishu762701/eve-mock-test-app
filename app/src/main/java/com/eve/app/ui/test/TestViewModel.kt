@@ -8,6 +8,7 @@ import com.eve.app.data.model.Question
 import com.eve.app.data.repository.BookmarkRepository
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.data.repository.HistoryRepository
+import com.eve.app.util.AttemptKey
 import com.eve.app.util.UiState
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Job
@@ -61,7 +62,8 @@ class TestViewModel : ViewModel() {
         pyqPaper: String = "",
         isAdmin: Boolean = false,
         examName: String = "",
-        fromBookmark: Boolean = false
+        fromBookmark: Boolean = false,
+        testId: String = ""
     ) {
         if (started) return
         started = true
@@ -97,6 +99,28 @@ class TestViewModel : ViewModel() {
                     // admin jaisa upload kiya waisa paper feel rahe.
                     pyqYear > 0 -> repo.getPyqQuestions(examId, pyqYear, pyqPaper)
                     topic.isNotBlank() -> repo.getQuestionsForTopic(examId, topic).shuffled().take(10)
+                    AttemptKey.generatedTestId(examId) != null -> {
+                        val testId = AttemptKey.generatedTestId(examId)
+                        val sourceExamId = AttemptKey.sourceExamId(examId)
+                        val test = repo.getGeneratedTests(sourceExamId).firstOrNull { it.id == testId && it.isLive }
+                        if (test != null && test.questions.isNotEmpty()) {
+                            test.questions.mapIndexed { idx, gq ->
+                                Question(
+                                    id = "${test.id}_$idx",
+                                    examId = sourceExamId,
+                                    questionText = gq.questionText,
+                                    optionA = gq.optionA,
+                                    optionB = gq.optionB,
+                                    optionC = gq.optionC,
+                                    optionD = gq.optionD,
+                                    correctAnswer = gq.correctAnswer,
+                                    explanation = gq.explanation
+                                )
+                            }
+                        } else {
+                            emptyList()
+                        }
+                    }
                     else -> {
                         val mockList = repo.getMockQuestions(examId)
                         if (mockList.isNotEmpty()) {
@@ -148,12 +172,13 @@ class TestViewModel : ViewModel() {
         pyqPaper: String = "",
         isAdmin: Boolean = false,
         examName: String = "",
-        fromBookmark: Boolean = false
+        fromBookmark: Boolean = false,
+        testId: String = ""
     ) {
         _questions.value = UiState.Loading
         _alreadyAttempted.value = false
         started = false
-        start(examId, timeLimitMinutes, topic, pyqYear, pyqPaper, isAdmin, examName, fromBookmark)
+        start(examId, timeLimitMinutes, topic, pyqYear, pyqPaper, isAdmin, examName, fromBookmark, testId)
     }
 
     private fun startTimer(totalSeconds: Long) {

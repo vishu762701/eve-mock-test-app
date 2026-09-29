@@ -125,67 +125,69 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val adapter = ExamAdapter(
-        onClick = { exam, attempted, attempt ->
-            val isSubmitted = attempted || com.eve.app.ui.home.HomeViewModel.isAttemptSubmitted(exam.id)
-            if (isSubmitted) {
-                lifecycleScope.launch {
-                    val user = FirebaseAuth.getInstance().currentUser ?: return@launch
-                    try {
-                        val lockRes = com.eve.app.data.remote.ApiClient.apiService.checkAttemptLock(exam.id)
-                        val lockTimestamp = lockRes.data?.timestamp
-                        val attempts = com.eve.app.data.repository.HistoryRepository().getAttempts(user.uid).filter { it.examId == exam.id }
-                        val targetAttempt = (if (lockTimestamp != null) {
-                            attempts.find { it.timestamp == lockTimestamp }
-                        } else null) ?: attempts.maxByOrNull { it.timestamp } ?: com.eve.app.ui.home.HomeViewModel.getCachedAttempt(exam.id)
+    private var isExamNavigating = false
 
-                        if (targetAttempt != null) {
-                            com.eve.app.ui.result.ResultDataHolder.setAnswers(targetAttempt.answers)
-                            val dateFormat = java.text.SimpleDateFormat("dd MMM yyyy, hh:mm a", java.util.Locale.getDefault())
-                            startActivity(
-                                Intent(this@MainActivity, com.eve.app.ui.result.ResultActivity::class.java)
-                                    .putExtra(Constants.EXTRA_EXAM_ID, exam.id)
-                                    .putExtra(Constants.EXTRA_EXAM_NAME, exam.examName)
-                                    .putExtra(Constants.EXTRA_ATTEMPT_DATE, dateFormat.format(java.util.Date(targetAttempt.timestamp)))
-                                    .putExtra(Constants.EXTRA_FROM_HISTORY, true)
-                                    .putExtra(Constants.EXTRA_CAN_REATTEMPT, true)
-                                    .putExtra(Constants.EXTRA_TIME_LIMIT, exam.timeLimitMinutes)
-                                    .putExtra(Constants.EXTRA_NEGATIVE_MARKING, exam.negativeMarkingValue)
-                                    .putExtra(Constants.EXTRA_EXAM_CATEGORY, exam.categoryOrOther)
-                            )
-                        } else {
-                            AppBulletin.showError(this@MainActivity, "Couldn't load previous attempt")
+    private val adapter = ExamAdapter(
+        onClick = { exam, attempted, _ ->
+            if (isExamNavigating) return@ExamAdapter
+            isExamNavigating = true
+
+            // a) If the loaded exam list contains any exam with parentExamId == this exam.id -> open ExamTestsActivity
+            if (viewModel.hasSubExams(exam.id)) {
+                isExamNavigating = false
+                val intent = Intent(this, ExamTestsActivity::class.java).apply {
+                    putExtra(Constants.EXTRA_EXAM_ID, exam.id)
+                    putExtra(Constants.EXTRA_EXAM_NAME, exam.examName)
+                }
+                startActivity(intent)
+                return@ExamAdapter
+            }
+
+            // b) Else fetch ExamRepository.getLiveGeneratedTests(exam.id). While loading, use existing loading indicator pattern and ignore repeated taps.
+            binding.progressGroup.visibility = View.VISIBLE
+            lifecycleScope.launch {
+                try {
+                    val liveTests = com.eve.app.data.repository.ExamRepository().getLiveGeneratedTests(exam.id)
+                    binding.progressGroup.visibility = View.GONE
+                    isExamNavigating = false
+
+                    // c) If the list is non-empty -> open ExamTestsActivity for this exam
+                    if (liveTests.isNotEmpty()) {
+                        val intent = Intent(this@MainActivity, ExamTestsActivity::class.java).apply {
+                            putExtra(Constants.EXTRA_EXAM_ID, exam.id)
+                            putExtra(Constants.EXTRA_EXAM_NAME, exam.examName)
                         }
-                    } catch (e: Exception) {
-                        val fallback = com.eve.app.ui.home.HomeViewModel.getCachedAttempt(exam.id)
-                        if (fallback != null) {
-                            com.eve.app.ui.result.ResultDataHolder.setAnswers(fallback.answers)
-                            val dateFormat = java.text.SimpleDateFormat("dd MMM yyyy, hh:mm a", java.util.Locale.getDefault())
-                            startActivity(
-                                Intent(this@MainActivity, com.eve.app.ui.result.ResultActivity::class.java)
-                                    .putExtra(Constants.EXTRA_EXAM_ID, exam.id)
-                                    .putExtra(Constants.EXTRA_EXAM_NAME, exam.examName)
-                                    .putExtra(Constants.EXTRA_ATTEMPT_DATE, dateFormat.format(java.util.Date(fallback.timestamp)))
-                                    .putExtra(Constants.EXTRA_FROM_HISTORY, true)
-                                    .putExtra(Constants.EXTRA_CAN_REATTEMPT, true)
-                                    .putExtra(Constants.EXTRA_TIME_LIMIT, exam.timeLimitMinutes)
-                                    .putExtra(Constants.EXTRA_NEGATIVE_MARKING, exam.negativeMarkingValue)
-                                    .putExtra(Constants.EXTRA_EXAM_CATEGORY, exam.categoryOrOther)
+                        startActivity(intent)
+                    } else {
+                        // d) If the list is empty -> run the EXISTING legacy logic exactly as it is today
+                        val isSubmitted = attempted || HomeViewModel.isAttemptSubmitted(exam.id)
+                        if (isSubmitted) {
+                            ExamLaunchHelper.openPreviousAttemptResult(
+                                context = this@MainActivity,
+                                scope = lifecycleScope,
+                                examId = exam.id,
+                                examName = exam.examName,
+                                exam = exam,
+                                onLoading = { loading ->
+                                    binding.progressGroup.visibility = if (loading) View.VISIBLE else View.GONE
+                                }
                             )
                         } else {
-                            AppBulletin.showError(this@MainActivity, "Couldn't load previous attempt: ${e.localizedMessage}")
+                            startActivity(
+                                Intent(this@MainActivity, TestActivity::class.java)
+                                    .putExtra(Constants.EXTRA_EXAM_ID, exam.id)
+                                    .putExtra(Constants.EXTRA_EXAM_NAME, exam.examName)
+                                    .putExtra(Constants.EXTRA_EXAM_CATEGORY, exam.categoryOrOther)
+                                    .putExtra(Constants.EXTRA_TIME_LIMIT, exam.timeLimitMinutes)
+                                    .putExtra(Constants.EXTRA_NEGATIVE_MARKING, exam.negativeMarkingValue)
+                            )
                         }
                     }
+                } catch (e: Exception) {
+                    binding.progressGroup.visibility = View.GONE
+                    isExamNavigating = false
+                    AppBulletin.showError(this@MainActivity, "Couldn't load tests")
                 }
-            } else {
-                startActivity(
-                    Intent(this, TestActivity::class.java)
-                        .putExtra(Constants.EXTRA_EXAM_ID, exam.id)
-                        .putExtra(Constants.EXTRA_EXAM_NAME, exam.examName)
-                        .putExtra(Constants.EXTRA_EXAM_CATEGORY, exam.categoryOrOther)
-                        .putExtra(Constants.EXTRA_TIME_LIMIT, exam.timeLimitMinutes)
-                        .putExtra(Constants.EXTRA_NEGATIVE_MARKING, exam.negativeMarkingValue)
-                )
             }
         },
         onLongClick = { exam: Exam, isPinned: Boolean, anchorView: View ->
@@ -333,6 +335,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        isExamNavigating = false
         checkAppConfigAndMaintenance()
         FirebaseAuth.getInstance().currentUser?.let { current ->
             lifecycleScope.launch {

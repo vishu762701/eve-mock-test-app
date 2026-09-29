@@ -118,7 +118,8 @@ class ExamRepository(
         generationPrompt: String = "",
         imageUrl: String = "",
         negativeMarkingText: String = "0",
-        negativeMarkingValue: Double = 0.0
+        negativeMarkingValue: Double = 0.0,
+        parentExamId: String = ""
     ): String {
         val trimmed = name.trim()
         val data = mapOf(
@@ -135,7 +136,8 @@ class ExamRepository(
             "syllabusFileName" to "",
             "imageUrl" to imageUrl,
             "negativeMarkingText" to negativeMarkingText,
-            "negativeMarkingValue" to negativeMarkingValue
+            "negativeMarkingValue" to negativeMarkingValue,
+            "parentExamId" to parentExamId.trim()
         )
         val res = api.createExam(data)
         if (!res.success || res.data == null) {
@@ -168,7 +170,8 @@ class ExamRepository(
             "questionCount" to exam.questionCount,
             "cutoffs" to exam.cutoffs,
             "negativeMarkingText" to exam.negativeMarkingText,
-            "negativeMarkingValue" to exam.negativeMarkingValue
+            "negativeMarkingValue" to exam.negativeMarkingValue,
+            "parentExamId" to exam.parentExamId.trim()
         )
         val res = api.updateExam(exam.id, data)
         if (!res.success) throw Exception(res.error ?: "Failed to update exam")
@@ -186,7 +189,8 @@ class ExamRepository(
         generationPrompt: String,
         timeLimitMinutes: Int = 30,
         negativeMarkingText: String = "0",
-        negativeMarkingValue: Double = 0.0
+        negativeMarkingValue: Double = 0.0,
+        parentExamId: String = ""
     ) {
         val data = mapOf<String, Any>(
             "examName" to examName.trim(),
@@ -199,7 +203,8 @@ class ExamRepository(
             "syllabusFileName" to syllabusFileName,
             "generationPrompt" to generationPrompt.trim(),
             "negativeMarkingText" to negativeMarkingText,
-            "negativeMarkingValue" to negativeMarkingValue
+            "negativeMarkingValue" to negativeMarkingValue,
+            "parentExamId" to parentExamId.trim()
         )
         val res = api.updateExam(examId, data)
         if (!res.success) throw Exception(res.error ?: "Failed to update exam settings")
@@ -296,6 +301,15 @@ class ExamRepository(
 
     suspend fun getLiveGeneratedTests(examId: String): List<GeneratedTest> {
         return getGeneratedTests(examId).filter { it.isLive }
+    }
+
+    suspend fun getGeneratedTest(testId: String): GeneratedTest? {
+        return try {
+            val res = api.getGeneratedTest(testId)
+            res.data
+        } catch (_: Exception) {
+            null
+        }
     }
 
     suspend fun updateGeneratedTestStatus(testId: String, status: String) {

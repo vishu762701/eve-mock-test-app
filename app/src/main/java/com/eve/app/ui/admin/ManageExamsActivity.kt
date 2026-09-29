@@ -1,12 +1,15 @@
 package com.eve.app.ui.admin
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.text.InputType
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.Filter
 import android.widget.Filterable
@@ -27,6 +30,7 @@ import com.eve.app.data.repository.ExamRepository
 import com.eve.app.databinding.ActivityManageExamsBinding
 import com.eve.app.util.AppBulletin
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import kotlinx.coroutines.launch
@@ -63,6 +67,10 @@ class ManageExamsActivity : AppCompatActivity() {
     private var currentSyllabusFileName: String = ""
     private var currentSyllabusUploadedAt: Long = 0L
     private var currentAutoGenTime: String = "00:00"
+    private var currentParentExamId: String = ""
+
+    private var isNewMode: Boolean = false
+    private var previouslySelectedExamId: String = ""
 
     private val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
 
@@ -72,46 +80,46 @@ class ManageExamsActivity : AppCompatActivity() {
         }
     }
 
-    sealed class ExamDropdownItem {
-        data class Existing(val exam: Exam) : ExamDropdownItem() {
-            override fun toString(): String = exam.examName
-        }
-        data class CreateNew(val typedName: String) : ExamDropdownItem() {
-            override fun toString(): String = typedName
-        }
+    data class ExamDropdownEntry(val exam: Exam, val displayLabel: String) {
+        override fun toString(): String = displayLabel
     }
 
-    inner class ExamDropdownAdapter(context: android.content.Context) :
-        ArrayAdapter<ExamDropdownItem>(context, android.R.layout.simple_dropdown_item_1line), Filterable {
+    inner class ExamDropdownAdapter(context: Context) :
+        ArrayAdapter<ExamDropdownEntry>(context, android.R.layout.simple_dropdown_item_1line), Filterable {
 
-        private val allItems = mutableListOf<Exam>()
-        private var currentFiltered = mutableListOf<ExamDropdownItem>()
+        private val allEntries = mutableListOf<ExamDropdownEntry>()
+        private var currentFiltered = mutableListOf<ExamDropdownEntry>()
 
         fun setExams(exams: List<Exam>) {
-            allItems.clear()
-            allItems.addAll(exams)
+            allEntries.clear()
+            val entries = exams.map { exam ->
+                val label = if (exam.parentExamId.isNotBlank()) {
+                    val parent = exams.find { it.id == exam.parentExamId }
+                    val parentName = parent?.examName ?: "Main"
+                    "$parentName \u203A ${exam.examName}"
+                } else {
+                    exam.examName
+                }
+                ExamDropdownEntry(exam, label)
+            }.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.displayLabel })
+
+            allEntries.addAll(entries)
             currentFiltered.clear()
-            currentFiltered.addAll(exams.map { ExamDropdownItem.Existing(it) })
+            currentFiltered.addAll(entries)
             clear()
             addAll(currentFiltered)
             notifyDataSetChanged()
         }
 
         override fun getCount(): Int = currentFiltered.size
-        override fun getItem(position: Int): ExamDropdownItem? = currentFiltered.getOrNull(position)
+        override fun getItem(position: Int): ExamDropdownEntry? = currentFiltered.getOrNull(position)
 
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
             val view = super.getView(position, convertView, parent) as TextView
             val item = getItem(position)
-            when (item) {
-                is ExamDropdownItem.CreateNew -> {
-                    view.text = "Create \"${item.typedName}\""
-                }
-                is ExamDropdownItem.Existing -> {
-                    view.text = item.exam.examName
-                }
-                null -> {}
-            }
+            view.text = item?.displayLabel.orEmpty()
+            view.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.eve_text))
+            view.setBackgroundColor(androidx.core.content.ContextCompat.getColor(context, R.color.eve_surface))
             return view
         }
 
@@ -119,16 +127,10 @@ class ManageExamsActivity : AppCompatActivity() {
             return object : Filter() {
                 override fun performFiltering(constraint: CharSequence?): FilterResults {
                     val query = constraint?.toString()?.trim().orEmpty()
-                    val filtered = mutableListOf<ExamDropdownItem>()
-                    if (query.isEmpty()) {
-                        filtered.addAll(allItems.map { ExamDropdownItem.Existing(it) })
+                    val filtered = if (query.isEmpty()) {
+                        allEntries
                     } else {
-                        val matches = allItems.filter { it.examName.contains(query, ignoreCase = true) }
-                        val exactMatch = allItems.any { it.examName.trim().equals(query, ignoreCase = true) }
-                        if (!exactMatch) {
-                            filtered.add(ExamDropdownItem.CreateNew(query))
-                        }
-                        filtered.addAll(matches.map { ExamDropdownItem.Existing(it) })
+                        allEntries.filter { it.displayLabel.contains(query, ignoreCase = true) }
                     }
                     val results = FilterResults()
                     results.values = filtered
@@ -138,18 +140,14 @@ class ManageExamsActivity : AppCompatActivity() {
 
                 @Suppress("UNCHECKED_CAST")
                 override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-                    currentFiltered = (results?.values as? List<ExamDropdownItem>)?.toMutableList() ?: mutableListOf()
+                    currentFiltered = (results?.values as? List<ExamDropdownEntry>)?.toMutableList() ?: mutableListOf()
                     clear()
                     addAll(currentFiltered)
                     notifyDataSetChanged()
                 }
 
                 override fun convertResultToString(resultValue: Any?): CharSequence {
-                    return when (resultValue) {
-                        is ExamDropdownItem.Existing -> resultValue.exam.examName
-                        is ExamDropdownItem.CreateNew -> resultValue.typedName
-                        else -> super.convertResultToString(resultValue)
-                    }
+                    return (resultValue as? ExamDropdownEntry)?.displayLabel ?: super.convertResultToString(resultValue)
                 }
             }
         }
@@ -180,14 +178,60 @@ class ManageExamsActivity : AppCompatActivity() {
         binding.actvExam.threshold = 0
 
         binding.actvExam.setOnClickListener {
-            if (!binding.actvExam.isPopupShowing) {
+            if (!isNewMode && !binding.actvExam.isPopupShowing) {
                 binding.actvExam.showDropDown()
             }
         }
 
         binding.actvExam.setOnItemClickListener { _, _, position, _ ->
             val item = dropdownAdapter.getItem(position) ?: return@setOnItemClickListener
-            handleItemSelection(item)
+            handleItemSelection(item.exam)
+        }
+
+        binding.btnNewExam.setOnClickListener {
+            if (isNewMode) {
+                if (isDirty()) {
+                    MaterialAlertDialogBuilder(this)
+                        .setTitle("Unsaved Changes")
+                        .setMessage("You have unsaved changes. Do you want to save before canceling?")
+                        .setPositiveButton("Save") { _, _ ->
+                            saveExamSettings {
+                                exitNewModeAndRestore()
+                            }
+                        }
+                        .setNegativeButton("Discard") { _, _ ->
+                            exitNewModeAndRestore()
+                        }
+                        .setNeutralButton("Cancel", null)
+                        .show()
+                } else {
+                    exitNewModeAndRestore()
+                }
+            } else {
+                if (isDirty()) {
+                    MaterialAlertDialogBuilder(this)
+                        .setTitle("Unsaved Changes")
+                        .setMessage("You have unsaved changes. Do you want to save before creating a new exam?")
+                        .setPositiveButton("Save") { _, _ ->
+                            saveExamSettings {
+                                enterNewMode()
+                            }
+                        }
+                        .setNegativeButton("Discard") { _, _ ->
+                            enterNewMode()
+                        }
+                        .setNeutralButton("Cancel", null)
+                        .show()
+                } else {
+                    enterNewMode()
+                }
+            }
+        }
+
+        binding.actvParentExam.setOnClickListener {
+            if (binding.tilParentExam.isEnabled && !binding.actvParentExam.isPopupShowing) {
+                binding.actvParentExam.showDropDown()
+            }
         }
 
         // AI Prompt internal scrolling inside parent ScrollView
@@ -236,18 +280,18 @@ class ManageExamsActivity : AppCompatActivity() {
         loadExams()
     }
 
-    private fun handleItemSelection(item: ExamDropdownItem) {
+    private fun handleItemSelection(exam: Exam) {
         if (isDirty()) {
             MaterialAlertDialogBuilder(this)
                 .setTitle("Unsaved Changes")
                 .setMessage("You have unsaved changes. Do you want to save before switching?")
                 .setPositiveButton("Save") { _, _ ->
                     saveExamSettings {
-                        applyItemSelection(item)
+                        loadExam(exam)
                     }
                 }
                 .setNegativeButton("Discard") { _, _ ->
-                    applyItemSelection(item)
+                    loadExam(exam)
                 }
                 .setNeutralButton("Cancel") { _, _ ->
                     binding.actvExam.setText(initialExam?.examName.orEmpty(), false)
@@ -257,14 +301,7 @@ class ManageExamsActivity : AppCompatActivity() {
                 }
                 .show()
         } else {
-            applyItemSelection(item)
-        }
-    }
-
-    private fun applyItemSelection(item: ExamDropdownItem) {
-        when (item) {
-            is ExamDropdownItem.Existing -> loadExam(item.exam)
-            is ExamDropdownItem.CreateNew -> enterDraftMode(item.typedName)
+            loadExam(exam)
         }
     }
 
@@ -273,9 +310,7 @@ class ManageExamsActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val fetched = examRepo.getExams()
-                examList = fetched.sortedWith(
-                    compareBy(String.CASE_INSENSITIVE_ORDER) { it.examName }
-                ).toMutableList()
+                examList = fetched.toMutableList()
 
                 binding.progressBar.visibility = View.GONE
                 dropdownAdapter.setExams(examList)
@@ -287,7 +322,7 @@ class ManageExamsActivity : AppCompatActivity() {
                     } else if (examList.isNotEmpty()) {
                         loadExam(examList[0])
                     } else {
-                        enterDraftMode("")
+                        enterNewMode()
                     }
                 } else if (currentExamId.isNotBlank()) {
                     val current = examList.find { it.id == currentExamId }
@@ -296,12 +331,12 @@ class ManageExamsActivity : AppCompatActivity() {
                     } else if (examList.isNotEmpty()) {
                         loadExam(examList[0])
                     } else {
-                        enterDraftMode("")
+                        enterNewMode()
                     }
                 } else if (examList.isNotEmpty()) {
                     loadExam(examList[0])
                 } else {
-                    enterDraftMode("")
+                    enterNewMode()
                 }
                 binding.compactErrorView.hide()
             } catch (e: Exception) {
@@ -316,19 +351,24 @@ class ManageExamsActivity : AppCompatActivity() {
     }
 
     private fun loadExam(exam: Exam) {
+        exitNewMode()
+
         currentExamId = exam.id
+        currentParentExamId = exam.parentExamId
         currentSyllabusUrl = exam.syllabusUrl
         currentSyllabusFileName = exam.syllabusFileName
         currentSyllabusUploadedAt = exam.syllabusUploadedAt
         currentAutoGenTime = exam.autoGenTime.ifBlank { "00:00" }
 
         binding.tilSelectExam.error = null
+        binding.tilParentExam.error = null
         binding.tilDuration.error = null
         binding.tilTestNumber.error = null
         binding.tilQuestionCount.error = null
         binding.tilNegativeMarking.error = null
 
         binding.actvExam.setText(exam.examName, false)
+        updateParentExamDropdown()
         binding.etDuration.setText(if (exam.timeLimitMinutes > 0) exam.timeLimitMinutes.toString() else "30")
         binding.etTestNumber.setText(exam.testNumber.ifBlank { "Test 1" })
         binding.etQuestionCount.setText(if (exam.questionCount > 0) exam.questionCount.toString() else "20")
@@ -352,38 +392,119 @@ class ManageExamsActivity : AppCompatActivity() {
         loadGeneratedTestsForExam()
     }
 
-    private fun enterDraftMode(typedName: String) {
+    private fun enterNewMode() {
+        isNewMode = true
+        previouslySelectedExamId = currentExamId
         currentExamId = ""
+        currentParentExamId = ""
         currentSyllabusUrl = ""
         currentSyllabusFileName = ""
         currentSyllabusUploadedAt = 0L
         currentAutoGenTime = "00:00"
 
-        binding.tilSelectExam.error = null
-        binding.tilDuration.error = null
-        binding.tilTestNumber.error = null
-        binding.tilQuestionCount.error = null
-        binding.tilNegativeMarking.error = null
+        binding.btnNewExam.text = "Cancel"
+        binding.tilSelectExam.hint = "Enter new exam name"
+        binding.tilSelectExam.endIconMode = TextInputLayout.END_ICON_NONE
+        binding.actvExam.setAdapter(null)
+        binding.actvExam.setText("", false)
+        binding.actvExam.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_WORDS
 
-        binding.actvExam.setText(typedName, false)
-        binding.etDuration.setText("30")
-        binding.etTestNumber.setText("Test 1")
-        binding.etQuestionCount.setText("20")
-        binding.etNegativeMarking.setText("0")
+        updateParentExamDropdown()
 
-        binding.switchAutoGen.isChecked = true
+        binding.etDuration.setText("")
+        binding.etTestNumber.setText("")
+        binding.etQuestionCount.setText("")
+        binding.etNegativeMarking.setText("")
+
+        binding.switchAutoGen.isChecked = false
         binding.switchAutoGen.isEnabled = true
         binding.switchAutoGen.alpha = 1.0f
-        updateTimePickerState(true)
+        updateTimePickerState(false)
         binding.btnPickTime.text = "Time: 00:00 (IST)"
 
         binding.tvLastRunStatus.text = "New exam — save exam before generating tests"
         updateSyllabusUi("", "", 0L)
         binding.etGenerationPrompt.setText("")
 
+        genTestAdapter.submit(emptyList())
+        binding.progressBarGenTests.visibility = View.GONE
+        binding.tvNoGenTests.visibility = View.VISIBLE
+        binding.tvNoGenTests.text = "Save exam first to view and generate test batches."
+
         binding.btnGenerateNow.visibility = View.GONE
+
+        binding.tilSelectExam.error = null
+        binding.tilParentExam.error = null
+        binding.tilDuration.error = null
+        binding.tilTestNumber.error = null
+        binding.tilQuestionCount.error = null
+        binding.tilNegativeMarking.error = null
+
         initialExam = getCurrentFormAsExam()
-        loadGeneratedTestsForExam()
+
+        binding.actvExam.requestFocus()
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        imm?.showSoftInput(binding.actvExam, InputMethodManager.SHOW_IMPLICIT)
+    }
+
+    private fun exitNewModeAndRestore() {
+        exitNewMode()
+        val targetId = previouslySelectedExamId.ifBlank { examList.firstOrNull()?.id.orEmpty() }
+        val target = examList.find { it.id == targetId } ?: examList.firstOrNull()
+        if (target != null) {
+            loadExam(target)
+        } else {
+            enterNewMode()
+        }
+    }
+
+    private fun exitNewMode() {
+        isNewMode = false
+        binding.btnNewExam.text = "+ New Exam"
+        binding.tilSelectExam.hint = "Select exam"
+        binding.tilSelectExam.endIconMode = TextInputLayout.END_ICON_DROPDOWN_MENU
+        binding.actvExam.setAdapter(dropdownAdapter)
+    }
+
+    private fun updateParentExamDropdown() {
+        val hasSubExams = currentExamId.isNotBlank() && examList.any { it.parentExamId == currentExamId }
+
+        if (hasSubExams) {
+            binding.tilParentExam.isEnabled = false
+            binding.actvParentExam.isEnabled = false
+            currentParentExamId = ""
+            binding.actvParentExam.setText("None (this is a main exam)", false)
+            binding.tilParentExam.helperText = "This exam has sub-exams, so it cannot be a sub-exam."
+            return
+        }
+
+        binding.tilParentExam.isEnabled = true
+        binding.actvParentExam.isEnabled = true
+        binding.tilParentExam.helperText = "Leave as None for a main exam. Choose a main exam to make this a sub-exam (e.g. a subject under 3rd Grade)."
+
+        val eligibleParents = examList.filter { it.parentExamId.isBlank() && (currentExamId.isBlank() || it.id != currentExamId) }
+            .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.examName })
+
+        val options = mutableListOf("None (this is a main exam)")
+        options.addAll(eligibleParents.map { it.examName })
+
+        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, options)
+        binding.actvParentExam.setAdapter(adapter)
+
+        val selectedName = if (currentParentExamId.isNotBlank()) {
+            eligibleParents.find { it.id == currentParentExamId }?.examName ?: "None (this is a main exam)"
+        } else {
+            "None (this is a main exam)"
+        }
+        binding.actvParentExam.setText(selectedName, false)
+
+        binding.actvParentExam.setOnItemClickListener { _, _, position, _ ->
+            currentParentExamId = if (position == 0) {
+                ""
+            } else {
+                eligibleParents.getOrNull(position - 1)?.id.orEmpty()
+            }
+        }
     }
 
     private fun updateTimePickerState(enabled: Boolean) {
@@ -666,8 +787,8 @@ class ManageExamsActivity : AppCompatActivity() {
     }
 
     private fun getCurrentFormAsExam(): Exam {
-        val duration = binding.etDuration.text?.toString()?.trim()?.toIntOrNull() ?: 30
-        val count = binding.etQuestionCount.text?.toString()?.trim()?.toIntOrNull() ?: 20
+        val duration = binding.etDuration.text?.toString()?.trim()?.toIntOrNull() ?: 0
+        val count = binding.etQuestionCount.text?.toString()?.trim()?.toIntOrNull() ?: 0
         val negText = binding.etNegativeMarking.text?.toString()?.trim().orEmpty()
         val parsedNeg = parseNegativeMarking(negText)
         val negVal = parsedNeg?.second ?: 0.0
@@ -680,6 +801,7 @@ class ManageExamsActivity : AppCompatActivity() {
             questionCount = count,
             negativeMarkingText = negText,
             negativeMarkingValue = negVal,
+            parentExamId = currentParentExamId,
             autoGenerationEnabled = binding.switchAutoGen.isChecked,
             autoGenTime = currentAutoGenTime,
             syllabusUrl = currentSyllabusUrl,
@@ -693,6 +815,7 @@ class ManageExamsActivity : AppCompatActivity() {
         val current = getCurrentFormAsExam()
         val init = initialExam ?: return false
         return current.examName != init.examName ||
+            current.parentExamId != init.parentExamId ||
             current.timeLimitMinutes != init.timeLimitMinutes ||
             current.testNumber != init.testNumber ||
             current.questionCount != init.questionCount ||
@@ -704,7 +827,7 @@ class ManageExamsActivity : AppCompatActivity() {
     }
 
     private fun saveExamSettings(onSuccess: (() -> Unit)? = null) {
-        // 1. Exam Name Validation: trim, min 2 chars, duplicate check
+        // 1. Exam Name Validation: trim, min 2 chars, unique case-insensitively among exams with the SAME parent
         val name = binding.actvExam.text?.toString()?.trim().orEmpty()
         if (name.length < 2) {
             binding.tilSelectExam.error = "Exam name must be at least 2 characters"
@@ -712,44 +835,67 @@ class ManageExamsActivity : AppCompatActivity() {
             return
         }
         val isDuplicate = examList.any {
-            it.id != currentExamId && it.examName.trim().equals(name, ignoreCase = true)
+            it.id != currentExamId &&
+                it.parentExamId == currentParentExamId &&
+                it.examName.trim().equals(name, ignoreCase = true)
         }
         if (isDuplicate) {
-            binding.tilSelectExam.error = "An exam with this name already exists"
+            binding.tilSelectExam.error = "An exam with this name already exists here"
             binding.actvExam.requestFocus()
             return
         }
         binding.tilSelectExam.error = null
 
-        // 2. Test Duration Validation: integer 1..600
-        val duration = binding.etDuration.text?.toString()?.trim()?.toIntOrNull()
-        if (duration == null || duration !in 1..600) {
+        // 2. Main Exam Validation
+        if (currentParentExamId.isNotBlank()) {
+            val parent = examList.find { it.id == currentParentExamId }
+            if (parent == null || parent.parentExamId.isNotBlank() || parent.id == currentExamId) {
+                binding.tilParentExam.error = "Invalid parent exam"
+                binding.actvParentExam.requestFocus()
+                return
+            }
+        }
+        binding.tilParentExam.error = null
+
+        // 3. Test Duration Validation: empty -> "Enter minutes between 1 and 600"
+        val durationRaw = binding.etDuration.text?.toString()?.trim().orEmpty()
+        val duration = durationRaw.toIntOrNull()
+        if (durationRaw.isEmpty() || duration == null || duration !in 1..600) {
             binding.tilDuration.error = "Enter minutes between 1 and 600"
             binding.etDuration.requestFocus()
             return
         }
         binding.tilDuration.error = null
 
-        // 3. Question Count Validation: integer 1..200
-        val count = binding.etQuestionCount.text?.toString()?.trim()?.toIntOrNull() ?: 0
-        if (count !in 1..200) {
+        // 4. Test Number Validation: empty -> "Enter test number, e.g. Test 1"
+        val testNumber = binding.etTestNumber.text?.toString()?.trim().orEmpty()
+        if (testNumber.isEmpty()) {
+            binding.tilTestNumber.error = "Enter test number, e.g. Test 1"
+            binding.etTestNumber.requestFocus()
+            return
+        }
+        binding.tilTestNumber.error = null
+
+        // 5. Question Count Validation: integer 1..200
+        val countRaw = binding.etQuestionCount.text?.toString()?.trim().orEmpty()
+        val count = countRaw.toIntOrNull()
+        if (countRaw.isEmpty() || count == null || count !in 1..200) {
             binding.tilQuestionCount.error = "Question count must be between 1 and 200"
             binding.etQuestionCount.requestFocus()
             return
         }
         binding.tilQuestionCount.error = null
 
-        // 4. Negative Marking Validation: fraction, decimal, or 0
+        // 6. Negative Marking Validation: empty -> "Enter like 1/3, 1/4, 0.25 or 0"
         val negStr = binding.etNegativeMarking.text?.toString()?.trim().orEmpty()
         val parsedNeg = parseNegativeMarking(negStr)
-        if (parsedNeg == null) {
+        if (negStr.isEmpty() || parsedNeg == null) {
             binding.tilNegativeMarking.error = "Enter like 1/3, 1/4, 0.25 or 0"
             binding.etNegativeMarking.requestFocus()
             return
         }
         binding.tilNegativeMarking.error = null
 
-        val testNumber = binding.etTestNumber.text?.toString()?.trim().orEmpty().ifBlank { "Test 1" }
         val autoGen = binding.switchAutoGen.isChecked
         val prompt = binding.etGenerationPrompt.text?.toString()?.trim().orEmpty()
 
@@ -772,7 +918,8 @@ class ManageExamsActivity : AppCompatActivity() {
                         generationPrompt = prompt,
                         timeLimitMinutes = duration,
                         negativeMarkingText = parsedNeg.first,
-                        negativeMarkingValue = parsedNeg.second
+                        negativeMarkingValue = parsedNeg.second,
+                        parentExamId = currentParentExamId
                     )
                     auditLogRepo.recordLog(
                         AdminAuditLog.ACTION_EXAM_EDITED,
@@ -792,7 +939,8 @@ class ManageExamsActivity : AppCompatActivity() {
                         autoGenTime = currentAutoGenTime,
                         generationPrompt = prompt,
                         negativeMarkingText = parsedNeg.first,
-                        negativeMarkingValue = parsedNeg.second
+                        negativeMarkingValue = parsedNeg.second,
+                        parentExamId = currentParentExamId
                     )
                     currentExamId = newId
                     auditLogRepo.recordLog(
@@ -801,6 +949,7 @@ class ManageExamsActivity : AppCompatActivity() {
                     )
                     apiUsageRepo.incrementDocumentWrites(1)
                     binding.btnGenerateNow.visibility = View.VISIBLE
+                    exitNewMode()
                     AppBulletin.showSuccess(this@ManageExamsActivity, "New exam '$name' created!")
                 }
 

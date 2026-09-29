@@ -51,6 +51,7 @@ export interface ExamRow {
   generating_lock_until: number;
   negative_marking_text: string;
   negative_marking_value: number;
+  parent_exam_id?: string;
 }
 
 export interface QuestionRow {

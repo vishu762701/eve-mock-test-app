@@ -79,13 +79,15 @@ class TestActivity : AppCompatActivity() {
         fromBookmark = intent.getBooleanExtra(Constants.EXTRA_FROM_BOOKMARK, false)
         initialQuestionId = intent.getStringExtra(Constants.EXTRA_INITIAL_QUESTION_ID)
 
+        val testId = intent.getStringExtra(Constants.EXTRA_TEST_ID).orEmpty()
+
         val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
         lifecycleScope.launch {
             val isAdmin = currentUser?.let { user ->
                 isHardcodedAdmin(user.email) || adminRepository.isAdmin(user.email)
             } ?: false
             isAdminUser = isAdmin
-            viewModel.start(examId, timeLimit, topic, pyqYear, pyqPaper, isAdminUser, examName, fromBookmark)
+            viewModel.start(examId, timeLimit, topic, pyqYear, pyqPaper, isAdminUser, examName, fromBookmark, testId)
         }
         // Phase 15: exam start event — is exam ko kitni baar attempt kiya gaya, yeh track karta hai
         AnalyticsHelper.logExamStart(this, examId, examName, examCategory)
@@ -279,7 +281,7 @@ class TestActivity : AppCompatActivity() {
                         onToggleBookmark = { viewModel.toggleBookmark(it) },
                         isHindi = { LanguageManager.isHindi(this) },
                         onReport = { q ->
-                            ReportQuestionDialog.show(this@TestActivity, q, examId, examName)
+                            ReportQuestionDialog.show(this@TestActivity, q, com.eve.app.util.AttemptKey.sourceExamId(examId), examName)
                         },
                         getQuestionTime = { pos -> viewModel.getQuestionTime(pos) }
                     )

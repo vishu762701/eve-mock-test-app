@@ -109,3 +109,28 @@ test("feedback reply correctly constructs response and preserves original contex
   assert.equal(updatedMessage.admin_reply, adminReplyText);
   assert.equal(updatedMessage.message, "Question 5 has a typographical error in Option C.");
 });
+
+// 5. Test Sub-exams hierarchy and Main Exam filtering
+test("sub-exams hierarchy and home main exam filtering", () => {
+  const exams = [
+    { id: "exam_1", exam_name: "RSSB 3rd Grade", parent_exam_id: "" },
+    { id: "exam_2", exam_name: "Hindi", parent_exam_id: "exam_1" },
+    { id: "exam_3", exam_name: "Maths", parent_exam_id: "exam_1" },
+    { id: "exam_4", exam_name: "Rajasthan CET", parent_exam_id: "" },
+  ];
+
+  // Home filter: only main exams
+  const mainExams = exams.filter((e) => !e.parent_exam_id || e.parent_exam_id.trim() === "");
+  assert.equal(mainExams.length, 2);
+  assert.deepEqual(mainExams.map((e) => e.exam_name), ["RSSB 3rd Grade", "Rajasthan CET"]);
+
+  // Sub-exams for exam_1
+  const subExamsExam1 = exams.filter((e) => e.parent_exam_id === "exam_1");
+  assert.equal(subExamsExam1.length, 2);
+  assert.deepEqual(subExamsExam1.map((e) => e.exam_name), ["Hindi", "Maths"]);
+
+  // Sub-exams for exam_4
+  const subExamsExam4 = exams.filter((e) => e.parent_exam_id === "exam_4");
+  assert.equal(subExamsExam4.length, 0);
+});
+
