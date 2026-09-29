@@ -46,10 +46,7 @@ data class FlaggedQuestion(
         }
 
         fun isCommentValid(comment: String): Boolean {
-            val trimmed = comment.trim()
-            if (trimmed.length >= 40) return true
-            val words = trimmed.split(Regex("\\s+")).filter { it.isNotBlank() }
-            return words.size >= 7
+            return true
         }
     }
 }

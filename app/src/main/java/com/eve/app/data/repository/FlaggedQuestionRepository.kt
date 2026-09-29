@@ -30,9 +30,6 @@ class FlaggedQuestionRepository {
         reason: String,
         comment: String
     ): Result<Unit> = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-        if (!FlaggedQuestion.isCommentValid(comment)) {
-            return@withContext Result.failure(IllegalArgumentException("Please enter at least 7 words or 40 characters explaining the issue."))
-        }
         try {
             var user = auth.currentUser
             if (user == null) {

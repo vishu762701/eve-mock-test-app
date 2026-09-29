@@ -80,10 +80,16 @@ object EmptyStateAnimationHelper {
      */
     fun showEmptyState(
         lottieView: LottieAnimationView,
-        hasPlayed: Boolean = false
+        hasPlayed: Boolean = false,
+        onAnimationEnd: (() -> Unit)? = null
     ): Boolean {
         lottieView.setBackgroundResource(android.R.color.transparent)
         lottieView.repeatCount = 0
+
+        // If already actively playing, let it finish cleanly without interruption
+        if (lottieView.isAnimating) {
+            return false
+        }
 
         val currentTag = lottieView.tag
         if (currentTag != R.raw.search) {
@@ -95,10 +101,7 @@ object EmptyStateAnimationHelper {
         applyTheme(lottieView, isDark)
 
         if (hasPlayed) {
-            // Already played in this screen session; freeze at final frame without replaying
-            if (lottieView.isAnimating) {
-                lottieView.cancelAnimation()
-            }
+            // Already played to completion in this screen session; hold on final frame
             if (lottieView.composition != null) {
                 lottieView.pauseAnimation()
                 lottieView.progress = 1.0f
@@ -113,10 +116,14 @@ object EmptyStateAnimationHelper {
             return true
         }
 
-        if (lottieView.isAnimating) {
-            // Already actively playing in this open session; let it finish cleanly
-            return true
-        }
+        lottieView.removeAllAnimatorListeners()
+        lottieView.addAnimatorListener(object : android.animation.AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: android.animation.Animator) {
+                lottieView.pauseAnimation()
+                lottieView.progress = 1.0f
+                onAnimationEnd?.invoke()
+            }
+        })
 
         if (lottieView.composition != null) {
             lottieView.repeatCount = 0
@@ -131,7 +138,7 @@ object EmptyStateAnimationHelper {
             }
         }
 
-        return true
+        return false
     }
 
     /**

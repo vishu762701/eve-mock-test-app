@@ -79,7 +79,7 @@
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:layout_gravity="center"
-                    android:background="@drawable/bg_btn_report"
+                    android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Report this question"
                     android:padding="8dp"
                     android:scaleType="fitCenter"
@@ -98,6 +98,179 @@
             android:lineSpacingExtra="5dp"
             android:textColor="?attr/colorOnSurface"
             android:textSize="16sp" />
+
+        <!-- Review Options Container (Shows complete question with options) -->
+        <LinearLayout
+            android:id="@+id/layoutOptionsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="vertical">
+
+            <!-- Option A -->
+            <LinearLayout
+                android:id="@+id/layoutOptionA"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_option_review_default"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="12dp">
+
+                <TextView
+                    android:id="@+id/tvBadgeOptionA"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:background="@drawable/bg_option_badge_default"
+                    android:fontFamily="@font/poppins_bold"
+                    android:gravity="center"
+                    android:text="A"
+                    android:textColor="@color/eve_text"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tvOptionA"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/poppins"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:id="@+id/ivOptionAStatus"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="8dp"
+                    android:contentDescription="Status"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- Option B -->
+            <LinearLayout
+                android:id="@+id/layoutOptionB"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_option_review_default"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="12dp">
+
+                <TextView
+                    android:id="@+id/tvBadgeOptionB"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:background="@drawable/bg_option_badge_default"
+                    android:fontFamily="@font/poppins_bold"
+                    android:gravity="center"
+                    android:text="B"
+                    android:textColor="@color/eve_text"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tvOptionB"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/poppins"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:id="@+id/ivOptionBStatus"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="8dp"
+                    android:contentDescription="Status"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- Option C -->
+            <LinearLayout
+                android:id="@+id/layoutOptionC"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_option_review_default"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="12dp">
+
+                <TextView
+                    android:id="@+id/tvBadgeOptionC"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:background="@drawable/bg_option_badge_default"
+                    android:fontFamily="@font/poppins_bold"
+                    android:gravity="center"
+                    android:text="C"
+                    android:textColor="@color/eve_text"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tvOptionC"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/poppins"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:id="@+id/ivOptionCStatus"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="8dp"
+                    android:contentDescription="Status"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- Option D -->
+            <LinearLayout
+                android:id="@+id/layoutOptionD"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_option_review_default"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="12dp">
+
+                <TextView
+                    android:id="@+id/tvBadgeOptionD"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:background="@drawable/bg_option_badge_default"
+                    android:fontFamily="@font/poppins_bold"
+                    android:gravity="center"
+                    android:text="D"
+                    android:textColor="@color/eve_text"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tvOptionD"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/poppins"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:id="@+id/ivOptionDStatus"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="8dp"
+                    android:contentDescription="Status"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </LinearLayout>
 
         <!-- View Solution Button (Initial Review State: Question First, Solution on Demand) -->
         <com.google.android.material.button.MaterialButton

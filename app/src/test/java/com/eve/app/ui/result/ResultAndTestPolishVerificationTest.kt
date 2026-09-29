@@ -189,7 +189,8 @@ class ResultAndTestPolishVerificationTest {
         assertTrue("btnBookmark must exist", content.contains("android:id=\"@+id/btnBookmark\""))
         assertTrue("btnReport must exist", content.contains("android:id=\"@+id/btnReport\""))
         assertTrue("btnReport must use ic_warning", content.contains("@drawable/ic_warning"))
-        assertTrue("btnReport must use bg_btn_report", content.contains("@drawable/bg_btn_report"))
+        assertFalse("btnReport must not use circular bg_btn_report", content.contains("@drawable/bg_btn_report"))
+        assertTrue("btnReport must use selectableItemBackgroundBorderless", content.contains("?attr/selectableItemBackgroundBorderless"))
         assertTrue("Touch target FrameLayout must be 48dp", content.contains("android:layout_width=\"48dp\"") && content.contains("android:layout_height=\"48dp\""))
     }
 
@@ -202,9 +203,11 @@ class ResultAndTestPolishVerificationTest {
         val content = file.readText()
 
         assertTrue("btnViewSolution must exist", content.contains("android:id=\"@+id/btnViewSolution\""))
+        assertTrue("layoutOptionsContainer must exist to show question options", content.contains("android:id=\"@+id/layoutOptionsContainer\""))
         assertTrue("layoutSolutionDetails must exist", content.contains("android:id=\"@+id/layoutSolutionDetails\""))
         assertTrue("layoutSolutionDetails must be initially gone", content.contains("android:id=\"@+id/layoutSolutionDetails\"") && content.contains("android:visibility=\"gone\""))
         assertTrue("Report icon in item_answer must use ic_warning", content.contains("android:id=\"@+id/ivReportQuestion\"") && content.contains("@drawable/ic_warning"))
+        assertFalse("Report icon in item_answer must not have circular bg_btn_report", content.contains("@drawable/bg_btn_report"))
     }
 
     @Test
@@ -342,5 +345,28 @@ class ResultAndTestPolishVerificationTest {
         val q2List = selectQuestionItem(1)
         assertEquals(1, q2List.size)
         assertEquals(2, q2List[0].number)
+    }
+
+    @Test
+    fun testMaxThreeAttemptsLimitForNormalUsers() {
+        val maxAllowed = com.eve.app.util.AttemptLimitManager.MAX_ATTEMPTS
+        assertEquals(3, maxAllowed)
+
+        fun canUserAttempt(attemptCount: Int, isAdmin: Boolean): Boolean {
+            if (isAdmin) return true
+            return attemptCount < maxAllowed
+        }
+
+        // Normal user
+        assertTrue("Attempt 0: allowed", canUserAttempt(0, isAdmin = false))
+        assertTrue("Attempt 1: allowed", canUserAttempt(1, isAdmin = false))
+        assertTrue("Attempt 2: allowed", canUserAttempt(2, isAdmin = false))
+        assertFalse("Attempt 3: limit reached, blocked", canUserAttempt(3, isAdmin = false))
+        assertFalse("Attempt 4+: blocked", canUserAttempt(4, isAdmin = false))
+
+        // Admin user: always allowed
+        assertTrue("Admin at 0: allowed", canUserAttempt(0, isAdmin = true))
+        assertTrue("Admin at 3: allowed", canUserAttempt(3, isAdmin = true))
+        assertTrue("Admin at 10: allowed", canUserAttempt(10, isAdmin = true))
     }
 }

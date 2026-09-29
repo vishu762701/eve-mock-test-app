@@ -247,10 +247,10 @@ class TestReviewResultFlowUpgradesTest {
     // =========================================================================
     @Test
     fun testReportCommentValidationMinimum7WordsOr40Chars() {
-        // Too short (< 7 words AND < 40 chars)
-        assertFalse("3 words short comment should fail", FlaggedQuestion.isCommentValid("Wrong option answer"))
-        assertFalse("Short phrase should fail", FlaggedQuestion.isCommentValid("Please check this"))
-        assertFalse("Empty string should fail", FlaggedQuestion.isCommentValid(""))
+        // Comment is optional: empty string, short phrase, or detailed explanations all succeed
+        assertTrue("Empty comment is valid without typing explanation", FlaggedQuestion.isCommentValid(""))
+        assertTrue("Short phrase is valid", FlaggedQuestion.isCommentValid("Wrong option answer"))
+        assertTrue("Short phrase is valid", FlaggedQuestion.isCommentValid("Please check this"))
 
         // Valid by word count (>= 7 words)
         assertTrue(

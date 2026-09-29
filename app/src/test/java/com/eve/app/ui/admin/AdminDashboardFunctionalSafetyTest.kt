@@ -236,14 +236,18 @@ class AdminDashboardFunctionalSafetyTest {
         assertEquals("ssc_cgl_syllabus_2026.pdf", exam.syllabusFileName)
         assertEquals(uploadedAtTimestamp, exam.syllabusUploadedAt)
 
-        // Verify activity_manage_exams.xml has date view and section 8 generated tests
-        val manageXml = File("src/main/res/layout/activity_manage_exams.xml")
+        // Verify upload syllabus is removed from activity_manage_exams.xml and exists in activity_manage_syllabus.xml
+        val manageXml = File("src/main/res/layout/activity_manage_exams.xml").takeIf { it.exists() }
+            ?: File("app/src/main/res/layout/activity_manage_exams.xml")
         assertTrue(manageXml.exists())
         val xmlContent = manageXml.readText()
-        assertTrue(xmlContent.contains("android:id=\"@+id/tvSyllabusUploadDate\""))
-        assertTrue(xmlContent.contains("android:id=\"@+id/btnRemovePdf\""))
+        assertFalse("Upload syllabus PDF must be removed from Manage Exams", xmlContent.contains("android:id=\"@+id/btnPickPdf\""))
         assertTrue(xmlContent.contains("android:id=\"@+id/btnGenerateNow\""))
         assertTrue(xmlContent.contains("android:id=\"@+id/rvGeneratedTestsForExam\""))
+
+        val syllabusXml = File("src/main/res/layout/activity_manage_syllabus.xml").takeIf { it.exists() }
+            ?: File("app/src/main/res/layout/activity_manage_syllabus.xml")
+        assertTrue("Dedicated activity_manage_syllabus.xml must exist", syllabusXml.exists())
     }
 
     @Test

@@ -74,12 +74,6 @@ class ManageExamsActivity : AppCompatActivity() {
 
     private val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
 
-    private val pdfPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
-        if (uri != null) {
-            handlePdfSelected(uri)
-        }
-    }
-
     data class ExamDropdownEntry(val exam: Exam, val displayLabel: String) {
         override fun toString(): String = displayLabel
     }
@@ -257,18 +251,6 @@ class ManageExamsActivity : AppCompatActivity() {
             showTimePicker()
         }
 
-        binding.btnUploadPdf.setOnClickListener {
-            pdfPicker.launch(arrayOf("application/pdf"))
-        }
-
-        binding.btnReplacePdf.setOnClickListener {
-            pdfPicker.launch(arrayOf("application/pdf"))
-        }
-
-        binding.btnRemovePdf.setOnClickListener {
-            confirmRemovePdf()
-        }
-
         binding.btnGenerateNow.setOnClickListener {
             triggerGenerateNow()
         }
@@ -381,7 +363,6 @@ class ManageExamsActivity : AppCompatActivity() {
         binding.btnPickTime.text = "Time: $currentAutoGenTime (IST)"
 
         updateLastRunUi(exam)
-        updateSyllabusUi(currentSyllabusFileName, currentSyllabusUrl, currentSyllabusUploadedAt)
 
         binding.etGenerationPrompt.setText(
             if (exam.generationPrompt.isNotBlank()) exam.generationPrompt else exam.customPromptNotes
@@ -423,7 +404,6 @@ class ManageExamsActivity : AppCompatActivity() {
         binding.btnPickTime.text = "Time: 00:00 (IST)"
 
         binding.tvLastRunStatus.text = "New exam — save exam before generating tests"
-        updateSyllabusUi("", "", 0L)
         binding.etGenerationPrompt.setText("")
 
         genTestAdapter.submit(emptyList())
@@ -542,87 +522,6 @@ class ManageExamsActivity : AppCompatActivity() {
             status.equals("running", ignoreCase = true) -> "Last run: Currently generating..."
             else -> "Last run: Not run yet"
         }
-    }
-
-    private fun updateSyllabusUi(fileName: String, url: String, uploadedAt: Long = 0L) {
-        if (url.isNotBlank() && fileName.isNotBlank()) {
-            binding.layoutSyllabusUploaded.visibility = View.VISIBLE
-            binding.btnUploadPdf.visibility = View.GONE
-            binding.tvSyllabusFileName.text = fileName
-            binding.tvSyllabusUploadDate.text = if (uploadedAt > 0) {
-                "Uploaded: ${dateFormat.format(Date(uploadedAt))}"
-            } else {
-                "Uploaded syllabus PDF"
-            }
-        } else {
-            binding.layoutSyllabusUploaded.visibility = View.GONE
-            binding.btnUploadPdf.visibility = View.VISIBLE
-        }
-    }
-
-    private fun handlePdfSelected(uri: Uri) {
-        var displayName = "syllabus.pdf"
-        contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-            if (cursor.moveToFirst()) {
-                val nameIdx = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                if (nameIdx >= 0) displayName = cursor.getString(nameIdx)
-            }
-        }
-
-        try {
-            val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: return
-            if (bytes.size > 20 * 1024 * 1024) {
-                AppBulletin.showError(this, "PDF exceeds 20MB limit.")
-                return
-            }
-
-            if (currentExamId.isBlank()) {
-                AppBulletin.showError(this, "Please save the exam first before uploading syllabus.")
-                return
-            }
-
-            binding.progressBarPdf.visibility = View.VISIBLE
-            lifecycleScope.launch {
-                try {
-                    val url = examRepo.uploadSyllabusPdf(currentExamId, displayName, bytes)
-                    currentSyllabusUrl = url
-                    currentSyllabusFileName = displayName
-                    binding.progressBarPdf.visibility = View.GONE
-                    updateSyllabusUi(displayName, url)
-                    AppBulletin.showSuccess(this@ManageExamsActivity, "Syllabus uploaded successfully!")
-                } catch (e: Exception) {
-                    binding.progressBarPdf.visibility = View.GONE
-                    AppBulletin.showError(this@ManageExamsActivity, "Upload failed: ${e.localizedMessage}")
-                }
-            }
-        } catch (e: Exception) {
-            AppBulletin.showError(this, "Failed to read PDF file: ${e.localizedMessage}")
-        }
-    }
-
-    private fun confirmRemovePdf() {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Remove Syllabus?")
-            .setMessage("Are you sure you want to remove the uploaded syllabus PDF?")
-            .setPositiveButton("Remove") { _, _ ->
-                binding.progressBarPdf.visibility = View.VISIBLE
-                lifecycleScope.launch {
-                    try {
-                        examRepo.removeSyllabusPdf(currentExamId, currentSyllabusUrl)
-                        currentSyllabusUrl = ""
-                        currentSyllabusFileName = ""
-                        currentSyllabusUploadedAt = 0L
-                        binding.progressBarPdf.visibility = View.GONE
-                        updateSyllabusUi("", "", 0L)
-                        AppBulletin.showSuccess(this@ManageExamsActivity, "Syllabus removed")
-                    } catch (e: Exception) {
-                        binding.progressBarPdf.visibility = View.GONE
-                        AppBulletin.showError(this@ManageExamsActivity, "Failed to remove: ${e.localizedMessage}")
-                    }
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
     }
 
     private fun triggerGenerateNow() {

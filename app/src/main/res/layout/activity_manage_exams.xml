@@ -339,119 +339,13 @@
                 android:text="⚡ Generate Test Now (Admin On-Demand)"
                 android:textColor="@color/eve_primary" />
 
-            <!-- 8. Exam Syllabus (PDF) Upload -->
+            <!-- 8. AI Prompt for this Exam -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
                 android:fontFamily="@font/poppins_semibold"
-                android:text="8. Exam Syllabus (PDF)"
-                android:textColor="@color/eve_text"
-                android:textSize="14sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:fontFamily="@font/poppins"
-                android:text="Upload PDF syllabus (Max 20MB). Stored in Firebase Storage."
-                android:textColor="@color/eve_text_secondary"
-                android:textSize="12sp" />
-
-            <ProgressBar
-                android:id="@+id/progressBarPdf"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:indeterminate="true"
-                android:visibility="gone" />
-
-            <!-- Uploaded Container -->
-            <LinearLayout
-                android:id="@+id/layoutSyllabusUploaded"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:visibility="gone">
-
-                <ImageView
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:contentDescription="PDF"
-                    android:src="@drawable/ic_description"
-                    app:tint="@color/eve_primary" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tvSyllabusFileName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:ellipsize="middle"
-                        android:fontFamily="@font/poppins_medium"
-                        android:maxLines="1"
-                        android:textColor="@color/eve_text"
-                        android:textSize="13sp"
-                        tools:text="ssc_cgl_syllabus.pdf" />
-
-                    <TextView
-                        android:id="@+id/tvSyllabusUploadDate"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins"
-                        android:textColor="@color/eve_text_secondary"
-                        android:textSize="11sp"
-                        tools:text="Uploaded: 24 Sep 2026, 11:30 AM" />
-                </LinearLayout>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnReplacePdf"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:layout_marginStart="8dp"
-                    android:paddingHorizontal="10dp"
-                    android:text="Replace"
-                    android:textSize="12sp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnRemovePdf"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:layout_marginStart="6dp"
-                    android:paddingHorizontal="10dp"
-                    android:text="Remove"
-                    android:textColor="@color/eve_red"
-                    android:textSize="12sp" />
-            </LinearLayout>
-
-            <!-- Empty Upload Container -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnUploadPdf"
-                style="@style/Widget.Eve.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:fontFamily="@font/poppins_medium"
-                android:text="Upload Syllabus PDF"
-                app:icon="@drawable/ic_upload" />
-
-            <!-- 9. AI Prompt for this Exam -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:fontFamily="@font/poppins_semibold"
-                android:text="9. AI Prompt for this Exam"
+                android:text="8. AI Prompt for this Exam"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
 

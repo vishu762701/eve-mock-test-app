@@ -197,6 +197,9 @@ class AdminActivity : AppCompatActivity() {
         binding.btnFloatingLink.setOnClickListener {
             showFloatingLinkDialog()
         }
+        binding.btnManageSyllabus.setOnClickListener {
+            startActivity(Intent(this, ManageSyllabusActivity::class.java))
+        }
 
         // Section 3: Communication
         binding.btnSendNotification.setOnClickListener {

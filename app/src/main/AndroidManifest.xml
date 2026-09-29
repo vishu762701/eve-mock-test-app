@@ -86,6 +86,7 @@
         <activity android:name=".ui.admin.ActivityLogActivity" android:exported="false" />
         <activity android:name=".ui.admin.FlaggedQuestionsActivity" android:exported="false" />
         <activity android:name=".ui.admin.ApiUsageActivity" android:exported="false" />
+        <activity android:name=".ui.admin.ManageSyllabusActivity" android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

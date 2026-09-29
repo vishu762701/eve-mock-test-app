@@ -74,6 +74,8 @@
     <color name="eve_status_info">#1D5FB8</color>
     <color name="eve_status_warning_container">#FFF4D6</color>
     <color name="eve_status_warning_stroke">#59B45309</color>
+    <color name="eve_status_success_container">#E8F5E9</color>
+    <color name="eve_status_error_container">#FFEBEE</color>
     <color name="eve_header_warning">#FF5252</color>
     <color name="eve_lottie_tile_bg">#F5F5F5</color>
     <color name="eve_floating_chip_stroke">@color/eve_stroke</color>

@@ -18,6 +18,7 @@ class EveApplication : Application() {
         // (warna ek split-second ke liye galat theme flash ho sakti hai).
         ThemeManager.applySavedMode(this)
         com.eve.app.util.ThemeSwitchAnimator.ensureLifecycleRegistered(this)
+        com.eve.app.util.SystemBarHelper.init(this)
         com.eve.app.worker.SubmitWorker.enqueueAllPending(this)
     }
 }

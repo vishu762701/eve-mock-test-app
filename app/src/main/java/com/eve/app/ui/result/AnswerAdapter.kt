@@ -76,6 +76,86 @@ class AnswerAdapter(
             b.tvQuestionStatusLabel.text = statusText
             b.tvQuestionStatusLabel.setTextColor(ContextCompat.getColor(ctx, badgeColor))
 
+            // Bind complete question options (A, B, C, D)
+            val optA = item.displayOptionText("A", hindi)
+            val optB = item.displayOptionText("B", hindi)
+            val optC = item.displayOptionText("C", hindi)
+            val optD = item.displayOptionText("D", hindi)
+            val hasOptions = optA.isNotBlank() || optB.isNotBlank()
+            b.layoutOptionsContainer.visibility = if (hasOptions) View.VISIBLE else View.GONE
+
+            fun bindOptionRow(
+                letter: String,
+                text: String,
+                layout: View,
+                badge: android.widget.TextView,
+                textView: android.widget.TextView,
+                statusIv: android.widget.ImageView
+            ) {
+                if (text.isBlank()) {
+                    layout.visibility = View.GONE
+                    return
+                }
+                layout.visibility = View.VISIBLE
+                badge.text = letter
+                textView.text = text
+
+                val isSelected = letter.equals(item.selected, ignoreCase = true)
+                val isCorrect = letter.equals(item.correct, ignoreCase = true)
+
+                if (isExpanded) {
+                    when {
+                        isCorrect -> {
+                            layout.setBackgroundResource(R.drawable.bg_option_review_correct)
+                            badge.setBackgroundResource(R.drawable.bg_option_badge_correct)
+                            badge.setTextColor(ContextCompat.getColor(ctx, android.R.color.white))
+                            textView.setTextColor(ContextCompat.getColor(ctx, R.color.eve_status_success))
+                            statusIv.visibility = View.VISIBLE
+                            statusIv.setImageResource(R.drawable.ic_check_circle)
+                            statusIv.imageTintList = android.content.res.ColorStateList.valueOf(
+                                ContextCompat.getColor(ctx, R.color.eve_status_success)
+                            )
+                        }
+                        isSelected -> {
+                            layout.setBackgroundResource(R.drawable.bg_option_review_wrong)
+                            badge.setBackgroundResource(R.drawable.bg_option_badge_wrong)
+                            badge.setTextColor(ContextCompat.getColor(ctx, android.R.color.white))
+                            textView.setTextColor(ContextCompat.getColor(ctx, R.color.eve_status_error))
+                            statusIv.visibility = View.VISIBLE
+                            statusIv.setImageResource(R.drawable.ic_close)
+                            statusIv.imageTintList = android.content.res.ColorStateList.valueOf(
+                                ContextCompat.getColor(ctx, R.color.eve_status_error)
+                            )
+                        }
+                        else -> {
+                            layout.setBackgroundResource(R.drawable.bg_option_review_default)
+                            badge.setBackgroundResource(R.drawable.bg_option_badge_default)
+                            badge.setTextColor(ContextCompat.getColor(ctx, R.color.eve_text_secondary))
+                            textView.setTextColor(ContextCompat.getColor(ctx, R.color.eve_text_secondary))
+                            statusIv.visibility = View.GONE
+                        }
+                    }
+                } else {
+                    if (isSelected) {
+                        layout.setBackgroundResource(R.drawable.bg_option_review_selected)
+                        badge.setBackgroundResource(R.drawable.bg_option_badge_selected)
+                        badge.setTextColor(ContextCompat.getColor(ctx, android.R.color.white))
+                        textView.setTextColor(ContextCompat.getColor(ctx, R.color.eve_text))
+                    } else {
+                        layout.setBackgroundResource(R.drawable.bg_option_review_default)
+                        badge.setBackgroundResource(R.drawable.bg_option_badge_default)
+                        badge.setTextColor(ContextCompat.getColor(ctx, R.color.eve_text))
+                        textView.setTextColor(ContextCompat.getColor(ctx, R.color.eve_text))
+                    }
+                    statusIv.visibility = View.GONE
+                }
+            }
+
+            bindOptionRow("A", optA, b.layoutOptionA, b.tvBadgeOptionA, b.tvOptionA, b.ivOptionAStatus)
+            bindOptionRow("B", optB, b.layoutOptionB, b.tvBadgeOptionB, b.tvOptionB, b.ivOptionBStatus)
+            bindOptionRow("C", optC, b.layoutOptionC, b.tvBadgeOptionC, b.tvOptionC, b.ivOptionCStatus)
+            bindOptionRow("D", optD, b.layoutOptionD, b.tvBadgeOptionD, b.tvOptionD, b.ivOptionDStatus)
+
             // Initial Review State: Hide solution details, answers, and status until View Solution is tapped
             if (isExpanded) {
                 b.btnViewSolution.visibility = View.GONE
@@ -91,12 +171,7 @@ class AnswerAdapter(
 
             b.btnViewSolution.setOnClickListener {
                 expandedQuestionKeys.add(questionKey)
-                b.btnViewSolution.visibility = View.GONE
-                b.layoutSolutionDetails.alpha = 0f
-                b.layoutSolutionDetails.visibility = View.VISIBLE
-                b.layoutSolutionDetails.animate().alpha(1f).setDuration(220).start()
-                b.ivStatusCircle.visibility = View.VISIBLE
-                b.tvQuestionStatusLabel.visibility = View.VISIBLE
+                bind(item)
             }
 
             b.ivBookmark.visibility = if (item.isBookmarked) View.VISIBLE else View.GONE

@@ -87,6 +87,20 @@ class TestActivity : AppCompatActivity() {
                 isHardcodedAdmin(user.email) || adminRepository.isAdmin(user.email)
             } ?: false
             isAdminUser = isAdmin
+
+            if (!isAdminUser && topic.isBlank() && pyqYear == 0 && examId.isNotBlank()) {
+                val canAttempt = com.eve.app.util.AttemptLimitManager.canAttempt(this@TestActivity, examId)
+                if (!canAttempt) {
+                    AlertDialog.Builder(this@TestActivity)
+                        .setTitle("Attempt Limit Reached")
+                        .setMessage("You have reached the maximum limit of 3 attempts for this test. Normal users can attempt each test at most 3 times.")
+                        .setPositiveButton("OK") { _, _ -> finish() }
+                        .setCancelable(false)
+                        .show()
+                    return@launch
+                }
+            }
+
             viewModel.start(examId, timeLimit, topic, pyqYear, pyqPaper, isAdminUser, examName, fromBookmark, testId)
         }
         // Phase 15: exam start event — is exam ko kitni baar attempt kiya gaya, yeh track karta hai
@@ -410,6 +424,25 @@ class TestActivity : AppCompatActivity() {
                         total = graded.total
                     )
 
+                    val questionList = (viewModel.questions.value as? com.eve.app.util.UiState.Success)?.data ?: emptyList()
+                    val enrichedAnswers = graded.answers.map { ans ->
+                        val matchingQ = questionList.find { it.id == ans.questionId || (ans.questionId.isBlank() && it.questionText == ans.questionText) }
+                        if (matchingQ != null) {
+                            ans.copy(
+                                optionA = matchingQ.optionA,
+                                optionB = matchingQ.optionB,
+                                optionC = matchingQ.optionC,
+                                optionD = matchingQ.optionD,
+                                optionAHi = matchingQ.optionAHi,
+                                optionBHi = matchingQ.optionBHi,
+                                optionCHi = matchingQ.optionCHi,
+                                optionDHi = matchingQ.optionDHi
+                            )
+                        } else {
+                            ans
+                        }
+                    }
+
                     val localAttempt = com.eve.app.data.model.TestAttempt(
                         id = graded.attemptId,
                         userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid.orEmpty(),
@@ -423,13 +456,14 @@ class TestActivity : AppCompatActivity() {
                         unattempted = graded.unattempted,
                         timeTakenSeconds = graded.timeTakenSeconds,
                         timestamp = System.currentTimeMillis(),
-                        answers = graded.answers
+                        answers = enrichedAnswers
                     )
                     if (isStandardMock) {
                         com.eve.app.ui.home.HomeViewModel.markAttemptSubmitted(examId, localAttempt)
+                        com.eve.app.util.AttemptLimitManager.recordAttempt(this@TestActivity, examId)
                     }
 
-                    ResultDataHolder.setAnswers(graded.answers)
+                    ResultDataHolder.setAnswers(enrichedAnswers)
 
                     startActivity(
                         Intent(this@TestActivity, ResultActivity::class.java)
@@ -481,6 +515,11 @@ class TestActivity : AppCompatActivity() {
         )
         com.eve.app.data.local.PendingSubmissionStore(this).save(pending)
         com.eve.app.worker.SubmitWorker.enqueue(this, viewModel.clientAttemptId)
+        if (topic.isBlank() && pyqYear == 0) {
+            lifecycleScope.launch {
+                com.eve.app.util.AttemptLimitManager.recordAttempt(this@TestActivity, examId)
+            }
+        }
 
         AlertDialog.Builder(this)
             .setTitle("Submission Saved Offline")

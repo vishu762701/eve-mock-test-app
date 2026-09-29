@@ -99,6 +99,37 @@ class ResultActivity : AppCompatActivity() {
         currentExamName = examName.orEmpty()
         val attemptDate = intent.getStringExtra(Constants.EXTRA_ATTEMPT_DATE)
 
+        if (allItems.any { it.optionA.isBlank() } && currentExamId.isNotBlank()) {
+            lifecycleScope.launch {
+                try {
+                    val questions = examRepo.getQuestions(AttemptKey.sourceExamId(currentExamId))
+                    if (questions.isNotEmpty()) {
+                        val qMap = questions.associateBy { it.id }
+                        val enriched = allItems.map { item ->
+                            val q = qMap[item.questionId] ?: questions.getOrNull(item.number - 1)
+                            if (q != null && item.optionA.isBlank()) {
+                                item.copy(
+                                    optionA = q.optionA,
+                                    optionB = q.optionB,
+                                    optionC = q.optionC,
+                                    optionD = q.optionD,
+                                    optionAHi = q.optionAHi,
+                                    optionBHi = q.optionBHi,
+                                    optionCHi = q.optionCHi,
+                                    optionDHi = q.optionDHi
+                                )
+                            } else {
+                                item
+                            }
+                        }
+                        allItems = enriched
+                        viewModel.updateAnswers(enriched)
+                        selectQuestion(selectedQuestionIndex)
+                    }
+                } catch (_: Exception) {}
+            }
+        }
+
         if (!currentExamName.isBlank()) {
             binding.tvResultTitle.text = currentExamName
         }
@@ -760,63 +791,75 @@ class ResultActivity : AppCompatActivity() {
     }
 
     private fun showReattemptDialog(examId: String, examName: String) {
-        val dialog = MaterialAlertDialogBuilder(this)
-            .setTitle("Reattempt this test?")
-            .setMessage("Your previous result for \"$examName\" (score, answers and rank) will be permanently deleted and replaced by your new attempt. This cannot be undone.")
-            .setNegativeButton("Cancel", null)
-            .setPositiveButton("Clear & Reattempt", null)
-            .create()
+        lifecycleScope.launch {
+            val canReattempt = com.eve.app.util.AttemptLimitManager.canAttempt(this@ResultActivity, examId)
+            if (!canReattempt) {
+                MaterialAlertDialogBuilder(this@ResultActivity)
+                    .setTitle("Attempt Limit Reached")
+                    .setMessage("You have reached the maximum limit of 3 attempts for this test. Normal users can attempt each test at most 3 times.")
+                    .setPositiveButton("OK", null)
+                    .show()
+                return@launch
+            }
 
-        dialog.setOnShowListener {
-            val confirmBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-            val cancelBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-            confirmBtn.setTextColor(ContextCompat.getColor(this, R.color.eve_status_error))
+            val dialog = MaterialAlertDialogBuilder(this@ResultActivity)
+                .setTitle("Reattempt this test?")
+                .setMessage("Your previous result for \"$examName\" (score, answers and rank) will be permanently deleted and replaced by your new attempt. This cannot be undone.")
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Clear & Reattempt", null)
+                .create()
 
-            confirmBtn.setOnClickListener {
-                confirmBtn.isEnabled = false
-                cancelBtn.isEnabled = false
-                confirmBtn.text = "Resetting..."
+            dialog.setOnShowListener {
+                val confirmBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                val cancelBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                confirmBtn.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.eve_status_error))
 
-                lifecycleScope.launch {
-                    try {
-                        val response = ApiClient.apiService.resetAttemptPost(mapOf("examId" to examId))
-                        if (response.success) {
-                            ResultDataHolder.clear()
-                            HomeViewModel.markAttemptCleared(examId)
-                            val timeLimit = if (intent.hasExtra(Constants.EXTRA_TIME_LIMIT)) {
-                                intent.getIntExtra(Constants.EXTRA_TIME_LIMIT, 60)
+                confirmBtn.setOnClickListener {
+                    confirmBtn.isEnabled = false
+                    cancelBtn.isEnabled = false
+                    confirmBtn.text = "Resetting..."
+
+                    lifecycleScope.launch {
+                        try {
+                            val response = ApiClient.apiService.resetAttemptPost(mapOf("examId" to examId))
+                            if (response.success) {
+                                ResultDataHolder.clear()
+                                HomeViewModel.markAttemptCleared(examId)
+                                val timeLimit = if (intent.hasExtra(Constants.EXTRA_TIME_LIMIT)) {
+                                    intent.getIntExtra(Constants.EXTRA_TIME_LIMIT, 60)
+                                } else {
+                                    try {
+                                        examRepo.getExam(AttemptKey.sourceExamId(examId))?.timeLimitMinutes ?: 60
+                                    } catch (_: Exception) { 60 }
+                                }
+                                val category = intent.getStringExtra(Constants.EXTRA_EXAM_CATEGORY).orEmpty()
+                                val testIntent = Intent(this@ResultActivity, TestActivity::class.java).apply {
+                                    putExtra(Constants.EXTRA_EXAM_ID, examId)
+                                    putExtra(Constants.EXTRA_EXAM_NAME, examName)
+                                    putExtra(Constants.EXTRA_EXAM_CATEGORY, category)
+                                    putExtra(Constants.EXTRA_TIME_LIMIT, timeLimit)
+                                }
+                                dialog.dismiss()
+                                startActivity(testIntent)
+                                finish()
                             } else {
-                                try {
-                                    examRepo.getExam(AttemptKey.sourceExamId(examId))?.timeLimitMinutes ?: 60
-                                } catch (_: Exception) { 60 }
+                                confirmBtn.isEnabled = true
+                                cancelBtn.isEnabled = true
+                                confirmBtn.text = "Clear & Reattempt"
+                                AppBulletin.showError(this@ResultActivity, response.error ?: "Failed to reset attempt")
                             }
-                            val category = intent.getStringExtra(Constants.EXTRA_EXAM_CATEGORY).orEmpty()
-                            val testIntent = Intent(this@ResultActivity, TestActivity::class.java).apply {
-                                putExtra(Constants.EXTRA_EXAM_ID, examId)
-                                putExtra(Constants.EXTRA_EXAM_NAME, examName)
-                                putExtra(Constants.EXTRA_EXAM_CATEGORY, category)
-                                putExtra(Constants.EXTRA_TIME_LIMIT, timeLimit)
-                            }
-                            dialog.dismiss()
-                            startActivity(testIntent)
-                            finish()
-                        } else {
+                        } catch (e: Exception) {
                             confirmBtn.isEnabled = true
                             cancelBtn.isEnabled = true
                             confirmBtn.text = "Clear & Reattempt"
-                            AppBulletin.showError(this@ResultActivity, response.error ?: "Failed to reset attempt")
+                            AppBulletin.showError(this@ResultActivity, e.localizedMessage ?: "Failed to reset attempt")
                         }
-                    } catch (e: Exception) {
-                        confirmBtn.isEnabled = true
-                        cancelBtn.isEnabled = true
-                        confirmBtn.text = "Clear & Reattempt"
-                        AppBulletin.showError(this@ResultActivity, e.localizedMessage ?: "Failed to reset attempt")
                     }
                 }
             }
-        }
 
-        dialog.show()
+            dialog.show()
+        }
     }
 
     private fun close() {

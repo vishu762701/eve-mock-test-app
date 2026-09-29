@@ -51,9 +51,30 @@ class NotificationsActivity : AppCompatActivity() {
     private fun updateEmptyState(isEmpty: Boolean) {
         binding.emptyGroup.visibility = if (isEmpty) View.VISIBLE else View.GONE
         if (isEmpty) {
-            hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(binding.lottieEmpty, hasEmptyPlayed)
+            com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(
+                lottieView = binding.lottieEmpty,
+                hasPlayed = hasEmptyPlayed,
+                onAnimationEnd = {
+                    hasEmptyPlayed = true
+                }
+            )
         } else {
             hasEmptyPlayed = false
+            com.eve.app.util.EmptyStateAnimationHelper.stopEmptyState(binding.lottieEmpty)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (binding.lottieEmpty.isAnimating) {
+            binding.lottieEmpty.pauseAnimation()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (binding.emptyGroup.visibility == View.VISIBLE && !hasEmptyPlayed && !binding.lottieEmpty.isAnimating) {
+            binding.lottieEmpty.resumeAnimation()
         }
     }
 

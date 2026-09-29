@@ -81,7 +81,7 @@
                     android:layout_width="38dp"
                     android:layout_height="38dp"
                     android:layout_gravity="center"
-                    android:background="@drawable/bg_btn_report"
+                    android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Report this question"
                     android:padding="9dp"
                     android:scaleType="fitCenter"

@@ -75,24 +75,36 @@ object CompletedExamBottomSheet {
         }
 
         binding.btnReattempt.setOnClickListener {
-            MaterialAlertDialogBuilder(activity)
-                .setTitle(R.string.reattempt_confirm_title)
-                .setMessage(R.string.reattempt_warning_message)
-                .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.delete_and_start) { _, _ ->
-                    binding.btnReattempt.isEnabled = false
-                    activity.lifecycleScope.launch {
-                        val success = HistoryRepository().resetAttempt(examId)
-                        if (success) {
-                            dialog.dismiss()
-                            onReattemptConfirmed()
-                        } else {
-                            binding.btnReattempt.isEnabled = true
-                            AppBulletin.showError(activity, activity.getString(R.string.reset_attempt_failed))
+            activity.lifecycleScope.launch {
+                val canReattempt = com.eve.app.util.AttemptLimitManager.canAttempt(activity, examId)
+                if (!canReattempt) {
+                    MaterialAlertDialogBuilder(activity)
+                        .setTitle("Attempt Limit Reached")
+                        .setMessage("You have reached the maximum limit of 3 attempts for this test. Normal users can attempt each test at most 3 times.")
+                        .setPositiveButton("OK", null)
+                        .show()
+                    return@launch
+                }
+
+                MaterialAlertDialogBuilder(activity)
+                    .setTitle(R.string.reattempt_confirm_title)
+                    .setMessage(R.string.reattempt_warning_message)
+                    .setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.delete_and_start) { _, _ ->
+                        binding.btnReattempt.isEnabled = false
+                        activity.lifecycleScope.launch {
+                            val success = HistoryRepository().resetAttempt(examId)
+                            if (success) {
+                                dialog.dismiss()
+                                onReattemptConfirmed()
+                            } else {
+                                binding.btnReattempt.isEnabled = true
+                                AppBulletin.showError(activity, activity.getString(R.string.reset_attempt_failed))
+                            }
                         }
                     }
-                }
-                .show()
+                    .show()
+            }
         }
 
         dialog.setOnDismissListener {

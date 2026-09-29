@@ -369,7 +369,15 @@ class TestViewModel : ViewModel() {
                     explanationHi = "",
                     isBookmarked = isBookmarked(index),
                     topic = q.topic,
-                    timeTakenSeconds = getQuestionTime(index)
+                    timeTakenSeconds = getQuestionTime(index),
+                    optionA = q.optionA,
+                    optionB = q.optionB,
+                    optionC = q.optionC,
+                    optionD = q.optionD,
+                    optionAHi = q.optionAHi,
+                    optionBHi = q.optionBHi,
+                    optionCHi = q.optionCHi,
+                    optionDHi = q.optionDHi
                 )
             )
         }

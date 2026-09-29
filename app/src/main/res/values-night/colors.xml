@@ -72,6 +72,8 @@
     <color name="eve_status_info">#6CB6FF</color>
     <color name="eve_status_warning_container">#2A2110</color>
     <color name="eve_status_warning_stroke">#59FFC53D</color>
+    <color name="eve_status_success_container">#1B3320</color>
+    <color name="eve_status_error_container">#3B1A1A</color>
     <color name="eve_header_warning">#C62828</color>
     <color name="eve_lottie_tile_bg">#F2F2F2</color>
     <color name="eve_floating_chip_stroke">@android:color/transparent</color>

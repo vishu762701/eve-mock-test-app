@@ -96,13 +96,6 @@ object ReportQuestionDialog {
 
             val comment = etComment.text?.toString()?.trim().orEmpty()
 
-            // Validate minimum comment length (at least 7 words or roughly 40 characters)
-            if (!FlaggedQuestion.isCommentValid(comment)) {
-                tvError.visibility = View.VISIBLE
-                tvError.text = "Please enter at least 7 words or 40 characters explaining the issue."
-                return@setOnClickListener
-            }
-
             tvError.visibility = View.GONE
             btnSubmit.isEnabled = false
             btnSubmit.text = "Submitting..."

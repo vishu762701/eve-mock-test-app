@@ -64,8 +64,7 @@
                 android:layout_height="140dp"
                 android:background="@android:color/transparent"
                 app:lottie_autoPlay="false"
-                app:lottie_loop="false"
-                app:lottie_rawRes="@raw/no_files" />
+                app:lottie_loop="false" />
 
             <TextView
                 android:layout_width="wrap_content"

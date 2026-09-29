@@ -140,7 +140,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:hint="Details (Min 7 words / 40 characters)">
+            android:hint="Details (Optional)">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etReportComment"
@@ -153,14 +153,13 @@
                 android:textSize="13sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Inline comment validation error -->
+        <!-- Inline error message (if server error occurs) -->
         <TextView
             android:id="@+id/tvCommentError"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:fontFamily="@font/poppins"
-            android:text="Please enter at least 7 words or 40 characters explaining the issue."
             android:textColor="@color/eve_red"
             android:textSize="12sp"
             android:visibility="gone" />

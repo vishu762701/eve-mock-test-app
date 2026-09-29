@@ -25,6 +25,10 @@ class ResultViewModel : ViewModel() {
         }
     }
 
+    fun updateAnswers(answers: List<AnswerItem>) {
+        allItems = answers
+    }
+
     suspend fun getOrFetchQuestionStats(qIds: List<String>): Map<String, QuestionStat> {
         questionStats?.let { return it }
         val loaded = try {
