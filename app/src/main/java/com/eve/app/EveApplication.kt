@@ -19,6 +19,5 @@ class EveApplication : Application() {
         ThemeManager.applySavedMode(this)
         com.eve.app.util.ThemeSwitchAnimator.ensureLifecycleRegistered(this)
         com.eve.app.worker.SubmitWorker.enqueueAllPending(this)
-        val deliberateError: String = 12345
     }
 }
