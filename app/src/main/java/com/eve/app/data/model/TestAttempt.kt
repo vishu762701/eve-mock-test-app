@@ -18,7 +18,8 @@ data class TestAttempt(
     val wrong: Int = 0,
     val unattempted: Int = 0,
     val timestamp: Long = 0L,
-    val answers: List<AnswerItem> = emptyList()
+    val answers: List<AnswerItem> = emptyList(),
+    val timeTakenSeconds: Long = 0L
 ) {
     val scoreText: String get() = if (score % 1.0 == 0.0) score.toInt().toString() else String.format("%.2f", score)
 }

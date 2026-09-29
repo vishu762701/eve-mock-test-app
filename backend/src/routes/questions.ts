@@ -5,6 +5,7 @@
 import { Hono } from "hono";
 import { requireAdmin } from "../middleware/authMiddleware";
 import { AuthUser, Env, QuestionRow } from "../types";
+import { hideAnswers } from "../util/clientProtocol";
 
 export const questionRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
@@ -31,6 +32,68 @@ function mapQuestionRow(row: QuestionRow) {
     explanationHi: row.explanation_hi || "",
   };
 }
+
+// GET /api/questions/stats?ids=a,b,c (max 50 ids, auth required)
+questionRoutes.get("/stats", async (c) => {
+  const idsParam = c.req.query("ids") || "";
+  const ids = idsParam
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  if (ids.length === 0) {
+    return c.json({ success: true, data: {} });
+  }
+
+  const clampedIds = ids.slice(0, 50);
+  const placeholders = clampedIds.map(() => "?").join(",");
+  const db = c.env.DB;
+
+  const { results: rows } = await db
+    .prepare(
+      `SELECT question_id,
+              SUM(attempts) as attempts,
+              SUM(correct) as correct,
+              SUM(wrong) as wrong,
+              SUM(unattempted) as unattempted,
+              SUM(total_time_seconds) as total_time_seconds
+       FROM admin_analytics_questions
+       WHERE question_id IN (${placeholders})
+       GROUP BY question_id`
+    )
+    .bind(...clampedIds)
+    .all<{
+      question_id: string;
+      attempts: number;
+      correct: number;
+      wrong: number;
+      unattempted: number;
+      total_time_seconds: number;
+    }>();
+
+  const data: Record<
+    string,
+    { attempts: number; correct: number; wrong: number; unattempted: number; avgTimeSeconds: number }
+  > = {};
+
+  for (const id of clampedIds) {
+    data[id] = { attempts: 0, correct: 0, wrong: 0, unattempted: 0, avgTimeSeconds: 0 };
+  }
+
+  for (const r of rows || []) {
+    const attempts = r.attempts || 0;
+    const avgTimeSeconds = attempts > 0 ? Math.round((r.total_time_seconds || 0) / attempts) : 0;
+    data[r.question_id] = {
+      attempts,
+      correct: r.correct || 0,
+      wrong: r.wrong || 0,
+      unattempted: r.unattempted || 0,
+      avgTimeSeconds,
+    };
+  }
+
+  return c.json({ success: true, data });
+});
 
 // GET /api/exams/:examId/questions - Query questions with optional filters
 questionRoutes.get("/exam/:examId", async (c) => {
@@ -66,7 +129,16 @@ questionRoutes.get("/exam/:examId", async (c) => {
   }
 
   const { results } = await db.prepare(query).bind(...params).all<QuestionRow>();
-  const list = (results || []).map(mapQuestionRow);
+  const shouldHide = hideAnswers(c);
+  const list = (results || []).map((row) => {
+    const q = mapQuestionRow(row);
+    if (shouldHide) {
+      q.correctAnswer = "";
+      q.explanation = "";
+      q.explanationHi = "";
+    }
+    return q;
+  });
   return c.json({ success: true, data: list });
 });
 

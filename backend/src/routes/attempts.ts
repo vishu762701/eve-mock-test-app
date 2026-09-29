@@ -1,9 +1,10 @@
 // ============================================================================
-// Attempt Submission, Results History, and Anti-Cheat Locking
+// Attempt Submission, Results History, Mistakes, Streak, and Anti-Cheat Locking
 // ============================================================================
 
 import { Hono } from "hono";
-import { AttemptAnswerRow, AttemptRow, AuthUser, Env, QuestionRow } from "../types";
+import { AttemptAnswerRow, AttemptRow, AttemptSessionRow, AuthUser, Env, ExamRow, GeneratedTestRow, QuestionRow } from "../types";
+import { hideAnswers } from "../util/clientProtocol";
 
 export const attemptRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
@@ -42,6 +43,116 @@ function questionOptionTextHi(q: any, letter: string): string {
   }
 }
 
+// POST /api/attempts/start - Begin test attempt session & fetch generated questions
+attemptRoutes.post("/start", async (c) => {
+  const user = c.get("user");
+  const uid = user.uid;
+  const db = c.env.DB;
+  const body = await c.req.json().catch(() => ({}));
+  const examId = String(body.examId || "").trim();
+
+  if (!examId) {
+    return c.json({ success: false, error: "examId is required" }, 400);
+  }
+
+  const { sourceExamId, generatedTestId } = parseAttemptKey(examId);
+
+  // Read exam row for time limit
+  const examRow = await db
+    .prepare("SELECT time_limit_minutes FROM exams WHERE id = ?")
+    .bind(sourceExamId)
+    .first<{ time_limit_minutes: number }>();
+
+  const limitSeconds = examRow && typeof examRow.time_limit_minutes === "number" ? examRow.time_limit_minutes * 60 : 0;
+
+  // Non-admin with an existing attempt_locks row -> 409
+  const lockKey = `${uid}_${examId}`;
+  if (!user.isAdmin) {
+    const existingLock = await db.prepare("SELECT 1 FROM attempt_locks WHERE id = ?").bind(lockKey).first();
+    if (existingLock) {
+      return c.json({ success: false, error: "You have already completed this test." }, 409);
+    }
+  }
+
+  let generatedTestRow: GeneratedTestRow | null = null;
+  if (generatedTestId) {
+    generatedTestRow = await db
+      .prepare("SELECT * FROM generated_tests WHERE id = ?")
+      .bind(generatedTestId)
+      .first<GeneratedTestRow>();
+
+    if (!generatedTestRow) {
+      return c.json({ success: false, error: "Test not found" }, 404);
+    }
+
+    if (!user.isAdmin && generatedTestRow.status !== "live" && generatedTestRow.status !== "published") {
+      return c.json({ success: false, error: "Test is not available" }, 403);
+    }
+
+    const availableFrom = generatedTestRow.available_from || 0;
+    if (availableFrom > Date.now()) {
+      return c.json({ success: false, error: "Test not open yet", availableFrom }, 403);
+    }
+  }
+
+  // Idempotent: INSERT OR IGNORE then SELECT
+  const sessionId = `${uid}_${examId}`;
+  const now = Date.now();
+
+  await db
+    .prepare(
+      "INSERT OR IGNORE INTO attempt_sessions (id, user_id, exam_key, started_at, time_limit_seconds) VALUES (?, ?, ?, ?, ?)"
+    )
+    .bind(sessionId, uid, examId, now, limitSeconds)
+    .run();
+
+  const session = await db
+    .prepare("SELECT started_at, time_limit_seconds FROM attempt_sessions WHERE id = ?")
+    .bind(sessionId)
+    .first<AttemptSessionRow>();
+
+  const startedAt = session ? session.started_at : now;
+  const timeLimitSeconds = session ? session.time_limit_seconds : limitSeconds;
+
+  let questions: any[] | undefined = undefined;
+  if (generatedTestRow) {
+    let parsedQuestions: any[] = [];
+    try {
+      parsedQuestions = JSON.parse(generatedTestRow.questions_json);
+    } catch (_e) {}
+
+    const shouldHide = hideAnswers(c);
+    questions = parsedQuestions.map((q, idx) => ({
+      id: `${generatedTestId}_${idx}`,
+      examId: generatedTestRow!.exam_id,
+      questionText: q.question_text || q.questionText || "",
+      optionA: q.option_a || q.optionA || "",
+      optionB: q.option_b || q.optionB || "",
+      optionC: q.option_c || q.optionC || "",
+      optionD: q.option_d || q.optionD || "",
+      correctAnswer: shouldHide ? "" : String(q.correct_answer || q.correctAnswer || "A").toUpperCase(),
+      explanation: shouldHide ? "" : String(q.explanation || ""),
+      topic: String(q.topic || ""),
+      questionTextHi: q.question_text_hi || q.questionTextHi || "",
+      optionAHi: q.option_a_hi || q.optionAHi || "",
+      optionBHi: q.option_b_hi || q.optionBHi || "",
+      optionCHi: q.option_c_hi || q.optionCHi || "",
+      optionDHi: q.option_d_hi || q.optionDHi || "",
+      explanationHi: shouldHide ? "" : String(q.explanation_hi || q.explanationHi || ""),
+    }));
+  }
+
+  return c.json({
+    success: true,
+    data: {
+      startedAt,
+      serverNow: Date.now(),
+      timeLimitSeconds,
+      ...(questions !== undefined ? { questions } : {}),
+    },
+  });
+});
+
 // POST /api/attempts/submit - Server-side trusted test grading & atomic submission
 attemptRoutes.post("/submit", async (c) => {
   const user = c.get("user");
@@ -53,64 +164,312 @@ attemptRoutes.post("/submit", async (c) => {
   const examName = String(body.examName || "Test").trim();
   const category = String(body.category || "").trim();
   const displayName = String(body.displayName || user.displayName || "Student").trim();
+  const clientAttemptId = String(body.clientAttemptId || "").trim();
   const rawAnswers: any[] = Array.isArray(body.answers) ? body.answers : [];
 
-  if (!examId || rawAnswers.length === 0 || rawAnswers.length > 300) {
+  if (!examId || rawAnswers.length > 300) {
     return c.json({ success: false, error: "Invalid attempt payload" }, 400);
   }
 
-  // Filter & sanitize student picks
-  const seen = new Set<string>();
-  const picks: Array<{ questionId: string; number: number; selected: string; isBookmarked: boolean }> = [];
+  // 1. Idempotency Check: if clientAttemptId exists, return cached result
+  if (clientAttemptId) {
+    const existing = await db
+      .prepare("SELECT * FROM attempts WHERE user_id = ? AND client_attempt_id = ?")
+      .bind(uid, clientAttemptId)
+      .first<AttemptRow>();
 
-  for (const a of rawAnswers) {
-    const questionId = String(a?.questionId || "").trim();
-    if (!questionId || seen.has(questionId)) continue;
-    seen.add(questionId);
+    if (existing) {
+      const { results: answers } = await db
+        .prepare("SELECT * FROM attempt_answers WHERE attempt_id = ? ORDER BY question_number ASC")
+        .bind(existing.id)
+        .all<AttemptAnswerRow>();
 
-    const selectedRaw = String(a?.selected || "").trim().toUpperCase();
-    picks.push({
-      questionId,
-      number: Number(a?.number || 0),
-      selected: VALID_OPTIONS.has(selectedRaw) ? selectedRaw : "",
-      isBookmarked: Boolean(a?.isBookmarked),
-    });
-  }
-
-  if (picks.length === 0) {
-    return c.json({ success: false, error: "No valid answers in payload" }, 400);
+      return c.json({
+        success: true,
+        data: {
+          attemptId: existing.id,
+          score: existing.score,
+          total: existing.total,
+          correct: existing.correct,
+          wrong: existing.wrong,
+          unattempted: existing.unattempted,
+          timeTakenSeconds: existing.time_taken_seconds || 0,
+          counted: existing.counted !== undefined ? existing.counted : 1,
+          answers: (answers || []).map((a) => ({
+            questionId: a.question_id,
+            number: a.question_number,
+            questionText: a.question_text,
+            selected: a.selected,
+            selectedText: a.selected_text,
+            correct: a.correct,
+            correctText: a.correct_text,
+            explanation: a.explanation,
+            isBookmarked: Boolean(a.is_bookmarked),
+            topic: a.topic,
+            questionTextHi: a.question_text_hi,
+            selectedTextHi: a.selected_text_hi,
+            correctTextHi: a.correct_text_hi,
+            explanationHi: a.explanation_hi,
+            timeTakenSeconds: a.time_taken_seconds || 0,
+          })),
+        },
+      });
+    }
   }
 
   const isPractice = Boolean(body.topic || body.pyqYear);
   const lockKey = `${uid}_${examId}`;
 
-  // Enforce anti-cheat single attempt lock for regular mock tests
+  // 2. Anti-cheat lock check
   if (!isPractice && !user.isAdmin) {
-    const existingLock = await db
-      .prepare("SELECT 1 FROM attempt_locks WHERE id = ?")
-      .bind(lockKey)
-      .first();
-
+    const existingLock = await db.prepare("SELECT 1 FROM attempt_locks WHERE id = ?").bind(lockKey).first();
     if (existingLock) {
       return c.json({ success: false, error: "You have already completed this test." }, 409);
     }
   }
 
-  // Fetch true questions from questions table
-  const placeholders = picks.map(() => "?").join(",");
-  const qIds = picks.map((p) => p.questionId);
-  const { results: dbQuestions } = await db
-    .prepare(`SELECT * FROM questions WHERE id IN (${placeholders})`)
-    .bind(...qIds)
-    .all<QuestionRow>();
+  const { sourceExamId, generatedTestId } = parseAttemptKey(examId);
 
-  const questionsMap = new Map<string, QuestionRow>();
-  for (const q of dbQuestions || []) {
-    questionsMap.set(q.id, q);
+  // 3. Build EXPECTED question set
+  type ExpectedQ = {
+    id: string;
+    questionText: string;
+    questionTextHi: string;
+    optionA: string;
+    optionB: string;
+    optionC: string;
+    optionD: string;
+    optionAHi: string;
+    optionBHi: string;
+    optionCHi: string;
+    optionDHi: string;
+    correctAnswer: string;
+    explanation: string;
+    explanationHi: string;
+    topic: string;
+    defaultNumber: number;
+  };
+
+  const expectedQuestions: ExpectedQ[] = [];
+  const expectedMap = new Map<string, ExpectedQ>();
+
+  if (generatedTestId) {
+    const gRow = await db
+      .prepare("SELECT questions_json FROM generated_tests WHERE id = ?")
+      .bind(generatedTestId)
+      .first<{ questions_json: string }>();
+
+    if (!gRow) {
+      return c.json({ success: false, error: "Generated test not found" }, 400);
+    }
+
+    let parsedQuestions: any[] = [];
+    try {
+      parsedQuestions = JSON.parse(gRow.questions_json);
+    } catch (_e) {}
+
+    parsedQuestions.forEach((q, idx) => {
+      const qId = `${generatedTestId}_${idx}`;
+      const entry: ExpectedQ = {
+        id: qId,
+        questionText: q.question_text || q.questionText || "",
+        questionTextHi: q.question_text_hi || q.questionTextHi || "",
+        optionA: q.option_a || q.optionA || "",
+        optionB: q.option_b || q.optionB || "",
+        optionC: q.option_c || q.optionC || "",
+        optionD: q.option_d || q.optionD || "",
+        optionAHi: q.option_a_hi || q.optionAHi || "",
+        optionBHi: q.option_b_hi || q.optionBHi || "",
+        optionCHi: q.option_c_hi || q.optionCHi || "",
+        optionDHi: q.option_d_hi || q.optionDHi || "",
+        correctAnswer: String(q.correct_answer || q.correctAnswer || "A").toUpperCase(),
+        explanation: String(q.explanation || ""),
+        explanationHi: String(q.explanation_hi || q.explanationHi || ""),
+        topic: String(q.topic || ""),
+        defaultNumber: idx + 1,
+      };
+      expectedQuestions.push(entry);
+      expectedMap.set(qId, entry);
+    });
+  } else if (isPractice) {
+    let qSql = "SELECT * FROM questions WHERE exam_id = ?";
+    const qParams: any[] = [sourceExamId];
+
+    if (body.topic) {
+      qSql += " AND (is_pyq = 0 OR is_pyq IS NULL) AND LOWER(TRIM(topic)) = LOWER(TRIM(?))";
+      qParams.push(String(body.topic).trim());
+    } else if (body.pyqYear) {
+      qSql += " AND is_pyq = 1 AND pyq_year = ?";
+      qParams.push(parseInt(body.pyqYear, 10));
+      if (body.pyqPaper) {
+        qSql += " AND LOWER(TRIM(pyq_paper)) = LOWER(TRIM(?))";
+        qParams.push(String(body.pyqPaper).trim());
+      }
+    }
+
+    const { results: dbQs } = await db.prepare(qSql).bind(...qParams).all<QuestionRow>();
+    (dbQs || []).forEach((q, idx) => {
+      const entry: ExpectedQ = {
+        id: q.id,
+        questionText: q.question_text,
+        questionTextHi: q.question_text_hi || "",
+        optionA: q.option_a,
+        optionB: q.option_b,
+        optionC: q.option_c,
+        optionD: q.option_d,
+        optionAHi: q.option_a_hi || "",
+        optionBHi: q.option_b_hi || "",
+        optionCHi: q.option_c_hi || "",
+        optionDHi: q.option_d_hi || "",
+        correctAnswer: String(q.correct_answer || "A").toUpperCase(),
+        explanation: q.explanation || "",
+        explanationHi: q.explanation_hi || "",
+        topic: q.topic || "",
+        defaultNumber: idx + 1,
+      };
+      expectedQuestions.push(entry);
+      expectedMap.set(q.id, entry);
+    });
+  } else {
+    // Plain non-practice mock test: load mock questions (is_pyq = 0 or null)
+    const { results: dbQs } = await db
+      .prepare("SELECT * FROM questions WHERE exam_id = ? AND (is_pyq = 0 OR is_pyq IS NULL)")
+      .bind(sourceExamId)
+      .all<QuestionRow>();
+
+    (dbQs || []).forEach((q, idx) => {
+      const entry: ExpectedQ = {
+        id: q.id,
+        questionText: q.question_text,
+        questionTextHi: q.question_text_hi || "",
+        optionA: q.option_a,
+        optionB: q.option_b,
+        optionC: q.option_c,
+        optionD: q.option_d,
+        optionAHi: q.option_a_hi || "",
+        optionBHi: q.option_b_hi || "",
+        optionCHi: q.option_c_hi || "",
+        optionDHi: q.option_d_hi || "",
+        correctAnswer: String(q.correct_answer || "A").toUpperCase(),
+        explanation: q.explanation || "",
+        explanationHi: q.explanation_hi || "",
+        topic: q.topic || "",
+        defaultNumber: idx + 1,
+      };
+      expectedQuestions.push(entry);
+      expectedMap.set(q.id, entry);
+    });
   }
 
-  // Fallback for AI generated tests if questionId matches testId_index
-  const generatedTestsCache = new Map<string, any>();
+  // Filter student picks against expected question set
+  const submittedPicksMap = new Map<
+    string,
+    { number: number; selected: string; isBookmarked: boolean; timeTakenSeconds: number }
+  >();
+
+  for (const a of rawAnswers) {
+    const qId = String(a?.questionId || "").trim();
+    if (!qId || !expectedMap.has(qId) || submittedPicksMap.has(qId)) continue;
+
+    const selectedRaw = String(a?.selected || "").trim().toUpperCase();
+    const timeTaken = Math.max(0, parseInt(a?.timeTakenSeconds, 10) || 0);
+
+    submittedPicksMap.set(qId, {
+      number: Number(a?.number || 0),
+      selected: VALID_OPTIONS.has(selectedRaw) ? selectedRaw : "",
+      isBookmarked: Boolean(a?.isBookmarked),
+      timeTakenSeconds: timeTaken,
+    });
+  }
+
+  if (submittedPicksMap.size === 0) {
+    return c.json({ success: false, error: "No valid answers in payload" }, 400);
+  }
+
+  // 4. Timing & Counted logic
+  const sessionId = `${uid}_${examId}`;
+  const session = await db
+    .prepare("SELECT * FROM attempt_sessions WHERE id = ?")
+    .bind(sessionId)
+    .first<AttemptSessionRow>();
+
+  const examRow = await db
+    .prepare("SELECT time_limit_minutes, negative_marking_value FROM exams WHERE id = ?")
+    .bind(sourceExamId)
+    .first<{ time_limit_minutes: number; negative_marking_value: number }>();
+
+  const limitSeconds = session
+    ? session.time_limit_seconds
+    : examRow && typeof examRow.time_limit_minutes === "number"
+    ? examRow.time_limit_minutes * 60
+    : 0;
+
+  const clampTimeMax = limitSeconds > 0 ? limitSeconds : 7200;
+
+  let counted = 1;
+  let attemptTimeTakenSeconds = 0;
+  const now = Date.now();
+
+  if (isPractice) {
+    counted = 0;
+    // Practice: sum of individual pick times clamped
+    let totalPicksTime = 0;
+    for (const pick of submittedPicksMap.values()) {
+      totalPicksTime += Math.min(clampTimeMax, pick.timeTakenSeconds);
+    }
+    attemptTimeTakenSeconds = totalPicksTime;
+  } else if (user.isAdmin) {
+    counted = 1;
+    if (session) {
+      attemptTimeTakenSeconds = Math.max(0, Math.min(clampTimeMax, Math.round((now - session.started_at) / 1000)));
+    } else {
+      let totalPicksTime = 0;
+      for (const pick of submittedPicksMap.values()) {
+        totalPicksTime += Math.min(clampTimeMax, pick.timeTakenSeconds);
+      }
+      attemptTimeTakenSeconds = totalPicksTime;
+    }
+  } else {
+    // Non-practice student
+    if (!session) {
+      counted = 0;
+      let totalPicksTime = 0;
+      for (const pick of submittedPicksMap.values()) {
+        totalPicksTime += Math.min(clampTimeMax, pick.timeTakenSeconds);
+      }
+      attemptTimeTakenSeconds = totalPicksTime;
+    } else {
+      const elapsedMs = now - session.started_at;
+      attemptTimeTakenSeconds = Math.max(0, Math.min(clampTimeMax, Math.round(elapsedMs / 1000)));
+
+      if (session.time_limit_seconds > 0 && elapsedMs > session.time_limit_seconds * 1000 + 60000) {
+        counted = 0; // Exceeded grace period
+      } else {
+        counted = 1;
+      }
+    }
+  }
+
+  // 5. Evaluate answers
+  // For non-practice: total = size of EXPECTED set (missing questions count as unattempted)
+  // For practice: total = number of valid picks submitted
+  const questionsToEvaluate: Array<{ q: ExpectedQ; pick?: { number: number; selected: string; isBookmarked: boolean; timeTakenSeconds: number } }> = [];
+
+  if (isPractice) {
+    for (const [qId, pick] of submittedPicksMap.entries()) {
+      const q = expectedMap.get(qId)!;
+      questionsToEvaluate.push({ q, pick });
+    }
+  } else {
+    for (const q of expectedQuestions) {
+      const pick = submittedPicksMap.get(q.id);
+      questionsToEvaluate.push({ q, pick });
+    }
+  }
+
+  let correct = 0;
+  let wrong = 0;
+  let unattempted = 0;
 
   const answersData: Array<{
     questionId: string;
@@ -127,90 +486,51 @@ attemptRoutes.post("/submit", async (c) => {
     selectedTextHi: string;
     correctTextHi: string;
     explanationHi: string;
+    timeTakenSeconds: number;
   }> = [];
 
-  let correct = 0;
-  let wrong = 0;
-  let unattempted = 0;
+  for (let i = 0; i < questionsToEvaluate.length; i++) {
+    const { q, pick } = questionsToEvaluate[i];
+    const selected = pick ? pick.selected : "";
+    const isBookmarked = pick ? pick.isBookmarked : false;
+    const timeTaken = pick ? Math.min(clampTimeMax, pick.timeTakenSeconds) : 0;
+    const number = pick && pick.number > 0 ? pick.number : i + 1;
 
-  for (const pick of picks) {
-    let q: any = questionsMap.get(pick.questionId);
-
-    if (!q && pick.questionId.includes("_")) {
-      const lastUnderscore = pick.questionId.lastIndexOf("_");
-      const testId = pick.questionId.substring(0, lastUnderscore);
-      const qIndex = parseInt(pick.questionId.substring(lastUnderscore + 1), 10);
-
-      if (!isNaN(qIndex)) {
-        if (!generatedTestsCache.has(testId)) {
-          const gRow = await db
-            .prepare("SELECT questions_json FROM generated_tests WHERE id = ?")
-            .bind(testId)
-            .first<{ questions_json: string }>();
-          try {
-            generatedTestsCache.set(testId, gRow ? JSON.parse(gRow.questions_json) : null);
-          } catch (_e) {
-            generatedTestsCache.set(testId, null);
-          }
-        }
-        const gQuestions = generatedTestsCache.get(testId);
-        if (Array.isArray(gQuestions) && gQuestions[qIndex]) {
-          q = gQuestions[qIndex];
-        }
-      }
-    }
-
-    if (!q) continue;
-
-    const correctAnswer = String(q.correct_answer || q.correctAnswer || "A").toUpperCase();
-    const attempted = pick.selected.length > 0;
-    const isCorrect = attempted && pick.selected === correctAnswer;
+    const attempted = selected.length > 0;
+    const isCorrect = attempted && selected === q.correctAnswer;
+    const isWrong = attempted && !isCorrect;
 
     if (!attempted) unattempted++;
     else if (isCorrect) correct++;
     else wrong++;
 
     answersData.push({
-      questionId: pick.questionId,
-      number: pick.number,
-      questionText: String(q.question_text || q.questionText || ""),
-      selected: pick.selected,
-      selectedText: pick.selected ? questionOptionText(q, pick.selected) : "",
-      correct: correctAnswer,
-      correctText: questionOptionText(q, correctAnswer),
-      explanation: String(q.explanation || ""),
-      isBookmarked: pick.isBookmarked,
-      topic: String(q.topic || ""),
-      questionTextHi: String(q.question_text_hi || q.questionTextHi || ""),
-      selectedTextHi: pick.selected ? questionOptionTextHi(q, pick.selected) : "",
-      correctTextHi: questionOptionTextHi(q, correctAnswer),
-      explanationHi: String(q.explanation_hi || q.explanationHi || ""),
+      questionId: q.id,
+      number,
+      questionText: q.questionText,
+      selected,
+      selectedText: selected ? questionOptionText(q, selected) : "",
+      correct: q.correctAnswer,
+      correctText: questionOptionText(q, q.correctAnswer),
+      explanation: q.explanation,
+      isBookmarked,
+      topic: q.topic,
+      questionTextHi: q.questionTextHi,
+      selectedTextHi: selected ? questionOptionTextHi(q, selected) : "",
+      correctTextHi: questionOptionTextHi(q, q.correctAnswer),
+      explanationHi: q.explanationHi,
+      timeTakenSeconds: timeTaken,
     });
   }
 
-  if (answersData.length === 0) {
-    return c.json({ success: false, error: "None of the submitted questions could be verified." }, 400);
-  }
-
   const total = answersData.length;
-
-  let negativeMarking = 0.0;
-  const { sourceExamId } = parseAttemptKey(examId);
-  const examRow = await db
-    .prepare("SELECT negative_marking_value FROM exams WHERE id = ?")
-    .bind(sourceExamId)
-    .first<{ negative_marking_value: number }>();
-  if (examRow && typeof examRow.negative_marking_value === "number") {
-    negativeMarking = examRow.negative_marking_value;
-  }
-
+  const negativeMarking = examRow && typeof examRow.negative_marking_value === "number" ? examRow.negative_marking_value : 0.0;
   const score = Math.round((correct - wrong * negativeMarking) * 100) / 100;
   const attemptId = crypto.randomUUID();
-  const now = Date.now();
 
   const batchStatements: D1PreparedStatement[] = [];
 
-  // 1. Lock test for student
+  // 1. Lock test for non-practice
   if (!isPractice) {
     batchStatements.push(
       db
@@ -221,17 +541,38 @@ attemptRoutes.post("/submit", async (c) => {
     );
   }
 
-  // 2. Insert attempt
+  // 2. Remove session row
+  if (session) {
+    batchStatements.push(db.prepare("DELETE FROM attempt_sessions WHERE id = ?").bind(sessionId));
+  }
+
+  // 3. Insert attempt
   batchStatements.push(
     db
       .prepare(
-        `INSERT INTO attempts (id, user_id, display_name, exam_id, exam_name, category, score, total, correct, wrong, unattempted, timestamp)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO attempts (id, user_id, display_name, exam_id, exam_name, category, score, total, correct, wrong, unattempted, timestamp, time_taken_seconds, client_attempt_id, counted)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
-      .bind(attemptId, uid, displayName, examId, examName, category, score, total, correct, wrong, unattempted, now)
+      .bind(
+        attemptId,
+        uid,
+        displayName,
+        examId,
+        examName,
+        category,
+        score,
+        total,
+        correct,
+        wrong,
+        unattempted,
+        now,
+        attemptTimeTakenSeconds,
+        clientAttemptId,
+        counted
+      )
   );
 
-  // 3. Insert evaluated answer sheet
+  // 4. Insert evaluated answers
   for (const a of answersData) {
     const answerId = crypto.randomUUID();
     batchStatements.push(
@@ -240,8 +581,8 @@ attemptRoutes.post("/submit", async (c) => {
           `INSERT INTO attempt_answers (
             id, attempt_id, question_id, question_number, question_text, selected, selected_text,
             correct, correct_text, explanation, is_bookmarked, topic,
-            question_text_hi, selected_text_hi, correct_text_hi, explanation_hi
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+            question_text_hi, selected_text_hi, correct_text_hi, explanation_hi, time_taken_seconds
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         )
         .bind(
           answerId,
@@ -259,73 +600,116 @@ attemptRoutes.post("/submit", async (c) => {
           a.questionTextHi,
           a.selectedTextHi,
           a.correctTextHi,
-          a.explanationHi
+          a.explanationHi,
+          a.timeTakenSeconds
         )
     );
   }
 
-  // 4. Update Leaderboard (best score upsert per exam)
-  const lbKey = `${examId}_${uid}`;
-  batchStatements.push(
-    db
-      .prepare(
-        `INSERT INTO leaderboard (id, user_id, exam_id, exam_name, category, display_name, score, total, timestamp)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-         ON CONFLICT(id) DO UPDATE SET
-           score = CASE WHEN excluded.score > leaderboard.score THEN excluded.score ELSE leaderboard.score END,
-           total = CASE WHEN excluded.score > leaderboard.score THEN excluded.total ELSE leaderboard.total END,
-           display_name = excluded.display_name,
-           timestamp = excluded.timestamp`
-      )
-      .bind(lbKey, uid, examId, examName, category, displayName, score, total, now)
-  );
+  // 5. Leaderboard, overall, and analytics ONLY when counted = 1
+  if (counted === 1) {
+    const lbKey = `${examId}_${uid}`;
+    batchStatements.push(
+      db
+        .prepare(
+          `INSERT INTO leaderboard (id, user_id, exam_id, exam_name, category, display_name, score, total, timestamp, time_taken_seconds)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+           ON CONFLICT(id) DO UPDATE SET
+             time_taken_seconds = CASE
+               WHEN excluded.score > leaderboard.score THEN excluded.time_taken_seconds
+               WHEN excluded.score = leaderboard.score AND (leaderboard.time_taken_seconds = 0 OR excluded.time_taken_seconds < leaderboard.time_taken_seconds) THEN excluded.time_taken_seconds
+               ELSE leaderboard.time_taken_seconds END,
+             score = CASE WHEN excluded.score > leaderboard.score THEN excluded.score ELSE leaderboard.score END,
+             total = CASE
+               WHEN excluded.score > leaderboard.score THEN excluded.total
+               WHEN excluded.score = leaderboard.score AND (leaderboard.time_taken_seconds = 0 OR excluded.time_taken_seconds < leaderboard.time_taken_seconds) THEN excluded.total
+               ELSE leaderboard.total END,
+             display_name = excluded.display_name,
+             timestamp = CASE
+               WHEN excluded.score > leaderboard.score THEN excluded.timestamp
+               WHEN excluded.score = leaderboard.score AND (leaderboard.time_taken_seconds = 0 OR excluded.time_taken_seconds < leaderboard.time_taken_seconds) THEN excluded.timestamp
+               ELSE leaderboard.timestamp END`
+        )
+        .bind(lbKey, uid, examId, examName, category, displayName, score, total, now, attemptTimeTakenSeconds)
+    );
 
-  // 5. Update Overall Leaderboard
-  batchStatements.push(
-    db
-      .prepare(
-        `INSERT INTO overall_leaderboard (user_id, display_name, score, total_score, total, tests_taken, total_correct, accuracy, timestamp)
-         VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?)
-         ON CONFLICT(user_id) DO UPDATE SET
-           display_name = excluded.display_name,
-           score = ROUND(overall_leaderboard.score + excluded.score, 2),
-           total_score = ROUND(overall_leaderboard.total_score + excluded.score, 2),
-           total = overall_leaderboard.total + excluded.total,
-           tests_taken = overall_leaderboard.tests_taken + 1,
-           total_correct = overall_leaderboard.total_correct + excluded.total_correct,
-           accuracy = CASE WHEN (overall_leaderboard.total + excluded.total) > 0
-                           THEN ROUND(((overall_leaderboard.total_correct + excluded.total_correct) * 100.0) / (overall_leaderboard.total + excluded.total))
-                           ELSE 0 END,
-           timestamp = excluded.timestamp`
-      )
-      .bind(uid, displayName, score, score, total, correct, total > 0 ? Math.round((correct * 100) / total) : 0, now)
-  );
+    batchStatements.push(
+      db
+        .prepare(
+          `INSERT INTO overall_leaderboard (user_id, display_name, score, total_score, total, tests_taken, total_correct, accuracy, timestamp)
+           VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?)
+           ON CONFLICT(user_id) DO UPDATE SET
+             display_name = excluded.display_name,
+             score = ROUND(overall_leaderboard.score + excluded.score, 2),
+             total_score = ROUND(overall_leaderboard.total_score + excluded.score, 2),
+             total = overall_leaderboard.total + excluded.total,
+             tests_taken = overall_leaderboard.tests_taken + 1,
+             total_correct = overall_leaderboard.total_correct + excluded.total_correct,
+             accuracy = CASE WHEN (overall_leaderboard.total + excluded.total) > 0
+                             THEN ROUND(((overall_leaderboard.total_correct + excluded.total_correct) * 100.0) / (overall_leaderboard.total + excluded.total))
+                             ELSE 0 END,
+             timestamp = excluded.timestamp`
+        )
+        .bind(uid, displayName, score, score, total, correct, total > 0 ? Math.round((correct * 100) / total) : 0, now)
+    );
 
-  // 6. Update Admin Analytics: Exam
-  const examUserMarker = `${examId}_${uid}`;
-  batchStatements.push(
-    db
-      .prepare(
-        `INSERT INTO admin_analytics_exams (exam_id, exam_name, category, attempt_count, unique_users, last_attempt_at)
-         VALUES (?, ?, ?, 1, 1, ?)
-         ON CONFLICT(exam_id) DO UPDATE SET
-           attempt_count = admin_analytics_exams.attempt_count + 1,
-           last_attempt_at = excluded.last_attempt_at`
-      )
-      .bind(examId, examName, category, now)
-  );
+    const examUserMarker = `${examId}_${uid}`;
+    batchStatements.push(
+      db
+        .prepare(
+          `INSERT INTO admin_analytics_exams (exam_id, exam_name, category, attempt_count, unique_users, last_attempt_at)
+           VALUES (?, ?, ?, 1, 1, ?)
+           ON CONFLICT(exam_id) DO UPDATE SET
+             attempt_count = admin_analytics_exams.attempt_count + 1,
+             last_attempt_at = excluded.last_attempt_at`
+        )
+        .bind(examId, examName, category, now)
+    );
 
-  batchStatements.push(
-    db
-      .prepare(
-        `INSERT INTO admin_analytics_exam_users (id, exam_id, user_id, created_at)
-         VALUES (?, ?, ?, ?)
-         ON CONFLICT(id) DO NOTHING`
-      )
-      .bind(examUserMarker, examId, uid, now)
-  );
+    batchStatements.push(
+      db
+        .prepare(
+          `INSERT INTO admin_analytics_exam_users (id, exam_id, user_id, created_at)
+           VALUES (?, ?, ?, ?)
+           ON CONFLICT(id) DO NOTHING`
+        )
+        .bind(examUserMarker, examId, uid, now)
+    );
 
-  // Execute D1 batch in chunks
+    // Upsert admin_analytics_questions per evaluated answer
+    for (const a of answersData) {
+      const qKey = `${examId}_${a.questionId}`;
+      const isAttempted = a.selected.length > 0;
+      const isCorrect = isAttempted && a.selected === a.correct;
+      const isWrong = isAttempted && a.selected !== a.correct;
+      const isUnattempted = !isAttempted;
+
+      batchStatements.push(
+        db
+          .prepare(
+            `INSERT INTO admin_analytics_questions (id, exam_id, question_id, attempts, correct, wrong, unattempted, total_time_seconds)
+             VALUES (?, ?, ?, 1, ?, ?, ?, ?)
+             ON CONFLICT(id) DO UPDATE SET
+               attempts = admin_analytics_questions.attempts + 1,
+               correct = admin_analytics_questions.correct + excluded.correct,
+               wrong = admin_analytics_questions.wrong + excluded.wrong,
+               unattempted = admin_analytics_questions.unattempted + excluded.unattempted,
+               total_time_seconds = admin_analytics_questions.total_time_seconds + excluded.total_time_seconds`
+          )
+          .bind(
+            qKey,
+            examId,
+            a.questionId,
+            isCorrect ? 1 : 0,
+            isWrong ? 1 : 0,
+            isUnattempted ? 1 : 0,
+            a.timeTakenSeconds
+          )
+      );
+    }
+  }
+
+  // Execute D1 batch in chunks of 50
   for (let i = 0; i < batchStatements.length; i += 50) {
     const chunk = batchStatements.slice(i, i + 50);
     await db.batch(chunk);
@@ -340,6 +724,9 @@ attemptRoutes.post("/submit", async (c) => {
       correct,
       wrong,
       unattempted,
+      timeTakenSeconds: attemptTimeTakenSeconds,
+      counted,
+      answers: answersData,
     },
   });
 });
@@ -358,7 +745,6 @@ attemptRoutes.get("/", async (c) => {
     return c.json({ success: true, data: [] });
   }
 
-  // Load evaluated answers for each attempt
   const attemptIds = attempts.map((a) => a.id);
   const placeholders = attemptIds.map(() => "?").join(",");
   const { results: allAnswers } = await db
@@ -386,6 +772,7 @@ attemptRoutes.get("/", async (c) => {
       selectedTextHi: ans.selected_text_hi,
       correctTextHi: ans.correct_text_hi,
       explanationHi: ans.explanation_hi,
+      timeTakenSeconds: ans.time_taken_seconds || 0,
     });
   }
 
@@ -402,6 +789,8 @@ attemptRoutes.get("/", async (c) => {
     wrong: a.wrong,
     unattempted: a.unattempted,
     timestamp: a.timestamp,
+    timeTakenSeconds: a.time_taken_seconds || 0,
+    counted: a.counted !== undefined ? a.counted : 1,
     answers: answersByAttempt.get(a.id) || [],
   }));
 
@@ -440,6 +829,141 @@ attemptRoutes.get("/locks/:examId", async (c) => {
   });
 });
 
+// GET /api/attempts/mistakes - Mistake Notebook
+attemptRoutes.get("/mistakes", async (c) => {
+  const user = c.get("user");
+  const db = c.env.DB;
+
+  const limit = Math.min(200, Math.max(1, parseInt(c.req.query("limit") || "100", 10)));
+  const filter = (c.req.query("filter") || "all").trim().toLowerCase();
+
+  // Retrieve most recent answer per question_id for this user
+  const { results } = await db
+    .prepare(
+      `WITH ranked_answers AS (
+        SELECT
+          aa.question_id as questionId,
+          aa.question_text as questionText,
+          aa.question_text_hi as questionTextHi,
+          aa.selected as selected,
+          aa.selected_text as selectedText,
+          aa.selected_text_hi as selectedTextHi,
+          aa.correct as correct,
+          aa.correct_text as correctText,
+          aa.correct_text_hi as correctTextHi,
+          aa.explanation as explanation,
+          aa.explanation_hi as explanationHi,
+          aa.topic as topic,
+          a.exam_id as examId,
+          a.exam_name as examName,
+          a.timestamp as timestamp,
+          ROW_NUMBER() OVER (PARTITION BY aa.question_id ORDER BY a.timestamp DESC) as rn
+        FROM attempt_answers aa
+        JOIN attempts a ON aa.attempt_id = a.id
+        WHERE a.user_id = ?
+      )
+      SELECT questionId, questionText, questionTextHi, selected, selectedText, selectedTextHi,
+             correct, correctText, correctTextHi, explanation, explanationHi, topic, examId, examName, timestamp
+      FROM ranked_answers
+      WHERE rn = 1
+        AND (
+          (? = 'all' AND (selected = '' OR selected != correct))
+          OR (? = 'wrong' AND selected != '' AND selected != correct)
+          OR (? = 'skipped' AND selected = '')
+        )
+      ORDER BY timestamp DESC
+      LIMIT ?`
+    )
+    .bind(user.uid, filter, filter, filter, limit)
+    .all<any>();
+
+  return c.json({ success: true, data: results || [] });
+});
+
+// GET /api/attempts/streak - Study streak & daily goal calculation
+attemptRoutes.get("/streak", async (c) => {
+  const user = c.get("user");
+  const db = c.env.DB;
+
+  const rawTz = parseInt(c.req.query("tzOffsetMinutes") || "0", 10);
+  const tz = isNaN(rawTz) ? 0 : Math.max(-840, Math.min(840, rawTz));
+
+  // Get distinct local dates from attempts (all attempts, practice included)
+  const { results } = await db
+    .prepare(
+      `SELECT date((timestamp / 1000) + ? * 60, 'unixepoch') AS local_date, COUNT(*) AS count
+       FROM attempts
+       WHERE user_id = ?
+       GROUP BY local_date
+       ORDER BY local_date DESC`
+    )
+    .bind(tz, user.uid)
+    .all<{ local_date: string; count: number }>();
+
+  const dateList = (results || []).map((r) => ({
+    date: r.local_date,
+    count: r.count,
+  }));
+
+  const now = Date.now();
+  const todayDateStr = new Date(now + tz * 60000).toISOString().slice(0, 10);
+  const yesterdayDateStr = new Date(now + tz * 60000 - 86400000).toISOString().slice(0, 10);
+
+  let todayCount = 0;
+  const todayRow = dateList.find((d) => d.date === todayDateStr);
+  if (todayRow) {
+    todayCount = todayRow.count;
+  }
+
+  const lastActiveDate = dateList.length > 0 ? dateList[0].date : null;
+
+  // Compute currentStreak: counts consecutive days ending today OR yesterday
+  let currentStreak = 0;
+  if (dateList.length > 0) {
+    const firstDate = dateList[0].date;
+    if (firstDate === todayDateStr || firstDate === yesterdayDateStr) {
+      let expectedEpochDay = Math.floor(new Date(firstDate + "T00:00:00Z").getTime() / 86400000);
+      for (const entry of dateList) {
+        const entryEpochDay = Math.floor(new Date(entry.date + "T00:00:00Z").getTime() / 86400000);
+        if (entryEpochDay === expectedEpochDay) {
+          currentStreak++;
+          expectedEpochDay--;
+        } else {
+          break;
+        }
+      }
+    }
+  }
+
+  // Compute longestStreak across the entire history
+  let longestStreak = 0;
+  let tempStreak = 0;
+  let prevEpochDay: number | null = null;
+
+  for (const entry of dateList) {
+    const entryEpochDay = Math.floor(new Date(entry.date + "T00:00:00Z").getTime() / 86400000);
+    if (prevEpochDay === null || entryEpochDay === prevEpochDay - 1) {
+      tempStreak++;
+    } else {
+      tempStreak = 1;
+    }
+    prevEpochDay = entryEpochDay;
+    if (tempStreak > longestStreak) {
+      longestStreak = tempStreak;
+    }
+  }
+
+  return c.json({
+    success: true,
+    data: {
+      currentStreak,
+      longestStreak,
+      todayCount,
+      lastActiveDate,
+    },
+  });
+});
+
 // POST /api/attempts/reset - Atomic mock attempt & lock reset for standard mock reattempt flow
 attemptRoutes.post("/reset", async (c) => {
   const user = c.get("user");
@@ -454,6 +978,7 @@ attemptRoutes.post("/reset", async (c) => {
 
   const lockKey = `${uid}_${examId}`;
   const lbKey = `${examId}_${uid}`;
+  const sessionId = `${uid}_${examId}`;
 
   // 1. Read the lock
   const lock = await db
@@ -469,100 +994,151 @@ attemptRoutes.post("/reset", async (c) => {
 
   // 2. Identify the mock attempt matching lock.timestamp
   let targetAttempt = await db
-    .prepare("SELECT id, score, total, correct FROM attempts WHERE user_id = ? AND exam_id = ? AND timestamp = ?")
+    .prepare("SELECT id, score, total, correct, counted FROM attempts WHERE user_id = ? AND exam_id = ? AND timestamp = ?")
     .bind(uid, examId, lockTimestamp)
-    .first<{ id: string; score: number; total: number; correct: number }>();
+    .first<{ id: string; score: number; total: number; correct: number; counted: number }>();
 
-  // If no exact match, use the nearest timestamp within 60 s
   if (!targetAttempt && lockTimestamp > 0) {
     targetAttempt = await db
       .prepare(
-        "SELECT id, score, total, correct FROM attempts WHERE user_id = ? AND exam_id = ? AND timestamp >= ? AND timestamp <= ? ORDER BY ABS(timestamp - ?) ASC LIMIT 1"
+        "SELECT id, score, total, correct, counted FROM attempts WHERE user_id = ? AND exam_id = ? AND timestamp >= ? AND timestamp <= ? ORDER BY ABS(timestamp - ?) ASC LIMIT 1"
       )
       .bind(uid, examId, lockTimestamp - 60000, lockTimestamp + 60000, lockTimestamp)
-      .first<{ id: string; score: number; total: number; correct: number }>();
+      .first<{ id: string; score: number; total: number; correct: number; counted: number }>();
   }
 
-  // If still none, delete only the lock and return clearedAttempts: 0
   if (!targetAttempt) {
     await db.prepare("DELETE FROM attempt_locks WHERE id = ?").bind(lockKey).run();
+    await db.prepare("DELETE FROM attempt_sessions WHERE id = ?").bind(sessionId).run();
     return c.json({ success: true, data: { cleared: true, clearedAttempts: 0 } });
   }
 
   const batchStatements: D1PreparedStatement[] = [];
 
-  // A. Delete attempt_answers for this attempt
-  batchStatements.push(
-    db.prepare("DELETE FROM attempt_answers WHERE attempt_id = ?").bind(targetAttempt.id)
-  );
+  // A. Decrement admin_analytics_questions only if counted = 1
+  if (targetAttempt.counted === 1) {
+    const { results: targetAnswers } = await db
+      .prepare("SELECT question_id, selected, correct, time_taken_seconds FROM attempt_answers WHERE attempt_id = ?")
+      .bind(targetAttempt.id)
+      .all<{ question_id: string; selected: string; correct: string; time_taken_seconds: number }>();
 
-  // B. Delete the attempts row
-  batchStatements.push(
-    db.prepare("DELETE FROM attempts WHERE id = ?").bind(targetAttempt.id)
-  );
+    for (const ans of targetAnswers || []) {
+      const qKey = `${examId}_${ans.question_id}`;
+      const isAttempted = Boolean(ans.selected && ans.selected.length > 0);
+      const isCorrect = isAttempted && ans.selected === ans.correct;
+      const isWrong = isAttempted && ans.selected !== ans.correct;
+      const isUnattempted = !isAttempted;
+      const timeTaken = ans.time_taken_seconds || 0;
 
-  // C. Recompute leaderboard row ${examId}_${uid} from remaining attempts (best score), or delete row
+      batchStatements.push(
+        db
+          .prepare(
+            `UPDATE admin_analytics_questions
+             SET attempts = MAX(0, attempts - 1),
+                 correct = MAX(0, correct - ?),
+                 wrong = MAX(0, wrong - ?),
+                 unattempted = MAX(0, unattempted - ?),
+                 total_time_seconds = MAX(0, total_time_seconds - ?)
+             WHERE id = ?`
+          )
+          .bind(
+            isCorrect ? 1 : 0,
+            isWrong ? 1 : 0,
+            isUnattempted ? 1 : 0,
+            timeTaken,
+            qKey
+          )
+      );
+    }
+  }
+
+  // B. Delete attempt_answers & attempt
+  batchStatements.push(db.prepare("DELETE FROM attempt_answers WHERE attempt_id = ?").bind(targetAttempt.id));
+  batchStatements.push(db.prepare("DELETE FROM attempts WHERE id = ?").bind(targetAttempt.id));
+
+  // C. Recompute leaderboard row ${examId}_${uid} from remaining counted attempts (best score, lower time)
   const { results: remainingAttempts } = await db
-    .prepare("SELECT score, total, timestamp, display_name, category, exam_name FROM attempts WHERE user_id = ? AND exam_id = ? AND id != ? ORDER BY score DESC, timestamp DESC")
+    .prepare(
+      `SELECT score, total, timestamp, display_name, category, exam_name, time_taken_seconds
+       FROM attempts
+       WHERE user_id = ? AND exam_id = ? AND id != ? AND counted = 1
+       ORDER BY score DESC, time_taken_seconds ASC, timestamp ASC`
+    )
     .bind(uid, examId, targetAttempt.id)
-    .all<{ score: number; total: number; timestamp: number; display_name: string; category: string; exam_name: string }>();
+    .all<{
+      score: number;
+      total: number;
+      timestamp: number;
+      display_name: string;
+      category: string;
+      exam_name: string;
+      time_taken_seconds: number;
+    }>();
 
   if (remainingAttempts && remainingAttempts.length > 0) {
     const best = remainingAttempts[0];
     batchStatements.push(
       db
         .prepare(
-          `INSERT INTO leaderboard (id, user_id, exam_id, exam_name, category, display_name, score, total, timestamp)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `INSERT INTO leaderboard (id, user_id, exam_id, exam_name, category, display_name, score, total, timestamp, time_taken_seconds)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
            ON CONFLICT(id) DO UPDATE SET
              score = excluded.score,
              total = excluded.total,
              display_name = excluded.display_name,
-             timestamp = excluded.timestamp`
+             timestamp = excluded.timestamp,
+             time_taken_seconds = excluded.time_taken_seconds`
         )
-        .bind(lbKey, uid, examId, best.exam_name, best.category, best.display_name, best.score, best.total, best.timestamp)
+        .bind(
+          lbKey,
+          uid,
+          examId,
+          best.exam_name,
+          best.category,
+          best.display_name,
+          best.score,
+          best.total,
+          best.timestamp,
+          best.time_taken_seconds || 0
+        )
     );
   } else {
-    batchStatements.push(
-      db.prepare("DELETE FROM leaderboard WHERE id = ?").bind(lbKey)
-    );
+    batchStatements.push(db.prepare("DELETE FROM leaderboard WHERE id = ?").bind(lbKey));
   }
 
-  // D. Adjust overall_leaderboard: subtract score, total, correct; decrement tests_taken; recompute accuracy; delete if tests_taken reaches 0
-  const overallRow = await db
-    .prepare("SELECT score, total_score, total, tests_taken, total_correct FROM overall_leaderboard WHERE user_id = ?")
-    .bind(uid)
-    .first<{ score: number; total_score: number; total: number; tests_taken: number; total_correct: number }>();
+  // D. Adjust overall_leaderboard only if targetAttempt.counted === 1
+  if (targetAttempt.counted === 1) {
+    const overallRow = await db
+      .prepare("SELECT score, total_score, total, tests_taken, total_correct FROM overall_leaderboard WHERE user_id = ?")
+      .bind(uid)
+      .first<{ score: number; total_score: number; total: number; tests_taken: number; total_correct: number }>();
 
-  if (overallRow) {
-    const newTestsTaken = Math.max(0, overallRow.tests_taken - 1);
-    if (newTestsTaken === 0) {
-      batchStatements.push(
-        db.prepare("DELETE FROM overall_leaderboard WHERE user_id = ?").bind(uid)
-      );
-    } else {
-      const newScore = Math.max(0, Math.round((overallRow.score - targetAttempt.score) * 100) / 100);
-      const newTotal = Math.max(0, overallRow.total - targetAttempt.total);
-      const newCorrect = Math.max(0, overallRow.total_correct - targetAttempt.correct);
-      const newAccuracy = newTotal > 0 ? Math.round((newCorrect * 100.0) / newTotal) : 0;
-      batchStatements.push(
-        db
-          .prepare(
-            `UPDATE overall_leaderboard
-             SET score = ?, total_score = ?, total = ?, tests_taken = ?, total_correct = ?, accuracy = ?, timestamp = ?
-             WHERE user_id = ?`
-          )
-          .bind(newScore, newScore, newTotal, newTestsTaken, newCorrect, newAccuracy, Date.now(), uid)
-      );
+    if (overallRow) {
+      const newTestsTaken = Math.max(0, overallRow.tests_taken - 1);
+      if (newTestsTaken === 0) {
+        batchStatements.push(db.prepare("DELETE FROM overall_leaderboard WHERE user_id = ?").bind(uid));
+      } else {
+        const newScore = Math.max(0, Math.round((overallRow.score - targetAttempt.score) * 100) / 100);
+        const newTotal = Math.max(0, overallRow.total - targetAttempt.total);
+        const newCorrect = Math.max(0, overallRow.total_correct - targetAttempt.correct);
+        const newAccuracy = newTotal > 0 ? Math.round((newCorrect * 100.0) / newTotal) : 0;
+        batchStatements.push(
+          db
+            .prepare(
+              `UPDATE overall_leaderboard
+               SET score = ?, total_score = ?, total = ?, tests_taken = ?, total_correct = ?, accuracy = ?, timestamp = ?
+               WHERE user_id = ?`
+            )
+            .bind(newScore, newScore, newTotal, newTestsTaken, newCorrect, newAccuracy, Date.now(), uid)
+        );
+      }
     }
   }
 
-  // E. Delete the attempt_locks row
-  batchStatements.push(
-    db.prepare("DELETE FROM attempt_locks WHERE id = ?").bind(lockKey)
-  );
+  // E. Delete lock and session
+  batchStatements.push(db.prepare("DELETE FROM attempt_locks WHERE id = ?").bind(lockKey));
+  batchStatements.push(db.prepare("DELETE FROM attempt_sessions WHERE id = ?").bind(sessionId));
 
-  // Execute in ONE atomic batch
   await db.batch(batchStatements);
 
   return c.json({
@@ -589,126 +1165,126 @@ attemptRoutes.delete("/exam/:examId", async (c) => {
 
   const lockKey = `${uid}_${examId}`;
   const lbKey = `${examId}_${uid}`;
+  const sessionId = `${uid}_${examId}`;
 
-  // Fetch existing attempts for this user and exam to adjust overall_leaderboard
-  const { results: existingAttempts } = await db
-    .prepare("SELECT id, score, total, correct FROM attempts WHERE user_id = ? AND exam_id = ?")
+  // Fetch only COUNTED attempts for this user and exam to adjust metrics
+  const { results: countedAttempts } = await db
+    .prepare("SELECT id, score, total, correct FROM attempts WHERE user_id = ? AND exam_id = ? AND counted = 1")
     .bind(uid, examId)
     .all<{ id: string; score: number; total: number; correct: number }>();
 
-  // Fetch evaluated answers for these attempts to clean up derived per-question stats in admin_analytics_questions
-  const { results: existingAnswers } = await db
-    .prepare(`
-      SELECT question_id, selected, correct
-      FROM attempt_answers
-      WHERE attempt_id IN (SELECT id FROM attempts WHERE user_id = ? AND exam_id = ?)
-    `)
+  // Fetch evaluated answers for these counted attempts
+  const { results: countedAnswers } = await db
+    .prepare(
+      `SELECT question_id, selected, correct, time_taken_seconds
+       FROM attempt_answers
+       WHERE attempt_id IN (SELECT id FROM attempts WHERE user_id = ? AND exam_id = ? AND counted = 1)`
+    )
     .bind(uid, examId)
-    .all<{ question_id: string; selected: string; correct: string }>();
+    .all<{ question_id: string; selected: string; correct: string; time_taken_seconds: number }>();
 
   const batchStatements: D1PreparedStatement[] = [];
 
-  // 1. Delete lock
-  batchStatements.push(
-    db.prepare("DELETE FROM attempt_locks WHERE id = ?").bind(lockKey)
-  );
+  // 1. Delete lock and session
+  batchStatements.push(db.prepare("DELETE FROM attempt_locks WHERE id = ?").bind(lockKey));
+  batchStatements.push(db.prepare("DELETE FROM attempt_sessions WHERE id = ?").bind(sessionId));
 
-  // 2. Decrement derived per-question metrics in admin_analytics_questions
-  if (existingAnswers && existingAnswers.length > 0) {
-    for (const ans of existingAnswers) {
+  // 2. Decrement derived per-question metrics in admin_analytics_questions for counted answers
+  if (countedAnswers && countedAnswers.length > 0) {
+    for (const ans of countedAnswers) {
       const qKey = `${examId}_${ans.question_id}`;
       const isAttempted = Boolean(ans.selected && ans.selected.length > 0);
       const isCorrect = isAttempted && ans.selected === ans.correct;
       const isWrong = isAttempted && ans.selected !== ans.correct;
       const isUnattempted = !isAttempted;
+      const timeTaken = ans.time_taken_seconds || 0;
 
       batchStatements.push(
-        db.prepare(`
-          UPDATE admin_analytics_questions
-          SET attempts = MAX(0, attempts - ?),
-              correct = MAX(0, correct - ?),
-              wrong = MAX(0, wrong - ?),
-              unattempted = MAX(0, unattempted - ?)
-          WHERE id = ?
-        `).bind(
-          isAttempted ? 1 : 0,
-          isCorrect ? 1 : 0,
-          isWrong ? 1 : 0,
-          isUnattempted ? 1 : 0,
-          qKey
-        )
+        db
+          .prepare(
+            `UPDATE admin_analytics_questions
+             SET attempts = MAX(0, attempts - 1),
+                 correct = MAX(0, correct - ?),
+                 wrong = MAX(0, wrong - ?),
+                 unattempted = MAX(0, unattempted - ?),
+                 total_time_seconds = MAX(0, total_time_seconds - ?)
+             WHERE id = ?`
+          )
+          .bind(
+            isCorrect ? 1 : 0,
+            isWrong ? 1 : 0,
+            isUnattempted ? 1 : 0,
+            timeTaken,
+            qKey
+          )
       );
     }
   }
 
-  // 3. Delete evaluated answers
+  // 3. Delete all attempt_answers for this exam
   batchStatements.push(
-    db.prepare(
-      "DELETE FROM attempt_answers WHERE attempt_id IN (SELECT id FROM attempts WHERE user_id = ? AND exam_id = ?)"
-    ).bind(uid, examId)
+    db
+      .prepare("DELETE FROM attempt_answers WHERE attempt_id IN (SELECT id FROM attempts WHERE user_id = ? AND exam_id = ?)")
+      .bind(uid, examId)
   );
 
-  // 4. Delete attempts
-  batchStatements.push(
-    db.prepare("DELETE FROM attempts WHERE user_id = ? AND exam_id = ?").bind(uid, examId)
-  );
+  // 4. Delete all attempts for this exam
+  batchStatements.push(db.prepare("DELETE FROM attempts WHERE user_id = ? AND exam_id = ?").bind(uid, examId));
 
   // 5. Delete per-exam leaderboard row
-  batchStatements.push(
-    db.prepare("DELETE FROM leaderboard WHERE id = ?").bind(lbKey)
-  );
+  batchStatements.push(db.prepare("DELETE FROM leaderboard WHERE id = ?").bind(lbKey));
 
-  // 6. Clean up overall_leaderboard if attempts existed (floored at 0)
-  if (existingAttempts && existingAttempts.length > 0) {
+  // 6. Clean up overall_leaderboard if counted attempts existed
+  if (countedAttempts && countedAttempts.length > 0) {
     let scoreToDeduct = 0;
     let questionsToDeduct = 0;
     let correctToDeduct = 0;
-    const testsToDeduct = existingAttempts.length;
+    const testsToDeduct = countedAttempts.length;
 
-    for (const att of existingAttempts) {
+    for (const att of countedAttempts) {
       scoreToDeduct += Number(att.score || 0);
       questionsToDeduct += Number(att.total || 0);
       correctToDeduct += Number(att.correct || 0);
     }
 
     batchStatements.push(
-      db.prepare(`
-        UPDATE overall_leaderboard
-        SET score = MAX(0.0, ROUND(score - ?, 2)),
-            total_score = MAX(0.0, ROUND(total_score - ?, 2)),
-            total = MAX(0, total - ?),
-            tests_taken = MAX(0, tests_taken - ?),
-            total_correct = MAX(0, total_correct - ?),
-            accuracy = CASE WHEN MAX(0, total - ?) > 0
-                            THEN ROUND((MAX(0, total_correct - ?) * 100.0) / MAX(0, total - ?))
-                            ELSE 0 END,
-            timestamp = ?
-        WHERE user_id = ?
-      `).bind(
-        scoreToDeduct,
-        scoreToDeduct,
-        questionsToDeduct,
-        testsToDeduct,
-        correctToDeduct,
-        questionsToDeduct,
-        correctToDeduct,
-        questionsToDeduct,
-        Date.now(),
-        uid
-      )
+      db
+        .prepare(
+          `UPDATE overall_leaderboard
+           SET score = MAX(0.0, ROUND(score - ?, 2)),
+               total_score = MAX(0.0, ROUND(total_score - ?, 2)),
+               total = MAX(0, total - ?),
+               tests_taken = MAX(0, tests_taken - ?),
+               total_correct = MAX(0, total_correct - ?),
+               accuracy = CASE WHEN MAX(0, total - ?) > 0
+                               THEN ROUND((MAX(0, total_correct - ?) * 100.0) / MAX(0, total - ?))
+                               ELSE 0 END,
+               timestamp = ?
+           WHERE user_id = ?`
+        )
+        .bind(
+          scoreToDeduct,
+          scoreToDeduct,
+          questionsToDeduct,
+          testsToDeduct,
+          correctToDeduct,
+          questionsToDeduct,
+          correctToDeduct,
+          questionsToDeduct,
+          Date.now(),
+          uid
+        )
     );
   }
 
-  // Execute in ONE atomic batch
   await db.batch(batchStatements);
 
   return c.json({
     success: true,
     data: {
       examId,
-      deletedAttemptsCount: existingAttempts?.length || 0,
-      message: "Attempt data and lock reset successfully."
-    }
+      deletedAttemptsCount: countedAttempts?.length || 0,
+      message: "Attempt data and lock reset successfully.",
+    },
   });
 });
-

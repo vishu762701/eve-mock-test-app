@@ -28,8 +28,57 @@ class GeneratedTestsActivity : AppCompatActivity() {
         },
         onDelete = { test ->
             confirmDelete(test)
+        },
+        onSchedule = { test ->
+            scheduleTest(test)
         }
     )
+
+    private fun scheduleTest(test: GeneratedTest) {
+        val datePicker = com.google.android.material.datepicker.MaterialDatePicker.Builder.datePicker()
+            .setTitleText("Select Opening Date")
+            .setSelection(com.google.android.material.datepicker.MaterialDatePicker.todayInUtcMilliseconds())
+            .build()
+
+        datePicker.addOnPositiveButtonClickListener { selectedDateUtc ->
+            val timePicker = com.google.android.material.timepicker.MaterialTimePicker.Builder()
+                .setTimeFormat(com.google.android.material.timepicker.TimeFormat.CLOCK_12H)
+                .setHour(9)
+                .setMinute(0)
+                .setTitleText("Select Opening Time")
+                .build()
+
+            timePicker.addOnPositiveButtonClickListener {
+                val cal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC")).apply {
+                    timeInMillis = selectedDateUtc
+                    set(java.util.Calendar.HOUR_OF_DAY, timePicker.hour)
+                    set(java.util.Calendar.MINUTE, timePicker.minute)
+                    set(java.util.Calendar.SECOND, 0)
+                    set(java.util.Calendar.MILLISECOND, 0)
+                }
+                val targetMillis = cal.timeInMillis
+
+                lifecycleScope.launch {
+                    try {
+                        val res = com.eve.app.data.remote.ApiClient.api.scheduleGeneratedTest(test.id, mapOf("availableFrom" to targetMillis))
+                        if (res.success) {
+                            AppBulletin.showSuccess(
+                                this@GeneratedTestsActivity,
+                                "Test scheduled: ${com.eve.app.util.TestScheduleHelper.formatOpensAt(targetMillis)}"
+                            )
+                            loadTests()
+                        } else {
+                            AppBulletin.showError(this@GeneratedTestsActivity, "Failed to schedule test")
+                        }
+                    } catch (e: Exception) {
+                        AppBulletin.showError(this@GeneratedTestsActivity, "Error scheduling test: ${e.localizedMessage}")
+                    }
+                }
+            }
+            timePicker.show(supportFragmentManager, "time_picker")
+        }
+        datePicker.show(supportFragmentManager, "date_picker")
+    }
 
     private var hasEmptyPlayed = false
 

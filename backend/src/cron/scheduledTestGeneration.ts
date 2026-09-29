@@ -10,6 +10,18 @@ export async function handleScheduledTestGeneration(event: ScheduledEvent, env: 
   const { todayDate, currentTime } = getIstTimeAndDate();
   const now = Date.now();
 
+  // Cleanup expired rate_limits (> 1 hour old) and attempt_sessions (> 2 days old)
+  try {
+    const nowSec = Math.floor(now / 1000);
+    const twoDaysAgoMs = now - 2 * 86400 * 1000;
+    await db.batch([
+      db.prepare("DELETE FROM rate_limits WHERE reset_at < ?").bind(nowSec - 3600),
+      db.prepare("DELETE FROM attempt_sessions WHERE started_at < ?").bind(twoDaysAgoMs),
+    ]);
+  } catch (err: any) {
+    console.error("[Scheduler] Cleanup failed:", err.message);
+  }
+
   const model = env.GEMINI_MODEL || "gemini-3.5-flash-lite";
 
   const { results: exams } = await db

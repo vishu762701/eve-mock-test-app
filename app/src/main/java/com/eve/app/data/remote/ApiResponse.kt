@@ -10,5 +10,7 @@ data class ApiResponse<T>(
     @SerializedName("error")
     val error: String? = null,
     @SerializedName("message")
-    val message: String? = null
+    val message: String? = null,
+    @SerializedName("serverNow")
+    val serverNow: Long? = null
 )

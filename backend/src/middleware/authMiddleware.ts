@@ -3,31 +3,23 @@
 // ============================================================================
 
 import { Context, Next } from "hono";
-import { verifyFirebaseIdToken, isUserAdmin } from "../auth";
+import { isUserAdmin, verifyFirebaseIdToken } from "../auth";
 import { AuthUser, Env } from "../types";
 
 export async function authMiddleware(c: Context<{ Bindings: Env; Variables: { user: AuthUser } }>, next: Next) {
   const path = c.req.path;
   const method = c.req.method;
 
-  // Public allowlist - ONLY GET /api/health (read-only), public GET app content, and public GET banners
+  // Public allowlist - read-only / diagnostic endpoints handled with their own auth
   if (
     (path === "/api/health" && method === "GET") ||
+    path.startsWith("/api/health/") ||
+    path.startsWith("/api/diag/") ||
+    path === "/api/app-config" ||
+    path === "/api/floating-link" ||
     (path.startsWith("/api/app-content/") && method === "GET") ||
     (path === "/api/banners" && method === "GET")
   ) {
-    return next();
-  }
-
-  // Diagnostic key bypass for authenticated system/smoke-test verification
-  const diagKey = c.req.header("X-Diagnostic-Key") || c.req.header("x-diagnostic-key");
-  if (diagKey && c.env.SUPABASE_SERVICE_ROLE_KEY && diagKey === c.env.SUPABASE_SERVICE_ROLE_KEY.trim()) {
-    c.set("user", {
-      uid: "system-diagnostic",
-      email: "anyqueairdrop@gmail.com",
-      isAdmin: true,
-      displayName: "Diagnostic Runner",
-    });
     return next();
   }
 

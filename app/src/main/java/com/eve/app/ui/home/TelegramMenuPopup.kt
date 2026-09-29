@@ -25,6 +25,7 @@ class TelegramMenuPopup(
     private val onThemeToggle: (originX: Int, originY: Int, iconWidth: Int, iconHeight: Int) -> Unit,
     private val onHistory: () -> Unit,
     private val onBookmarks: () -> Unit,
+    private val onMistakes: () -> Unit = {},
     private val onTopic: () -> Unit,
     private val onPyq: () -> Unit,
     private val onLogout: () -> Unit
@@ -107,6 +108,9 @@ class TelegramMenuPopup(
         }
         binding.menuRowBookmarks.setOnClickListener {
             dismissWithAction { onBookmarks() }
+        }
+        binding.menuRowMistakes.setOnClickListener {
+            dismissWithAction { onMistakes() }
         }
         binding.menuRowTopic.setOnClickListener {
             dismissWithAction { onTopic() }

@@ -6,7 +6,7 @@ import { Context, Hono } from "hono";
 import { cors } from "hono/cors";
 import { handleScheduledTestGeneration } from "./cron/scheduledTestGeneration";
 import { authMiddleware } from "./middleware/authMiddleware";
-import { rateLimit } from "./middleware/rateLimiter";
+import { ipRateLimit, userRateLimit } from "./middleware/rateLimiter";
 import { adminRoutes } from "./routes/admin";
 import { appContentRoutes } from "./routes/appContent";
 import { attemptRoutes } from "./routes/attempts";
@@ -34,7 +34,15 @@ app.use(
   cors({
     origin: "*",
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowHeaders: ["Authorization", "Content-Type", "x-file-name"],
+    allowHeaders: [
+      "Authorization",
+      "Content-Type",
+      "x-file-name",
+      "X-Eve-Client",
+      "x-eve-client",
+      "X-Diagnostic-Key",
+      "x-diagnostic-key",
+    ],
     maxAge: 86400,
   })
 );
@@ -95,9 +103,8 @@ function isDiagnosticAuthorized(c: AppContext): boolean {
     c.req.header("x-diagnostic-key") ||
     bearerToken;
 
-  if (diagKey) {
-    if (c.env.DIAGNOSTIC_KEY && diagKey === c.env.DIAGNOSTIC_KEY.trim()) return true;
-    if (c.env.SUPABASE_SERVICE_ROLE_KEY && diagKey === c.env.SUPABASE_SERVICE_ROLE_KEY.trim()) return true;
+  if (diagKey && c.env.DIAGNOSTIC_KEY && diagKey.trim() === c.env.DIAGNOSTIC_KEY.trim()) {
+    return true;
   }
 
   return false;
@@ -209,11 +216,14 @@ app.get("/api/health/d1", handleD1Diagnostic);
 app.get("/api/diag/storage", handleStorageDiagnostic);
 app.get("/api/health/storage", handleStorageDiagnostic);
 
-// 3. Rate limiting middleware (120 req / minute per IP or UID)
-app.use("/api/*", rateLimit(120, 60));
+// 3. Layer 1: Per-IP Rate Limiting (300 req / 60s)
+app.use("/api/*", ipRateLimit());
 
 // 4. Authentication Middleware
 app.use("/api/*", authMiddleware);
+
+// 5. Layer 2: Per-User Rate Limiting (General 120/60s, submit 10, start 20, generate-now 5)
+app.use("/api/*", userRateLimit());
 
 // 5. Mount Domain Routers
 app.route("/api/auth", authRoutes);

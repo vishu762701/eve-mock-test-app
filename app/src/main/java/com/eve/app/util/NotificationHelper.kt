@@ -19,6 +19,7 @@ object NotificationHelper {
 
     const val CHANNEL_NEW_EXAM = "new_exam_channel_v2"
     const val CHANNEL_DAILY_REMINDER = "daily_reminder_channel"
+    const val CHANNEL_SUBMISSION = "submission_channel"
 
     /** FCM isi topic par subscribe karke sabhi users ko naya exam ka alert bhejega */
     const val TOPIC_NEW_EXAMS = "new_exams"
@@ -56,6 +57,18 @@ object NotificationHelper {
                 vibrationPattern = VIBRATION_PATTERN
             }
         )
+
+        manager.createNotificationChannel(
+            NotificationChannel(
+                CHANNEL_SUBMISSION,
+                "Test Submissions",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Status of submitted mock tests"
+                enableVibration(true)
+                vibrationPattern = VIBRATION_PATTERN
+            }
+        )
     }
 
     /** Android 13+ par POST_NOTIFICATIONS permission diya gaya hai ya nahi */
@@ -74,6 +87,37 @@ object NotificationHelper {
         show(context, CHANNEL_DAILY_REMINDER, ID_DAILY_REMINDER, title, body)
     }
 
+    @android.annotation.SuppressLint("MissingPermission")
+    fun showSubmissionResult(context: Context, examName: String, success: Boolean) {
+        val title = if (success) "Your result for $examName is ready" else "Submission Failed"
+        val body = if (success) "Tap to view your detailed result and scorecard." else "Could not submit your test for $examName."
+        NotificationStore.add(context, title, body)
+        if (!hasPermission(context)) return
+
+        val intent = android.content.Intent(context, com.eve.app.ui.history.HistoryActivity::class.java).apply {
+            flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val pendingIntent = android.app.PendingIntent.getActivity(
+            context,
+            1003,
+            intent,
+            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notification = NotificationCompat.Builder(context, CHANNEL_SUBMISSION)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setVibrate(VIBRATION_PATTERN)
+            .build()
+        NotificationManagerCompat.from(context).notify(1003, notification)
+    }
+
+    @android.annotation.SuppressLint("MissingPermission")
     private fun show(context: Context, channelId: String, notificationId: Int, title: String, body: String) {
         // Bug fix: har notification ab local history me bhi save hoti hai (bell icon list ke liye)
         NotificationStore.add(context, title, body)

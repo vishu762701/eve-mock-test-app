@@ -1,0 +1,69 @@
+name: Release Eve App
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: 'Version Name (e.g. 1.1.0)'
+        required: false
+        default: '1.0.0'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Verify google-services.json
+        run: |
+          if [ -n "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" ]; then
+            echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > app/google-services.json
+          fi
+          if [ ! -f app/google-services.json ]; then
+            echo "ERROR: app/google-services.json missing."
+            exit 1
+          fi
+
+      - name: Decode Release Keystore
+        id: decode_keystore
+        run: |
+          if [ -n "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" ]; then
+            mkdir -p /tmp/keystore
+            echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 --decode > /tmp/keystore/release.keystore
+            echo "keystore_path=/tmp/keystore/release.keystore" >> $GITHUB_OUTPUT
+          else
+            echo "WARN: RELEASE_KEYSTORE_BASE64 secret not set."
+          fi
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.7
+
+      - name: Build Release APK and AAB
+        env:
+          APP_VERSION_CODE: ${{ github.run_number }}
+          APP_VERSION_NAME: ${{ github.ref_name || inputs.version_name || '1.0.0' }}
+          RELEASE_STORE_FILE: ${{ steps.decode_keystore.outputs.keystore_path }}
+          RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+          CI: "true"
+        run: |
+          ./gradlew assembleRelease bundleRelease --stacktrace
+
+      - name: Upload Release Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Eve-Release-Binaries
+          path: |
+            app/build/outputs/apk/release/*.apk
+            app/build/outputs/bundle/release/*.aab

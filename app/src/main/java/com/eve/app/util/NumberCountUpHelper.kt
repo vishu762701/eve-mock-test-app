@@ -1,13 +1,13 @@
 package com.eve.app.util
 
 import android.animation.ValueAnimator
-import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.widget.TextView
 import kotlin.math.roundToInt
 
 /**
- * Telegram-style Number Count-Up Animation (matching NumberTextView.java pattern).
- * Animates numbers counting up from 0 to target value each frame using AccelerateDecelerateInterpolator.
+ * Telegram-style Number Count-Up Animation.
+ * Animates numbers counting up from 0 to target value decelerating over 800ms.
  */
 object NumberCountUpHelper {
 
@@ -15,7 +15,7 @@ object NumberCountUpHelper {
         textView: TextView,
         targetScore: Double,
         total: Int,
-        durationMs: Long = 1000L,
+        durationMs: Long = 800L,
         onFinished: (() -> Unit)? = null
     ) {
         val isWhole = (targetScore % 1.0 == 0.0)
@@ -24,7 +24,7 @@ object NumberCountUpHelper {
 
         ValueAnimator.ofFloat(startVal, endVal).apply {
             duration = durationMs
-            interpolator = AccelerateDecelerateInterpolator()
+            interpolator = DecelerateInterpolator()
             addUpdateListener { va ->
                 val v = va.animatedValue as Float
                 val text = if (isWhole) {
@@ -54,7 +54,7 @@ object NumberCountUpHelper {
     ) {
         ValueAnimator.ofFloat(0f, 1f).apply {
             duration = durationMs
-            interpolator = AccelerateDecelerateInterpolator()
+            interpolator = DecelerateInterpolator()
             addUpdateListener { va ->
                 val progress = va.animatedValue as Float
                 val c = (correct * progress).roundToInt()

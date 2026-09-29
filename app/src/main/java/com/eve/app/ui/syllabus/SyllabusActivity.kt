@@ -88,11 +88,12 @@ class SyllabusActivity : AppCompatActivity() {
         loadExams()
 
         val filter = IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(onDownloadCompleteReceiver, filter, Context.RECEIVER_EXPORTED)
-        } else {
-            registerReceiver(onDownloadCompleteReceiver, filter)
-        }
+        ContextCompat.registerReceiver(
+            this,
+            onDownloadCompleteReceiver,
+            filter,
+            ContextCompat.RECEIVER_EXPORTED
+        )
     }
 
     override fun onDestroy() {

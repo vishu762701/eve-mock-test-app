@@ -75,7 +75,7 @@
                 android:contentDescription="Search exams"
                 android:padding="10dp"
                 android:src="@drawable/ic_search"
-                android:tint="@color/eve_text" />
+                app:tint="@color/eve_text" />
 
             <!-- Bell (Notifications) Icon -->
             <FrameLayout
@@ -117,7 +117,7 @@
                 android:contentDescription="@string/home_menu"
                 android:padding="10dp"
                 android:src="@drawable/ic_more_vert"
-                android:tint="@color/eve_text" />
+                app:tint="@color/eve_text" />
         </LinearLayout>
 
         <!-- Expanded Telegram-Style Search Bar -->
@@ -139,7 +139,7 @@
                 android:contentDescription="Close search"
                 android:padding="10dp"
                 android:src="@drawable/ic_back"
-                android:tint="@color/eve_text" />
+                app:tint="@color/eve_text" />
 
             <EditText
                 android:id="@+id/etSearch"
@@ -165,7 +165,7 @@
                 android:contentDescription="Clear search"
                 android:padding="11dp"
                 android:src="@drawable/ic_close"
-                android:tint="@color/eve_text"
+                app:tint="@color/eve_text"
                 android:visibility="gone" />
         </LinearLayout>
     </FrameLayout>
@@ -205,6 +205,16 @@
             android:text="Choose an exam to begin practicing."
             android:textColor="@color/eve_text_secondary"
             android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvStreakSummary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:fontFamily="@font/poppins_medium"
+            android:textColor="@color/eve_text"
+            android:textSize="13sp"
+            android:visibility="gone" />
 
         <!-- Task A: Home Banner Image Carousel (Horizontal Swipeable Strip) -->
         <com.google.android.material.card.MaterialCardView

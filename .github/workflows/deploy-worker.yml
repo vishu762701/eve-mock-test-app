@@ -62,9 +62,13 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: a50b9cf54c5e84de0183a5d3a4b38844
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          DIAGNOSTIC_KEY: ${{ secrets.DIAGNOSTIC_KEY }}
         run: |
           if [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
             echo "$SUPABASE_SERVICE_ROLE_KEY" | npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+          fi
+          if [ -n "$DIAGNOSTIC_KEY" ]; then
+            echo "$DIAGNOSTIC_KEY" | npx wrangler secret put DIAGNOSTIC_KEY
           fi
           # Ensure Cloudflare Worker GEMINI_API_KEY secret uses verified working key
           ACTIVE_KEY="$GEMINI_API_KEY"
@@ -87,6 +91,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: a50b9cf54c5e84de0183a5d3a4b38844
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DIAGNOSTIC_KEY: ${{ secrets.DIAGNOSTIC_KEY }}
         run: |
           chmod +x scripts/smoke-test.sh
           ./scripts/smoke-test.sh

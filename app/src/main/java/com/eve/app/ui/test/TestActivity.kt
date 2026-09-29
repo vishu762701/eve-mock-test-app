@@ -13,6 +13,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import androidx.core.content.ContextCompat
 import com.eve.app.R
+import com.eve.app.data.model.AnswerItem
 import com.eve.app.data.model.Question
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.QuestionStatsRepository
@@ -57,7 +58,6 @@ class TestActivity : AppCompatActivity() {
 
     private lateinit var paletteAdapter: QuestionPaletteAdapter
     private var currentQuestionPosition: Int = 0
-    private val questionStatsRepo = QuestionStatsRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -113,6 +113,7 @@ class TestActivity : AppCompatActivity() {
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 currentQuestionPosition = position
+                viewModel.markVisited(position)
                 updateNav(position)
                 updatePalette(position)
                 (binding.viewPager.adapter as? QuestionAdapter)?.notifyItemChanged(
@@ -124,6 +125,7 @@ class TestActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                var sessionSaveTicks = 0
                 while (!submitted) {
                     delay(1000)
                     if (!submitted && totalQuestions > 0) {
@@ -133,6 +135,11 @@ class TestActivity : AppCompatActivity() {
                             currentPos,
                             QuestionAdapter.PAYLOAD_TIMER
                         )
+                        sessionSaveTicks++
+                        if (sessionSaveTicks >= 5) {
+                            sessionSaveTicks = 0
+                            viewModel.saveCurrentSession(examId)
+                        }
                     }
                 }
             }
@@ -275,6 +282,7 @@ class TestActivity : AppCompatActivity() {
                         getSelected = { viewModel.getAnswer(it) },
                         onSelect = { pos, letter ->
                             viewModel.setAnswer(pos, letter)
+                            viewModel.markVisited(pos)
                             updatePalette(pos)
                         },
                         getBookmarked = { viewModel.isBookmarked(it) },
@@ -283,7 +291,12 @@ class TestActivity : AppCompatActivity() {
                         onReport = { q ->
                             ReportQuestionDialog.show(this@TestActivity, q, com.eve.app.util.AttemptKey.sourceExamId(examId), examName)
                         },
-                        getQuestionTime = { pos -> viewModel.getQuestionTime(pos) }
+                        getQuestionTime = { pos -> viewModel.getQuestionTime(pos) },
+                        isMarked = { viewModel.isMarked(it) },
+                        onToggleMark = { pos ->
+                            viewModel.toggleMark(pos)
+                            updatePalette(pos)
+                        }
                     )
                 }
                 com.eve.app.util.ShimmerHelper.crossFade(binding.shimmerSkeletonTest, binding.viewPager)
@@ -301,6 +314,7 @@ class TestActivity : AppCompatActivity() {
                         )
                     }
                 }
+                viewModel.markVisited(binding.viewPager.currentItem)
                 updateNav(binding.viewPager.currentItem)
                 updatePalette(binding.viewPager.currentItem)
                 currentQuestionPosition = binding.viewPager.currentItem
@@ -329,11 +343,20 @@ class TestActivity : AppCompatActivity() {
     }
 
     private fun confirmSubmit() {
-        val items = viewModel.buildAnswerItems()
-        val unattempted = items.count { !it.isAttempted }
+        val counts = QuestionPaletteAdapter.calculateSubmitDialogCounts(
+            totalQuestions = totalQuestions,
+            answeredIndices = viewModel.getAnsweredIndices(),
+            visitedIndices = viewModel.getVisitedIndices(),
+            markedIndices = viewModel.getMarkedIndices()
+        )
+        val message = "Answered: ${counts.answered}\n" +
+                "Not answered: ${counts.notAnswered}\n" +
+                "Marked for review: ${counts.markedForReview}\n" +
+                "Not visited: ${counts.notVisited}"
+
         AlertDialog.Builder(this)
             .setTitle("Submit test?")
-            .setMessage("Unattempted questions: $unattempted")
+            .setMessage(message)
             .setPositiveButton("Submit") { _, _ -> submit() }
             .setNegativeButton("Cancel", null)
             .show()
@@ -347,74 +370,124 @@ class TestActivity : AppCompatActivity() {
         val attemptName = sessionTitle()
         val isStandardMock = topic.isBlank() && pyqYear == 0
 
-        val total = items.size
-        val correct = items.count { it.isCorrect }
-        val wrong = items.count { it.isAttempted && !it.isCorrect }
-        val unattempted = items.count { !it.isAttempted }
-        val score = correct.toDouble()
-        val localAttempt = com.eve.app.data.model.TestAttempt(
-            id = "local_${System.currentTimeMillis()}",
-            userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid.orEmpty(),
-            examId = examId,
-            examName = attemptName,
-            category = examCategory,
-            score = score,
-            total = total,
-            correct = correct,
-            wrong = wrong,
-            unattempted = unattempted,
-            timestamp = System.currentTimeMillis(),
-            answers = items
-        )
-        if (isStandardMock) {
-            com.eve.app.ui.home.HomeViewModel.markAttemptSubmitted(examId, localAttempt)
+        val rawAnswers = items.map {
+            mapOf(
+                "questionId" to it.questionId,
+                "number" to it.number,
+                "selected" to it.selected,
+                "isBookmarked" to it.isBookmarked,
+                "timeTakenSeconds" to it.timeTakenSeconds
+            )
         }
 
-        for (item in items) {
-            if (item.questionId.isNotBlank() && item.isAttempted) {
-                questionStatsRepo.recordQuestionAttempt(
-                    questionId = item.questionId,
-                    examId = examId,
-                    isCorrect = item.isCorrect,
-                    timeSeconds = item.timeTakenSeconds
-                )
-            }
-        }
-
-        // Phase 15: exam submit event + score summary (average score / weak exams Console me dikhenge)
-        AnalyticsHelper.logExamSubmit(
-            context = this,
-            examId = examId,
-            examName = attemptName,
-            category = examCategory,
-            correct = correct,
-            wrong = wrong,
-            unattempted = unattempted,
-            total = total
+        val body = mutableMapOf<String, Any>(
+            "examId" to examId,
+            "examName" to attemptName,
+            "category" to examCategory,
+            "clientAttemptId" to viewModel.clientAttemptId,
+            "answers" to rawAnswers
         )
-
-        ResultDataHolder.setAnswers(items)
+        if (topic.isNotBlank()) body["topic"] = topic
+        if (pyqYear > 0) body["pyqYear"] = pyqYear
+        if (pyqPaper.isNotBlank()) body["pyqPaper"] = pyqPaper
 
         lifecycleScope.launch {
             try {
-                kotlinx.coroutines.withTimeoutOrNull(4000L) {
-                    viewModel.saveAttemptSync(examId, attemptName, examCategory, items)
+                val response = com.eve.app.data.remote.ApiClient.api.submitAttempt(body)
+                if (response.success && response.data != null) {
+                    val graded = response.data
+                    viewModel.clearSession(examId)
+                    com.eve.app.util.HapticHelper.performSubmitSuccess(binding.root)
+
+                    AnalyticsHelper.logExamSubmit(
+                        context = this@TestActivity,
+                        examId = examId,
+                        examName = attemptName,
+                        category = examCategory,
+                        correct = graded.correct,
+                        wrong = graded.wrong,
+                        unattempted = graded.unattempted,
+                        total = graded.total
+                    )
+
+                    val localAttempt = com.eve.app.data.model.TestAttempt(
+                        id = graded.attemptId,
+                        userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid.orEmpty(),
+                        examId = examId,
+                        examName = attemptName,
+                        category = examCategory,
+                        score = graded.score,
+                        total = graded.total,
+                        correct = graded.correct,
+                        wrong = graded.wrong,
+                        unattempted = graded.unattempted,
+                        timeTakenSeconds = graded.timeTakenSeconds,
+                        timestamp = System.currentTimeMillis(),
+                        answers = graded.answers
+                    )
+                    if (isStandardMock) {
+                        com.eve.app.ui.home.HomeViewModel.markAttemptSubmitted(examId, localAttempt)
+                    }
+
+                    ResultDataHolder.setAnswers(graded.answers)
+
+                    startActivity(
+                        Intent(this@TestActivity, ResultActivity::class.java)
+                            .putExtra(Constants.EXTRA_EXAM_ID, examId)
+                            .putExtra(Constants.EXTRA_EXAM_NAME, attemptName)
+                            .putExtra(Constants.EXTRA_EXAM_CATEGORY, examCategory)
+                            .putExtra(Constants.EXTRA_TIME_LIMIT, timeLimit)
+                            .putExtra(Constants.EXTRA_NEGATIVE_MARKING, negativeMarking)
+                            .putExtra(Constants.EXTRA_CAN_REATTEMPT, isStandardMock)
+                            .putExtra("EXTRA_SCORE", graded.score)
+                            .putExtra("EXTRA_TOTAL", graded.total)
+                            .putExtra("EXTRA_CORRECT", graded.correct)
+                            .putExtra("EXTRA_WRONG", graded.wrong)
+                            .putExtra("EXTRA_UNATTEMPTED", graded.unattempted)
+                            .putExtra("EXTRA_COUNTED", graded.counted)
+                            .putExtra("EXTRA_TIME_TAKEN_SECONDS", graded.timeTakenSeconds)
+                    )
+                    finish()
+                } else {
+                    handleOfflineSubmit(attemptName, items)
                 }
             } catch (_: Exception) {
-                viewModel.saveAttempt(examId, attemptName, examCategory, items)
+                handleOfflineSubmit(attemptName, items)
             }
-
-            startActivity(
-                Intent(this@TestActivity, ResultActivity::class.java)
-                    .putExtra(Constants.EXTRA_EXAM_ID, examId)
-                    .putExtra(Constants.EXTRA_EXAM_NAME, attemptName)
-                    .putExtra(Constants.EXTRA_EXAM_CATEGORY, examCategory)
-                    .putExtra(Constants.EXTRA_TIME_LIMIT, timeLimit)
-                    .putExtra(Constants.EXTRA_NEGATIVE_MARKING, negativeMarking)
-                    .putExtra(Constants.EXTRA_CAN_REATTEMPT, isStandardMock)
-            )
-            finish()
         }
+    }
+
+    private fun handleOfflineSubmit(attemptName: String, items: List<AnswerItem>) {
+        viewModel.clearSession(examId)
+        com.eve.app.util.HapticHelper.performSubmitFailure(binding.root)
+
+        val pending = com.eve.app.data.local.PendingSubmission(
+            clientAttemptId = viewModel.clientAttemptId,
+            examId = examId,
+            examName = attemptName,
+            category = examCategory,
+            answers = items.map {
+                com.eve.app.data.local.PendingAnswer(
+                    questionId = it.questionId,
+                    number = it.number,
+                    selected = it.selected,
+                    isBookmarked = it.isBookmarked,
+                    timeTakenSeconds = it.timeTakenSeconds
+                )
+            },
+            topic = topic.ifBlank { null },
+            pyqYear = if (pyqYear > 0) pyqYear else null,
+            pyqPaper = pyqPaper.ifBlank { null }
+        )
+        com.eve.app.data.local.PendingSubmissionStore(this).save(pending)
+        com.eve.app.worker.SubmitWorker.enqueue(this, viewModel.clientAttemptId)
+
+        AlertDialog.Builder(this)
+            .setTitle("Submission Saved Offline")
+            .setMessage("Your test responses have been stored securely on your device. They will be submitted automatically when network connectivity is restored.")
+            .setPositiveButton("OK") { _, _ -> finish() }
+            .setCancelable(false)
+            .show()
     }
 
     private fun sessionTitle(): String = when {
@@ -435,8 +508,11 @@ class TestActivity : AppCompatActivity() {
     private fun updatePalette(activePosition: Int) {
         if (totalQuestions <= 0) return
         val items = (0 until totalQuestions).map { i ->
-            val ans = viewModel.getAnswer(i)
-            val state = if (ans.isNotEmpty()) PaletteState.ANSWERED else PaletteState.UNATTEMPTED
+            val state = QuestionPaletteAdapter.mapPaletteState(
+                answered = viewModel.getAnswer(i).isNotEmpty(),
+                visited = viewModel.isVisited(i),
+                marked = viewModel.isMarked(i)
+            )
             PaletteItem(
                 number = i + 1,
                 state = state,

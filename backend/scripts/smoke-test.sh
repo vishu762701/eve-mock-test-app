@@ -14,6 +14,9 @@ fi
 if [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
   echo "::add-mask::$SUPABASE_SERVICE_ROLE_KEY"
 fi
+if [ -n "$DIAGNOSTIC_KEY" ]; then
+  echo "::add-mask::$DIAGNOSTIC_KEY"
+fi
 
 echo "=== 1. Discovering Production Worker URL ==="
 SUB_RES=$(curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/a50b9cf54c5e84de0183a5d3a4b38844/workers/subdomain" || true)
@@ -82,8 +85,8 @@ done
 echo "::notice title=Anonymous Diagnostic Protection::PASS (All write-capable diagnostics strictly protected)"
 
 echo "=== 6. DATABASE: Authenticated D1 Operations (/api/diag/d1) ==="
-if [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
-  D1_RESP=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -H "X-Diagnostic-Key: $SUPABASE_SERVICE_ROLE_KEY" "$WORKER_URL/api/diag/d1" || true)
+if [ -n "$DIAGNOSTIC_KEY" ]; then
+  D1_RESP=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -H "X-Diagnostic-Key: $DIAGNOSTIC_KEY" "$WORKER_URL/api/diag/d1" || true)
   if echo "$D1_RESP" | grep -q 'HTTP_STATUS:200' && echo "$D1_RESP" | grep -q '"readWriteTest":"PASS"'; then
     echo "D1 diagnostic verified: tables, indexes, triggers, and live atomic read/write/delete passed."
     echo "::notice title=D1 Database Live Verification::PASS (Authenticated read/write/delete against production D1 passed)"
@@ -92,12 +95,12 @@ if [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
     FAILURES=$((FAILURES + 1))
   fi
 else
-  echo "::notice title=D1 Database Check::Skipped authenticated write test because secret key is not available in local environment."
+  echo "::notice title=D1 Database Check::Skipped authenticated write test because DIAGNOSTIC_KEY is not available in local environment."
 fi
 
 echo "=== 7. STORAGE: Authenticated Supabase Storage Operations (/api/diag/storage) ==="
-if [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
-  STORAGE_RESP=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -H "X-Diagnostic-Key: $SUPABASE_SERVICE_ROLE_KEY" "$WORKER_URL/api/diag/storage" || true)
+if [ -n "$DIAGNOSTIC_KEY" ]; then
+  STORAGE_RESP=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -H "X-Diagnostic-Key: $DIAGNOSTIC_KEY" "$WORKER_URL/api/diag/storage" || true)
   if echo "$STORAGE_RESP" | grep -q 'HTTP_STATUS:200' && echo "$STORAGE_RESP" | grep -q '"bannerUpload":"PASS"'; then
     echo "Supabase storage verified: upload and delete operations on 'eve-media' bucket succeeded."
     echo "::notice title=Supabase Storage Live Verification::PASS (Authenticated banner & syllabus upload/delete passed)"
@@ -105,7 +108,7 @@ if [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
     echo "::notice title=Supabase Storage Note::$STORAGE_RESP"
   fi
 else
-  echo "::notice title=Supabase Storage Check::Skipped authenticated storage test because secret key is not available in local environment."
+  echo "::notice title=Supabase Storage Check::Skipped authenticated storage test because DIAGNOSTIC_KEY is not available in local environment."
 fi
 
 echo "=== 8. REPRESENTATIVE PRODUCTION ENDPOINTS: Public App Content & Banners ==="
@@ -120,27 +123,18 @@ for pub_ep in "/api/banners" "/api/app-content/terms" "/api/app-content/privacy"
 done
 echo "::notice title=Production Endpoints::PASS (Public banners and app content verified from live D1)"
 
-echo "=== 9. AI TEST GENERATION: End-to-End Live generate-now Verification ==="
-if [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
-  EXAMS_RESP=$(curl -s -H "X-Diagnostic-Key: $SUPABASE_SERVICE_ROLE_KEY" "$WORKER_URL/api/exams" || true)
-  EXAM_ID=$(echo "$EXAMS_RESP" | grep -o '"id":"[^"]*' | head -n 1 | cut -d'"' -f4 || true)
-  if [ -n "$EXAM_ID" ]; then
-    echo "Testing live generate-now for exam ID: $EXAM_ID"
-    GEN_RESP=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X POST \
-      -H "Content-Type: application/json" \
-      -H "X-Diagnostic-Key: $SUPABASE_SERVICE_ROLE_KEY" \
-      -d "{\"examId\":\"$EXAM_ID\",\"questionCount\":2}" \
-      "$WORKER_URL/api/generated-tests/generate-now" || true)
-    if echo "$GEN_RESP" | grep -q 'HTTP_STATUS:200' && echo "$GEN_RESP" | grep -q '"success":true'; then
-      echo "Live generate-now succeeded: $GEN_RESP"
-      echo "::notice title=AI Test Generation::PASS (Gemini 200 OK and questions inserted into generated_tests)"
-    else
-      echo "::error title=AI Test Generation::FAIL ($GEN_RESP)"
-      FAILURES=$((FAILURES + 1))
-    fi
+echo "=== 9. SECURITY GUARD: Diagnostic Key Rejection on Standard Admin/Protected Routes (HTTP 401) ==="
+if [ -n "$DIAGNOSTIC_KEY" ]; then
+  EXAMS_RESP=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -H "X-Diagnostic-Key: $DIAGNOSTIC_KEY" "$WORKER_URL/api/exams" || true)
+  if echo "$EXAMS_RESP" | grep -q 'HTTP_STATUS:401'; then
+    echo "Protected endpoint /api/exams correctly returned HTTP 401 when called with X-Diagnostic-Key (admin bypass disabled)."
+    echo "::notice title=Diagnostic Bypass Guard::PASS (/api/exams rejected diagnostic key as unauthorized)"
   else
-    echo "::notice title=AI Test Generation::No exam found in D1 to test generate-now."
+    echo "::error title=Diagnostic Bypass Guard::FAIL (Endpoint /api/exams allowed access with X-Diagnostic-Key! Status: $EXAMS_RESP)"
+    FAILURES=$((FAILURES + 1))
   fi
+else
+  echo "::notice title=Diagnostic Bypass Guard::Skipped because DIAGNOSTIC_KEY is not set."
 fi
 
 if [ -n "$GITHUB_STEP_SUMMARY" ]; then

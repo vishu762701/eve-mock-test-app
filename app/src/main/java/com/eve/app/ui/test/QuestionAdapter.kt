@@ -18,7 +18,9 @@ class QuestionAdapter(
     private val onToggleBookmark: (Int) -> Unit,
     private val isHindi: () -> Boolean,
     private val onReport: (Question) -> Unit,
-    private val getQuestionTime: (Int) -> Long
+    private val getQuestionTime: (Int) -> Long,
+    private val isMarked: (Int) -> Boolean = { false },
+    private val onToggleMark: (Int) -> Unit = {}
 ) : RecyclerView.Adapter<QuestionAdapter.VH>() {
 
     companion object {
@@ -99,7 +101,20 @@ class QuestionAdapter(
                     R.id.rbD -> "D"
                     else -> ""
                 }
-                if (letter.isNotEmpty()) onSelect(position, letter)
+                if (letter.isNotEmpty()) {
+                    com.eve.app.util.HapticHelper.performOptionSelect(b.root)
+                    onSelect(position, letter)
+                }
+            }
+
+            fun refreshMarkReview() {
+                val marked = isMarked(position)
+                b.btnMarkReview.text = if (marked) b.root.context.getString(R.string.unmark_review) else b.root.context.getString(R.string.mark_for_review)
+            }
+            refreshMarkReview()
+            b.btnMarkReview.setOnClickListener {
+                onToggleMark(position)
+                refreshMarkReview()
             }
 
             b.btnClear.setOnClickListener {
@@ -114,7 +129,10 @@ class QuestionAdapter(
                         R.id.rbD -> "D"
                         else -> ""
                     }
-                    if (letter.isNotEmpty()) onSelect(position, letter)
+                    if (letter.isNotEmpty()) {
+                        com.eve.app.util.HapticHelper.performOptionSelect(b.root)
+                        onSelect(position, letter)
+                    }
                 }
             }
         }

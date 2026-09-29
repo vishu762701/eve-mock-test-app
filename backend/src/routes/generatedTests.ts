@@ -36,12 +36,15 @@ generatedTestRoutes.get("/", async (c) => {
   query += " ORDER BY generated_at DESC";
 
   const { results } = await db.prepare(query).bind(...params).all<GeneratedTestRow>();
+  const serverNow = Date.now();
 
   const list = (results || []).map((r) => {
-    let questions: any[] = [];
-    try {
-      questions = JSON.parse(r.questions_json);
-    } catch (_e) {}
+    let questionCount = r.question_count;
+    if (!questionCount && r.questions_json) {
+      try {
+        questionCount = JSON.parse(r.questions_json).length;
+      } catch (_e) {}
+    }
 
     return {
       id: r.id,
@@ -51,12 +54,13 @@ generatedTestRoutes.get("/", async (c) => {
       title: r.title,
       generatedAt: r.generated_at,
       status: r.status,
-      questionCount: r.question_count || questions.length,
-      questions,
+      questionCount: questionCount || 0,
+      availableFrom: r.available_from || 0,
+      questions: [],
     };
   });
 
-  return c.json({ success: true, data: list });
+  return c.json({ success: true, serverNow, data: list });
 });
 
 // GET /api/generated-tests/:id - Single generated test details
@@ -64,6 +68,7 @@ generatedTestRoutes.get("/:id", async (c) => {
   const id = c.req.param("id");
   const user = c.get("user");
   const db = c.env.DB;
+  const serverNow = Date.now();
 
   const row = await db.prepare("SELECT * FROM generated_tests WHERE id = ?").bind(id).first<GeneratedTestRow>();
   if (!row) {
@@ -74,13 +79,16 @@ generatedTestRoutes.get("/:id", async (c) => {
     return c.json({ success: false, error: "Test is not available" }, 403);
   }
 
-  let questions: any[] = [];
-  try {
-    questions = JSON.parse(row.questions_json);
-  } catch (_e) {}
+  let questionCount = row.question_count;
+  if (!questionCount && row.questions_json) {
+    try {
+      questionCount = JSON.parse(row.questions_json).length;
+    } catch (_e) {}
+  }
 
   return c.json({
     success: true,
+    serverNow,
     data: {
       id: row.id,
       examId: row.exam_id,
@@ -89,10 +97,26 @@ generatedTestRoutes.get("/:id", async (c) => {
       title: row.title,
       generatedAt: row.generated_at,
       status: row.status,
-      questionCount: row.question_count || questions.length,
-      questions,
+      questionCount: questionCount || 0,
+      availableFrom: row.available_from || 0,
+      questions: [],
     },
   });
+});
+
+// PUT /api/generated-tests/:id/schedule - Schedule test (Admin)
+generatedTestRoutes.put("/:id/schedule", requireAdmin, async (c) => {
+  const id = c.req.param("id");
+  const body = await c.req.json().catch(() => ({}));
+  const availableFrom = Number(body.availableFrom);
+
+  if (isNaN(availableFrom) || availableFrom < 0 || !Number.isInteger(availableFrom)) {
+    return c.json({ success: false, error: "availableFrom must be a non-negative integer" }, 400);
+  }
+
+  const db = c.env.DB;
+  await db.prepare("UPDATE generated_tests SET available_from = ? WHERE id = ?").bind(availableFrom, id).run();
+  return c.json({ success: true, data: { id, availableFrom } });
 });
 
 // PUT /api/generated-tests/:id/status - Update test status (Admin)

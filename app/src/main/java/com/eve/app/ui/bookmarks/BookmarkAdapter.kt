@@ -73,7 +73,7 @@ class BookmarkAdapter(
 
             fun styleOption(tv: android.widget.TextView, letter: String) {
                 val optText = item.displayOptionText(letter, hindi)
-                if (letter.equals(item.correctAnswer, ignoreCase = true)) {
+                if (item.correctAnswer.isNotBlank() && letter.equals(item.correctAnswer, ignoreCase = true)) {
                     tv.text = "$letter. $optText  ✓"
                     tv.setTextColor(greenColor)
                     tv.setTypeface(null, android.graphics.Typeface.BOLD)

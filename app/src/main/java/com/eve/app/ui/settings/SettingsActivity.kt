@@ -26,6 +26,11 @@ import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
+import com.eve.app.ui.home.TargetExamsBottomSheet
+import com.eve.app.util.StreakHelper
+
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
@@ -65,7 +70,86 @@ class SettingsActivity : AppCompatActivity() {
         binding.btnBack.setOnClickListener { finish() }
 
         setupReminderSetting()
+        setupDailyGoalSetting()
+        setupTargetExamsSetting()
+        setupLanguageSetting()
         setupDeleteAccountSetting()
+    }
+
+    private fun setupDailyGoalSetting() {
+        val prefs = getSharedPreferences(StreakHelper.PREFS_NAME, MODE_PRIVATE)
+        fun refreshText() {
+            val goal = prefs.getInt(StreakHelper.KEY_DAILY_GOAL, StreakHelper.DEFAULT_DAILY_GOAL)
+            binding.tvDailyGoalValue.text = "$goal tests per day"
+        }
+        refreshText()
+        binding.rowDailyGoal.setOnClickListener {
+            val options = arrayOf("1 test per day", "2 tests per day", "3 tests per day", "5 tests per day")
+            val values = intArrayOf(1, 2, 3, 5)
+            val currentGoal = prefs.getInt(StreakHelper.KEY_DAILY_GOAL, StreakHelper.DEFAULT_DAILY_GOAL)
+            val selectedIdx = values.indexOf(currentGoal).coerceAtLeast(0)
+
+            MaterialAlertDialogBuilder(this)
+                .setTitle("Select Daily Goal")
+                .setSingleChoiceItems(options, selectedIdx) { dialog, which ->
+                    prefs.edit().putInt(StreakHelper.KEY_DAILY_GOAL, values[which]).apply()
+                    refreshText()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+    }
+
+    private fun setupTargetExamsSetting() {
+        binding.rowTargetExams.setOnClickListener {
+            lifecycleScope.launch {
+                try {
+                    val exams = com.eve.app.data.repository.ExamRepository().getExams()
+                    TargetExamsBottomSheet.show(this@SettingsActivity, exams)
+                } catch (e: Exception) {
+                    AppBulletin.showError(this@SettingsActivity, "Could not load exams: ${e.localizedMessage}")
+                }
+            }
+        }
+    }
+
+    private fun setupLanguageSetting() {
+        fun refreshText() {
+            val current = AppCompatDelegate.getApplicationLocales()
+            val text = when {
+                current.isEmpty -> "System default"
+                current.toLanguageTags().startsWith("hi") -> "हिन्दी"
+                else -> "English"
+            }
+            binding.tvLanguageValue.text = text
+        }
+        refreshText()
+
+        binding.rowLanguage.setOnClickListener {
+            val options = arrayOf("System default", "English", "हिन्दी")
+            val current = AppCompatDelegate.getApplicationLocales()
+            val selectedIdx = when {
+                current.isEmpty -> 0
+                current.toLanguageTags().startsWith("hi") -> 2
+                else -> 1
+            }
+
+            MaterialAlertDialogBuilder(this)
+                .setTitle("Select App Language")
+                .setSingleChoiceItems(options, selectedIdx) { dialog, which ->
+                    val locales = when (which) {
+                        1 -> LocaleListCompat.forLanguageTags("en")
+                        2 -> LocaleListCompat.forLanguageTags("hi")
+                        else -> LocaleListCompat.getEmptyLocaleList()
+                    }
+                    AppCompatDelegate.setApplicationLocales(locales)
+                    refreshText()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
     }
 
     private fun setupReminderSetting() {

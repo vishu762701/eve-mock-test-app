@@ -14,7 +14,7 @@ object FastBlurHelper {
         val bitmap: Bitmap = if (canReuseInBitmap) {
             sentBitmap
         } else {
-            sentBitmap.copy(sentBitmap.config, true)
+            sentBitmap.copy(sentBitmap.config ?: Bitmap.Config.ARGB_8888, true)
         }
 
         val w = bitmap.width

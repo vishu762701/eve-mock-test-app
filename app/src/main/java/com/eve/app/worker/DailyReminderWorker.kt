@@ -1,30 +1,50 @@
 package com.eve.app.worker
 
 import android.content.Context
-import androidx.work.Worker
+import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.eve.app.data.remote.ApiClient
 import com.eve.app.util.NotificationHelper
+import com.eve.app.util.StreakHelper
 import com.google.firebase.auth.FirebaseAuth
+import java.util.TimeZone
 
-/**
- * Phase 12: har roz ek local notification jo student ko practice karne ke liye yaad dilaata
- * hai. Yeh purely on-device hai (koi server ki zaroorat nahi) — [com.eve.app.util.ReminderScheduler]
- * isko WorkManager ke through daily schedule karta hai.
- */
-class DailyReminderWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
+class DailyReminderWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
 
-    override fun doWork(): Result {
-        // Logout ho chuka ho to reminder mat dikhao
+    override suspend fun doWork(): Result {
         if (FirebaseAuth.getInstance().currentUser == null) return Result.success()
 
-        val messages = listOf(
-            "Time for your daily practice!" to "A quick 10-minute mock test will keep your preparation sharp.",
-            "Haven't taken today's mock test yet?" to "Take 5 minutes and complete a test.",
-            "Practice makes perfect!" to "Taking a daily mock test improves both speed and accuracy.",
-            "Preparing for your exam?" to "Attempt a mock test today to track your progress.",
-            "Consistency is key!" to "Keep your daily study momentum going with a quick test today!"
-        )
-        val (title, body) = messages.random()
+        val prefs = applicationContext.getSharedPreferences(StreakHelper.PREFS_NAME, Context.MODE_PRIVATE)
+        val goal = prefs.getInt(StreakHelper.KEY_DAILY_GOAL, StreakHelper.DEFAULT_DAILY_GOAL)
+
+        var todayCount = 0
+        var currentStreak = 0
+
+        try {
+            val tzOffset = -TimeZone.getDefault().getOffset(System.currentTimeMillis()) / 60000
+            val res = ApiClient.api.getStreak(tzOffset)
+            if (res.success && res.data != null) {
+                todayCount = res.data.todayCount
+                currentStreak = res.data.currentStreak
+            }
+        } catch (_: Exception) {}
+
+        // If todayCount >= goal, user already achieved their goal today -> show nothing!
+        if (todayCount >= goal) {
+            return Result.success()
+        }
+
+        val (title, body) = if (currentStreak > 0 && todayCount == 0) {
+            "Don't lose your $currentStreak-day streak!" to "Complete a mock test today to keep your streak alive."
+        } else {
+            val messages = listOf(
+                "Time for your daily practice!" to "A quick mock test will help you hit your goal of $goal tests today.",
+                "Haven't reached today's goal yet?" to "You've completed $todayCount/$goal tests today. Keep it up!",
+                "Consistency is key!" to "Keep your daily study momentum going with a test today!"
+            )
+            messages.random()
+        }
+
         NotificationHelper.showDailyReminder(applicationContext, title, body)
         return Result.success()
     }

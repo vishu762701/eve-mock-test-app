@@ -110,6 +110,7 @@ class MainActivity : AppCompatActivity() {
 
     private val floatingLinkRepo = com.eve.app.data.repository.FloatingLinkRepository()
     private var activeFloatingLinkUrl: String? = null
+    private var lastStreakFetchTime: Long = 0L
 
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* ignored */ }
@@ -131,6 +132,7 @@ class MainActivity : AppCompatActivity() {
         onClick = { exam, attempted, _ ->
             if (isExamNavigating) return@ExamAdapter
             isExamNavigating = true
+            getSharedPreferences("eve_app_prefs", Context.MODE_PRIVATE).edit().putString("last_exam_id", exam.id).apply()
 
             // a) If the loaded exam list contains any exam with parentExamId == this exam.id -> open ExamTestsActivity
             if (viewModel.hasSubExams(exam.id)) {
@@ -247,11 +249,12 @@ class MainActivity : AppCompatActivity() {
         setupPushNotifications()
 
         val notifFilter = IntentFilter("com.eve.app.NOTIFICATION_RECEIVED")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(foregroundNotificationReceiver, notifFilter, Context.RECEIVER_NOT_EXPORTED)
-        } else {
-            registerReceiver(foregroundNotificationReceiver, notifFilter)
-        }
+        ContextCompat.registerReceiver(
+            this,
+            foregroundNotificationReceiver,
+            notifFilter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
 
         binding.ivProfile.setOnClickListener {
             captureDrawerBlur()
@@ -276,6 +279,7 @@ class MainActivity : AppCompatActivity() {
                 },
                 onHistory = { startActivity(Intent(this, HistoryActivity::class.java)) },
                 onBookmarks = { startActivity(Intent(this, BookmarksActivity::class.java)) },
+                onMistakes = { startActivity(Intent(this, com.eve.app.ui.mistakes.MistakesActivity::class.java)) },
                 onTopic = { startActivity(Intent(this, PracticeActivity::class.java)) },
                 onPyq = { startActivity(Intent(this, PyqActivity::class.java)) },
                 onLogout = { logout() }
@@ -343,6 +347,28 @@ class MainActivity : AppCompatActivity() {
                 viewModel.loadForUser(current.uid, admin)
             }
         }
+
+        val now = System.currentTimeMillis()
+        if (now - lastStreakFetchTime > 60_000L) {
+            lifecycleScope.launch {
+                try {
+                    val tzOffset = -java.util.TimeZone.getDefault().getOffset(System.currentTimeMillis()) / 60000
+                    val res = com.eve.app.data.remote.ApiClient.api.getStreak(tzOffset)
+                    if (res.success && res.data != null) {
+                        lastStreakFetchTime = System.currentTimeMillis()
+                        val prefs = getSharedPreferences(com.eve.app.util.StreakHelper.PREFS_NAME, Context.MODE_PRIVATE)
+                        val goal = prefs.getInt(com.eve.app.util.StreakHelper.KEY_DAILY_GOAL, com.eve.app.util.StreakHelper.DEFAULT_DAILY_GOAL)
+                        binding.tvStreakSummary.text = com.eve.app.util.StreakHelper.formatStreakText(
+                            res.data.currentStreak,
+                            res.data.todayCount,
+                            goal
+                        )
+                        binding.tvStreakSummary.visibility = View.VISIBLE
+                    }
+                } catch (_: Exception) {}
+            }
+        }
+
         if (::binding.isInitialized && binding.cardFloatingAirplane.visibility == View.VISIBLE) {
             val animScale = Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
             if (animScale > 0f && !binding.lottieFloatingAirplane.isAnimating) {
@@ -953,6 +979,15 @@ class MainActivity : AppCompatActivity() {
                 com.eve.app.util.ShimmerHelper.crossFade(binding.shimmerSkeletonHome, binding.rvExams)
                 binding.chipGroupCategory.visibility =
                     if (data.categories.size <= 1 || isSearchActive) View.GONE else View.VISIBLE
+
+                if (!TargetExamsBottomSheet.isOnboardingDone(this@MainActivity)) {
+                    val mainExams = data.items.filterIsInstance<HomeListItem.ExamRow>().map { it.exam }.filter { it.isMainExam }
+                    if (mainExams.isNotEmpty()) {
+                        TargetExamsBottomSheet.show(this@MainActivity, mainExams) {
+                            viewModel.refreshTargetExams()
+                        }
+                    }
+                }
             }
             is UiState.Error -> {
                 binding.shimmerSkeletonHome.visibility = View.GONE

@@ -16,13 +16,17 @@ sealed class ExamTestsListItem {
         val test: GeneratedTest,
         val title: String,
         val subtitle: String,
-        val isCompleted: Boolean
+        val isCompleted: Boolean,
+        val isResume: Boolean = false,
+        val isLocked: Boolean = false,
+        val opensText: String = ""
     ) : ExamTestsListItem()
 }
 
 class ExamTestsAdapter(
     private val onSubExamClick: (Exam) -> Unit,
-    private val onTestClick: (GeneratedTest, Boolean) -> Unit
+    private val onTestClick: (GeneratedTest, Boolean) -> Unit,
+    private val onLockedClick: (GeneratedTest, String) -> Unit = { _, _ -> }
 ) : RecyclerView.Adapter<ExamTestsAdapter.ExamTestViewHolder>() {
 
     private val items = mutableListOf<ExamTestsListItem>()
@@ -60,20 +64,42 @@ class ExamTestsAdapter(
                 is ExamTestsListItem.TestItem -> {
                     binding.tvTitle.text = item.title
                     binding.tvSubtitle.visibility = View.VISIBLE
-                    binding.tvSubtitle.text = item.subtitle
                     binding.tvStatus.visibility = View.VISIBLE
 
                     val context = binding.root.context
-                    if (item.isCompleted) {
-                        binding.tvStatus.text = "Completed"
-                        binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.eve_status_success))
-                    } else {
-                        binding.tvStatus.text = "Start"
-                        binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.eve_primary))
-                    }
-
-                    binding.cardContainer.setOnClickListener {
-                        onTestClick(item.test, item.isCompleted)
+                    when {
+                        item.isLocked -> {
+                            binding.tvSubtitle.text = item.opensText
+                            binding.tvStatus.text = "Locked"
+                            binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.eve_text_secondary))
+                            binding.cardContainer.setOnClickListener {
+                                onLockedClick(item.test, item.opensText)
+                            }
+                        }
+                        item.isCompleted -> {
+                            binding.tvSubtitle.text = item.subtitle
+                            binding.tvStatus.text = "Completed"
+                            binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.eve_status_success))
+                            binding.cardContainer.setOnClickListener {
+                                onTestClick(item.test, item.isCompleted)
+                            }
+                        }
+                        item.isResume -> {
+                            binding.tvSubtitle.text = item.subtitle
+                            binding.tvStatus.text = "Resume"
+                            binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.eve_primary))
+                            binding.cardContainer.setOnClickListener {
+                                onTestClick(item.test, item.isCompleted)
+                            }
+                        }
+                        else -> {
+                            binding.tvSubtitle.text = item.subtitle
+                            binding.tvStatus.text = "Start"
+                            binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.eve_primary))
+                            binding.cardContainer.setOnClickListener {
+                                onTestClick(item.test, item.isCompleted)
+                            }
+                        }
                     }
                 }
             }

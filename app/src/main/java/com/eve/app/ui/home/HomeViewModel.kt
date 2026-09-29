@@ -32,6 +32,7 @@ class HomeViewModel : ViewModel() {
     private val _examState = MutableStateFlow<UiState<List<Exam>>>(UiState.Loading)
     private val _attemptInfo = MutableStateFlow(AttemptInfo())
     private val _pinnedIds = MutableStateFlow<Set<String>>(emptySet())
+    private val _targetExamIds = MutableStateFlow<Set<String>>(TargetExamsBottomSheet.getTargetExamIds(com.eve.app.EveApplication.instance))
     private val _feedbackPosts = MutableStateFlow<List<FeedbackPost>>(emptyList())
     private val _selectedCategory = MutableStateFlow(Constants.CATEGORY_ALL)
 
@@ -39,28 +40,70 @@ class HomeViewModel : ViewModel() {
     private var feedbackObserverJob: Job? = null
     private var allLoadedExams: List<Exam> = emptyList()
 
+    private val cacheFile: java.io.File
+        get() = java.io.File(com.eve.app.EveApplication.instance.filesDir, "cached_exams.json")
+
+    private fun loadCachedExams(): List<Exam> {
+        return try {
+            if (!cacheFile.exists()) return emptyList()
+            val json = cacheFile.readText()
+            val type = object : com.google.gson.reflect.TypeToken<List<Exam>>() {}.type
+            com.google.gson.Gson().fromJson<List<Exam>>(json, type) ?: emptyList()
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
+
+    private fun saveCachedExams(exams: List<Exam>) {
+        try {
+            val json = com.google.gson.Gson().toJson(exams)
+            cacheFile.writeText(json)
+        } catch (_: Exception) {}
+    }
+
+    fun refreshTargetExams() {
+        _targetExamIds.value = TargetExamsBottomSheet.getTargetExamIds(com.eve.app.EveApplication.instance)
+    }
+
     fun hasSubExams(examId: String): Boolean = allLoadedExams.any { it.parentExamId == examId }
     fun getSubExams(examId: String): List<Exam> = allLoadedExams.filter { it.parentExamId == examId }.sortedBy { it.examName }
 
     val state: StateFlow<UiState<HomeUiData>> =
-        combine(_examState, _selectedCategory, _attemptInfo, _pinnedIds, _feedbackPosts) { examState, selected, attemptInfo, pinned, feedbackPosts ->
+        combine(
+            combine(_examState, _selectedCategory, _attemptInfo) { es, cat, att -> Triple(es, cat, att) },
+            combine(_pinnedIds, _targetExamIds, _feedbackPosts) { pin, tgt, fp -> Triple(pin, tgt, fp) }
+        ) { (examState, selected, attemptInfo), (pinned, targetIds, feedbackPosts) ->
             when (examState) {
                 is UiState.Loading -> UiState.Loading
                 is UiState.Error -> UiState.Error(examState.message)
-                is UiState.Success -> UiState.Success(buildUiData(examState.data, selected, attemptInfo.ids, attemptInfo.map, pinned, feedbackPosts))
+                is UiState.Success -> UiState.Success(buildUiData(examState.data, selected, attemptInfo.ids, attemptInfo.map, pinned, targetIds, feedbackPosts))
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState.Loading)
 
-    init { load() }
+    init {
+        val cached = loadCachedExams()
+        if (cached.isNotEmpty()) {
+            allLoadedExams = cached
+            _examState.value = UiState.Success(cached)
+        }
+        load()
+    }
 
     fun load() {
         viewModelScope.launch {
-            _examState.value = UiState.Loading
-            _examState.value = try {
+            if (allLoadedExams.isEmpty()) {
+                _examState.value = UiState.Loading
+            }
+            try {
                 val exams = repo.getExams()
                 allLoadedExams = exams
-                UiState.Success(exams)
-            } catch (e: Exception) { UiState.Error(e.message ?: "Failed to load exams") }
+                saveCachedExams(exams)
+                _examState.value = UiState.Success(exams)
+            } catch (e: Exception) {
+                if (allLoadedExams.isEmpty()) {
+                    _examState.value = UiState.Error(e.message ?: "Failed to load exams")
+                }
+            }
         }
         viewModelScope.launch {
             _feedbackPosts.value = feedbackRepo.getFeedbackPosts()
@@ -104,10 +147,13 @@ class HomeViewModel : ViewModel() {
 
     fun loadForUser(userId: String, isAdmin: Boolean) {
         viewModelScope.launch {
-            _examState.value = UiState.Loading
+            if (allLoadedExams.isEmpty()) {
+                _examState.value = UiState.Loading
+            }
             try {
                 val exams = repo.getExams()
                 allLoadedExams = exams
+                saveCachedExams(exams)
                 _examState.value = UiState.Success(exams)
                 if (isAdmin) {
                     _attemptInfo.value = AttemptInfo()
@@ -124,7 +170,9 @@ class HomeViewModel : ViewModel() {
                     _attemptInfo.value = AttemptInfo(ids.toSet(), map)
                 }
             } catch (e: Exception) {
-                _examState.value = UiState.Error(e.message ?: "Failed to load exams")
+                if (allLoadedExams.isEmpty()) {
+                    _examState.value = UiState.Error(e.message ?: "Failed to load exams")
+                }
             }
         }
 
@@ -165,6 +213,7 @@ class HomeViewModel : ViewModel() {
         attempted: Set<String>,
         attemptsMap: Map<String, com.eve.app.data.model.TestAttempt>,
         pinned: Set<String>,
+        targetIds: Set<String>,
         feedbackPosts: List<FeedbackPost>
     ): HomeUiData {
         val mainExams = all.filter { it.isMainExam }
@@ -177,7 +226,17 @@ class HomeViewModel : ViewModel() {
 
         val items = mutableListOf<HomeListItem>()
 
+        val lastExamId = com.eve.app.EveApplication.instance
+            .getSharedPreferences("eve_app_prefs", android.content.Context.MODE_PRIVATE)
+            .getString("last_exam_id", null)
+        val continueExam = if (!lastExamId.isNullOrBlank()) all.find { it.id == lastExamId } else null
+
         if (effectiveSelected == Constants.CATEGORY_ALL) {
+            if (continueExam != null) {
+                items.add(HomeListItem.Header("Continue: ${continueExam.examName}"))
+                items.add(HomeListItem.ExamRow(continueExam, continueExam.id in attempted, isPinned = continueExam.id in pinned, attempt = attemptsMap[continueExam.id]))
+            }
+
             // Task B: Published feedback posts appear in reverse-chronological order along with other home content
             if (feedbackPosts.isNotEmpty()) {
                 val sortedPosts = feedbackPosts.sortedByDescending { it.timestamp }
@@ -189,7 +248,14 @@ class HomeViewModel : ViewModel() {
                 items.addAll(pinnedExams.map { HomeListItem.ExamRow(it, it.id in attempted, isPinned = true, attempt = attemptsMap[it.id]) })
             }
 
-            unpinnedExams.groupBy { it.categoryOrOther }.toSortedMap().forEach { (category, exams) ->
+            val targetExams = unpinnedExams.filter { it.id in targetIds }.sortedBy { it.examName }
+            if (targetExams.isNotEmpty()) {
+                items.add(HomeListItem.Header("My Target Exams"))
+                items.addAll(targetExams.map { HomeListItem.ExamRow(it, it.id in attempted, isPinned = false, attempt = attemptsMap[it.id]) })
+            }
+
+            val remainingExams = unpinnedExams.filter { it.id !in targetIds }
+            remainingExams.groupBy { it.categoryOrOther }.toSortedMap().forEach { (category, exams) ->
                 items.add(HomeListItem.Header(category))
                 items.addAll(exams.sortedBy { it.examName }.map { HomeListItem.ExamRow(it, it.id in attempted, isPinned = false, attempt = attemptsMap[it.id]) })
             }
@@ -197,7 +263,10 @@ class HomeViewModel : ViewModel() {
             if (pinnedExams.isNotEmpty()) {
                 items.addAll(pinnedExams.map { HomeListItem.ExamRow(it, it.id in attempted, isPinned = true, attempt = attemptsMap[it.id]) })
             }
-            items.addAll(unpinnedExams.sortedBy { it.examName }.map { HomeListItem.ExamRow(it, it.id in attempted, isPinned = false, attempt = attemptsMap[it.id]) })
+            val targetExams = unpinnedExams.filter { it.id in targetIds }.sortedBy { it.examName }
+            items.addAll(targetExams.map { HomeListItem.ExamRow(it, it.id in attempted, isPinned = false, attempt = attemptsMap[it.id]) })
+            val remainingExams = unpinnedExams.filter { it.id !in targetIds }
+            items.addAll(remainingExams.sortedBy { it.examName }.map { HomeListItem.ExamRow(it, it.id in attempted, isPinned = false, attempt = attemptsMap[it.id]) })
         }
 
         return HomeUiData(categories, effectiveSelected, items)

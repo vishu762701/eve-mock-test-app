@@ -10,7 +10,60 @@ data class AttemptSubmitResult(
     val total: Int,
     val correct: Int,
     val wrong: Int,
-    val unattempted: Int
+    val unattempted: Int,
+    val timeTakenSeconds: Long = 0L,
+    val counted: Int = 1,
+    val answers: List<AnswerItem> = emptyList()
+)
+
+data class StartAttemptResponse(
+    val startedAt: Long,
+    val serverNow: Long,
+    val timeLimitSeconds: Long,
+    val questions: List<Question>? = null
+)
+
+data class QuestionStatsDto(
+    val attempts: Int = 0,
+    val correct: Int = 0,
+    val wrong: Int = 0,
+    val unattempted: Int = 0,
+    val avgTimeSeconds: Int = 0
+)
+
+data class LeaderboardStatsResponse(
+    val participants: Int = 0,
+    val topperScore: Double = 0.0,
+    val averageScore: Double = 0.0,
+    val myRank: Int? = null,
+    val myScore: Double? = null,
+    val myTimeSeconds: Long? = null,
+    val myPercentile: Double? = null
+)
+
+data class MistakeItem(
+    val questionId: String = "",
+    val questionText: String = "",
+    val questionTextHi: String = "",
+    val selected: String = "",
+    val selectedText: String = "",
+    val selectedTextHi: String = "",
+    val correct: String = "",
+    val correctText: String = "",
+    val correctTextHi: String = "",
+    val explanation: String = "",
+    val explanationHi: String = "",
+    val topic: String = "",
+    val examId: String = "",
+    val examName: String = "",
+    val timestamp: Long = 0L
+)
+
+data class StreakResponse(
+    val currentStreak: Int = 0,
+    val longestStreak: Int = 0,
+    val todayCount: Int = 0,
+    val lastActiveDate: String? = null
 )
 
 data class UserStatsResponse(
@@ -127,12 +180,27 @@ interface EveApiService {
     @DELETE("api/questions/{id}")
     suspend fun deleteQuestion(@Path("id") id: String): ApiResponse<Unit>
 
+    @GET("api/questions/stats")
+    suspend fun getQuestionStats(@Query("ids") ids: String): ApiResponse<Map<String, QuestionStatsDto>>
+
     // --- Attempts & Grading ---
+    @POST("api/attempts/start")
+    suspend fun startAttempt(@Body body: Map<String, String>): ApiResponse<StartAttemptResponse>
+
     @POST("api/attempts/submit")
     suspend fun submitAttempt(@Body body: Map<String, @JvmSuppressWildcards Any>): ApiResponse<AttemptSubmitResult>
 
     @GET("api/attempts")
     suspend fun getAttempts(): ApiResponse<List<TestAttempt>>
+
+    @GET("api/attempts/mistakes")
+    suspend fun getMistakes(
+        @Query("limit") limit: Int = 100,
+        @Query("filter") filter: String = "all"
+    ): ApiResponse<List<MistakeItem>>
+
+    @GET("api/attempts/streak")
+    suspend fun getStreak(@Query("tzOffsetMinutes") tzOffsetMinutes: Int): ApiResponse<StreakResponse>
 
     @GET("api/attempts/locks")
     suspend fun getAttemptLocks(): ApiResponse<List<String>>
@@ -155,6 +223,9 @@ interface EveApiService {
 
     @GET("api/leaderboard/rank")
     suspend fun getUserRank(@Query("examId") examId: String): ApiResponse<RankInfo?>
+
+    @GET("api/leaderboard/stats")
+    suspend fun getLeaderboardStats(@Query("examId") examId: String): ApiResponse<LeaderboardStatsResponse>
 
     // --- Broadcasts ---
     @GET("api/broadcasts")
@@ -327,6 +398,12 @@ interface EveApiService {
 
     @PUT("api/generated-tests/{id}/status")
     suspend fun updateGeneratedTestStatus(@Path("id") id: String, @Body body: Map<String, String>): ApiResponse<Unit>
+
+    @PUT("api/generated-tests/{id}/schedule")
+    suspend fun scheduleGeneratedTest(
+        @Path("id") id: String,
+        @Body body: Map<String, Long>
+    ): ApiResponse<Map<String, Any>>
 
     @DELETE("api/generated-tests/{id}")
     suspend fun deleteGeneratedTest(@Path("id") id: String): ApiResponse<Unit>

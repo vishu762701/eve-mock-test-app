@@ -24,4 +24,14 @@
             android:textColor="@color/eve_text"
             android:textSize="12sp" />
     </com.google.android.material.card.MaterialCardView>
+
+    <View
+        android:id="@+id/dotMarked"
+        android:layout_width="6dp"
+        android:layout_height="6dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="2dp"
+        android:background="@drawable/bg_dot_warning"
+        android:visibility="gone" />
 </FrameLayout>

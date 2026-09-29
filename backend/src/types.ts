@@ -12,6 +12,7 @@ export interface Env {
   GEMINI_API_KEY?: string;           // Cloudflare secret
   GEMINI_MODEL?: string;
   DIAGNOSTIC_KEY?: string;           // Cloudflare secret or environment variable
+  LEGACY_ANSWER_LEAK?: string;
 }
 
 export interface AuthUser {
@@ -89,6 +90,9 @@ export interface AttemptRow {
   wrong: number;
   unattempted: number;
   timestamp: number;
+  time_taken_seconds?: number;
+  client_attempt_id?: string;
+  counted?: number;
 }
 
 export interface AttemptAnswerRow {
@@ -108,6 +112,7 @@ export interface AttemptAnswerRow {
   selected_text_hi: string;
   correct_text_hi: string;
   explanation_hi: string;
+  time_taken_seconds?: number;
 }
 
 export interface LeaderboardRow {
@@ -120,6 +125,7 @@ export interface LeaderboardRow {
   score: number;
   total: number;
   timestamp: number;
+  time_taken_seconds?: number;
 }
 
 export interface OverallLeaderboardRow {
@@ -208,6 +214,26 @@ export interface GeneratedTestRow {
   syllabus_used: string;
   prompt_used: string;
   questions_json: string;
+  available_from?: number;
+}
+
+export interface AttemptSessionRow {
+  id: string;
+  user_id: string;
+  exam_key: string;
+  started_at: number;
+  time_limit_seconds: number;
+}
+
+export interface AdminAnalyticsQuestionRow {
+  id: string;
+  exam_id: string;
+  question_id: string;
+  attempts: number;
+  correct: number;
+  wrong: number;
+  unattempted: number;
+  total_time_seconds: number;
 }
 
 export interface AppContentRow {

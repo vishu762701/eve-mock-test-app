@@ -144,6 +144,36 @@
                     android:textSize="15sp" />
             </LinearLayout>
 
+            <!-- Row: Mistake Notebook -->
+            <LinearLayout
+                android:id="@+id/menuRowMistakes"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="18dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="Mistake Notebook"
+                    android:src="@drawable/ic_close"
+                    app:tint="@color/eve_text" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="Mistake Notebook"
+                    android:textColor="@color/eve_text"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
             <!-- Row 3: Topic-wise Test -->
             <LinearLayout
                 android:id="@+id/menuRowTopic"

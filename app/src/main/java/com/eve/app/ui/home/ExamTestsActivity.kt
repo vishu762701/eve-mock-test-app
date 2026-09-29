@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.R
+import com.eve.app.data.local.TestSessionStore
 import com.eve.app.data.model.Exam
 import com.eve.app.data.model.GeneratedTest
 import com.eve.app.data.repository.ExamRepository
@@ -17,7 +18,12 @@ import com.eve.app.ui.common.ErrorStateView
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.AttemptKey
 import com.eve.app.util.Constants
+import com.eve.app.util.TestScheduleHelper
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class ExamTestsActivity : AppCompatActivity() {
@@ -54,8 +60,20 @@ class ExamTestsActivity : AppCompatActivity() {
             },
             onTestClick = { test, isCompleted ->
                 handleTestClick(test, isCompleted)
+            },
+            onLockedClick = { _, opensText ->
+                Snackbar.make(binding.root, opensText, Snackbar.LENGTH_SHORT).show()
             }
         )
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                while (true) {
+                    delay(30000L)
+                    loadData(showLoading = false)
+                }
+            }
+        }
 
         binding.rvTests.layoutManager = LinearLayoutManager(this)
         val spacingPx = (12 * resources.displayMetrics.density).toInt()
@@ -75,10 +93,12 @@ class ExamTestsActivity : AppCompatActivity() {
         loadData()
     }
 
-    private fun loadData() {
-        binding.progressBar.visibility = View.VISIBLE
-        binding.compactErrorView.hide()
-        binding.tvEmpty.visibility = View.GONE
+    private fun loadData(showLoading: Boolean = true) {
+        if (showLoading) {
+            binding.progressBar.visibility = View.VISIBLE
+            binding.compactErrorView.hide()
+            binding.tvEmpty.visibility = View.GONE
+        }
 
         lifecycleScope.launch {
             try {
@@ -123,19 +143,27 @@ class ExamTestsActivity : AppCompatActivity() {
                         } else emptyList()
 
                         val durationMinutes = currentExam?.timeLimitMinutes ?: 30
+                        val sessionStore = TestSessionStore(this@ExamTestsActivity)
+                        val serverNow = System.currentTimeMillis()
 
                         val testItems = sortedTests.map { test ->
                             val testKey = AttemptKey.forTest(examId, test.id)
                             val isCompleted = attemptedLocks.contains(testKey) || HomeViewModel.isAttemptSubmitted(testKey)
+                            val isResume = !isCompleted && sessionStore.hasSession(testKey)
+                            val isLocked = !isCompleted && TestScheduleHelper.isLocked(test.availableFrom, serverNow)
                             val qCount = if (test.questionCount > 0) test.questionCount else test.questions.size
                             val subtitle = "$qCount questions \u2022 $durationMinutes minutes"
+                            val opensText = if (isLocked) TestScheduleHelper.formatOpensAt(test.availableFrom) else ""
                             val title = test.testNumber.ifBlank { "Test" }
 
                             ExamTestsListItem.TestItem(
                                 test = test,
                                 title = title,
                                 subtitle = subtitle,
-                                isCompleted = isCompleted
+                                isCompleted = isCompleted,
+                                isResume = isResume,
+                                isLocked = isLocked,
+                                opensText = opensText
                             )
                         }
 
@@ -144,11 +172,13 @@ class ExamTestsActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
-                binding.compactErrorView.show(
-                    type = ErrorStateView.ErrorType.SERVER_ERROR,
-                    customMessage = "Couldn't load tests: ${e.localizedMessage}",
-                    onRetry = { loadData() }
-                )
+                if (showLoading) {
+                    binding.compactErrorView.show(
+                        type = ErrorStateView.ErrorType.SERVER_ERROR,
+                        customMessage = "Couldn't load tests: ${e.localizedMessage}",
+                        onRetry = { loadData() }
+                    )
+                }
             }
         }
     }

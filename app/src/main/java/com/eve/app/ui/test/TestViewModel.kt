@@ -46,6 +46,9 @@ class TestViewModel : ViewModel() {
     // position -> bookmarked? "Review ke liye flag" state, swipe karne par bhi yaad rehta hai.
     private val bookmarks = mutableMapOf<Int, Boolean>()
 
+    private val visited = mutableSetOf<Int>()
+    private val marked = mutableSetOf<Int>()
+
     private val _bookmarksSynced = MutableStateFlow(false)
     val bookmarksSynced: StateFlow<Boolean> = _bookmarksSynced.asStateFlow()
 
@@ -53,6 +56,11 @@ class TestViewModel : ViewModel() {
     private var currentExamName: String = ""
     private var started = false
     private var timerJob: Job? = null
+
+    private var initialTimeLimitSeconds: Long = 0L
+    private var initialStartedAt: Long = 0L
+    var clientAttemptId: String = java.util.UUID.randomUUID().toString()
+        private set
 
     fun start(
         examId: String,
@@ -88,21 +96,64 @@ class TestViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                val isStandardMock = topic.isBlank() && pyqYear == 0
-                if (!isAdmin && !fromBookmark && user != null && examId.isNotBlank() && isStandardMock && (historyRepo.hasAttempted(user.uid, examId) || com.eve.app.ui.home.HomeViewModel.isAttemptSubmitted(examId))) {
+                val isStandardMock = topic.isBlank() && pyqYear == 0 && !fromBookmark
+                if (!isAdmin && user != null && examId.isNotBlank() && isStandardMock && (historyRepo.hasAttempted(user.uid, examId) || com.eve.app.ui.home.HomeViewModel.isAttemptSubmitted(examId))) {
                     _alreadyAttempted.value = true
                     started = false
                     return@launch
                 }
-                val list = when {
+
+                val sessionStore = com.eve.app.data.local.TestSessionStore(com.eve.app.EveApplication.instance)
+                val existingSession = sessionStore.getSession(examId)
+
+                var remainingSec = timeLimitMinutes * 60L
+                var serverQuestions: List<Question>? = null
+
+                if (isStandardMock && user != null && examId.isNotBlank()) {
+                    try {
+                        val startRes = com.eve.app.data.remote.ApiClient.api.startAttempt(mapOf("examId" to examId))
+                        if (startRes.success && startRes.data != null) {
+                            val d = startRes.data
+                            initialStartedAt = d.startedAt
+                            initialTimeLimitSeconds = d.timeLimitSeconds
+                            if (d.timeLimitSeconds > 0) {
+                                val elapsed = (d.serverNow - d.startedAt) / 1000
+                                remainingSec = (d.timeLimitSeconds - elapsed).coerceAtLeast(0)
+                            }
+                            if (!d.questions.isNullOrEmpty()) {
+                                serverQuestions = d.questions
+                            }
+                        }
+                    } catch (e: retrofit2.HttpException) {
+                        if (e.code() == 409 && !isAdmin) {
+                            _alreadyAttempted.value = true
+                            started = false
+                            return@launch
+                        }
+                    } catch (_: Exception) {
+                        if (existingSession != null && existingSession.elapsedSeconds > 0) {
+                            remainingSec = (timeLimitMinutes * 60L - existingSession.elapsedSeconds).coerceAtLeast(0)
+                        }
+                    }
+                } else if (existingSession != null && existingSession.elapsedSeconds > 0) {
+                    remainingSec = (timeLimitMinutes * 60L - existingSession.elapsedSeconds).coerceAtLeast(0)
+                }
+
+                if (initialTimeLimitSeconds > 0 && remainingSec <= 0) {
+                    _timeUp.value = true
+                    started = false
+                    return@launch
+                }
+
+                val list = serverQuestions ?: when {
                     // Phase 19: PYQ paper — original order preserve (shuffle nahi), taaki
                     // admin jaisa upload kiya waisa paper feel rahe.
                     pyqYear > 0 -> repo.getPyqQuestions(examId, pyqYear, pyqPaper)
                     topic.isNotBlank() -> repo.getQuestionsForTopic(examId, topic).shuffled().take(10)
                     AttemptKey.generatedTestId(examId) != null -> {
-                        val testId = AttemptKey.generatedTestId(examId)
+                        val genTestId = AttemptKey.generatedTestId(examId)
                         val sourceExamId = AttemptKey.sourceExamId(examId)
-                        val test = repo.getGeneratedTests(sourceExamId).firstOrNull { it.id == testId && it.isLive }
+                        val test = repo.getGeneratedTests(sourceExamId).firstOrNull { it.id == genTestId && it.isLive }
                         if (test != null && test.questions.isNotEmpty()) {
                             test.questions.mapIndexed { idx, gq ->
                                 Question(
@@ -148,6 +199,18 @@ class TestViewModel : ViewModel() {
                         }
                     }
                 }
+
+                if (existingSession != null) {
+                    list.forEachIndexed { idx, q ->
+                        val sel = existingSession.answers[q.id]
+                        if (!sel.isNullOrEmpty()) answers[idx] = sel
+                        val time = existingSession.questionTimes[q.id]
+                        if (time != null && time > 0) timeTaken[idx] = time
+                        if (existingSession.visitedQuestions.contains(q.id)) visited.add(idx)
+                        if (existingSession.markedQuestions.contains(q.id)) marked.add(idx)
+                    }
+                }
+
                 list.forEachIndexed { idx, q ->
                     val qId = bookmarkRepo.getStableId(q, idx + 1)
                     bookmarks[idx] = cachedBookmarkedIds.contains(qId)
@@ -156,7 +219,7 @@ class TestViewModel : ViewModel() {
                 if (cachedBookmarkedIds.isNotEmpty()) {
                     _bookmarksSynced.value = true
                 }
-                if (list.isNotEmpty()) startTimer(timeLimitMinutes * 60L)
+                if (list.isNotEmpty()) startTimer(remainingSec)
             } catch (e: Exception) {
                 started = false
                 _questions.value = UiState.Error(e.message ?: "Failed to load questions")
@@ -239,6 +302,52 @@ class TestViewModel : ViewModel() {
         }
     }
 
+    fun markVisited(position: Int) {
+        visited.add(position)
+    }
+
+    fun isVisited(position: Int): Boolean = visited.contains(position)
+
+    fun toggleMark(position: Int) {
+        if (marked.contains(position)) marked.remove(position) else marked.add(position)
+    }
+
+    fun isMarked(position: Int): Boolean = marked.contains(position)
+
+    fun getAnsweredIndices(): Set<Int> = answers.filterValues { it.isNotEmpty() }.keys.toSet()
+    fun getVisitedIndices(): Set<Int> = visited.toSet()
+    fun getMarkedIndices(): Set<Int> = marked.toSet()
+
+    fun saveCurrentSession(examId: String) {
+        val list = (_questions.value as? UiState.Success)?.data ?: return
+        val ansMap = mutableMapOf<String, String>()
+        val timeMap = mutableMapOf<String, Long>()
+        val visSet = mutableSetOf<String>()
+        val markSet = mutableSetOf<String>()
+        list.forEachIndexed { idx, q ->
+            answers[idx]?.let { if (it.isNotEmpty()) ansMap[q.id] = it }
+            timeTaken[idx]?.let { if (it > 0) timeMap[q.id] = it }
+            if (visited.contains(idx)) visSet.add(q.id)
+            if (marked.contains(idx)) markSet.add(q.id)
+        }
+        val session = com.eve.app.data.local.TestSession(
+            attemptKey = examId,
+            answers = ansMap,
+            questionTimes = timeMap,
+            visitedQuestions = visSet,
+            markedQuestions = markSet,
+            elapsedSeconds = timeTaken.values.sum(),
+            timeLimitSeconds = initialTimeLimitSeconds,
+            startedAt = initialStartedAt,
+            lastSavedAt = System.currentTimeMillis()
+        )
+        com.eve.app.data.local.TestSessionStore(com.eve.app.EveApplication.instance).saveSession(session)
+    }
+
+    fun clearSession(examId: String) {
+        com.eve.app.data.local.TestSessionStore(com.eve.app.EveApplication.instance).clearSession(examId)
+    }
+
     fun buildAnswerItems(): ArrayList<AnswerItem> {
         val list = (questions.value as? UiState.Success)?.data ?: emptyList()
         val items = ArrayList<AnswerItem>()
@@ -253,11 +362,11 @@ class TestViewModel : ViewModel() {
                     selected = selected,
                     selectedText = if (selected.isEmpty()) "" else q.optionText(selected),
                     selectedTextHi = if (selected.isEmpty()) "" else q.optionTextHi(selected),
-                    correct = q.correctAnswer,
-                    correctText = q.optionText(q.correctAnswer),
-                    correctTextHi = q.optionTextHi(q.correctAnswer),
-                    explanation = q.explanation,
-                    explanationHi = q.explanationHi,
+                    correct = "",
+                    correctText = "",
+                    correctTextHi = "",
+                    explanation = "",
+                    explanationHi = "",
                     isBookmarked = isBookmarked(index),
                     topic = q.topic,
                     timeTakenSeconds = getQuestionTime(index)

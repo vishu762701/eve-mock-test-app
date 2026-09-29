@@ -22,13 +22,29 @@ bookmarkRoutes.get("/ids", async (c) => {
 });
 
 // GET /api/bookmarks - Get full bookmarked question details
+// Only return correct answers and explanations for questions the user has already submitted
 bookmarkRoutes.get("/", async (c) => {
   const user = c.get("user");
   const db = c.env.DB;
 
   const { results } = await db
-    .prepare("SELECT * FROM bookmarks WHERE user_id = ? ORDER BY bookmarked_at DESC")
-    .bind(user.uid)
+    .prepare(
+      `SELECT b.*,
+              aa.correct as submitted_correct,
+              aa.explanation as submitted_explanation,
+              aa.explanation_hi as submitted_explanation_hi
+       FROM bookmarks b
+       LEFT JOIN (
+         SELECT aa.question_id, aa.correct, aa.explanation, aa.explanation_hi
+         FROM attempt_answers aa
+         JOIN attempts a ON aa.attempt_id = a.id
+         WHERE a.user_id = ?
+         GROUP BY aa.question_id
+       ) aa ON aa.question_id = b.question_id
+       WHERE b.user_id = ?
+       ORDER BY b.bookmarked_at DESC`
+    )
+    .bind(user.uid, user.uid)
     .all<any>();
 
   const list = (results || []).map((r) => ({
@@ -46,9 +62,9 @@ bookmarkRoutes.get("/", async (c) => {
     optionBHi: r.option_b_hi || "",
     optionCHi: r.option_c_hi || "",
     optionDHi: r.option_d_hi || "",
-    correctAnswer: r.correct_answer,
-    explanation: r.explanation || "",
-    explanationHi: r.explanation_hi || "",
+    correctAnswer: r.submitted_correct || "",
+    explanation: r.submitted_explanation || "",
+    explanationHi: r.submitted_explanation_hi || "",
     topic: r.topic || "",
     isPyq: Boolean(r.is_pyq),
     pyqYear: r.pyq_year || 0,
@@ -73,6 +89,7 @@ bookmarkRoutes.post("/", async (c) => {
   const now = Date.now();
   const bookmarkId = `${user.uid}_${questionId}`;
 
+  // Store empty string for correct_answer, explanation, and explanation_hi to avoid leaks
   await db
     .prepare(
       `INSERT INTO bookmarks (
@@ -101,9 +118,9 @@ bookmarkRoutes.post("/", async (c) => {
       String(body.optionBHi || ""),
       String(body.optionCHi || ""),
       String(body.optionDHi || ""),
-      String(body.correctAnswer || "A"),
-      String(body.explanation || ""),
-      String(body.explanationHi || ""),
+      "",
+      "",
+      "",
       String(body.topic || ""),
       body.isPyq ? 1 : 0,
       Number(body.pyqYear || 0),
@@ -182,9 +199,9 @@ bookmarkRoutes.post("/toggle", async (c) => {
         String(body.optionBHi || ""),
         String(body.optionCHi || ""),
         String(body.optionDHi || ""),
-        String(body.correctAnswer || "A"),
-        String(body.explanation || ""),
-        String(body.explanationHi || ""),
+        "",
+        "",
+        "",
         String(body.topic || ""),
         body.isPyq ? 1 : 0,
         Number(body.pyqYear || 0),

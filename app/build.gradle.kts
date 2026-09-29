@@ -17,12 +17,12 @@ val appVersionName = System.getenv("APP_VERSION_NAME") ?: "1.0"
 
 android {
     namespace = "com.eve.app"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.eve.app"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 36
         versionCode = appVersionCode
         versionName = appVersionName
     }
@@ -45,11 +45,13 @@ android {
         // jaaye) — sirf CI se banaya hua release Play Store ke liye asli signed hota hai.
         create("release") {
             val storeFilePath = System.getenv("RELEASE_STORE_FILE")
-            if (storeFilePath != null) {
+            if (storeFilePath != null && file(storeFilePath).exists()) {
                 storeFile = file(storeFilePath)
                 storePassword = System.getenv("RELEASE_STORE_PASSWORD")
                 keyAlias = System.getenv("RELEASE_KEY_ALIAS")
                 keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
+            } else if (System.getenv("CI") == "true") {
+                throw org.gradle.api.GradleException("RELEASE_STORE_FILE is missing in CI environment! Production release must be signed with valid keystore.")
             } else {
                 storeFile = file("eve-debug.keystore")
                 storePassword = "android"
@@ -61,7 +63,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             signingConfig = signingConfigs.getByName("release")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }

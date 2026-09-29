@@ -342,7 +342,7 @@ service cloud.firestore {
     // ------------------------------------------------------------------------
     match /question_stats/{questionId} {
       allow read: if isSignedIn();
-      allow write: if isSignedIn();
+      allow write: if false;
     }
   }
 }

@@ -12,7 +12,8 @@ import com.eve.app.databinding.ItemGeneratedTestBinding
 class GeneratedTestAdapter(
     private val onStatusToggle: (GeneratedTest, Boolean) -> Unit,
     private val onPreview: (GeneratedTest) -> Unit,
-    private val onDelete: (GeneratedTest) -> Unit
+    private val onDelete: (GeneratedTest) -> Unit,
+    private val onSchedule: (GeneratedTest) -> Unit = {}
 ) : RecyclerView.Adapter<GeneratedTestAdapter.VH>() {
 
     private var items: List<GeneratedTest> = emptyList()
@@ -36,6 +37,13 @@ class GeneratedTestAdapter(
             } else "Recent"
             b.tvTestDetails.text = "${test.questionCount} questions • Generated $timeAgo"
 
+            if (test.availableFrom > 0) {
+                b.tvScheduledTime.text = com.eve.app.util.TestScheduleHelper.formatOpensAt(test.availableFrom)
+                b.tvScheduledTime.visibility = android.view.View.VISIBLE
+            } else {
+                b.tvScheduledTime.visibility = android.view.View.GONE
+            }
+
             val isLive = test.isLive
             b.switchLive.setOnCheckedChangeListener(null)
             b.switchLive.isChecked = isLive
@@ -51,6 +59,7 @@ class GeneratedTestAdapter(
                 )
             )
 
+            b.btnSchedule.setOnClickListener { onSchedule(test) }
             b.btnPreview.setOnClickListener { onPreview(test) }
             b.btnDelete.setOnClickListener { onDelete(test) }
         }

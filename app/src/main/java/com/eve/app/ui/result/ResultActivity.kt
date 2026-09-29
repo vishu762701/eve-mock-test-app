@@ -3,6 +3,7 @@ package com.eve.app.ui.result
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -30,6 +31,8 @@ import com.eve.app.util.Constants
 import com.eve.app.util.LanguageManager
 import com.eve.app.util.NumberCountUpHelper
 import com.eve.app.util.SecurityHelper
+import com.eve.app.util.ShareCardHelper
+import com.eve.app.util.TopicAccuracyHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import com.google.firebase.auth.FirebaseAuth
@@ -75,6 +78,10 @@ class ResultActivity : AppCompatActivity() {
         binding = ActivityResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        onBackPressedDispatcher.addCallback(this) {
+            close()
+        }
+
         if (viewModel.allItems.isEmpty()) {
             val incoming = ResultDataHolder.consumeAnswers()
             viewModel.initAnswers(incoming)
@@ -114,35 +121,40 @@ class ResultActivity : AppCompatActivity() {
             }
         }
 
-        val total = allItems.size
-        val correct = allItems.count { it.isCorrect }
-        val unattempted = allItems.count { !it.isAttempted }
-        val wrong = total - correct - unattempted
+        val isCounted = intent.getIntExtra("EXTRA_COUNTED", 1)
+        val total = if (intent.hasExtra("EXTRA_TOTAL")) intent.getIntExtra("EXTRA_TOTAL", allItems.size) else allItems.size
+        val correct = if (intent.hasExtra("EXTRA_CORRECT")) intent.getIntExtra("EXTRA_CORRECT", allItems.count { it.isCorrect }) else allItems.count { it.isCorrect }
+        val unattempted = if (intent.hasExtra("EXTRA_UNATTEMPTED")) intent.getIntExtra("EXTRA_UNATTEMPTED", allItems.count { !it.isAttempted }) else allItems.count { !it.isAttempted }
+        val wrong = if (intent.hasExtra("EXTRA_WRONG")) intent.getIntExtra("EXTRA_WRONG", (total - correct - unattempted).coerceAtLeast(0)) else (total - correct - unattempted)
 
-        var negMark = if (intent.hasExtra(Constants.EXTRA_NEGATIVE_MARKING)) {
-            intent.getDoubleExtra(Constants.EXTRA_NEGATIVE_MARKING, Constants.NEGATIVE_MARK)
+        if (intent.hasExtra("EXTRA_SCORE")) {
+            currentScore = intent.getDoubleExtra("EXTRA_SCORE", 0.0)
         } else {
-            Constants.NEGATIVE_MARK
-        }
-        currentScore = Math.round((correct - wrong * negMark) * 100.0) / 100.0
+            val negMark = if (intent.hasExtra(Constants.EXTRA_NEGATIVE_MARKING)) {
+                intent.getDoubleExtra(Constants.EXTRA_NEGATIVE_MARKING, Constants.NEGATIVE_MARK)
+            } else {
+                Constants.NEGATIVE_MARK
+            }
+            currentScore = Math.round((correct - wrong * negMark) * 100.0) / 100.0
 
-        if (currentExamId.isNotBlank() && !intent.hasExtra(Constants.EXTRA_NEGATIVE_MARKING)) {
-            lifecycleScope.launch {
-                try {
-                    val exam = examRepo.getExam(AttemptKey.sourceExamId(currentExamId))
-                    val examNeg = exam?.negativeMarkingValue ?: 0.0
-                    val updatedScore = Math.round((correct - wrong * examNeg) * 100.0) / 100.0
-                    if (updatedScore != currentScore) {
-                        currentScore = updatedScore
-                        val finalStr = if (currentScore % 1.0 == 0.0) {
-                            currentScore.toInt().toString()
-                        } else {
-                            String.format(java.util.Locale.US, "%.2f", currentScore)
+            if (currentExamId.isNotBlank() && !intent.hasExtra(Constants.EXTRA_NEGATIVE_MARKING)) {
+                lifecycleScope.launch {
+                    try {
+                        val exam = examRepo.getExam(AttemptKey.sourceExamId(currentExamId))
+                        val examNeg = exam?.negativeMarkingValue ?: 0.0
+                        val updatedScore = Math.round((correct - wrong * examNeg) * 100.0) / 100.0
+                        if (updatedScore != currentScore) {
+                            currentScore = updatedScore
+                            val finalStr = if (currentScore % 1.0 == 0.0) {
+                                currentScore.toInt().toString()
+                            } else {
+                                String.format(java.util.Locale.US, "%.2f", currentScore)
+                            }
+                            binding.tvScore.text = "$finalStr / $total"
+                            updateCutoffUI()
                         }
-                        binding.tvScore.text = "$finalStr / $total"
-                        updateCutoffUI()
-                    }
-                } catch (_: Exception) {}
+                    } catch (_: Exception) {}
+                }
             }
         }
 
@@ -159,12 +171,17 @@ class ResultActivity : AppCompatActivity() {
         val scorePct = if (total > 0) (currentScore * 100.0 / total).coerceAtLeast(0.0) else 0.0
         binding.tvScorePercentage.text = String.format(java.util.Locale.US, "%.1f%% Score", scorePct)
 
-        // Number count-up animation for hero score
+        // Trigger celebratory confetti for high-performing counted attempts (accuracy >= 80%)
+        if (isCounted == 1 && accuracy >= 80.0) {
+            binding.confettiView.startConfetti()
+        }
+
+        // Number count-up animation for hero score (decelerating over 800ms)
         NumberCountUpHelper.animateScoreCountUp(
             textView = binding.tvScore,
             targetScore = currentScore,
             total = total,
-            durationMs = 950L,
+            durationMs = 800L,
             onFinished = {
                 NumberCountUpHelper.animateStatsCountUp(
                     textView = binding.tvStats,
@@ -195,6 +212,24 @@ class ResultActivity : AppCompatActivity() {
             binding.tvTimeSummary.text = "Accuracy: $accFormatted%  •  Total Questions: $total"
         }
 
+        // Share Card Button
+        binding.btnShare.setOnClickListener {
+            val scoreStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format(java.util.Locale.US, "%.2f", currentScore)
+            val scorePctStr = String.format(java.util.Locale.US, "%.1f%% Score", scorePct)
+            val rankText = binding.tvRank.text.toString()
+            ShareCardHelper.generateAndShare(
+                context = this,
+                examName = if (currentExamName.isNotBlank()) currentExamName else "Mock Test",
+                scoreText = "$scoreStr / $total",
+                percentageText = scorePctStr,
+                accuracyText = "$accFormatted%",
+                rankText = rankText,
+                correctCount = correct,
+                wrongCount = wrong,
+                skippedCount = unattempted
+            )
+        }
+
         // Setup Answers RecyclerView (Section 3: Answer Review)
         binding.rvAnswers.layoutManager = LinearLayoutManager(this)
         binding.rvAnswers.adapter = adapter
@@ -205,7 +240,7 @@ class ResultActivity : AppCompatActivity() {
             adapter.setHindi(hindi)
         }
 
-        // Setup Segmented 3-Tab Navigation
+        // Setup Segmented 4-Tab Navigation (Review | Overview | Leaderboard | Analysis)
         setupTabLayout()
 
         // Setup Question Palette Navigation (Single Question Isolation)
@@ -213,6 +248,9 @@ class ResultActivity : AppCompatActivity() {
 
         // Setup Filter Chips (Right, Wrong, Unattempted)
         setupFilters(correct, wrong, unattempted)
+
+        // Setup Section 4: Analysis Tab
+        setupAnalysisSection(total, correct, wrong, unattempted, accuracy)
 
         // Setup Cutoff / Performance (Section 2)
         loadDepthStatsAndCutoffs(currentExamId)
@@ -255,6 +293,7 @@ class ResultActivity : AppCompatActivity() {
                 binding.sectionReview.visibility = if (pos == 0) View.VISIBLE else View.GONE
                 binding.sectionOverview.visibility = if (pos == 1) View.VISIBLE else View.GONE
                 binding.sectionLeaderboard.visibility = if (pos == 2) View.VISIBLE else View.GONE
+                binding.sectionAnalysis.visibility = if (pos == 3) View.VISIBLE else View.GONE
 
                 if (pos == 0) {
                     selectQuestion(selectedQuestionIndex)
@@ -264,6 +303,132 @@ class ResultActivity : AppCompatActivity() {
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
             override fun onTabReselected(tab: TabLayout.Tab?) {}
         })
+    }
+
+    private fun setupAnalysisSection(
+        total: Int,
+        correct: Int,
+        wrong: Int,
+        unattempted: Int,
+        accuracy: Double
+    ) {
+        val attempted = correct + wrong
+        val attemptedPct = if (total > 0) (attempted * 100.0 / total) else 0.0
+        binding.tvAnalysisAttempted.text = "${String.format(java.util.Locale.US, "%.1f", attemptedPct)}%"
+        binding.tvAnalysisAccuracy.text = "${String.format(java.util.Locale.US, "%.1f", accuracy)}%"
+
+        val timedItems = allItems.filter { it.timeTakenSeconds > 0 }
+        val avgSeconds = if (timedItems.isNotEmpty()) {
+            kotlin.math.round(timedItems.map { it.timeTakenSeconds }.average()).toLong()
+        } else {
+            0L
+        }
+        binding.tvAnalysisAvgTime.text = "${avgSeconds}s"
+
+        // Pace chart
+        val barItems = allItems.mapIndexed { index, item ->
+            QuestionTimeChartView.BarItem(
+                questionNumber = index + 1,
+                timeSeconds = item.timeTakenSeconds,
+                isCorrect = item.isCorrect,
+                isAttempted = item.isAttempted
+            )
+        }
+        binding.chartTimeView.setItems(barItems)
+        binding.chartTimeView.onBarSelected = { bar ->
+            val status = when {
+                bar.isCorrect -> "Correct"
+                bar.isAttempted -> "Wrong"
+                else -> "Skipped"
+            }
+            binding.tvChartDetail.text = "Question ${bar.questionNumber}: ${bar.timeSeconds}s • $status"
+        }
+
+        // 3 Slowest Questions
+        val slowest = allItems.filter { it.timeTakenSeconds > 0 }.sortedByDescending { it.timeTakenSeconds }.take(3)
+        binding.layoutSlowestList.removeAllViews()
+        if (slowest.isNotEmpty()) {
+            for (item in slowest) {
+                val tv = android.widget.TextView(this).apply {
+                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        setMargins(0, 0, 0, (6 * resources.displayMetrics.density).toInt())
+                    }
+                    val status = when {
+                        item.isCorrect -> "Correct"
+                        item.isAttempted -> "Wrong"
+                        else -> "Skipped"
+                    }
+                    val statusColor = when {
+                        item.isCorrect -> ContextCompat.getColor(context, R.color.eve_status_success)
+                        item.isAttempted -> ContextCompat.getColor(context, R.color.eve_status_error)
+                        else -> ContextCompat.getColor(context, R.color.eve_text_secondary)
+                    }
+                    text = "Q${item.number}: ${item.timeTakenSeconds}s • $status"
+                    setTextColor(statusColor)
+                    textSize = 13f
+                    typeface = android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL)
+                }
+                binding.layoutSlowestList.addView(tv)
+            }
+        } else {
+            val emptyTv = android.widget.TextView(this).apply {
+                text = "No timed questions recorded."
+                setTextColor(ContextCompat.getColor(context, R.color.eve_text_secondary))
+                textSize = 13f
+            }
+            binding.layoutSlowestList.addView(emptyTv)
+        }
+
+        // Topic-wise accuracy list (weakest first)
+        val topicAccs = TopicAccuracyHelper.aggregate(allItems)
+        binding.layoutTopicList.removeAllViews()
+        if (topicAccs.isNotEmpty()) {
+            for (ta in topicAccs) {
+                val tv = android.widget.TextView(this).apply {
+                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        setMargins(0, 0, 0, (8 * resources.displayMetrics.density).toInt())
+                    }
+                    text = "${ta.topic}: ${ta.accuracy}% (${ta.correct}/${ta.total} correct)"
+                    setTextColor(
+                        if (ta.accuracy >= 70.0) ContextCompat.getColor(context, R.color.eve_status_success)
+                        else if (ta.accuracy >= 40.0) ContextCompat.getColor(context, R.color.eve_primary)
+                        else ContextCompat.getColor(context, R.color.eve_status_error)
+                    )
+                    textSize = 13f
+                }
+                binding.layoutTopicList.addView(tv)
+            }
+
+            val weakest = topicAccs.first()
+            if (weakest.accuracy < 100.0) {
+                binding.btnPracticeWeakest.visibility = View.VISIBLE
+                binding.btnPracticeWeakest.text = "Practice Weakest: ${weakest.topic}"
+                binding.btnPracticeWeakest.setOnClickListener {
+                    val practiceIntent = Intent(this, TestActivity::class.java).apply {
+                        putExtra(Constants.EXTRA_EXAM_ID, currentExamId)
+                        putExtra(Constants.EXTRA_EXAM_NAME, currentExamName)
+                        putExtra(Constants.EXTRA_TOPIC, weakest.topic)
+                    }
+                    startActivity(practiceIntent)
+                }
+            } else {
+                binding.btnPracticeWeakest.visibility = View.GONE
+            }
+        } else {
+            val tv = android.widget.TextView(this).apply {
+                text = "No topics tagged for these questions."
+                setTextColor(ContextCompat.getColor(context, R.color.eve_text_secondary))
+                textSize = 13f
+            }
+            binding.layoutTopicList.addView(tv)
+            binding.btnPracticeWeakest.visibility = View.GONE
+        }
     }
 
     private fun setupQuestionPalette() {
@@ -384,8 +549,47 @@ class ResultActivity : AppCompatActivity() {
             }
             setupCutoffSelector()
 
-            // 3. Load Rank, Percentile, Best/Avg Score from Firestore attempts
+            // 3. Load Rank, Percentile, Best/Avg Score
+            val isCounted = intent.getIntExtra("EXTRA_COUNTED", 1)
+            if (isCounted == 0) {
+                binding.tvRank.text = "Not ranked"
+                binding.tvLeaderboardTabRank.text = "Not ranked"
+                (binding.tvPercentile.parent as? View)?.visibility = View.GONE
+                binding.tvTopperAvg.text = "Topper: -- • Average: --"
+                val sStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format(java.util.Locale.US, "%.1f", currentScore)
+                binding.tvHistoryBestAvg.text = "Score: $sStr"
+                return@launch
+            }
+
             if (examId.isNotBlank()) {
+                try {
+                    val statsResp = ApiClient.api.getLeaderboardStats(examId)
+                    if (statsResp.success && statsResp.data != null) {
+                        val stats = statsResp.data
+                        val totalParticipants = stats.participants
+                        val myRank = stats.myRank
+                        val percentile = stats.myPercentile
+
+                        binding.tvRank.text = if (myRank != null && totalParticipants > 0) "#$myRank / $totalParticipants" else "-- / --"
+                        binding.tvLeaderboardTabRank.text = binding.tvRank.text
+
+                        if (percentile != null) {
+                            (binding.tvPercentile.parent as? View)?.visibility = View.VISIBLE
+                            binding.tvPercentile.text = "${String.format(java.util.Locale.US, "%.1f", percentile)}%"
+                            if (percentile >= 50.0 || myRank == 1) {
+                                binding.tvPercentile.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.eve_status_success))
+                                binding.tvRank.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.eve_status_success))
+                            }
+                        }
+
+                        val topperStr = if (stats.topperScore % 1.0 == 0.0) stats.topperScore.toInt().toString() else String.format(java.util.Locale.US, "%.1f", stats.topperScore)
+                        val avgStr = if (stats.averageScore % 1.0 == 0.0) stats.averageScore.toInt().toString() else String.format(java.util.Locale.US, "%.1f", stats.averageScore)
+                        binding.tvTopperAvg.text = "Topper: $topperStr • Average: $avgStr"
+                        binding.tvHistoryBestAvg.text = "Topper: $topperStr  •  Avg: $avgStr"
+                        return@launch
+                    }
+                } catch (_: Exception) {}
+
                 try {
                     val firestore = FirebaseFirestore.getInstance()
                     val currentUid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
@@ -421,6 +625,11 @@ class ResultActivity : AppCompatActivity() {
                     val bestStr = if (best % 1.0 == 0.0) best.toInt().toString() else String.format(java.util.Locale.US, "%.1f", best)
                     val avgStr = if (avg % 1.0 == 0.0) avg.toInt().toString() else String.format(java.util.Locale.US, "%.1f", avg)
                     binding.tvHistoryBestAvg.text = "Best: $bestStr  •  Avg: $avgStr"
+                    val topper = allScores.maxOrNull() ?: currentScore
+                    val topperStr = if (topper % 1.0 == 0.0) topper.toInt().toString() else String.format(java.util.Locale.US, "%.1f", topper)
+                    val avgAll = if (allScores.isNotEmpty()) allScores.average() else currentScore
+                    val avgAllStr = if (avgAll % 1.0 == 0.0) avgAll.toInt().toString() else String.format(java.util.Locale.US, "%.1f", avgAll)
+                    binding.tvTopperAvg.text = "Topper: $topperStr • Average: $avgAllStr"
 
                 } catch (e: Exception) {
                     binding.tvRank.text = "#1 / 1"
@@ -428,6 +637,7 @@ class ResultActivity : AppCompatActivity() {
                     binding.tvPercentile.text = "100.0%"
                     val sStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format(java.util.Locale.US, "%.1f", currentScore)
                     binding.tvHistoryBestAvg.text = "Best: $sStr  •  Avg: $sStr"
+                    binding.tvTopperAvg.text = "Topper: $sStr • Average: $sStr"
                 }
             } else {
                 binding.tvRank.text = "#1 / 1"
@@ -435,6 +645,7 @@ class ResultActivity : AppCompatActivity() {
                 binding.tvPercentile.text = "100.0%"
                 val sStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format(java.util.Locale.US, "%.1f", currentScore)
                 binding.tvHistoryBestAvg.text = "Best: $sStr  •  Avg: $sStr"
+                binding.tvTopperAvg.text = "Topper: $sStr • Average: $sStr"
             }
         }
     }
@@ -618,11 +829,6 @@ class ResultActivity : AppCompatActivity() {
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         )
         finish()
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        close()
     }
 
     override fun onDestroy() {

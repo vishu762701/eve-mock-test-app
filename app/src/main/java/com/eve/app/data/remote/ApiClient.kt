@@ -23,6 +23,12 @@ object ApiClient {
 
     private val okHttpClient by lazy {
         OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val request = chain.request().newBuilder()
+                    .header("X-Eve-Client", "2")
+                    .build()
+                chain.proceed(request)
+            }
             .addInterceptor(AuthInterceptor())
             .addInterceptor(loggingInterceptor)
             .connectTimeout(30, TimeUnit.SECONDS)
