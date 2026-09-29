@@ -139,22 +139,41 @@ class ManageExistingExamsActivity : AppCompatActivity() {
                 val updated = previousList.filter { it.exam.id != exam.id }
                 adapter.submitList(updated)
 
+                lifecycleScope.launch {
+                    try {
+                        examRepo.deleteExam(exam.id)
+                    } catch (e: Exception) {
+                        AppBulletin.showError(this@ManageExistingExamsActivity, "Failed to delete: ${e.message}")
+                    }
+                }
+
                 AppUndoBar.show(
                     context = this@ManageExistingExamsActivity,
                     message = "Exam '${exam.examName}' deleted",
                     timeLeftMs = AppUndoBar.TIME_IMPORTANT,
                     onUndo = {
                         adapter.submitList(previousList)
-                        AppBulletin.show(this@ManageExistingExamsActivity, "Delete cancelled")
-                    },
-                    onExecuteDelete = {
                         lifecycleScope.launch {
                             try {
-                                examRepo.deleteExam(exam.id)
-                                AppBulletin.showSuccess(this@ManageExistingExamsActivity, "Exam deleted")
+                                examRepo.addExam(
+                                    name = exam.examName,
+                                    minutes = exam.timeLimitMinutes,
+                                    category = exam.category,
+                                    testNumber = exam.testNumber,
+                                    questionCount = exam.questionCount,
+                                    autoGenEnabled = exam.autoGenerationEnabled,
+                                    autoGenTime = exam.autoGenTime,
+                                    timezone = exam.timezone,
+                                    generationPrompt = exam.generationPrompt,
+                                    imageUrl = exam.imageUrl,
+                                    negativeMarkingText = exam.negativeMarkingText,
+                                    negativeMarkingValue = exam.negativeMarkingValue,
+                                    parentExamId = exam.parentExamId
+                                )
                                 loadExams()
+                                AppBulletin.showSuccess(this@ManageExistingExamsActivity, "Exam restored")
                             } catch (e: Exception) {
-                                AppBulletin.showError(this@ManageExistingExamsActivity, "Failed to delete: ${e.message}")
+                                AppBulletin.showError(this@ManageExistingExamsActivity, "Failed to restore: ${e.message}")
                             }
                         }
                     }

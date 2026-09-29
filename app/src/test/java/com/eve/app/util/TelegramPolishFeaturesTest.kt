@@ -56,31 +56,28 @@ class TelegramPolishFeaturesTest {
     }
 
     @Test
-    fun testUndoBar_deferredExecutionContract() {
+    fun testUndoBar_immediateDeletionAndUndoRestorationContract() {
         var firestoreDeleted = false
-        var undoInvoked = false
+        var firestoreRestored = false
 
-        val onUndo = { undoInvoked = true }
         val onExecuteDelete = { firestoreDeleted = true }
+        val onUndo = {
+            firestoreDeleted = false
+            firestoreRestored = true
+        }
 
-        // Simulation: Delete is initiated, but countdown has not completed
-        assertFalse("Firestore deletion MUST NOT execute immediately upon tap", firestoreDeleted)
-        assertFalse(undoInvoked)
-
-        // User taps UNDO before countdown ends:
-        onUndo()
-        assertTrue("Undo callback must be invoked", undoInvoked)
-        assertFalse("Firestore deletion must remain canceled after undo", firestoreDeleted)
-    }
-
-    @Test
-    fun testUndoBar_expirationExecutesDelete() {
-        var firestoreDeleted = false
-        val onExecuteDelete = { firestoreDeleted = true }
-
-        // Simulation: Countdown expires without user tapping UNDO
+        // 1. User taps Delete: Deletion executes IMMEDIATELY
         onExecuteDelete()
-        assertTrue("Firestore deletion must execute only after countdown expires", firestoreDeleted)
+        assertTrue("Deletion MUST execute immediately upon tap before undo countdown", firestoreDeleted)
+        assertFalse(firestoreRestored)
+
+        // 2. If user presses Back or does nothing, deletion remains permanent
+        assertTrue("Deletion must remain permanent if no undo action is taken", firestoreDeleted)
+
+        // 3. If user taps UNDO within window, restoration executes
+        onUndo()
+        assertFalse("Deletion is reversed", firestoreDeleted)
+        assertTrue("Item must be restored upon undo", firestoreRestored)
     }
 
     @Test

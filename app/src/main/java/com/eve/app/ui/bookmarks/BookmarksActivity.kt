@@ -52,11 +52,15 @@ class BookmarksActivity : AppCompatActivity() {
                     binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
                     binding.rvBookmarks.visibility = if (empty) View.GONE else View.VISIBLE
 
+                    // Immediate deletion from data source
+                    viewModel.unbookmark(bookmark.questionId)
+
                     com.eve.app.util.AppUndoBar.show(
                         context = this@BookmarksActivity,
                         message = "Bookmark removed",
                         timeLeftMs = com.eve.app.util.AppUndoBar.TIME_LIGHT,
                         onUndo = {
+                            viewModel.bookmark(removedItem)
                             val restoredList = adapter.currentList.toMutableList()
                             val insertPos = index.coerceAtMost(restoredList.size)
                             restoredList.add(insertPos, removedItem)
@@ -66,9 +70,6 @@ class BookmarksActivity : AppCompatActivity() {
                             binding.messageGroup.visibility = View.GONE
                             binding.rvBookmarks.visibility = View.VISIBLE
                             com.eve.app.util.AppBulletin.show(this@BookmarksActivity, "Bookmark restored")
-                        },
-                        onExecuteDelete = {
-                            viewModel.unbookmark(bookmark.questionId)
                         }
                     )
                 } else {

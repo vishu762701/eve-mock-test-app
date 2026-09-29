@@ -78,7 +78,8 @@ object ReportQuestionDialog {
 
         dialog.show()
 
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+        val btnSubmit = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+        btnSubmit.setOnClickListener {
             val selectedReason = when (rgReason.checkedRadioButtonId) {
                 R.id.rbReasonWrongQuestion -> "Wrong Question"
                 R.id.rbReasonNoSolution -> "No Solution"
@@ -103,10 +104,12 @@ object ReportQuestionDialog {
             }
 
             tvError.visibility = View.GONE
+            btnSubmit.isEnabled = false
+            btnSubmit.text = "Submitting..."
 
             val scope = (activity as? AppCompatActivity)?.lifecycleScope ?: CoroutineScope(Dispatchers.Main)
             scope.launch {
-                val ok = flaggedRepo.flagQuestion(
+                val result = flaggedRepo.flagQuestionResult(
                     questionId = questionId,
                     examId = examId,
                     examName = examName,
@@ -114,7 +117,7 @@ object ReportQuestionDialog {
                     reason = selectedReason,
                     comment = comment
                 )
-                if (ok) {
+                if (result.isSuccess) {
                     val isContent = FlaggedQuestion.isContentIssue(selectedReason)
                     val msg = if (isContent) {
                         "Thank you! Content issue reported for review."
@@ -125,7 +128,12 @@ object ReportQuestionDialog {
                     onSubmitted?.invoke(true)
                     dialog.dismiss()
                 } else {
-                    AppBulletin.showError(activity, "Could not submit report. Please try again.")
+                    btnSubmit.isEnabled = true
+                    btnSubmit.text = "Submit Report"
+                    val err = result.exceptionOrNull()?.localizedMessage ?: "Could not submit report. Please try again."
+                    tvError.visibility = View.VISIBLE
+                    tvError.text = err
+                    AppBulletin.showError(activity, err)
                     onSubmitted?.invoke(false)
                 }
             }

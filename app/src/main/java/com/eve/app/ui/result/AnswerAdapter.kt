@@ -19,9 +19,22 @@ class AnswerAdapter(
     private var hindi = false
     private var questionStats: Map<String, QuestionStat> = emptyMap()
     private var showTimeInsight = true
+    private val expandedQuestionKeys = mutableSetOf<String>()
 
     fun submit(newItems: List<AnswerItem>) {
         items = newItems
+        notifyDataSetChanged()
+    }
+
+    fun resetExpandedSolutions() {
+        expandedQuestionKeys.clear()
+        notifyDataSetChanged()
+    }
+
+    fun isSolutionExpanded(questionKey: String): Boolean = expandedQuestionKeys.contains(questionKey)
+
+    fun expandSolution(questionKey: String) {
+        expandedQuestionKeys.add(questionKey)
         notifyDataSetChanged()
     }
 
@@ -43,6 +56,8 @@ class AnswerAdapter(
     inner class VH(private val b: ItemAnswerBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(item: AnswerItem) {
             val ctx = b.root.context
+            val questionKey = if (item.questionId.isNotBlank()) item.questionId else "q_${item.number}"
+            val isExpanded = expandedQuestionKeys.contains(questionKey)
 
             val statusDrawable = when {
                 !item.isAttempted -> R.drawable.ic_status_circle_unattempted
@@ -60,6 +75,29 @@ class AnswerAdapter(
             }
             b.tvQuestionStatusLabel.text = statusText
             b.tvQuestionStatusLabel.setTextColor(ContextCompat.getColor(ctx, badgeColor))
+
+            // Initial Review State: Hide solution details, answers, and status until View Solution is tapped
+            if (isExpanded) {
+                b.btnViewSolution.visibility = View.GONE
+                b.layoutSolutionDetails.visibility = View.VISIBLE
+                b.ivStatusCircle.visibility = View.VISIBLE
+                b.tvQuestionStatusLabel.visibility = View.VISIBLE
+            } else {
+                b.btnViewSolution.visibility = View.VISIBLE
+                b.layoutSolutionDetails.visibility = View.GONE
+                b.ivStatusCircle.visibility = View.GONE
+                b.tvQuestionStatusLabel.visibility = View.GONE
+            }
+
+            b.btnViewSolution.setOnClickListener {
+                expandedQuestionKeys.add(questionKey)
+                b.btnViewSolution.visibility = View.GONE
+                b.layoutSolutionDetails.alpha = 0f
+                b.layoutSolutionDetails.visibility = View.VISIBLE
+                b.layoutSolutionDetails.animate().alpha(1f).setDuration(220).start()
+                b.ivStatusCircle.visibility = View.VISIBLE
+                b.tvQuestionStatusLabel.visibility = View.VISIBLE
+            }
 
             b.ivBookmark.visibility = if (item.isBookmarked) View.VISIBLE else View.GONE
             b.ivReportQuestion.setOnClickListener { onReport?.invoke(item) }

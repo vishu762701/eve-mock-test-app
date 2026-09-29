@@ -229,6 +229,20 @@ class ResultActivity : AppCompatActivity() {
                 )
             }
         }
+        binding.btnOpenLeaderboard.setOnClickListener {
+            if (currentExamId.isNotBlank()) {
+                startActivity(
+                    Intent(this, LeaderboardActivity::class.java)
+                        .putExtra(Constants.EXTRA_EXAM_ID, currentExamId)
+                        .putExtra(Constants.EXTRA_EXAM_NAME, currentExamName)
+                )
+            } else {
+                AppBulletin.show(this, "Leaderboard is only available for mock tests.")
+            }
+        }
+        if (currentExamId.isBlank()) {
+            binding.tvLeaderboardTabSubtitle.text = "Leaderboard is only available for scheduled and published mock tests."
+        }
         binding.layoutActionCluster.visibility = if (canReattempt || showLeaderboard) View.VISIBLE else View.GONE
 
         binding.btnHome.setOnClickListener { close() }
@@ -238,11 +252,11 @@ class ResultActivity : AppCompatActivity() {
         binding.tabLayoutResult.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 val pos = tab?.position ?: 0
-                binding.sectionOverview.visibility = if (pos == 0) View.VISIBLE else View.GONE
-                binding.sectionCutoff.visibility = if (pos == 1) View.VISIBLE else View.GONE
-                binding.sectionReview.visibility = if (pos == 2) View.VISIBLE else View.GONE
+                binding.sectionReview.visibility = if (pos == 0) View.VISIBLE else View.GONE
+                binding.sectionOverview.visibility = if (pos == 1) View.VISIBLE else View.GONE
+                binding.sectionLeaderboard.visibility = if (pos == 2) View.VISIBLE else View.GONE
 
-                if (pos == 2) {
+                if (pos == 0) {
                     selectQuestion(selectedQuestionIndex)
                 }
             }
@@ -280,6 +294,8 @@ class ResultActivity : AppCompatActivity() {
             item.copy(isActive = (idx == pos))
         }
         paletteAdapter.submit(paletteItems)
+
+        adapter.resetExpandedSolutions()
 
         binding.rvAnswers.visibility = View.VISIBLE
         binding.layoutEmptyFilter.visibility = View.GONE
@@ -387,6 +403,7 @@ class ResultActivity : AppCompatActivity() {
                     val percentile = if (totalAttempts <= 1) 100.0 else ((lowerScores * 100.0) / (totalAttempts - 1))
 
                     binding.tvRank.text = "#$rank / $totalAttempts"
+                    binding.tvLeaderboardTabRank.text = binding.tvRank.text
                     binding.tvPercentile.text = "${String.format(java.util.Locale.US, "%.1f", percentile)}%"
                     if (percentile >= 50.0 || rank == 1) {
                         binding.tvPercentile.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.eve_status_success))
@@ -407,12 +424,14 @@ class ResultActivity : AppCompatActivity() {
 
                 } catch (e: Exception) {
                     binding.tvRank.text = "#1 / 1"
+                    binding.tvLeaderboardTabRank.text = binding.tvRank.text
                     binding.tvPercentile.text = "100.0%"
                     val sStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format(java.util.Locale.US, "%.1f", currentScore)
                     binding.tvHistoryBestAvg.text = "Best: $sStr  •  Avg: $sStr"
                 }
             } else {
                 binding.tvRank.text = "#1 / 1"
+                binding.tvLeaderboardTabRank.text = binding.tvRank.text
                 binding.tvPercentile.text = "100.0%"
                 val sStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format(java.util.Locale.US, "%.1f", currentScore)
                 binding.tvHistoryBestAvg.text = "Best: $sStr  •  Avg: $sStr"

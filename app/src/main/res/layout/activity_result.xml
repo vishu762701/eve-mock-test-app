@@ -58,7 +58,7 @@
             app:strokeColor="@color/eve_stroke" />
     </LinearLayout>
 
-    <!-- Segmented Navigation: 3 Tabs (Overview | Cutoff | Review) -->
+    <!-- Segmented Navigation: 3 Tabs (Review | Overview | Leaderboard) -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayoutResult"
         android:layout_width="match_parent"
@@ -76,17 +76,17 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Review" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Overview" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cutoff" />
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Review" />
+            android:text="Leaderboard" />
     </com.google.android.material.tabs.TabLayout>
 
     <View
@@ -115,7 +115,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="16dp"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <!-- Primary Hero Score Card -->
                 <com.google.android.material.card.MaterialCardView
@@ -415,6 +415,386 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
+                <!-- Supporting: Cutoff Qualification & Category Selector -->
+                <LinearLayout
+                android:id="@+id/sectionCutoff"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                    android:layout_marginTop="14dp"
+                    android:visibility="visible">
+                <!-- Current Category & Verdict Hero Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardCutoffVerdict"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="@color/eve_surface"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/eve_stroke"
+                    app:strokeWidth="1dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins"
+                                android:text="Selected Category:"
+                                android:textColor="@color/eve_text_secondary"
+                                android:textSize="13sp" />
+                            <TextView
+                                android:id="@+id/tvCutoffSelectedCategory"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/poppins_bold"
+                                android:text="General"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp" />
+                            <TextView
+                                android:id="@+id/tvCutoffVerdict"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_stat_mini"
+                                android:fontFamily="@font/poppins_bold"
+                                android:paddingHorizontal="10dp"
+                                android:paddingVertical="4dp"
+                                android:text="Checking..."
+                                android:textColor="@color/eve_status_success"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginVertical="14dp"
+                            android:background="@color/eve_stroke" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins"
+                                    android:text="Required Cutoff"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="12sp" />
+                                <TextView
+                                    android:id="@+id/tvCutoffValue"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:fontFamily="@font/poppins_bold"
+                                    android:text="Cutoff: --"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textSize="15sp" />
+                            </LinearLayout>
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins"
+                                    android:text="Your Score"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="12sp" />
+                                <TextView
+                                    android:id="@+id/tvCutoffScore"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:fontFamily="@font/poppins_bold"
+                                    android:text="Score: --"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textSize="15sp" />
+                            </LinearLayout>
+                        </LinearLayout>
+                        <TextView
+                            android:id="@+id/tvCutoffRelationship"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:fontFamily="@font/poppins_medium"
+                            android:text="Qualification verdict message."
+                            android:textColor="@color/eve_text_secondary"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+                <!-- Section Header for Categories List -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="22dp"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:letterSpacing="0.04"
+                    android:text="SELECT CATEGORY TO COMPARE"
+                    android:textColor="@color/eve_text_secondary"
+                    android:textSize="12sp" />
+                <!-- Categories Proper List (General, OBC, SC, ST, EWS) -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="@color/eve_surface"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/eve_stroke"
+                    app:strokeWidth="1dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <!-- Row 1: General -->
+                        <LinearLayout
+                            android:id="@+id/rowCatGeneral"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="14dp">
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins_semibold"
+                                    android:text="General"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textSize="15sp" />
+                                <TextView
+                                    android:id="@+id/tvSubGeneral"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:fontFamily="@font/poppins"
+                                    android:text="No cutoff configured"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+                            <ImageView
+                                android:id="@+id/ivCheckGeneral"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:contentDescription="Selected category"
+                                android:src="@drawable/ic_check_circle"
+                                app:tint="@color/eve_red" />
+                        </LinearLayout>
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/eve_stroke" />
+                        <!-- Row 2: OBC -->
+                        <LinearLayout
+                            android:id="@+id/rowCatObc"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="14dp">
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins_semibold"
+                                    android:text="OBC"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textSize="15sp" />
+                                <TextView
+                                    android:id="@+id/tvSubObc"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:fontFamily="@font/poppins"
+                                    android:text="No cutoff configured"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+                            <ImageView
+                                android:id="@+id/ivCheckObc"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:contentDescription="Selected category"
+                                android:src="@drawable/ic_check_circle"
+                                android:visibility="invisible"
+                                app:tint="@color/eve_red" />
+                        </LinearLayout>
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/eve_stroke" />
+                        <!-- Row 3: SC -->
+                        <LinearLayout
+                            android:id="@+id/rowCatSc"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="14dp">
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins_semibold"
+                                    android:text="SC"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textSize="15sp" />
+                                <TextView
+                                    android:id="@+id/tvSubSc"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:fontFamily="@font/poppins"
+                                    android:text="No cutoff configured"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+                            <ImageView
+                                android:id="@+id/ivCheckSc"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:contentDescription="Selected category"
+                                android:src="@drawable/ic_check_circle"
+                                android:visibility="invisible"
+                                app:tint="@color/eve_red" />
+                        </LinearLayout>
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/eve_stroke" />
+                        <!-- Row 4: ST -->
+                        <LinearLayout
+                            android:id="@+id/rowCatSt"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="14dp">
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins_semibold"
+                                    android:text="ST"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textSize="15sp" />
+                                <TextView
+                                    android:id="@+id/tvSubSt"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:fontFamily="@font/poppins"
+                                    android:text="No cutoff configured"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+                            <ImageView
+                                android:id="@+id/ivCheckSt"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:contentDescription="Selected category"
+                                android:src="@drawable/ic_check_circle"
+                                android:visibility="invisible"
+                                app:tint="@color/eve_red" />
+                        </LinearLayout>
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/eve_stroke" />
+                        <!-- Row 5: EWS -->
+                        <LinearLayout
+                            android:id="@+id/rowCatEws"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="14dp">
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins_semibold"
+                                    android:text="EWS"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textSize="15sp" />
+                                <TextView
+                                    android:id="@+id/tvSubEws"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:fontFamily="@font/poppins"
+                                    android:text="No cutoff configured"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+                            <ImageView
+                                android:id="@+id/ivCheckEws"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:contentDescription="Selected category"
+                                android:src="@drawable/ic_check_circle"
+                                android:visibility="invisible"
+                                app:tint="@color/eve_red" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
                 <!-- Supporting: Speed & Time Analysis Card -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
@@ -455,434 +835,6 @@
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
-            <!-- ========================================================== -->
-            <!-- SECTION 2: CUTOFF / PERFORMANCE                            -->
-            <!-- ========================================================== -->
-            <LinearLayout
-                android:id="@+id/sectionCutoff"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp"
-                android:visibility="gone">
-
-                <!-- Current Category & Verdict Hero Card -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardCutoffVerdict"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/eve_surface"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_stroke"
-                    app:strokeWidth="1dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="20dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/poppins"
-                                android:text="Selected Category:"
-                                android:textColor="@color/eve_text_secondary"
-                                android:textSize="13sp" />
-
-                            <TextView
-                                android:id="@+id/tvCutoffSelectedCategory"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="6dp"
-                                android:layout_weight="1"
-                                android:fontFamily="@font/poppins_bold"
-                                android:text="General"
-                                android:textColor="?attr/colorOnSurface"
-                                android:textSize="15sp" />
-
-                            <TextView
-                                android:id="@+id/tvCutoffVerdict"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:background="@drawable/bg_stat_mini"
-                                android:fontFamily="@font/poppins_bold"
-                                android:paddingHorizontal="10dp"
-                                android:paddingVertical="4dp"
-                                android:text="Checking..."
-                                android:textColor="@color/eve_status_success"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_marginVertical="14dp"
-                            android:background="@color/eve_stroke" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins"
-                                    android:text="Required Cutoff"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="12sp" />
-
-                                <TextView
-                                    android:id="@+id/tvCutoffValue"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:fontFamily="@font/poppins_bold"
-                                    android:text="Cutoff: --"
-                                    android:textColor="?attr/colorOnSurface"
-                                    android:textSize="15sp" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins"
-                                    android:text="Your Score"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="12sp" />
-
-                                <TextView
-                                    android:id="@+id/tvCutoffScore"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:fontFamily="@font/poppins_bold"
-                                    android:text="Score: --"
-                                    android:textColor="?attr/colorOnSurface"
-                                    android:textSize="15sp" />
-                            </LinearLayout>
-                        </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/tvCutoffRelationship"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:fontFamily="@font/poppins_medium"
-                            android:text="Qualification verdict message."
-                            android:textColor="@color/eve_text_secondary"
-                            android:textSize="13sp" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Section Header for Categories List -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="22dp"
-                    android:layout_marginBottom="8dp"
-                    android:fontFamily="@font/poppins_semibold"
-                    android:letterSpacing="0.04"
-                    android:text="SELECT CATEGORY TO COMPARE"
-                    android:textColor="@color/eve_text_secondary"
-                    android:textSize="12sp" />
-
-                <!-- Categories Proper List (General, OBC, SC, ST, EWS) -->
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/eve_surface"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_stroke"
-                    app:strokeWidth="1dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <!-- Row 1: General -->
-                        <LinearLayout
-                            android:id="@+id/rowCatGeneral"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="?attr/selectableItemBackground"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="14dp">
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins_semibold"
-                                    android:text="General"
-                                    android:textColor="?attr/colorOnSurface"
-                                    android:textSize="15sp" />
-
-                                <TextView
-                                    android:id="@+id/tvSubGeneral"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:fontFamily="@font/poppins"
-                                    android:text="No cutoff configured"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="12sp" />
-                            </LinearLayout>
-
-                            <ImageView
-                                android:id="@+id/ivCheckGeneral"
-                                android:layout_width="22dp"
-                                android:layout_height="22dp"
-                                android:contentDescription="Selected category"
-                                android:src="@drawable/ic_check_circle"
-                                app:tint="@color/eve_red" />
-                        </LinearLayout>
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="@color/eve_stroke" />
-
-                        <!-- Row 2: OBC -->
-                        <LinearLayout
-                            android:id="@+id/rowCatObc"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="?attr/selectableItemBackground"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="14dp">
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins_semibold"
-                                    android:text="OBC"
-                                    android:textColor="?attr/colorOnSurface"
-                                    android:textSize="15sp" />
-
-                                <TextView
-                                    android:id="@+id/tvSubObc"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:fontFamily="@font/poppins"
-                                    android:text="No cutoff configured"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="12sp" />
-                            </LinearLayout>
-
-                            <ImageView
-                                android:id="@+id/ivCheckObc"
-                                android:layout_width="22dp"
-                                android:layout_height="22dp"
-                                android:contentDescription="Selected category"
-                                android:src="@drawable/ic_check_circle"
-                                android:visibility="invisible"
-                                app:tint="@color/eve_red" />
-                        </LinearLayout>
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="@color/eve_stroke" />
-
-                        <!-- Row 3: SC -->
-                        <LinearLayout
-                            android:id="@+id/rowCatSc"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="?attr/selectableItemBackground"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="14dp">
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins_semibold"
-                                    android:text="SC"
-                                    android:textColor="?attr/colorOnSurface"
-                                    android:textSize="15sp" />
-
-                                <TextView
-                                    android:id="@+id/tvSubSc"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:fontFamily="@font/poppins"
-                                    android:text="No cutoff configured"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="12sp" />
-                            </LinearLayout>
-
-                            <ImageView
-                                android:id="@+id/ivCheckSc"
-                                android:layout_width="22dp"
-                                android:layout_height="22dp"
-                                android:contentDescription="Selected category"
-                                android:src="@drawable/ic_check_circle"
-                                android:visibility="invisible"
-                                app:tint="@color/eve_red" />
-                        </LinearLayout>
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="@color/eve_stroke" />
-
-                        <!-- Row 4: ST -->
-                        <LinearLayout
-                            android:id="@+id/rowCatSt"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="?attr/selectableItemBackground"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="14dp">
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins_semibold"
-                                    android:text="ST"
-                                    android:textColor="?attr/colorOnSurface"
-                                    android:textSize="15sp" />
-
-                                <TextView
-                                    android:id="@+id/tvSubSt"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:fontFamily="@font/poppins"
-                                    android:text="No cutoff configured"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="12sp" />
-                            </LinearLayout>
-
-                            <ImageView
-                                android:id="@+id/ivCheckSt"
-                                android:layout_width="22dp"
-                                android:layout_height="22dp"
-                                android:contentDescription="Selected category"
-                                android:src="@drawable/ic_check_circle"
-                                android:visibility="invisible"
-                                app:tint="@color/eve_red" />
-                        </LinearLayout>
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="@color/eve_stroke" />
-
-                        <!-- Row 5: EWS -->
-                        <LinearLayout
-                            android:id="@+id/rowCatEws"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="?attr/selectableItemBackground"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="14dp">
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins_semibold"
-                                    android:text="EWS"
-                                    android:textColor="?attr/colorOnSurface"
-                                    android:textSize="15sp" />
-
-                                <TextView
-                                    android:id="@+id/tvSubEws"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:fontFamily="@font/poppins"
-                                    android:text="No cutoff configured"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="12sp" />
-                            </LinearLayout>
-
-                            <ImageView
-                                android:id="@+id/ivCheckEws"
-                                android:layout_width="22dp"
-                                android:layout_height="22dp"
-                                android:contentDescription="Selected category"
-                                android:src="@drawable/ic_check_circle"
-                                android:visibility="invisible"
-                                app:tint="@color/eve_red" />
-                        </LinearLayout>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
 
             <!-- ========================================================== -->
             <!-- SECTION 3: ANSWER REVIEW                                   -->
@@ -892,7 +844,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:visibility="visible">
 
                 <!-- Question Palette Navigation -->
                 <LinearLayout
@@ -1077,6 +1029,102 @@
                             android:textSize="13sp" />
                     </LinearLayout>
                 </FrameLayout>
+            </LinearLayout>
+
+            <!-- ========================================================== -->
+            <!-- SECTION 3: LEADERBOARD                                     -->
+            <!-- ========================================================== -->
+            <LinearLayout
+                android:id="@+id/sectionLeaderboard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:visibility="gone">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="@color/eve_surface"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/eve_stroke"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:padding="24dp">
+
+                        <ImageView
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
+                            android:contentDescription="Leaderboard"
+                            android:src="@drawable/ic_trophy"
+                            app:tint="@color/eve_primary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:fontFamily="@font/poppins_bold"
+                            android:text="Test Leaderboard"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="18sp" />
+
+                        <TextView
+                            android:id="@+id/tvLeaderboardTabSubtitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="@font/poppins"
+                            android:gravity="center"
+                            android:text="See how you rank against all students who took this exam."
+                            android:textColor="@color/eve_text_secondary"
+                            android:textSize="13sp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:background="@drawable/bg_stat_mini"
+                            android:gravity="center"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="10dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_medium"
+                                android:text="Your Standing: "
+                                android:textColor="@color/eve_text_secondary"
+                                android:textSize="13sp" />
+
+                            <TextView
+                                android:id="@+id/tvLeaderboardTabRank"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:text="-- / --"
+                                android:textColor="@color/eve_primary"
+                                android:textSize="14sp" />
+                        </LinearLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnOpenLeaderboard"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:minHeight="48dp"
+                            android:text="View Full Leaderboard"
+                            app:icon="@drawable/ic_trophy"
+                            app:iconGravity="textStart"
+                            app:iconPadding="8dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
         </FrameLayout>
     </androidx.core.widget.NestedScrollView>

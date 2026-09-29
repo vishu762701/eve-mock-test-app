@@ -322,10 +322,10 @@ service cloud.firestore {
     // ------------------------------------------------------------------------
     // 20. FLAGGED QUESTIONS (Student Reporting & Admin Review)
     // ------------------------------------------------------------------------
-    // - Authenticated students can flag a question (create).
+    // - Students can flag a question (create report).
     // - Admin can read, update (dismiss flag), or delete flag records.
     match /flagged_questions/{flagId} {
-      allow create: if isSignedIn();
+      allow create: if true;
       allow read, update, delete: if isAdmin();
     }
 
@@ -333,7 +333,7 @@ service cloud.firestore {
     // 21. REPORTED BUGS (Technical Issues)
     // ------------------------------------------------------------------------
     match /reported_bugs/{bugId} {
-      allow create: if isSignedIn();
+      allow create: if true;
       allow read, update, delete: if isAdmin();
     }
 

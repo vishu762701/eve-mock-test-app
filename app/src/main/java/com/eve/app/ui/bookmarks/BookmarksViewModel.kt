@@ -52,4 +52,16 @@ class BookmarksViewModel : ViewModel() {
             repository.unbookmarkQuestion(user.uid, questionId)
         }
     }
+
+    fun bookmark(bookmark: BookmarkedQuestion) {
+        val user = FirebaseAuth.getInstance().currentUser ?: return
+        viewModelScope.launch {
+            repository.bookmarkQuestion(
+                userId = user.uid,
+                question = bookmark.toQuestion(),
+                examName = bookmark.examName,
+                questionNumber = bookmark.questionNumber
+            )
+        }
+    }
 }

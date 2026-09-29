@@ -21,8 +21,7 @@ class AppUndoBar private constructor(
     private val activity: Activity,
     private val message: CharSequence,
     private val timeLeftMs: Long,
-    private val onUndo: () -> Unit,
-    private val onExecuteDelete: () -> Unit
+    private val onUndo: () -> Unit
 ) {
 
     companion object {
@@ -45,18 +44,21 @@ class AppUndoBar private constructor(
             message: CharSequence,
             timeLeftMs: Long = TIME_IMPORTANT,
             onUndo: () -> Unit,
-            onExecuteDelete: () -> Unit
+            onExecuteDelete: (() -> Unit)? = null
         ) {
+            // Architectural requirement: Deletion executes IMMEDIATELY from data source
+            // before the Undo window opens. The 5-second countdown is an undo opportunity, not a deferred deletion delay.
+            onExecuteDelete?.invoke()
+
             val act = findActivity(context) ?: return
             if (act.isFinishing || act.isDestroyed) {
-                onExecuteDelete()
                 return
             }
 
-            // If an undo bar is already running, execute its pending deletion immediately before showing the new one
-            activeUndoBar?.executeDeleteAndDismiss(immediate = true)
+            // Dismiss existing bar without reverting the previous deletion
+            activeUndoBar?.dismissInternal(immediate = true)
 
-            val bar = AppUndoBar(act, message, timeLeftMs, onUndo, onExecuteDelete)
+            val bar = AppUndoBar(act, message, timeLeftMs, onUndo)
             activeUndoBar = bar
             bar.showInternal()
         }
@@ -66,10 +68,7 @@ class AppUndoBar private constructor(
     private var isResolved = false
 
     private fun showInternal() {
-        val decorView = activity.findViewById<ViewGroup>(android.R.id.content) ?: run {
-            onExecuteDelete()
-            return
-        }
+        val decorView = activity.findViewById<ViewGroup>(android.R.id.content) ?: return
 
         val inflater = LayoutInflater.from(activity)
         val view = inflater.inflate(R.layout.layout_undo_bar, decorView, false)
@@ -104,22 +103,13 @@ class AppUndoBar private constructor(
             .setInterpolator(OvershootInterpolator(1.15f))
             .start()
 
-        // Start smooth depleting countdown
+        // Start smooth depleting countdown; on expiration, simply dismiss since item is already deleted
         countdown.startCountdown(timeLeftMs) {
             if (!isResolved) {
                 isResolved = true
-                onExecuteDelete.invoke()
                 dismissInternal(immediate = false)
             }
         }
-    }
-
-    private fun executeDeleteAndDismiss(immediate: Boolean) {
-        if (!isResolved) {
-            isResolved = true
-            onExecuteDelete.invoke()
-        }
-        dismissInternal(immediate)
     }
 
     private fun dismissInternal(immediate: Boolean) {

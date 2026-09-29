@@ -20,12 +20,28 @@ class FlaggedQuestionRepository {
         questionText: String,
         reason: String,
         comment: String
-    ): Boolean {
+    ): Boolean = flagQuestionResult(questionId, examId, examName, questionText, reason, comment).isSuccess
+
+    suspend fun flagQuestionResult(
+        questionId: String,
+        examId: String,
+        examName: String,
+        questionText: String,
+        reason: String,
+        comment: String
+    ): Result<Unit> = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
         if (!FlaggedQuestion.isCommentValid(comment)) {
-            return false
+            return@withContext Result.failure(IllegalArgumentException("Please enter at least 7 words or 40 characters explaining the issue."))
         }
-        return try {
-            val user = auth.currentUser
+        try {
+            var user = auth.currentUser
+            if (user == null) {
+                try {
+                    user = auth.signInAnonymously().await().user
+                } catch (_: Exception) {
+                    // Fall back to writing anonymously
+                }
+            }
             val isContent = FlaggedQuestion.isContentIssue(reason)
             val collectionName = if (isContent) "flagged_questions" else "reported_bugs"
             val reportType = if (isContent) FlaggedQuestion.TYPE_CONTENT else FlaggedQuestion.TYPE_TECHNICAL
@@ -44,10 +60,11 @@ class FlaggedQuestionRepository {
                 "reportType" to reportType
             )
             firestore.collection(collectionName).add(doc).await()
-            true
+            android.util.Log.d("FlaggedRepo", "Successfully submitted report to $collectionName for q=$questionId")
+            Result.success(Unit)
         } catch (e: Exception) {
-            e.printStackTrace()
-            false
+            android.util.Log.e("FlaggedRepo", "Failed to submit report for questionId=$questionId", e)
+            Result.failure(e)
         }
     }
 

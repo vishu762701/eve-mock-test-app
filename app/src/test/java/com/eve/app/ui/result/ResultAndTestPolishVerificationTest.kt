@@ -186,10 +186,25 @@ class ResultAndTestPolishVerificationTest {
         assertTrue("item_question.xml must exist", file.exists())
         val content = file.readText()
 
-        assertTrue("btnBookmark must be 36dp", content.contains("android:id=\"@+id/btnBookmark\""))
-        assertTrue("btnReport must be 36dp", content.contains("android:id=\"@+id/btnReport\""))
-        assertTrue("btnReport must use ic_flag", content.contains("@drawable/ic_flag"))
+        assertTrue("btnBookmark must exist", content.contains("android:id=\"@+id/btnBookmark\""))
+        assertTrue("btnReport must exist", content.contains("android:id=\"@+id/btnReport\""))
+        assertTrue("btnReport must use ic_warning", content.contains("@drawable/ic_warning"))
         assertTrue("btnReport must use bg_btn_report", content.contains("@drawable/bg_btn_report"))
+        assertTrue("Touch target FrameLayout must be 48dp", content.contains("android:layout_width=\"48dp\"") && content.contains("android:layout_height=\"48dp\""))
+    }
+
+    @Test
+    fun testReviewQuestionFirstSolutionOnDemandLayout() {
+        val file = File("src/main/res/layout/item_answer.xml").takeIf { it.exists() }
+            ?: File("app/src/main/res/layout/item_answer.xml").takeIf { it.exists() }
+            ?: File("eve-mock-test-app/app/src/main/res/layout/item_answer.xml")
+        assertTrue("item_answer.xml must exist", file.exists())
+        val content = file.readText()
+
+        assertTrue("btnViewSolution must exist", content.contains("android:id=\"@+id/btnViewSolution\""))
+        assertTrue("layoutSolutionDetails must exist", content.contains("android:id=\"@+id/layoutSolutionDetails\""))
+        assertTrue("layoutSolutionDetails must be initially gone", content.contains("android:id=\"@+id/layoutSolutionDetails\"") && content.contains("android:visibility=\"gone\""))
+        assertTrue("Report icon in item_answer must use ic_warning", content.contains("android:id=\"@+id/ivReportQuestion\"") && content.contains("@drawable/ic_warning"))
     }
 
     @Test
@@ -219,6 +234,20 @@ class ResultAndTestPolishVerificationTest {
         assertTrue("sectionOverview must exist", content.contains("android:id=\"@+id/sectionOverview\""))
         assertTrue("sectionCutoff must exist", content.contains("android:id=\"@+id/sectionCutoff\""))
         assertTrue("sectionReview must exist", content.contains("android:id=\"@+id/sectionReview\""))
+        assertTrue("sectionLeaderboard must exist", content.contains("android:id=\"@+id/sectionLeaderboard\""))
+
+        // Tab Order verification: Review -> Overview -> Leaderboard
+        val reviewIdx = content.indexOf("android:text=\"Review\"")
+        val overviewIdx = content.indexOf("android:text=\"Overview\"")
+        val leaderboardIdx = content.indexOf("android:text=\"Leaderboard\"")
+        assertTrue("Review tab must appear before Overview", reviewIdx in 0 until overviewIdx)
+        assertTrue("Overview tab must appear before Leaderboard", overviewIdx in 0 until leaderboardIdx)
+
+        // Cutoff integrated into Overview
+        val overviewStart = content.indexOf("android:id=\"@+id/sectionOverview\"")
+        val reviewStart = content.indexOf("android:id=\"@+id/sectionReview\"")
+        val cutoffPos = content.indexOf("android:id=\"@+id/sectionCutoff\"")
+        assertTrue("sectionCutoff must be nested inside sectionOverview", cutoffPos in overviewStart until reviewStart)
 
         // 2. Cutoff Category List Rows & Active Indicators
         assertTrue("rowCatGeneral must exist", content.contains("android:id=\"@+id/rowCatGeneral\""))

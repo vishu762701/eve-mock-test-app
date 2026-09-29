@@ -83,7 +83,7 @@
                     android:contentDescription="Report this question"
                     android:padding="8dp"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/ic_flag"
+                    android:src="@drawable/ic_warning"
                     app:tint="@color/eve_status_warning" />
             </FrameLayout>
         </LinearLayout>
@@ -99,12 +99,38 @@
             android:textColor="?attr/colorOnSurface"
             android:textSize="16sp" />
 
-        <View
+        <!-- View Solution Button (Initial Review State: Question First, Solution on Demand) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnViewSolution"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="14dp"
-            android:layout_marginBottom="12dp"
-            android:background="@color/eve_stroke" />
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/poppins_semibold"
+            android:text="View Solution"
+            android:textColor="?attr/colorOnSurface"
+            app:cornerRadius="12dp"
+            app:icon="@drawable/ic_visibility"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:iconTint="?attr/colorOnSurface"
+            app:strokeColor="@color/eve_stroke"
+            app:strokeWidth="1dp" />
+
+        <!-- Solution Container (Expanded Inline on Demand) -->
+        <LinearLayout
+            android:id="@+id/layoutSolutionDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="14dp"
+                android:layout_marginBottom="12dp"
+                android:background="@color/eve_stroke" />
 
         <!-- 3. User's Answer -->
         <TextView
@@ -337,7 +363,7 @@
                 android:layout_width="14dp"
                 android:layout_height="14dp"
                 android:contentDescription="Report"
-                android:src="@drawable/ic_flag"
+                android:src="@drawable/ic_warning"
                 app:tint="@color/eve_status_warning" />
 
             <TextView
@@ -348,6 +374,7 @@
                 android:text="Report an issue with this question"
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="12sp" />
+        </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -563,6 +563,14 @@ class EditExamActivity : AppCompatActivity() {
                 questionAdapter.submit(currentQuestions)
                 binding.tvQuestionsHeader.text = "Questions (${currentQuestions.size})"
 
+                lifecycleScope.launch {
+                    try {
+                        examRepo.deleteQuestion(q.id)
+                    } catch (e: Exception) {
+                        AppBulletin.showError(this@EditExamActivity, "Failed to delete question: ${e.message}")
+                    }
+                }
+
                 AppUndoBar.show(
                     context = this@EditExamActivity,
                     message = "Question deleted",
@@ -571,16 +579,12 @@ class EditExamActivity : AppCompatActivity() {
                         currentQuestions = prevList
                         questionAdapter.submit(currentQuestions)
                         binding.tvQuestionsHeader.text = "Questions (${currentQuestions.size})"
-                        AppBulletin.show(this@EditExamActivity, "Delete cancelled")
-                    },
-                    onExecuteDelete = {
                         lifecycleScope.launch {
                             try {
-                                examRepo.deleteQuestion(q.id)
-                                AppBulletin.showSuccess(this@EditExamActivity, "Question deleted")
+                                examRepo.updateQuestion(q)
+                                AppBulletin.showSuccess(this@EditExamActivity, "Question restored")
                             } catch (e: Exception) {
-                                AppBulletin.showError(this@EditExamActivity, "Failed to delete question: ${e.message}")
-                                loadQuestions()
+                                AppBulletin.showError(this@EditExamActivity, "Failed to restore question: ${e.message}")
                             }
                         }
                     }
