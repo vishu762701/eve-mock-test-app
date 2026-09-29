@@ -2,11 +2,7 @@ package com.eve.app.ui.result
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.widget.EditText
-import android.widget.RadioGroup
-import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -15,17 +11,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.R
 import com.eve.app.data.model.AnswerItem
-import com.eve.app.data.model.FlaggedQuestion
 import com.eve.app.data.model.QuestionStat
+import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.repository.ExamRepository
-import com.eve.app.data.repository.FlaggedQuestionRepository
 import com.eve.app.data.repository.QuestionStatsRepository
 import com.eve.app.databinding.ActivityResultBinding
 import com.eve.app.ui.common.PaletteItem
 import com.eve.app.ui.common.PaletteState
 import com.eve.app.ui.common.QuestionPaletteAdapter
 import com.eve.app.ui.common.ReportQuestionDialog
-import com.eve.app.data.remote.ApiClient
 import com.eve.app.ui.home.HomeViewModel
 import com.eve.app.ui.home.MainActivity
 import com.eve.app.ui.leaderboard.LeaderboardActivity
@@ -34,8 +28,10 @@ import com.eve.app.util.AppBulletin
 import com.eve.app.util.AttemptKey
 import com.eve.app.util.Constants
 import com.eve.app.util.LanguageManager
+import com.eve.app.util.NumberCountUpHelper
 import com.eve.app.util.SecurityHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.tabs.TabLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
@@ -47,11 +43,17 @@ class ResultActivity : AppCompatActivity() {
     private lateinit var allItems: List<AnswerItem>
     private lateinit var binding: ActivityResultBinding
 
+    private var currentExamName: String = ""
+    private var currentExamId: String = ""
+
     private val adapter = AnswerAdapter(
         onReport = { item ->
-            val examId = intent.getStringExtra(Constants.EXTRA_EXAM_ID).orEmpty()
-            val examName = intent.getStringExtra(Constants.EXTRA_EXAM_NAME).orEmpty()
-            ReportQuestionDialog.show(this, item, AttemptKey.sourceExamId(examId), examName)
+            ReportQuestionDialog.show(
+                activity = this,
+                item = item,
+                examId = AttemptKey.sourceExamId(currentExamId),
+                examName = currentExamName
+            )
         }
     )
     private lateinit var paletteAdapter: QuestionPaletteAdapter
@@ -60,11 +62,11 @@ class ResultActivity : AppCompatActivity() {
 
     private val examRepo = ExamRepository()
     private val questionStatsRepo = QuestionStatsRepository()
-    private val flaggedRepo = FlaggedQuestionRepository()
     private var examCutoffs: Map<String, Double> = emptyMap()
     private var loadedQuestionStats: Map<String, QuestionStat> = emptyMap()
     private var currentScore: Double = 0.0
 
+    private var selectedCutoffCategory: String = "General"
     private var fromHistory = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,16 +87,21 @@ class ResultActivity : AppCompatActivity() {
         }
 
         fromHistory = intent.getBooleanExtra(Constants.EXTRA_FROM_HISTORY, false)
-        val examId = intent.getStringExtra(Constants.EXTRA_EXAM_ID).orEmpty()
+        currentExamId = intent.getStringExtra(Constants.EXTRA_EXAM_ID).orEmpty()
         val examName = intent.getStringExtra(Constants.EXTRA_EXAM_NAME)
+        currentExamName = examName.orEmpty()
         val attemptDate = intent.getStringExtra(Constants.EXTRA_ATTEMPT_DATE)
 
-        if (fromHistory && !examName.isNullOrBlank()) {
+        if (!currentExamName.isBlank()) {
+            binding.tvResultTitle.text = currentExamName
+        }
+
+        if (fromHistory) {
             binding.tvResultSubtitle.visibility = View.VISIBLE
             binding.tvResultSubtitle.text = if (!attemptDate.isNullOrBlank()) {
-                "$examName  •  $attemptDate"
+                "Attempted on $attemptDate"
             } else {
-                examName
+                "Historical Attempt"
             }
             binding.btnHome.text = "Close"
         }
@@ -103,7 +110,7 @@ class ResultActivity : AppCompatActivity() {
         binding.btnReattempt.visibility = if (canReattempt) View.VISIBLE else View.GONE
         if (canReattempt) {
             binding.btnReattempt.setOnClickListener {
-                showReattemptDialog(examId, examName ?: "this test")
+                showReattemptDialog(currentExamId, if (currentExamName.isNotBlank()) currentExamName else "this test")
             }
         }
 
@@ -119,10 +126,10 @@ class ResultActivity : AppCompatActivity() {
         }
         currentScore = Math.round((correct - wrong * negMark) * 100.0) / 100.0
 
-        if (examId.isNotBlank() && !intent.hasExtra(Constants.EXTRA_NEGATIVE_MARKING)) {
+        if (currentExamId.isNotBlank() && !intent.hasExtra(Constants.EXTRA_NEGATIVE_MARKING)) {
             lifecycleScope.launch {
                 try {
-                    val exam = ExamRepository().getExam(AttemptKey.sourceExamId(examId))
+                    val exam = examRepo.getExam(AttemptKey.sourceExamId(currentExamId))
                     val examNeg = exam?.negativeMarkingValue ?: 0.0
                     val updatedScore = Math.round((correct - wrong * examNeg) * 100.0) / 100.0
                     if (updatedScore != currentScore) {
@@ -133,19 +140,33 @@ class ResultActivity : AppCompatActivity() {
                             String.format(java.util.Locale.US, "%.2f", currentScore)
                         }
                         binding.tvScore.text = "$finalStr / $total"
+                        updateCutoffUI()
                     }
                 } catch (_: Exception) {}
             }
         }
 
-        // Number count-up animation
-        com.eve.app.util.NumberCountUpHelper.animateScoreCountUp(
+        // Section 1: Overview Breakdown Metrics
+        binding.tvCorrectCount.text = correct.toString()
+        binding.tvWrongCount.text = wrong.toString()
+        binding.tvUnattemptedCount.text = unattempted.toString()
+
+        val attempted = correct + wrong
+        val accuracy = if (attempted > 0) (correct * 100.0 / attempted) else 0.0
+        val accFormatted = String.format(java.util.Locale.US, "%.1f", accuracy)
+        binding.tvAccuracy.text = "$accFormatted%"
+
+        val scorePct = if (total > 0) (currentScore * 100.0 / total).coerceAtLeast(0.0) else 0.0
+        binding.tvScorePercentage.text = String.format(java.util.Locale.US, "%.1f%% Score", scorePct)
+
+        // Number count-up animation for hero score
+        NumberCountUpHelper.animateScoreCountUp(
             textView = binding.tvScore,
             targetScore = currentScore,
             total = total,
             durationMs = 950L,
             onFinished = {
-                com.eve.app.util.NumberCountUpHelper.animateStatsCountUp(
+                NumberCountUpHelper.animateStatsCountUp(
                     textView = binding.tvStats,
                     correct = correct,
                     wrong = wrong,
@@ -155,21 +176,14 @@ class ResultActivity : AppCompatActivity() {
             }
         )
 
-        // Accuracy Calculation
-        val attempted = correct + wrong
-        val accuracy = if (attempted > 0) (correct * 100.0 / attempted) else 0.0
-        val accFormatted = String.format(java.util.Locale.US, "%.1f", accuracy)
-        binding.tvAccuracy.text = "$accFormatted%"
-
-        // Summary at top: accuracy %, avg time per question, fastest and slowest question
+        // Speed and Pace Summary
         val timedItems = allItems.filter { it.timeTakenSeconds > 0 }
         if (timedItems.isNotEmpty()) {
             val avgSeconds = kotlin.math.round(timedItems.map { it.timeTakenSeconds }.average()).toLong()
             val fastest = timedItems.minByOrNull { it.timeTakenSeconds }
             val slowest = timedItems.maxByOrNull { it.timeTakenSeconds }
             val timeParts = mutableListOf<String>()
-            timeParts.add("Accuracy: $accFormatted%")
-            timeParts.add("Avg: ${avgSeconds}s/q")
+            timeParts.add("Avg: ${avgSeconds}s / question")
             if (fastest != null && slowest != null && fastest.number != slowest.number) {
                 timeParts.add("Fastest: Q${fastest.number} (${fastest.timeTakenSeconds}s)")
                 timeParts.add("Slowest: Q${slowest.number} (${slowest.timeTakenSeconds}s)")
@@ -177,13 +191,11 @@ class ResultActivity : AppCompatActivity() {
                 timeParts.add("Fastest: Q${fastest.number} (${fastest.timeTakenSeconds}s)")
             }
             binding.tvTimeSummary.text = timeParts.joinToString("  •  ")
-            binding.tvTimeSummary.visibility = View.VISIBLE
         } else {
-            binding.tvTimeSummary.text = "Accuracy: $accFormatted%"
-            binding.tvTimeSummary.visibility = View.VISIBLE
+            binding.tvTimeSummary.text = "Accuracy: $accFormatted%  •  Total Questions: $total"
         }
 
-        // Setup Answers RecyclerView
+        // Setup Answers RecyclerView (Section 3: Answer Review)
         binding.rvAnswers.layoutManager = LinearLayoutManager(this)
         binding.rvAnswers.adapter = adapter
         adapter.setHindi(LanguageManager.isHindi(this))
@@ -193,29 +205,51 @@ class ResultActivity : AppCompatActivity() {
             adapter.setHindi(hindi)
         }
 
-        // Setup Question Palette Navigation (Item 6)
+        // Setup Segmented 3-Tab Navigation
+        setupTabLayout()
+
+        // Setup Question Palette Navigation (Single Question Isolation)
         setupQuestionPalette()
 
-        // Setup Combinable Filters (Item 4)
-        setupFilters(total, correct, wrong, unattempted)
+        // Setup Filter Chips (Right, Wrong, Unattempted)
+        setupFilters(correct, wrong, unattempted)
 
-        // Setup Cutoff comparison and Depth stats (Item 2)
-        loadDepthStatsAndCutoffs(examId)
+        // Setup Cutoff / Performance (Section 2)
+        loadDepthStatsAndCutoffs(currentExamId)
 
-        val showLeaderboard = examId.isNotBlank()
+        // Bottom Actions
+        val showLeaderboard = currentExamId.isNotBlank()
         binding.btnLeaderboard.visibility = if (showLeaderboard) View.VISIBLE else View.GONE
         if (showLeaderboard) {
             binding.btnLeaderboard.setOnClickListener {
                 startActivity(
                     Intent(this, LeaderboardActivity::class.java)
-                        .putExtra(Constants.EXTRA_EXAM_ID, examId)
-                        .putExtra(Constants.EXTRA_EXAM_NAME, examName)
+                        .putExtra(Constants.EXTRA_EXAM_ID, currentExamId)
+                        .putExtra(Constants.EXTRA_EXAM_NAME, currentExamName)
                 )
             }
         }
         binding.layoutActionCluster.visibility = if (canReattempt || showLeaderboard) View.VISIBLE else View.GONE
 
         binding.btnHome.setOnClickListener { close() }
+    }
+
+    private fun setupTabLayout() {
+        binding.tabLayoutResult.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                val pos = tab?.position ?: 0
+                binding.sectionOverview.visibility = if (pos == 0) View.VISIBLE else View.GONE
+                binding.sectionCutoff.visibility = if (pos == 1) View.VISIBLE else View.GONE
+                binding.sectionReview.visibility = if (pos == 2) View.VISIBLE else View.GONE
+
+                if (pos == 2) {
+                    selectQuestion(selectedQuestionIndex)
+                }
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
+        })
     }
 
     private fun setupQuestionPalette() {
@@ -253,7 +287,7 @@ class ResultActivity : AppCompatActivity() {
         binding.rvAnswers.scrollToPosition(0)
     }
 
-    private fun setupFilters(total: Int, correct: Int, wrong: Int, unattempted: Int) {
+    private fun setupFilters(correct: Int, wrong: Int, unattempted: Int) {
         binding.chipCorrect.text = "Right ($correct)"
         binding.chipWrong.text = "Wrong ($wrong)"
         binding.chipNotAttempted.text = "Unattempted ($unattempted)"
@@ -294,12 +328,12 @@ class ResultActivity : AppCompatActivity() {
             binding.tvEmptyFilterSub.text = when {
                 showWrong -> "Great job! You didn't get any questions wrong."
                 showUnattempted -> "Great job! You attempted every question."
-                else -> "Try selecting another filter above to view your questions."
+                else -> "Try selecting another filter above or tap any question on the palette."
             }
         } else {
             binding.rvAnswers.visibility = View.VISIBLE
             binding.layoutEmptyFilter.visibility = View.GONE
-            val targetIndex = if (showAll) 0 else matchingIndices.first()
+            val targetIndex = if (showAll) selectedQuestionIndex.coerceIn(allItems.indices) else matchingIndices.first()
             selectQuestion(targetIndex)
         }
     }
@@ -353,7 +387,7 @@ class ResultActivity : AppCompatActivity() {
                     val percentile = if (totalAttempts <= 1) 100.0 else ((lowerScores * 100.0) / (totalAttempts - 1))
 
                     binding.tvRank.text = "#$rank / $totalAttempts"
-                    binding.tvPercentile.text = "${String.format("%.1f", percentile)}%"
+                    binding.tvPercentile.text = "${String.format(java.util.Locale.US, "%.1f", percentile)}%"
                     if (percentile >= 50.0 || rank == 1) {
                         binding.tvPercentile.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.eve_status_success))
                         binding.tvRank.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.eve_status_success))
@@ -367,78 +401,132 @@ class ResultActivity : AppCompatActivity() {
                     val best = if (myPastScores.isNotEmpty()) maxOf(myPastScores.maxOrNull() ?: currentScore, currentScore) else currentScore
                     val avg = if (myPastScores.isNotEmpty()) myPastScores.average() else currentScore
 
-                    val bestStr = if (best % 1.0 == 0.0) best.toInt().toString() else String.format("%.1f", best)
-                    val avgStr = if (avg % 1.0 == 0.0) avg.toInt().toString() else String.format("%.1f", avg)
+                    val bestStr = if (best % 1.0 == 0.0) best.toInt().toString() else String.format(java.util.Locale.US, "%.1f", best)
+                    val avgStr = if (avg % 1.0 == 0.0) avg.toInt().toString() else String.format(java.util.Locale.US, "%.1f", avg)
                     binding.tvHistoryBestAvg.text = "Best: $bestStr  •  Avg: $avgStr"
 
                 } catch (e: Exception) {
                     binding.tvRank.text = "#1 / 1"
                     binding.tvPercentile.text = "100.0%"
-                    val sStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format("%.1f", currentScore)
+                    val sStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format(java.util.Locale.US, "%.1f", currentScore)
                     binding.tvHistoryBestAvg.text = "Best: $sStr  •  Avg: $sStr"
                 }
             } else {
                 binding.tvRank.text = "#1 / 1"
                 binding.tvPercentile.text = "100.0%"
-                val sStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format("%.1f", currentScore)
+                val sStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format(java.util.Locale.US, "%.1f", currentScore)
                 binding.tvHistoryBestAvg.text = "Best: $sStr  •  Avg: $sStr"
             }
         }
     }
 
     private fun setupCutoffSelector() {
-        fun updateCutoffVerdict(category: String) {
-            binding.layoutCutoffComparison.visibility = View.VISIBLE
-            val cutoff = examCutoffs[category]
-            if (cutoff != null && cutoff > 0) {
-                val cutoffStr = if (cutoff % 1.0 == 0.0) cutoff.toInt().toString() else cutoff.toString()
-                binding.tvCutoffValue.text = "$category Cutoff: $cutoffStr"
-                if (currentScore >= cutoff) {
-                    binding.tvCutoffVerdict.text = "Qualified ✓"
-                    binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.eve_status_success))
-                    binding.tvCutoffVerdict.setBackgroundResource(R.drawable.bg_stat_mini)
-                } else {
-                    binding.tvCutoffVerdict.text = "Not Qualified ✗"
-                    binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.eve_status_error))
-                    binding.tvCutoffVerdict.setBackgroundResource(R.drawable.bg_stat_mini)
-                }
-            } else {
-                binding.tvCutoffValue.text = "$category Cutoff: Not Configured"
-                binding.tvCutoffVerdict.text = "No Cutoff Set"
-                binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.eve_text_secondary))
-                binding.tvCutoffVerdict.setBackgroundResource(R.drawable.bg_stat_mini)
-            }
-        }
-
-        binding.chipGroupCutoffCategory.setOnCheckedStateChangeListener { _, checkedIds ->
-            val cat = when (checkedIds.firstOrNull()) {
-                binding.chipCatGeneral.id -> "General"
-                binding.chipCatObc.id -> "OBC"
-                binding.chipCatSc.id -> "SC"
-                binding.chipCatSt.id -> "ST"
-                binding.chipCatEws.id -> "EWS"
-                else -> "General"
-            }
-            updateCutoffVerdict(cat)
-        }
-
-        // Initialize with default or matching category from exam
         val defaultCategory = intent.getStringExtra(Constants.EXTRA_EXAM_CATEGORY)?.trim()?.uppercase() ?: "GENERAL"
-        when (defaultCategory) {
-            "OBC" -> binding.chipCatObc.isChecked = true
-            "SC" -> binding.chipCatSc.isChecked = true
-            "ST" -> binding.chipCatSt.isChecked = true
-            "EWS" -> binding.chipCatEws.isChecked = true
-            else -> binding.chipCatGeneral.isChecked = true
-        }
-        val initialCat = when {
-            binding.chipCatObc.isChecked -> "OBC"
-            binding.chipCatSc.isChecked -> "SC"
-            binding.chipCatSt.isChecked -> "ST"
-            binding.chipCatEws.isChecked -> "EWS"
+        selectedCutoffCategory = when (defaultCategory) {
+            "OBC" -> "OBC"
+            "SC" -> "SC"
+            "ST" -> "ST"
+            "EWS" -> "EWS"
             else -> "General"
         }
-        updateCutoffVerdict(initialCat)
+
+        binding.rowCatGeneral.setOnClickListener { selectCutoffCategory("General") }
+        binding.rowCatObc.setOnClickListener { selectCutoffCategory("OBC") }
+        binding.rowCatSc.setOnClickListener { selectCutoffCategory("SC") }
+        binding.rowCatSt.setOnClickListener { selectCutoffCategory("ST") }
+        binding.rowCatEws.setOnClickListener { selectCutoffCategory("EWS") }
+
+        updateCutoffUI()
+    }
+
+    private fun selectCutoffCategory(category: String) {
+        selectedCutoffCategory = category
+        updateCutoffUI()
+    }
+
+    private fun updateCutoffUI() {
+        // 1. Update Hero Card
+        binding.tvCutoffSelectedCategory.text = selectedCutoffCategory
+        val cutoff = examCutoffs[selectedCutoffCategory]
+        val scoreStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format(java.util.Locale.US, "%.2f", currentScore)
+        binding.tvCutoffScore.text = "Score: $scoreStr"
+
+        if (cutoff != null && cutoff > 0) {
+            val cutoffStr = if (cutoff % 1.0 == 0.0) cutoff.toInt().toString() else cutoff.toString()
+            binding.tvCutoffValue.text = "Cutoff: $cutoffStr"
+            if (currentScore >= cutoff) {
+                binding.tvCutoffVerdict.text = "Qualified ✓"
+                binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.eve_status_success))
+                val diff = currentScore - cutoff
+                binding.tvCutoffRelationship.text = if (diff >= 0.05) {
+                    "You cleared the $selectedCutoffCategory cutoff mark by +${String.format(java.util.Locale.US, "%.1f", diff)} marks."
+                } else {
+                    "You achieved the exact qualifying score for $selectedCutoffCategory."
+                }
+            } else {
+                binding.tvCutoffVerdict.text = "Not Qualified ✗"
+                binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.eve_status_error))
+                val diff = cutoff - currentScore
+                binding.tvCutoffRelationship.text = "You are ${String.format(java.util.Locale.US, "%.1f", diff)} marks below the $selectedCutoffCategory cutoff threshold."
+            }
+        } else {
+            binding.tvCutoffValue.text = "Cutoff: Not Configured"
+            binding.tvCutoffVerdict.text = "No Cutoff Set"
+            binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.eve_text_secondary))
+            binding.tvCutoffRelationship.text = "No qualifying cutoff mark is configured for the $selectedCutoffCategory category."
+        }
+
+        // 2. Update Categories List Rows
+        updateCategoryRow(
+            category = "General",
+            tvSub = binding.tvSubGeneral,
+            ivCheck = binding.ivCheckGeneral
+        )
+        updateCategoryRow(
+            category = "OBC",
+            tvSub = binding.tvSubObc,
+            ivCheck = binding.ivCheckObc
+        )
+        updateCategoryRow(
+            category = "SC",
+            tvSub = binding.tvSubSc,
+            ivCheck = binding.ivCheckSc
+        )
+        updateCategoryRow(
+            category = "ST",
+            tvSub = binding.tvSubSt,
+            ivCheck = binding.ivCheckSt
+        )
+        updateCategoryRow(
+            category = "EWS",
+            tvSub = binding.tvSubEws,
+            ivCheck = binding.ivCheckEws
+        )
+    }
+
+    private fun updateCategoryRow(
+        category: String,
+        tvSub: android.widget.TextView,
+        ivCheck: android.widget.ImageView
+    ) {
+        val isSelected = selectedCutoffCategory.equals(category, ignoreCase = true)
+        ivCheck.visibility = if (isSelected) View.VISIBLE else View.INVISIBLE
+
+        val c = examCutoffs[category]
+        if (c != null && c > 0) {
+            val cStr = if (c % 1.0 == 0.0) c.toInt().toString() else c.toString()
+            val qualified = currentScore >= c
+            tvSub.text = if (qualified) "Cutoff: $cStr  •  Qualified ✓" else "Cutoff: $cStr  •  Not Qualified ✗"
+            tvSub.setTextColor(
+                ContextCompat.getColor(
+                    this,
+                    if (qualified) R.color.eve_status_success else R.color.eve_status_error
+                )
+            )
+        } else {
+            tvSub.text = "No cutoff configured"
+            tvSub.setTextColor(ContextCompat.getColor(this, R.color.eve_text_secondary))
+        }
     }
 
     private fun showReattemptDialog(examId: String, examName: String) {

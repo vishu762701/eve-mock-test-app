@@ -37,8 +37,8 @@ class QuestionPaletteAdapter(
             b.tvCircleNumber.text = item.number.toString()
 
             val bgColor = when (item.state) {
-                PaletteState.CORRECT -> ContextCompat.getColor(ctx, R.color.eve_green)
-                PaletteState.WRONG -> ContextCompat.getColor(ctx, R.color.eve_red)
+                PaletteState.CORRECT -> ContextCompat.getColor(ctx, R.color.eve_status_success)
+                PaletteState.WRONG -> ContextCompat.getColor(ctx, R.color.eve_status_error)
                 PaletteState.ANSWERED -> ContextCompat.getColor(ctx, R.color.eve_primary)
                 PaletteState.UNATTEMPTED -> ContextCompat.getColor(ctx, R.color.eve_surface_variant)
             }
@@ -52,11 +52,11 @@ class QuestionPaletteAdapter(
             b.tvCircleNumber.setTextColor(textColor)
 
             if (item.isActive) {
-                b.cardCircle.strokeWidth = 4 // 2dp approx
+                b.cardCircle.strokeWidth = 6
                 b.cardCircle.strokeColor = ContextCompat.getColor(ctx, R.color.eve_primary)
-                b.cardCircle.cardElevation = 6f
+                b.cardCircle.cardElevation = 4f
             } else {
-                b.cardCircle.strokeWidth = 1
+                b.cardCircle.strokeWidth = 2
                 b.cardCircle.strokeColor = ContextCompat.getColor(ctx, R.color.eve_stroke)
                 b.cardCircle.cardElevation = 0f
             }

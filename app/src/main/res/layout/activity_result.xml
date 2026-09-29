@@ -3,9 +3,98 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/eve_bg"
     android:orientation="vertical">
 
-    <!-- Scrollable content area: score header through answer cards -->
+    <!-- Top App Bar / Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/eve_surface"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvResultTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_bold"
+                android:text="Test Result"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/tvResultSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:fontFamily="@font/poppins"
+                android:textColor="@color/eve_text_secondary"
+                android:textSize="12sp"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLanguage"
+            style="@style/Widget.Eve.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="48dp"
+            android:minHeight="40dp"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:text="HI"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="12sp"
+            app:strokeColor="@color/eve_stroke" />
+    </LinearLayout>
+
+    <!-- Segmented Navigation: 3 Tabs (Overview | Cutoff | Review) -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayoutResult"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@color/eve_surface"
+        app:tabGravity="fill"
+        app:tabIndicatorColor="@color/eve_red"
+        app:tabIndicatorHeight="3dp"
+        app:tabMode="fixed"
+        app:tabRippleColor="@null"
+        app:tabSelectedTextColor="@color/eve_primary"
+        app:tabTextAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+        app:tabTextColor="@color/eve_text_secondary">
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Overview" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cutoff" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Review" />
+    </com.google.android.material.tabs.TabLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/eve_stroke" />
+
+    <!-- Scrollable content area -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollResultContent"
         android:layout_width="match_parent"
@@ -13,504 +102,1051 @@
         android:layout_weight="1"
         android:fillViewport="true">
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="wrap_content">
 
-            <!-- Top Score Header -->
+            <!-- ========================================================== -->
+            <!-- SECTION 1: OVERVIEW                                        -->
+            <!-- ========================================================== -->
             <LinearLayout
+                android:id="@+id/sectionOverview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/eve_primary"
                 android:orientation="vertical"
-                android:paddingHorizontal="20dp"
-                android:paddingTop="20dp"
-                android:paddingBottom="16dp">
+                android:padding="16dp"
+                android:visibility="visible">
 
-                <LinearLayout
+                <!-- Primary Hero Score Card -->
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    app:cardBackgroundColor="@color/eve_surface"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/eve_stroke"
+                    app:strokeWidth="1dp">
 
-                    <TextView
-                        android:layout_width="0dp"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:fontFamily="@font/poppins_medium"
-                        android:text="Your Score"
-                        android:textColor="@color/eve_on_primary"
-                        android:textSize="14sp" />
+                        android:orientation="vertical"
+                        android:padding="20dp">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnLanguage"
-                        style="@style/Widget.Eve.TextButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minWidth="48dp"
-                        android:minHeight="48dp"
-                        android:paddingHorizontal="10dp"
-                        android:text="HI"
-                        app:strokeColor="@color/eve_on_primary"
-                        app:strokeWidth="1dp"
-                        android:textColor="@color/eve_on_primary" />
-                </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/tvScore"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:fontFamily="@font/poppins_bold"
-                    android:textColor="@color/eve_on_primary"
-                    android:textSize="34sp" />
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/poppins_semibold"
+                                android:letterSpacing="0.04"
+                                android:text="TOTAL SCORE"
+                                android:textColor="@color/eve_text_secondary"
+                                android:textSize="12sp" />
 
-                <TextView
-                    android:id="@+id/tvStats"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:fontFamily="@font/poppins"
-                    android:textColor="@color/eve_on_primary"
-                    android:textSize="14sp" />
+                            <TextView
+                                android:id="@+id/tvScorePercentage"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_stat_mini"
+                                android:fontFamily="@font/poppins_semibold"
+                                android:paddingHorizontal="10dp"
+                                android:paddingVertical="3dp"
+                                android:text="--% Score"
+                                android:textColor="@color/eve_primary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
 
-                <TextView
-                    android:id="@+id/tvTimeSummary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:textColor="@color/eve_on_primary"
-                    android:textSize="12sp"
-                    android:visibility="gone" />
+                        <TextView
+                            android:id="@+id/tvScore"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:fontFamily="@font/poppins_bold"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="38sp" />
 
-                <TextView
-                    android:id="@+id/tvResultSubtitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:fontFamily="@font/poppins"
-                    android:textColor="@color/eve_on_primary"
-                    android:textSize="12sp"
-                    android:visibility="gone" />
+                        <TextView
+                            android:id="@+id/tvStats"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="@font/poppins"
+                            android:textColor="@color/eve_text_secondary"
+                            android:textSize="13sp" />
 
-                <!-- Depth Stats Cards Row: Rank, Percentile, Accuracy, Best/Avg -->
-                <LinearLayout
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginVertical="16dp"
+                            android:background="@color/eve_stroke" />
+
+                        <!-- Secondary Breakdown: Correct, Wrong, Unattempted, Accuracy -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:baselineAligned="false"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tvCorrectCount"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins_bold"
+                                    android:text="0"
+                                    android:textColor="@color/eve_status_success"
+                                    android:textSize="18sp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins"
+                                    android:text="Right"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="11sp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tvWrongCount"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins_bold"
+                                    android:text="0"
+                                    android:textColor="@color/eve_status_error"
+                                    android:textSize="18sp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins"
+                                    android:text="Wrong"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="11sp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tvUnattemptedCount"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins_bold"
+                                    android:text="0"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="18sp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins"
+                                    android:text="Skipped"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="11sp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tvAccuracy"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins_bold"
+                                    android:text="--%"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textSize="18sp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins"
+                                    android:text="Accuracy"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="11sp" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Supporting: Rank & Percentile Card -->
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:baselineAligned="false"
-                    android:orientation="horizontal">
+                    android:layout_marginTop="14dp"
+                    app:cardBackgroundColor="@color/eve_surface"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/eve_stroke"
+                    app:strokeWidth="1dp">
 
-                    <!-- Rank Card -->
                     <LinearLayout
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_stat_mini"
-                        android:gravity="center"
                         android:orientation="vertical"
-                        android:paddingVertical="8dp">
+                        android:padding="18dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins"
-                            android:text="Rank"
-                            android:textColor="@color/eve_on_primary"
-                            android:alpha="0.85"
-                            android:textSize="11sp" />
-
-                        <TextView
-                            android:id="@+id/tvRank"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_bold"
-                            android:text="-- / --"
-                            android:textColor="@color/eve_on_primary"
-                            android:textSize="13sp" />
-                    </LinearLayout>
-
-                    <!-- Percentile Card -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="2dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_stat_mini"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:paddingVertical="8dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins"
-                            android:text="Percentile"
-                            android:textColor="@color/eve_on_primary"
-                            android:alpha="0.85"
-                            android:textSize="11sp" />
-
-                        <TextView
-                            android:id="@+id/tvPercentile"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_bold"
-                            android:text="--%"
-                            android:textColor="@color/eve_on_primary"
-                            android:textSize="13sp" />
-                    </LinearLayout>
-
-                    <!-- Accuracy Card -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="2dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_stat_mini"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:paddingVertical="8dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins"
-                            android:text="Accuracy"
-                            android:textColor="@color/eve_on_primary"
-                            android:alpha="0.85"
-                            android:textSize="11sp" />
-
-                        <TextView
-                            android:id="@+id/tvAccuracy"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_bold"
-                            android:text="--%"
-                            android:textColor="@color/eve_on_primary"
-                            android:textSize="13sp" />
-                    </LinearLayout>
-
-                    <!-- Best / Avg Card -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:layout_weight="1.2"
-                        android:background="@drawable/bg_stat_mini"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:paddingVertical="8dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins"
-                            android:text="Best / Avg"
-                            android:textColor="@color/eve_on_primary"
-                            android:alpha="0.85"
-                            android:textSize="11sp" />
-
-                        <TextView
-                            android:id="@+id/tvHistoryBestAvg"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_bold"
-                            android:text="-- / --"
-                            android:textColor="@color/eve_on_primary"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:letterSpacing="0.04"
+                            android:text="PERFORMANCE STANDING"
+                            android:textColor="@color/eve_text_secondary"
                             android:textSize="12sp" />
-                    </LinearLayout>
-                </LinearLayout>
 
-                <!-- Category Cutoff Selector & Verdict Row -->
-                <LinearLayout
+                        <!-- Rank Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/poppins"
+                                android:text="Overall Rank"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:id="@+id/tvRank"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:text="-- / --"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginVertical="10dp"
+                            android:background="@color/eve_stroke" />
+
+                        <!-- Percentile Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/poppins"
+                                android:text="Percentile Score"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:id="@+id/tvPercentile"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:text="--%"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginVertical="10dp"
+                            android:background="@color/eve_stroke" />
+
+                        <!-- Best & Average Score Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/poppins"
+                                android:text="Historical Best &amp; Avg"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:id="@+id/tvHistoryBestAvg"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_semibold"
+                                android:text="-- / --"
+                                android:textColor="@color/eve_text_secondary"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Supporting: Speed & Time Analysis Card -->
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:layout_marginTop="14dp"
+                    app:cardBackgroundColor="@color/eve_surface"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/eve_stroke"
+                    app:strokeWidth="1dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_medium"
-                        android:text="Cutoff:"
-                        android:textColor="@color/eve_on_primary"
-                        android:textSize="12sp" />
+                        android:orientation="vertical"
+                        android:padding="18dp">
 
-                    <HorizontalScrollView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_weight="1"
-                        android:scrollbars="none">
-
-                        <com.google.android.material.chip.ChipGroup
-                            android:id="@+id/chipGroupCutoffCategory"
+                        <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            app:singleLine="true"
-                            app:singleSelection="true">
+                            android:fontFamily="@font/poppins_semibold"
+                            android:letterSpacing="0.04"
+                            android:text="TIME &amp; PACE INSIGHTS"
+                            android:textColor="@color/eve_text_secondary"
+                            android:textSize="12sp" />
 
-                            <com.google.android.material.chip.Chip
-                                android:id="@+id/chipCatGeneral"
-                                style="@style/Widget.Eve.CutoffChip"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:checked="true"
-                                android:text="General" />
-
-                            <com.google.android.material.chip.Chip
-                                android:id="@+id/chipCatObc"
-                                style="@style/Widget.Eve.CutoffChip"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="OBC" />
-
-                            <com.google.android.material.chip.Chip
-                                android:id="@+id/chipCatSc"
-                                style="@style/Widget.Eve.CutoffChip"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="SC" />
-
-                            <com.google.android.material.chip.Chip
-                                android:id="@+id/chipCatSt"
-                                style="@style/Widget.Eve.CutoffChip"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="ST" />
-
-                            <com.google.android.material.chip.Chip
-                                android:id="@+id/chipCatEws"
-                                style="@style/Widget.Eve.CutoffChip"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="EWS" />
-                        </com.google.android.material.chip.ChipGroup>
-                    </HorizontalScrollView>
-                </LinearLayout>
-
-                <!-- Cutoff Comparison Verdict Badge -->
-                <LinearLayout
-                    android:id="@+id/layoutCutoffComparison"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/tvCutoffValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_semibold"
-                        android:text="Cutoff: 70.0"
-                        android:textColor="@color/eve_on_primary"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:id="@+id/tvCutoffVerdict"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:background="@drawable/bg_stat_mini"
-                        android:fontFamily="@font/poppins_bold"
-                        android:paddingHorizontal="8dp"
-                        android:paddingVertical="3dp"
-                        android:text="Qualified ✓"
-                        android:textColor="@color/eve_status_success"
-                        android:textSize="11sp" />
-                </LinearLayout>
+                        <TextView
+                            android:id="@+id/tvTimeSummary"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:fontFamily="@font/poppins_medium"
+                            android:lineSpacingExtra="4dp"
+                            android:text="Pace calculations will appear here."
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
-            <!-- QUESTION PALETTE NAVIGATION (Independently horizontally scrollable) -->
+            <!-- ========================================================== -->
+            <!-- SECTION 2: CUTOFF / PERFORMANCE                            -->
+            <!-- ========================================================== -->
             <LinearLayout
+                android:id="@+id/sectionCutoff"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="@color/eve_surface"
                 android:orientation="vertical"
-                android:paddingVertical="8dp">
+                android:padding="16dp"
+                android:visibility="gone">
 
+                <!-- Current Category & Verdict Hero Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardCutoffVerdict"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="@color/eve_surface"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/eve_stroke"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins"
+                                android:text="Selected Category:"
+                                android:textColor="@color/eve_text_secondary"
+                                android:textSize="13sp" />
+
+                            <TextView
+                                android:id="@+id/tvCutoffSelectedCategory"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/poppins_bold"
+                                android:text="General"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp" />
+
+                            <TextView
+                                android:id="@+id/tvCutoffVerdict"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_stat_mini"
+                                android:fontFamily="@font/poppins_bold"
+                                android:paddingHorizontal="10dp"
+                                android:paddingVertical="4dp"
+                                android:text="Checking..."
+                                android:textColor="@color/eve_status_success"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginVertical="14dp"
+                            android:background="@color/eve_stroke" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins"
+                                    android:text="Required Cutoff"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="12sp" />
+
+                                <TextView
+                                    android:id="@+id/tvCutoffValue"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:fontFamily="@font/poppins_bold"
+                                    android:text="Cutoff: --"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textSize="15sp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins"
+                                    android:text="Your Score"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="12sp" />
+
+                                <TextView
+                                    android:id="@+id/tvCutoffScore"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:fontFamily="@font/poppins_bold"
+                                    android:text="Score: --"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textSize="15sp" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvCutoffRelationship"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:fontFamily="@font/poppins_medium"
+                            android:text="Qualification verdict message."
+                            android:textColor="@color/eve_text_secondary"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Section Header for Categories List -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Question Palette (Tap to view question)"
+                    android:layout_marginTop="22dp"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:letterSpacing="0.04"
+                    android:text="SELECT CATEGORY TO COMPARE"
                     android:textColor="@color/eve_text_secondary"
-                    android:textSize="11sp" />
+                    android:textSize="12sp" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvResultPalette"
+                <!-- Categories Proper List (General, OBC, SC, ST, EWS) -->
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:clipToPadding="false"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="12dp"
-                    android:paddingTop="6dp"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+                    app:cardBackgroundColor="@color/eve_surface"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/eve_stroke"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!-- Row 1: General -->
+                        <LinearLayout
+                            android:id="@+id/rowCatGeneral"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="14dp">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins_semibold"
+                                    android:text="General"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textSize="15sp" />
+
+                                <TextView
+                                    android:id="@+id/tvSubGeneral"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:fontFamily="@font/poppins"
+                                    android:text="No cutoff configured"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+
+                            <ImageView
+                                android:id="@+id/ivCheckGeneral"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:contentDescription="Selected category"
+                                android:src="@drawable/ic_check_circle"
+                                app:tint="@color/eve_red" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/eve_stroke" />
+
+                        <!-- Row 2: OBC -->
+                        <LinearLayout
+                            android:id="@+id/rowCatObc"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="14dp">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins_semibold"
+                                    android:text="OBC"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textSize="15sp" />
+
+                                <TextView
+                                    android:id="@+id/tvSubObc"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:fontFamily="@font/poppins"
+                                    android:text="No cutoff configured"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+
+                            <ImageView
+                                android:id="@+id/ivCheckObc"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:contentDescription="Selected category"
+                                android:src="@drawable/ic_check_circle"
+                                android:visibility="invisible"
+                                app:tint="@color/eve_red" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/eve_stroke" />
+
+                        <!-- Row 3: SC -->
+                        <LinearLayout
+                            android:id="@+id/rowCatSc"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="14dp">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins_semibold"
+                                    android:text="SC"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textSize="15sp" />
+
+                                <TextView
+                                    android:id="@+id/tvSubSc"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:fontFamily="@font/poppins"
+                                    android:text="No cutoff configured"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+
+                            <ImageView
+                                android:id="@+id/ivCheckSc"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:contentDescription="Selected category"
+                                android:src="@drawable/ic_check_circle"
+                                android:visibility="invisible"
+                                app:tint="@color/eve_red" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/eve_stroke" />
+
+                        <!-- Row 4: ST -->
+                        <LinearLayout
+                            android:id="@+id/rowCatSt"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="14dp">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins_semibold"
+                                    android:text="ST"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textSize="15sp" />
+
+                                <TextView
+                                    android:id="@+id/tvSubSt"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:fontFamily="@font/poppins"
+                                    android:text="No cutoff configured"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+
+                            <ImageView
+                                android:id="@+id/ivCheckSt"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:contentDescription="Selected category"
+                                android:src="@drawable/ic_check_circle"
+                                android:visibility="invisible"
+                                app:tint="@color/eve_red" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/eve_stroke" />
+
+                        <!-- Row 5: EWS -->
+                        <LinearLayout
+                            android:id="@+id/rowCatEws"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="14dp">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/poppins_semibold"
+                                    android:text="EWS"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textSize="15sp" />
+
+                                <TextView
+                                    android:id="@+id/tvSubEws"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:fontFamily="@font/poppins"
+                                    android:text="No cutoff configured"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+
+                            <ImageView
+                                android:id="@+id/ivCheckEws"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:contentDescription="Selected category"
+                                android:src="@drawable/ic_check_circle"
+                                android:visibility="invisible"
+                                app:tint="@color/eve_red" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
-            <!-- Answer Key Header -->
+            <!-- ========================================================== -->
+            <!-- SECTION 3: ANSWER REVIEW                                   -->
+            <!-- ========================================================== -->
             <LinearLayout
+                android:id="@+id/sectionReview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="16dp">
+                android:orientation="vertical"
+                android:visibility="gone">
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/poppins_bold"
-                    android:text="Answer Key"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="17sp" />
-            </LinearLayout>
-
-            <!-- Review Filters: Right, Wrong, Unattempted -->
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:scrollbars="none">
-
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/chipGroupFilter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    app:singleLine="true"
-                    app:singleSelection="true">
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipCorrect"
-                        style="@style/Widget.Material3.Chip.Filter"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Right" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipWrong"
-                        style="@style/Widget.Material3.Chip.Filter"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Wrong" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipNotAttempted"
-                        style="@style/Widget.Material3.Chip.Filter"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Unattempted" />
-                </com.google.android.material.chip.ChipGroup>
-            </HorizontalScrollView>
-
-            <!-- Answer Cards List with Empty State for 0-result Filter -->
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp">
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvAnswers"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clipToPadding="false"
-                    android:nestedScrollingEnabled="false"
-                    android:paddingHorizontal="12dp"
-                    android:paddingTop="4dp"
-                    android:paddingBottom="16dp" />
-
+                <!-- Question Palette Navigation -->
                 <LinearLayout
-                    android:id="@+id/layoutEmptyFilter"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
+                    android:background="@color/eve_surface"
                     android:orientation="vertical"
-                    android:padding="28dp"
-                    android:visibility="gone">
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp">
 
-                    <TextView
-                        android:id="@+id/tvEmptyFilterTitle"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_bold"
-                        android:text="No questions found"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="16sp" />
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="16dp">
 
-                    <TextView
-                        android:id="@+id/tvEmptyFilterSub"
-                        android:layout_width="wrap_content"
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:text="Question Palette"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="14sp" />
+
+                        <!-- Palette Legend -->
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <!-- Correct Dot -->
+                            <View
+                                android:layout_width="8dp"
+                                android:layout_height="8dp"
+                                android:background="@drawable/ic_status_circle_right" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:layout_marginEnd="8dp"
+                                android:fontFamily="@font/poppins"
+                                android:text="Right"
+                                android:textColor="@color/eve_text_secondary"
+                                android:textSize="11sp" />
+
+                            <!-- Wrong Dot -->
+                            <View
+                                android:layout_width="8dp"
+                                android:layout_height="8dp"
+                                android:background="@drawable/ic_status_circle_wrong" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:layout_marginEnd="8dp"
+                                android:fontFamily="@font/poppins"
+                                android:text="Wrong"
+                                android:textColor="@color/eve_text_secondary"
+                                android:textSize="11sp" />
+
+                            <!-- Skipped Dot -->
+                            <View
+                                android:layout_width="8dp"
+                                android:layout_height="8dp"
+                                android:background="@drawable/ic_status_circle_unattempted" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:fontFamily="@font/poppins"
+                                android:text="Skipped"
+                                android:textColor="@color/eve_text_secondary"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvResultPalette"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:fontFamily="@font/poppins"
-                        android:gravity="center"
-                        android:text="Select another filter or tap to see all questions."
-                        android:textColor="@color/eve_text_secondary"
-                        android:textSize="13sp" />
+                        android:clipToPadding="false"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="12dp"
+                        android:paddingTop="8dp"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
                 </LinearLayout>
-            </FrameLayout>
-        </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/eve_stroke" />
+
+                <!-- Review Filter Chips: Right, Wrong, Unattempted -->
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:scrollbars="none">
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/chipGroupFilter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        app:singleLine="true"
+                        app:singleSelection="true">
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chipCorrect"
+                            style="@style/Widget.Material3.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Right" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chipWrong"
+                            style="@style/Widget.Material3.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Wrong" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chipNotAttempted"
+                            style="@style/Widget.Material3.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Unattempted" />
+                    </com.google.android.material.chip.ChipGroup>
+                </HorizontalScrollView>
+
+                <!-- Isolated Single Question Card or Empty State -->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvAnswers"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clipToPadding="false"
+                        android:nestedScrollingEnabled="false"
+                        android:paddingHorizontal="12dp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="16dp" />
+
+                    <LinearLayout
+                        android:id="@+id/layoutEmptyFilter"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="32dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:id="@+id/tvEmptyFilterTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_bold"
+                            android:text="No questions found"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/tvEmptyFilterSub"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:fontFamily="@font/poppins"
+                            android:gravity="center"
+                            android:text="Select another filter above or tap any question on the palette."
+                            android:textColor="@color/eve_text_secondary"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+                </FrameLayout>
+            </LinearLayout>
+        </FrameLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- 3b: Compact Corner Action Cluster (Reattempt & Leaderboard) -->
+    <!-- Bottom Actions Container -->
     <LinearLayout
-        android:id="@+id/layoutActionCluster"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="8dp"
-        android:gravity="end|center_vertical"
-        android:orientation="horizontal"
-        android:visibility="gone">
+        android:background="@color/eve_surface"
+        android:elevation="4dp"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="12dp">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnReattempt"
-            style="@style/Widget.Eve.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="38dp"
-            android:paddingHorizontal="14dp"
-            android:paddingVertical="6dp"
-            android:textSize="12sp"
-            app:icon="@drawable/ic_refresh"
-            app:iconSize="16dp"
-            android:text="Reattempt"
-            android:visibility="gone" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="8dp"
+            android:background="@color/eve_stroke" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnLeaderboard"
-            style="@style/Widget.Eve.OutlinedButton"
-            android:layout_width="wrap_content"
+        <!-- Secondary Action Buttons: Reattempt & Leaderboard -->
+        <LinearLayout
+            android:id="@+id/layoutActionCluster"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:minHeight="38dp"
-            android:paddingHorizontal="14dp"
-            android:paddingVertical="6dp"
-            android:textSize="12sp"
-            app:icon="@drawable/ic_trophy"
-            app:iconSize="16dp"
-            android:text="Leaderboard"
-            android:visibility="gone" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnReattempt"
+                style="@style/Widget.Eve.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:minHeight="42dp"
+                android:paddingHorizontal="12dp"
+                android:text="Reattempt"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="12sp"
+                app:icon="@drawable/ic_refresh"
+                app:iconSize="16dp"
+                app:strokeColor="@color/eve_stroke" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLeaderboard"
+                style="@style/Widget.Eve.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:minHeight="42dp"
+                android:paddingHorizontal="12dp"
+                android:text="Leaderboard"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="12sp"
+                app:icon="@drawable/ic_trophy"
+                app:iconSize="16dp"
+                app:strokeColor="@color/eve_stroke" />
+        </LinearLayout>
+
+        <!-- Strong Final Action: Close -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnHome"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:minHeight="48dp"
+            android:text="Close" />
     </LinearLayout>
-
-    <!-- Primary Full-Width Action at bottom -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnHome"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="16dp"
-        android:text="Close" />
 </LinearLayout>

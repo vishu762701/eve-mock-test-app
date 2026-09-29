@@ -4,10 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="0dp"
-    android:layout_marginVertical="7dp"
+    android:layout_marginVertical="6dp"
     app:cardBackgroundColor="@color/eve_surface"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="1dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="0dp"
     app:strokeColor="@color/eve_stroke"
     app:strokeWidth="1dp">
 
@@ -15,16 +15,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="14dp">
+        android:padding="16dp">
 
-        <!-- Question Card Header: Status Circle, Question Number, Report Action -->
+        <!-- 1. Question Number + Status + Header Actions -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <!-- Question Status Indicator: Green (Right), Red (Wrong), White (Unattempted) -->
             <ImageView
                 android:id="@+id/ivStatusCircle"
                 android:layout_width="16dp"
@@ -38,9 +37,22 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:fontFamily="@font/poppins_bold"
-                android:text="Q1"
+                android:text="Question 1"
                 android:textColor="?attr/colorOnSurface"
-                android:textSize="15sp" />
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvQuestionStatusLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_stat_mini"
+                android:fontFamily="@font/poppins_semibold"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:text="Correct"
+                android:textColor="@color/eve_status_success"
+                android:textSize="11sp" />
 
             <View
                 android:layout_width="0dp"
@@ -57,55 +69,71 @@
                 android:src="@drawable/ic_star_filled"
                 android:visibility="gone" />
 
-            <ImageView
-                android:id="@+id/ivReportQuestion"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_btn_report"
-                android:contentDescription="Report this question"
-                android:padding="8dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_flag"
-                app:tint="@color/eve_status_warning" />
+            <!-- Question Report Action Button (48dp touch target) -->
+            <FrameLayout
+                android:layout_width="48dp"
+                android:layout_height="48dp">
+
+                <ImageView
+                    android:id="@+id/ivReportQuestion"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/bg_btn_report"
+                    android:contentDescription="Report this question"
+                    android:padding="8dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_flag"
+                    app:tint="@color/eve_status_warning" />
+            </FrameLayout>
         </LinearLayout>
 
-        <!-- Full Question Text: Unrestricted full width, natural wrapping, no horizontal scroll -->
+        <!-- 2. Question Text: Receives Primary Focus -->
         <TextView
             android:id="@+id/tvQ"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:lineSpacingExtra="4dp"
+            android:layout_marginTop="12dp"
+            android:fontFamily="@font/poppins_semibold"
+            android:lineSpacingExtra="5dp"
             android:textColor="?attr/colorOnSurface"
-            android:textSize="15sp" />
+            android:textSize="16sp" />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginBottom="12dp"
+            android:background="@color/eve_stroke" />
+
+        <!-- 3. User's Answer -->
         <TextView
             android:id="@+id/tvYourAnswer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textSize="15sp" />
+            android:fontFamily="@font/poppins_medium"
+            android:lineSpacingExtra="3dp"
+            android:textSize="14sp" />
 
+        <!-- 4. Correct Answer -->
         <TextView
             android:id="@+id/tvCorrectAnswer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="6dp"
+            android:fontFamily="@font/poppins_semibold"
+            android:lineSpacingExtra="3dp"
             android:textColor="@color/eve_status_success"
-            android:textSize="15sp" />
+            android:textSize="14sp" />
 
-        <!-- X% got this right stat badge -->
+        <!-- Accuracy Stat Badge (% got this right) -->
         <LinearLayout
             android:id="@+id/layoutAccuracyStat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:background="@color/eve_surface_variant"
+            android:layout_marginTop="8dp"
             android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="3dp">
+            android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -117,132 +145,127 @@
                 android:id="@+id/tvAccuracyStat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
+                android:layout_marginStart="6dp"
                 android:fontFamily="@font/poppins_medium"
                 android:text="--% got this right"
-                android:textColor="@color/eve_primary"
+                android:textColor="@color/eve_text_secondary"
                 android:textSize="12sp" />
         </LinearLayout>
 
-        <!-- Per-question Time vs Average Insight Card -->
-        <com.google.android.material.card.MaterialCardView
+        <!-- 5. Time Information (When Available) -->
+        <LinearLayout
             android:id="@+id/layoutTimeInsight"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:cardBackgroundColor="@color/eve_surface_variant"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="0dp">
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_stat_mini"
+            android:orientation="vertical"
+            android:padding="12dp">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_semibold"
+                android:letterSpacing="0.04"
+                android:text="TIME ANALYSIS"
+                android:textColor="@color/eve_text_secondary"
+                android:textSize="11sp" />
+
+            <!-- You Row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="10dp">
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-                <!-- You row -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="32dp"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_medium"
-                        android:text="You"
-                        android:textColor="@color/eve_text"
-                        android:textSize="12sp" />
-
-                    <ProgressBar
-                        android:id="@+id/pbTimeYou"
-                        style="?android:attr/progressBarStyleHorizontal"
-                        android:layout_width="0dp"
-                        android:layout_height="6dp"
-                        android:layout_marginHorizontal="8dp"
-                        android:layout_weight="1"
-                        android:max="100" />
-
-                    <TextView
-                        android:id="@+id/tvTimeYou"
-                        android:layout_width="40dp"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_medium"
-                        android:gravity="end"
-                        android:textColor="@color/eve_text"
-                        android:textSize="12sp" />
-                </LinearLayout>
-
-                <!-- Avg row -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="32dp"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_medium"
-                        android:text="Avg"
-                        android:textColor="@color/eve_text_secondary"
-                        android:textSize="12sp" />
-
-                    <ProgressBar
-                        android:id="@+id/pbTimeAvg"
-                        style="?android:attr/progressBarStyleHorizontal"
-                        android:layout_width="0dp"
-                        android:layout_height="6dp"
-                        android:layout_marginHorizontal="8dp"
-                        android:layout_weight="1"
-                        android:max="100" />
-
-                    <TextView
-                        android:id="@+id/tvTimeAvg"
-                        android:layout_width="40dp"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_medium"
-                        android:gravity="end"
-                        android:textColor="@color/eve_text_secondary"
-                        android:textSize="12sp" />
-                </LinearLayout>
-
-                <!-- Insight message -->
                 <TextView
-                    android:id="@+id/tvTimeInsightMessage"
-                    android:layout_width="match_parent"
+                    android:layout_width="32dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:fontFamily="@font/poppins"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="You"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="12sp" />
+
+                <ProgressBar
+                    android:id="@+id/pbTimeYou"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="6dp"
+                    android:layout_marginHorizontal="8dp"
+                    android:layout_weight="1"
+                    android:max="100" />
+
+                <TextView
+                    android:id="@+id/tvTimeYou"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_medium"
+                    android:gravity="end"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="12sp" />
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnToggleExplanation"
-            style="@style/Widget.Eve.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginStart="-8dp"
-            android:text="View explanation"
-            android:textSize="13sp"
-            android:visibility="gone" />
+            <!-- Avg Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-        <!-- Solution Container: Key Points Structure -->
+                <TextView
+                    android:layout_width="32dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="Avg"
+                    android:textColor="@color/eve_text_secondary"
+                    android:textSize="12sp" />
+
+                <ProgressBar
+                    android:id="@+id/pbTimeAvg"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="6dp"
+                    android:layout_marginHorizontal="8dp"
+                    android:layout_weight="1"
+                    android:max="100" />
+
+                <TextView
+                    android:id="@+id/tvTimeAvg"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_medium"
+                    android:gravity="end"
+                    android:textColor="@color/eve_text_secondary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- Message -->
+            <TextView
+                android:id="@+id/tvTimeInsightMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/poppins_medium"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- 6. Explanation / Solution Section -->
         <LinearLayout
             android:id="@+id/layoutSolution"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:background="@color/eve_bg"
-            android:orientation="vertical"
-            android:padding="12dp">
+            android:layout_marginTop="14dp"
+            android:orientation="vertical">
 
-            <!-- Bold one-line summary stating the correct answer -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="12dp"
+                android:background="@color/eve_stroke" />
+
+            <!-- One-line correct summary -->
             <TextView
                 android:id="@+id/tvCorrectSummary"
                 android:layout_width="match_parent"
@@ -251,7 +274,7 @@
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="14sp" />
 
-            <!-- Key Points Section Header with Key Icon -->
+            <!-- Key Points Header -->
             <LinearLayout
                 android:id="@+id/layoutKeyPointsHeader"
                 android:layout_width="match_parent"
@@ -261,8 +284,8 @@
                 android:orientation="horizontal">
 
                 <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
                     android:contentDescription="Key Points"
                     android:src="@drawable/ic_key"
                     app:tint="@color/eve_primary" />
@@ -273,12 +296,12 @@
                     android:layout_marginStart="6dp"
                     android:fontFamily="@font/poppins_bold"
                     android:letterSpacing="0.04"
-                    android:text="Key Points"
+                    android:text="KEY POINTS"
                     android:textColor="@color/eve_primary"
-                    android:textSize="13sp" />
+                    android:textSize="12sp" />
             </LinearLayout>
 
-            <!-- Explanation with bulleted concept-labeled points -->
+            <!-- Explanation with formatted bulleted concepts -->
             <TextView
                 android:id="@+id/tvExplanation"
                 android:layout_width="match_parent"
@@ -288,6 +311,43 @@
                 android:lineSpacingExtra="4dp"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="13sp" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnToggleExplanation"
+            style="@style/Widget.Eve.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+        <!-- 7. Footer Report Action Link -->
+        <LinearLayout
+            android:id="@+id/layoutReportAction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingVertical="4dp">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:contentDescription="Report"
+                android:src="@drawable/ic_flag"
+                app:tint="@color/eve_status_warning" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:fontFamily="@font/poppins_medium"
+                android:text="Report an issue with this question"
+                android:textColor="@color/eve_text_secondary"
+                android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

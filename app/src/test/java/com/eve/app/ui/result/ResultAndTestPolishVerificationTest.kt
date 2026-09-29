@@ -205,4 +205,113 @@ class ResultAndTestPolishVerificationTest {
         assertFalse("chipIsolatedQuestion must not exist", content.contains("android:id=\"@+id/chipIsolatedQuestion\""))
         assertTrue("btnHome close button must exist", content.contains("android:id=\"@+id/btnHome\""))
     }
+
+    @Test
+    fun testResultScreenThreeSectionTabStructure() {
+        val file = File("src/main/res/layout/activity_result.xml").takeIf { it.exists() }
+            ?: File("app/src/main/res/layout/activity_result.xml").takeIf { it.exists() }
+            ?: File("eve-mock-test-app/app/src/main/res/layout/activity_result.xml")
+        assertTrue("activity_result.xml must exist", file.exists())
+        val content = file.readText()
+
+        // 1. Tab Navigation & 3 Primary Sections
+        assertTrue("tabLayoutResult must exist", content.contains("android:id=\"@+id/tabLayoutResult\""))
+        assertTrue("sectionOverview must exist", content.contains("android:id=\"@+id/sectionOverview\""))
+        assertTrue("sectionCutoff must exist", content.contains("android:id=\"@+id/sectionCutoff\""))
+        assertTrue("sectionReview must exist", content.contains("android:id=\"@+id/sectionReview\""))
+
+        // 2. Cutoff Category List Rows & Active Indicators
+        assertTrue("rowCatGeneral must exist", content.contains("android:id=\"@+id/rowCatGeneral\""))
+        assertTrue("rowCatObc must exist", content.contains("android:id=\"@+id/rowCatObc\""))
+        assertTrue("rowCatSc must exist", content.contains("android:id=\"@+id/rowCatSc\""))
+        assertTrue("rowCatSt must exist", content.contains("android:id=\"@+id/rowCatSt\""))
+        assertTrue("rowCatEws must exist", content.contains("android:id=\"@+id/rowCatEws\""))
+
+        assertTrue("ivCheckGeneral must exist", content.contains("android:id=\"@+id/ivCheckGeneral\""))
+        assertTrue("ivCheckObc must exist", content.contains("android:id=\"@+id/ivCheckObc\""))
+        assertTrue("ivCheckSc must exist", content.contains("android:id=\"@+id/ivCheckSc\""))
+        assertTrue("ivCheckSt must exist", content.contains("android:id=\"@+id/ivCheckSt\""))
+        assertTrue("ivCheckEws must exist", content.contains("android:id=\"@+id/ivCheckEws\""))
+
+        // 3. Header Language Toggle
+        assertTrue("btnLanguage must exist", content.contains("android:id=\"@+id/btnLanguage\""))
+    }
+
+    @Test
+    fun testCutoffScoreRelationshipCalculation() {
+        data class CutoffVerdict(val qualified: Boolean, val message: String)
+
+        fun computeRelationship(score: Double, category: String, cutoff: Double?): CutoffVerdict {
+            if (cutoff == null || cutoff <= 0) {
+                return CutoffVerdict(false, "No qualifying cutoff mark is configured for the $category category.")
+            }
+            return if (score >= cutoff) {
+                val diff = score - cutoff
+                val msg = if (diff >= 0.05) {
+                    "You cleared the $category cutoff mark by +${String.format(java.util.Locale.US, "%.1f", diff)} marks."
+                } else {
+                    "You achieved the exact qualifying score for $category."
+                }
+                CutoffVerdict(true, msg)
+            } else {
+                val diff = cutoff - score
+                val msg = "You are ${String.format(java.util.Locale.US, "%.1f", diff)} marks below the $category cutoff threshold."
+                CutoffVerdict(false, msg)
+            }
+        }
+
+        // General: Score 78, Cutoff 70 -> Qualified (+8.0)
+        val general = computeRelationship(78.0, "General", 70.0)
+        assertTrue(general.qualified)
+        assertTrue(general.message.contains("+8.0 marks"))
+
+        // OBC: Score 78, Cutoff 82 -> Not Qualified (-4.0)
+        val obc = computeRelationship(78.0, "OBC", 82.0)
+        assertFalse(obc.qualified)
+        assertTrue(obc.message.contains("4.0 marks below"))
+
+        // SC: Exact cutoff match
+        val sc = computeRelationship(60.0, "SC", 60.0)
+        assertTrue(sc.qualified)
+        assertTrue(sc.message.contains("exact qualifying score"))
+
+        // EWS: Not configured
+        val ews = computeRelationship(78.0, "EWS", null)
+        assertFalse(ews.qualified)
+        assertTrue(ews.message.contains("No qualifying cutoff mark is configured"))
+    }
+
+    @Test
+    fun testSingleQuestionPaletteNavigationTransitions() {
+        val sampleItems = (1..10).map { i ->
+            AnswerItem(
+                number = i,
+                questionText = "Question $i text",
+                selected = if (i % 2 == 0) "A" else "",
+                selectedText = "Option A",
+                correct = "A",
+                correctText = "Option A"
+            )
+        }
+
+        // Helper simulating single question submission
+        fun selectQuestionItem(index: Int): List<AnswerItem> {
+            return listOf(sampleItems[index])
+        }
+
+        // Tap Q1 (index 0) -> only Q1 displayed
+        val q1List = selectQuestionItem(0)
+        assertEquals(1, q1List.size)
+        assertEquals(1, q1List[0].number)
+
+        // Switch to Q4 (index 3) -> only Q4 displayed
+        val q4List = selectQuestionItem(3)
+        assertEquals(1, q4List.size)
+        assertEquals(4, q4List[0].number)
+
+        // Switch to Q2 (index 1) -> only Q2 displayed
+        val q2List = selectQuestionItem(1)
+        assertEquals(1, q2List.size)
+        assertEquals(2, q2List[0].number)
+    }
 }

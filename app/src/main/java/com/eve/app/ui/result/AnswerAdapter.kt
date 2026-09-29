@@ -53,8 +53,17 @@ class AnswerAdapter(
             b.tvQuestionNum.text = "Q${item.number}"
             b.tvQ.text = item.displayQuestionText(hindi)
 
+            val (statusText, badgeColor) = when {
+                !item.isAttempted -> Pair("Unattempted", R.color.eve_text_secondary)
+                item.isCorrect -> Pair("Correct", R.color.eve_status_success)
+                else -> Pair("Incorrect", R.color.eve_status_error)
+            }
+            b.tvQuestionStatusLabel.text = statusText
+            b.tvQuestionStatusLabel.setTextColor(ContextCompat.getColor(ctx, badgeColor))
+
             b.ivBookmark.visibility = if (item.isBookmarked) View.VISIBLE else View.GONE
             b.ivReportQuestion.setOnClickListener { onReport?.invoke(item) }
+            b.layoutReportAction.setOnClickListener { onReport?.invoke(item) }
 
             when {
                 !item.isAttempted -> {
