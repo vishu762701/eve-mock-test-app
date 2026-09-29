@@ -45,12 +45,13 @@ android {
         // jaaye) — sirf CI se banaya hua release Play Store ke liye asli signed hota hai.
         create("release") {
             val storeFilePath = System.getenv("RELEASE_STORE_FILE")
+            val isReleaseTaskRequested = gradle.startParameter.taskNames.any { it.contains("Release", ignoreCase = true) }
             if (storeFilePath != null && file(storeFilePath).exists()) {
                 storeFile = file(storeFilePath)
                 storePassword = System.getenv("RELEASE_STORE_PASSWORD")
                 keyAlias = System.getenv("RELEASE_KEY_ALIAS")
                 keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
-            } else if (System.getenv("CI") == "true") {
+            } else if (System.getenv("CI") == "true" && isReleaseTaskRequested) {
                 throw org.gradle.api.GradleException("RELEASE_STORE_FILE is missing in CI environment! Production release must be signed with valid keystore.")
             } else {
                 storeFile = file("eve-debug.keystore")
