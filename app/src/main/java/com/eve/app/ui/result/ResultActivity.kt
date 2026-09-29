@@ -82,9 +82,21 @@ class ResultActivity : AppCompatActivity() {
             close()
         }
 
+        currentExamId = intent.getStringExtra(Constants.EXTRA_EXAM_ID).orEmpty()
+        val examName = intent.getStringExtra(Constants.EXTRA_EXAM_NAME)
+        currentExamName = examName.orEmpty()
+        val attemptDate = intent.getStringExtra(Constants.EXTRA_ATTEMPT_DATE)
+
         if (viewModel.allItems.isEmpty()) {
             val incoming = ResultDataHolder.consumeAnswers()
-            viewModel.initAnswers(incoming)
+            if (incoming.isNotEmpty()) {
+                viewModel.initAnswers(incoming)
+            } else if (currentExamId.isNotBlank()) {
+                val cached = HomeViewModel.getCachedAttempt(currentExamId)
+                if (cached != null && cached.answers.isNotEmpty()) {
+                    viewModel.initAnswers(cached.answers)
+                }
+            }
         }
         allItems = viewModel.allItems
 
@@ -94,15 +106,47 @@ class ResultActivity : AppCompatActivity() {
         }
 
         fromHistory = intent.getBooleanExtra(Constants.EXTRA_FROM_HISTORY, false)
-        currentExamId = intent.getStringExtra(Constants.EXTRA_EXAM_ID).orEmpty()
-        val examName = intent.getStringExtra(Constants.EXTRA_EXAM_NAME)
-        currentExamName = examName.orEmpty()
-        val attemptDate = intent.getStringExtra(Constants.EXTRA_ATTEMPT_DATE)
 
         if (allItems.any { it.optionA.isBlank() } && currentExamId.isNotBlank()) {
             lifecycleScope.launch {
                 try {
-                    val questions = examRepo.getQuestions(AttemptKey.sourceExamId(currentExamId))
+                    val genTestId = AttemptKey.generatedTestId(currentExamId)
+                    val sourceExamId = AttemptKey.sourceExamId(currentExamId)
+                    val questions: List<com.eve.app.data.model.Question> = if (genTestId != null) {
+                        val genTest = examRepo.getGeneratedTest(genTestId)
+                        genTest?.questions?.mapIndexed { idx, gq ->
+                            com.eve.app.data.model.Question(
+                                id = "${genTest.id}_$idx",
+                                examId = sourceExamId,
+                                questionText = gq.questionText,
+                                optionA = gq.optionA,
+                                optionB = gq.optionB,
+                                optionC = gq.optionC,
+                                optionD = gq.optionD,
+                                correctAnswer = gq.correctAnswer,
+                                explanation = gq.explanation
+                            )
+                        } ?: emptyList()
+                    } else {
+                        val regular = examRepo.getQuestions(sourceExamId)
+                        if (regular.isNotEmpty()) regular else {
+                            val live = examRepo.getLiveGeneratedTests(sourceExamId).firstOrNull()
+                            live?.questions?.mapIndexed { idx, gq ->
+                                com.eve.app.data.model.Question(
+                                    id = "${live.id}_$idx",
+                                    examId = sourceExamId,
+                                    questionText = gq.questionText,
+                                    optionA = gq.optionA,
+                                    optionB = gq.optionB,
+                                    optionC = gq.optionC,
+                                    optionD = gq.optionD,
+                                    correctAnswer = gq.correctAnswer,
+                                    explanation = gq.explanation
+                                )
+                            } ?: emptyList()
+                        }
+                    }
+
                     if (questions.isNotEmpty()) {
                         val qMap = questions.associateBy { it.id }
                         val enriched = allItems.map { item ->
@@ -489,7 +533,9 @@ class ResultActivity : AppCompatActivity() {
         paletteItems = paletteItems.mapIndexed { idx, item ->
             item.copy(isActive = (idx == pos))
         }
-        paletteAdapter.submit(paletteItems)
+        if (::paletteAdapter.isInitialized) {
+            paletteAdapter.submit(paletteItems)
+        }
 
         adapter.resetExpandedSolutions()
 
@@ -849,10 +895,32 @@ class ResultActivity : AppCompatActivity() {
                                 AppBulletin.showError(this@ResultActivity, response.error ?: "Failed to reset attempt")
                             }
                         } catch (e: Exception) {
-                            confirmBtn.isEnabled = true
-                            cancelBtn.isEnabled = true
-                            confirmBtn.text = "Clear & Reattempt"
-                            AppBulletin.showError(this@ResultActivity, e.localizedMessage ?: "Failed to reset attempt")
+                            if (!com.eve.app.util.NetworkUtil.isOnline(this@ResultActivity)) {
+                                ResultDataHolder.clear()
+                                HomeViewModel.markAttemptCleared(examId)
+                                val timeLimit = if (intent.hasExtra(Constants.EXTRA_TIME_LIMIT)) {
+                                    intent.getIntExtra(Constants.EXTRA_TIME_LIMIT, 60)
+                                } else {
+                                    try {
+                                        examRepo.getExam(AttemptKey.sourceExamId(examId))?.timeLimitMinutes ?: 60
+                                    } catch (_: Exception) { 60 }
+                                }
+                                val category = intent.getStringExtra(Constants.EXTRA_EXAM_CATEGORY).orEmpty()
+                                val testIntent = Intent(this@ResultActivity, TestActivity::class.java).apply {
+                                    putExtra(Constants.EXTRA_EXAM_ID, examId)
+                                    putExtra(Constants.EXTRA_EXAM_NAME, examName)
+                                    putExtra(Constants.EXTRA_EXAM_CATEGORY, category)
+                                    putExtra(Constants.EXTRA_TIME_LIMIT, timeLimit)
+                                }
+                                dialog.dismiss()
+                                startActivity(testIntent)
+                                finish()
+                            } else {
+                                confirmBtn.isEnabled = true
+                                cancelBtn.isEnabled = true
+                                confirmBtn.text = "Clear & Reattempt"
+                                AppBulletin.showError(this@ResultActivity, e.localizedMessage ?: "Failed to reset attempt")
+                            }
                         }
                     }
                 }

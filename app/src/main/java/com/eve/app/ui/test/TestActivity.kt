@@ -394,8 +394,10 @@ class TestActivity : AppCompatActivity() {
             )
         }
 
+        val targetExamId = if (viewModel.currentExamId.isNotBlank()) viewModel.currentExamId else examId
+
         val body = mutableMapOf<String, Any>(
-            "examId" to examId,
+            "examId" to targetExamId,
             "examName" to attemptName,
             "category" to examCategory,
             "clientAttemptId" to viewModel.clientAttemptId,
@@ -411,11 +413,15 @@ class TestActivity : AppCompatActivity() {
                 if (response.success && response.data != null) {
                     val graded = response.data
                     viewModel.clearSession(examId)
+                    viewModel.clearSession(targetExamId)
+                    try {
+                        com.eve.app.data.local.PendingSubmissionStore(this@TestActivity).remove(viewModel.clientAttemptId)
+                    } catch (_: Exception) {}
                     com.eve.app.util.HapticHelper.performSubmitSuccess(binding.root)
 
                     AnalyticsHelper.logExamSubmit(
                         context = this@TestActivity,
-                        examId = examId,
+                        examId = targetExamId,
                         examName = attemptName,
                         category = examCategory,
                         correct = graded.correct,
@@ -446,7 +452,7 @@ class TestActivity : AppCompatActivity() {
                     val localAttempt = com.eve.app.data.model.TestAttempt(
                         id = graded.attemptId,
                         userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid.orEmpty(),
-                        examId = examId,
+                        examId = targetExamId,
                         examName = attemptName,
                         category = examCategory,
                         score = graded.score,
@@ -459,15 +465,16 @@ class TestActivity : AppCompatActivity() {
                         answers = enrichedAnswers
                     )
                     if (isStandardMock) {
+                        com.eve.app.ui.home.HomeViewModel.markAttemptSubmitted(targetExamId, localAttempt)
                         com.eve.app.ui.home.HomeViewModel.markAttemptSubmitted(examId, localAttempt)
-                        com.eve.app.util.AttemptLimitManager.recordAttempt(this@TestActivity, examId)
+                        com.eve.app.util.AttemptLimitManager.recordAttempt(this@TestActivity, targetExamId)
                     }
 
                     ResultDataHolder.setAnswers(enrichedAnswers)
 
                     startActivity(
                         Intent(this@TestActivity, ResultActivity::class.java)
-                            .putExtra(Constants.EXTRA_EXAM_ID, examId)
+                            .putExtra(Constants.EXTRA_EXAM_ID, targetExamId)
                             .putExtra(Constants.EXTRA_EXAM_NAME, attemptName)
                             .putExtra(Constants.EXTRA_EXAM_CATEGORY, examCategory)
                             .putExtra(Constants.EXTRA_TIME_LIMIT, timeLimit)
@@ -483,12 +490,49 @@ class TestActivity : AppCompatActivity() {
                     )
                     finish()
                 } else {
-                    handleOfflineSubmit(attemptName, items)
+                    val errMsg = response.error ?: "Submission was rejected by the server"
+                    if (!NetworkUtil.isOnline(this@TestActivity)) {
+                        handleOfflineSubmit(attemptName, items)
+                    } else {
+                        showSubmissionError(errMsg, attemptName, items)
+                    }
                 }
-            } catch (_: Exception) {
-                handleOfflineSubmit(attemptName, items)
+            } catch (e: Exception) {
+                if (e is java.io.IOException || !NetworkUtil.isOnline(this@TestActivity)) {
+                    handleOfflineSubmit(attemptName, items)
+                } else {
+                    val errMsg = if (e is retrofit2.HttpException) {
+                        try {
+                            val errBody = e.response()?.errorBody()?.string()
+                            val parsed = com.google.gson.JsonParser.parseString(errBody).asJsonObject
+                            parsed.get("error")?.asString ?: "Server returned error ${e.code()}"
+                        } catch (_: Exception) {
+                            "Server returned error ${e.code()}"
+                        }
+                    } else {
+                        e.localizedMessage ?: "Failed to submit test"
+                    }
+                    showSubmissionError(errMsg, attemptName, items)
+                }
             }
         }
+    }
+
+    private fun showSubmissionError(message: String, attemptName: String, items: List<AnswerItem>) {
+        submitted = false
+        com.eve.app.util.HapticHelper.performSubmitFailure(binding.root)
+        AlertDialog.Builder(this)
+            .setTitle("Submission Failed")
+            .setMessage(message)
+            .setPositiveButton("Retry") { _, _ ->
+                submit()
+            }
+            .setNegativeButton("Save Offline") { _, _ ->
+                submitted = true
+                handleOfflineSubmit(attemptName, items)
+            }
+            .setNeutralButton("Cancel", null)
+            .show()
     }
 
     private fun handleOfflineSubmit(attemptName: String, items: List<AnswerItem>) {

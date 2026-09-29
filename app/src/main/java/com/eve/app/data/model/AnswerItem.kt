@@ -33,42 +33,42 @@ data class AnswerItem(
     val optionCHi: String = "",
     val optionDHi: String = ""
 ) : Parcelable {
-    val isAttempted: Boolean get() = selected.isNotEmpty()
-    val isCorrect: Boolean get() = selected.isNotEmpty() && selected == correct
-    val isUnattempted: Boolean get() = selected.isEmpty()
-    val isWrong: Boolean get() = selected.isNotEmpty() && selected != correct
+    val isAttempted: Boolean get() = !selected.isNullOrEmpty()
+    val isCorrect: Boolean get() = !selected.isNullOrEmpty() && selected.equals(correct, ignoreCase = true)
+    val isUnattempted: Boolean get() = selected.isNullOrEmpty()
+    val isWrong: Boolean get() = !selected.isNullOrEmpty() && !selected.equals(correct, ignoreCase = true)
 
     fun optionText(letter: String): String = when (letter) {
-        "A" -> optionA
-        "B" -> optionB
-        "C" -> optionC
-        "D" -> optionD
+        "A" -> optionA ?: ""
+        "B" -> optionB ?: ""
+        "C" -> optionC ?: ""
+        "D" -> optionD ?: ""
         else -> ""
     }
 
     fun optionTextHi(letter: String): String = when (letter) {
-        "A" -> optionAHi
-        "B" -> optionBHi
-        "C" -> optionCHi
-        "D" -> optionDHi
+        "A" -> optionAHi ?: ""
+        "B" -> optionBHi ?: ""
+        "C" -> optionCHi ?: ""
+        "D" -> optionDHi ?: ""
         else -> ""
     }
 
     fun displayOptionText(letter: String, hindi: Boolean): String {
         val hi = optionTextHi(letter)
         val en = optionText(letter)
-        return if (hindi && hi.isNotBlank()) hi else en
+        return if (hindi && !hi.isNullOrBlank()) hi else (en ?: "")
     }
 
     fun displayQuestionText(hindi: Boolean): String =
-        if (hindi && questionTextHi.isNotBlank()) questionTextHi else questionText
+        if (hindi && !questionTextHi.isNullOrBlank()) questionTextHi else (questionText ?: "")
 
     fun displaySelectedText(hindi: Boolean): String =
-        if (hindi && selectedTextHi.isNotBlank()) selectedTextHi else selectedText
+        if (hindi && !selectedTextHi.isNullOrBlank()) selectedTextHi else (selectedText ?: "")
 
     fun displayCorrectText(hindi: Boolean): String =
-        if (hindi && correctTextHi.isNotBlank()) correctTextHi else correctText
+        if (hindi && !correctTextHi.isNullOrBlank()) correctTextHi else (correctText ?: "")
 
     fun displayExplanation(hindi: Boolean): String =
-        if (hindi && explanationHi.isNotBlank()) explanationHi else explanation
+        if (hindi && !explanationHi.isNullOrBlank()) explanationHi else (explanation ?: "")
 }

@@ -56,12 +56,13 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- 1. Select Exam Dropdown & + New Exam button -->
+            <!-- 1. Main Exam -->
             <TextView
+                android:id="@+id/tvLabelMainExam"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_semibold"
-                android:text="1. Select Exam"
+                android:text="1. Main Exam"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
 
@@ -88,7 +89,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
                         android:fontFamily="@font/poppins"
-                        android:hint="Select exam"
+                        android:hint="Select main exam"
                         android:inputType="textCapWords"
                         android:maxLines="1"
                         android:popupBackground="@color/eve_surface"
@@ -103,46 +104,67 @@
                     android:layout_width="wrap_content"
                     android:layout_height="56dp"
                     android:layout_marginStart="8dp"
-                    android:contentDescription="Create New Exam"
+                    android:contentDescription="Create New Main Exam"
                     android:fontFamily="@font/poppins_semibold"
                     android:minWidth="48dp"
-                    android:text="+ New Exam" />
+                    android:text="+ New Main Exam" />
             </LinearLayout>
 
-            <!-- 2. Main Exam (optional) -->
+            <!-- 2. Sub-Exam / Subject (optional) -->
             <TextView
+                android:id="@+id/tvLabelSubExam"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
                 android:fontFamily="@font/poppins_semibold"
-                android:text="2. Main Exam (optional)"
+                android:text="2. Sub-Exam / Subject (optional)"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilParentExam"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            <LinearLayout
+                android:id="@+id/layoutSubExamContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm"
-                app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm"
-                app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm"
-                app:boxCornerRadiusTopStart="@dimen/eve_radius_sm"
-                app:helperText="Leave as None for a main exam. Choose a main exam to make this a sub-exam (e.g. a subject under 3rd Grade)."
-                app:helperTextTextColor="@color/eve_text_secondary">
+                android:gravity="top"
+                android:orientation="horizontal">
 
-                <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                    android:id="@+id/actvParentExam"
-                    android:layout_width="match_parent"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilParentExam"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm"
+                    app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm"
+                    app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm"
+                    app:boxCornerRadiusTopStart="@dimen/eve_radius_sm"
+                    app:helperText="Choose a sub-exam or 'Direct Test (Main Exam)'. All settings below apply to the selected entity."
+                    app:helperTextTextColor="@color/eve_text_secondary">
+
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        android:id="@+id/actvParentExam"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:fontFamily="@font/poppins"
+                        android:hint="Sub-Exam / Subject"
+                        android:inputType="textCapWords"
+                        android:popupBackground="@color/eve_surface"
+                        android:textColor="@color/eve_text"
+                        android:textSize="14sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAddSubExam"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="wrap_content"
                     android:layout_height="56dp"
-                    android:fontFamily="@font/poppins"
-                    android:hint="Main Exam (optional)"
-                    android:inputType="none"
-                    android:popupBackground="@color/eve_surface"
-                    android:textColor="@color/eve_text"
-                    android:textSize="14sp" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_marginStart="8dp"
+                    android:contentDescription="Add Sub-Exam"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:minWidth="48dp"
+                    android:text="+ Add Sub-Exam" />
+            </LinearLayout>
 
             <!-- 3. Test Duration (minutes) -->
             <TextView

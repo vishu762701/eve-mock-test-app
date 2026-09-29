@@ -248,12 +248,6 @@ class AdminActivity : AppCompatActivity() {
             }
             showAddQuestionDialog(selected)
         }
-        binding.btnEmptyAddQuestion.setOnClickListener {
-            binding.btnAddQuestionManual.performClick()
-        }
-        binding.btnEmptyBulkUpload.setOnClickListener {
-            binding.btnBulkUploadSelectedExam.performClick()
-        }
 
         // Questions in Selected Exam: Bulk Upload
         binding.btnBulkUploadSelectedExam.setOnClickListener {
@@ -331,7 +325,6 @@ class AdminActivity : AppCompatActivity() {
             binding.tvNoQuestions.visibility = View.GONE
             binding.tvEmptyQuestionsTitle.text = "Select an exam above to view its questions"
             binding.tvEmptyQuestionsSubtitle.text = "Choose an exam from the dropdown to manage questions or upload new ones."
-            binding.layoutEmptyActions.visibility = View.GONE
             animateEmptyFolderIcon()
         } else if (questionsList.isEmpty()) {
             // Case 2: Exam selected but genuinely 0 questions
@@ -340,7 +333,6 @@ class AdminActivity : AppCompatActivity() {
             binding.tvNoQuestions.visibility = View.GONE
             binding.tvEmptyQuestionsTitle.text = "No questions uploaded yet for ${selectedExam.examName}"
             binding.tvEmptyQuestionsSubtitle.text = "Add questions manually or import them in bulk from CSV / Excel."
-            binding.layoutEmptyActions.visibility = View.VISIBLE
             animateEmptyFolderIcon()
         } else {
             // Case 3: Exam selected with questions

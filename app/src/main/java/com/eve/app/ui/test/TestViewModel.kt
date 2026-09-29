@@ -61,6 +61,8 @@ class TestViewModel : ViewModel() {
     private var initialStartedAt: Long = 0L
     var clientAttemptId: String = java.util.UUID.randomUUID().toString()
         private set
+    var currentExamId: String = ""
+        private set
 
     fun start(
         examId: String,
@@ -76,6 +78,7 @@ class TestViewModel : ViewModel() {
         if (started) return
         started = true
         currentExamName = examName
+        currentExamId = examId
 
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
@@ -97,7 +100,8 @@ class TestViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val isStandardMock = topic.isBlank() && pyqYear == 0 && !fromBookmark
-                if (!isAdmin && user != null && examId.isNotBlank() && isStandardMock && (historyRepo.hasAttempted(user.uid, examId) || com.eve.app.ui.home.HomeViewModel.isAttemptSubmitted(examId))) {
+                val canAttempt = com.eve.app.util.AttemptLimitManager.canAttempt(com.eve.app.EveApplication.instance, examId)
+                if (!isAdmin && user != null && examId.isNotBlank() && isStandardMock && !canAttempt) {
                     _alreadyAttempted.value = true
                     started = false
                     return@launch
@@ -126,9 +130,12 @@ class TestViewModel : ViewModel() {
                         }
                     } catch (e: retrofit2.HttpException) {
                         if (e.code() == 409 && !isAdmin) {
-                            _alreadyAttempted.value = true
-                            started = false
-                            return@launch
+                            val canStillAttempt = com.eve.app.util.AttemptLimitManager.canAttempt(com.eve.app.EveApplication.instance, examId)
+                            if (!canStillAttempt) {
+                                _alreadyAttempted.value = true
+                                started = false
+                                return@launch
+                            }
                         }
                     } catch (_: Exception) {
                         if (existingSession != null && existingSession.elapsedSeconds > 0) {
@@ -153,12 +160,34 @@ class TestViewModel : ViewModel() {
                     AttemptKey.generatedTestId(examId) != null -> {
                         val genTestId = AttemptKey.generatedTestId(examId)
                         val sourceExamId = AttemptKey.sourceExamId(examId)
+                        currentExamId = examId
                         val test = repo.getGeneratedTests(sourceExamId).firstOrNull { it.id == genTestId && it.isLive }
                         if (test != null && test.questions.isNotEmpty()) {
                             test.questions.mapIndexed { idx, gq ->
                                 Question(
                                     id = "${test.id}_$idx",
                                     examId = sourceExamId,
+                                    questionText = gq.questionText,
+                                    optionA = gq.optionA,
+                                    optionB = gq.optionB,
+                                    optionC = gq.optionC,
+                                    optionD = gq.optionD,
+                                    correctAnswer = gq.correctAnswer,
+                                    explanation = gq.explanation
+                                )
+                            }
+                        } else {
+                            emptyList()
+                        }
+                    }
+                    testId.isNotBlank() -> {
+                        val test = repo.getGeneratedTests(examId).firstOrNull { it.id == testId && it.isLive }
+                        if (test != null && test.questions.isNotEmpty()) {
+                            currentExamId = AttemptKey.forTest(examId, test.id)
+                            test.questions.mapIndexed { idx, gq ->
+                                Question(
+                                    id = "${test.id}_$idx",
+                                    examId = examId,
                                     questionText = gq.questionText,
                                     optionA = gq.optionA,
                                     optionB = gq.optionB,
@@ -180,6 +209,7 @@ class TestViewModel : ViewModel() {
                             val liveTests = repo.getLiveGeneratedTests(examId)
                             val latestLive = liveTests.firstOrNull()
                             if (latestLive != null && latestLive.questions.isNotEmpty()) {
+                                currentExamId = AttemptKey.forTest(examId, latestLive.id)
                                 latestLive.questions.mapIndexed { idx, gq ->
                                     Question(
                                         id = "${latestLive.id}_$idx",

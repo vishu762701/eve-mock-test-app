@@ -8,6 +8,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withTimeoutOrNull
 
 object AttemptLimitManager {
 
@@ -18,11 +19,14 @@ object AttemptLimitManager {
     /**
      * Checks if given user email is an admin (hardcoded or dynamic).
      */
-    suspend fun isAdmin(email: String?): Boolean {
+    suspend fun isAdmin(email: String?, context: Context? = null): Boolean {
         if (email.isNullOrBlank()) return false
         if (Constants.ADMIN_EMAILS.any { it.equals(email, ignoreCase = true) }) return true
+        if (context != null && !NetworkUtil.isOnline(context)) return false
         return try {
-            AdminRepository().isAdmin(email)
+            withTimeoutOrNull(2000L) {
+                AdminRepository().isAdmin(email)
+            } ?: false
         } catch (_: Exception) {
             false
         }
@@ -48,6 +52,7 @@ object AttemptLimitManager {
     /**
      * Fetches current attempt count for user on the given exam.
      * Combines local preferences, Firestore user doc, and existing attempts in history.
+     * Guaranteed non-blocking and instant when offline.
      */
     suspend fun getAttemptCount(context: Context, examId: String): Int {
         val user = FirebaseAuth.getInstance().currentUser
@@ -55,17 +60,25 @@ object AttemptLimitManager {
         val localCount = getLocalAttemptCount(context, examId, uid)
         if (uid.isBlank() || examId.isBlank()) return localCount
 
+        if (!NetworkUtil.isOnline(context)) {
+            return localCount
+        }
+
         var remoteCount = 0
         try {
-            val userDoc = FirebaseFirestore.getInstance().collection("users").document(uid).get().await()
-            val counts = userDoc.get("attemptCounts") as? Map<*, *>
-            remoteCount = (counts?.get(examId) as? Number)?.toInt() ?: 0
+            withTimeoutOrNull(2000L) {
+                val userDoc = FirebaseFirestore.getInstance().collection("users").document(uid).get().await()
+                val counts = userDoc.get("attemptCounts") as? Map<*, *>
+                remoteCount = (counts?.get(examId) as? Number)?.toInt() ?: 0
+            }
         } catch (_: Exception) {}
 
         var historyCount = 0
         try {
-            val attempts = HistoryRepository().getAttempts(uid).filter { it.examId == examId }
-            historyCount = attempts.size
+            withTimeoutOrNull(2000L) {
+                val attempts = HistoryRepository().getAttempts(uid).filter { it.examId == examId }
+                historyCount = attempts.size
+            }
         } catch (_: Exception) {}
 
         val highest = maxOf(localCount, remoteCount, historyCount)
@@ -81,7 +94,7 @@ object AttemptLimitManager {
      */
     suspend fun canAttempt(context: Context, examId: String): Boolean {
         val user = FirebaseAuth.getInstance().currentUser ?: return true
-        if (isAdmin(user.email)) return true
+        if (isAdmin(user.email, context)) return true
         val count = getAttemptCount(context, examId)
         return count < MAX_ATTEMPTS
     }
@@ -101,16 +114,20 @@ object AttemptLimitManager {
         val uid = user.uid
         if (examId.isBlank() || uid.isBlank()) return
 
-        val currentCount = getAttemptCount(context, examId)
+        val currentCount = getLocalAttemptCount(context, examId, uid)
         val newCount = currentCount + 1
         setLocalAttemptCount(context, examId, uid, newCount)
 
-        try {
-            val userRef = FirebaseFirestore.getInstance().collection("users").document(uid)
-            userRef.set(
-                mapOf("attemptCounts" to mapOf(examId to FieldValue.increment(1))),
-                SetOptions.merge()
-            ).await()
-        } catch (_: Exception) {}
+        if (NetworkUtil.isOnline(context)) {
+            try {
+                withTimeoutOrNull(2500L) {
+                    val userRef = FirebaseFirestore.getInstance().collection("users").document(uid)
+                    userRef.set(
+                        mapOf("attemptCounts" to mapOf(examId to FieldValue.increment(1))),
+                        SetOptions.merge()
+                    ).await()
+                }
+            } catch (_: Exception) {}
+        }
     }
 }

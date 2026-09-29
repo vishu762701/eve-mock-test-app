@@ -69,7 +69,11 @@ class ManageExamsActivity : AppCompatActivity() {
     private var currentAutoGenTime: String = "00:00"
     private var currentParentExamId: String = ""
 
-    private var isNewMode: Boolean = false
+    private var selectedMainExam: Exam? = null
+    private var selectedSubExam: Exam? = null
+    private var isNewMainExamMode: Boolean = false
+    private var isNewSubExamMode: Boolean = false
+    private val isNewMode: Boolean get() = isNewMainExamMode || isNewSubExamMode
     private var previouslySelectedExamId: String = ""
 
     private val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
@@ -87,14 +91,7 @@ class ManageExamsActivity : AppCompatActivity() {
         fun setExams(exams: List<Exam>) {
             allEntries.clear()
             val entries = exams.map { exam ->
-                val label = if (exam.parentExamId.isNotBlank()) {
-                    val parent = exams.find { it.id == exam.parentExamId }
-                    val parentName = parent?.examName ?: "Main"
-                    "$parentName \u203A ${exam.examName}"
-                } else {
-                    exam.examName
-                }
-                ExamDropdownEntry(exam, label)
+                ExamDropdownEntry(exam, exam.examName)
             }.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.displayLabel })
 
             allEntries.addAll(entries)
@@ -166,64 +163,96 @@ class ManageExamsActivity : AppCompatActivity() {
             }
         })
 
-        // Dropdown setup
+        // Dropdown setup for Main Exam
         dropdownAdapter = ExamDropdownAdapter(this)
         binding.actvExam.setAdapter(dropdownAdapter)
         binding.actvExam.threshold = 0
 
         binding.actvExam.setOnClickListener {
-            if (!isNewMode && !binding.actvExam.isPopupShowing) {
+            if (!isNewMainExamMode && !binding.actvExam.isPopupShowing) {
                 binding.actvExam.showDropDown()
             }
         }
 
         binding.actvExam.setOnItemClickListener { _, _, position, _ ->
             val item = dropdownAdapter.getItem(position) ?: return@setOnItemClickListener
-            handleItemSelection(item.exam)
+            handleMainExamSelection(item.exam)
         }
 
         binding.btnNewExam.setOnClickListener {
-            if (isNewMode) {
+            if (isNewMainExamMode) {
                 if (isDirty()) {
                     MaterialAlertDialogBuilder(this)
                         .setTitle("Unsaved Changes")
                         .setMessage("You have unsaved changes. Do you want to save before canceling?")
                         .setPositiveButton("Save") { _, _ ->
-                            saveExamSettings {
-                                exitNewModeAndRestore()
-                            }
+                            saveExamSettings { exitNewMainExamModeAndRestore() }
                         }
                         .setNegativeButton("Discard") { _, _ ->
-                            exitNewModeAndRestore()
+                            exitNewMainExamModeAndRestore()
                         }
                         .setNeutralButton("Cancel", null)
                         .show()
                 } else {
-                    exitNewModeAndRestore()
+                    exitNewMainExamModeAndRestore()
                 }
             } else {
                 if (isDirty()) {
                     MaterialAlertDialogBuilder(this)
                         .setTitle("Unsaved Changes")
-                        .setMessage("You have unsaved changes. Do you want to save before creating a new exam?")
+                        .setMessage("You have unsaved changes. Do you want to save before creating a new main exam?")
                         .setPositiveButton("Save") { _, _ ->
-                            saveExamSettings {
-                                enterNewMode()
-                            }
+                            saveExamSettings { enterNewMainExamMode() }
                         }
                         .setNegativeButton("Discard") { _, _ ->
-                            enterNewMode()
+                            enterNewMainExamMode()
                         }
                         .setNeutralButton("Cancel", null)
                         .show()
                 } else {
-                    enterNewMode()
+                    enterNewMainExamMode()
+                }
+            }
+        }
+
+        binding.btnAddSubExam.setOnClickListener {
+            if (isNewSubExamMode) {
+                if (isDirty()) {
+                    MaterialAlertDialogBuilder(this)
+                        .setTitle("Unsaved Changes")
+                        .setMessage("You have unsaved changes. Do you want to save before canceling?")
+                        .setPositiveButton("Save") { _, _ ->
+                            saveExamSettings { exitNewSubExamModeAndRestore() }
+                        }
+                        .setNegativeButton("Discard") { _, _ ->
+                            exitNewSubExamModeAndRestore()
+                        }
+                        .setNeutralButton("Cancel", null)
+                        .show()
+                } else {
+                    exitNewSubExamModeAndRestore()
+                }
+            } else {
+                if (isDirty()) {
+                    MaterialAlertDialogBuilder(this)
+                        .setTitle("Unsaved Changes")
+                        .setMessage("You have unsaved changes. Do you want to save before creating a sub-exam?")
+                        .setPositiveButton("Save") { _, _ ->
+                            saveExamSettings { enterNewSubExamMode() }
+                        }
+                        .setNegativeButton("Discard") { _, _ ->
+                            enterNewSubExamMode()
+                        }
+                        .setNeutralButton("Cancel", null)
+                        .show()
+                } else {
+                    enterNewSubExamMode()
                 }
             }
         }
 
         binding.actvParentExam.setOnClickListener {
-            if (binding.tilParentExam.isEnabled && !binding.actvParentExam.isPopupShowing) {
+            if (binding.tilParentExam.isEnabled && !isNewSubExamMode && !binding.actvParentExam.isPopupShowing) {
                 binding.actvParentExam.showDropDown()
             }
         }
@@ -262,29 +291,42 @@ class ManageExamsActivity : AppCompatActivity() {
         loadExams()
     }
 
-    private fun handleItemSelection(exam: Exam) {
+    private fun handleMainExamSelection(exam: Exam) {
+        if (exam.id == selectedMainExam?.id && selectedSubExam == null) return
         if (isDirty()) {
-            MaterialAlertDialogBuilder(this)
-                .setTitle("Unsaved Changes")
-                .setMessage("You have unsaved changes. Do you want to save before switching?")
-                .setPositiveButton("Save") { _, _ ->
-                    saveExamSettings {
-                        loadExam(exam)
-                    }
-                }
-                .setNegativeButton("Discard") { _, _ ->
-                    loadExam(exam)
-                }
-                .setNeutralButton("Cancel") { _, _ ->
-                    binding.actvExam.setText(initialExam?.examName.orEmpty(), false)
-                }
-                .setOnCancelListener {
-                    binding.actvExam.setText(initialExam?.examName.orEmpty(), false)
-                }
-                .show()
+            promptUnsavedChanges {
+                selectedMainExam = exam
+                selectedSubExam = null
+                loadEntity(exam)
+            }
         } else {
-            loadExam(exam)
+            selectedMainExam = exam
+            selectedSubExam = null
+            loadEntity(exam)
         }
+    }
+
+    private fun promptUnsavedChanges(onDiscard: () -> Unit) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Unsaved Changes")
+            .setMessage("You have unsaved changes. Do you want to save before switching?")
+            .setPositiveButton("Save") { _, _ ->
+                saveExamSettings {
+                    onDiscard()
+                }
+            }
+            .setNegativeButton("Discard") { _, _ ->
+                onDiscard()
+            }
+            .setNeutralButton("Cancel") { _, _ ->
+                binding.actvExam.setText(selectedMainExam?.examName.orEmpty(), false)
+                updateSubExamDropdown()
+            }
+            .setOnCancelListener {
+                binding.actvExam.setText(selectedMainExam?.examName.orEmpty(), false)
+                updateSubExamDropdown()
+            }
+            .show()
     }
 
     private fun loadExams(targetExamId: String? = null) {
@@ -295,30 +337,50 @@ class ManageExamsActivity : AppCompatActivity() {
                 examList = fetched.toMutableList()
 
                 binding.progressBar.visibility = View.GONE
-                dropdownAdapter.setExams(examList)
+                val mainExams = examList.filter { it.parentExamId.isBlank() }
+                dropdownAdapter.setExams(mainExams)
+
+                if (mainExams.isEmpty()) {
+                    enterNewMainExamMode()
+                    return@launch
+                }
 
                 if (targetExamId != null) {
                     val target = examList.find { it.id == targetExamId }
                     if (target != null) {
-                        loadExam(target)
-                    } else if (examList.isNotEmpty()) {
-                        loadExam(examList[0])
+                        if (target.parentExamId.isNotBlank()) {
+                            selectedMainExam = examList.find { it.id == target.parentExamId } ?: mainExams.first()
+                            selectedSubExam = target
+                        } else {
+                            selectedMainExam = target
+                            selectedSubExam = null
+                        }
+                        loadEntity(target)
                     } else {
-                        enterNewMode()
+                        selectedMainExam = mainExams.first()
+                        selectedSubExam = null
+                        loadEntity(selectedMainExam!!)
                     }
                 } else if (currentExamId.isNotBlank()) {
                     val current = examList.find { it.id == currentExamId }
                     if (current != null) {
-                        loadExam(current)
-                    } else if (examList.isNotEmpty()) {
-                        loadExam(examList[0])
+                        if (current.parentExamId.isNotBlank()) {
+                            selectedMainExam = examList.find { it.id == current.parentExamId } ?: mainExams.first()
+                            selectedSubExam = current
+                        } else {
+                            selectedMainExam = current
+                            selectedSubExam = null
+                        }
+                        loadEntity(current)
                     } else {
-                        enterNewMode()
+                        selectedMainExam = mainExams.first()
+                        selectedSubExam = null
+                        loadEntity(selectedMainExam!!)
                     }
-                } else if (examList.isNotEmpty()) {
-                    loadExam(examList[0])
                 } else {
-                    enterNewMode()
+                    selectedMainExam = mainExams.first()
+                    selectedSubExam = null
+                    loadEntity(selectedMainExam!!)
                 }
                 binding.compactErrorView.hide()
             } catch (e: Exception) {
@@ -332,8 +394,9 @@ class ManageExamsActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadExam(exam: Exam) {
-        exitNewMode()
+    private fun loadEntity(exam: Exam) {
+        exitNewMainExamMode()
+        exitNewSubExamMode()
 
         currentExamId = exam.id
         currentParentExamId = exam.parentExamId
@@ -349,8 +412,11 @@ class ManageExamsActivity : AppCompatActivity() {
         binding.tilQuestionCount.error = null
         binding.tilNegativeMarking.error = null
 
-        binding.actvExam.setText(exam.examName, false)
-        updateParentExamDropdown()
+        if (exam.parentExamId.isBlank()) {
+            binding.actvExam.setText(exam.examName, false)
+        }
+        updateSubExamDropdown()
+
         binding.etDuration.setText(if (exam.timeLimitMinutes > 0) exam.timeLimitMinutes.toString() else "30")
         binding.etTestNumber.setText(exam.testNumber.ifBlank { "Test 1" })
         binding.etQuestionCount.setText(if (exam.questionCount > 0) exam.questionCount.toString() else "20")
@@ -373,8 +439,9 @@ class ManageExamsActivity : AppCompatActivity() {
         loadGeneratedTestsForExam()
     }
 
-    private fun enterNewMode() {
-        isNewMode = true
+    private fun enterNewMainExamMode() {
+        isNewMainExamMode = true
+        isNewSubExamMode = false
         previouslySelectedExamId = currentExamId
         currentExamId = ""
         currentParentExamId = ""
@@ -384,18 +451,21 @@ class ManageExamsActivity : AppCompatActivity() {
         currentAutoGenTime = "00:00"
 
         binding.btnNewExam.text = "Cancel"
-        binding.tilSelectExam.hint = "Enter new exam name"
+        binding.btnAddSubExam.isEnabled = false
+        binding.tilSelectExam.hint = "Enter new main exam name"
         binding.tilSelectExam.endIconMode = TextInputLayout.END_ICON_NONE
         binding.actvExam.setAdapter(null)
         binding.actvExam.setText("", false)
         binding.actvExam.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_WORDS
 
-        updateParentExamDropdown()
+        binding.tilParentExam.isEnabled = false
+        binding.actvParentExam.setAdapter(null)
+        binding.actvParentExam.setText("None (Main Exam)", false)
 
-        binding.etDuration.setText("")
-        binding.etTestNumber.setText("")
-        binding.etQuestionCount.setText("")
-        binding.etNegativeMarking.setText("")
+        binding.etDuration.setText("30")
+        binding.etTestNumber.setText("Test 1")
+        binding.etQuestionCount.setText("20")
+        binding.etNegativeMarking.setText("0")
 
         binding.switchAutoGen.isChecked = false
         binding.switchAutoGen.isEnabled = true
@@ -403,7 +473,7 @@ class ManageExamsActivity : AppCompatActivity() {
         updateTimePickerState(false)
         binding.btnPickTime.text = "Time: 00:00 (IST)"
 
-        binding.tvLastRunStatus.text = "New exam — save exam before generating tests"
+        binding.tvLastRunStatus.text = "New main exam — save before generating tests"
         binding.etGenerationPrompt.setText("")
 
         genTestAdapter.submit(emptyList())
@@ -427,62 +497,148 @@ class ManageExamsActivity : AppCompatActivity() {
         imm?.showSoftInput(binding.actvExam, InputMethodManager.SHOW_IMPLICIT)
     }
 
-    private fun exitNewModeAndRestore() {
-        exitNewMode()
+    private fun exitNewMainExamModeAndRestore() {
+        exitNewMainExamMode()
         val targetId = previouslySelectedExamId.ifBlank { examList.firstOrNull()?.id.orEmpty() }
         val target = examList.find { it.id == targetId } ?: examList.firstOrNull()
         if (target != null) {
-            loadExam(target)
+            loadEntity(target)
         } else {
-            enterNewMode()
+            enterNewMainExamMode()
         }
     }
 
-    private fun exitNewMode() {
-        isNewMode = false
-        binding.btnNewExam.text = "+ New Exam"
-        binding.tilSelectExam.hint = "Select exam"
+    private fun exitNewMainExamMode() {
+        isNewMainExamMode = false
+        binding.btnNewExam.text = "+ New Main Exam"
+        binding.btnAddSubExam.isEnabled = true
+        binding.tilSelectExam.hint = "Select main exam"
         binding.tilSelectExam.endIconMode = TextInputLayout.END_ICON_DROPDOWN_MENU
         binding.actvExam.setAdapter(dropdownAdapter)
+        binding.tilParentExam.isEnabled = true
     }
 
-    private fun updateParentExamDropdown() {
-        val hasSubExams = currentExamId.isNotBlank() && examList.any { it.parentExamId == currentExamId }
+    private fun enterNewSubExamMode() {
+        val parent = selectedMainExam ?: return
+        isNewSubExamMode = true
+        isNewMainExamMode = false
+        previouslySelectedExamId = currentExamId
+        currentExamId = ""
+        currentParentExamId = parent.id
+        currentSyllabusUrl = ""
+        currentSyllabusFileName = ""
+        currentSyllabusUploadedAt = 0L
+        currentAutoGenTime = "00:00"
 
-        if (hasSubExams) {
-            binding.tilParentExam.isEnabled = false
-            binding.actvParentExam.isEnabled = false
-            currentParentExamId = ""
-            binding.actvParentExam.setText("None (this is a main exam)", false)
-            binding.tilParentExam.helperText = "This exam has sub-exams, so it cannot be a sub-exam."
-            return
+        binding.btnAddSubExam.text = "Cancel"
+        binding.btnNewExam.isEnabled = false
+        binding.tilSelectExam.isEnabled = false
+
+        binding.tilParentExam.hint = "Enter sub-exam / subject name"
+        binding.tilParentExam.endIconMode = TextInputLayout.END_ICON_NONE
+        binding.actvParentExam.setAdapter(null)
+        binding.actvParentExam.setText("", false)
+        binding.actvParentExam.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_WORDS
+
+        binding.etDuration.setText(if (parent.timeLimitMinutes > 0) parent.timeLimitMinutes.toString() else "30")
+        binding.etTestNumber.setText("Test 1")
+        binding.etQuestionCount.setText(if (parent.questionCount > 0) parent.questionCount.toString() else "20")
+        binding.etNegativeMarking.setText(parent.negativeMarkingText.ifBlank { "0" })
+
+        binding.switchAutoGen.isChecked = false
+        binding.switchAutoGen.isEnabled = true
+        binding.switchAutoGen.alpha = 1.0f
+        updateTimePickerState(false)
+        binding.btnPickTime.text = "Time: 00:00 (IST)"
+
+        binding.tvLastRunStatus.text = "New sub-exam under ${parent.examName} — save before generating tests"
+        binding.etGenerationPrompt.setText(parent.generationPrompt)
+
+        genTestAdapter.submit(emptyList())
+        binding.progressBarGenTests.visibility = View.GONE
+        binding.tvNoGenTests.visibility = View.VISIBLE
+        binding.tvNoGenTests.text = "Save sub-exam first to view and generate test batches."
+
+        binding.btnGenerateNow.visibility = View.GONE
+
+        binding.tilSelectExam.error = null
+        binding.tilParentExam.error = null
+        binding.tilDuration.error = null
+        binding.tilTestNumber.error = null
+        binding.tilQuestionCount.error = null
+        binding.tilNegativeMarking.error = null
+
+        initialExam = getCurrentFormAsExam()
+
+        binding.actvParentExam.requestFocus()
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        imm?.showSoftInput(binding.actvParentExam, InputMethodManager.SHOW_IMPLICIT)
+    }
+
+    private fun exitNewSubExamModeAndRestore() {
+        exitNewSubExamMode()
+        if (selectedMainExam != null) {
+            loadEntity(selectedSubExam ?: selectedMainExam!!)
+        } else {
+            loadExams()
         }
+    }
 
-        binding.tilParentExam.isEnabled = true
-        binding.actvParentExam.isEnabled = true
-        binding.tilParentExam.helperText = "Leave as None for a main exam. Choose a main exam to make this a sub-exam (e.g. a subject under 3rd Grade)."
+    private fun exitNewSubExamMode() {
+        isNewSubExamMode = false
+        binding.btnAddSubExam.text = "+ Add Sub-Exam"
+        binding.btnNewExam.isEnabled = true
+        binding.tilSelectExam.isEnabled = true
+        binding.tilParentExam.hint = "Sub-Exam / Subject"
+        binding.tilParentExam.endIconMode = TextInputLayout.END_ICON_DROPDOWN_MENU
+        updateSubExamDropdown()
+    }
 
-        val eligibleParents = examList.filter { it.parentExamId.isBlank() && (currentExamId.isBlank() || it.id != currentExamId) }
+    private fun updateSubExamDropdown() {
+        val parent = selectedMainExam ?: return
+        val subExams = examList.filter { it.parentExamId == parent.id }
             .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.examName })
 
-        val options = mutableListOf("None (this is a main exam)")
-        options.addAll(eligibleParents.map { it.examName })
+        val options = mutableListOf<String>()
+        options.add("Direct Test (${parent.examName})")
+        options.addAll(subExams.map { it.examName })
 
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, options)
         binding.actvParentExam.setAdapter(adapter)
 
-        val selectedName = if (currentParentExamId.isNotBlank()) {
-            eligibleParents.find { it.id == currentParentExamId }?.examName ?: "None (this is a main exam)"
+        val selectedLabel = if (selectedSubExam != null) {
+            selectedSubExam!!.examName
         } else {
-            "None (this is a main exam)"
+            "Direct Test (${parent.examName})"
         }
-        binding.actvParentExam.setText(selectedName, false)
+        binding.actvParentExam.setText(selectedLabel, false)
 
         binding.actvParentExam.setOnItemClickListener { _, _, position, _ ->
-            currentParentExamId = if (position == 0) {
-                ""
+            if (position == 0) {
+                if (selectedSubExam != null) {
+                    if (isDirty()) {
+                        promptUnsavedChanges {
+                            selectedSubExam = null
+                            loadEntity(selectedMainExam!!)
+                        }
+                    } else {
+                        selectedSubExam = null
+                        loadEntity(selectedMainExam!!)
+                    }
+                }
             } else {
-                eligibleParents.getOrNull(position - 1)?.id.orEmpty()
+                val chosenSub = subExams.getOrNull(position - 1)
+                if (chosenSub != null && chosenSub.id != selectedSubExam?.id) {
+                    if (isDirty()) {
+                        promptUnsavedChanges {
+                            selectedSubExam = chosenSub
+                            loadEntity(chosenSub)
+                        }
+                    } else {
+                        selectedSubExam = chosenSub
+                        loadEntity(chosenSub)
+                    }
+                }
             }
         }
     }
@@ -527,7 +683,7 @@ class ManageExamsActivity : AppCompatActivity() {
     private fun triggerGenerateNow() {
         if (currentExamId.isBlank()) return
 
-        val examName = binding.actvExam.text?.toString()?.trim().orEmpty()
+        val examName = if (selectedSubExam != null) selectedSubExam!!.examName else binding.actvExam.text?.toString()?.trim().orEmpty()
         MaterialAlertDialogBuilder(this)
             .setTitle("Generate Test Now?")
             .setMessage("This will trigger AI to generate a fresh test for '$examName' immediately using the configured prompt and question count.")
@@ -692,9 +848,16 @@ class ManageExamsActivity : AppCompatActivity() {
         val parsedNeg = parseNegativeMarking(negText)
         val negVal = parsedNeg?.second ?: 0.0
 
+        val name = when {
+            isNewSubExamMode -> binding.actvParentExam.text?.toString()?.trim().orEmpty()
+            selectedSubExam != null -> selectedSubExam!!.examName
+            isNewMainExamMode -> binding.actvExam.text?.toString()?.trim().orEmpty()
+            else -> selectedMainExam?.examName ?: binding.actvExam.text?.toString()?.trim().orEmpty()
+        }
+
         return Exam(
             id = currentExamId,
-            examName = binding.actvExam.text?.toString()?.trim().orEmpty(),
+            examName = name,
             timeLimitMinutes = duration,
             testNumber = binding.etTestNumber.text?.toString()?.trim().orEmpty(),
             questionCount = count,
@@ -726,24 +889,43 @@ class ManageExamsActivity : AppCompatActivity() {
     }
 
     private fun saveExamSettings(onSuccess: (() -> Unit)? = null) {
+        val isSavingSubExam = isNewSubExamMode || selectedSubExam != null
+        val name = when {
+            isNewSubExamMode -> binding.actvParentExam.text?.toString()?.trim().orEmpty()
+            selectedSubExam != null -> selectedSubExam!!.examName
+            isNewMainExamMode -> binding.actvExam.text?.toString()?.trim().orEmpty()
+            else -> binding.actvExam.text?.toString()?.trim().orEmpty().ifBlank { selectedMainExam?.examName.orEmpty() }
+        }
+
         // 1. Exam Name Validation: trim, min 2 chars, unique case-insensitively among exams with the SAME parent
-        val name = binding.actvExam.text?.toString()?.trim().orEmpty()
         if (name.length < 2) {
-            binding.tilSelectExam.error = "Exam name must be at least 2 characters"
-            binding.actvExam.requestFocus()
+            if (isSavingSubExam) {
+                binding.tilParentExam.error = "Sub-exam name must be at least 2 characters"
+                binding.actvParentExam.requestFocus()
+            } else {
+                binding.tilSelectExam.error = "Main exam name must be at least 2 characters"
+                binding.actvExam.requestFocus()
+            }
             return
         }
+
         val isDuplicate = examList.any {
             it.id != currentExamId &&
                 it.parentExamId == currentParentExamId &&
                 it.examName.trim().equals(name, ignoreCase = true)
         }
         if (isDuplicate) {
-            binding.tilSelectExam.error = "An exam with this name already exists here"
-            binding.actvExam.requestFocus()
+            if (isSavingSubExam) {
+                binding.tilParentExam.error = "A sub-exam with this name already exists here"
+                binding.actvParentExam.requestFocus()
+            } else {
+                binding.tilSelectExam.error = "A main exam with this name already exists"
+                binding.actvExam.requestFocus()
+            }
             return
         }
         binding.tilSelectExam.error = null
+        binding.tilParentExam.error = null
 
         // 2. Main Exam Validation
         if (currentParentExamId.isNotBlank()) {
@@ -822,7 +1004,7 @@ class ManageExamsActivity : AppCompatActivity() {
                     )
                     auditLogRepo.recordLog(
                         AdminAuditLog.ACTION_EXAM_EDITED,
-                        "Updated exam settings & AI config for '$name'"
+                        "Updated settings & AI config for '$name'"
                     )
                     apiUsageRepo.incrementDocumentWrites(1)
                     AppBulletin.showSuccess(this@ManageExamsActivity, "Settings saved for '$name'")
@@ -842,14 +1024,24 @@ class ManageExamsActivity : AppCompatActivity() {
                         parentExamId = currentParentExamId
                     )
                     currentExamId = newId
+                    val auditMsg = if (isSavingSubExam) {
+                        "Created sub-exam '$name' under '${selectedMainExam?.examName}'"
+                    } else {
+                        "Created main exam '$name' with AI generation settings"
+                    }
                     auditLogRepo.recordLog(
                         AdminAuditLog.ACTION_EXAM_CREATED,
-                        "Created exam '$name' with AI generation settings"
+                        auditMsg
                     )
                     apiUsageRepo.incrementDocumentWrites(1)
                     binding.btnGenerateNow.visibility = View.VISIBLE
-                    exitNewMode()
-                    AppBulletin.showSuccess(this@ManageExamsActivity, "New exam '$name' created!")
+                    if (isNewSubExamMode) {
+                        exitNewSubExamMode()
+                    } else {
+                        exitNewMainExamMode()
+                    }
+                    val successMsg = if (isSavingSubExam) "New sub-exam '$name' created!" else "New main exam '$name' created!"
+                    AppBulletin.showSuccess(this@ManageExamsActivity, successMsg)
                 }
 
                 initialExam = getCurrentFormAsExam()
@@ -871,6 +1063,42 @@ class ManageExamsActivity : AppCompatActivity() {
     }
 
     private fun handleBack() {
+        if (isNewSubExamMode) {
+            if (isDirty()) {
+                MaterialAlertDialogBuilder(this)
+                    .setTitle("Unsaved Changes")
+                    .setMessage("You have unsaved changes. Do you want to save before canceling?")
+                    .setPositiveButton("Save") { _, _ ->
+                        saveExamSettings { exitNewSubExamModeAndRestore() }
+                    }
+                    .setNegativeButton("Discard") { _, _ ->
+                        exitNewSubExamModeAndRestore()
+                    }
+                    .setNeutralButton("Cancel", null)
+                    .show()
+            } else {
+                exitNewSubExamModeAndRestore()
+            }
+            return
+        }
+        if (isNewMainExamMode) {
+            if (isDirty()) {
+                MaterialAlertDialogBuilder(this)
+                    .setTitle("Unsaved Changes")
+                    .setMessage("You have unsaved changes. Do you want to save before canceling?")
+                    .setPositiveButton("Save") { _, _ ->
+                        saveExamSettings { exitNewMainExamModeAndRestore() }
+                    }
+                    .setNegativeButton("Discard") { _, _ ->
+                        exitNewMainExamModeAndRestore()
+                    }
+                    .setNeutralButton("Cancel", null)
+                    .show()
+            } else {
+                exitNewMainExamModeAndRestore()
+            }
+            return
+        }
         if (isDirty()) {
             MaterialAlertDialogBuilder(this)
                 .setTitle("Unsaved Changes")

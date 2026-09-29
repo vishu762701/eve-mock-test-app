@@ -65,12 +65,16 @@ attemptRoutes.post("/start", async (c) => {
 
   const limitSeconds = examRow && typeof examRow.time_limit_minutes === "number" ? examRow.time_limit_minutes * 60 : 0;
 
-  // Non-admin with an existing attempt_locks row -> 409
+  // Non-admin with maximum attempts (3) reached -> 409
   const lockKey = `${uid}_${examId}`;
   if (!user.isAdmin) {
-    const existingLock = await db.prepare("SELECT 1 FROM attempt_locks WHERE id = ?").bind(lockKey).first();
-    if (existingLock) {
-      return c.json({ success: false, error: "You have already completed this test." }, 409);
+    const countRow = await db
+      .prepare("SELECT COUNT(*) as count FROM attempts WHERE user_id = ? AND exam_id = ?")
+      .bind(uid, examId)
+      .first<{ count: number }>();
+    const completedCount = countRow ? countRow.count : 0;
+    if (completedCount >= 3) {
+      return c.json({ success: false, error: "You have reached the maximum limit of 3 attempts for this test." }, 409);
     }
   }
 
@@ -220,11 +224,15 @@ attemptRoutes.post("/submit", async (c) => {
   const isPractice = Boolean(body.topic || body.pyqYear);
   const lockKey = `${uid}_${examId}`;
 
-  // 2. Anti-cheat lock check
+  // 2. Anti-cheat lock check: Max 3 attempts for non-admins on non-practice tests
   if (!isPractice && !user.isAdmin) {
-    const existingLock = await db.prepare("SELECT 1 FROM attempt_locks WHERE id = ?").bind(lockKey).first();
-    if (existingLock) {
-      return c.json({ success: false, error: "You have already completed this test." }, 409);
+    const countRow = await db
+      .prepare("SELECT COUNT(*) as count FROM attempts WHERE user_id = ? AND exam_id = ?")
+      .bind(uid, examId)
+      .first<{ count: number }>();
+    const completedCount = countRow ? countRow.count : 0;
+    if (completedCount >= 3) {
+      return c.json({ success: false, error: "You have reached the maximum limit of 3 attempts for this test." }, 409);
     }
   }
 
@@ -337,28 +345,84 @@ attemptRoutes.post("/submit", async (c) => {
       .bind(sourceExamId)
       .all<QuestionRow>();
 
-    (dbQs || []).forEach((q, idx) => {
-      const entry: ExpectedQ = {
-        id: q.id,
-        questionText: q.question_text,
-        questionTextHi: q.question_text_hi || "",
-        optionA: q.option_a,
-        optionB: q.option_b,
-        optionC: q.option_c,
-        optionD: q.option_d,
-        optionAHi: q.option_a_hi || "",
-        optionBHi: q.option_b_hi || "",
-        optionCHi: q.option_c_hi || "",
-        optionDHi: q.option_d_hi || "",
-        correctAnswer: String(q.correct_answer || "A").toUpperCase(),
-        explanation: q.explanation || "",
-        explanationHi: q.explanation_hi || "",
-        topic: q.topic || "",
-        defaultNumber: idx + 1,
-      };
-      expectedQuestions.push(entry);
-      expectedMap.set(q.id, entry);
-    });
+    const candidateGenTestId = rawAnswers
+      .map((a) => String(a?.questionId || "").trim())
+      .find((id) => id.includes("_"))
+      ?.split("_")?.[0];
+
+    if ((!dbQs || dbQs.length === 0 || candidateGenTestId) && expectedMap.size === 0) {
+      let gRow: { questions_json: string; id: string } | null = null;
+      if (candidateGenTestId) {
+        gRow = await db
+          .prepare("SELECT id, questions_json FROM generated_tests WHERE id = ?")
+          .bind(candidateGenTestId)
+          .first<{ id: string; questions_json: string }>();
+      }
+      if (!gRow) {
+        gRow = await db
+          .prepare(
+            "SELECT id, questions_json FROM generated_tests WHERE exam_id = ? AND status IN ('live', 'published') ORDER BY created_at DESC LIMIT 1"
+          )
+          .bind(sourceExamId)
+          .first<{ id: string; questions_json: string }>();
+      }
+
+      if (gRow) {
+        let parsedQuestions: any[] = [];
+        try {
+          parsedQuestions = JSON.parse(gRow.questions_json);
+        } catch (_e) {}
+
+        parsedQuestions.forEach((q, idx) => {
+          const qId = `${gRow!.id}_${idx}`;
+          const entry: ExpectedQ = {
+            id: qId,
+            questionText: q.question_text || q.questionText || "",
+            questionTextHi: q.question_text_hi || q.questionTextHi || "",
+            optionA: q.option_a || q.optionA || "",
+            optionB: q.option_b || q.optionB || "",
+            optionC: q.option_c || q.optionC || "",
+            optionD: q.option_d || q.optionD || "",
+            optionAHi: q.option_a_hi || q.optionAHi || "",
+            optionBHi: q.option_b_hi || q.optionBHi || "",
+            optionCHi: q.option_c_hi || q.optionCHi || "",
+            optionDHi: q.option_d_hi || q.optionDHi || "",
+            correctAnswer: String(q.correct_answer || q.correctAnswer || "A").toUpperCase(),
+            explanation: String(q.explanation || ""),
+            explanationHi: String(q.explanation_hi || q.explanationHi || ""),
+            topic: String(q.topic || ""),
+            defaultNumber: idx + 1,
+          };
+          expectedQuestions.push(entry);
+          expectedMap.set(qId, entry);
+        });
+      }
+    }
+
+    if (expectedMap.size === 0 && dbQs) {
+      (dbQs || []).forEach((q, idx) => {
+        const entry: ExpectedQ = {
+          id: q.id,
+          questionText: q.question_text,
+          questionTextHi: q.question_text_hi || "",
+          optionA: q.option_a,
+          optionB: q.option_b,
+          optionC: q.option_c,
+          optionD: q.option_d,
+          optionAHi: q.option_a_hi || "",
+          optionBHi: q.option_b_hi || "",
+          optionCHi: q.option_c_hi || "",
+          optionDHi: q.option_d_hi || "",
+          correctAnswer: String(q.correct_answer || "A").toUpperCase(),
+          explanation: q.explanation || "",
+          explanationHi: q.explanation_hi || "",
+          topic: q.topic || "",
+          defaultNumber: idx + 1,
+        };
+        expectedQuestions.push(entry);
+        expectedMap.set(q.id, entry);
+      });
+    }
   }
 
   // Filter student picks against expected question set
@@ -530,15 +594,22 @@ attemptRoutes.post("/submit", async (c) => {
 
   const batchStatements: D1PreparedStatement[] = [];
 
-  // 1. Lock test for non-practice
-  if (!isPractice) {
-    batchStatements.push(
-      db
-        .prepare(
-          "INSERT INTO attempt_locks (id, user_id, exam_id, timestamp, source) VALUES (?, ?, ?, ?, ?) ON CONFLICT(id) DO NOTHING"
-        )
-        .bind(lockKey, uid, examId, now, "submit")
-    );
+  // 1. Lock test for non-practice ONLY when reaching maximum attempts (>= 3)
+  if (!isPractice && !user.isAdmin) {
+    const countRow = await db
+      .prepare("SELECT COUNT(*) as count FROM attempts WHERE user_id = ? AND exam_id = ?")
+      .bind(uid, examId)
+      .first<{ count: number }>();
+    const completedCount = countRow ? countRow.count : 0;
+    if (completedCount + 1 >= 3) {
+      batchStatements.push(
+        db
+          .prepare(
+            "INSERT INTO attempt_locks (id, user_id, exam_id, timestamp, source) VALUES (?, ?, ?, ?, ?) ON CONFLICT(id) DO NOTHING"
+          )
+          .bind(lockKey, uid, examId, now, "submit")
+      );
+    }
   }
 
   // 2. Remove session row
@@ -758,21 +829,29 @@ attemptRoutes.get("/", async (c) => {
       answersByAttempt.set(ans.attempt_id, []);
     }
     answersByAttempt.get(ans.attempt_id)!.push({
-      questionId: ans.question_id,
-      number: ans.question_number,
-      questionText: ans.question_text,
-      selected: ans.selected,
-      selectedText: ans.selected_text,
-      correct: ans.correct,
-      correctText: ans.correct_text,
-      explanation: ans.explanation,
+      questionId: ans.question_id || "",
+      number: ans.question_number || 0,
+      questionText: ans.question_text || "",
+      selected: ans.selected || "",
+      selectedText: ans.selected_text || "",
+      correct: ans.correct || "",
+      correctText: ans.correct_text || "",
+      explanation: ans.explanation || "",
       isBookmarked: Boolean(ans.is_bookmarked),
-      topic: ans.topic,
-      questionTextHi: ans.question_text_hi,
-      selectedTextHi: ans.selected_text_hi,
-      correctTextHi: ans.correct_text_hi,
-      explanationHi: ans.explanation_hi,
+      topic: ans.topic || "",
+      questionTextHi: ans.question_text_hi || "",
+      selectedTextHi: ans.selected_text_hi || "",
+      correctTextHi: ans.correct_text_hi || "",
+      explanationHi: ans.explanation_hi || "",
       timeTakenSeconds: ans.time_taken_seconds || 0,
+      optionA: "",
+      optionB: "",
+      optionC: "",
+      optionD: "",
+      optionAHi: "",
+      optionBHi: "",
+      optionCHi: "",
+      optionDHi: "",
     });
   }
 
@@ -802,8 +881,12 @@ attemptRoutes.get("/locks", async (c) => {
   const user = c.get("user");
   const db = c.env.DB;
 
+  if (user.isAdmin) {
+    return c.json({ success: true, data: [] });
+  }
+
   const { results } = await db
-    .prepare("SELECT exam_id FROM attempt_locks WHERE user_id = ?")
+    .prepare("SELECT exam_id FROM attempts WHERE user_id = ? GROUP BY exam_id HAVING COUNT(*) >= 3")
     .bind(user.uid)
     .all<{ exam_id: string }>();
 
@@ -817,14 +900,29 @@ attemptRoutes.get("/locks/:examId", async (c) => {
   const examId = c.req.param("examId");
   const db = c.env.DB;
 
-  const lockKey = `${user.uid}_${examId}`;
-  const row = await db.prepare("SELECT timestamp FROM attempt_locks WHERE id = ?").bind(lockKey).first<{ timestamp: number }>();
+  if (user.isAdmin) {
+    return c.json({
+      success: true,
+      data: {
+        hasLock: false,
+        timestamp: null,
+      },
+    });
+  }
+
+  const countRow = await db
+    .prepare("SELECT COUNT(*) as count, MAX(timestamp) as lastTimestamp FROM attempts WHERE user_id = ? AND exam_id = ?")
+    .bind(user.uid, examId)
+    .first<{ count: number; lastTimestamp: number | null }>();
+
+  const count = countRow ? countRow.count : 0;
+  const hasLock = count >= 3;
 
   return c.json({
     success: true,
     data: {
-      hasLock: Boolean(row),
-      timestamp: row ? Number(row.timestamp) : null,
+      hasLock,
+      timestamp: hasLock && countRow ? countRow.lastTimestamp : null,
     },
   });
 });

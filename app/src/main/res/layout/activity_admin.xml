@@ -346,35 +346,7 @@
                         android:textColor="@color/eve_text_secondary"
                         android:textSize="13sp" />
 
-                    <!-- Quick jump-to actions when exam selected has 0 questions -->
-                    <LinearLayout
-                        android:id="@+id/layoutEmptyActions"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:gravity="center"
-                        android:orientation="horizontal"
-                        android:visibility="gone">
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnEmptyAddQuestion"
-                            style="@style/Widget.Eve.Button"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_medium"
-                            android:text="+ Add Question"
-                            android:textSize="12sp" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnEmptyBulkUpload"
-                            style="@style/Widget.Eve.OutlinedButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:fontFamily="@font/poppins_medium"
-                            android:text="📥 Bulk Upload"
-                            android:textSize="12sp" />
-                    </LinearLayout>
                 </LinearLayout>
 
                 <!-- Kept for backward compatibility if referenced -->

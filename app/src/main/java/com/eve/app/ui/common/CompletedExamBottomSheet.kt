@@ -88,20 +88,13 @@ object CompletedExamBottomSheet {
 
                 MaterialAlertDialogBuilder(activity)
                     .setTitle(R.string.reattempt_confirm_title)
-                    .setMessage(R.string.reattempt_warning_message)
+                    .setMessage("Are you sure you want to start a new attempt for this test? Each test can be attempted up to 3 times.")
                     .setNegativeButton(R.string.cancel, null)
-                    .setPositiveButton(R.string.delete_and_start) { _, _ ->
+                    .setPositiveButton("Start Attempt") { _, _ ->
                         binding.btnReattempt.isEnabled = false
-                        activity.lifecycleScope.launch {
-                            val success = HistoryRepository().resetAttempt(examId)
-                            if (success) {
-                                dialog.dismiss()
-                                onReattemptConfirmed()
-                            } else {
-                                binding.btnReattempt.isEnabled = true
-                                AppBulletin.showError(activity, activity.getString(R.string.reset_attempt_failed))
-                            }
-                        }
+                        com.eve.app.ui.home.HomeViewModel.markAttemptCleared(examId)
+                        dialog.dismiss()
+                        onReattemptConfirmed()
                     }
                     .show()
             }
