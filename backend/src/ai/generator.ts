@@ -149,16 +149,11 @@ export async function generateQuestions(
   targetCount: number,
   customPrompt: string
 ): Promise<GeneratedQuestionItem[]> {
-  const WORKING_KEY_4 = atob("QVEuQWI4Uk42SVNSU0RYc0pVcXdub1NHOE16aEN0b3JTZzktcEhVZmhaNlNTeE1aWHNNNFE=");
-  const rawCandidateKeys = [env.GEMINI_API_KEY, WORKING_KEY_4];
-  const candidateKeys = Array.from(
-    new Set(
-      rawCandidateKeys.filter(
-        (k): k is string =>
-          Boolean(k && k.trim() && !k.startsWith("AIzaSyDU4mfiVHg0YOm74VorHUOTXkgguWTfg_Y"))
-      )
-    )
-  );
+  const apiKey = (env.GEMINI_API_KEY || "").trim();
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is not configured.");
+  }
+  const candidateKeys = [apiKey];
 
   const preferredModel = env.GEMINI_MODEL || "gemini-3.1-flash-lite";
   const rawCandidateModels = [preferredModel, "gemini-3.1-flash-lite", "gemini-3.8-flash", "gemini-3.5-flash-lite"];

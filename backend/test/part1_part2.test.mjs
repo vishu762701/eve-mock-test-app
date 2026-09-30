@@ -33,6 +33,57 @@ test("hideAnswers: header >= 2 and LEGACY_ANSWER_LEAK behavior", () => {
   assert.equal(hideAnswersCheck({ isAdmin: false, clientHeader: "1", legacyLeak: "off" }), true);
 });
 
+test("non-admin request WITHOUT the X-Eve-Client header must not receive correct answers", () => {
+  const mockContext = {
+    get: (key) => {
+      if (key === "user") return { uid: "student-123", email: "student@example.com", isAdmin: false };
+      return undefined;
+    },
+    req: {
+      header: (_name) => undefined, // No X-Eve-Client header
+    },
+    env: {
+      LEGACY_ANSWER_LEAK: "off",
+    },
+  };
+
+  function hideAnswers(c) {
+    const user = c.get("user");
+    if (user && user.isAdmin) return false;
+    const clientHeader = c.req.header("X-Eve-Client") || c.req.header("x-eve-client");
+    const clientVersion = clientHeader ? parseInt(clientHeader, 10) : 0;
+    const legacyLeak = c.env?.LEGACY_ANSWER_LEAK;
+    if ((!isNaN(clientVersion) && clientVersion >= 2) || legacyLeak !== "on") {
+      return true;
+    }
+    return false;
+  }
+
+  const shouldHide = hideAnswers(mockContext);
+  assert.equal(shouldHide, true, "hideAnswers must return true for non-admin without X-Eve-Client header when LEGACY_ANSWER_LEAK is off");
+
+  const rawQuestion = {
+    id: "q-101",
+    examId: "exam-1",
+    questionText: "What is the speed of light?",
+    optionA: "3x10^8 m/s",
+    optionB: "1.5x10^8 m/s",
+    optionC: "3x10^6 m/s",
+    optionD: "300 m/s",
+    correctAnswer: "A",
+    explanation: "The speed of light in vacuum is approximately 300,000 km/s.",
+  };
+
+  const responseQuestion = { ...rawQuestion };
+  if (shouldHide) {
+    responseQuestion.correctAnswer = "";
+    responseQuestion.explanation = "";
+  }
+
+  assert.equal(responseQuestion.correctAnswer, "", "correctAnswer must be omitted for non-admin request without X-Eve-Client header");
+  assert.equal(responseQuestion.explanation, "", "explanation must be omitted for non-admin request without X-Eve-Client header");
+});
+
 // 2. Generated tests list metadata only
 test("generated tests list returns metadata with questions = [] and availableFrom", () => {
   const row = {

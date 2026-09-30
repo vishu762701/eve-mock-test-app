@@ -70,12 +70,11 @@ jobs:
           if [ -n "$DIAGNOSTIC_KEY" ]; then
             echo "$DIAGNOSTIC_KEY" | npx wrangler secret put DIAGNOSTIC_KEY
           fi
-          # Ensure Cloudflare Worker GEMINI_API_KEY secret uses verified working key
-          ACTIVE_KEY="$GEMINI_API_KEY"
-          if [[ -z "$ACTIVE_KEY" || "$ACTIVE_KEY" == AIza* ]]; then
-            ACTIVE_KEY=$(echo "QVEuQWI4Uk42SVNSU0RYc0pVcXdub1NHOE16aEN0b3JTZzktcEhVZmhaNlNTeE1aWHNNNFE=" | base64 -d)
+          if [ -n "$GEMINI_API_KEY" ]; then
+            echo "$GEMINI_API_KEY" | npx wrangler secret put GEMINI_API_KEY
+          else
+            echo "::warning title=GEMINI_API_KEY Missing::secrets.GEMINI_API_KEY is empty or not configured. Skipping wrangler secret put."
           fi
-          echo "$ACTIVE_KEY" | npx wrangler secret put GEMINI_API_KEY
 
       - name: Deploy Cloudflare Worker
         id: deploy
