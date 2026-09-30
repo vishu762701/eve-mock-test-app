@@ -118,12 +118,34 @@ class TestActivity : EveBaseActivity() {
         binding.rvQuestionPalette.adapter = paletteAdapter
 
         binding.btnPrev.setOnClickListener {
-            binding.viewPager.currentItem = binding.viewPager.currentItem - 1
+            val current = binding.viewPager.currentItem
+            if (current > 0) {
+                binding.viewPager.currentItem = current - 1
+            }
         }
         binding.btnNext.setOnClickListener {
-            binding.viewPager.currentItem = binding.viewPager.currentItem + 1
+            val current = binding.viewPager.currentItem
+            if (current >= totalQuestions - 1) {
+                confirmSubmit()
+            } else {
+                binding.viewPager.currentItem = current + 1
+            }
         }
-        binding.btnSubmit.setOnClickListener { confirmSubmit() }
+        binding.btnClear.setOnClickListener {
+            val current = binding.viewPager.currentItem
+            viewModel.setAnswer(current, "")
+            updatePalette(current)
+            val rv = binding.viewPager.getChildAt(0) as? androidx.recyclerview.widget.RecyclerView
+            val vh = rv?.findViewHolderForAdapterPosition(current) as? QuestionAdapter.VH
+            vh?.clearSelection()
+        }
+        binding.btnMarkReview.setOnClickListener {
+            val current = binding.viewPager.currentItem
+            viewModel.toggleMark(current)
+            updatePalette(current)
+            val isMarked = viewModel.isMarked(current)
+            binding.btnMarkReview.text = if (isMarked) getString(R.string.unmark_review) else getString(R.string.mark_for_review)
+        }
         binding.btnRetry.setOnClickListener { viewModel.retry(examId, timeLimit, topic, pyqYear, pyqPaper, isAdminUser, examName, fromBookmark) }
 
         LanguageManager.setupToggleButton(this, binding.btnLanguage) {
@@ -136,6 +158,9 @@ class TestActivity : EveBaseActivity() {
                 viewModel.markVisited(position)
                 updateNav(position)
                 updatePalette(position)
+                val rv = binding.viewPager.getChildAt(0) as? androidx.recyclerview.widget.RecyclerView
+                val vh = rv?.findViewHolderForAdapterPosition(position) as? QuestionAdapter.VH
+                vh?.updateTimer(viewModel.getQuestionTime(position))
                 (binding.viewPager.adapter as? QuestionAdapter)?.notifyItemChanged(
                     position,
                     QuestionAdapter.PAYLOAD_TIMER
@@ -151,6 +176,9 @@ class TestActivity : EveBaseActivity() {
                     if (!submitted && totalQuestions > 0) {
                         val currentPos = binding.viewPager.currentItem
                         viewModel.addQuestionSecond(currentPos)
+                        val rv = binding.viewPager.getChildAt(0) as? androidx.recyclerview.widget.RecyclerView
+                        val vh = rv?.findViewHolderForAdapterPosition(currentPos) as? QuestionAdapter.VH
+                        vh?.updateTimer(viewModel.getQuestionTime(currentPos))
                         (binding.viewPager.adapter as? QuestionAdapter)?.notifyItemChanged(
                             currentPos,
                             QuestionAdapter.PAYLOAD_TIMER
@@ -158,7 +186,7 @@ class TestActivity : EveBaseActivity() {
                         sessionSaveTicks++
                         if (sessionSaveTicks >= 5) {
                             sessionSaveTicks = 0
-                            viewModel.saveCurrentSession(examId)
+                            viewModel.saveCurrentSession(examId, currentPos)
                         }
                     }
                 }
@@ -168,9 +196,11 @@ class TestActivity : EveBaseActivity() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 AlertDialog.Builder(this@TestActivity)
-                    .setTitle("Test chhodna hai?")
-                    .setMessage("Exit karne par aapka progress lost ho jayega.")
-                    .setPositiveButton("Exit") { _, _ ->
+                    .setTitle("Leave Test?")
+                    .setMessage("Your progress is saved. You can resume this test anytime.")
+                    .setPositiveButton("Leave") { _, _ ->
+                        val currentPos = binding.viewPager.currentItem
+                        viewModel.pauseSession(examId, currentPos)
                         viewModel.stopTimer()
                         finish()
                     }
@@ -295,7 +325,6 @@ class TestActivity : EveBaseActivity() {
                 }
                 hasEmptyPlayed = false
                 binding.messageGroup.visibility = View.GONE
-                binding.btnSubmit.isEnabled = true
                 if (binding.viewPager.adapter == null) {
                     binding.viewPager.adapter = QuestionAdapter(
                         questions = list,
@@ -311,33 +340,39 @@ class TestActivity : EveBaseActivity() {
                         onReport = { q ->
                             ReportQuestionDialog.show(this@TestActivity, q, com.eve.app.util.AttemptKey.sourceExamId(examId), examName)
                         },
-                        getQuestionTime = { pos -> viewModel.getQuestionTime(pos) },
-                        isMarked = { viewModel.isMarked(it) },
-                        onToggleMark = { pos ->
-                            viewModel.toggleMark(pos)
-                            updatePalette(pos)
-                        }
+                        getQuestionTime = { pos -> viewModel.getQuestionTime(pos) }
                     )
                 }
                 com.eve.app.util.ShimmerHelper.crossFade(binding.shimmerSkeletonTest, binding.viewPager)
-                if (!initialNavDone && !initialQuestionId.isNullOrBlank()) {
+                if (!initialNavDone) {
                     initialNavDone = true
-                    val targetIndex = list.indexOfFirst { it.id == initialQuestionId }
-                    if (targetIndex >= 0) {
+                    val targetIndex = if (!initialQuestionId.isNullOrBlank()) {
+                        val idx = list.indexOfFirst { it.id == initialQuestionId }
+                        if (idx < 0) {
+                            com.eve.app.util.AppBulletin.showError(
+                                this@TestActivity,
+                                "Bookmarked question was not found in this test."
+                            )
+                            0
+                        } else idx
+                    } else {
+                        val restored = viewModel.restoredQuestionIndex
+                        if (restored in 0 until list.size) restored else 0
+                    }
+                    if (targetIndex > 0) {
                         binding.viewPager.post {
                             binding.viewPager.setCurrentItem(targetIndex, false)
                         }
-                    } else {
-                        com.eve.app.util.AppBulletin.showError(
-                            this@TestActivity,
-                            "Bookmarked question was not found in this test."
-                        )
                     }
                 }
-                viewModel.markVisited(binding.viewPager.currentItem)
-                updateNav(binding.viewPager.currentItem)
-                updatePalette(binding.viewPager.currentItem)
-                currentQuestionPosition = binding.viewPager.currentItem
+                val currentPos = binding.viewPager.currentItem
+                viewModel.markVisited(currentPos)
+                updateNav(currentPos)
+                updatePalette(currentPos)
+                currentQuestionPosition = currentPos
+                val rv = binding.viewPager.getChildAt(0) as? androidx.recyclerview.widget.RecyclerView
+                val vh = rv?.findViewHolderForAdapterPosition(currentPos) as? QuestionAdapter.VH
+                vh?.updateTimer(viewModel.getQuestionTime(currentPos))
                 (binding.viewPager.adapter as? QuestionAdapter)?.notifyItemChanged(
                     currentQuestionPosition,
                     QuestionAdapter.PAYLOAD_TIMER
@@ -359,7 +394,15 @@ class TestActivity : EveBaseActivity() {
         val title = sessionTitle()
         binding.tvProgress.text = "$title  •  Question ${position + 1} / $totalQuestions"
         binding.btnPrev.isEnabled = position > 0
-        binding.btnNext.isEnabled = position < totalQuestions - 1
+        if (position >= totalQuestions - 1) {
+            binding.btnNext.text = "Submit"
+            binding.btnNext.isEnabled = true
+        } else {
+            binding.btnNext.text = "Save and Next"
+            binding.btnNext.isEnabled = true
+        }
+        val isMarked = viewModel.isMarked(position)
+        binding.btnMarkReview.text = if (isMarked) getString(R.string.unmark_review) else getString(R.string.mark_for_review)
     }
 
     private fun confirmSubmit() {
@@ -578,11 +621,18 @@ class TestActivity : EveBaseActivity() {
         else -> examName
     }
 
+    override fun onPause() {
+        super.onPause()
+        if (!submitted && totalQuestions > 0) {
+            viewModel.saveCurrentSession(examId, binding.viewPager.currentItem)
+        }
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("key_empty_played", hasEmptyPlayed)
         outState.putInt("saved_question_position", currentQuestionPosition)
-        viewModel.writeToBundle(outState)
+        viewModel.writeToBundle(outState, binding.viewPager.currentItem)
     }
 
     private fun updatePalette(activePosition: Int) {

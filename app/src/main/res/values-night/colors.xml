@@ -67,6 +67,8 @@
     <color name="eve_login_google_border">#2E34A853</color>
     <color name="eve_login_google_text">#FFFFFF</color>
     <color name="eve_drawer_glass_bg">#8C0D1117</color>
+    <color name="eve_drawer_glass_base">#141820</color>
+    <color name="eve_drawer_glass_tint">#E6141820</color>
     <color name="eve_drawer_glass_border">#24FFFFFF</color>
 
     <!-- Paired light/dark tokens for theme contrast (WCAG compliant) -->

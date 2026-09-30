@@ -125,6 +125,16 @@ class ManagePremiumActivity : EveBaseActivity() {
                     binding.etDurationDays.setText(config.durationDays.toString())
                     binding.tilDurationDays.visibility = if (config.isLifetime) View.GONE else View.VISIBLE
                     binding.etDescription.setText(config.description)
+                    val benefitsText = if (config.benefits.isNotEmpty()) {
+                        config.benefits.joinToString("\n")
+                    } else {
+                        listOf(
+                            "Access to all eligible tests",
+                            "Unlimited eligible reattempts",
+                            "No normal 3-attempt restriction while Premium is active"
+                        ).joinToString("\n")
+                    }
+                    binding.etBenefits.setText(benefitsText)
                     binding.switchQrEnabled.isChecked = config.qrEnabled
                     binding.switchUpiEnabled.isChecked = config.upiEnabled
                     binding.etSessionExpiry.setText(config.sessionExpiryMinutes.toString())
@@ -143,6 +153,10 @@ class ManagePremiumActivity : EveBaseActivity() {
         val isLifetime = binding.switchLifetime.isChecked
         val durationDays = binding.etDurationDays.text.toString().trim().toIntOrNull() ?: 30
         val description = binding.etDescription.text.toString().trim()
+        val benefits = binding.etBenefits.text.toString()
+            .lines()
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
         val isEnabled = binding.switchEnablePremium.isChecked
         val qrEnabled = binding.switchQrEnabled.isChecked
         val upiEnabled = binding.switchUpiEnabled.isChecked
@@ -156,6 +170,7 @@ class ManagePremiumActivity : EveBaseActivity() {
             isLifetime = isLifetime,
             durationDays = durationDays,
             description = description,
+            benefits = benefits,
             qrEnabled = qrEnabled,
             upiEnabled = upiEnabled,
             sessionExpiryMinutes = sessionExpiry,

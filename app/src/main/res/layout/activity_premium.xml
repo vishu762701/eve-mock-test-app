@@ -70,7 +70,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="16dp">
 
                 <!-- 1. NOT PREMIUM CONTAINER -->
                 <LinearLayout
@@ -80,25 +80,22 @@
                     android:orientation="vertical"
                     android:visibility="visible">
 
-                    <!-- Header Art / Badge -->
+                    <!-- Header Art / Star (96dp visible size, no circle/badge/ring) -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:paddingVertical="16dp">
+                        android:paddingVertical="8dp">
 
                         <FrameLayout
-                            android:layout_width="190dp"
-                            android:layout_height="190dp">
+                            android:layout_width="96dp"
+                            android:layout_height="96dp">
 
                             <ImageView
                                 android:id="@+id/ivHeaderStarFallback"
-                                android:layout_width="64dp"
-                                android:layout_height="64dp"
-                                android:layout_gravity="center"
-                                android:background="@drawable/bg_circle_primary"
-                                android:padding="16dp"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
                                 android:src="@drawable/ic_star_filled"
                                 android:visibility="gone"
                                 app:tint="@color/eve_status_warning" />
@@ -113,27 +110,27 @@
                             android:id="@+id/tvPlanTitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
+                            android:layout_marginTop="8dp"
                             android:text="EVE Premium"
                             android:textColor="@color/eve_text"
-                            android:textSize="22sp" />
+                            android:textSize="20sp" />
 
                         <TextView
                             android:id="@+id/tvPlanDescription"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
+                            android:layout_marginTop="4dp"
                             android:gravity="center"
                             android:text="Unlock all eligible tests &amp; unlimited reattempts without the 3-attempt restriction."
                             android:textColor="@color/eve_text_secondary"
-                            android:textSize="14sp" />
+                            android:textSize="13sp" />
                     </LinearLayout>
 
                     <!-- Benefits Card -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="12dp"
                         app:cardBackgroundColor="@color/eve_surface"
                         app:cardCornerRadius="16dp"
                         app:cardElevation="0dp"
@@ -144,86 +141,22 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:padding="18dp">
+                            android:padding="16dp">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Premium Benefits"
                                 android:textColor="@color/eve_text"
-                                android:textSize="16sp" />
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
 
-                            <!-- Benefit 1 -->
                             <LinearLayout
+                                android:id="@+id/layoutBenefitsList"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="14dp"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal">
-
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:src="@drawable/ic_check_circle"
-                                    app:tint="@color/eve_status_success" />
-
-                                <TextView
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="12dp"
-                                    android:layout_weight="1"
-                                    android:text="Access to all eligible tests"
-                                    android:textColor="@color/eve_text"
-                                    android:textSize="14sp" />
-                            </LinearLayout>
-
-                            <!-- Benefit 2 -->
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="12dp"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal">
-
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:src="@drawable/ic_check_circle"
-                                    app:tint="@color/eve_status_success" />
-
-                                <TextView
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="12dp"
-                                    android:layout_weight="1"
-                                    android:text="Unlimited eligible reattempts"
-                                    android:textColor="@color/eve_text"
-                                    android:textSize="14sp" />
-                            </LinearLayout>
-
-                            <!-- Benefit 3 -->
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="12dp"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal">
-
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:src="@drawable/ic_check_circle"
-                                    app:tint="@color/eve_status_success" />
-
-                                <TextView
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="12dp"
-                                    android:layout_weight="1"
-                                    android:text="No normal 3-attempt restriction while Premium is active"
-                                    android:textColor="@color/eve_text"
-                                    android:textSize="14sp" />
-                            </LinearLayout>
+                                android:layout_marginTop="8dp"
+                                android:orientation="vertical" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
@@ -231,7 +164,7 @@
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="12dp"
                         app:cardBackgroundColor="@color/eve_surface_variant"
                         app:cardCornerRadius="16dp"
                         app:cardElevation="0dp"
@@ -243,14 +176,14 @@
                             android:layout_height="wrap_content"
                             android:gravity="center"
                             android:orientation="vertical"
-                            android:padding="20dp">
+                            android:padding="14dp">
 
                             <TextView
                                 android:id="@+id/tvPrice"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@color/eve_text"
-                                android:textSize="32sp"
+                                android:textSize="28sp"
                                 tools:text="₹99" />
 
                             <TextView
@@ -259,14 +192,14 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:textColor="@color/eve_text_secondary"
-                                android:textSize="14sp"
+                                android:textSize="13sp"
                                 tools:text="Validity: 30 Days" />
 
                             <TextView
                                 android:id="@+id/tvPaymentMethodsNote"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="6dp"
+                                android:layout_marginTop="4dp"
                                 android:text="Supported: QR Code • UPI App"
                                 android:textColor="@color/eve_status_info"
                                 android:textSize="12sp" />
@@ -278,8 +211,8 @@
                         android:id="@+id/btnBuyPremium"
                         style="@style/Widget.Eve.Button"
                         android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:layout_marginTop="24dp"
+                        android:layout_height="52dp"
+                        android:layout_marginTop="14dp"
                         android:text="Buy Premium"
                         android:textSize="16sp" />
                 </LinearLayout>

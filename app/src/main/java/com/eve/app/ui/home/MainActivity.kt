@@ -576,13 +576,18 @@ class MainActivity : EveBaseActivity() {
             }
         } else {
             val hasContent = lastLoadedItems.any { it is HomeListItem.ExamRow || it is HomeListItem.FeedbackPostRow }
+            val currentState = viewModel.state.value
             if (!hasContent) {
-                adapter.submit(emptyList())
-                binding.messageGroup.visibility = View.VISIBLE
-                binding.btnRetry.visibility = View.GONE
-                hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(binding.ivMessageIcon, hasEmptyPlayed)
-                binding.tvMessage.text = "No exams available"
-                binding.tvMessageSub.text = "Check back soon for newly published mock tests."
+                if (currentState is UiState.Loading) {
+                    binding.messageGroup.visibility = View.GONE
+                } else if (currentState is UiState.Success) {
+                    adapter.submit(emptyList())
+                    binding.messageGroup.visibility = View.VISIBLE
+                    binding.btnRetry.visibility = View.GONE
+                    hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(binding.ivMessageIcon, hasEmptyPlayed)
+                    binding.tvMessage.text = "No exams available"
+                    binding.tvMessageSub.text = "Check back soon for newly published mock tests."
+                }
             } else {
                 binding.messageGroup.visibility = View.GONE
                 hasEmptyPlayed = false
@@ -999,11 +1004,17 @@ class MainActivity : EveBaseActivity() {
     private fun render(state: UiState<HomeUiData>) {
         when (state) {
             is UiState.Loading -> {
-                binding.shimmerSkeletonHome.visibility = View.VISIBLE
-                binding.rvExams.visibility = View.GONE
-                binding.progressGroup.visibility = View.GONE
-                binding.messageGroup.visibility = View.GONE
-                binding.chipGroupCategory.visibility = View.GONE
+                if (lastLoadedItems.isNotEmpty()) {
+                    binding.shimmerSkeletonHome.visibility = View.GONE
+                    binding.rvExams.visibility = View.VISIBLE
+                    binding.messageGroup.visibility = View.GONE
+                } else {
+                    binding.shimmerSkeletonHome.visibility = View.VISIBLE
+                    binding.rvExams.visibility = View.GONE
+                    binding.progressGroup.visibility = View.GONE
+                    binding.messageGroup.visibility = View.GONE
+                    binding.chipGroupCategory.visibility = View.GONE
+                }
             }
             is UiState.Success -> {
                 binding.progressGroup.visibility = View.GONE
@@ -1026,21 +1037,27 @@ class MainActivity : EveBaseActivity() {
                 }
             }
             is UiState.Error -> {
-                binding.shimmerSkeletonHome.visibility = View.GONE
-                binding.progressGroup.visibility = View.GONE
-                binding.messageGroup.visibility = View.VISIBLE
-                binding.btnRetry.visibility = View.VISIBLE
-                binding.ivMessageIcon.setAnimation(R.raw.error_404)
-                binding.ivMessageIcon.playAnimation()
-                if (NetworkUtil.isOnline(this)) {
-                    binding.tvMessage.text = "Something went wrong"
-                    binding.tvMessageSub.text = state.message
+                if (lastLoadedItems.isNotEmpty()) {
+                    binding.shimmerSkeletonHome.visibility = View.GONE
+                    binding.rvExams.visibility = View.VISIBLE
+                    binding.messageGroup.visibility = View.GONE
                 } else {
-                    binding.tvMessage.text = "No internet connection"
-                    binding.tvMessageSub.text =
-                        "Exams not cached yet. Please retry once back online."
+                    binding.shimmerSkeletonHome.visibility = View.GONE
+                    binding.progressGroup.visibility = View.GONE
+                    binding.messageGroup.visibility = View.VISIBLE
+                    binding.btnRetry.visibility = View.VISIBLE
+                    binding.ivMessageIcon.setAnimation(R.raw.error_404)
+                    binding.ivMessageIcon.playAnimation()
+                    if (NetworkUtil.isOnline(this)) {
+                        binding.tvMessage.text = "Something went wrong"
+                        binding.tvMessageSub.text = state.message
+                    } else {
+                        binding.tvMessage.text = "No internet connection"
+                        binding.tvMessageSub.text =
+                            "Exams not cached yet. Please retry once back online."
+                    }
+                    binding.chipGroupCategory.visibility = View.GONE
                 }
-                binding.chipGroupCategory.visibility = View.GONE
             }
         }
     }
@@ -1264,6 +1281,8 @@ class MainActivity : EveBaseActivity() {
         val fallback = binding.lottieDrawerPremiumStarFallback
         starView.fallbackView = fallback
         starView.lazyMode = true
+        starView.animationSpeedMultiplier = 1.5f
+        fallback.speed = 1.5f
 
         val isDark = ThemeManager.isDarkMode(this)
         if (isDark) {

@@ -64,6 +64,8 @@ class TestViewModel : ViewModel() {
         private set
     var currentExamId: String = ""
         private set
+    var restoredQuestionIndex: Int = 0
+        private set
 
     fun start(
         examId: String,
@@ -110,6 +112,9 @@ class TestViewModel : ViewModel() {
 
                 val sessionStore = com.eve.app.data.local.TestSessionStore(com.eve.app.EveApplication.instance)
                 val existingSession = sessionStore.getSession(examId)
+                if (existingSession != null) {
+                    restoredQuestionIndex = existingSession.currentQuestionIndex
+                }
 
                 var remainingSec = timeLimitMinutes * 60L
                 var serverQuestions: List<Question>? = null
@@ -121,7 +126,9 @@ class TestViewModel : ViewModel() {
                             val d = startRes.data
                             initialStartedAt = d.startedAt
                             initialTimeLimitSeconds = d.timeLimitSeconds
-                            if (d.timeLimitSeconds > 0) {
+                            if (d.remainingSeconds != null && d.remainingSeconds >= 0) {
+                                remainingSec = d.remainingSeconds
+                            } else if (d.timeLimitSeconds > 0) {
                                 val elapsed = (d.serverNow - d.startedAt) / 1000
                                 remainingSec = (d.timeLimitSeconds - elapsed).coerceAtLeast(0)
                             }
@@ -361,7 +368,7 @@ class TestViewModel : ViewModel() {
     fun getVisitedIndices(): Set<Int> = visited.toSet()
     fun getMarkedIndices(): Set<Int> = marked.toSet()
 
-    fun saveCurrentSession(examId: String) {
+    fun saveCurrentSession(examId: String, currentQuestionIndex: Int = 0) {
         val list = (_questions.value as? UiState.Success)?.data ?: return
         val ansMap = mutableMapOf<String, String>()
         val timeMap = mutableMapOf<String, Long>()
@@ -382,9 +389,21 @@ class TestViewModel : ViewModel() {
             elapsedSeconds = timeTaken.values.sum(),
             timeLimitSeconds = initialTimeLimitSeconds,
             startedAt = initialStartedAt,
+            currentQuestionIndex = currentQuestionIndex,
             lastSavedAt = System.currentTimeMillis()
         )
         com.eve.app.data.local.TestSessionStore(com.eve.app.EveApplication.instance).saveSession(session)
+    }
+
+    fun pauseSession(examId: String, currentQuestionIndex: Int) {
+        saveCurrentSession(examId, currentQuestionIndex)
+        viewModelScope.launch {
+            try {
+                com.eve.app.data.remote.ApiClient.api.pauseAttempt(mapOf("examId" to examId))
+            } catch (_: Exception) {
+                // Offline fallback - session is saved locally
+            }
+        }
     }
 
     fun clearSession(examId: String) {
@@ -445,7 +464,7 @@ class TestViewModel : ViewModel() {
         return historyRepo.submitAttemptSync(examId, examName, category, displayName, items)
     }
 
-    fun writeToBundle(bundle: android.os.Bundle) {
+    fun writeToBundle(bundle: android.os.Bundle, currentIndex: Int = 0) {
         val answersKeys = answers.keys.toIntArray()
         val answersVals = answersKeys.map { answers[it] ?: "" }.toTypedArray()
         bundle.putIntArray("key_answers_keys", answersKeys)
@@ -465,6 +484,7 @@ class TestViewModel : ViewModel() {
         bundle.putIntArray("key_marked", marked.toIntArray())
         bundle.putLong("key_remaining_seconds", _remainingSeconds.value)
         bundle.putString("key_client_attempt_id", clientAttemptId)
+        bundle.putInt("key_current_q_index", currentIndex)
     }
 
     fun restoreFromBundle(bundle: android.os.Bundle) {
@@ -502,5 +522,6 @@ class TestViewModel : ViewModel() {
         bundle.getString("key_client_attempt_id")?.let {
             if (it.isNotBlank()) clientAttemptId = it
         }
+        restoredQuestionIndex = bundle.getInt("key_current_q_index", 0)
     }
 }

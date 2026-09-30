@@ -43,6 +43,10 @@ class HomeViewModel : ViewModel() {
     private var pinnedObserverJob: Job? = null
     private var feedbackObserverJob: Job? = null
     private var allLoadedExams: List<Exam> = emptyList()
+    private var loadJob: Job? = null
+    private var lastUserLoaded: String? = null
+    private var lastAdminLoaded: Boolean? = null
+    private var lastLoadedTime: Long = 0L
 
     private val cacheFile: java.io.File
         get() = java.io.File(com.eve.app.EveApplication.instance.filesDir, "cached_exams.json")
@@ -100,7 +104,8 @@ class HomeViewModel : ViewModel() {
     }
 
     fun load() {
-        viewModelScope.launch(coroutineExceptionHandler) {
+        if (loadJob?.isActive == true) return
+        loadJob = viewModelScope.launch(coroutineExceptionHandler) {
             if (allLoadedExams.isEmpty()) {
                 _examState.value = UiState.Loading
             }
@@ -155,8 +160,25 @@ class HomeViewModel : ViewModel() {
         )
     }
 
-    fun loadForUser(userId: String, isAdmin: Boolean) {
-        viewModelScope.launch(coroutineExceptionHandler) {
+    fun loadForUser(userId: String, isAdmin: Boolean, force: Boolean = false) {
+        val now = System.currentTimeMillis()
+        if (!force && lastUserLoaded == userId && lastAdminLoaded == isAdmin && (now - lastLoadedTime < 10_000L) && allLoadedExams.isNotEmpty()) {
+            if (pinnedObserverJob?.isActive != true) {
+                pinnedObserverJob?.cancel()
+                pinnedObserverJob = viewModelScope.launch(coroutineExceptionHandler) {
+                    pinnedRepo.observePinnedExamIds(userId).collect { pins ->
+                        _pinnedIds.value = pins
+                    }
+                }
+            }
+            return
+        }
+        lastUserLoaded = userId
+        lastAdminLoaded = isAdmin
+        lastLoadedTime = now
+
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch(coroutineExceptionHandler) {
             if (allLoadedExams.isEmpty()) {
                 _examState.value = UiState.Loading
             }

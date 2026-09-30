@@ -147,31 +147,5 @@
                 android:paddingEnd="12dp"
                 android:textSize="16sp" />
         </RadioGroup>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnClear"
-                style="@style/Widget.Eve.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:minHeight="48dp"
-                android:text="Clear response" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnMarkReview"
-                style="@style/Widget.Eve.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                android:minHeight="48dp"
-                android:text="Mark for review" />
-        </LinearLayout>
     </LinearLayout>
 </ScrollView>

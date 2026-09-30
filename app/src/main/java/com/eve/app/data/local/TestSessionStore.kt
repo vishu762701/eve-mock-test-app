@@ -12,6 +12,7 @@ data class TestSession(
     val elapsedSeconds: Long = 0L,
     val timeLimitSeconds: Long = 0L,
     val startedAt: Long = 0L,
+    val currentQuestionIndex: Int = 0,
     val lastSavedAt: Long = System.currentTimeMillis()
 )
 

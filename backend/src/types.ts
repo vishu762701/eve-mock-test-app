@@ -223,6 +223,9 @@ export interface AttemptSessionRow {
   exam_key: string;
   started_at: number;
   time_limit_seconds: number;
+  accumulated_active_seconds?: number;
+  status?: string;
+  last_resumed_at?: number;
 }
 
 export interface AdminAnalyticsQuestionRow {
@@ -250,6 +253,7 @@ export interface AppContentRow {
 
 export interface UserRow {
   id: string;
+  eve_id?: string;
   email: string;
   display_name: string;
   dob: string;

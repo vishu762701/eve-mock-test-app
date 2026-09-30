@@ -184,11 +184,11 @@ adminRoutes.get("/users", async (c) => {
   const db = c.env.DB;
   const q = c.req.query("q")?.trim()?.toLowerCase();
 
-  let query = "SELECT id, email, display_name, dob, category, created_at, last_active, COALESCE(disabled, 0) as disabled FROM users";
+  let query = "SELECT id, eve_id, email, display_name, dob, category, created_at, last_active, COALESCE(disabled, 0) as disabled FROM users";
   const params: any[] = [];
   if (q) {
-    query += " WHERE LOWER(email) LIKE ? OR LOWER(display_name) LIKE ?";
-    params.push(`%${q}%`, `%${q}%`);
+    query += " WHERE LOWER(email) LIKE ? OR LOWER(display_name) LIKE ? OR LOWER(COALESCE(eve_id, '')) LIKE ?";
+    params.push(`%${q}%`, `%${q}%`, `%${q}%`);
   }
   query += " ORDER BY last_active DESC, created_at DESC LIMIT 200";
 
@@ -196,6 +196,7 @@ adminRoutes.get("/users", async (c) => {
     const { results } = await db.prepare(query).bind(...params).all<any>();
     const users = (results || []).map((u) => ({
       id: u.id,
+      eveId: u.eve_id || null,
       email: u.email,
       displayName: u.display_name || "Student",
       dob: u.dob || "",
@@ -209,11 +210,12 @@ adminRoutes.get("/users", async (c) => {
     // If disabled column does not exist yet
     try {
       const fallbackQuery = q
-        ? "SELECT id, email, display_name, dob, category, created_at, last_active FROM users WHERE LOWER(email) LIKE ? OR LOWER(display_name) LIKE ? ORDER BY last_active DESC, created_at DESC LIMIT 200"
-        : "SELECT id, email, display_name, dob, category, created_at, last_active FROM users ORDER BY last_active DESC, created_at DESC LIMIT 200";
+        ? "SELECT id, eve_id, email, display_name, dob, category, created_at, last_active FROM users WHERE LOWER(email) LIKE ? OR LOWER(display_name) LIKE ? OR LOWER(COALESCE(eve_id, '')) LIKE ? ORDER BY last_active DESC, created_at DESC LIMIT 200"
+        : "SELECT id, eve_id, email, display_name, dob, category, created_at, last_active FROM users ORDER BY last_active DESC, created_at DESC LIMIT 200";
       const { results } = await db.prepare(fallbackQuery).bind(...params).all<any>();
       const users = (results || []).map((u) => ({
         id: u.id,
+        eveId: u.eve_id || null,
         email: u.email,
         displayName: u.display_name || "Student",
         dob: u.dob || "",

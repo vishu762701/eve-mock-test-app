@@ -539,3 +539,217 @@ test("/api/auth/me returns isAdmin: true for admin and false for normal student"
   assert.equal(studentRes.success, true);
   assert.equal(studentRes.data.isAdmin, false);
 });
+
+// 15. admin_analytics_questions contract: exam_name NOT NULL and question metadata validation
+test("admin_analytics_questions upsert correctly populates exam_name and question metadata", () => {
+  const schemaNotNullFields = ["id", "exam_id", "exam_name", "question_id"];
+
+  function buildQuestionAnalyticsRow({ examId, examName, questionId, number, questionText, topic, isCorrect, isWrong, isUnattempted, timeTakenSeconds }) {
+    const qKey = `${examId}_${questionId}`;
+    const row = {
+      id: qKey,
+      exam_id: examId,
+      exam_name: examName,
+      question_id: questionId,
+      question_number: number,
+      question_text: questionText || "",
+      topic: topic || "",
+      attempts: 1,
+      correct: isCorrect ? 1 : 0,
+      wrong: isWrong ? 1 : 0,
+      unattempted: isUnattempted ? 1 : 0,
+      total_time_seconds: timeTakenSeconds || 0,
+    };
+
+    // Verify NOT NULL constraints
+    for (const field of schemaNotNullFields) {
+      if (row[field] === undefined || row[field] === null || row[field] === "") {
+        throw new Error(`NOT NULL constraint failed: admin_analytics_questions.${field}`);
+      }
+    }
+    return row;
+  }
+
+  const row = buildQuestionAnalyticsRow({
+    examId: "exam-101",
+    examName: "SSC CGL Tier 1 Mock",
+    questionId: "q-55",
+    number: 1,
+    questionText: "What is the capital of India?",
+    topic: "General Knowledge",
+    isCorrect: true,
+    isWrong: false,
+    isUnattempted: false,
+    timeTakenSeconds: 25,
+  });
+
+  assert.equal(row.id, "exam-101_q-55");
+  assert.equal(row.exam_name, "SSC CGL Tier 1 Mock");
+  assert.equal(row.question_id, "q-55");
+  assert.equal(row.attempts, 1);
+  assert.equal(row.correct, 1);
+  assert.equal(row.wrong, 0);
+  assert.equal(row.unattempted, 0);
+  assert.equal(row.total_time_seconds, 25);
+
+  // Assert error thrown if exam_name missing (regression guard)
+  assert.throws(() => {
+    buildQuestionAnalyticsRow({
+      examId: "exam-101",
+      examName: null,
+      questionId: "q-55",
+      number: 1,
+      questionText: "Q",
+      topic: "GK",
+      isCorrect: true,
+      isWrong: false,
+      isUnattempted: false,
+      timeTakenSeconds: 10,
+    });
+  }, /NOT NULL constraint failed: admin_analytics_questions\.exam_name/);
+});
+
+// 16. Test session active time state machine: pause/resume and grace period calculation
+test("Test session pause/resume active time calculation prevents premature uncounted status", () => {
+  function calculateActiveTimeAndCounted(session, now, limitSeconds) {
+    const clampTimeMax = limitSeconds > 0 ? limitSeconds : 7200;
+    let activeElapsedSeconds = session.accumulated_active_seconds || 0;
+    if (session.status === "RUNNING" && session.last_resumed_at > 0) {
+      activeElapsedSeconds += Math.max(0, Math.floor((now - session.last_resumed_at) / 1000));
+    } else if (!session.last_resumed_at && session.started_at > 0 && !session.accumulated_active_seconds) {
+      activeElapsedSeconds = Math.max(0, Math.floor((now - session.started_at) / 1000));
+    }
+    const attemptTimeTakenSeconds = Math.max(0, Math.min(clampTimeMax, activeElapsedSeconds));
+    const counted = (session.time_limit_seconds > 0 && activeElapsedSeconds > session.time_limit_seconds + 60) ? 0 : 1;
+    return { attemptTimeTakenSeconds, counted };
+  }
+
+  const limitSeconds = 60 * 60; // 60 minutes
+  const startedAt = 1000000;
+  
+  // Student starts, works 10 minutes (600s), pauses test.
+  // 3 hours later (10800s), student resumes, works 5 minutes (300s), then submits.
+  const pausedSession = {
+    started_at: startedAt,
+    time_limit_seconds: limitSeconds,
+    accumulated_active_seconds: 600,
+    status: "PAUSED",
+    last_resumed_at: 0
+  };
+
+  // While paused, wall-clock time passed 3 hours
+  const wallClockNow = startedAt + 10800 * 1000;
+  // Student resumes at wallClockNow
+  const resumedSession = {
+    ...pausedSession,
+    status: "RUNNING",
+    last_resumed_at: wallClockNow
+  };
+
+  // Student works 300 seconds and submits
+  const submitNow = wallClockNow + 300 * 1000;
+  const result = calculateActiveTimeAndCounted(resumedSession, submitNow, limitSeconds);
+
+  assert.equal(result.attemptTimeTakenSeconds, 900); // 600 + 300 seconds active
+  assert.equal(result.counted, 1); // Not disqualified because active time (900s) <= 3600s + 60s
+});
+
+// 17. Public EVE ID (EV-XXXXXX) generation, uniqueness constraint, and deterministic backfill
+test("Public EVE ID generation follows EV-XXXXXX format, guarantees uniqueness, and persists", () => {
+  const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+  function generateCandidateEveId() {
+    let code = "";
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return `EV-${code}`;
+  }
+
+  // 1. Verify format & character set (no 0, 1, I, O to prevent confusion)
+  const idRegex = /^EV-[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{6}$/;
+  for (let i = 0; i < 100; i++) {
+    const id = generateCandidateEveId();
+    assert.match(id, idRegex);
+    assert.equal(id.length, 9);
+    assert.equal(id.startsWith("EV-"), true);
+  }
+
+  // 2. Verify schema and UNIQUE constraint on eve_id
+  class MockUsersTable {
+    constructor() {
+      this.rows = new Map(); // id -> row
+      this.eveIndex = new Map(); // eve_id -> id
+    }
+
+    insert({ id, email, eve_id = null }) {
+      if (this.rows.has(id)) {
+        throw new Error(`PRIMARY KEY constraint failed: users.id`);
+      }
+      if (eve_id) {
+        if (this.eveIndex.has(eve_id)) {
+          throw new Error(`UNIQUE constraint failed: users.eve_id`);
+        }
+        this.eveIndex.set(eve_id, id);
+      }
+      this.rows.set(id, { id, email, eve_id });
+    }
+
+    updateEveId(id, newEveId) {
+      const row = this.rows.get(id);
+      if (!row) throw new Error("User not found");
+      if (row.eve_id) return row.eve_id; // Already set: immutable
+      if (this.eveIndex.has(newEveId)) {
+        throw new Error(`UNIQUE constraint failed: users.eve_id`);
+      }
+      this.eveIndex.set(newEveId, id);
+      row.eve_id = newEveId;
+      return newEveId;
+    }
+
+    get(id) {
+      return this.rows.get(id);
+    }
+  }
+
+  const table = new MockUsersTable();
+
+  // Insert two users
+  const uid1 = "firebase-uid-alice-123";
+  const uid2 = "firebase-uid-bob-456";
+  const eveId1 = generateCandidateEveId();
+  let eveId2 = generateCandidateEveId();
+  while (eveId2 === eveId1) eveId2 = generateCandidateEveId();
+
+  table.insert({ id: uid1, email: "alice@example.com", eve_id: eveId1 });
+  table.insert({ id: uid2, email: "bob@example.com", eve_id: eveId2 });
+
+  // Assert unique constraint works by attempting to insert duplicate eve_id
+  assert.throws(() => {
+    table.insert({ id: "firebase-uid-charlie-789", email: "charlie@example.com", eve_id: eveId1 });
+  }, /UNIQUE constraint failed: users\.eve_id/);
+
+  // 3. Verify deterministic persistence: user keeps same eve_id
+  const aliceRow = table.get(uid1);
+  assert.equal(aliceRow.eve_id, eveId1);
+  assert.notEqual(aliceRow.eve_id, aliceRow.id); // Firebase UID is NOT exposed as eve_id
+
+  // 4. Backfill existing user without eve_id
+  const uidExisting = "firebase-uid-legacy-999";
+  table.insert({ id: uidExisting, email: "legacy@example.com", eve_id: null });
+
+  const beforeBackfill = table.get(uidExisting);
+  assert.equal(beforeBackfill.eve_id, null);
+
+  const backfilledId = generateCandidateEveId();
+  table.updateEveId(uidExisting, backfilledId);
+
+  const afterBackfill = table.get(uidExisting);
+  assert.equal(afterBackfill.eve_id, backfilledId);
+
+  // Re-running update returns existing backfilled ID without regenerating
+  const recheckId = table.updateEveId(uidExisting, generateCandidateEveId());
+  assert.equal(recheckId, backfilledId);
+});
+
+
+

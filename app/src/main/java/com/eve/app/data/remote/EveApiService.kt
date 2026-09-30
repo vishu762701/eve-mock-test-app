@@ -20,6 +20,8 @@ data class StartAttemptResponse(
     val startedAt: Long,
     val serverNow: Long,
     val timeLimitSeconds: Long,
+    val remainingSeconds: Long? = null,
+    val activeSeconds: Long? = null,
     val questions: List<Question>? = null
 )
 
@@ -91,6 +93,7 @@ data class SyllabusUploadResponse(
 
 data class UserProfileResponse(
     val id: String,
+    val eveId: String? = null,
     val email: String,
     val displayName: String,
     val dob: String,
@@ -186,6 +189,12 @@ interface EveApiService {
     // --- Attempts & Grading ---
     @POST("api/attempts/start")
     suspend fun startAttempt(@Body body: Map<String, String>): ApiResponse<StartAttemptResponse>
+
+    @POST("api/attempts/pause")
+    suspend fun pauseAttempt(@Body body: Map<String, String>): ApiResponse<Map<String, @JvmSuppressWildcards Any>>
+
+    @POST("api/attempts/resume")
+    suspend fun resumeAttempt(@Body body: Map<String, String>): ApiResponse<Map<String, @JvmSuppressWildcards Any>>
 
     @POST("api/attempts/submit")
     suspend fun submitAttempt(@Body body: Map<String, @JvmSuppressWildcards Any>): ApiResponse<AttemptSubmitResult>

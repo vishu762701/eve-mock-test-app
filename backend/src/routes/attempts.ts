@@ -110,18 +110,53 @@ attemptRoutes.post("/start", async (c) => {
 
   await db
     .prepare(
-      "INSERT OR IGNORE INTO attempt_sessions (id, user_id, exam_key, started_at, time_limit_seconds) VALUES (?, ?, ?, ?, ?)"
+      `INSERT OR IGNORE INTO attempt_sessions (
+         id, user_id, exam_key, started_at, time_limit_seconds, accumulated_active_seconds, status, last_resumed_at
+       ) VALUES (?, ?, ?, ?, ?, 0, 'RUNNING', ?)`
     )
-    .bind(sessionId, uid, examId, now, limitSeconds)
+    .bind(sessionId, uid, examId, now, limitSeconds, now)
     .run();
 
   const session = await db
-    .prepare("SELECT started_at, time_limit_seconds FROM attempt_sessions WHERE id = ?")
+    .prepare("SELECT * FROM attempt_sessions WHERE id = ?")
     .bind(sessionId)
     .first<AttemptSessionRow>();
 
-  const startedAt = session ? session.started_at : now;
-  const timeLimitSeconds = session ? session.time_limit_seconds : limitSeconds;
+  let startedAt = now;
+  let timeLimitSeconds = limitSeconds;
+  let accumulatedActiveSeconds = 0;
+  let status = "RUNNING";
+  let lastResumedAt = now;
+
+  if (session) {
+    startedAt = session.started_at;
+    timeLimitSeconds = session.time_limit_seconds;
+    accumulatedActiveSeconds = session.accumulated_active_seconds || 0;
+    status = session.status || "RUNNING";
+    lastResumedAt = session.last_resumed_at || 0;
+
+    // If session was paused, auto-resume on start
+    if (status === "PAUSED") {
+      status = "RUNNING";
+      lastResumedAt = now;
+      await db
+        .prepare("UPDATE attempt_sessions SET status = 'RUNNING', last_resumed_at = ? WHERE id = ?")
+        .bind(now, sessionId)
+        .run();
+    } else if (lastResumedAt === 0) {
+      lastResumedAt = startedAt;
+      await db
+        .prepare("UPDATE attempt_sessions SET last_resumed_at = ? WHERE id = ?")
+        .bind(lastResumedAt, sessionId)
+        .run();
+    }
+  }
+
+  const activeSeconds =
+    accumulatedActiveSeconds +
+    (status === "RUNNING" && lastResumedAt > 0 ? Math.max(0, Math.floor((now - lastResumedAt) / 1000)) : 0);
+  const remainingSeconds =
+    timeLimitSeconds > 0 ? Math.max(0, timeLimitSeconds - activeSeconds) : 0;
 
   let questions: any[] | undefined = undefined;
   if (generatedTestRow) {
@@ -157,7 +192,97 @@ attemptRoutes.post("/start", async (c) => {
       startedAt,
       serverNow: Date.now(),
       timeLimitSeconds,
+      remainingSeconds,
+      activeSeconds,
       ...(questions !== undefined ? { questions } : {}),
+    },
+  });
+});
+
+// POST /api/attempts/pause - Pause an active test session
+attemptRoutes.post("/pause", async (c) => {
+  const user = c.get("user");
+  const uid = user.uid;
+  const db = c.env.DB;
+  const body = await c.req.json().catch(() => ({}));
+  const examId = String(body.examId || "").trim();
+
+  if (!examId) {
+    return c.json({ success: false, error: "Missing examId" }, 400);
+  }
+
+  const sessionId = `${uid}_${examId}`;
+  const session = await db
+    .prepare("SELECT * FROM attempt_sessions WHERE id = ?")
+    .bind(sessionId)
+    .first<AttemptSessionRow>();
+
+  if (!session) {
+    return c.json({ success: true, data: { status: "PAUSED", accumulatedActiveSeconds: 0 } });
+  }
+
+  const now = Date.now();
+  let accumulated = session.accumulated_active_seconds || 0;
+  if (session.status !== "PAUSED") {
+    const lastResumed = session.last_resumed_at || session.started_at || now;
+    accumulated += Math.max(0, Math.floor((now - lastResumed) / 1000));
+    await db
+      .prepare(
+        "UPDATE attempt_sessions SET status = 'PAUSED', accumulated_active_seconds = ?, last_resumed_at = 0 WHERE id = ?"
+      )
+      .bind(accumulated, sessionId)
+      .run();
+  }
+
+  return c.json({
+    success: true,
+    data: {
+      status: "PAUSED",
+      accumulatedActiveSeconds: accumulated,
+    },
+  });
+});
+
+// POST /api/attempts/resume - Resume a paused test session
+attemptRoutes.post("/resume", async (c) => {
+  const user = c.get("user");
+  const uid = user.uid;
+  const db = c.env.DB;
+  const body = await c.req.json().catch(() => ({}));
+  const examId = String(body.examId || "").trim();
+
+  if (!examId) {
+    return c.json({ success: false, error: "Missing examId" }, 400);
+  }
+
+  const sessionId = `${uid}_${examId}`;
+  const session = await db
+    .prepare("SELECT * FROM attempt_sessions WHERE id = ?")
+    .bind(sessionId)
+    .first<AttemptSessionRow>();
+
+  if (!session) {
+    return c.json({ success: false, error: "Session not found" }, 404);
+  }
+
+  const now = Date.now();
+  if (session.status === "PAUSED") {
+    await db
+      .prepare("UPDATE attempt_sessions SET status = 'RUNNING', last_resumed_at = ? WHERE id = ?")
+      .bind(now, sessionId)
+      .run();
+  }
+
+  const accumulated = session.accumulated_active_seconds || 0;
+  const remainingSeconds =
+    session.time_limit_seconds > 0 ? Math.max(0, session.time_limit_seconds - accumulated) : 0;
+
+  return c.json({
+    success: true,
+    data: {
+      status: "RUNNING",
+      activeSeconds: accumulated,
+      remainingSeconds,
     },
   });
 });
@@ -494,7 +619,14 @@ attemptRoutes.post("/submit", async (c) => {
   } else if (user.isAdmin) {
     counted = 1;
     if (session) {
-      attemptTimeTakenSeconds = Math.max(0, Math.min(clampTimeMax, Math.round((now - session.started_at) / 1000)));
+      let activeElapsedSeconds = session.accumulated_active_seconds || 0;
+      const lastResumedAt = session.last_resumed_at || 0;
+      if (session.status === "RUNNING" && lastResumedAt > 0) {
+        activeElapsedSeconds += Math.max(0, Math.floor((now - lastResumedAt) / 1000));
+      } else if (!lastResumedAt && session.started_at > 0 && !session.accumulated_active_seconds) {
+        activeElapsedSeconds = Math.max(0, Math.floor((now - session.started_at) / 1000));
+      }
+      attemptTimeTakenSeconds = Math.max(0, Math.min(clampTimeMax, activeElapsedSeconds));
     } else {
       let totalPicksTime = 0;
       for (const pick of submittedPicksMap.values()) {
@@ -512,11 +644,17 @@ attemptRoutes.post("/submit", async (c) => {
       }
       attemptTimeTakenSeconds = totalPicksTime;
     } else {
-      const elapsedMs = now - session.started_at;
-      attemptTimeTakenSeconds = Math.max(0, Math.min(clampTimeMax, Math.round(elapsedMs / 1000)));
+      let activeElapsedSeconds = session.accumulated_active_seconds || 0;
+      const lastResumedAt = session.last_resumed_at || 0;
+      if (session.status === "RUNNING" && lastResumedAt > 0) {
+        activeElapsedSeconds += Math.max(0, Math.floor((now - lastResumedAt) / 1000));
+      } else if (!lastResumedAt && session.started_at > 0 && !session.accumulated_active_seconds) {
+        activeElapsedSeconds = Math.max(0, Math.floor((now - session.started_at) / 1000));
+      }
+      attemptTimeTakenSeconds = Math.max(0, Math.min(clampTimeMax, activeElapsedSeconds));
 
-      if (session.time_limit_seconds > 0 && elapsedMs > session.time_limit_seconds * 1000 + 60000) {
-        counted = 0; // Exceeded grace period
+      if (session.time_limit_seconds > 0 && activeElapsedSeconds > session.time_limit_seconds + 60) {
+        counted = 0; // Exceeded grace period on active test time
       } else {
         counted = 1;
       }
@@ -767,9 +905,16 @@ attemptRoutes.post("/submit", async (c) => {
       batchStatements.push(
         db
           .prepare(
-            `INSERT INTO admin_analytics_questions (id, exam_id, question_id, attempts, correct, wrong, unattempted, total_time_seconds)
-             VALUES (?, ?, ?, 1, ?, ?, ?, ?)
+            `INSERT INTO admin_analytics_questions (
+               id, exam_id, exam_name, question_id, question_number, question_text, topic,
+               attempts, correct, wrong, unattempted, total_time_seconds
+             )
+             VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?)
              ON CONFLICT(id) DO UPDATE SET
+               exam_name = excluded.exam_name,
+               question_number = excluded.question_number,
+               question_text = CASE WHEN excluded.question_text != '' THEN excluded.question_text ELSE admin_analytics_questions.question_text END,
+               topic = CASE WHEN excluded.topic != '' THEN excluded.topic ELSE admin_analytics_questions.topic END,
                attempts = admin_analytics_questions.attempts + 1,
                correct = admin_analytics_questions.correct + excluded.correct,
                wrong = admin_analytics_questions.wrong + excluded.wrong,
@@ -779,7 +924,11 @@ attemptRoutes.post("/submit", async (c) => {
           .bind(
             qKey,
             examId,
+            examName,
             a.questionId,
+            a.number,
+            a.questionText || "",
+            a.topic || "",
             isCorrect ? 1 : 0,
             isWrong ? 1 : 0,
             isUnattempted ? 1 : 0,

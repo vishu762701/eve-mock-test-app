@@ -58,7 +58,14 @@ class Telegram3DStarView @JvmOverloads constructor(
 
     var touched = false
     var lazyMode = true
+    var animationSpeedMultiplier: Float = 1.0f
     var mRenderer: GLIconRenderer? = null
+
+    fun scaledDuration(durationMs: Long): Long {
+        val mult = if (animationSpeedMultiplier <= 0f) 1.0f else animationSpeedMultiplier
+        return (durationMs / mult).toLong().coerceAtLeast(1L)
+    }
+
     var fallbackView: View? = null
         set(value) {
             field = value
@@ -162,7 +169,7 @@ class Telegram3DStarView @JvmOverloads constructor(
                     }
                     mainHandler.removeCallbacks(idleAnimationRunnable)
                     val set = AnimatorSet()
-                    val inTime = 220L
+                    val inTime = scaledDuration(220L)
 
                     val v1 = ValueAnimator.ofFloat(r.angleX, toAngleX).apply {
                         addUpdateListener { r.angleX = it.animatedValue as Float }
@@ -173,7 +180,7 @@ class Telegram3DStarView @JvmOverloads constructor(
                     val v2 = ValueAnimator.ofFloat(toAngleX, 0f).apply {
                         addUpdateListener { r.angleX = it.animatedValue as Float }
                         startDelay = inTime
-                        duration = 600L
+                        duration = scaledDuration(600L)
                         interpolator = OvershootInterpolator(1.02f)
                     }
 
@@ -186,7 +193,7 @@ class Telegram3DStarView @JvmOverloads constructor(
                     val v4 = ValueAnimator.ofFloat(toAngleY, 0f).apply {
                         addUpdateListener { r.angleY = it.animatedValue as Float }
                         startDelay = inTime
-                        duration = 600L
+                        duration = scaledDuration(600L)
                         interpolator = OvershootInterpolator(1.02f)
                     }
 
@@ -327,7 +334,7 @@ class Telegram3DStarView @JvmOverloads constructor(
             triggerFallback()
             return
         }
-        if (!lazyMode && !isPaused()) {
+        if (!isPaused()) {
             startThread(surface, width, height)
         }
     }
@@ -392,7 +399,16 @@ class Telegram3DStarView @JvmOverloads constructor(
                 stopThread()
             }
         } else {
-            if (lazyMode && thread == null && mSurface != null && surfaceWidth > 0 && surfaceHeight > 0) {
+            val surf = mSurface ?: surfaceTexture
+            if (mSurface == null && surf != null) {
+                mSurface = surf
+            }
+            if (surfaceWidth <= 0 || surfaceHeight <= 0) {
+                if (width > 0 && height > 0) {
+                    setDimensions(width, height)
+                }
+            }
+            if (thread == null && mSurface != null && surfaceWidth > 0 && surfaceHeight > 0) {
                 startThread(mSurface!!, surfaceWidth, surfaceHeight)
             }
             if (!isAnimationDisabled() && !glFailed) {
@@ -445,7 +461,7 @@ class Telegram3DStarView @JvmOverloads constructor(
             r.angleX2 = v * fromX2
             r.angleY = v * fromY
         }
-        anim.duration = 600L
+        anim.duration = scaledDuration(600L)
         anim.interpolator = OvershootInterpolator(1.02f)
         anim.start()
         backAnimation = anim
@@ -516,7 +532,7 @@ class Telegram3DStarView @JvmOverloads constructor(
     fun scheduleIdleAnimation(time: Long) {
         if (glFailed || isAnimationDisabled()) return
         mainHandler.removeCallbacks(idleAnimationRunnable)
-        mainHandler.postDelayed(idleAnimationRunnable, time)
+        mainHandler.postDelayed(idleAnimationRunnable, scaledDuration(time))
     }
 
     private fun startIdleAnimation() {
@@ -542,7 +558,7 @@ class Telegram3DStarView @JvmOverloads constructor(
         val set = AnimatorSet()
         val v1 = ValueAnimator.ofFloat(r.angleX, 360f).apply {
             addUpdateListener { r.angleX = it.animatedValue as Float }
-            duration = 8000L
+            duration = scaledDuration(8000L)
             interpolator = DEFAULT_INTERPOLATOR
         }
         set.playTogether(v1)
@@ -566,13 +582,13 @@ class Telegram3DStarView @JvmOverloads constructor(
             val a = 48f
             val v1 = ValueAnimator.ofFloat(r.angleY, a).apply {
                 addUpdateListener { r.angleY = it.animatedValue as Float }
-                duration = 2300L
+                duration = scaledDuration(2300L)
                 interpolator = EASE_OUT_QUINT
             }
             val v2 = ValueAnimator.ofFloat(a, 0f).apply {
                 addUpdateListener { r.angleY = it.animatedValue as Float }
-                duration = 500L
-                startDelay = 2300L
+                duration = scaledDuration(500L)
+                startDelay = scaledDuration(2300L)
                 interpolator = OvershootInterpolator(1.02f)
             }
             set.playTogether(v1, v2)
@@ -580,13 +596,13 @@ class Telegram3DStarView @JvmOverloads constructor(
             val dg = if (i == 2) -485f else 485f
             val v1 = ValueAnimator.ofFloat(r.angleX, dg).apply {
                 addUpdateListener { r.angleX = it.animatedValue as Float }
-                duration = 3000L
+                duration = scaledDuration(3000L)
                 interpolator = EASE_OUT_QUINT
             }
             val v2 = ValueAnimator.ofFloat(dg, 0f).apply {
                 addUpdateListener { r.angleX = it.animatedValue as Float }
-                duration = 1000L
-                startDelay = 3000L
+                duration = scaledDuration(1000L)
+                startDelay = scaledDuration(3000L)
                 interpolator = OvershootInterpolator(1.02f)
             }
             set.playTogether(v1, v2)
@@ -608,13 +624,13 @@ class Telegram3DStarView @JvmOverloads constructor(
         val set = AnimatorSet()
         val v1 = ValueAnimator.ofFloat(r.angleX, 180f).apply {
             addUpdateListener { r.angleX = it.animatedValue as Float }
-            duration = 600L
+            duration = scaledDuration(600L)
             interpolator = DEFAULT_INTERPOLATOR
         }
         val v2 = ValueAnimator.ofFloat(180f, 360f).apply {
             addUpdateListener { r.angleX = it.animatedValue as Float }
-            duration = 600L
-            startDelay = 2000L
+            duration = scaledDuration(600L)
+            startDelay = scaledDuration(2000L)
             interpolator = DEFAULT_INTERPOLATOR
         }
         set.playTogether(v1, v2)
@@ -634,29 +650,29 @@ class Telegram3DStarView @JvmOverloads constructor(
         val set = AnimatorSet()
         val v1 = ValueAnimator.ofFloat(r.angleX, 184f).apply {
             addUpdateListener { r.angleX = it.animatedValue as Float }
-            duration = 600L
+            duration = scaledDuration(600L)
             interpolator = EASE_OUT
         }
         val v2 = ValueAnimator.ofFloat(r.angleY, 50f).apply {
             addUpdateListener { r.angleY = it.animatedValue as Float }
-            duration = 600L
+            duration = scaledDuration(600L)
             interpolator = EASE_OUT
         }
         val v3 = ValueAnimator.ofFloat(180f, 0f).apply {
             addUpdateListener { r.angleX = it.animatedValue as Float }
-            duration = 800L
-            startDelay = 10000L
+            duration = scaledDuration(800L)
+            startDelay = scaledDuration(10000L)
             interpolator = OvershootInterpolator(1.02f)
         }
         val v4 = ValueAnimator.ofFloat(60f, 0f).apply {
             addUpdateListener { r.angleY = it.animatedValue as Float }
-            duration = 800L
-            startDelay = 10000L
+            duration = scaledDuration(800L)
+            startDelay = scaledDuration(10000L)
             interpolator = OvershootInterpolator(1.02f)
         }
         val v5 = ValueAnimator.ofFloat(0f, 2f, -3f, 2f, -1f, 2f, -3f, 2f, -1f, 0f).apply {
             addUpdateListener { r.angleX2 = it.animatedValue as Float }
-            duration = 10000L
+            duration = scaledDuration(10000L)
             interpolator = LinearInterpolator()
         }
 
@@ -679,7 +695,15 @@ class Telegram3DStarView @JvmOverloads constructor(
             cancelAnimations()
             mainHandler.removeCallbacks(idleAnimationRunnable)
             visibility = GONE
-            fallbackView?.visibility = VISIBLE
+            fallbackView?.let { fallback ->
+                fallback.visibility = VISIBLE
+                (fallback as? com.airbnb.lottie.LottieAnimationView)?.let { lottie ->
+                    if (!lottie.isAnimating) {
+                        lottie.progress = 0f
+                        lottie.playAnimation()
+                    }
+                }
+            }
         }
     }
 

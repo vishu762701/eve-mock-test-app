@@ -106,35 +106,11 @@ class QuestionAdapter(
                     onSelect(position, letter)
                 }
             }
+        }
 
-            fun refreshMarkReview() {
-                val marked = isMarked(position)
-                b.btnMarkReview.text = if (marked) b.root.context.getString(R.string.unmark_review) else b.root.context.getString(R.string.mark_for_review)
-            }
-            refreshMarkReview()
-            b.btnMarkReview.setOnClickListener {
-                onToggleMark(position)
-                refreshMarkReview()
-            }
-
-            b.btnClear.setOnClickListener {
-                b.rgOptions.setOnCheckedChangeListener(null)
-                b.rgOptions.clearCheck()
-                onSelect(position, "")
-                b.rgOptions.setOnCheckedChangeListener { _, checkedId ->
-                    val letter = when (checkedId) {
-                        R.id.rbA -> "A"
-                        R.id.rbB -> "B"
-                        R.id.rbC -> "C"
-                        R.id.rbD -> "D"
-                        else -> ""
-                    }
-                    if (letter.isNotEmpty()) {
-                        com.eve.app.util.HapticHelper.performOptionSelect(b.root)
-                        onSelect(position, letter)
-                    }
-                }
-            }
+        fun clearSelection() {
+            b.rgOptions.setOnCheckedChangeListener(null)
+            b.rgOptions.clearCheck()
         }
     }
 

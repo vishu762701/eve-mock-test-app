@@ -9,6 +9,7 @@ import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.eve.app.R
 import com.eve.app.data.model.PremiumPlanDto
 import com.eve.app.data.model.PremiumStatusDto
 import com.eve.app.data.repository.PremiumRepository
@@ -161,6 +162,46 @@ class PremiumActivity : EveBaseActivity() {
                 "Supported: $methodsText"
             } else {
                 "Instant Automatic Verification"
+            }
+
+            // Dynamically populate benefits from backend configuration
+            val benefitsList = if (plan.benefits.isNotEmpty()) {
+                plan.benefits
+            } else {
+                listOf(
+                    "Access to all eligible tests",
+                    "Unlimited eligible reattempts",
+                    "No normal 3-attempt restriction while Premium is active"
+                )
+            }
+            binding.layoutBenefitsList.removeAllViews()
+            val density = resources.displayMetrics.density
+            val padY = (4 * density).toInt()
+            val iconSize = (18 * density).toInt()
+            val marginS = (10 * density).toInt()
+
+            for (benefit in benefitsList) {
+                val row = android.widget.LinearLayout(this).apply {
+                    orientation = android.widget.LinearLayout.HORIZONTAL
+                    gravity = android.view.Gravity.CENTER_VERTICAL
+                    setPadding(0, padY, 0, padY)
+                }
+                val icon = android.widget.ImageView(this).apply {
+                    layoutParams = android.widget.LinearLayout.LayoutParams(iconSize, iconSize)
+                    setImageResource(R.drawable.ic_check_circle)
+                    setColorFilter(androidx.core.content.ContextCompat.getColor(this@PremiumActivity, R.color.eve_status_success))
+                }
+                val text = android.widget.TextView(this).apply {
+                    layoutParams = android.widget.LinearLayout.LayoutParams(0, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                        marginStart = marginS
+                    }
+                    this.text = benefit
+                    setTextColor(androidx.core.content.ContextCompat.getColor(this@PremiumActivity, R.color.eve_text))
+                    textSize = 13.5f
+                }
+                row.addView(icon)
+                row.addView(text)
+                binding.layoutBenefitsList.addView(row)
             }
         }
     }

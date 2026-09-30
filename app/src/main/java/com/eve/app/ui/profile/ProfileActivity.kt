@@ -3,6 +3,9 @@ package com.eve.app.ui.profile
 import com.eve.app.ui.common.EveBaseActivity
 
 import android.app.DatePickerDialog
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -10,6 +13,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import com.eve.app.util.AppBulletin
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
@@ -72,6 +76,16 @@ class ProfileActivity : EveBaseActivity() {
 
         binding.tvName.text = user.displayName?.takeIf { it.isNotBlank() } ?: "Student"
         binding.tvEmail.text = user.email ?: ""
+
+        binding.btnCopyEveId.setOnClickListener {
+            val eveId = binding.tvEveId.text.toString().trim()
+            if (eveId.isNotBlank() && eveId != "--" && eveId != "Loading...") {
+                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = ClipData.newPlainText("EVE ID", eveId)
+                clipboard.setPrimaryClip(clip)
+                Toast.makeText(this, "EVE ID copied to clipboard", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         loadProfilePhoto()
         binding.btnChangePhoto.setOnClickListener { pickPhotoLauncher.launch("image/*") }
@@ -189,11 +203,16 @@ class ProfileActivity : EveBaseActivity() {
         binding.tvName.text = currentName
         binding.etName.setText(if (currentName != "Student") currentName else "")
 
+        binding.tvEveId.text = "--"
+
         lifecycleScope.launch {
             try {
                 val res = ApiClient.apiService.getProfile()
                 if (res.success && res.data != null) {
                     val profile = res.data
+                    if (!profile.eveId.isNullOrBlank()) {
+                        binding.tvEveId.text = profile.eveId
+                    }
                     if (profile.displayName.isNotBlank()) {
                         binding.tvName.text = profile.displayName
                         binding.etName.setText(profile.displayName)

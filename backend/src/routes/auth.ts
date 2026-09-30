@@ -13,6 +13,95 @@ authRoutes.get("/me", async (c) => {
   return c.json({ success: true, data: user });
 });
 
+export function generateCandidateEveId(): string {
+  const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return `EV-${code}`;
+}
+
+export async function getOrAssignEveId(
+  db: D1Database,
+  userId: string,
+  initialEmail?: string,
+  initialDisplayName?: string
+): Promise<string> {
+  try {
+    const existing = await db
+      .prepare("SELECT eve_id FROM users WHERE id = ?")
+      .bind(userId)
+      .first<{ eve_id: string | null }>();
+
+    if (existing?.eve_id) {
+      return existing.eve_id;
+    }
+  } catch (e: any) {
+    if (String(e).includes("no such column: eve_id")) {
+      await db.prepare("ALTER TABLE users ADD COLUMN eve_id TEXT").run().catch(() => {});
+      await db.prepare("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_eve_id ON users (eve_id)").run().catch(() => {});
+    }
+  }
+
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const candidate = generateCandidateEveId();
+    try {
+      const updateRes = await db
+        .prepare("UPDATE users SET eve_id = ? WHERE id = ? AND (eve_id IS NULL OR eve_id = '')")
+        .bind(candidate, userId)
+        .run();
+
+      if (updateRes.meta?.changes && updateRes.meta.changes > 0) {
+        return candidate;
+      }
+
+      // Check if user row was missing or set concurrently
+      const check = await db
+        .prepare("SELECT eve_id FROM users WHERE id = ?")
+        .bind(userId)
+        .first<{ eve_id: string | null }>();
+
+      if (check?.eve_id) {
+        return check.eve_id;
+      }
+
+      // User row does not exist yet: insert with candidate ID
+      const now = Date.now();
+      await db
+        .prepare(
+          `INSERT INTO users (id, email, display_name, created_at, last_active, eve_id)
+           VALUES (?, ?, ?, ?, ?, ?)
+           ON CONFLICT(id) DO UPDATE SET
+             eve_id = CASE WHEN users.eve_id IS NULL OR users.eve_id = '' THEN excluded.eve_id ELSE users.eve_id END`
+        )
+        .bind(userId, initialEmail || "", initialDisplayName || "Student", now, now, candidate)
+        .run();
+
+      const recheck = await db
+        .prepare("SELECT eve_id FROM users WHERE id = ?")
+        .bind(userId)
+        .first<{ eve_id: string | null }>();
+
+      if (recheck?.eve_id) {
+        return recheck.eve_id;
+      }
+    } catch (e: any) {
+      if (String(e).includes("UNIQUE constraint failed") || String(e).includes("idx_users_eve_id")) {
+        continue;
+      }
+      if (String(e).includes("no such column: eve_id")) {
+        await db.prepare("ALTER TABLE users ADD COLUMN eve_id TEXT").run().catch(() => {});
+        await db.prepare("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_eve_id ON users (eve_id)").run().catch(() => {});
+        continue;
+      }
+      throw e;
+    }
+  }
+
+  throw new Error("Failed to allocate unique EVE ID after multiple attempts");
+}
+
 // POST /api/users/sync - On login / foreground heartbeat
 authRoutes.post("/sync", async (c) => {
   const user = c.get("user");
@@ -35,7 +124,9 @@ authRoutes.post("/sync", async (c) => {
     .bind(user.uid, email, displayName, now, now)
     .run();
 
-  return c.json({ success: true });
+  const eveId = await getOrAssignEveId(db, user.uid, email, displayName);
+
+  return c.json({ success: true, data: { eveId } });
 });
 
 // GET /api/users/profile - Get profile data
@@ -43,16 +134,36 @@ authRoutes.get("/profile", async (c) => {
   const user = c.get("user");
   const db = c.env.DB;
 
-  const row = await db
-    .prepare("SELECT id, email, display_name, dob, category, created_at, last_active FROM users WHERE id = ?")
-    .bind(user.uid)
-    .first<UserRow>();
+  let row: UserRow | null = null;
+  try {
+    row = await db
+      .prepare("SELECT id, eve_id, email, display_name, dob, category, created_at, last_active FROM users WHERE id = ?")
+      .bind(user.uid)
+      .first<UserRow>();
+  } catch (e: any) {
+    if (String(e).includes("no such column: eve_id")) {
+      await db.prepare("ALTER TABLE users ADD COLUMN eve_id TEXT").run().catch(() => {});
+      await db.prepare("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_eve_id ON users (eve_id)").run().catch(() => {});
+      row = await db
+        .prepare("SELECT id, eve_id, email, display_name, dob, category, created_at, last_active FROM users WHERE id = ?")
+        .bind(user.uid)
+        .first<UserRow>();
+    } else {
+      throw e;
+    }
+  }
+
+  let eveId = row?.eve_id;
+  if (!eveId) {
+    eveId = await getOrAssignEveId(db, user.uid, user.email, user.displayName);
+  }
 
   if (!row) {
     return c.json({
       success: true,
       data: {
         id: user.uid,
+        eveId: eveId,
         email: user.email,
         displayName: user.displayName,
         dob: "",
@@ -65,6 +176,7 @@ authRoutes.get("/profile", async (c) => {
     success: true,
     data: {
       id: row.id,
+      eveId: eveId,
       email: row.email,
       displayName: row.display_name,
       dob: row.dob,

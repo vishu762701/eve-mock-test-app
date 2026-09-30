@@ -148,6 +148,45 @@
                     android:textSize="13sp"
                     tools:text="student@gmail.com" />
 
+                <LinearLayout
+                    android:id="@+id/layoutEveId"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvEveIdLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="EVE ID: "
+                        android:textColor="@color/eve_grey"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvEveId"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/eve_text"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        tools:text="EV-ABC123" />
+
+                    <ImageView
+                        android:id="@+id/btnCopyEveId"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_marginStart="4dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:contentDescription="Copy EVE ID"
+                        android:focusable="true"
+                        android:padding="5dp"
+                        android:src="@drawable/ic_copy"
+                        app:tint="@color/eve_grey" />
+                </LinearLayout>
+
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipAdmin"
                     android:layout_width="wrap_content"
