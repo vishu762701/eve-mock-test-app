@@ -389,10 +389,10 @@ premiumRoutes.post("/webhook", async (c) => {
   const rawBody = await c.req.text();
   const signatureHeader = c.req.header("X-Eve-Signature") || c.req.header("X-Webhook-Signature") || "";
 
-  // Webhook signature authentication
-  const secret = config.webhook_secret || "eve_whsec_dev";
+  // Webhook signature authentication: prioritize worker environment secret, fall back to config
+  const secret = (c.env as any).PREMIUM_WEBHOOK_SECRET || config.webhook_secret || "eve_whsec_dev";
   const isValid = await verifyHmacSha256(secret, rawBody, signatureHeader);
-  if (!isValid && signatureHeader !== secret) {
+  if (!isValid) {
     return c.json({ success: false, error: "Invalid webhook signature" }, 401);
   }
 
@@ -430,9 +430,9 @@ premiumRoutes.post("/webhook", async (c) => {
   const now = Date.now();
 
   if (status === "SUCCESS") {
-    // Validate amount & currency
-    if (!isNaN(amount) && (amount < order.amount || currency !== order.currency)) {
-      return c.json({ success: false, error: "Payment amount/currency mismatch" }, 400);
+    // Validate amount & currency strictly: reject if missing, NaN, underpaid, or currency mismatch
+    if (isNaN(amount) || amount < order.amount || currency !== order.currency) {
+      return c.json({ success: false, error: "Payment amount/currency mismatch or missing" }, 400);
     }
 
     // Mark order successful
