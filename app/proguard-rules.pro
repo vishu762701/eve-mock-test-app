@@ -42,3 +42,7 @@
 
 # 3D OpenGL Custom Views
 -keep class com.eve.app.ui.premium.gl.** { *; }
+
+# Lottie Animations
+-keep class com.airbnb.lottie.** { *; }
+-dontwarn com.airbnb.lottie.**
