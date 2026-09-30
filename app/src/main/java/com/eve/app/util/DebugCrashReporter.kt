@@ -39,9 +39,24 @@ object DebugCrashReporter {
                 throwable.printStackTrace(pw)
                 pw.flush()
                 val stackTrace = sw.toString()
+                val crashPayload = "Time: ${System.currentTimeMillis()}\nThread: ${thread.name}\n\n$stackTrace"
 
+                android.util.Log.e("CRITICAL_STARTUP", "FATAL CRASH DETECTED:\n$crashPayload")
+
+                // 1. Private storage
                 val crashFile = File(application.filesDir, CRASH_FILE_NAME)
-                crashFile.writeText("Time: ${System.currentTimeMillis()}\nThread: ${thread.name}\n\n$stackTrace")
+                crashFile.writeText(crashPayload)
+
+                // 2. Public Download storage for Termux access
+                try {
+                    val downloadDir = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS)
+                    if (downloadDir != null && downloadDir.exists()) {
+                        File(downloadDir, CRASH_FILE_NAME).writeText(crashPayload)
+                    }
+                } catch (_: Throwable) {}
+                try {
+                    File("/sdcard/Download", CRASH_FILE_NAME).writeText(crashPayload)
+                } catch (_: Throwable) {}
             } catch (t: Throwable) {
                 t.printStackTrace()
             } finally {
@@ -50,6 +65,13 @@ object DebugCrashReporter {
         }
 
         application.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
+            override fun onActivityStarted(activity: Activity) {
+                if (!hasCheckedCrash) {
+                    hasCheckedCrash = true
+                    checkAndShowDialog(activity)
+                }
+            }
+
             override fun onActivityResumed(activity: Activity) {
                 if (!hasCheckedCrash) {
                     hasCheckedCrash = true
@@ -58,7 +80,6 @@ object DebugCrashReporter {
             }
 
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
-            override fun onActivityStarted(activity: Activity) {}
             override fun onActivityPaused(activity: Activity) {}
             override fun onActivityStopped(activity: Activity) {}
             override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}

@@ -134,6 +134,9 @@ class GLIconRenderer(
     }
 
     fun setBackground(gradientTextureBitmap: Bitmap) {
+        if (backgroundBitmap != null && backgroundBitmap != gradientTextureBitmap && !backgroundBitmap!!.isRecycled) {
+            backgroundBitmap!!.recycle()
+        }
         model?.setBackground(gradientTextureBitmap)
         backgroundBitmap = gradientTextureBitmap
     }

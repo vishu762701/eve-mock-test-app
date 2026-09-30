@@ -57,7 +57,7 @@ class Telegram3DStarView @JvmOverloads constructor(
     }
 
     var touched = false
-    var lazyMode = false
+    var lazyMode = true
     var mRenderer: GLIconRenderer? = null
     var fallbackView: View? = null
         set(value) {
@@ -87,7 +87,7 @@ class Telegram3DStarView @JvmOverloads constructor(
     var isRunning = false
 
     @Volatile
-    private var paused = false
+    private var paused = true
     private var rendererChanged = false
     private var glFailed = false
     @Volatile
@@ -115,14 +115,13 @@ class Telegram3DStarView @JvmOverloads constructor(
         val prefForced = com.eve.app.BuildConfig.DEBUG && prefs.getBoolean(PREF_FORCE_STAR_FALLBACK, false)
         if (forceFallback || prefForced) {
             triggerFallback()
+        } else {
+            val isDark = ThemeManager.isDarkMode(context)
+            val renderer = GLIconRenderer(context, GLIconRenderer.FRAGMENT_STYLE, Icon3D.TYPE_STAR)
+            renderer.updateColors(isDark)
+            setRenderer(renderer)
+            surfaceTextureListener = this
         }
-
-        val isDark = ThemeManager.isDarkMode(context)
-        val renderer = GLIconRenderer(context, GLIconRenderer.FRAGMENT_STYLE, Icon3D.TYPE_STAR)
-        renderer.updateColors(isDark)
-        setRenderer(renderer)
-
-        surfaceTextureListener = this
 
         for (i in 0 until animationsCount) {
             animationIndexes.add(i)
@@ -313,7 +312,13 @@ class Telegram3DStarView @JvmOverloads constructor(
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
         mSurface = surface
         setDimensions(width, height)
-        if (!lazyMode || !isPaused()) {
+        val prefs = context.getSharedPreferences("eve_prefs", Context.MODE_PRIVATE)
+        val prefForced = com.eve.app.BuildConfig.DEBUG && prefs.getBoolean(PREF_FORCE_STAR_FALLBACK, false)
+        if (glFailed || forceFallback || prefForced) {
+            triggerFallback()
+            return
+        }
+        if (!lazyMode && !isPaused()) {
             startThread(surface, width, height)
         }
     }
@@ -834,6 +839,7 @@ class Telegram3DStarView @JvmOverloads constructor(
 
     private fun destroyGL() {
         try {
+            mRenderer?.model?.destroy()
             mEgl?.let { egl ->
                 mEglDisplay?.let { dpy ->
                     if (dpy != EGL10.EGL_NO_DISPLAY) {

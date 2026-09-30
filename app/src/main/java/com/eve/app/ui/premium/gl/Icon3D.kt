@@ -223,19 +223,16 @@ class Icon3D(context: Context, val type: Int = TYPE_STAR) {
             GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, buf[3 * i + 0])
             textures.position(0)
             GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, 4 * textures.capacity(), textures, GLES20.GL_STATIC_DRAW)
-            GLES20.glEnableVertexAttribArray(mTextureCoordinateHandle)
             textures.clear()
 
             GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, buf[3 * i + 1])
             normals.position(0)
             GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, 4 * normals.capacity(), normals, GLES20.GL_STATIC_DRAW)
-            GLES20.glEnableVertexAttribArray(mNormalCoordinateHandle)
             normals.clear()
 
             GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, buf[3 * i + 2])
             vertices.position(0)
             GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, 4 * vertices.capacity(), vertices, GLES20.GL_STATIC_DRAW)
-            GLES20.glEnableVertexAttribArray(mVerticesHandle)
             vertices.clear()
         }
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0)
@@ -372,7 +369,7 @@ class Icon3D(context: Context, val type: Int = TYPE_STAR) {
             Color.green(specColor) / 255f,
             Color.blue(specColor) / 255f
         )
-        GLES20.glUniform2f(resolutionHandle, width.toFloat(), height.toFloat())
+        GLES20.glUniform2f(resolutionHandle, kotlin.math.max(1f, width.toFloat()), kotlin.math.max(1f, height.toFloat()))
         GLES20.glUniform4f(gradientPositionHandle, gradientStartX, gradientScaleX, gradientStartY, gradientScaleY)
         GLES20.glUniform1i(nightHandle, if (night) 1 else 0)
 
@@ -396,15 +393,26 @@ class Icon3D(context: Context, val type: Int = TYPE_STAR) {
         val buf = buffers ?: return
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, buf[3 * i + 0])
         GLES20.glVertexAttribPointer(mTextureCoordinateHandle, 2, GLES20.GL_FLOAT, false, 0, 0)
+        GLES20.glEnableVertexAttribArray(mTextureCoordinateHandle)
+
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, buf[3 * i + 1])
         GLES20.glVertexAttribPointer(mNormalCoordinateHandle, 3, GLES20.GL_FLOAT, false, 0, 0)
+        GLES20.glEnableVertexAttribArray(mNormalCoordinateHandle)
+
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, buf[3 * i + 2])
         GLES20.glVertexAttribPointer(mVerticesHandle, 3, GLES20.GL_FLOAT, false, 0, 0)
+        GLES20.glEnableVertexAttribArray(mVerticesHandle)
+
         GLES20.glUniform1i(modelIndexHandle, i)
         GLES20.glUniform1i(modelIndex2Handle, i)
         GLES20.glUniform1i(behindHandle, if (behind) 1 else 0)
         GLES20.glUniform1i(typeHandle, type)
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, trianglesCount[i] / 3)
+
+        GLES20.glDisableVertexAttribArray(mVerticesHandle)
+        GLES20.glDisableVertexAttribArray(mNormalCoordinateHandle)
+        GLES20.glDisableVertexAttribArray(mTextureCoordinateHandle)
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0)
     }
 
     private fun preprocessShader(code: String): String {
@@ -450,6 +458,9 @@ class Icon3D(context: Context, val type: Int = TYPE_STAR) {
     }
 
     fun setBackground(gradientTextureBitmap: Bitmap) {
+        if (backgroundBitmap != null && backgroundBitmap != gradientTextureBitmap && !backgroundBitmap!!.isRecycled) {
+            backgroundBitmap!!.recycle()
+        }
         backgroundBitmap = gradientTextureBitmap
     }
 
