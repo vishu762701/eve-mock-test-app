@@ -5,6 +5,7 @@
 import { Hono } from "hono";
 import { AttemptAnswerRow, AttemptRow, AttemptSessionRow, AuthUser, Env, ExamRow, GeneratedTestRow, QuestionRow } from "../types";
 import { hideAnswers } from "../util/clientProtocol";
+import { isUserPremium } from "./premium";
 
 export const attemptRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
@@ -66,15 +67,19 @@ attemptRoutes.post("/start", async (c) => {
   const limitSeconds = examRow && typeof examRow.time_limit_minutes === "number" ? examRow.time_limit_minutes * 60 : 0;
 
   // Non-admin with maximum attempts (3) reached -> 409
+  // Premium users have unlimited eligible reattempts
   const lockKey = `${uid}_${examId}`;
   if (!user.isAdmin) {
-    const countRow = await db
-      .prepare("SELECT COUNT(*) as count FROM attempts WHERE user_id = ? AND exam_id = ?")
-      .bind(uid, examId)
-      .first<{ count: number }>();
-    const completedCount = countRow ? countRow.count : 0;
-    if (completedCount >= 3) {
-      return c.json({ success: false, error: "You have reached the maximum limit of 3 attempts for this test." }, 409);
+    const isPremium = await isUserPremium(db, uid);
+    if (!isPremium) {
+      const countRow = await db
+        .prepare("SELECT COUNT(*) as count FROM attempts WHERE user_id = ? AND exam_id = ?")
+        .bind(uid, examId)
+        .first<{ count: number }>();
+      const completedCount = countRow ? countRow.count : 0;
+      if (completedCount >= 3) {
+        return c.json({ success: false, error: "You have reached the maximum limit of 3 attempts for this test." }, 409);
+      }
     }
   }
 
@@ -225,14 +230,18 @@ attemptRoutes.post("/submit", async (c) => {
   const lockKey = `${uid}_${examId}`;
 
   // 2. Anti-cheat lock check: Max 3 attempts for non-admins on non-practice tests
+  // Premium users have unlimited eligible reattempts
   if (!isPractice && !user.isAdmin) {
-    const countRow = await db
-      .prepare("SELECT COUNT(*) as count FROM attempts WHERE user_id = ? AND exam_id = ?")
-      .bind(uid, examId)
-      .first<{ count: number }>();
-    const completedCount = countRow ? countRow.count : 0;
-    if (completedCount >= 3) {
-      return c.json({ success: false, error: "You have reached the maximum limit of 3 attempts for this test." }, 409);
+    const isPremium = await isUserPremium(db, uid);
+    if (!isPremium) {
+      const countRow = await db
+        .prepare("SELECT COUNT(*) as count FROM attempts WHERE user_id = ? AND exam_id = ?")
+        .bind(uid, examId)
+        .first<{ count: number }>();
+      const completedCount = countRow ? countRow.count : 0;
+      if (completedCount >= 3) {
+        return c.json({ success: false, error: "You have reached the maximum limit of 3 attempts for this test." }, 409);
+      }
     }
   }
 

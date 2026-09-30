@@ -472,6 +472,16 @@
                 android:text="student@eve.app"
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tvDrawerPremiumStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/poppins_medium"
+                android:textColor="@color/eve_status_success"
+                android:textSize="12sp"
+                android:visibility="gone" />
         </LinearLayout>
 
         <!-- Frosted Glass Divider -->
@@ -480,7 +490,7 @@
             android:layout_height="1dp"
             android:background="@color/eve_menu_glass_divider" />
 
-        <!-- Drawer Menu Items (Order: 1. Profile, 2. Performance, 3. Overall Leaderboard, 4. Syllabus) -->
+        <!-- Drawer Menu Items (Order: 1. Profile, 2. Premium, 3. Performance, 4. Overall Leaderboard, 5. Syllabus) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -517,7 +527,37 @@
                     android:textSize="15sp" />
             </LinearLayout>
 
-            <!-- 2. Performance -->
+            <!-- 2. Premium -->
+            <LinearLayout
+                android:id="@+id/layoutDrawerPremium"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginHorizontal="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="Premium"
+                    android:src="@drawable/ic_star_filled"
+                    app:tint="@color/eve_status_warning" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="Premium"
+                    android:textColor="@color/eve_text"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <!-- 3. Performance -->
             <LinearLayout
                 android:id="@+id/layoutDrawerPerformance"
                 android:layout_width="match_parent"

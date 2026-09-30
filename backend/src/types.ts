@@ -259,3 +259,58 @@ export interface UserRow {
   last_updated: number;
   fcm_token: string;
 }
+
+export interface PremiumConfigRow {
+  id: string;
+  is_enabled: number;
+  plan_name: string;
+  price_inr: number;
+  currency: string;
+  duration_days: number;
+  is_lifetime: number;
+  description: string;
+  benefits_json: string;
+  qr_enabled: number;
+  upi_enabled: number;
+  session_expiry_minutes: number;
+  merchant_vpa: string;
+  merchant_name: string;
+  webhook_secret: string;
+  updated_at: number;
+  updated_by: string;
+}
+
+export interface PremiumOrderRow {
+  id: string;
+  user_id: string;
+  user_email: string;
+  plan_id: string;
+  plan_name: string;
+  amount: number;
+  currency: string;
+  duration_days: number;
+  is_lifetime: number;
+  payment_method: string;
+  provider_order_id: string;
+  provider_payment_id: string;
+  status: string;
+  created_at: number;
+  expires_at: number;
+  paid_at: number;
+  metadata_json: string;
+}
+
+export interface PremiumEntitlementRow {
+  user_id: string;
+  plan_id: string;
+  plan_name: string;
+  payment_order_id: string;
+  payment_provider_id: string;
+  activated_at: number;
+  expires_at: number | null;
+  is_lifetime: number;
+  status: string;
+  source: string;
+  created_at: number;
+  updated_at: number;
+}

@@ -420,4 +420,45 @@ interface EveApiService {
 
     @PUT("api/admin/floating-link")
     suspend fun updateAdminFloatingLink(@Body body: Map<String, String>): ApiResponse<FloatingLinkResponse>
+
+    // --- Premium & Payment Endpoints ---
+    @GET("api/premium/plan")
+    suspend fun getPremiumPlan(): ApiResponse<PremiumPlanDto>
+
+    @GET("api/premium/status")
+    suspend fun getPremiumStatus(): ApiResponse<PremiumStatusDto>
+
+    @POST("api/premium/orders/create")
+    suspend fun createPremiumOrder(@Body body: CreateOrderRequest): ApiResponse<CreateOrderResponse>
+
+    @GET("api/premium/orders/{orderId}/status")
+    suspend fun getOrderStatus(@Path("orderId") orderId: String): ApiResponse<OrderStatusDto>
+
+    @POST("api/premium/orders/{orderId}/simulate-sandbox-payment")
+    suspend fun simulateSandboxPayment(@Path("orderId") orderId: String): ApiResponse<Any>
+
+    // --- Admin Premium Management Endpoints ---
+    @GET("api/admin/premium/config")
+    suspend fun getAdminPremiumConfig(): ApiResponse<AdminPremiumConfigDto>
+
+    @PUT("api/admin/premium/config")
+    suspend fun updateAdminPremiumConfig(@Body body: AdminPremiumConfigDto): ApiResponse<Any>
+
+    @GET("api/admin/premium/transactions")
+    suspend fun getAdminTransactions(
+        @Query("limit") limit: Int = 100,
+        @Query("status") status: String = ""
+    ): ApiResponse<List<AdminTransactionDto>>
+
+    @GET("api/admin/premium/users")
+    suspend fun getAdminPremiumUsers(): ApiResponse<List<AdminPremiumUserDto>>
+
+    @POST("api/admin/premium/users/grant")
+    suspend fun grantPremium(@Body body: AdminGrantRequest): ApiResponse<Any>
+
+    @POST("api/admin/premium/users/extend")
+    suspend fun extendPremium(@Body body: AdminExtendRequest): ApiResponse<Any>
+
+    @POST("api/admin/premium/users/revoke")
+    suspend fun revokePremium(@Body body: AdminRevokeRequest): ApiResponse<Any>
 }

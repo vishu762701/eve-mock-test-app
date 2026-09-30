@@ -4,7 +4,8 @@
 
 import { Hono } from "hono";
 import { requireAdmin } from "../middleware/authMiddleware";
-import { AuthUser, Env } from "../types";
+import { AuthUser, Env, PremiumConfigRow, PremiumEntitlementRow, PremiumOrderRow } from "../types";
+import { activateUserPremium, getPremiumConfig } from "./premium";
 
 export const adminRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
@@ -383,5 +384,280 @@ adminRoutes.put("/floating-link", async (c) => {
   } catch (err: any) {
     return c.json({ success: false, error: err.message }, 500);
   }
+});
+
+// ============================================================================
+// Admin Premium Management Routes
+// ============================================================================
+
+// GET /api/admin/premium/config - Get current premium plan & payment configuration
+adminRoutes.get("/premium/config", async (c) => {
+  const db = c.env.DB;
+  const config = await getPremiumConfig(db);
+  let benefits: string[] = [];
+  try {
+    benefits = JSON.parse(config.benefits_json);
+  } catch (_e) {
+    benefits = [
+      "Access to all eligible tests",
+      "Unlimited eligible reattempts",
+      "No normal 3-attempt restriction while Premium is active"
+    ];
+  }
+  return c.json({
+    success: true,
+    data: {
+      ...config,
+      isEnabled: Boolean(config.is_enabled),
+      isLifetime: Boolean(config.is_lifetime),
+      qrEnabled: Boolean(config.qr_enabled),
+      upiEnabled: Boolean(config.upi_enabled),
+      benefits
+    }
+  });
+});
+
+// PUT /api/admin/premium/config - Update premium plan & payment configuration
+adminRoutes.put("/premium/config", async (c) => {
+  const db = c.env.DB;
+  const user = c.get("user");
+  const body = await c.req.json().catch(() => ({}));
+  const now = Date.now();
+  const updatedBy = user?.email || "admin";
+
+  const isEnabled = body.isEnabled !== undefined ? (body.isEnabled ? 1 : 0) : 1;
+  const planName = String(body.planName || "Premium Pro").trim();
+  const priceInr = parseInt(String(body.priceInr || "99"), 10) || 99;
+  const currency = String(body.currency || "INR").trim().toUpperCase();
+  const durationDays = parseInt(String(body.durationDays || "30"), 10) || 30;
+  const isLifetime = body.isLifetime ? 1 : 0;
+  const description = String(body.description || "Unlock all eligible tests & unlimited reattempts.").trim();
+  const rawBenefits = Array.isArray(body.benefits) ? body.benefits : ["Access to all eligible tests", "Unlimited eligible reattempts"];
+  const benefitsJson = JSON.stringify(rawBenefits);
+  const qrEnabled = body.qrEnabled !== undefined ? (body.qrEnabled ? 1 : 0) : 1;
+  const upiEnabled = body.upiEnabled !== undefined ? (body.upiEnabled ? 1 : 0) : 1;
+  const sessionExpiryMinutes = parseInt(String(body.sessionExpiryMinutes || "10"), 10) || 10;
+  const merchantVpa = String(body.merchantVpa || "evemocktest@upi").trim();
+  const merchantName = String(body.merchantName || "Eve Mock Test").trim();
+  const webhookSecret = String(body.webhookSecret || "eve_whsec_dev").trim();
+
+  await db
+    .prepare(
+      `INSERT INTO premium_config (
+         id, is_enabled, plan_name, price_inr, currency, duration_days, is_lifetime,
+         description, benefits_json, qr_enabled, upi_enabled, session_expiry_minutes,
+         merchant_vpa, merchant_name, webhook_secret, updated_at, updated_by
+       ) VALUES ('default', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       ON CONFLICT(id) DO UPDATE SET
+         is_enabled = excluded.is_enabled,
+         plan_name = excluded.plan_name,
+         price_inr = excluded.price_inr,
+         currency = excluded.currency,
+         duration_days = excluded.duration_days,
+         is_lifetime = excluded.is_lifetime,
+         description = excluded.description,
+         benefits_json = excluded.benefits_json,
+         qr_enabled = excluded.qr_enabled,
+         upi_enabled = excluded.upi_enabled,
+         session_expiry_minutes = excluded.session_expiry_minutes,
+         merchant_vpa = excluded.merchant_vpa,
+         merchant_name = excluded.merchant_name,
+         webhook_secret = excluded.webhook_secret,
+         updated_at = excluded.updated_at,
+         updated_by = excluded.updated_by`
+    )
+    .bind(
+      isEnabled,
+      planName,
+      priceInr,
+      currency,
+      durationDays,
+      isLifetime,
+      description,
+      benefitsJson,
+      qrEnabled,
+      upiEnabled,
+      sessionExpiryMinutes,
+      merchantVpa,
+      merchantName,
+      webhookSecret,
+      now,
+      updatedBy
+    )
+    .run();
+
+  return c.json({ success: true });
+});
+
+// GET /api/admin/premium/transactions - List all payment orders / transactions
+adminRoutes.get("/premium/transactions", async (c) => {
+  const db = c.env.DB;
+  const limit = parseInt(c.req.query("limit") || "100", 10);
+  const statusFilter = c.req.query("status") || "";
+
+  let query = "SELECT * FROM premium_orders";
+  const params: any[] = [];
+  if (statusFilter) {
+    query += " WHERE status = ?";
+    params.push(statusFilter.toUpperCase());
+  }
+  query += " ORDER BY created_at DESC LIMIT ?";
+  params.push(limit);
+
+  const stmt = db.prepare(query);
+  const { results } = await (params.length === 1 ? stmt.bind(params[0]) : stmt.bind(params[0], params[1])).all<PremiumOrderRow>();
+
+  return c.json({
+    success: true,
+    data: (results || []).map((o) => ({
+      orderId: o.id,
+      userId: o.user_id,
+      userEmail: o.user_email,
+      planId: o.plan_id,
+      planName: o.plan_name,
+      amount: o.amount,
+      currency: o.currency,
+      durationDays: o.duration_days,
+      isLifetime: Boolean(o.is_lifetime),
+      paymentMethod: o.payment_method,
+      providerOrderId: o.provider_order_id,
+      providerPaymentId: o.provider_payment_id,
+      status: o.status,
+      createdAt: o.created_at,
+      expiresAt: o.expires_at,
+      paidAt: o.paid_at
+    }))
+  });
+});
+
+// GET /api/admin/premium/users - List premium users
+adminRoutes.get("/premium/users", async (c) => {
+  const db = c.env.DB;
+  const now = Date.now();
+
+  const { results } = await db
+    .prepare(
+      `SELECT pe.*, u.email as user_email, u.display_name
+       FROM premium_entitlements pe
+       LEFT JOIN users u ON pe.user_id = u.id
+       ORDER BY pe.updated_at DESC LIMIT 200`
+    )
+    .all<any>();
+
+  const list = (results || []).map((r) => {
+    const isExpired = r.is_lifetime === 0 && r.expires_at !== null && r.expires_at <= now;
+    return {
+      userId: r.user_id,
+      email: r.user_email || "",
+      displayName: r.display_name || "Student",
+      planId: r.plan_id,
+      planName: r.plan_name,
+      paymentOrderId: r.payment_order_id,
+      providerPaymentId: r.payment_provider_id,
+      activatedAt: r.activated_at,
+      expiresAt: r.expires_at,
+      isLifetime: Boolean(r.is_lifetime),
+      status: isExpired ? "EXPIRED" : r.status,
+      source: r.source,
+      createdAt: r.created_at,
+      updatedAt: r.updated_at
+    };
+  });
+
+  return c.json({ success: true, data: list });
+});
+
+// POST /api/admin/premium/users/grant - Manually grant Premium (marked ADMIN_GRANTED)
+adminRoutes.post("/premium/users/grant", async (c) => {
+  const db = c.env.DB;
+  const user = c.get("user");
+  const body = await c.req.json().catch(() => ({}));
+  const userIdOrEmail = String(body.userIdOrEmail || body.userId || "").trim();
+  const durationDays = parseInt(String(body.durationDays || "30"), 10) || 30;
+  const isLifetime = Boolean(body.isLifetime);
+  const planName = String(body.planName || "Admin Premium Access").trim();
+
+  if (!userIdOrEmail) {
+    return c.json({ success: false, error: "userId or email is required" }, 400);
+  }
+
+  // Resolve user UID if email was passed
+  let targetUid = userIdOrEmail;
+  if (userIdOrEmail.includes("@")) {
+    const userRow = await db.prepare("SELECT id FROM users WHERE LOWER(email) = LOWER(?)").bind(userIdOrEmail).first<{ id: string }>();
+    if (!userRow) {
+      return c.json({ success: false, error: `User with email ${userIdOrEmail} not found` }, 404);
+    }
+    targetUid = userRow.id;
+  }
+
+  const entitlement = await activateUserPremium(
+    db,
+    targetUid,
+    "admin_grant",
+    planName,
+    `ADMIN_${Date.now()}`,
+    user.email || "admin",
+    durationDays,
+    isLifetime,
+    "ADMIN_GRANTED"
+  );
+
+  return c.json({ success: true, data: entitlement });
+});
+
+// POST /api/admin/premium/users/extend - Extend existing Premium expiry
+adminRoutes.post("/premium/users/extend", async (c) => {
+  const db = c.env.DB;
+  const body = await c.req.json().catch(() => ({}));
+  const userId = String(body.userId || "").trim();
+  const additionalDays = parseInt(String(body.additionalDays || "30"), 10) || 30;
+
+  if (!userId) {
+    return c.json({ success: false, error: "userId is required" }, 400);
+  }
+
+  const existing = await db
+    .prepare("SELECT * FROM premium_entitlements WHERE user_id = ?")
+    .bind(userId)
+    .first<PremiumEntitlementRow>();
+
+  if (!existing) {
+    return c.json({ success: false, error: "User has no existing premium entitlement" }, 404);
+  }
+
+  if (existing.is_lifetime === 1) {
+    return c.json({ success: true, message: "User already has Lifetime Premium" });
+  }
+
+  const now = Date.now();
+  const baseTime = (existing.expires_at && existing.expires_at > now) ? existing.expires_at : now;
+  const newExpiresAt = baseTime + additionalDays * 86400000;
+
+  await db
+    .prepare("UPDATE premium_entitlements SET expires_at = ?, status = 'ACTIVE', updated_at = ? WHERE user_id = ?")
+    .bind(newExpiresAt, now, userId)
+    .run();
+
+  return c.json({ success: true, data: { userId, expiresAt: newExpiresAt } });
+});
+
+// POST /api/admin/premium/users/revoke - Revoke Premium
+adminRoutes.post("/premium/users/revoke", async (c) => {
+  const db = c.env.DB;
+  const body = await c.req.json().catch(() => ({}));
+  const userId = String(body.userId || "").trim();
+
+  if (!userId) {
+    return c.json({ success: false, error: "userId is required" }, 400);
+  }
+
+  const now = Date.now();
+  await db
+    .prepare("UPDATE premium_entitlements SET status = 'REVOKED', updated_at = ? WHERE user_id = ?")
+    .bind(now, userId)
+    .run();
+
+  return c.json({ success: true, data: { userId, status: "REVOKED" } });
 });
 

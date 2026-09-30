@@ -87,6 +87,9 @@
         <activity android:name=".ui.admin.FlaggedQuestionsActivity" android:exported="false" />
         <activity android:name=".ui.admin.ApiUsageActivity" android:exported="false" />
         <activity android:name=".ui.admin.ManageSyllabusActivity" android:exported="false" />
+        <activity android:name=".ui.premium.PremiumActivity" android:exported="false" />
+        <activity android:name=".ui.premium.PaymentCheckoutActivity" android:exported="false" />
+        <activity android:name=".ui.admin.ManagePremiumActivity" android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

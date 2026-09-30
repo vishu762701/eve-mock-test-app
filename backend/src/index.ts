@@ -20,6 +20,7 @@ import { generatedTestRoutes } from "./routes/generatedTests";
 import { leaderboardRoutes } from "./routes/leaderboard";
 import { pinRoutes } from "./routes/pins";
 import { pollRoutes } from "./routes/polls";
+import { premiumRoutes } from "./routes/premium";
 import { questionRoutes } from "./routes/questions";
 import { SupabaseStorage } from "./supabase";
 import { AuthUser, Env } from "./types";
@@ -241,6 +242,7 @@ app.route("/api/polls", pollRoutes);
 app.route("/api/app-content", appContentRoutes);
 app.route("/api/admin", adminRoutes);
 app.route("/api/generated-tests", generatedTestRoutes);
+app.route("/api/premium", premiumRoutes);
 
 // 6. Global Error Handling & 404
 app.notFound((c) => {

@@ -105,6 +105,34 @@ class ProfileActivity : AppCompatActivity() {
             }
         }
 
+        val updatePremiumBadge = { status: com.eve.app.data.model.PremiumStatusDto? ->
+            val isPrem = status?.isPremium ?: com.eve.app.data.repository.PremiumRepository.isCurrentUserPremium(this)
+            if (isPrem) {
+                binding.chipPremium.visibility = View.VISIBLE
+                val exp = status?.expiresAt
+                if (status?.isLifetime == true) {
+                    binding.chipPremium.text = "Premium • Lifetime"
+                } else if (exp != null && exp > 0) {
+                    val dateStr = java.text.SimpleDateFormat("dd MMM", java.util.Locale.getDefault()).format(java.util.Date(exp))
+                    binding.chipPremium.text = "Premium Active • Expires $dateStr"
+                } else {
+                    binding.chipPremium.text = "Premium Active"
+                }
+            } else {
+                binding.chipPremium.visibility = View.GONE
+            }
+        }
+        updatePremiumBadge(null)
+        binding.chipPremium.setOnClickListener {
+            startActivity(Intent(this, com.eve.app.ui.premium.PremiumActivity::class.java))
+        }
+        lifecycleScope.launch {
+            val res = com.eve.app.data.repository.PremiumRepository.refreshStatus(this@ProfileActivity)
+            if (res.isSuccess) {
+                updatePremiumBadge(res.getOrNull())
+            }
+        }
+
         binding.btnAbout.setOnClickListener {
             startActivity(Intent(this, AboutActivity::class.java))
         }

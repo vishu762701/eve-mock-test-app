@@ -1040,6 +1040,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun logout() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
+        com.eve.app.data.repository.PremiumRepository.clearCacheForLogout(uid, this)
         FirebaseAuth.getInstance().signOut()
         val gso = com.google.android.gms.auth.api.signin.GoogleSignInOptions.Builder(
             com.google.android.gms.auth.api.signin.GoogleSignInOptions.DEFAULT_SIGN_IN
@@ -1124,6 +1126,7 @@ class MainActivity : AppCompatActivity() {
         val drawerRowRadiusDp = 12f
         val drawerRows = listOf(
             binding.layoutDrawerProfile,
+            binding.layoutDrawerPremium,
             binding.layoutDrawerPerformance,
             binding.layoutDrawerLeaderboard,
             binding.layoutDrawerSyllabus,
@@ -1137,6 +1140,10 @@ class MainActivity : AppCompatActivity() {
         binding.layoutDrawerProfile.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
             startActivity(Intent(this, ProfileActivity::class.java))
+        }
+        binding.layoutDrawerPremium.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            startActivity(Intent(this, com.eve.app.ui.premium.PremiumActivity::class.java))
         }
         binding.layoutDrawerPerformance.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
@@ -1169,6 +1176,34 @@ class MainActivity : AppCompatActivity() {
         ProfilePhotoManager.applyTo(this, binding.ivDrawerAvatar, user.photoUrl?.toString(), R.drawable.bg_circle_translucent)
         binding.tvDrawerUserName.text = user.displayName?.takeIf { it.isNotBlank() } ?: "Student"
         binding.tvDrawerUserEmail.text = user.email ?: ""
+
+        val isPrem = com.eve.app.data.repository.PremiumRepository.isCurrentUserPremium(this)
+        if (isPrem) {
+            binding.tvDrawerPremiumStatus.visibility = View.VISIBLE
+            binding.tvDrawerPremiumStatus.text = "★ Premium Active"
+        } else {
+            binding.tvDrawerPremiumStatus.visibility = View.GONE
+        }
+        lifecycleScope.launch {
+            val res = com.eve.app.data.repository.PremiumRepository.refreshStatus(this@MainActivity)
+            if (res.isSuccess) {
+                val status = res.getOrNull()
+                if (status?.isPremium == true) {
+                    binding.tvDrawerPremiumStatus.visibility = View.VISIBLE
+                    val exp = status.expiresAt
+                    if (status.isLifetime) {
+                        binding.tvDrawerPremiumStatus.text = "★ Premium • Lifetime"
+                    } else if (exp != null && exp > 0) {
+                        val dateStr = java.text.SimpleDateFormat("dd MMM", java.util.Locale.getDefault()).format(java.util.Date(exp))
+                        binding.tvDrawerPremiumStatus.text = "★ Premium Active • Expires $dateStr"
+                    } else {
+                        binding.tvDrawerPremiumStatus.text = "★ Premium Active"
+                    }
+                } else {
+                    binding.tvDrawerPremiumStatus.visibility = View.GONE
+                }
+            }
+        }
     }
 
     private fun animateThemeChange(

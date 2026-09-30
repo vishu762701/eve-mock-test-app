@@ -95,6 +95,7 @@ object AttemptLimitManager {
     suspend fun canAttempt(context: Context, examId: String): Boolean {
         val user = FirebaseAuth.getInstance().currentUser ?: return true
         if (isAdmin(user.email, context)) return true
+        if (com.eve.app.data.repository.PremiumRepository.isCurrentUserPremium(context)) return true
         val count = getAttemptCount(context, examId)
         return count < MAX_ATTEMPTS
     }
@@ -102,6 +103,7 @@ object AttemptLimitManager {
     fun canAttemptLocal(context: Context, examId: String): Boolean {
         val user = FirebaseAuth.getInstance().currentUser ?: return true
         if (isCurrentUserAdmin()) return true
+        if (com.eve.app.data.repository.PremiumRepository.isCurrentUserPremium(context)) return true
         val count = getLocalAttemptCount(context, examId, user.uid)
         return count < MAX_ATTEMPTS
     }
