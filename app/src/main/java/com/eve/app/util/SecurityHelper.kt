@@ -21,8 +21,10 @@ object SecurityHelper {
         val currentUser = FirebaseAuth.getInstance().currentUser
         val email = currentUser?.email
 
-        // Fast path for hardcoded admin
-        if (isHardcodedAdmin(email)) {
+        // Fast path: check cached backend admin status, or fallback to offline emergency list
+        val cachedAdmin = SessionManager.getCachedAdminStatus(email, allowStale = true)
+            ?: AdminRepository.isOfflineEmergencyAdmin(email)
+        if (cachedAdmin) {
             activity.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
             return
         }

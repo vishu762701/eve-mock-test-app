@@ -78,6 +78,7 @@ import com.eve.app.util.ProfilePhotoManager
 import com.eve.app.util.ReminderScheduler
 import com.eve.app.util.ThemeManager
 import com.eve.app.util.ThemeSwitchAnimator
+import com.eve.app.util.SessionManager
 import com.eve.app.util.UiState
 import com.eve.app.util.VibrationHelper
 import com.eve.app.util.isHardcodedAdmin
@@ -320,13 +321,17 @@ class MainActivity : EveBaseActivity() {
         })
 
         Log.e("EVE_STARTUP", "stage: viewModel load")
-        if (isHardcodedAdmin(user.email)) {
-            isAdminUser = true
+        val initialAdmin = SessionManager.getCachedAdminStatus(user.email, allowStale = true)
+            ?: isHardcodedAdmin(user.email)
+        isAdminUser = initialAdmin
+        if (initialAdmin) {
             showAdminButton()
-            viewModel.loadForUser(user.uid, true)
-        } else {
-            lifecycleScope.launch(lifecycleExceptionHandler) {
-                val admin = adminRepo.isAdmin(user.email)
+        }
+        viewModel.loadForUser(user.uid, initialAdmin)
+
+        lifecycleScope.launch(lifecycleExceptionHandler) {
+            val admin = adminRepo.isAdmin(user.email)
+            if (admin != isAdminUser) {
                 isAdminUser = admin
                 if (admin) showAdminButton()
                 viewModel.loadForUser(user.uid, admin)
@@ -363,7 +368,7 @@ class MainActivity : EveBaseActivity() {
         checkAppConfigAndMaintenance()
         FirebaseAuth.getInstance().currentUser?.let { current ->
             lifecycleScope.launch(lifecycleExceptionHandler) {
-                val admin = isHardcodedAdmin(current.email) || adminRepo.isAdmin(current.email)
+                val admin = adminRepo.isAdmin(current.email)
                 viewModel.loadForUser(current.uid, admin)
             }
         }
@@ -415,7 +420,7 @@ class MainActivity : EveBaseActivity() {
         lifecycleScope.launch(lifecycleExceptionHandler) {
             val config = AppConfigManager.fetchAppConfig()
             val email = FirebaseAuth.getInstance().currentUser?.email
-            val isAdmin = email?.let { isHardcodedAdmin(it) || adminRepo.isAdmin(it) } ?: false
+            val isAdmin = email?.let { adminRepo.isAdmin(it) } ?: false
 
             // 1. Force update check (applies to all users)
             if (AppConfigManager.isUpdateRequired(config)) {
@@ -613,7 +618,7 @@ class MainActivity : EveBaseActivity() {
     private fun handleFeedbackPostLongClick(post: com.eve.app.data.model.FeedbackPost) {
         val email = FirebaseAuth.getInstance().currentUser?.email
         lifecycleScope.launch(lifecycleExceptionHandler) {
-            if (isHardcodedAdmin(email) || adminRepo.isAdmin(email)) {
+            if (adminRepo.isAdmin(email)) {
                 com.google.android.material.dialog.MaterialAlertDialogBuilder(this@MainActivity)
                     .setTitle("Delete Feedback Post?")
                     .setMessage("Are you sure you want to delete '${post.title}'?")
@@ -654,7 +659,7 @@ class MainActivity : EveBaseActivity() {
                 binding.tvWelcome.text = "Hi, ${current.displayName ?: "Student"}"
                 updateDrawerHeader(current)
                 lifecycleScope.launch(lifecycleExceptionHandler) {
-                    val admin = isHardcodedAdmin(current.email) || adminRepo.isAdmin(current.email)
+                    val admin = adminRepo.isAdmin(current.email)
                     viewModel.loadForUser(current.uid, admin)
                 }
             }
@@ -1071,6 +1076,7 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun logout() {
+        SessionManager.clear()
         val uid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
         com.eve.app.data.repository.PremiumRepository.clearCacheForLogout(uid, this)
         FirebaseAuth.getInstance().signOut()

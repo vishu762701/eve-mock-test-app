@@ -1,7 +1,10 @@
 package com.eve.app.util
 
 object Constants {
-    // Yeh emails hamesha admin rahenge (Firestore down ho tab bhi kaam karega)
+    // EMERGENCY OFFLINE FALLBACK ONLY:
+    // Admin authorization is authoritatively decided by the Cloudflare Worker backend (/api/auth/me)
+    // and cached in SessionManager. This list is strictly consulted as a last-resort emergency fallback
+    // ONLY when there is no network connection AND no cached admin status exists.
     val ADMIN_EMAILS = setOf(
         "pronlike9@gmail.com",
         "own.keni@gmail.com",

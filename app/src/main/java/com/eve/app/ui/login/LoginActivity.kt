@@ -466,7 +466,12 @@ class LoginActivity : EveBaseActivity() {
         if (user != null) {
             recordUserStats(user)
             AnalyticsHelper.logLogin(this@LoginActivity)
-            CrashlyticsHelper.identify(user.uid, isAdmin = false)
+            val isAdmin = try {
+                com.eve.app.data.repository.AdminRepository().isAdmin(user.email)
+            } catch (_: Exception) {
+                false
+            }
+            CrashlyticsHelper.identify(user.uid, isAdmin = isAdmin)
         }
 
         if (areAnimationsEnabled()) {

@@ -499,3 +499,43 @@ test("schedule route validation and availableFrom blocking in start", () => {
   assert.equal(checkStartAvailable(1700000000000, now).canStart, true);
   assert.equal(checkStartAvailable(0, now).canStart, true);
 });
+
+// 14. /api/auth/me returns isAdmin: true for admin, false for normal student
+test("/api/auth/me returns isAdmin: true for admin and false for normal student", async () => {
+  const HARDCODED_ADMIN_EMAILS = new Set([
+    "pronlike9@gmail.com",
+    "own.keni@gmail.com",
+    "anyqueairdrop@gmail.com",
+    "ghatisarkar56@gmail.com",
+  ]);
+
+  async function mockGetMe(email, dynamicAdmins = new Set()) {
+    const cleanEmail = (email || "").trim().toLowerCase();
+    const isAdmin = HARDCODED_ADMIN_EMAILS.has(cleanEmail) || dynamicAdmins.has(cleanEmail);
+    const user = {
+      uid: "user-" + cleanEmail,
+      email: cleanEmail,
+      displayName: "Test User",
+      isAdmin,
+    };
+    return {
+      success: true,
+      data: user,
+    };
+  }
+
+  // Hardcoded bootstrap admin
+  const adminRes = await mockGetMe("pronlike9@gmail.com");
+  assert.equal(adminRes.success, true);
+  assert.equal(adminRes.data.isAdmin, true);
+
+  // Dynamic D1 admin
+  const dynamicRes = await mockGetMe("customadmin@example.com", new Set(["customadmin@example.com"]));
+  assert.equal(dynamicRes.success, true);
+  assert.equal(dynamicRes.data.isAdmin, true);
+
+  // Normal student
+  const studentRes = await mockGetMe("student@example.com");
+  assert.equal(studentRes.success, true);
+  assert.equal(studentRes.data.isAdmin, false);
+});

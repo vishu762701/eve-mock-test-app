@@ -32,7 +32,8 @@ service cloud.firestore {
       return isSignedIn() && 'email' in request.auth.token ? request.auth.token.email.lower() : '';
     }
 
-    // Hardcoded Admins list (Constants.kt ke ADMIN_EMAILS se match hona zaroori hai)
+    // Hardcoded Admins list: Single source of truth is backend/src/auth.ts (HARDCODED_ADMIN_EMAILS).
+    // Firestore rules cannot query Cloudflare D1 directly, so keep this fallback list in sync with backend/src/auth.ts.
     function isHardcodedAdmin() {
       return userEmail() in [
         'pronlike9@gmail.com',

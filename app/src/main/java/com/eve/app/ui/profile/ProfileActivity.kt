@@ -23,6 +23,7 @@ import com.eve.app.databinding.ActivityProfileBinding
 import com.eve.app.ui.about.AboutActivity
 import com.eve.app.util.ProfilePhotoManager
 import com.eve.app.util.ReminderScheduler
+import com.eve.app.util.SessionManager
 import com.eve.app.util.isHardcodedAdmin
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
@@ -99,12 +100,13 @@ class ProfileActivity : EveBaseActivity() {
             }
         }
 
-        if (isHardcodedAdmin(user.email)) {
+        val cachedAdmin = SessionManager.getCachedAdminStatus(user.email, allowStale = true)
+            ?: isHardcodedAdmin(user.email)
+        if (cachedAdmin) {
             setupAdminUi()
-        } else {
-            lifecycleScope.launch {
-                if (adminRepo.isAdmin(user.email)) setupAdminUi()
-            }
+        }
+        lifecycleScope.launch {
+            if (adminRepo.isAdmin(user.email)) setupAdminUi()
         }
 
         val updatePremiumBadge = { status: com.eve.app.data.model.PremiumStatusDto? ->

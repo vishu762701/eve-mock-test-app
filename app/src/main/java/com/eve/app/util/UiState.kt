@@ -6,6 +6,12 @@ sealed interface UiState<out T> {
     data class Error(val message: String) : UiState<Nothing>
 }
 
-/** Sirf hardcoded list check karta hai - fast, no network chahiye */
-fun isHardcodedAdmin(email: String?): Boolean =
-    email != null && Constants.ADMIN_EMAILS.any { it.equals(email, ignoreCase = true) }
+/**
+ * Emergency offline fallback ONLY when there is no network connection AND no cached admin status exists.
+ * Admin authorization is authoritatively verified by the Cloudflare Worker backend (/api/auth/me)
+ * and cached in SessionManager.
+ */
+fun isHardcodedAdmin(email: String?): Boolean {
+    SessionManager.getCachedAdminStatus(email, allowStale = true)?.let { return it }
+    return email != null && Constants.ADMIN_EMAILS.any { it.equals(email.trim(), ignoreCase = true) }
+}

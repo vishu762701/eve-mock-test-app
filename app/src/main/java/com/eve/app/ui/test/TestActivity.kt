@@ -33,7 +33,6 @@ import com.eve.app.util.LanguageManager
 import com.eve.app.util.NetworkUtil
 import com.eve.app.util.SecurityHelper
 import com.eve.app.util.UiState
-import com.eve.app.util.isHardcodedAdmin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -91,7 +90,7 @@ class TestActivity : EveBaseActivity() {
         val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
         lifecycleScope.launch {
             val isAdmin = currentUser?.let { user ->
-                isHardcodedAdmin(user.email) || adminRepository.isAdmin(user.email)
+                adminRepository.isAdmin(user.email)
             } ?: false
             isAdminUser = isAdmin
 

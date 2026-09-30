@@ -1,21 +1,65 @@
 package com.eve.app.data.repository
 
+import com.eve.app.EveApplication
 import com.eve.app.data.remote.ApiClient
-import com.eve.app.util.isHardcodedAdmin
+import com.eve.app.util.Constants
+import com.eve.app.util.NetworkUtil
+import com.eve.app.util.SessionManager
 
 class AdminRepository {
 
     private val api = ApiClient.api
 
-    /** Hardcoded + Worker/D1 dynamic check */
+    /**
+     * Determines whether the user is an admin.
+     * Primary source: Cloudflare Worker backend (/api/auth/me).
+     * Responses are cached with a short TTL in SessionManager.
+     * Constants.ADMIN_EMAILS is consulted ONLY as an offline emergency fallback
+     * when there is no network connection AND no cached admin status exists.
+     */
     suspend fun isAdmin(email: String?): Boolean {
-        if (email == null) return false
-        if (isHardcodedAdmin(email)) return true
-        val response = api.getMe()
-        if (!response.success) {
-            throw Exception(response.error ?: "Failed to verify admin status")
+        if (email.isNullOrBlank()) return false
+        val cleanEmail = email.trim()
+
+        // 1. Fresh cache check
+        val freshCached = SessionManager.getCachedAdminStatus(cleanEmail, allowStale = false)
+        if (freshCached != null) {
+            return freshCached
         }
-        return response.data?.isAdmin == true
+
+        // 2. Authoritative backend check if online
+        val isOnline = NetworkUtil.isOnline(EveApplication.instance)
+        if (isOnline) {
+            try {
+                val response = api.getMe()
+                if (response.success && response.data != null) {
+                    val isAdmin = response.data.isAdmin
+                    SessionManager.setCachedAdminStatus(cleanEmail, isAdmin)
+                    return isAdmin
+                }
+            } catch (_: Exception) {
+                // Network or API failure: fall through to cache / emergency fallback
+            }
+        }
+
+        // 3. Fallback to stale cached status if available
+        val staleCached = SessionManager.getCachedAdminStatus(cleanEmail, allowStale = true)
+        if (staleCached != null) {
+            return staleCached
+        }
+
+        // 4. Emergency offline fallback: ONLY when there is no network AND no cached admin status
+        return isOfflineEmergencyAdmin(cleanEmail)
+    }
+
+    companion object {
+        /**
+         * Emergency offline fallback ONLY when there is no network AND no cached admin status.
+         */
+        fun isOfflineEmergencyAdmin(email: String?): Boolean {
+            if (email.isNullOrBlank()) return false
+            return Constants.ADMIN_EMAILS.any { it.equals(email.trim(), ignoreCase = true) }
+        }
     }
 
     /** Dynamic admins from D1 */
