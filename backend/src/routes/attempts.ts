@@ -370,7 +370,7 @@ attemptRoutes.post("/submit", async (c) => {
       if (!gRow) {
         gRow = await db
           .prepare(
-            "SELECT id, questions_json FROM generated_tests WHERE exam_id = ? AND status IN ('live', 'published') ORDER BY created_at DESC LIMIT 1"
+            "SELECT id, questions_json FROM generated_tests WHERE exam_id = ? AND status IN ('live', 'published') ORDER BY generated_at DESC LIMIT 1"
           )
           .bind(sourceExamId)
           .first<{ id: string; questions_json: string }>();

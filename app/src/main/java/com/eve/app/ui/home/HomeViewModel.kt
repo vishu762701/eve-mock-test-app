@@ -8,6 +8,7 @@ import com.eve.app.data.model.FeedbackPost
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.data.repository.FeedbackRepository
 import com.eve.app.data.repository.PinnedExamsRepository
+import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.util.Constants
 import com.eve.app.util.UiState
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -110,7 +111,7 @@ class HomeViewModel : ViewModel() {
                 _examState.value = UiState.Success(exams)
             } catch (e: Exception) {
                 if (allLoadedExams.isEmpty()) {
-                    _examState.value = UiState.Error(e.message ?: "Failed to load exams")
+                    _examState.value = UiState.Error(e.toUserFriendlyMessage())
                 }
             }
         }
@@ -180,7 +181,7 @@ class HomeViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 if (allLoadedExams.isEmpty()) {
-                    _examState.value = UiState.Error(e.message ?: "Failed to load exams")
+                    _examState.value = UiState.Error(e.toUserFriendlyMessage())
                 }
             }
         }

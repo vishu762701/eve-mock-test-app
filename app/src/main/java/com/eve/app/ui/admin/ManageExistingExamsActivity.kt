@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.util.Constants
 import com.eve.app.data.model.Exam
 import com.eve.app.data.remote.ApiClient
+import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.databinding.ActivityManageExistingExamsBinding
 import com.eve.app.ui.test.TestActivity
@@ -85,7 +86,7 @@ class ManageExistingExamsActivity : EveBaseActivity() {
                 filterExams(binding.etSearchExam.text?.toString().orEmpty())
             } catch (e: Exception) {
                 binding.shimmerSkeletonExams.visibility = View.GONE
-                AppBulletin.showError(this@ManageExistingExamsActivity, "Failed to load exams: ${e.message}")
+                AppBulletin.showError(this@ManageExistingExamsActivity, "Failed to load exams: ${e.toUserFriendlyMessage()}")
             }
         }
     }

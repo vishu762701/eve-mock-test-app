@@ -41,34 +41,35 @@ class ExamRepository(
     }
 
     suspend fun getExams(): List<Exam> {
-        return try {
-            val res = api.getExams()
-            (res.data ?: emptyList()).sortedBy { it.examName }
-        } catch (_: Exception) {
-            emptyList()
+        val res = api.getExams()
+        if (!res.success) {
+            throw Exception(res.error ?: "Failed to fetch exams")
         }
+        return (res.data ?: emptyList()).sortedBy { it.examName }
     }
 
     suspend fun getExam(id: String): Exam? {
-        return try {
-            val res = api.getExam(id)
-            if (res.success && res.data != null) {
-                res.data
-            } else {
-                getExams().find { it.id == id }
-            }
+        val res = try {
+            api.getExam(id)
         } catch (_: Exception) {
+            null
+        }
+        if (res != null && res.success && res.data != null) {
+            return res.data
+        }
+        return try {
             getExams().find { it.id == id }
+        } catch (_: Exception) {
+            null
         }
     }
 
     suspend fun getQuestions(examId: String): List<Question> {
-        return try {
-            val res = api.getQuestions(examId)
-            res.data ?: emptyList()
-        } catch (_: Exception) {
-            emptyList()
+        val res = api.getQuestions(examId)
+        if (!res.success) {
+            throw Exception(res.error ?: "Failed to fetch questions")
         }
+        return res.data ?: emptyList()
     }
 
     /** Phase 19 gap-fix: mock test me PYQ tagged questions mix nahi hone chahiye. */
@@ -291,12 +292,11 @@ class ExamRepository(
     }
 
     suspend fun getGeneratedTests(examId: String? = null): List<GeneratedTest> {
-        return try {
-            val res = api.getGeneratedTests(examId)
-            (res.data ?: emptyList()).sortedByDescending { it.generatedAt }
-        } catch (_: Exception) {
-            emptyList()
+        val res = api.getGeneratedTests(examId)
+        if (!res.success) {
+            throw Exception(res.error ?: "Failed to fetch generated tests")
         }
+        return (res.data ?: emptyList()).sortedByDescending { it.generatedAt }
     }
 
     suspend fun getLiveGeneratedTests(examId: String): List<GeneratedTest> {
@@ -304,12 +304,11 @@ class ExamRepository(
     }
 
     suspend fun getGeneratedTest(testId: String): GeneratedTest? {
-        return try {
-            val res = api.getGeneratedTest(testId)
-            res.data
-        } catch (_: Exception) {
-            null
+        val res = api.getGeneratedTest(testId)
+        if (!res.success) {
+            throw Exception(res.error ?: "Failed to fetch generated test")
         }
+        return res.data
     }
 
     suspend fun updateGeneratedTestStatus(testId: String, status: String) {

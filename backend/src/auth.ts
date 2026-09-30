@@ -26,9 +26,9 @@ interface JwksResponse {
 
 let cachedJwks: { keys: JwkKey[]; expiresAt: number } | null = null;
 
-async function fetchGoogleJwks(): Promise<JwkKey[]> {
+async function fetchGoogleJwks(forceRefresh: boolean = false): Promise<JwkKey[]> {
   const now = Date.now();
-  if (cachedJwks && cachedJwks.expiresAt > now) {
+  if (!forceRefresh && cachedJwks && cachedJwks.expiresAt > now) {
     return cachedJwks.keys;
   }
 
@@ -86,8 +86,12 @@ export async function verifyFirebaseIdToken(token: string, projectId: string): P
     throw new Error("Token header missing kid");
   }
 
-  const jwks = await fetchGoogleJwks();
-  const jwk = jwks.find((k) => k.kid === header.kid);
+  let jwks = await fetchGoogleJwks();
+  let jwk = jwks.find((k) => k.kid === header.kid);
+  if (!jwk) {
+    jwks = await fetchGoogleJwks(true);
+    jwk = jwks.find((k) => k.kid === header.kid);
+  }
   if (!jwk) {
     throw new Error("Matching public key not found in Google JWKS");
   }
@@ -125,10 +129,16 @@ export async function verifyFirebaseIdToken(token: string, projectId: string): P
     exp: number;
     email?: string;
     name?: string;
+    firebase?: {
+      identities?: {
+        email?: string[];
+      };
+    };
   }>(payloadB64);
 
   const nowSeconds = Math.floor(Date.now() / 1000);
-  if (payload.exp < nowSeconds) {
+  // Allow 60 seconds of clock skew tolerance
+  if (payload.exp < nowSeconds - 60) {
     throw new Error("Token expired");
   }
 
@@ -138,6 +148,9 @@ export async function verifyFirebaseIdToken(token: string, projectId: string): P
     .filter(Boolean);
   if (!allowedProjectIds.includes("eve-fb0e3")) {
     allowedProjectIds.push("eve-fb0e3");
+  }
+  if (!allowedProjectIds.includes("118032999217")) {
+    allowedProjectIds.push("118032999217");
   }
 
   if (!allowedProjectIds.includes(payload.aud)) {
@@ -155,7 +168,7 @@ export async function verifyFirebaseIdToken(token: string, projectId: string): P
     throw new Error("Invalid subject in token");
   }
 
-  const email = (payload.email || "").toLowerCase().trim();
+  const email = (payload.email || payload.firebase?.identities?.email?.[0] || "").toLowerCase().trim();
 
   return {
     uid: payload.sub,
@@ -172,7 +185,7 @@ export async function isUserAdmin(db: D1Database, email: string): Promise<boolea
 
   try {
     const res = await db
-      .prepare("SELECT 1 FROM admins WHERE email = ?")
+      .prepare("SELECT 1 FROM admins WHERE LOWER(TRIM(email)) = ?")
       .bind(cleanEmail)
       .first();
     return res !== null && res !== undefined;

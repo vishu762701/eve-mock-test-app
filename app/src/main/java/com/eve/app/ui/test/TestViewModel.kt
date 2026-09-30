@@ -15,6 +15,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import com.eve.app.data.remote.toUserFriendlyMessage
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
@@ -137,6 +138,11 @@ class TestViewModel : ViewModel() {
                                 return@launch
                             }
                         }
+                        if (e.code() == 401 || e.code() == 403 || e.code() == 404 || e.code() == 409) {
+                            started = false
+                            _questions.value = UiState.Error(e.toUserFriendlyMessage())
+                            return@launch
+                        }
                     } catch (_: Exception) {
                         if (existingSession != null && existingSession.elapsedSeconds > 0) {
                             remainingSec = (timeLimitMinutes * 60L - existingSession.elapsedSeconds).coerceAtLeast(0)
@@ -158,11 +164,11 @@ class TestViewModel : ViewModel() {
                     pyqYear > 0 -> repo.getPyqQuestions(examId, pyqYear, pyqPaper)
                     topic.isNotBlank() -> repo.getQuestionsForTopic(examId, topic).shuffled().take(10)
                     AttemptKey.generatedTestId(examId) != null -> {
-                        val genTestId = AttemptKey.generatedTestId(examId)
+                        val genTestId = AttemptKey.generatedTestId(examId).orEmpty()
                         val sourceExamId = AttemptKey.sourceExamId(examId)
                         currentExamId = examId
-                        val test = repo.getGeneratedTests(sourceExamId).firstOrNull { it.id == genTestId && it.isLive }
-                        if (test != null && test.questions.isNotEmpty()) {
+                        val test = if (genTestId.isNotBlank()) repo.getGeneratedTest(genTestId) else null
+                        if (test != null && test.isLive && test.questions.isNotEmpty()) {
                             test.questions.mapIndexed { idx, gq ->
                                 Question(
                                     id = "${test.id}_$idx",
@@ -181,8 +187,8 @@ class TestViewModel : ViewModel() {
                         }
                     }
                     testId.isNotBlank() -> {
-                        val test = repo.getGeneratedTests(examId).firstOrNull { it.id == testId && it.isLive }
-                        if (test != null && test.questions.isNotEmpty()) {
+                        val test = repo.getGeneratedTest(testId)
+                        if (test != null && test.isLive && test.questions.isNotEmpty()) {
                             currentExamId = AttemptKey.forTest(examId, test.id)
                             test.questions.mapIndexed { idx, gq ->
                                 Question(
@@ -207,7 +213,8 @@ class TestViewModel : ViewModel() {
                             mockList.shuffled()
                         } else {
                             val liveTests = repo.getLiveGeneratedTests(examId)
-                            val latestLive = liveTests.firstOrNull()
+                            val latestLiveSummary = liveTests.firstOrNull()
+                            val latestLive = if (latestLiveSummary != null) repo.getGeneratedTest(latestLiveSummary.id) else null
                             if (latestLive != null && latestLive.questions.isNotEmpty()) {
                                 currentExamId = AttemptKey.forTest(examId, latestLive.id)
                                 latestLive.questions.mapIndexed { idx, gq ->
@@ -230,6 +237,12 @@ class TestViewModel : ViewModel() {
                     }
                 }
 
+                if (list.isEmpty()) {
+                    started = false
+                    _questions.value = UiState.Error("No questions found for this test. Please try again later.")
+                    return@launch
+                }
+
                 if (existingSession != null) {
                     list.forEachIndexed { idx, q ->
                         val sel = existingSession.answers[q.id]
@@ -249,10 +262,10 @@ class TestViewModel : ViewModel() {
                 if (cachedBookmarkedIds.isNotEmpty()) {
                     _bookmarksSynced.value = true
                 }
-                if (list.isNotEmpty()) startTimer(remainingSec)
+                startTimer(remainingSec)
             } catch (e: Exception) {
                 started = false
-                _questions.value = UiState.Error(e.message ?: "Failed to load questions")
+                _questions.value = UiState.Error(e.toUserFriendlyMessage())
             }
         }
     }

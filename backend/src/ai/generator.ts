@@ -150,9 +150,20 @@ export async function generateQuestions(
   customPrompt: string
 ): Promise<GeneratedQuestionItem[]> {
   const WORKING_KEY_4 = atob("QVEuQWI4Uk42SVNSU0RYc0pVcXdub1NHOE16aEN0b3JTZzktcEhVZmhaNlNTeE1aWHNNNFE=");
-  let apiKey = env.GEMINI_API_KEY || WORKING_KEY_4;
+  const rawCandidateKeys = [env.GEMINI_API_KEY, WORKING_KEY_4];
+  const candidateKeys = Array.from(
+    new Set(
+      rawCandidateKeys.filter(
+        (k): k is string =>
+          Boolean(k && k.trim() && !k.startsWith("AIzaSyDU4mfiVHg0YOm74VorHUOTXkgguWTfg_Y"))
+      )
+    )
+  );
 
-  const model = env.GEMINI_MODEL || "gemini-3.5-flash-lite";
+  const preferredModel = env.GEMINI_MODEL || "gemini-3.1-flash-lite";
+  const rawCandidateModels = [preferredModel, "gemini-3.1-flash-lite", "gemini-3.8-flash", "gemini-3.5-flash-lite"];
+  const candidateModels = Array.from(new Set(rawCandidateModels.filter(Boolean)));
+
   const CHUNK_SIZE = 25;
   const numChunks = Math.ceil(targetCount / CHUNK_SIZE);
   const collected: GeneratedQuestionItem[] = [];
@@ -163,8 +174,6 @@ export async function generateQuestions(
     if (countForChunk <= 0) break;
 
     const prompt = buildPrompt(examName, syllabus, countForChunk, customPrompt);
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
-
     const body = {
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: {
@@ -172,65 +181,56 @@ export async function generateQuestions(
       },
     };
 
-    let res = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": apiKey,
-      },
-      body: JSON.stringify(body),
-    });
+    let chunkSuccess = false;
+    let lastError: Error | null = null;
 
-    // If key returns 403 (PERMISSION_DENIED) and current key is not Key 4, fallback to Key 4
-    if (!res.ok && res.status === 403 && apiKey !== WORKING_KEY_4) {
-      apiKey = WORKING_KEY_4;
-      const keyFallbackRes = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": apiKey,
-        },
-        body: JSON.stringify(body),
-      });
-      if (keyFallbackRes.ok) {
-        res = keyFallbackRes;
+    keyLoop: for (const apiKey of candidateKeys) {
+      for (const model of candidateModels) {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+        try {
+          const res = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-goog-api-key": apiKey,
+            },
+            body: JSON.stringify(body),
+          });
+
+          if (!res.ok) {
+            const errText = await res.text();
+            lastError = new Error(`Gemini API error (${res.status}) on model ${model}: ${errText}`);
+            if (res.status === 403 || (res.status === 400 && errText.includes("API_KEY_INVALID"))) {
+              continue keyLoop;
+            }
+            continue;
+          }
+
+          const data = (await res.json()) as any;
+          const rawJson = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (!rawJson) {
+            lastError = new Error(`Empty candidate received from Gemini API on model ${model}`);
+            continue;
+          }
+
+          const parsed = parseAndValidateQuestions(rawJson);
+          for (const q of parsed) {
+            const norm = q.questionText.trim().toLowerCase();
+            if (!seenTexts.has(norm)) {
+              seenTexts.add(norm);
+              collected.push(q);
+            }
+          }
+          chunkSuccess = true;
+          break keyLoop;
+        } catch (err: any) {
+          lastError = err;
+        }
       }
     }
 
-    // If primary model returns 503 (high demand) or 404, fallback to gemini-3.5-flash-lite
-    if (!res.ok && (res.status === 503 || res.status === 404) && model !== "gemini-3.5-flash-lite") {
-      const fallbackEndpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent";
-      const fallbackRes = await fetch(fallbackEndpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": apiKey,
-        },
-        body: JSON.stringify(body),
-      });
-      if (fallbackRes.ok) {
-        res = fallbackRes;
-      }
-    }
-
-    if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(`Gemini API error (${res.status}): ${errText}`);
-    }
-
-    const data = (await res.json()) as any;
-    const rawJson = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!rawJson) {
-      throw new Error("Empty candidate received from Gemini API");
-    }
-
-    const parsed = parseAndValidateQuestions(rawJson);
-    for (const q of parsed) {
-      const norm = q.questionText.trim().toLowerCase();
-      if (!seenTexts.has(norm)) {
-        seenTexts.add(norm);
-        collected.push(q);
-      }
+    if (!chunkSuccess) {
+      throw lastError || new Error(`Failed to generate questions for chunk ${c + 1} with all available keys and models.`);
     }
   }
 

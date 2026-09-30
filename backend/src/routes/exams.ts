@@ -128,7 +128,7 @@ examRoutes.post("/", requireAdmin, async (c) => {
   }
 
   const duplicate = await db
-    .prepare("SELECT 1 FROM exams WHERE LOWER(exam_name) = LOWER(?) AND parent_exam_id = ?")
+    .prepare("SELECT 1 FROM exams WHERE LOWER(exam_name) = LOWER(?) AND COALESCE(parent_exam_id, '') = ?")
     .bind(name, parentExamId)
     .first();
   if (duplicate) {
@@ -235,7 +235,7 @@ examRoutes.put("/:id", requireAdmin, async (c) => {
   const parentChanged = parentExamId !== (existing.parent_exam_id || "");
   if (nameChanged || parentChanged) {
     const duplicate = await db
-      .prepare("SELECT 1 FROM exams WHERE LOWER(exam_name) = LOWER(?) AND parent_exam_id = ? AND id != ?")
+      .prepare("SELECT 1 FROM exams WHERE LOWER(exam_name) = LOWER(?) AND COALESCE(parent_exam_id, '') = ? AND id != ?")
       .bind(examName, parentExamId, id)
       .first();
     if (duplicate) {

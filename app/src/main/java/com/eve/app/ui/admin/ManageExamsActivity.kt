@@ -26,6 +26,7 @@ import com.eve.app.data.model.AdminAuditLog
 import com.eve.app.data.model.Exam
 import com.eve.app.data.model.GeneratedTest
 import com.eve.app.data.remote.ApiClient
+import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.data.repository.ApiUsageRepository
 import com.eve.app.data.repository.AuditLogRepository
 import com.eve.app.data.repository.ExamRepository
@@ -389,7 +390,7 @@ class ManageExamsActivity : EveBaseActivity() {
                 binding.progressBar.visibility = View.GONE
                 binding.compactErrorView.show(
                     type = com.eve.app.ui.common.ErrorStateView.ErrorType.SERVER_ERROR,
-                    customMessage = "Failed to load exams: ${e.localizedMessage}",
+                    customMessage = "Failed to load exams: ${e.toUserFriendlyMessage()}",
                     onRetry = { loadExams() }
                 )
             }
@@ -731,7 +732,7 @@ class ManageExamsActivity : EveBaseActivity() {
                     } catch (e: Exception) {
                         binding.btnGenerateNow.isEnabled = true
                         binding.progressBar.visibility = View.GONE
-                        val err = e.localizedMessage ?: "Unknown error"
+                        val err = e.toUserFriendlyMessage()
                         MaterialAlertDialogBuilder(this@ManageExamsActivity)
                             .setTitle("Generation Failed")
                             .setMessage("Failed to generate test questions:\n\n$err")
@@ -770,7 +771,7 @@ class ManageExamsActivity : EveBaseActivity() {
             } catch (e: Exception) {
                 binding.progressBarGenTests.visibility = View.GONE
                 binding.tvNoGenTests.visibility = View.VISIBLE
-                binding.tvNoGenTests.text = "Error loading tests: ${e.localizedMessage ?: "Unknown error"}"
+                binding.tvNoGenTests.text = "Error loading tests: ${e.toUserFriendlyMessage()}"
             }
         }
     }
@@ -788,7 +789,7 @@ class ManageExamsActivity : EveBaseActivity() {
             } catch (e: Exception) {
                 AppBulletin.showError(
                     this@ManageExamsActivity,
-                    "Failed to update status: ${e.localizedMessage}"
+                    "Failed to update status: ${e.toUserFriendlyMessage()}"
                 )
                 loadGeneratedTestsForExam()
             }
@@ -1058,7 +1059,7 @@ class ManageExamsActivity : EveBaseActivity() {
                 binding.progressBar.visibility = View.GONE
                 binding.compactErrorView.show(
                     type = com.eve.app.ui.common.ErrorStateView.ErrorType.SERVER_ERROR,
-                    customMessage = "Failed to save: ${e.localizedMessage}"
+                    customMessage = "Failed to save: ${e.toUserFriendlyMessage()}"
                 )
             }
         }

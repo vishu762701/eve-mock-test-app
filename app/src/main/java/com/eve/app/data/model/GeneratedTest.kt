@@ -22,7 +22,7 @@ data class GeneratedTest(
     val availableFrom: Long = 0L,
     val questions: List<GeneratedQuestion> = emptyList()
 ) {
-    val isLive: Boolean get() = status.equals("live", ignoreCase = true)
+    val isLive: Boolean get() = status.equals("live", ignoreCase = true) || status.equals("published", ignoreCase = true)
     val displayTitle: String get() = when {
         title.isNotBlank() -> title
         testNumber.isNotBlank() -> "$examName - $testNumber"

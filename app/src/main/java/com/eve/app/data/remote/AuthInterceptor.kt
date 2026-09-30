@@ -14,14 +14,29 @@ class AuthInterceptor : Interceptor {
 
         val requestBuilder = original.newBuilder()
         try {
-            val tokenTask = user.getIdToken(false)
-            val result = Tasks.await(tokenTask, 15, TimeUnit.SECONDS)
-            val token = result?.token
+            var tokenTask = user.getIdToken(false)
+            var result = Tasks.await(tokenTask, 15, TimeUnit.SECONDS)
+            var token = result?.token
+            if (token.isNullOrBlank()) {
+                val forceTokenTask = user.getIdToken(true)
+                result = Tasks.await(forceTokenTask, 15, TimeUnit.SECONDS)
+                token = result?.token
+            }
             if (!token.isNullOrBlank()) {
                 requestBuilder.header("Authorization", "Bearer $token")
             }
         } catch (e: Exception) {
             Log.w("AuthInterceptor", "Failed to retrieve Firebase ID token: ${e.message}")
+            try {
+                val forceTokenTask = user.getIdToken(true)
+                val result = Tasks.await(forceTokenTask, 15, TimeUnit.SECONDS)
+                val token = result?.token
+                if (!token.isNullOrBlank()) {
+                    requestBuilder.header("Authorization", "Bearer $token")
+                }
+            } catch (e2: Exception) {
+                Log.w("AuthInterceptor", "Force refresh also failed: ${e2.message}")
+            }
         }
 
         var response = chain.proceed(requestBuilder.build())

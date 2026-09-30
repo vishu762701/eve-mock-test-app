@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.R
 import com.eve.app.data.model.Exam
 import com.eve.app.data.model.Question
+import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.databinding.ActivityEditExamBinding
 import com.eve.app.util.AppBulletin
@@ -148,7 +149,7 @@ class EditExamActivity : EveBaseActivity() {
                 loadQuestions()
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
-                AppBulletin.showError(this@EditExamActivity, "Failed to load exam: ${e.message}")
+                AppBulletin.showError(this@EditExamActivity, "Failed to load exam: ${e.toUserFriendlyMessage()}")
             }
         }
     }
@@ -169,7 +170,7 @@ class EditExamActivity : EveBaseActivity() {
                     if (currentQuestions.isEmpty()) View.GONE else View.VISIBLE
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
-                AppBulletin.showError(this@EditExamActivity, "Failed to load questions: ${e.message}")
+                AppBulletin.showError(this@EditExamActivity, "Failed to load questions: ${e.toUserFriendlyMessage()}")
             }
         }
     }

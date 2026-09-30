@@ -80,9 +80,13 @@ generatedTestRoutes.get("/:id", async (c) => {
   }
 
   let questionCount = row.question_count;
-  if (!questionCount && row.questions_json) {
+  let questions: any[] = [];
+  if (row.questions_json) {
     try {
-      questionCount = JSON.parse(row.questions_json).length;
+      questions = JSON.parse(row.questions_json);
+      if (!questionCount) {
+        questionCount = questions.length;
+      }
     } catch (_e) {}
   }
 
@@ -99,7 +103,7 @@ generatedTestRoutes.get("/:id", async (c) => {
       status: row.status,
       questionCount: questionCount || 0,
       availableFrom: row.available_from || 0,
-      questions: [],
+      questions,
     },
   });
 });
