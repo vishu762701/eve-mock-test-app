@@ -106,8 +106,7 @@
                             <com.eve.app.ui.premium.gl.Telegram3DStarView
                                 android:id="@+id/starViewNotPremium"
                                 android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:background="@android:color/transparent" />
+                                android:layout_height="match_parent" />
                         </FrameLayout>
 
                         <TextView
@@ -325,8 +324,7 @@
                                 <com.eve.app.ui.premium.gl.Telegram3DStarView
                                     android:id="@+id/starViewPremiumActive"
                                     android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:background="@android:color/transparent" />
+                                    android:layout_height="match_parent" />
                             </FrameLayout>
 
                             <TextView

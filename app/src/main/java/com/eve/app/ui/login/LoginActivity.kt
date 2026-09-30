@@ -27,11 +27,13 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.lifecycleScope
 import kotlin.math.roundToInt
+import com.eve.app.BuildConfig
 import com.eve.app.R
 import com.eve.app.databinding.ActivityLoginBinding
 import com.eve.app.ui.home.MainActivity
 import com.eve.app.util.AnalyticsHelper
 import com.eve.app.util.CrashlyticsHelper
+import com.eve.app.util.DebugCrashReporter
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
@@ -88,6 +90,21 @@ class LoginActivity : EveBaseActivity() {
 
         // Session check: existing authenticated users skip straight to Home (Task B & Task F)
         if (auth.currentUser != null) {
+            if (BuildConfig.DEBUG && DebugCrashReporter.hasCrash(this)) {
+                isCheckingAuth = false
+                binding = ActivityLoginBinding.inflate(layoutInflater)
+                setContentView(binding.root)
+                DebugCrashReporter.showCrashDialog(this) {
+                    val intent = Intent(this, MainActivity::class.java).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                    }
+                    startActivity(intent)
+                    overridePendingTransition(0, 0)
+                    finish()
+                }
+                return
+            }
+
             val intent = Intent(this, MainActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
             }
@@ -103,6 +120,10 @@ class LoginActivity : EveBaseActivity() {
 
         // Auth check resolved; user genuinely landed on Login
         isCheckingAuth = false
+
+        if (BuildConfig.DEBUG && DebugCrashReporter.hasCrash(this)) {
+            DebugCrashReporter.showCrashDialog(this)
+        }
 
         // FIX 6: Outside screen area remains completely sharp with zero dim/blur
         window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND)

@@ -4,8 +4,14 @@ import android.app.Activity
 import android.app.Application
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ContentValues
 import android.content.Context
+import android.content.DialogInterface
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
+import android.util.Log
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
@@ -41,22 +47,9 @@ object DebugCrashReporter {
                 val stackTrace = sw.toString()
                 val crashPayload = "Time: ${System.currentTimeMillis()}\nThread: ${thread.name}\n\n$stackTrace"
 
-                android.util.Log.e("CRITICAL_STARTUP", "FATAL CRASH DETECTED:\n$crashPayload")
+                Log.e("CRITICAL_STARTUP", "FATAL CRASH DETECTED:\n$crashPayload")
 
-                // 1. Private storage
-                val crashFile = File(application.filesDir, CRASH_FILE_NAME)
-                crashFile.writeText(crashPayload)
-
-                // 2. Public Download storage for Termux access
-                try {
-                    val downloadDir = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS)
-                    if (downloadDir != null && downloadDir.exists()) {
-                        File(downloadDir, CRASH_FILE_NAME).writeText(crashPayload)
-                    }
-                } catch (_: Throwable) {}
-                try {
-                    File("/sdcard/Download", CRASH_FILE_NAME).writeText(crashPayload)
-                } catch (_: Throwable) {}
+                saveCrashPayload(application, crashPayload)
             } catch (t: Throwable) {
                 t.printStackTrace()
             } finally {
@@ -67,14 +60,12 @@ object DebugCrashReporter {
         application.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
             override fun onActivityStarted(activity: Activity) {
                 if (!hasCheckedCrash) {
-                    hasCheckedCrash = true
                     checkAndShowDialog(activity)
                 }
             }
 
             override fun onActivityResumed(activity: Activity) {
                 if (!hasCheckedCrash) {
-                    hasCheckedCrash = true
                     checkAndShowDialog(activity)
                 }
             }
@@ -87,21 +78,97 @@ object DebugCrashReporter {
         })
     }
 
-    private fun checkAndShowDialog(activity: Activity) {
-        if (!BuildConfig.DEBUG || activity.isFinishing || activity.isDestroyed) return
+    private fun saveCrashPayload(context: Context, crashPayload: String) {
+        // 1. Private internal storage (always works)
+        try {
+            val crashFile = File(context.filesDir, CRASH_FILE_NAME)
+            crashFile.writeText(crashPayload)
+        } catch (_: Throwable) {}
 
-        val crashFile = File(activity.filesDir, CRASH_FILE_NAME)
-        if (!crashFile.exists()) return
+        // 2. App-specific external files (accessible to Termux if storage granted, no permissions required)
+        try {
+            val extDir = context.getExternalFilesDir(null)
+            if (extDir != null) {
+                File(extDir, CRASH_FILE_NAME).writeText(crashPayload)
+            }
+        } catch (_: Throwable) {}
 
-        val crashContent = try {
+        // 3. Public Download storage via MediaStore (API 29+) or direct file write (API <= 28)
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val resolver = context.contentResolver
+                val selection = "${MediaStore.MediaColumns.DISPLAY_NAME} = ?"
+                val selectionArgs = arrayOf(CRASH_FILE_NAME)
+                try {
+                    resolver.delete(
+                        MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+                        selection,
+                        selectionArgs
+                    )
+                } catch (_: Throwable) {}
+
+                val contentValues = ContentValues().apply {
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, CRASH_FILE_NAME)
+                    put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                }
+                val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+                uri?.let { destUri ->
+                    resolver.openOutputStream(destUri)?.use { os ->
+                        os.write(crashPayload.toByteArray())
+                    }
+                }
+            } else {
+                val downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                if (downloadDir != null && downloadDir.exists()) {
+                    File(downloadDir, CRASH_FILE_NAME).writeText(crashPayload)
+                }
+            }
+        } catch (_: Throwable) {}
+
+        // 4. Legacy fallback
+        try {
+            File("/sdcard/Download", CRASH_FILE_NAME).writeText(crashPayload)
+        } catch (_: Throwable) {}
+    }
+
+    fun hasCrash(context: Context): Boolean {
+        if (!BuildConfig.DEBUG) return false
+        val crashFile = File(context.filesDir, CRASH_FILE_NAME)
+        return crashFile.exists() && crashFile.length() > 0
+    }
+
+    fun getCrashTrace(context: Context): String? {
+        if (!BuildConfig.DEBUG) return null
+        val crashFile = File(context.filesDir, CRASH_FILE_NAME)
+        if (!crashFile.exists()) return null
+        return try {
             crashFile.readText()
         } catch (_: Throwable) {
+            null
+        }
+    }
+
+    fun clearCrash(context: Context) {
+        try {
+            File(context.filesDir, CRASH_FILE_NAME).delete()
+        } catch (_: Throwable) {}
+    }
+
+    fun showCrashDialog(activity: Activity, onDismiss: () -> Unit = {}) {
+        if (!BuildConfig.DEBUG || activity.isFinishing || activity.isDestroyed) {
+            onDismiss()
             return
-        } finally {
-            crashFile.delete()
         }
 
-        if (crashContent.isBlank()) return
+        val crashContent = getCrashTrace(activity)
+        if (crashContent.isNullOrBlank()) {
+            onDismiss()
+            return
+        }
+
+        clearCrash(activity)
+        hasCheckedCrash = true
 
         val textView = TextView(activity).apply {
             text = crashContent
@@ -113,16 +180,33 @@ object DebugCrashReporter {
             addView(textView)
         }
 
-        MaterialAlertDialogBuilder(activity)
+        val dialog = MaterialAlertDialogBuilder(activity)
             .setTitle("Crash Detected on Previous Launch")
             .setView(scrollView)
-            .setPositiveButton("Copy Trace") { _, _ ->
+            .setPositiveButton("Copy Trace", null)
+            .setNegativeButton("Dismiss") { d, _ ->
+                d.dismiss()
+            }
+            .setOnDismissListener {
+                onDismiss()
+            }
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(DialogInterface.BUTTON_POSITIVE)?.setOnClickListener {
                 val clipboard = activity.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
                 val clip = ClipData.newPlainText("Crash Trace", crashContent)
                 clipboard?.setPrimaryClip(clip)
                 Toast.makeText(activity, "Crash trace copied to clipboard", Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton("Dismiss", null)
-            .show()
+        }
+
+        dialog.show()
+    }
+
+    private fun checkAndShowDialog(activity: Activity) {
+        if (hasCrash(activity)) {
+            showCrashDialog(activity)
+        }
     }
 }

@@ -68,6 +68,15 @@ class Telegram3DStarView @JvmOverloads constructor(
             }
         }
 
+    override fun setBackground(background: android.graphics.drawable.Drawable?) {
+        // Safe no-op: TextureView throws UnsupportedOperationException if any background is applied.
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun setBackgroundDrawable(background: android.graphics.drawable.Drawable?) {
+        // Safe no-op: TextureView throws UnsupportedOperationException if any background is applied.
+    }
+
     val isFailed: Boolean
         get() = glFailed
 

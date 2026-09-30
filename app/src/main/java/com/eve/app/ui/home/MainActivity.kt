@@ -84,12 +84,20 @@ import com.eve.app.util.isHardcodedAdmin
 import com.google.android.material.chip.Chip
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessaging
+import android.util.Log
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class MainActivity : EveBaseActivity() {
+
+    private val lifecycleExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        val stackTrace = Log.getStackTraceString(throwable)
+        Log.e("EVE_STARTUP", "Uncaught exception in MainActivity lifecycleScope:\n$stackTrace", throwable)
+        Log.e("MainActivity", "Uncaught exception in lifecycleScope:\n$stackTrace", throwable)
+    }
 
     private lateinit var binding: ActivityMainBinding
     private val viewModel: HomeViewModel by viewModels()
@@ -149,7 +157,7 @@ class MainActivity : EveBaseActivity() {
 
             // b) Else fetch ExamRepository.getLiveGeneratedTests(exam.id). While loading, use existing loading indicator pattern and ignore repeated taps.
             binding.progressGroup.visibility = View.VISIBLE
-            lifecycleScope.launch {
+            lifecycleScope.launch(lifecycleExceptionHandler) {
                 try {
                     val liveTests = com.eve.app.data.repository.ExamRepository().getLiveGeneratedTests(exam.id)
                     binding.progressGroup.visibility = View.GONE
@@ -206,7 +214,7 @@ class MainActivity : EveBaseActivity() {
                 com.eve.app.util.AppBulletin.show(this, "Please sign in to reply")
                 onComplete(false)
             } else {
-                lifecycleScope.launch {
+                lifecycleScope.launch(lifecycleExceptionHandler) {
                     val repo = com.eve.app.data.repository.FeedbackRepository()
                     val result = repo.submitPostReply(
                         postId = post.id,
@@ -239,15 +247,22 @@ class MainActivity : EveBaseActivity() {
             return
         }
 
+        Log.e("EVE_STARTUP", "stage: inflate")
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        Log.e("EVE_STARTUP", "stage: setupDrawer")
         setupDrawer(user)
+
+        Log.e("EVE_STARTUP", "stage: setupBannerCarousel")
         setupBannerCarousel()
 
         binding.tvWelcome.text = "Hi, ${user.displayName ?: "Student"}"
 
+        Log.e("EVE_STARTUP", "stage: setupNotificationBell")
         setupNotificationBell()
+
+        Log.e("EVE_STARTUP", "stage: setupPushNotifications")
         setupPushNotifications()
 
         val notifFilter = IntentFilter("com.eve.app.NOTIFICATION_RECEIVED")
@@ -265,6 +280,7 @@ class MainActivity : EveBaseActivity() {
         loadProfilePhoto(user)
 
         // Telegram-style Search setup
+        Log.e("EVE_STARTUP", "stage: setupSearch")
         setupSearch()
 
         // Telegram-style overflow menu setup
@@ -303,12 +319,13 @@ class MainActivity : EveBaseActivity() {
             }
         })
 
+        Log.e("EVE_STARTUP", "stage: viewModel load")
         if (isHardcodedAdmin(user.email)) {
             isAdminUser = true
             showAdminButton()
             viewModel.loadForUser(user.uid, true)
         } else {
-            lifecycleScope.launch {
+            lifecycleScope.launch(lifecycleExceptionHandler) {
                 val admin = adminRepo.isAdmin(user.email)
                 isAdminUser = admin
                 if (admin) showAdminButton()
@@ -319,6 +336,7 @@ class MainActivity : EveBaseActivity() {
         binding.rvExams.layoutManager = LinearLayoutManager(this)
         binding.rvExams.adapter = adapter
 
+        Log.e("EVE_STARTUP", "stage: setupFloatingAirplane")
         setupFloatingAirplane()
 
         binding.btnRetry.setOnClickListener { viewModel.load() }
@@ -327,7 +345,7 @@ class MainActivity : EveBaseActivity() {
 
         checkAppConfigAndMaintenance()
 
-        lifecycleScope.launch {
+        lifecycleScope.launch(lifecycleExceptionHandler) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { viewModel.state.collect { render(it) } }
                 launch {
@@ -344,7 +362,7 @@ class MainActivity : EveBaseActivity() {
         isExamNavigating = false
         checkAppConfigAndMaintenance()
         FirebaseAuth.getInstance().currentUser?.let { current ->
-            lifecycleScope.launch {
+            lifecycleScope.launch(lifecycleExceptionHandler) {
                 val admin = isHardcodedAdmin(current.email) || adminRepo.isAdmin(current.email)
                 viewModel.loadForUser(current.uid, admin)
             }
@@ -352,7 +370,7 @@ class MainActivity : EveBaseActivity() {
 
         val now = System.currentTimeMillis()
         if (now - lastStreakFetchTime > 60_000L) {
-            lifecycleScope.launch {
+            lifecycleScope.launch(lifecycleExceptionHandler) {
                 try {
                     val tzOffset = -java.util.TimeZone.getDefault().getOffset(System.currentTimeMillis()) / 60000
                     val res = com.eve.app.data.remote.ApiClient.api.getStreak(tzOffset)
@@ -394,7 +412,7 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun checkAppConfigAndMaintenance() {
-        lifecycleScope.launch {
+        lifecycleScope.launch(lifecycleExceptionHandler) {
             val config = AppConfigManager.fetchAppConfig()
             val email = FirebaseAuth.getInstance().currentUser?.email
             val isAdmin = email?.let { isHardcodedAdmin(it) || adminRepo.isAdmin(it) } ?: false
@@ -453,7 +471,7 @@ class MainActivity : EveBaseActivity() {
                 val query = s?.toString()?.trim() ?: ""
                 binding.btnClearSearch.visibility = if (query.isNotEmpty()) View.VISIBLE else View.GONE
                 searchDebounceJob?.cancel()
-                searchDebounceJob = lifecycleScope.launch {
+                searchDebounceJob = lifecycleScope.launch(lifecycleExceptionHandler) {
                     delay(250)
                     currentSearchQuery = query
                     applyCurrentList()
@@ -594,7 +612,7 @@ class MainActivity : EveBaseActivity() {
 
     private fun handleFeedbackPostLongClick(post: com.eve.app.data.model.FeedbackPost) {
         val email = FirebaseAuth.getInstance().currentUser?.email
-        lifecycleScope.launch {
+        lifecycleScope.launch(lifecycleExceptionHandler) {
             if (isHardcodedAdmin(email) || adminRepo.isAdmin(email)) {
                 com.google.android.material.dialog.MaterialAlertDialogBuilder(this@MainActivity)
                     .setTitle("Delete Feedback Post?")
@@ -635,7 +653,7 @@ class MainActivity : EveBaseActivity() {
             FirebaseAuth.getInstance().currentUser?.let { current ->
                 binding.tvWelcome.text = "Hi, ${current.displayName ?: "Student"}"
                 updateDrawerHeader(current)
-                lifecycleScope.launch {
+                lifecycleScope.launch(lifecycleExceptionHandler) {
                     val admin = isHardcodedAdmin(current.email) || adminRepo.isAdmin(current.email)
                     viewModel.loadForUser(current.uid, admin)
                 }
@@ -660,7 +678,7 @@ class MainActivity : EveBaseActivity() {
             startListeningToNotifications()
             startListeningToHomeBanner()
 
-            lifecycleScope.launch {
+            lifecycleScope.launch(lifecycleExceptionHandler) {
                 val link = floatingLinkRepo.getFloatingLink()
                 activeFloatingLinkUrl = link
                 updateFloatingAirplaneState(link)
@@ -805,7 +823,7 @@ class MainActivity : EveBaseActivity() {
 
     private fun startListeningToHomeBanner() {
         bannerObserverJob?.cancel()
-        bannerObserverJob = lifecycleScope.launch {
+        bannerObserverJob = lifecycleScope.launch(lifecycleExceptionHandler) {
             bannerRepo.observeBanners().collect { banners ->
                 currentBannerCount = banners.size
                 if (banners.isEmpty()) {
@@ -857,7 +875,7 @@ class MainActivity : EveBaseActivity() {
     private fun startBannerAutoScroll(count: Int) {
         stopBannerAutoScroll()
         if (count <= 1) return
-        bannerAutoScrollJob = lifecycleScope.launch {
+        bannerAutoScrollJob = lifecycleScope.launch(lifecycleExceptionHandler) {
             while (isActive) {
                 delay(4500L)
                 if (!isUserDraggingBanner && currentBannerCount > 1) {
@@ -875,7 +893,7 @@ class MainActivity : EveBaseActivity() {
 
     private fun startListeningToNotifications() {
         notifJob?.cancel()
-        notifJob = lifecycleScope.launch {
+        notifJob = lifecycleScope.launch(lifecycleExceptionHandler) {
             try {
                 val res = com.eve.app.data.remote.ApiClient.apiService.getBroadcasts(1)
                 if (res.success && !res.data.isNullOrEmpty()) {
@@ -1204,7 +1222,7 @@ class MainActivity : EveBaseActivity() {
         } else {
             binding.tvDrawerPremiumStatus.visibility = View.GONE
         }
-        lifecycleScope.launch {
+        lifecycleScope.launch(lifecycleExceptionHandler) {
             val res = com.eve.app.data.repository.PremiumRepository.refreshStatus(this@MainActivity)
             if (res.isSuccess) {
                 val status = res.getOrNull()

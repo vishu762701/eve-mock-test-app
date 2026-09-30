@@ -1,5 +1,6 @@
 package com.eve.app.ui.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eve.app.data.model.Exam
@@ -9,6 +10,7 @@ import com.eve.app.data.repository.FeedbackRepository
 import com.eve.app.data.repository.PinnedExamsRepository
 import com.eve.app.util.Constants
 import com.eve.app.util.UiState
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
 
 class HomeViewModel : ViewModel() {
 
@@ -68,6 +71,12 @@ class HomeViewModel : ViewModel() {
     fun hasSubExams(examId: String): Boolean = allLoadedExams.any { it.parentExamId == examId }
     fun getSubExams(examId: String): List<Exam> = allLoadedExams.filter { it.parentExamId == examId }.sortedBy { it.examName }
 
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        val stackTrace = Log.getStackTraceString(throwable)
+        Log.e("EVE_STARTUP", "Uncaught exception in HomeViewModel viewModelScope:\n$stackTrace", throwable)
+        Log.e("HomeViewModel", "Uncaught exception in viewModelScope:\n$stackTrace", throwable)
+    }
+
     val state: StateFlow<UiState<HomeUiData>> =
         combine(
             combine(_examState, _selectedCategory, _attemptInfo) { es, cat, att -> Triple(es, cat, att) },
@@ -78,7 +87,7 @@ class HomeViewModel : ViewModel() {
                 is UiState.Error -> UiState.Error(examState.message)
                 is UiState.Success -> UiState.Success(buildUiData(examState.data, selected, attemptInfo.ids, attemptInfo.map, pinned, targetIds, feedbackPosts))
             }
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState.Loading)
+        }.stateIn(viewModelScope + coroutineExceptionHandler, SharingStarted.WhileSubscribed(5000), UiState.Loading)
 
     init {
         val cached = loadCachedExams()
@@ -90,7 +99,7 @@ class HomeViewModel : ViewModel() {
     }
 
     fun load() {
-        viewModelScope.launch {
+        viewModelScope.launch(coroutineExceptionHandler) {
             if (allLoadedExams.isEmpty()) {
                 _examState.value = UiState.Loading
             }
@@ -105,7 +114,7 @@ class HomeViewModel : ViewModel() {
                 }
             }
         }
-        viewModelScope.launch {
+        viewModelScope.launch(coroutineExceptionHandler) {
             _feedbackPosts.value = feedbackRepo.getFeedbackPosts()
         }
     }
@@ -146,7 +155,7 @@ class HomeViewModel : ViewModel() {
     }
 
     fun loadForUser(userId: String, isAdmin: Boolean) {
-        viewModelScope.launch {
+        viewModelScope.launch(coroutineExceptionHandler) {
             if (allLoadedExams.isEmpty()) {
                 _examState.value = UiState.Loading
             }
@@ -178,7 +187,7 @@ class HomeViewModel : ViewModel() {
 
         // Real-time listener for pinned exams
         pinnedObserverJob?.cancel()
-        pinnedObserverJob = viewModelScope.launch {
+        pinnedObserverJob = viewModelScope.launch(coroutineExceptionHandler) {
             pinnedRepo.observePinnedExamIds(userId).collect { pins ->
                 _pinnedIds.value = pins
             }
@@ -186,7 +195,7 @@ class HomeViewModel : ViewModel() {
 
         // Real-time listener for published feedback posts
         feedbackObserverJob?.cancel()
-        feedbackObserverJob = viewModelScope.launch {
+        feedbackObserverJob = viewModelScope.launch(coroutineExceptionHandler) {
             feedbackRepo.observeFeedbackPosts().collect { posts ->
                 _feedbackPosts.value = posts
             }
@@ -194,13 +203,13 @@ class HomeViewModel : ViewModel() {
     }
 
     fun togglePin(userId: String, examId: String, currentlyPinned: Boolean) {
-        viewModelScope.launch {
+        viewModelScope.launch(coroutineExceptionHandler) {
             pinnedRepo.togglePin(userId, examId, currentlyPinned)
         }
     }
 
     fun deleteFeedbackPost(postId: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(coroutineExceptionHandler) {
             feedbackRepo.deleteFeedbackPost(postId)
         }
     }
