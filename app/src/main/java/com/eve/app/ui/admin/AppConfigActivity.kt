@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import com.eve.app.BuildConfig
 import com.eve.app.data.model.AdminAuditLog
 import com.eve.app.data.model.AppConfig
+import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.AuditLogRepository
 import com.eve.app.databinding.ActivityAppConfigBinding
@@ -50,7 +51,7 @@ class AppConfigActivity : EveBaseActivity() {
                 binding.etMinVersionCode.setText(config.minimum_supported_version_code.toString())
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
-                AppBulletin.showError(this@AppConfigActivity, "Failed to load config: ${e.message}")
+                AppBulletin.showError(this@AppConfigActivity, "Failed to load config: ${e.toUserFriendlyMessage()}")
             }
         }
     }
@@ -92,7 +93,7 @@ class AppConfigActivity : EveBaseActivity() {
                 }
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
-                AppBulletin.showError(this@AppConfigActivity, "Error saving: ${e.message}")
+                AppBulletin.showError(this@AppConfigActivity, "Error saving: ${e.toUserFriendlyMessage()}")
             }
         }
     }

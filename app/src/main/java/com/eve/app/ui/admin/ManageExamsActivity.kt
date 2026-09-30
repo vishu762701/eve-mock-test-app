@@ -836,7 +836,7 @@ class ManageExamsActivity : EveBaseActivity() {
                         loadGeneratedTestsForExam()
                     } catch (e: Exception) {
                         binding.progressBarGenTests.visibility = View.GONE
-                        AppBulletin.showError(this@ManageExamsActivity, "Failed to delete: ${e.localizedMessage}")
+                        AppBulletin.showError(this@ManageExamsActivity, "Failed to delete: ${e.toUserFriendlyMessage()}")
                     }
                 }
             }

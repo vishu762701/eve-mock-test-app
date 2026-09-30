@@ -16,6 +16,7 @@ import com.eve.app.R
 import com.eve.app.data.model.AnswerItem
 import com.eve.app.data.model.QuestionStat
 import com.eve.app.data.remote.ApiClient
+import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.data.repository.QuestionStatsRepository
 import com.eve.app.databinding.ActivityResultBinding
@@ -921,7 +922,7 @@ class ResultActivity : EveBaseActivity() {
                                 confirmBtn.isEnabled = true
                                 cancelBtn.isEnabled = true
                                 confirmBtn.text = "Clear & Reattempt"
-                                AppBulletin.showError(this@ResultActivity, e.localizedMessage ?: "Failed to reset attempt")
+                                AppBulletin.showError(this@ResultActivity, e.toUserFriendlyMessage())
                             }
                         }
                     }

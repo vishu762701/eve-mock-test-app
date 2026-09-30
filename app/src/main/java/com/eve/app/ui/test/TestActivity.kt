@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import com.eve.app.R
 import com.eve.app.data.model.AnswerItem
 import com.eve.app.data.model.Question
+import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.QuestionStatsRepository
 import com.eve.app.databinding.ActivityTestBinding
@@ -507,17 +508,7 @@ class TestActivity : EveBaseActivity() {
                 if (e is java.io.IOException || !NetworkUtil.isOnline(this@TestActivity)) {
                     handleOfflineSubmit(attemptName, items)
                 } else {
-                    val errMsg = if (e is retrofit2.HttpException) {
-                        try {
-                            val errBody = e.response()?.errorBody()?.string()
-                            val parsed = com.google.gson.JsonParser.parseString(errBody).asJsonObject
-                            parsed.get("error")?.asString ?: "Server returned error ${e.code()}"
-                        } catch (_: Exception) {
-                            "Server returned error ${e.code()}"
-                        }
-                    } else {
-                        e.localizedMessage ?: "Failed to submit test"
-                    }
+                    val errMsg = e.toUserFriendlyMessage()
                     showSubmissionError(errMsg, attemptName, items)
                 }
             }

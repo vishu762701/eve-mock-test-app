@@ -168,8 +168,18 @@ class HomeViewModel : ViewModel() {
                 if (isAdmin) {
                     _attemptInfo.value = AttemptInfo()
                 } else {
-                    val locks = repo.getAttemptedExamIds(userId).filter { !isAttemptCleared(it) }
-                    val attempts = historyRepo.getAttempts(userId).filter { !isAttemptCleared(it.examId) }
+                    val locks = try {
+                        repo.getAttemptedExamIds(userId).filter { !isAttemptCleared(it) }
+                    } catch (_: Exception) {
+                        // optional: failure is fine
+                        emptyList()
+                    }
+                    val attempts = try {
+                        historyRepo.getAttempts(userId).filter { !isAttemptCleared(it.examId) }
+                    } catch (_: Exception) {
+                        // optional: failure is fine
+                        emptyList()
+                    }
                     val ids = (locks + attempts.map { it.examId } + _submittedAttemptedIds).filter { !isAttemptCleared(it) }
                     val map = attempts.associateBy { it.examId }.toMutableMap()
                     _cachedSubmittedAttempts.forEach { (k, v) ->

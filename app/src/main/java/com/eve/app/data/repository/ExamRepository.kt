@@ -21,23 +21,21 @@ class ExamRepository(
      * Returns exams already completed by this user.
      */
     suspend fun getAttemptedExamIds(userId: String): Set<String> {
-        return try {
-            val res = api.getAttemptLocks()
-            (res.data ?: emptyList()).toSet()
-        } catch (_: Exception) {
-            emptySet()
+        val res = api.getAttemptLocks()
+        if (!res.success) {
+            throw Exception(res.error ?: "Failed to fetch attempt locks")
         }
+        return (res.data ?: emptyList()).toSet()
     }
 
     /** Test start se pehle deterministic server-side lock ko check karta hai. */
     suspend fun hasAttemptLock(userId: String, examId: String): Boolean {
         if (examId.isBlank()) return false
-        return try {
-            val res = api.checkAttemptLock(examId)
-            res.data?.hasLock == true
-        } catch (_: Exception) {
-            false
+        val res = api.checkAttemptLock(examId)
+        if (!res.success) {
+            throw Exception(res.error ?: "Failed to check attempt lock")
         }
+        return res.data?.hasLock == true
     }
 
     suspend fun getExams(): List<Exam> {
@@ -49,19 +47,11 @@ class ExamRepository(
     }
 
     suspend fun getExam(id: String): Exam? {
-        val res = try {
-            api.getExam(id)
-        } catch (_: Exception) {
-            null
-        }
-        if (res != null && res.success && res.data != null) {
+        val res = api.getExam(id)
+        if (res.success && res.data != null) {
             return res.data
         }
-        return try {
-            getExams().find { it.id == id }
-        } catch (_: Exception) {
-            null
-        }
+        return getExams().find { it.id == id }
     }
 
     suspend fun getQuestions(examId: String): List<Question> {

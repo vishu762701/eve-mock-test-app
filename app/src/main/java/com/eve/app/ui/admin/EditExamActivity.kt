@@ -229,7 +229,7 @@ class EditExamActivity : EveBaseActivity() {
                 AppBulletin.showSuccess(this@EditExamActivity, "Exam details updated successfully")
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
-                AppBulletin.showError(this@EditExamActivity, "Failed to update exam: ${e.message}")
+                AppBulletin.showError(this@EditExamActivity, "Failed to update exam: ${e.toUserFriendlyMessage()}")
             }
         }
     }
@@ -310,7 +310,7 @@ class EditExamActivity : EveBaseActivity() {
                 loadQuestions()
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
-                AppBulletin.showError(this@EditExamActivity, "Import failed: ${e.message}")
+                AppBulletin.showError(this@EditExamActivity, "Import failed: ${e.toUserFriendlyMessage()}")
             }
         }
     }
@@ -373,7 +373,7 @@ class EditExamActivity : EveBaseActivity() {
                         loadQuestions()
                     } catch (e: Exception) {
                         binding.progressBar.visibility = View.GONE
-                        AppBulletin.showError(this@EditExamActivity, "Failed to add question: ${e.message}")
+                        AppBulletin.showError(this@EditExamActivity, "Failed to add question: ${e.toUserFriendlyMessage()}")
                     }
                 }
             }
@@ -512,7 +512,7 @@ class EditExamActivity : EveBaseActivity() {
                         AppBulletin.showSuccess(this@EditExamActivity, "Question updated successfully")
                     } catch (e: Exception) {
                         binding.progressBar.visibility = View.GONE
-                        AppBulletin.showError(this@EditExamActivity, "Failed to update question: ${e.message}")
+                        AppBulletin.showError(this@EditExamActivity, "Failed to update question: ${e.toUserFriendlyMessage()}")
                     }
                 }
             }
@@ -570,7 +570,7 @@ class EditExamActivity : EveBaseActivity() {
                     try {
                         examRepo.deleteQuestion(q.id)
                     } catch (e: Exception) {
-                        AppBulletin.showError(this@EditExamActivity, "Failed to delete question: ${e.message}")
+                        AppBulletin.showError(this@EditExamActivity, "Failed to delete question: ${e.toUserFriendlyMessage()}")
                     }
                 }
 
@@ -587,7 +587,7 @@ class EditExamActivity : EveBaseActivity() {
                                 examRepo.updateQuestion(q)
                                 AppBulletin.showSuccess(this@EditExamActivity, "Question restored")
                             } catch (e: Exception) {
-                                AppBulletin.showError(this@EditExamActivity, "Failed to restore question: ${e.message}")
+                                AppBulletin.showError(this@EditExamActivity, "Failed to restore question: ${e.toUserFriendlyMessage()}")
                             }
                         }
                     }

@@ -18,6 +18,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import com.eve.app.data.model.AdminAuditLog
+import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.data.repository.AuditLogRepository
 
 class ManageUsersActivity : EveBaseActivity() {
@@ -65,7 +66,7 @@ class ManageUsersActivity : EveBaseActivity() {
                 filterUsers(binding.etSearchUser.text?.toString().orEmpty())
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
-                AppBulletin.showError(this@ManageUsersActivity, "Failed to load users: ${e.message}")
+                AppBulletin.showError(this@ManageUsersActivity, "Failed to load users: ${e.toUserFriendlyMessage()}")
             }
         }
     }
@@ -132,7 +133,7 @@ class ManageUsersActivity : EveBaseActivity() {
                     .show()
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
-                AppBulletin.showError(this@ManageUsersActivity, "Failed to load attempts: ${e.message}")
+                AppBulletin.showError(this@ManageUsersActivity, "Failed to load attempts: ${e.toUserFriendlyMessage()}")
             }
         }
     }
@@ -170,7 +171,7 @@ class ManageUsersActivity : EveBaseActivity() {
                         }
                     } catch (e: Exception) {
                         binding.progressBar.visibility = View.GONE
-                        AppBulletin.showError(this@ManageUsersActivity, "Error: ${e.message}")
+                        AppBulletin.showError(this@ManageUsersActivity, "Error: ${e.toUserFriendlyMessage()}")
                     }
                 }
             }
