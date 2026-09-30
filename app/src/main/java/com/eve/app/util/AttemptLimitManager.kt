@@ -4,10 +4,6 @@ import android.content.Context
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.HistoryRepository
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withTimeoutOrNull
 
 object AttemptLimitManager {
@@ -51,7 +47,7 @@ object AttemptLimitManager {
 
     /**
      * Fetches current attempt count for user on the given exam.
-     * Combines local preferences, Firestore user doc, and existing attempts in history.
+     * Combines local preferences and existing attempts in history.
      * Guaranteed non-blocking and instant when offline.
      */
     suspend fun getAttemptCount(context: Context, examId: String): Int {
@@ -64,24 +60,17 @@ object AttemptLimitManager {
             return localCount
         }
 
-        var remoteCount = 0
-        try {
-            withTimeoutOrNull(2000L) {
-                val userDoc = FirebaseFirestore.getInstance().collection("users").document(uid).get().await()
-                val counts = userDoc.get("attemptCounts") as? Map<*, *>
-                remoteCount = (counts?.get(examId) as? Number)?.toInt() ?: 0
-            }
-        } catch (_: Exception) {}
-
         var historyCount = 0
         try {
             withTimeoutOrNull(2000L) {
                 val attempts = HistoryRepository().getAttempts(uid).filter { it.examId == examId }
                 historyCount = attempts.size
             }
-        } catch (_: Exception) {}
+        } catch (_: Exception) {
+            // optional: failure is fine
+        }
 
-        val highest = maxOf(localCount, remoteCount, historyCount)
+        val highest = maxOf(localCount, historyCount)
         if (highest != localCount) {
             setLocalAttemptCount(context, examId, uid, highest)
         }
@@ -109,7 +98,7 @@ object AttemptLimitManager {
     }
 
     /**
-     * Increments the attempt count for this exam.
+     * Increments the attempt count for this exam in local preferences as an offline hint.
      */
     suspend fun recordAttempt(context: Context, examId: String) {
         val user = FirebaseAuth.getInstance().currentUser ?: return
@@ -119,17 +108,5 @@ object AttemptLimitManager {
         val currentCount = getLocalAttemptCount(context, examId, uid)
         val newCount = currentCount + 1
         setLocalAttemptCount(context, examId, uid, newCount)
-
-        if (NetworkUtil.isOnline(context)) {
-            try {
-                withTimeoutOrNull(2500L) {
-                    val userRef = FirebaseFirestore.getInstance().collection("users").document(uid)
-                    userRef.set(
-                        mapOf("attemptCounts" to mapOf(examId to FieldValue.increment(1))),
-                        SetOptions.merge()
-                    ).await()
-                }
-            } catch (_: Exception) {}
-        }
     }
 }

@@ -32,8 +32,6 @@ import com.eve.app.data.repository.ApiUsageRepository
 import android.widget.ProgressBar
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.functions.FirebaseFunctions
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
 
 class EditExamActivity : EveBaseActivity() {
@@ -129,23 +127,6 @@ class EditExamActivity : EveBaseActivity() {
                     binding.etCutoffEws.setText(it.cutoffs["EWS"]?.toString().orEmpty())
                 }
 
-                // If cutoffs weren't in API, fallback query from Firestore
-                try {
-                    val snap = FirebaseFirestore.getInstance().collection("exams").document(examId).get().await()
-                    val cMap = snap.get("cutoffs") as? Map<String, Any>
-                    if (cMap != null && currentExam?.cutoffs?.isEmpty() != false) {
-                        val loadedCutoffs = cMap.mapNotNull { (k, v) ->
-                            (v as? Number)?.toDouble()?.let { k to it }
-                        }.toMap()
-                        currentExam = currentExam?.copy(cutoffs = loadedCutoffs)
-                        binding.etCutoffGeneral.setText(loadedCutoffs["General"]?.toString().orEmpty())
-                        binding.etCutoffObc.setText(loadedCutoffs["OBC"]?.toString().orEmpty())
-                        binding.etCutoffSc.setText(loadedCutoffs["SC"]?.toString().orEmpty())
-                        binding.etCutoffSt.setText(loadedCutoffs["ST"]?.toString().orEmpty())
-                        binding.etCutoffEws.setText(loadedCutoffs["EWS"]?.toString().orEmpty())
-                    }
-                } catch (_: Exception) {}
-
                 loadQuestions()
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
@@ -210,11 +191,6 @@ class EditExamActivity : EveBaseActivity() {
         lifecycleScope.launch {
             try {
                 examRepo.updateExam(updatedExam)
-                try {
-                    FirebaseFirestore.getInstance().collection("exams").document(examId)
-                        .set(mapOf("cutoffs" to cutoffsMap), SetOptions.merge())
-                        .await()
-                } catch (_: Exception) {}
 
                 auditLogRepo.recordLog(
                     AdminAuditLog.ACTION_EXAM_EDITED,

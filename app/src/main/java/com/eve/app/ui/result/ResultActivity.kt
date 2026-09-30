@@ -38,10 +38,7 @@ import com.eve.app.util.ShareCardHelper
 import com.eve.app.util.TopicAccuracyHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 class ResultActivity : EveBaseActivity() {
 
@@ -615,15 +612,6 @@ class ResultActivity : EveBaseActivity() {
                     val exam = examRepo.getExam(sourceId)
                     if (exam != null && exam.cutoffs.isNotEmpty()) {
                         examCutoffs = exam.cutoffs
-                    } else {
-                        val snap = FirebaseFirestore.getInstance().collection("exams").document(sourceId).get().await()
-                        val cMap = snap.get("cutoffs") as? Map<*, *>
-                        if (cMap != null) {
-                            examCutoffs = cMap.mapNotNull { (k, v) ->
-                                val d = (v as? Number)?.toDouble() ?: v?.toString()?.toDoubleOrNull()
-                                if (d != null && k != null) k.toString() to d else null
-                            }.toMap()
-                        }
                     }
                 } catch (_: Exception) {}
             }
@@ -632,7 +620,7 @@ class ResultActivity : EveBaseActivity() {
             // 3. Load Rank, Percentile, Best/Avg Score
             val isCounted = intent.getIntExtra("EXTRA_COUNTED", 1)
             if (isCounted == 0) {
-                binding.tvRank.text = "Not ranked"
+                (binding.tvRank.parent as? View)?.visibility = View.GONE
                 binding.tvLeaderboardTabRank.text = "Not ranked"
                 (binding.tvPercentile.parent as? View)?.visibility = View.GONE
                 binding.tvTopperAvg.text = "Topper: -- • Average: --"
@@ -650,8 +638,14 @@ class ResultActivity : EveBaseActivity() {
                         val myRank = stats.myRank
                         val percentile = stats.myPercentile
 
-                        binding.tvRank.text = if (myRank != null && totalParticipants > 0) "#$myRank / $totalParticipants" else "-- / --"
-                        binding.tvLeaderboardTabRank.text = binding.tvRank.text
+                        if (myRank != null && totalParticipants > 0) {
+                            (binding.tvRank.parent as? View)?.visibility = View.VISIBLE
+                            binding.tvRank.text = "#$myRank / $totalParticipants"
+                            binding.tvLeaderboardTabRank.text = binding.tvRank.text
+                        } else {
+                            (binding.tvRank.parent as? View)?.visibility = View.GONE
+                            binding.tvLeaderboardTabRank.text = "Not ranked"
+                        }
 
                         if (percentile != null) {
                             (binding.tvPercentile.parent as? View)?.visibility = View.VISIBLE
@@ -660,73 +654,32 @@ class ResultActivity : EveBaseActivity() {
                                 binding.tvPercentile.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.eve_status_success))
                                 binding.tvRank.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.eve_status_success))
                             }
+                        } else {
+                            (binding.tvPercentile.parent as? View)?.visibility = View.GONE
                         }
 
-                        val topperStr = if (stats.topperScore % 1.0 == 0.0) stats.topperScore.toInt().toString() else String.format(java.util.Locale.US, "%.1f", stats.topperScore)
-                        val avgStr = if (stats.averageScore % 1.0 == 0.0) stats.averageScore.toInt().toString() else String.format(java.util.Locale.US, "%.1f", stats.averageScore)
-                        binding.tvTopperAvg.text = "Topper: $topperStr • Average: $avgStr"
-                        binding.tvHistoryBestAvg.text = "Topper: $topperStr  •  Avg: $avgStr"
+                        if (stats.topperScore > 0 || stats.averageScore > 0) {
+                            val topperStr = if (stats.topperScore % 1.0 == 0.0) stats.topperScore.toInt().toString() else String.format(java.util.Locale.US, "%.1f", stats.topperScore)
+                            val avgStr = if (stats.averageScore % 1.0 == 0.0) stats.averageScore.toInt().toString() else String.format(java.util.Locale.US, "%.1f", stats.averageScore)
+                            binding.tvTopperAvg.text = "Topper: $topperStr • Average: $avgStr"
+                            binding.tvHistoryBestAvg.text = "Topper: $topperStr  •  Avg: $avgStr"
+                        } else {
+                            val sStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format(java.util.Locale.US, "%.1f", currentScore)
+                            binding.tvTopperAvg.text = "Topper: $sStr • Average: $sStr"
+                            binding.tvHistoryBestAvg.text = "Score: $sStr"
+                        }
                         return@launch
                     }
                 } catch (_: Exception) {}
-
-                try {
-                    val firestore = FirebaseFirestore.getInstance()
-                    val currentUid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
-                    val snap = firestore.collection("attempts")
-                        .whereEqualTo("examId", examId)
-                        .get()
-                        .await()
-
-                    val allScores = snap.documents.mapNotNull { it.getDouble("score") }
-                    val totalAttempts = maxOf(allScores.size, 1)
-
-                    val higherScores = allScores.count { it > currentScore }
-                    val rank = higherScores + 1
-                    val lowerScores = allScores.count { it < currentScore }
-                    val percentile = if (totalAttempts <= 1) 100.0 else ((lowerScores * 100.0) / (totalAttempts - 1))
-
-                    binding.tvRank.text = "#$rank / $totalAttempts"
-                    binding.tvLeaderboardTabRank.text = binding.tvRank.text
-                    binding.tvPercentile.text = "${String.format(java.util.Locale.US, "%.1f", percentile)}%"
-                    if (percentile >= 50.0 || rank == 1) {
-                        binding.tvPercentile.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.eve_status_success))
-                        binding.tvRank.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.eve_status_success))
-                    }
-
-                    // Student's historical best and average
-                    val myPastScores = snap.documents
-                        .filter { it.getString("userId") == currentUid }
-                        .mapNotNull { it.getDouble("score") }
-
-                    val best = if (myPastScores.isNotEmpty()) maxOf(myPastScores.maxOrNull() ?: currentScore, currentScore) else currentScore
-                    val avg = if (myPastScores.isNotEmpty()) myPastScores.average() else currentScore
-
-                    val bestStr = if (best % 1.0 == 0.0) best.toInt().toString() else String.format(java.util.Locale.US, "%.1f", best)
-                    val avgStr = if (avg % 1.0 == 0.0) avg.toInt().toString() else String.format(java.util.Locale.US, "%.1f", avg)
-                    binding.tvHistoryBestAvg.text = "Best: $bestStr  •  Avg: $avgStr"
-                    val topper = allScores.maxOrNull() ?: currentScore
-                    val topperStr = if (topper % 1.0 == 0.0) topper.toInt().toString() else String.format(java.util.Locale.US, "%.1f", topper)
-                    val avgAll = if (allScores.isNotEmpty()) allScores.average() else currentScore
-                    val avgAllStr = if (avgAll % 1.0 == 0.0) avgAll.toInt().toString() else String.format(java.util.Locale.US, "%.1f", avgAll)
-                    binding.tvTopperAvg.text = "Topper: $topperStr • Average: $avgAllStr"
-
-                } catch (e: Exception) {
-                    binding.tvRank.text = "#1 / 1"
-                    binding.tvLeaderboardTabRank.text = binding.tvRank.text
-                    binding.tvPercentile.text = "100.0%"
-                    val sStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format(java.util.Locale.US, "%.1f", currentScore)
-                    binding.tvHistoryBestAvg.text = "Best: $sStr  •  Avg: $sStr"
-                    binding.tvTopperAvg.text = "Topper: $sStr • Average: $sStr"
-                }
-            } else {
-                binding.tvRank.text = "#1 / 1"
-                binding.tvLeaderboardTabRank.text = binding.tvRank.text
-                binding.tvPercentile.text = "100.0%"
-                val sStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format(java.util.Locale.US, "%.1f", currentScore)
-                binding.tvHistoryBestAvg.text = "Best: $sStr  •  Avg: $sStr"
-                binding.tvTopperAvg.text = "Topper: $sStr • Average: $sStr"
             }
+
+            // Fallback when stats are not available or call fails: hide rank row
+            (binding.tvRank.parent as? View)?.visibility = View.GONE
+            binding.tvLeaderboardTabRank.text = "Not ranked"
+            (binding.tvPercentile.parent as? View)?.visibility = View.GONE
+            val sStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format(java.util.Locale.US, "%.1f", currentScore)
+            binding.tvHistoryBestAvg.text = "Score: $sStr"
+            binding.tvTopperAvg.text = "Topper: $sStr • Average: $sStr"
         }
     }
 
