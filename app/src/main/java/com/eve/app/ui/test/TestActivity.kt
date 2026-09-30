@@ -83,6 +83,10 @@ class TestActivity : EveBaseActivity() {
 
         val testId = intent.getStringExtra(Constants.EXTRA_TEST_ID).orEmpty()
 
+        if (savedInstanceState != null) {
+            viewModel.restoreFromBundle(savedInstanceState)
+        }
+
         val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
         lifecycleScope.launch {
             val isAdmin = currentUser?.let { user ->
@@ -588,6 +592,7 @@ class TestActivity : EveBaseActivity() {
         super.onSaveInstanceState(outState)
         outState.putBoolean("key_empty_played", hasEmptyPlayed)
         outState.putInt("saved_question_position", currentQuestionPosition)
+        viewModel.writeToBundle(outState)
     }
 
     private fun updatePalette(activePosition: Int) {

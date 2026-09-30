@@ -431,4 +431,63 @@ class TestViewModel : ViewModel() {
         val displayName = user.displayName?.ifBlank { null } ?: "Student"
         return historyRepo.submitAttemptSync(examId, examName, category, displayName, items)
     }
+
+    fun writeToBundle(bundle: android.os.Bundle) {
+        val answersKeys = answers.keys.toIntArray()
+        val answersVals = answersKeys.map { answers[it] ?: "" }.toTypedArray()
+        bundle.putIntArray("key_answers_keys", answersKeys)
+        bundle.putStringArray("key_answers_vals", answersVals)
+
+        val timeKeys = timeTaken.keys.toIntArray()
+        val timeVals = timeKeys.map { timeTaken[it] ?: 0L }.toLongArray()
+        bundle.putIntArray("key_time_keys", timeKeys)
+        bundle.putLongArray("key_time_vals", timeVals)
+
+        val bookmarkKeys = bookmarks.keys.toIntArray()
+        val bookmarkVals = bookmarkKeys.map { bookmarks[it] ?: false }.toBooleanArray()
+        bundle.putIntArray("key_bm_keys", bookmarkKeys)
+        bundle.putBooleanArray("key_bm_vals", bookmarkVals)
+
+        bundle.putIntArray("key_visited", visited.toIntArray())
+        bundle.putIntArray("key_marked", marked.toIntArray())
+        bundle.putLong("key_remaining_seconds", _remainingSeconds.value)
+        bundle.putString("key_client_attempt_id", clientAttemptId)
+    }
+
+    fun restoreFromBundle(bundle: android.os.Bundle) {
+        val answersKeys = bundle.getIntArray("key_answers_keys")
+        val answersVals = bundle.getStringArray("key_answers_vals")
+        if (answersKeys != null && answersVals != null && answersKeys.size == answersVals.size) {
+            for (i in answersKeys.indices) {
+                answers[answersKeys[i]] = answersVals[i]
+            }
+        }
+
+        val timeKeys = bundle.getIntArray("key_time_keys")
+        val timeVals = bundle.getLongArray("key_time_vals")
+        if (timeKeys != null && timeVals != null && timeKeys.size == timeVals.size) {
+            for (i in timeKeys.indices) {
+                timeTaken[timeKeys[i]] = timeVals[i]
+            }
+        }
+
+        val bmKeys = bundle.getIntArray("key_bm_keys")
+        val bmVals = bundle.getBooleanArray("key_bm_vals")
+        if (bmKeys != null && bmVals != null && bmKeys.size == bmVals.size) {
+            for (i in bmKeys.indices) {
+                bookmarks[bmKeys[i]] = bmVals[i]
+            }
+        }
+
+        bundle.getIntArray("key_visited")?.forEach { visited.add(it) }
+        bundle.getIntArray("key_marked")?.forEach { marked.add(it) }
+
+        val rem = bundle.getLong("key_remaining_seconds", -1L)
+        if (rem > 0) {
+            _remainingSeconds.value = rem
+        }
+        bundle.getString("key_client_attempt_id")?.let {
+            if (it.isNotBlank()) clientAttemptId = it
+        }
+    }
 }
