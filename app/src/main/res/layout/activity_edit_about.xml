@@ -49,7 +49,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/eve_surface"
-        app:tabIndicatorColor="@color/eve_premium"
+        app:tabIndicatorColor="@color/eve_premium_line"
         app:tabIndicatorHeight="2dp"
         app:tabMode="fixed"
         app:tabSelectedTextColor="@color/eve_text"

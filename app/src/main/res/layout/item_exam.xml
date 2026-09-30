@@ -27,7 +27,9 @@
             app:cardBackgroundColor="@android:color/transparent"
             app:cardCornerRadius="26dp"
             app:cardElevation="0dp"
-            app:strokeWidth="1dp">
+            app:rippleColor="@android:color/transparent"
+            app:strokeColor="@android:color/transparent"
+            app:strokeWidth="0dp">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/ivExamImage"

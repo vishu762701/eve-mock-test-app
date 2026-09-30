@@ -64,8 +64,7 @@
                 android:contentDescription="Bookmarked"
                 android:padding="8dp"
                 android:scaleType="fitCenter"
-                android:src="@drawable/ic_star_filled"
-                app:tint="@color/eve_premium"
+                android:src="@drawable/ic_star_bookmark_filled"
                 android:visibility="gone" />
 
             <!-- Question Report Action Button (48dp touch target) -->

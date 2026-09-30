@@ -57,6 +57,13 @@ class ExamAdapter(
         private var currentExamId: String? = null
         private var isLottieMode: Boolean = false
 
+        init {
+            b.examIconContainer.strokeWidth = 0
+            b.examIconContainer.setCardBackgroundColor(
+                androidx.core.content.ContextCompat.getColor(b.root.context, android.R.color.transparent)
+            )
+        }
+
         fun bind(exam: Exam, attempted: Boolean, isPinned: Boolean, attempt: com.eve.app.data.model.TestAttempt?) {
             currentExamId = exam.id
             b.tvExamName.text = exam.examName
@@ -98,6 +105,7 @@ class ExamAdapter(
 
         private fun showLogoMode() {
             isLottieMode = false
+            b.examIconContainer.strokeWidth = 0
             b.examIconContainer.setCardBackgroundColor(
                 androidx.core.content.ContextCompat.getColor(b.root.context, android.R.color.transparent)
             )
@@ -108,6 +116,7 @@ class ExamAdapter(
 
         private fun showLottieMode() {
             isLottieMode = true
+            b.examIconContainer.strokeWidth = 0
             b.examIconContainer.setCardBackgroundColor(
                 androidx.core.content.ContextCompat.getColor(b.root.context, android.R.color.transparent)
             )

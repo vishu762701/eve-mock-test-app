@@ -144,6 +144,15 @@ class ContrastTokensTest {
     fun testEvePremiumTokens_inLightAndDark() {
         val lightColors = loadColors("src/main/res/values/colors.xml")
         val darkColors = loadColors("src/main/res/values-night/colors.xml")
+        // Explicit required contrast pairs:
+        // dark: #E3FF3B on #000000 and #111111 must be >= 4.5:1
+        val darkRatio000000 = contrastRatio(darkColors["eve_premium"]!!, "#000000")
+        val darkRatio111111 = contrastRatio(darkColors["eve_premium"]!!, "#111111")
+        assertTrue("Dark #E3FF3B on #000000 must be >= 4.5 (was $darkRatio000000)", darkRatio000000 >= 4.5)
+        assertTrue("Dark #E3FF3B on #111111 must be >= 4.5 (was $darkRatio111111)", darkRatio111111 >= 4.5)
+        // light: #111111 on #E3FF3B must be >= 4.5:1
+        val lightRatio111111onLime = contrastRatio("#111111", lightColors["eve_premium"]!!)
+        assertTrue("Light #111111 on #E3FF3B must be >= 4.5 (was $lightRatio111111onLime)", lightRatio111111onLime >= 4.5)
 
         // eve_premium_text against screen background (eve_bg) and surface (eve_surface) must be >= 4.5:1
         val lightTextRatioBg = contrastRatio(lightColors["eve_premium_text"]!!, lightColors["eve_bg"]!!)
@@ -169,5 +178,16 @@ class ContrastTokensTest {
 
         val darkOnPremiumRatio = contrastRatio(darkColors["eve_on_premium"]!!, darkColors["eve_premium"]!!)
         assertTrue("Dark eve_on_premium vs eve_premium must be >= 4.5 (was $darkOnPremiumRatio)", darkOnPremiumRatio >= 4.5)
+
+        // eve_premium_line against screen background (eve_bg) and surface (eve_surface) must be >= 4.5:1
+        val lightLineRatioBg = contrastRatio(lightColors["eve_premium_line"]!!, lightColors["eve_bg"]!!)
+        val lightLineRatioSurface = contrastRatio(lightColors["eve_premium_line"]!!, lightColors["eve_surface"]!!)
+        assertTrue("Light eve_premium_line vs eve_bg must be >= 4.5 (was $lightLineRatioBg)", lightLineRatioBg >= 4.5)
+        assertTrue("Light eve_premium_line vs eve_surface must be >= 4.5 (was $lightLineRatioSurface)", lightLineRatioSurface >= 4.5)
+
+        val darkLineRatioBg = contrastRatio(darkColors["eve_premium_line"]!!, darkColors["eve_bg"]!!)
+        val darkLineRatioSurface = contrastRatio(darkColors["eve_premium_line"]!!, darkColors["eve_surface"]!!)
+        assertTrue("Dark eve_premium_line vs eve_bg must be >= 4.5 (was $darkLineRatioBg)", darkLineRatioBg >= 4.5)
+        assertTrue("Dark eve_premium_line vs eve_surface must be >= 4.5 (was $darkLineRatioSurface)", darkLineRatioSurface >= 4.5)
     }
 }

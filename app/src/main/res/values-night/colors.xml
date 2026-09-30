@@ -21,9 +21,11 @@
     <color name="eve_offline_bg">#332800</color>
     <color name="eve_offline_text">#FFD166</color>
     <color name="eve_gold">#FFD166</color>
-    <color name="eve_premium">#E8B84A</color>
-    <color name="eve_premium_text">#E8B84A</color>
-    <color name="eve_premium_container">#2A2110</color>
+    <color name="eve_premium">#E3FF3B</color>
+    <color name="eve_premium_text">#E3FF3B</color>
+    <color name="eve_premium_line">#E3FF3B</color>
+    <color name="eve_premium_container">#1F2406</color>
+    <color name="eve_chip_premium_stroke">@color/eve_premium_line</color>
     <color name="eve_on_premium">#111111</color>
     <color name="eve_silver">#C7D0D9</color>
     <color name="eve_bronze">#E3A66D</color>
@@ -79,8 +81,6 @@
     <color name="eve_status_success_container">#1B3320</color>
     <color name="eve_status_error_container">#3B1A1A</color>
     <color name="eve_header_warning">#C62828</color>
-    <color name="eve_lottie_tile_bg">#F2F2F2</color>
-    <color name="eve_floating_chip_stroke">@color/eve_premium</color>
     <color name="eve_shimmer_base">#262626</color>
     <color name="eve_shimmer_highlight">#3D3D3D</color>
     <color name="eve_white">#FFFFFF</color>

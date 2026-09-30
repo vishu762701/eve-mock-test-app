@@ -20,10 +20,12 @@
     <color name="eve_surface_variant">#F5F5F5</color>
     <color name="eve_offline_bg">#FFF4CC</color>
     <color name="eve_offline_text">#5F4300</color>
-    <color name="eve_gold">#C59B27</color>
-    <color name="eve_premium">#B88B1E</color>
-    <color name="eve_premium_text">#8A6100</color>
-    <color name="eve_premium_container">#FBF3DC</color>
+    <color name="eve_gold">#D97706</color>
+    <color name="eve_premium">#E3FF3B</color>
+    <color name="eve_premium_text">#111111</color>
+    <color name="eve_premium_line">#111111</color>
+    <color name="eve_premium_container">#E3FF3B</color>
+    <color name="eve_chip_premium_stroke">@android:color/transparent</color>
     <color name="eve_on_premium">#111111</color>
     <color name="eve_silver">#687078</color>
     <color name="eve_bronze">#7A4B2A</color>
@@ -81,8 +83,6 @@
     <color name="eve_status_success_container">#E8F5E9</color>
     <color name="eve_status_error_container">#FFEBEE</color>
     <color name="eve_header_warning">#FF5252</color>
-    <color name="eve_lottie_tile_bg">#F5F5F5</color>
-    <color name="eve_floating_chip_stroke">@color/eve_premium</color>
     <color name="eve_shimmer_base">#E0E0E0</color>
     <color name="eve_shimmer_highlight">#F4F4F4</color>
     <color name="eve_white">#FFFFFF</color>

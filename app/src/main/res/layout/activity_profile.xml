@@ -171,7 +171,7 @@
                     app:chipIcon="@drawable/ic_star_filled"
                     app:chipIconTint="@color/eve_premium_text"
                     app:chipBackgroundColor="@color/eve_premium_container"
-                    app:chipStrokeColor="@color/eve_premium"
+                    app:chipStrokeColor="@color/eve_chip_premium_stroke"
                     app:chipStrokeWidth="1dp" />
             </LinearLayout>
 

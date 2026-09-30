@@ -675,6 +675,10 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun setupFloatingAirplane() {
+        binding.cardFloatingAirplane.strokeWidth = 0
+        binding.cardFloatingAirplane.setCardBackgroundColor(
+            ContextCompat.getColor(this, android.R.color.transparent)
+        )
         applyFloatingAirplaneTheme()
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.cardFloatingAirplane) { view, windowInsets ->
@@ -1112,11 +1116,17 @@ class MainActivity : EveBaseActivity() {
                 }
             }
 
+            override fun onDrawerOpened(drawerView: View) {
+                playDrawerPremiumStar()
+            }
+
             override fun onDrawerClosed(drawerView: View) {
                 binding.ivDrawerGlassBlurBackground.setImageDrawable(null)
                 drawerBlurBitmap = null
             }
         })
+
+        setupDrawerPremiumStar()
 
         // FIX 7: Telegram-style premium masked, bounded RippleDrawable on avatar and drawer rows
         binding.ivDrawerAvatar.foreground = RippleHelper.createPremiumRippleDrawable(this, cornerRadiusDp = -1f, isDark = isDark)
@@ -1215,5 +1225,43 @@ class MainActivity : EveBaseActivity() {
         applyNewThemeAction: Runnable? = null
     ) {
         ThemeManager.animateThemeChange(rootView, touchX, touchY, applyNewThemeAction)
+    }
+
+    private fun setupDrawerPremiumStar() {
+        val isDark = ThemeManager.isDarkMode(this)
+        val lottie = binding.lottieDrawerPremiumStar
+
+        if (isDark) {
+            lottie.setAnimation(R.raw.premium_star)
+            val limeColor = ContextCompat.getColor(this, R.color.eve_premium)
+            val keyPath = KeyPath("**")
+            lottie.addValueCallback(keyPath, LottieProperty.COLOR, SimpleLottieValueCallback { limeColor })
+            lottie.addValueCallback(keyPath, LottieProperty.STROKE_COLOR, SimpleLottieValueCallback { limeColor })
+        } else {
+            lottie.setAnimation(R.raw.premium_star_light)
+        }
+
+        lottie.repeatCount = 0
+        lottie.addLottieOnCompositionLoadedListener {
+            if (!lottie.isAnimating) {
+                lottie.progress = 1f
+            }
+        }
+        lottie.progress = 1f
+    }
+
+    private fun playDrawerPremiumStar() {
+        val animScale = Settings.Global.getFloat(
+            contentResolver,
+            Settings.Global.ANIMATOR_DURATION_SCALE,
+            1.0f
+        )
+        val lottie = binding.lottieDrawerPremiumStar
+        if (animScale == 0f) {
+            lottie.progress = 1f
+        } else {
+            lottie.progress = 0f
+            lottie.playAnimation()
+        }
     }
 }
