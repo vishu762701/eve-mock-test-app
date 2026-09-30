@@ -106,9 +106,14 @@ class PremiumActivity : EveBaseActivity() {
             binding.layoutPremiumActive.visibility = View.VISIBLE
 
             binding.starViewNotPremium.setPaused(true)
-            binding.starViewPremiumActive.setPaused(false)
-            binding.starViewPremiumActive.updateTheme()
-            binding.starViewPremiumActive.startEnterAnimation()
+            if (binding.starViewPremiumActive.isFailed) {
+                binding.ivActiveStarFallback.visibility = View.VISIBLE
+                binding.starViewPremiumActive.visibility = View.GONE
+            } else {
+                binding.starViewPremiumActive.setPaused(false)
+                binding.starViewPremiumActive.updateTheme()
+                binding.starViewPremiumActive.startEnterAnimation()
+            }
 
             if (status.isLifetime) {
                 binding.tvActiveExpiry.text = "Lifetime Premium Active"
@@ -124,9 +129,14 @@ class PremiumActivity : EveBaseActivity() {
             binding.layoutPremiumActive.visibility = View.GONE
 
             binding.starViewPremiumActive.setPaused(true)
-            binding.starViewNotPremium.setPaused(false)
-            binding.starViewNotPremium.updateTheme()
-            binding.starViewNotPremium.startEnterAnimation()
+            if (binding.starViewNotPremium.isFailed) {
+                binding.ivHeaderStarFallback.visibility = View.VISIBLE
+                binding.starViewNotPremium.visibility = View.GONE
+            } else {
+                binding.starViewNotPremium.setPaused(false)
+                binding.starViewNotPremium.updateTheme()
+                binding.starViewNotPremium.startEnterAnimation()
+            }
 
             binding.tvPlanTitle.text = plan.planName.ifBlank { "EVE Premium" }
             if (plan.description.isNotBlank()) {

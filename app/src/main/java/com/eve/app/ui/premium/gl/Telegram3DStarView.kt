@@ -54,6 +54,16 @@ class Telegram3DStarView @JvmOverloads constructor(
     var touched = false
     var mRenderer: GLIconRenderer? = null
     var fallbackView: View? = null
+        set(value) {
+            field = value
+            if (glFailed && value != null) {
+                value.visibility = VISIBLE
+                visibility = GONE
+            }
+        }
+
+    val isFailed: Boolean
+        get() = glFailed
 
     private var mSurface: SurfaceTexture? = null
     private var mEglDisplay: EGLDisplay? = null
@@ -74,6 +84,8 @@ class Telegram3DStarView @JvmOverloads constructor(
     private var paused = false
     private var rendererChanged = false
     private var glFailed = false
+    @Volatile
+    private var surfaceDimensionsChanged = false
 
     private var thread: RenderThread? = null
     private val idleDelay = 2000L
@@ -230,6 +242,7 @@ class Telegram3DStarView @JvmOverloads constructor(
     }
 
     fun updateTheme() {
+        if (glFailed) return
         val isDark = ThemeManager.isDarkMode(context)
         mRenderer?.updateColors(isDark)
         if (measuredWidth > 0 && measuredHeight > 0) {
@@ -242,6 +255,7 @@ class Telegram3DStarView @JvmOverloads constructor(
      * and PremiumGradient.PremiumGradientTools.gradientMatrix(0, 0, W, H, 0, 0)
      */
     private fun updateGradientBackground(w: Int, h: Int) {
+        if (w <= 0 || h <= 0) return
         try {
             val c1 = ContextCompat.getColor(context, R.color.eve_premium_gradient_1)
             val c2 = ContextCompat.getColor(context, R.color.eve_premium_gradient_2)
@@ -290,13 +304,15 @@ class Telegram3DStarView @JvmOverloads constructor(
 
     override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
         setDimensions(width, height)
-        mRenderer?.onSurfaceChanged(mGl, width, height)
-        updateGradientBackground(width, height)
+        surfaceDimensionsChanged = true
+        if (width > 0 && height > 0) {
+            updateGradientBackground(width, height)
+        }
     }
 
     override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
         stopThread()
-        return false
+        return true
     }
 
     override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
@@ -314,8 +330,16 @@ class Telegram3DStarView @JvmOverloads constructor(
     }
 
     fun stopThread() {
+        val t = thread
         isRunning = false
         thread = null
+        if (t != null && t != Thread.currentThread()) {
+            try {
+                t.interrupt()
+                t.join(300)
+            } catch (ignored: Exception) {
+            }
+        }
     }
 
     fun setDimensions(width: Int, height: Int) {
@@ -329,7 +353,7 @@ class Telegram3DStarView @JvmOverloads constructor(
             mainHandler.removeCallbacks(idleAnimationRunnable)
             cancelAnimations()
         } else {
-            if (!isAnimationDisabled()) {
+            if (!isAnimationDisabled() && !glFailed) {
                 scheduleIdleAnimation(idleDelay)
             }
         }
@@ -357,6 +381,7 @@ class Telegram3DStarView @JvmOverloads constructor(
     }
 
     fun startBackAnimation() {
+        if (glFailed) return
         if (isAnimationDisabled()) {
             mRenderer?.let {
                 it.angleX = 0f
@@ -386,6 +411,7 @@ class Telegram3DStarView @JvmOverloads constructor(
     }
 
     fun startEnterAnimation(angle: Float = -180f, delay: Long = 0L) {
+        if (glFailed) return
         val r = mRenderer ?: return
         if (isAnimationDisabled()) {
             r.angleX = 0f
@@ -412,13 +438,14 @@ class Telegram3DStarView @JvmOverloads constructor(
         super.onAttachedToWindow()
         attached = true
         rendererChanged = true
-        if (!isAnimationDisabled()) {
+        if (!isAnimationDisabled() && !glFailed) {
             scheduleIdleAnimation(idleDelay)
         }
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
+        stopThread()
         cancelAnimations()
         mainHandler.removeCallbacks(idleAnimationRunnable)
         mRenderer?.let {
@@ -445,13 +472,13 @@ class Telegram3DStarView @JvmOverloads constructor(
     }
 
     fun scheduleIdleAnimation(time: Long) {
-        if (isAnimationDisabled()) return
+        if (glFailed || isAnimationDisabled()) return
         mainHandler.removeCallbacks(idleAnimationRunnable)
         mainHandler.postDelayed(idleAnimationRunnable, time)
     }
 
     private fun startIdleAnimation() {
-        if (!attached || !isShown || mRenderer == null || isAnimationDisabled()) return
+        if (glFailed || !attached || !isShown || mRenderer == null || isAnimationDisabled()) return
 
         if (animationPointer >= animationIndexes.size) {
             animationIndexes.shuffle()
@@ -607,6 +634,8 @@ class Telegram3DStarView @JvmOverloads constructor(
         glFailed = true
         isRunning = false
         mainHandler.post {
+            cancelAnimations()
+            mainHandler.removeCallbacks(idleAnimationRunnable)
             visibility = GONE
             fallbackView?.visibility = VISIBLE
         }
@@ -626,53 +655,68 @@ class Telegram3DStarView @JvmOverloads constructor(
 
             var lastFrameTime = System.currentTimeMillis()
 
-            while (isRunning) {
-                while (mRenderer == null && isRunning) {
-                    try {
-                        sleep(100)
-                    } catch (e: InterruptedException) {
+            try {
+                while (isRunning) {
+                    while (mRenderer == null && isRunning) {
+                        try {
+                            sleep(100)
+                        } catch (e: InterruptedException) {
+                        }
                     }
-                }
 
-                if (!isRunning) break
+                    if (!isRunning) break
 
-                if (rendererChanged) {
+                    if (rendererChanged) {
+                        try {
+                            initializeRenderer(mRenderer)
+                        } catch (e: Throwable) {
+                            e.printStackTrace()
+                            triggerFallback()
+                            break
+                        }
+                        rendererChanged = false
+                    }
+
+                    if (surfaceDimensionsChanged) {
+                        surfaceDimensionsChanged = false
+                        try {
+                            mRenderer?.onSurfaceChanged(mGl, surfaceWidth, surfaceHeight)
+                        } catch (e: Throwable) {
+                            e.printStackTrace()
+                            triggerFallback()
+                            break
+                        }
+                    }
+
                     try {
-                        initializeRenderer(mRenderer)
+                        if (!shouldSleep()) {
+                            val now = System.currentTimeMillis()
+                            val dt = (now - lastFrameTime) / 1000f
+                            lastFrameTime = now
+                            drawSingleFrame(dt)
+                        }
                     } catch (e: Throwable) {
                         e.printStackTrace()
                         triggerFallback()
                         break
                     }
-                    rendererChanged = false
-                }
 
-                try {
-                    if (!shouldSleep()) {
-                        val now = System.currentTimeMillis()
-                        val dt = (now - lastFrameTime) / 1000f
-                        lastFrameTime = now
-                        drawSingleFrame(dt)
-                    }
-                } catch (e: Throwable) {
-                    e.printStackTrace()
-                    triggerFallback()
-                    break
-                }
-
-                try {
-                    if (shouldSleep()) {
-                        sleep(100)
-                    } else {
-                        var thisFrameTime = System.currentTimeMillis()
-                        var timeDiff = thisFrameTime - lastFrameTime
-                        while (timeDiff < targetFrameDurationMillis) {
-                            thisFrameTime = System.currentTimeMillis()
-                            timeDiff = thisFrameTime - lastFrameTime
+                    try {
+                        if (shouldSleep()) {
+                            sleep(100)
+                        } else {
+                            val thisFrameTime = System.currentTimeMillis()
+                            val timeDiff = thisFrameTime - lastFrameTime
+                            val sleepTime = targetFrameDurationMillis - timeDiff
+                            if (sleepTime > 0) {
+                                sleep(sleepTime)
+                            }
                         }
+                    } catch (ignore: InterruptedException) {
                     }
-                } catch (ignore: InterruptedException) {
                 }
+            } finally {
+                destroyGL()
             }
         }
     }
@@ -706,11 +750,12 @@ class Telegram3DStarView @JvmOverloads constructor(
     }
 
     private fun initGL() {
+        val surfTexture = mSurface ?: throw RuntimeException("mSurface is null")
         val egl = EGLContext.getEGL() as EGL10
         mEgl = egl
 
         val display = egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY)
-        if (display == EGL10.EGL_NO_DISPLAY) {
+        if (display == null || display == EGL10.EGL_NO_DISPLAY) {
             throw RuntimeException("eglGetDisplay failed")
         }
         mEglDisplay = display
@@ -741,9 +786,12 @@ class Telegram3DStarView @JvmOverloads constructor(
 
         val attribList = intArrayOf(EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE)
         val ctx = egl.eglCreateContext(display, cfg, EGL10.EGL_NO_CONTEXT, attribList)
+        if (ctx == null || ctx == EGL10.EGL_NO_CONTEXT) {
+            throw RuntimeException("eglCreateContext failed")
+        }
         mEglContext = ctx
 
-        val surf = egl.eglCreateWindowSurface(display, cfg, mSurface, null)
+        val surf = egl.eglCreateWindowSurface(display, cfg, surfTexture, null)
         if (surf == null || surf == EGL10.EGL_NO_SURFACE) {
             throw RuntimeException("eglCreateWindowSurface failed")
         }
@@ -753,6 +801,37 @@ class Telegram3DStarView @JvmOverloads constructor(
             throw RuntimeException("eglMakeCurrent failed")
         }
 
-        mGl = ctx.gl as GL10
+        mGl = ctx.gl as? GL10 ?: throw RuntimeException("ctx.gl null")
+    }
+
+    private fun destroyGL() {
+        try {
+            mEgl?.let { egl ->
+                mEglDisplay?.let { dpy ->
+                    if (dpy != EGL10.EGL_NO_DISPLAY) {
+                        egl.eglMakeCurrent(dpy, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT)
+                        mEglSurface?.let { surf ->
+                            if (surf != EGL10.EGL_NO_SURFACE) {
+                                egl.eglDestroySurface(dpy, surf)
+                            }
+                        }
+                        mEglContext?.let { ctx ->
+                            if (ctx != EGL10.EGL_NO_CONTEXT) {
+                                egl.eglDestroyContext(dpy, ctx)
+                            }
+                        }
+                        egl.eglTerminate(dpy)
+                    }
+                }
+            }
+        } catch (t: Throwable) {
+            t.printStackTrace()
+        } finally {
+            mEglSurface = null
+            mEglContext = null
+            mEglDisplay = null
+            mEgl = null
+            mGl = null
+        }
     }
 }

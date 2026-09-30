@@ -81,7 +81,7 @@ vec4 golden_star() {
 
     vec3 norm = normalize(vec3(world * vec4(vNormal, 0.0)));
 
-    vec3 flecksNormal = normalize(1.0 - texture2D(u_NormalMap, (vUV + .7 * vec2(-f_xOffset, f_xOffset)) * 2.0).xyz);
+    vec3 flecksNormal = normalize(vec3(1.0) - texture2D(u_NormalMap, (vUV + .7 * vec2(-f_xOffset, f_xOffset)) * 2.0).xyz);
     float flecks = clamp(flecksNormal.x, 0.0, 1.0);
 
     vec3 lightPos = vec3(-3., -3., 20.);

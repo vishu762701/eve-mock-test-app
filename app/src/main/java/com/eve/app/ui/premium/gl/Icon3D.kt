@@ -259,6 +259,9 @@ class Icon3D(context: Context, val type: Int = TYPE_STAR) {
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mBackgroundTextureHandle)
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR)
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR)
+        val emptyBuf = ByteBuffer.allocateDirect(4).order(ByteOrder.nativeOrder())
+        emptyBuf.putInt(0x00000000).position(0)
+        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, 1, 1, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, emptyBuf)
 
         // Load star specular texture (exact SVG path rasterized to 240x240 white bitmap)
         val starBitmap = getStarTextureBitmap()

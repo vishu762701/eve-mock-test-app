@@ -39,3 +39,6 @@
 
 # Coroutines
 -dontwarn kotlinx.coroutines.**
+
+# 3D OpenGL Custom Views
+-keep class com.eve.app.ui.premium.gl.** { *; }

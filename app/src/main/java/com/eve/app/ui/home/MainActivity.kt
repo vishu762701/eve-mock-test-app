@@ -1259,22 +1259,45 @@ class MainActivity : EveBaseActivity() {
         }
         fallback.progress = 1f
 
-        starView.setPaused(true)
+        if (starView.isFailed) {
+            fallback.visibility = View.VISIBLE
+            starView.visibility = View.GONE
+        } else {
+            starView.setPaused(true)
+        }
     }
 
     private fun playDrawerPremiumStar() {
         val starView = binding.lottieDrawerPremiumStar
-        starView.setPaused(false)
-        starView.updateTheme()
-        starView.startEnterAnimation()
+        val fallback = binding.lottieDrawerPremiumStarFallback
 
-        if (binding.lottieDrawerPremiumStarFallback.visibility == View.VISIBLE) {
+        if (starView.isFailed || starView.visibility != View.VISIBLE) {
+            fallback.visibility = View.VISIBLE
+            starView.visibility = View.GONE
             val animScale = Settings.Global.getFloat(
                 contentResolver,
                 Settings.Global.ANIMATOR_DURATION_SCALE,
                 1.0f
             )
-            val fallback = binding.lottieDrawerPremiumStarFallback
+            if (animScale == 0f) {
+                fallback.progress = 1f
+            } else {
+                fallback.progress = 0f
+                fallback.playAnimation()
+            }
+            return
+        }
+
+        starView.setPaused(false)
+        starView.updateTheme()
+        starView.startEnterAnimation()
+
+        if (fallback.visibility == View.VISIBLE) {
+            val animScale = Settings.Global.getFloat(
+                contentResolver,
+                Settings.Global.ANIMATOR_DURATION_SCALE,
+                1.0f
+            )
             if (animScale == 0f) {
                 fallback.progress = 1f
             } else {
