@@ -18,31 +18,30 @@
 
     <TextView
         android:id="@+id/tvErrorTitle"
+        style="@style/TextAppearance.Eve.Heading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:fontFamily="@font/poppins_bold"
         android:gravity="center"
-        android:textColor="@color/eve_text"
-        android:textSize="18sp" />
+        android:textColor="@color/eve_text" />
 
     <TextView
         android:id="@+id/tvErrorMessage"
+        style="@style/TextAppearance.Eve.BodySmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:fontFamily="@font/poppins_regular"
         android:gravity="center"
-        android:textColor="@color/eve_text_secondary"
-        android:textSize="14sp" />
+        android:textColor="@color/eve_text_secondary" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnRetry"
+        style="@style/TextAppearance.Eve.Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:minHeight="48dp"
         android:text="Retry"
-        android:fontFamily="@font/poppins_semibold"
         app:cornerRadius="12dp"
         android:visibility="gone" />
 </LinearLayout>

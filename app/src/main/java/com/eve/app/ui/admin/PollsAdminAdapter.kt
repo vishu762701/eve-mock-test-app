@@ -67,7 +67,7 @@ class PollsAdminAdapter(
             when {
                 poll.isExpired -> {
                     binding.tvPollStatus.text = "Expired"
-                    binding.tvPollStatus.setTextColor(ContextCompat.getColor(context, R.color.eve_gold))
+                    binding.tvPollStatus.setTextColor(ContextCompat.getColor(context, R.color.eve_status_warning))
                     binding.btnToggleActive.isEnabled = false
                     binding.btnToggleActive.text = "Expired"
                 }

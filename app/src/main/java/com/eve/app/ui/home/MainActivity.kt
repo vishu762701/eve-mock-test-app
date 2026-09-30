@@ -1,5 +1,7 @@
 package com.eve.app.ui.home
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -87,7 +89,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val viewModel: HomeViewModel by viewModels()
@@ -1084,7 +1086,7 @@ class MainActivity : AppCompatActivity() {
 
         // Frosted glass translucent scrim allowing underlying content to remain sharp and visible outside drawer
         val isDark = ThemeManager.isDarkMode(this)
-        val scrimColor = if (isDark) Color.parseColor("#4D000000") else Color.parseColor("#26000000")
+        val scrimColor = if (isDark) Color.argb(0x4D, 0, 0, 0) else Color.argb(0x26, 0, 0, 0)
         binding.drawerLayout.setScrimColor(scrimColor)
 
         // Clip drawer panel rounded right edge (24dp) so blur background and tint conform to rounded corners

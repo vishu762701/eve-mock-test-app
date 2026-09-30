@@ -1,5 +1,7 @@
 package com.eve.app.ui.about
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -15,7 +17,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class ContentDisplayActivity : AppCompatActivity() {
+class ContentDisplayActivity : EveBaseActivity() {
 
     companion object {
         const val EXTRA_CONTENT_TYPE = "extra_content_type"

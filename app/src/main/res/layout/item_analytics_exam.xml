@@ -6,7 +6,7 @@
     android:layout_marginBottom="10dp"
     app:cardBackgroundColor="@color/eve_card_bg"
     app:cardCornerRadius="14dp"
-    app:cardElevation="2dp"
+    app:cardElevation="0dp"
     app:strokeColor="@color/eve_stroke"
     app:strokeWidth="1dp">
 
@@ -28,7 +28,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ellipsize="end"
-                android:fontFamily="@font/poppins_semibold"
                 android:maxLines="1"
                 android:text="SSC CGL Tier 1"
                 android:textColor="@color/eve_text"
@@ -40,12 +39,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:background="@drawable/bg_category_chip"
-                android:fontFamily="@font/poppins_medium"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="2dp"
                 android:text="SSC"
                 android:textColor="@color/eve_primary"
-                android:textSize="11sp" />
+                android:textSize="13sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -60,7 +58,6 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:fontFamily="@font/poppins_medium"
                 android:text="Attempts: 42  •  Avg Score: 78.5%"
                 android:textColor="@color/eve_primary"
                 android:textSize="13sp" />
@@ -69,7 +66,6 @@
                 android:id="@+id/tvStudents"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins"
                 android:text="35 students"
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="12sp" />
@@ -82,11 +78,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:background="@drawable/bg_category_chip"
-            android:fontFamily="@font/poppins_medium"
             android:paddingHorizontal="8dp"
             android:paddingVertical="3dp"
             android:text="⚠️ 0 Attempts - Needs Promotion"
             android:textColor="@color/eve_red"
-            android:textSize="11sp" />
+            android:textSize="13sp" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

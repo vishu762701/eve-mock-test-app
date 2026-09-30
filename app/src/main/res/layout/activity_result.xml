@@ -31,7 +31,6 @@
                 android:id="@+id/tvResultTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_bold"
                 android:text="Test Result"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="18sp" />
@@ -41,7 +40,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:fontFamily="@font/poppins"
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="12sp"
                 android:visibility="gone" />
@@ -86,12 +84,12 @@
         android:layout_height="48dp"
         android:background="@color/eve_surface"
         app:tabGravity="fill"
-        app:tabIndicatorColor="@color/eve_red"
-        app:tabIndicatorHeight="3dp"
+        app:tabIndicatorColor="@color/eve_premium"
+        app:tabIndicatorHeight="2dp"
         app:tabMode="fixed"
         app:tabRippleColor="@null"
-        app:tabSelectedTextColor="@color/eve_primary"
-        app:tabTextAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+        app:tabSelectedTextColor="@color/eve_text"
+        app:tabTextAppearance="@style/TextAppearance.Eve.Button"
         app:tabTextColor="@color/eve_text_secondary">
 
         <com.google.android.material.tabs.TabItem
@@ -169,7 +167,6 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:fontFamily="@font/poppins_semibold"
                                 android:letterSpacing="0.04"
                                 android:text="TOTAL SCORE"
                                 android:textColor="@color/eve_text_secondary"
@@ -180,7 +177,6 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/bg_stat_mini"
-                                android:fontFamily="@font/poppins_semibold"
                                 android:paddingHorizontal="10dp"
                                 android:paddingVertical="3dp"
                                 android:text="--% Score"
@@ -193,7 +189,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
-                            android:fontFamily="@font/poppins_bold"
                             android:textColor="?attr/colorOnSurface"
                             android:textSize="38sp" />
 
@@ -202,7 +197,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:fontFamily="@font/poppins"
                             android:textColor="@color/eve_text_secondary"
                             android:textSize="13sp" />
 
@@ -230,7 +224,6 @@
                                     android:id="@+id/tvCorrectCount"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins_bold"
                                     android:text="0"
                                     android:textColor="@color/eve_status_success"
                                     android:textSize="18sp" />
@@ -238,10 +231,9 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins"
                                     android:text="Right"
                                     android:textColor="@color/eve_text_secondary"
-                                    android:textSize="11sp" />
+                                    android:textSize="13sp" />
                             </LinearLayout>
 
                             <LinearLayout
@@ -255,7 +247,6 @@
                                     android:id="@+id/tvWrongCount"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins_bold"
                                     android:text="0"
                                     android:textColor="@color/eve_status_error"
                                     android:textSize="18sp" />
@@ -263,10 +254,9 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins"
                                     android:text="Wrong"
                                     android:textColor="@color/eve_text_secondary"
-                                    android:textSize="11sp" />
+                                    android:textSize="13sp" />
                             </LinearLayout>
 
                             <LinearLayout
@@ -280,7 +270,6 @@
                                     android:id="@+id/tvUnattemptedCount"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins_bold"
                                     android:text="0"
                                     android:textColor="@color/eve_text_secondary"
                                     android:textSize="18sp" />
@@ -288,10 +277,9 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins"
                                     android:text="Skipped"
                                     android:textColor="@color/eve_text_secondary"
-                                    android:textSize="11sp" />
+                                    android:textSize="13sp" />
                             </LinearLayout>
 
                             <LinearLayout
@@ -305,7 +293,6 @@
                                     android:id="@+id/tvAccuracy"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins_bold"
                                     android:text="--%"
                                     android:textColor="?attr/colorOnSurface"
                                     android:textSize="18sp" />
@@ -313,10 +300,9 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins"
                                     android:text="Accuracy"
                                     android:textColor="@color/eve_text_secondary"
-                                    android:textSize="11sp" />
+                                    android:textSize="13sp" />
                             </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>
@@ -342,7 +328,6 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_semibold"
                             android:letterSpacing="0.04"
                             android:text="PERFORMANCE STANDING"
                             android:textColor="@color/eve_text_secondary"
@@ -360,7 +345,6 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:fontFamily="@font/poppins"
                                 android:text="Overall Rank"
                                 android:textColor="?attr/colorOnSurface"
                                 android:textSize="14sp" />
@@ -369,7 +353,6 @@
                                 android:id="@+id/tvRank"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="@font/poppins_bold"
                                 android:text="-- / --"
                                 android:textColor="?attr/colorOnSurface"
                                 android:textSize="15sp" />
@@ -392,7 +375,6 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:fontFamily="@font/poppins"
                                 android:text="Percentile Score"
                                 android:textColor="?attr/colorOnSurface"
                                 android:textSize="14sp" />
@@ -401,7 +383,6 @@
                                 android:id="@+id/tvPercentile"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="@font/poppins_bold"
                                 android:text="--%"
                                 android:textColor="?attr/colorOnSurface"
                                 android:textSize="15sp" />
@@ -424,7 +405,6 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:fontFamily="@font/poppins"
                                 android:text="Batch Performance"
                                 android:textColor="?attr/colorOnSurface"
                                 android:textSize="14sp" />
@@ -433,7 +413,6 @@
                                 android:id="@+id/tvTopperAvg"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="@font/poppins_semibold"
                                 android:text="Topper: -- • Average: --"
                                 android:textColor="@color/eve_text_secondary"
                                 android:textSize="13sp" />
@@ -456,7 +435,6 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:fontFamily="@font/poppins"
                                 android:text="Historical Best &amp; Avg"
                                 android:textColor="?attr/colorOnSurface"
                                 android:textSize="14sp" />
@@ -465,7 +443,6 @@
                                 android:id="@+id/tvHistoryBestAvg"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="@font/poppins_semibold"
                                 android:text="-- / --"
                                 android:textColor="@color/eve_text_secondary"
                                 android:textSize="13sp" />
@@ -504,7 +481,6 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="@font/poppins"
                                 android:text="Selected Category:"
                                 android:textColor="@color/eve_text_secondary"
                                 android:textSize="13sp" />
@@ -514,7 +490,6 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="6dp"
                                 android:layout_weight="1"
-                                android:fontFamily="@font/poppins_bold"
                                 android:text="General"
                                 android:textColor="?attr/colorOnSurface"
                                 android:textSize="15sp" />
@@ -523,7 +498,6 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/bg_stat_mini"
-                                android:fontFamily="@font/poppins_bold"
                                 android:paddingHorizontal="10dp"
                                 android:paddingVertical="4dp"
                                 android:text="Checking..."
@@ -547,7 +521,6 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins"
                                     android:text="Required Cutoff"
                                     android:textColor="@color/eve_text_secondary"
                                     android:textSize="12sp" />
@@ -556,7 +529,6 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="2dp"
-                                    android:fontFamily="@font/poppins_bold"
                                     android:text="Cutoff: --"
                                     android:textColor="?attr/colorOnSurface"
                                     android:textSize="15sp" />
@@ -569,7 +541,6 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins"
                                     android:text="Your Score"
                                     android:textColor="@color/eve_text_secondary"
                                     android:textSize="12sp" />
@@ -578,7 +549,6 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="2dp"
-                                    android:fontFamily="@font/poppins_bold"
                                     android:text="Score: --"
                                     android:textColor="?attr/colorOnSurface"
                                     android:textSize="15sp" />
@@ -589,7 +559,6 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
-                            android:fontFamily="@font/poppins_medium"
                             android:text="Qualification verdict message."
                             android:textColor="@color/eve_text_secondary"
                             android:textSize="13sp" />
@@ -601,7 +570,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="22dp"
                     android:layout_marginBottom="8dp"
-                    android:fontFamily="@font/poppins_semibold"
                     android:letterSpacing="0.04"
                     android:text="SELECT CATEGORY TO COMPARE"
                     android:textColor="@color/eve_text_secondary"
@@ -639,7 +607,6 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins_semibold"
                                     android:text="General"
                                     android:textColor="?attr/colorOnSurface"
                                     android:textSize="15sp" />
@@ -648,7 +615,6 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="2dp"
-                                    android:fontFamily="@font/poppins"
                                     android:text="No cutoff configured"
                                     android:textColor="@color/eve_text_secondary"
                                     android:textSize="12sp" />
@@ -685,7 +651,6 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins_semibold"
                                     android:text="OBC"
                                     android:textColor="?attr/colorOnSurface"
                                     android:textSize="15sp" />
@@ -694,7 +659,6 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="2dp"
-                                    android:fontFamily="@font/poppins"
                                     android:text="No cutoff configured"
                                     android:textColor="@color/eve_text_secondary"
                                     android:textSize="12sp" />
@@ -732,7 +696,6 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins_semibold"
                                     android:text="SC"
                                     android:textColor="?attr/colorOnSurface"
                                     android:textSize="15sp" />
@@ -741,7 +704,6 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="2dp"
-                                    android:fontFamily="@font/poppins"
                                     android:text="No cutoff configured"
                                     android:textColor="@color/eve_text_secondary"
                                     android:textSize="12sp" />
@@ -779,7 +741,6 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins_semibold"
                                     android:text="ST"
                                     android:textColor="?attr/colorOnSurface"
                                     android:textSize="15sp" />
@@ -788,7 +749,6 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="2dp"
-                                    android:fontFamily="@font/poppins"
                                     android:text="No cutoff configured"
                                     android:textColor="@color/eve_text_secondary"
                                     android:textSize="12sp" />
@@ -826,7 +786,6 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins_semibold"
                                     android:text="EWS"
                                     android:textColor="?attr/colorOnSurface"
                                     android:textSize="15sp" />
@@ -835,7 +794,6 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="2dp"
-                                    android:fontFamily="@font/poppins"
                                     android:text="No cutoff configured"
                                     android:textColor="@color/eve_text_secondary"
                                     android:textSize="12sp" />
@@ -873,7 +831,6 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_semibold"
                             android:letterSpacing="0.04"
                             android:text="TIME &amp; PACE INSIGHTS"
                             android:textColor="@color/eve_text_secondary"
@@ -884,7 +841,6 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:fontFamily="@font/poppins_medium"
                             android:lineSpacingExtra="4dp"
                             android:text="Pace calculations will appear here."
                             android:textColor="?attr/colorOnSurface"
@@ -924,7 +880,6 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:fontFamily="@font/poppins_semibold"
                             android:text="Question Palette"
                             android:textColor="?attr/colorOnSurface"
                             android:textSize="14sp" />
@@ -947,10 +902,9 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="4dp"
                                 android:layout_marginEnd="8dp"
-                                android:fontFamily="@font/poppins"
                                 android:text="Right"
                                 android:textColor="@color/eve_text_secondary"
-                                android:textSize="11sp" />
+                                android:textSize="13sp" />
 
                             <!-- Wrong Dot -->
                             <View
@@ -963,10 +917,9 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="4dp"
                                 android:layout_marginEnd="8dp"
-                                android:fontFamily="@font/poppins"
                                 android:text="Wrong"
                                 android:textColor="@color/eve_text_secondary"
-                                android:textSize="11sp" />
+                                android:textSize="13sp" />
 
                             <!-- Skipped Dot -->
                             <View
@@ -978,10 +931,9 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="4dp"
-                                android:fontFamily="@font/poppins"
                                 android:text="Skipped"
                                 android:textColor="@color/eve_text_secondary"
-                                android:textSize="11sp" />
+                                android:textSize="13sp" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -1070,7 +1022,6 @@
                             android:id="@+id/tvEmptyFilterTitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_bold"
                             android:text="No questions found"
                             android:textColor="?attr/colorOnSurface"
                             android:textSize="16sp" />
@@ -1080,7 +1031,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
-                            android:fontFamily="@font/poppins"
                             android:gravity="center"
                             android:text="Select another filter above or tap any question on the palette."
                             android:textColor="@color/eve_text_secondary"
@@ -1127,7 +1077,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
-                            android:fontFamily="@font/poppins_bold"
                             android:text="Test Leaderboard"
                             android:textColor="?attr/colorOnSurface"
                             android:textSize="18sp" />
@@ -1137,7 +1086,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:fontFamily="@font/poppins"
                             android:gravity="center"
                             android:text="See how you rank against all students who took this exam."
                             android:textColor="@color/eve_text_secondary"
@@ -1156,7 +1104,6 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="@font/poppins_medium"
                                 android:text="Your Standing: "
                                 android:textColor="@color/eve_text_secondary"
                                 android:textSize="13sp" />
@@ -1165,7 +1112,6 @@
                                 android:id="@+id/tvLeaderboardTabRank"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="@font/poppins_bold"
                                 android:text="-- / --"
                                 android:textColor="@color/eve_primary"
                                 android:textSize="14sp" />
@@ -1215,7 +1161,6 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_semibold"
                             android:letterSpacing="0.04"
                             android:text="PERFORMANCE SUMMARY"
                             android:textColor="@color/eve_text_secondary"
@@ -1239,7 +1184,6 @@
                                     android:id="@+id/tvAnalysisAttempted"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins_bold"
                                     android:text="0%"
                                     android:textColor="?attr/colorOnSurface"
                                     android:textSize="18sp" />
@@ -1247,10 +1191,9 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins"
                                     android:text="Attempted"
                                     android:textColor="@color/eve_text_secondary"
-                                    android:textSize="11sp" />
+                                    android:textSize="13sp" />
                             </LinearLayout>
 
                             <LinearLayout
@@ -1264,7 +1207,6 @@
                                     android:id="@+id/tvAnalysisAccuracy"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins_bold"
                                     android:text="0%"
                                     android:textColor="@color/eve_status_success"
                                     android:textSize="18sp" />
@@ -1272,10 +1214,9 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins"
                                     android:text="Accuracy"
                                     android:textColor="@color/eve_text_secondary"
-                                    android:textSize="11sp" />
+                                    android:textSize="13sp" />
                             </LinearLayout>
 
                             <LinearLayout
@@ -1289,7 +1230,6 @@
                                     android:id="@+id/tvAnalysisAvgTime"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins_bold"
                                     android:text="0s"
                                     android:textColor="@color/eve_primary"
                                     android:textSize="18sp" />
@@ -1297,10 +1237,9 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:fontFamily="@font/poppins"
                                     android:text="Avg / Question"
                                     android:textColor="@color/eve_text_secondary"
-                                    android:textSize="11sp" />
+                                    android:textSize="13sp" />
                             </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>
@@ -1326,7 +1265,6 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_semibold"
                             android:letterSpacing="0.04"
                             android:text="TIME PER QUESTION"
                             android:textColor="@color/eve_text_secondary"
@@ -1337,7 +1275,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:fontFamily="@font/poppins"
                             android:text="Tap a bar to inspect time taken"
                             android:textColor="@color/eve_text_secondary"
                             android:textSize="12sp" />
@@ -1377,7 +1314,6 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_semibold"
                             android:letterSpacing="0.04"
                             android:text="SLOWEST QUESTIONS"
                             android:textColor="@color/eve_text_secondary"
@@ -1412,7 +1348,6 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_semibold"
                             android:letterSpacing="0.04"
                             android:text="TOPIC-WISE ACCURACY (WEAKEST FIRST)"
                             android:textColor="@color/eve_text_secondary"

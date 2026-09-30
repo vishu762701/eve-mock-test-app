@@ -12,39 +12,49 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_primary"
+        android:minHeight="56dp"
+        android:background="@color/eve_bg"
         android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:paddingHorizontal="4dp"
-        android:paddingVertical="10dp">
+        android:paddingVertical="8dp">
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Back"
-            android:padding="8dp"
-            android:src="@drawable/ic_back" />
+            android:padding="12dp"
+            android:src="@drawable/ic_back"
+            app:tint="@color/eve_text" />
 
         <TextView
+            style="@style/TextAppearance.Eve.ScreenTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:fontFamily="@font/poppins_bold"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:paddingStart="4dp"
             android:text="Activity &amp; Audit Log"
-            android:textColor="@color/eve_on_primary"
-            android:textSize="18sp" />
+            android:textColor="@color/eve_text" />
 
         <ImageButton
             android:id="@+id/btnRefresh"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Refresh"
-            android:padding="8dp"
+            android:padding="12dp"
             android:src="@drawable/ic_refresh"
-            app:tint="@color/eve_on_primary" />
+            app:tint="@color/eve_text" />
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/eve_stroke" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -55,7 +65,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins"
             android:text="Read-only activity trail recording exam changes, broadcast dispatch, feedback moderation, and maintenance events."
             android:textColor="@color/eve_text_secondary"
             android:textSize="12sp" />
@@ -74,7 +83,6 @@
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_medium"
                 android:text="Today" />
 
             <com.google.android.material.chip.Chip
@@ -82,7 +90,6 @@
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_medium"
                 android:text="Last 7 days" />
 
             <com.google.android.material.chip.Chip
@@ -91,7 +98,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                android:fontFamily="@font/poppins_medium"
                 android:text="All time" />
         </com.google.android.material.chip.ChipGroup>
 
@@ -119,7 +125,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:fontFamily="@font/poppins"
                 android:gravity="center"
                 android:text="No activity logs recorded for this period."
                 android:textColor="@color/eve_text_secondary"

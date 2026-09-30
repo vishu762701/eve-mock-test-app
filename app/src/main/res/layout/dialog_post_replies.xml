@@ -10,7 +10,6 @@
         android:id="@+id/tvPostRepliesTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/poppins_semibold"
         android:text="Replies to Post"
         android:textColor="@color/eve_text"
         android:textSize="18sp" />
@@ -20,7 +19,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:fontFamily="@font/poppins"
         android:text="Post message preview..."
         android:textColor="@color/eve_text_secondary"
         android:textSize="13sp" />
@@ -39,7 +37,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
-        android:fontFamily="@font/poppins"
         android:gravity="center"
         android:text="No replies yet for this post."
         android:textColor="@color/eve_text_secondary"
@@ -68,7 +65,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
-            android:fontFamily="@font/poppins_medium"
             android:text="Delete Post"
             android:textColor="@color/eve_red" />
 
@@ -78,7 +74,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:fontFamily="@font/poppins_medium"
             android:text="Close" />
     </LinearLayout>
 </LinearLayout>

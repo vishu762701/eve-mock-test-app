@@ -1,5 +1,7 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -18,7 +20,7 @@ import com.eve.app.util.AppUndoBar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 
-class ManageExistingExamsActivity : AppCompatActivity() {
+class ManageExistingExamsActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityManageExistingExamsBinding
     private val examRepo = ExamRepository()

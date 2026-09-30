@@ -19,7 +19,6 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/poppins_bold"
         android:text="Choose Payment Method"
         android:textColor="@color/eve_text"
         android:textSize="18sp" />
@@ -29,7 +28,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
-        android:fontFamily="@font/poppins_regular"
         android:textColor="@color/eve_text_secondary"
         android:textSize="13sp"
         tools:text="Select how you want to pay ₹99" />
@@ -44,7 +42,7 @@
         android:focusable="true"
         app:cardBackgroundColor="@color/eve_surface"
         app:cardCornerRadius="14dp"
-        app:cardElevation="1dp"
+        app:cardElevation="0dp"
         app:strokeColor="@color/eve_stroke"
         app:strokeWidth="1dp">
 
@@ -71,7 +69,6 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_bold"
                     android:text="QR Code"
                     android:textColor="@color/eve_text"
                     android:textSize="15sp" />
@@ -79,7 +76,6 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_regular"
                     android:text="Scan dynamic QR with any UPI app"
                     android:textColor="@color/eve_text_secondary"
                     android:textSize="12sp" />
@@ -103,7 +99,7 @@
         android:focusable="true"
         app:cardBackgroundColor="@color/eve_surface"
         app:cardCornerRadius="14dp"
-        app:cardElevation="1dp"
+        app:cardElevation="0dp"
         app:strokeColor="@color/eve_stroke"
         app:strokeWidth="1dp">
 
@@ -130,7 +126,6 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_bold"
                     android:text="UPI Apps"
                     android:textColor="@color/eve_text"
                     android:textSize="15sp" />
@@ -138,7 +133,6 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_regular"
                     android:text="Pay directly via GPay, PhonePe, Paytm"
                     android:textColor="@color/eve_text_secondary"
                     android:textSize="12sp" />

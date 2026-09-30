@@ -1,5 +1,7 @@
 package com.eve.app.ui.performance
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
@@ -23,7 +25,7 @@ import kotlinx.coroutines.launch
  *
  * Home screen ke "Performance" button se yahan aate hain.
  */
-class PerformanceActivity : AppCompatActivity() {
+class PerformanceActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityPerformanceBinding
     private val viewModel: PerformanceViewModel by viewModels()

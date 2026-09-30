@@ -21,7 +21,6 @@
                 android:id="@+id/etQuestionText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins"
                 android:inputType="textMultiLine"
                 android:minLines="2" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -37,8 +36,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etOptionA"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins" />
+                android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -51,8 +49,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etOptionB"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins" />
+                android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -65,8 +62,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etOptionC"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins" />
+                android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -79,15 +75,13 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etOptionD"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins" />
+                android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:fontFamily="@font/poppins_semibold"
             android:text="Correct Answer"
             android:textColor="@color/eve_text"
             android:textSize="13sp" />
@@ -139,7 +133,6 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:fontFamily="@font/poppins_semibold"
                 android:text="Explanation"
                 android:textColor="@color/eve_text"
                 android:textSize="13sp" />
@@ -174,7 +167,6 @@
                 android:id="@+id/etExplanation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins"
                 android:gravity="top|start"
                 android:inputType="textMultiLine"
                 android:minLines="3"
@@ -191,8 +183,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etTopic"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins" />
+                android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

@@ -10,7 +10,7 @@
     android:foreground="?attr/selectableItemBackground"
     app:cardBackgroundColor="@color/eve_surface"
     app:cardCornerRadius="@dimen/eve_radius_md"
-    app:cardElevation="1dp"
+    app:cardElevation="0dp"
     app:rippleColor="@color/eve_primary"
     app:strokeColor="@color/eve_stroke"
     app:strokeWidth="1dp">
@@ -31,12 +31,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_pill_accent"
-                android:fontFamily="@font/poppins_medium"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="3dp"
                 android:text="📢 Feedback"
                 android:textColor="@color/eve_primary"
-                android:textSize="11sp" />
+                android:textSize="13sp" />
 
             <View
                 android:layout_width="0dp"
@@ -47,7 +46,6 @@
                 android:id="@+id/tvFeedbackPostDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins"
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -57,7 +55,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:fontFamily="@font/poppins_semibold"
             android:textColor="?attr/colorOnSurface"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -67,7 +64,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:fontFamily="@font/poppins"
             android:textColor="@color/eve_text_secondary"
             android:textSize="13sp" />
 
@@ -86,7 +82,6 @@
                 android:layout_height="40dp"
                 android:layout_weight="1"
                 android:background="@drawable/bg_edit_text_rounded"
-                android:fontFamily="@font/poppins"
                 android:hint="Type your reply..."
                 android:imeOptions="actionSend"
                 android:inputType="textCapSentences"
@@ -104,7 +99,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:layout_marginStart="8dp"
-                android:fontFamily="@font/poppins_semibold"
                 android:paddingHorizontal="14dp"
                 android:text="Reply"
                 android:textSize="12sp" />

@@ -1,5 +1,7 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.os.Bundle
 import android.view.View
 import com.eve.app.util.AppBulletin
@@ -22,7 +24,7 @@ import com.eve.app.data.model.AdminAuditLog
 import com.eve.app.data.repository.AuditLogRepository
 import com.eve.app.data.repository.ApiUsageRepository
 
-class SendNotificationActivity : AppCompatActivity() {
+class SendNotificationActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivitySendNotificationBinding
     private lateinit var sentAdapter: SentBroadcastAdapter

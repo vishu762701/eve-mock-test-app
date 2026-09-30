@@ -14,12 +14,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        app:cardBackgroundColor="#EB202020"
+        app:cardBackgroundColor="@color/eve_bulletin_bg"
         app:cardCornerRadius="20dp"
-        app:cardElevation="6dp"
+        app:cardElevation="0dp"
         app:cardPreventCornerOverlap="false"
         app:cardUseCompatPadding="false"
-        app:strokeColor="#26FFFFFF"
+        app:strokeColor="@color/eve_bulletin_stroke"
         app:strokeWidth="1dp">
 
         <LinearLayout
@@ -36,16 +36,15 @@
                 android:layout_height="20dp"
                 android:layout_marginEnd="10dp"
                 android:src="@drawable/ic_check_circle"
-                app:tint="#FFFFFF" />
+                app:tint="@color/eve_bulletin_text" />
 
             <TextView
                 android:id="@+id/tvBulletinMessage"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:fontFamily="@font/poppins_regular"
                 android:maxWidth="260dp"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/eve_bulletin_text"
                 android:textSize="14sp" />
 
             <TextView
@@ -56,12 +55,11 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
                 android:focusable="true"
-                android:fontFamily="@font/poppins_bold"
                 android:paddingHorizontal="6dp"
                 android:paddingVertical="2dp"
                 android:text="UNDO"
                 android:textAllCaps="true"
-                android:textColor="#FFB74D"
+                android:textColor="@color/eve_bulletin_action"
                 android:textSize="13sp"
                 android:textStyle="bold"
                 android:visibility="gone" />

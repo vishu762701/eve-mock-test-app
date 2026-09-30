@@ -36,7 +36,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:fontFamily="@font/poppins_semibold"
                 android:text="Send Notification"
                 android:textColor="@color/eve_text"
                 android:textSize="19sp" />
@@ -70,7 +69,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:layout_weight="1"
-                android:fontFamily="@font/poppins_semibold"
                 android:text="0 selected"
                 android:textColor="@color/eve_text"
                 android:textSize="17sp" />
@@ -82,7 +80,6 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
                 android:focusable="true"
-                android:fontFamily="@font/poppins_medium"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="8dp"
                 android:text="Select all"
@@ -116,7 +113,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_semibold"
                 android:text="Broadcast Push Notification"
                 android:textColor="@color/eve_text"
                 android:textSize="18sp" />
@@ -125,7 +121,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:fontFamily="@font/poppins"
                 android:text="This message will be pushed to all registered users subscribed to the app."
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="13sp" />
@@ -135,7 +130,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:fontFamily="@font/poppins_medium"
                 android:text="Target Audience"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
@@ -163,7 +157,6 @@
                     android:id="@+id/etTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins"
                     android:inputType="textCapSentences"
                     android:maxLines="1"
                     android:textColor="@color/eve_text"
@@ -189,7 +182,6 @@
                     android:id="@+id/etMessage"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins"
                     android:gravity="top|start"
                     android:inputType="textMultiLine|textCapSentences"
                     android:maxLength="500"
@@ -205,7 +197,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:fontFamily="@font/poppins_semibold"
                 android:text="Send to All Users"
                 app:icon="@drawable/ic_send"
                 app:iconGravity="textStart" />
@@ -230,7 +221,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_semibold"
                 android:text="Sent Broadcasts"
                 android:textColor="@color/eve_text"
                 android:textSize="18sp" />
@@ -239,7 +229,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:fontFamily="@font/poppins"
                 android:text="Note: Already-delivered push notifications cannot be recalled from a device. Deleting a broadcast removes it from all students' in-app notification lists."
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="12sp" />
@@ -258,7 +247,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="20dp"
-                android:fontFamily="@font/poppins"
                 android:text="No broadcast messages sent yet."
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="14sp"

@@ -1,5 +1,7 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Bundle
@@ -24,7 +26,7 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
-class ManagePollsActivity : AppCompatActivity() {
+class ManagePollsActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityManagePollsBinding
     private val pollRepository = PollRepository()

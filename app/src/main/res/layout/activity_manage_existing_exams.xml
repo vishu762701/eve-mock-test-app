@@ -31,7 +31,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:fontFamily="@font/poppins_semibold"
             android:text="Manage Existing Exams"
             android:textColor="@color/eve_text"
             android:textSize="19sp" />
@@ -80,7 +79,6 @@
                 android:layout_height="match_parent"
                 android:layout_marginStart="8dp"
                 android:background="@null"
-                android:fontFamily="@font/poppins"
                 android:hint="Search by exam name or category..."
                 android:imeOptions="actionSearch"
                 android:inputType="text"
@@ -132,7 +130,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:fontFamily="@font/poppins_semibold"
                 android:text="No exams found"
                 android:textColor="@color/eve_text"
                 android:textSize="17sp" />
@@ -142,7 +139,6 @@
                 android:layout_width="260dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:fontFamily="@font/poppins"
                 android:gravity="center"
                 android:text="No existing exams match your search or filter."
                 android:textColor="@color/eve_text_secondary"

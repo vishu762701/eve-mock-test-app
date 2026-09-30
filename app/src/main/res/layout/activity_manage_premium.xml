@@ -32,7 +32,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:fontFamily="@font/poppins_semibold"
             android:text="Premium Management"
             android:textColor="@color/eve_text"
             android:textSize="19sp" />
@@ -54,9 +53,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/eve_surface"
-        app:tabIndicatorColor="@color/eve_accent"
+        app:tabIndicatorColor="@color/eve_premium"
+        app:tabIndicatorHeight="2dp"
         app:tabMode="fixed"
         app:tabSelectedTextColor="@color/eve_text"
+        app:tabTextAppearance="@style/TextAppearance.Eve.Button"
         app:tabTextColor="@color/eve_text_secondary">
 
         <com.google.android.material.tabs.TabItem
@@ -107,7 +108,7 @@
                     android:layout_height="wrap_content"
                     app:cardBackgroundColor="@color/eve_surface"
                     app:cardCornerRadius="14dp"
-                    app:cardElevation="1dp"
+                    app:cardElevation="0dp"
                     app:strokeColor="@color/eve_stroke"
                     app:strokeWidth="1dp">
 
@@ -120,7 +121,6 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_bold"
                             android:text="Premium Plan"
                             android:textColor="@color/eve_text"
                             android:textSize="16sp" />
@@ -206,7 +206,7 @@
                     android:layout_marginTop="16dp"
                     app:cardBackgroundColor="@color/eve_surface"
                     app:cardCornerRadius="14dp"
-                    app:cardElevation="1dp"
+                    app:cardElevation="0dp"
                     app:strokeColor="@color/eve_stroke"
                     app:strokeWidth="1dp">
 
@@ -219,7 +219,6 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_bold"
                             android:text="Payment Methods &amp; Expiry"
                             android:textColor="@color/eve_text"
                             android:textSize="16sp" />
@@ -297,7 +296,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:fontFamily="@font/poppins_medium"
                 android:text="No transactions found"
                 android:textColor="@color/eve_text_secondary"
                 android:visibility="gone" />
@@ -343,7 +341,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:fontFamily="@font/poppins_medium"
                     android:text="No premium users found"
                     android:textColor="@color/eve_text_secondary"
                     android:visibility="gone" />

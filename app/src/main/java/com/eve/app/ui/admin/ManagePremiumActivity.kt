@@ -1,5 +1,7 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,7 +20,7 @@ import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.launch
 
-class ManagePremiumActivity : AppCompatActivity() {
+class ManagePremiumActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityManagePremiumBinding
     private val auditRepo = AuditLogRepository()

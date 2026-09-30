@@ -36,7 +36,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_bold"
                 android:text="Mistake Notebook"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="18sp" />
@@ -45,7 +44,6 @@
                 android:id="@+id/tvSubtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins"
                 android:text="Review your incorrect and skipped questions"
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="12sp" />
@@ -77,7 +75,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/eve_status_error"
-        android:fontFamily="@font/poppins_medium"
         android:gravity="center"
         android:paddingVertical="6dp"
         android:text="You are offline. Showing cached mistakes."
@@ -152,7 +149,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:fontFamily="@font/poppins_bold"
                 android:text="All Caught Up!"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="18sp" />
@@ -162,7 +158,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:fontFamily="@font/poppins"
                 android:gravity="center"
                 android:text="No mistakes recorded. Questions you answer incorrectly or skip will automatically appear here."
                 android:textColor="@color/eve_text_secondary"

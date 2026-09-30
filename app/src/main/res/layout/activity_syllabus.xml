@@ -42,7 +42,6 @@
                 android:id="@+id/etSearch"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:fontFamily="@font/poppins_regular"
                 android:hint="Search syllabus by exam..."
                 android:imeOptions="actionSearch"
                 android:inputType="text"

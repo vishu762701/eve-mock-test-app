@@ -13,7 +13,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins_bold"
             android:text="Create New Poll"
             android:textColor="@color/eve_text"
             android:textSize="18sp" />
@@ -22,7 +21,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:fontFamily="@font/poppins_medium"
             android:text="Poll Question *"
             android:textColor="@color/eve_text"
             android:textSize="13sp" />
@@ -33,7 +31,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:background="@drawable/bg_edit_text_rounded"
-            android:fontFamily="@font/poppins_regular"
             android:hint="e.g. Which subject is toughest?"
             android:inputType="textCapSentences|textMultiLine"
             android:maxLines="3"
@@ -45,7 +42,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:fontFamily="@font/poppins_medium"
             android:text="Options (2 to 6) *"
             android:textColor="@color/eve_text"
             android:textSize="13sp" />
@@ -63,7 +59,6 @@
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:layout_marginTop="8dp"
-            android:fontFamily="@font/poppins_medium"
             android:text="+ Add Option"
             android:textSize="12sp" />
 
@@ -71,7 +66,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:fontFamily="@font/poppins_medium"
             android:text="Poll Duration / End Date (Optional)"
             android:textColor="@color/eve_text"
             android:textSize="13sp" />
@@ -88,7 +82,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:checked="true"
-            android:fontFamily="@font/poppins_medium"
             android:text="Activate Immediately"
             android:textColor="@color/eve_text" />
 
@@ -104,7 +97,6 @@
                 style="@style/Widget.Eve.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_medium"
                 android:text="Cancel" />
 
             <com.google.android.material.button.MaterialButton
@@ -113,7 +105,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
-                android:fontFamily="@font/poppins_semibold"
                 android:text="Create Poll" />
         </LinearLayout>
     </LinearLayout>

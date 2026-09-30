@@ -70,6 +70,7 @@ class AvatarDrawable(
             val bmp = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bmp)
             val drawable = create(name, id)
+            drawable.setTextTypeface(FontManager.typeface(context, bold = true))
             drawable.setBounds(0, 0, sizePx, sizePx)
             drawable.draw(canvas)
             return bmp
@@ -81,6 +82,11 @@ class AvatarDrawable(
         color = Color.WHITE
         textAlign = Paint.Align.CENTER
         typeface = Typeface.DEFAULT_BOLD
+    }
+
+    fun setTextTypeface(tf: Typeface) {
+        textPaint.typeface = tf
+        invalidateSelf()
     }
 
     override fun onBoundsChange(bounds: Rect) {

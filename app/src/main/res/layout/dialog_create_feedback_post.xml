@@ -9,7 +9,6 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/poppins_semibold"
         android:text="📢 Create Feedback Post"
         android:textColor="?attr/colorOnSurface"
         android:textSize="18sp" />
@@ -18,7 +17,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:fontFamily="@font/poppins"
         android:text="Publish a feedback inquiry or question for students on the Home screen."
         android:textColor="@color/eve_text_secondary"
         android:textSize="13sp" />
@@ -36,7 +34,6 @@
             android:id="@+id/etPostTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins"
             android:inputType="textCapSentences"
             android:maxLines="2"
             android:textSize="14sp" />
@@ -55,7 +52,6 @@
             android:id="@+id/etPostMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins"
             android:gravity="top|start"
             android:inputType="textMultiLine|textCapSentences"
             android:minLines="3"
@@ -75,7 +71,6 @@
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
-            android:fontFamily="@font/poppins_medium"
             android:text="Cancel"
             android:textColor="@color/eve_text_secondary" />
 
@@ -86,7 +81,6 @@
             android:layout_height="48dp"
             android:layout_marginStart="12dp"
             android:layout_weight="1.5"
-            android:fontFamily="@font/poppins_semibold"
             android:text="Publish Post" />
     </LinearLayout>
 </LinearLayout>

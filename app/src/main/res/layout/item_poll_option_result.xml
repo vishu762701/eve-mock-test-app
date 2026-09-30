@@ -17,7 +17,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:fontFamily="@font/poppins_medium"
             android:textColor="@color/eve_text"
             android:textSize="13sp"
             tools:text="Option 1" />
@@ -26,7 +25,6 @@
             android:id="@+id/tvOptionPercent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins_semibold"
             android:textColor="@color/eve_primary"
             android:textSize="13sp"
             tools:text="45%" />
@@ -47,8 +45,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
-        android:fontFamily="@font/poppins"
         android:textColor="@color/eve_text_secondary"
-        android:textSize="11sp"
+        android:textSize="13sp"
         tools:text="23 votes" />
 </LinearLayout>

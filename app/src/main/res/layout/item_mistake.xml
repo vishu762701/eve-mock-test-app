@@ -29,12 +29,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_stat_mini"
-                android:fontFamily="@font/poppins_semibold"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="2dp"
                 android:text="Wrong Answer"
                 android:textColor="@color/eve_status_error"
-                android:textSize="11sp" />
+                android:textSize="13sp" />
 
             <View
                 android:layout_width="0dp"
@@ -50,7 +49,7 @@
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="2dp"
                 android:text="Mark as learned"
-                android:textSize="11sp"
+                android:textSize="13sp"
                 app:strokeColor="@color/eve_stroke" />
         </LinearLayout>
 
@@ -60,7 +59,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:fontFamily="@font/poppins_medium"
             android:textColor="?attr/colorOnSurface"
             android:textSize="15sp" />
 
@@ -77,17 +75,15 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_semibold"
                 android:text="Your Answer:"
                 android:textColor="@color/eve_status_error"
-                android:textSize="11sp" />
+                android:textSize="13sp" />
 
             <TextView
                 android:id="@+id/tvYourAnswer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:fontFamily="@font/poppins"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="13sp" />
         </LinearLayout>
@@ -105,17 +101,15 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_semibold"
                 android:text="Correct Answer:"
                 android:textColor="@color/eve_status_success"
-                android:textSize="11sp" />
+                android:textSize="13sp" />
 
             <TextView
                 android:id="@+id/tvCorrectAnswer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:fontFamily="@font/poppins"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="13sp" />
         </LinearLayout>
@@ -132,17 +126,15 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_semibold"
                 android:text="Explanation:"
                 android:textColor="@color/eve_text_secondary"
-                android:textSize="11sp" />
+                android:textSize="13sp" />
 
             <TextView
                 android:id="@+id/tvExplanation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:fontFamily="@font/poppins"
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="13sp" />
         </LinearLayout>

@@ -15,3 +15,6 @@ functions/package-lock.json
 backend/node_modules/
 backend/.wrangler/
 backend/package-lock.json
+/project.zip
+/Project.zip
+/LATEST_PROJECT_CODE.txt

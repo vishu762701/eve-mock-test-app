@@ -36,13 +36,15 @@ class QuestionTimeChartView @JvmOverloads constructor(
 
     private val barPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        textSize = 10f * density
+        textSize = 13f * density
         textAlign = Paint.Align.CENTER
+        typeface = com.eve.app.util.FontManager.typeface(context, bold = false)
     }
     private val valuePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        textSize = 10f * density
+        textSize = 13f * density
         textAlign = Paint.Align.CENTER
         color = ContextCompat.getColor(context, R.color.eve_text_secondary)
+        typeface = com.eve.app.util.FontManager.typeface(context, bold = false)
     }
 
     private val colorCorrect = ContextCompat.getColor(context, R.color.eve_status_success)

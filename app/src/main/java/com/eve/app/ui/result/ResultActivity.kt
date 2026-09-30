@@ -1,5 +1,7 @@
 package com.eve.app.ui.result
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -40,7 +42,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-class ResultActivity : AppCompatActivity() {
+class ResultActivity : EveBaseActivity() {
 
     private val viewModel: ResultViewModel by viewModels()
     private lateinit var allItems: List<AnswerItem>

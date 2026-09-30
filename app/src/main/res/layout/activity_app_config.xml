@@ -31,7 +31,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:fontFamily="@font/poppins_semibold"
             android:text="App Config &amp; Maintenance"
             android:textColor="@color/eve_text"
             android:textSize="18sp" />
@@ -60,7 +59,7 @@
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/eve_card_bg"
                 app:cardCornerRadius="14dp"
-                app:cardElevation="2dp"
+                app:cardElevation="0dp"
                 app:strokeColor="@color/eve_stroke"
                 app:strokeWidth="1dp">
 
@@ -73,7 +72,6 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_semibold"
                         android:text="Live Backend Controls"
                         android:textColor="@color/eve_primary"
                         android:textSize="16sp" />
@@ -95,7 +93,6 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="@font/poppins_semibold"
                                 android:text="Maintenance Mode"
                                 android:textColor="@color/eve_text"
                                 android:textSize="15sp" />
@@ -103,7 +100,6 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="@font/poppins"
                                 android:text="Blocks non-admin users from using the app"
                                 android:textColor="@color/eve_text_secondary"
                                 android:textSize="12sp" />
@@ -127,7 +123,6 @@
                             android:id="@+id/etMaintenanceMessage"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins"
                             android:inputType="textMultiLine"
                             android:minLines="2" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -144,7 +139,6 @@
                             android:id="@+id/etMinVersionCode"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins"
                             android:inputType="number" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -153,10 +147,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:fontFamily="@font/poppins"
                         android:text="Current installed app version code: 1"
                         android:textColor="@color/eve_text_secondary"
-                        android:textSize="11sp" />
+                        android:textSize="13sp" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSaveConfig"
@@ -175,7 +168,7 @@
                 android:layout_marginTop="16dp"
                 app:cardBackgroundColor="@color/eve_card_bg"
                 app:cardCornerRadius="14dp"
-                app:cardElevation="2dp"
+                app:cardElevation="0dp"
                 app:strokeColor="@color/eve_stroke"
                 app:strokeWidth="1dp">
 
@@ -188,7 +181,6 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_semibold"
                         android:text="Firebase Console Remote Config Guide"
                         android:textColor="@color/eve_primary"
                         android:textSize="15sp" />
@@ -197,7 +189,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:fontFamily="@font/poppins"
                         android:lineSpacingExtra="3dp"
                         android:text="To manage safety limits directly in the Firebase Console without changing backend code:\n\n1. Go to Firebase Console -> Engage -> Remote Config.\n\n2. Configure these parameters:\n   • minimum_supported_version_code: (Number, e.g. 2). Users with lower version will see a blocking update prompt.\n   • maintenance_mode: (Boolean: true/false). Halts student access immediately.\n   • maintenance_message: (String). The message displayed to students during maintenance.\n\n3. Click 'Publish Changes' in Firebase Console."
                         android:textColor="@color/eve_text"

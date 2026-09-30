@@ -1,5 +1,7 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -14,7 +16,7 @@ import com.eve.app.util.AppBulletin
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
-class ActivityLogActivity : AppCompatActivity() {
+class ActivityLogActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityActivityLogBinding
     private val adminRepo = AdminRepository()

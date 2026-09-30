@@ -37,7 +37,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_bold"
                 android:text="Manage Syllabus"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="18sp" />
@@ -45,7 +44,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins"
                 android:text="Upload, assign and manage syllabus PDFs"
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="12sp" />
@@ -96,7 +94,6 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_semibold"
                         android:text="Add / Upload New Syllabus"
                         android:textColor="?attr/colorOnSurface"
                         android:textSize="15sp" />
@@ -105,7 +102,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:fontFamily="@font/poppins"
                         android:text="Associate a syllabus PDF (max 20MB) with an exam."
                         android:textColor="@color/eve_text_secondary"
                         android:textSize="12sp" />
@@ -123,7 +119,6 @@
                             android:id="@+id/actvSelectExam"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins"
                             android:inputType="none"
                             android:textSize="14sp" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -154,7 +149,6 @@
                             android:layout_marginStart="8dp"
                             android:layout_weight="1"
                             android:ellipsize="middle"
-                            android:fontFamily="@font/poppins_medium"
                             android:maxLines="1"
                             android:textColor="?attr/colorOnSurface"
                             android:textSize="13sp"
@@ -177,7 +171,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:fontFamily="@font/poppins_medium"
                         android:text="Choose PDF Document"
                         app:icon="@drawable/ic_upload" />
 
@@ -197,7 +190,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:fontFamily="@font/poppins_semibold"
                         android:text="Upload &amp; Assign Syllabus" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -216,7 +208,6 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:fontFamily="@font/poppins_semibold"
                     android:text="Existing Syllabuses"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="16sp" />
@@ -226,7 +217,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_stat_mini"
-                    android:fontFamily="@font/poppins_semibold"
                     android:paddingHorizontal="10dp"
                     android:paddingVertical="3dp"
                     android:textColor="@color/eve_primary"
@@ -249,7 +239,6 @@
                     android:id="@+id/etSearch"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins"
                     android:inputType="text"
                     android:textSize="14sp" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -276,7 +265,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:fontFamily="@font/poppins_semibold"
                     android:text="No Syllabuses Uploaded"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="15sp" />
@@ -285,7 +273,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:fontFamily="@font/poppins"
                     android:text="Choose an exam above to upload and attach its syllabus PDF."
                     android:textAlignment="center"
                     android:textColor="@color/eve_text_secondary"

@@ -28,7 +28,7 @@ class LeaderboardAdapter(
                 ContextCompat.getColor(
                     ctx,
                     when (rank) {
-                        1 -> R.color.eve_gold
+                        1 -> R.color.eve_premium_text
                         2 -> R.color.eve_silver
                         3 -> R.color.eve_bronze
                         else -> R.color.eve_grey
@@ -43,11 +43,11 @@ class LeaderboardAdapter(
 
             val isMe = currentUserId != null && entry.userId == currentUserId
             b.tvName.text = if (isMe) "${entry.displayName} (You)" else entry.displayName
-            // View recycle hote hain isliye highlight aur normal dono states explicitly set
-            // karni padti hain (warna scroll karne par purani highlight reuse ho jaati hai).
             b.root.setCardBackgroundColor(
                 ContextCompat.getColor(ctx, if (isMe) R.color.eve_highlight_bg else R.color.eve_card_bg)
             )
+            b.root.strokeColor = ContextCompat.getColor(ctx, if (isMe) R.color.eve_premium else R.color.eve_stroke)
+            b.root.strokeWidth = if (isMe) (1.5f * ctx.resources.displayMetrics.density).toInt() else (1f * ctx.resources.displayMetrics.density).toInt()
         }
     }
 

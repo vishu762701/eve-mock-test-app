@@ -1,5 +1,7 @@
 package com.eve.app.ui.about
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.net.Uri
@@ -13,7 +15,7 @@ import com.eve.app.util.Constants
  * Phase 14: Simple "About" screen jo Play Store ke liye zaroori Privacy Policy aur
  * Terms of Service links dikhata hai (dono hosted HTML pages, GitHub Pages par).
  */
-class AboutActivity : AppCompatActivity() {
+class AboutActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityAboutBinding
 

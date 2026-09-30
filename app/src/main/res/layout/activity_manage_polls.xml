@@ -29,7 +29,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_weight="1"
-            android:fontFamily="@font/poppins_bold"
             android:text="Polls Management"
             android:textColor="@color/eve_text"
             android:textSize="18sp" />
@@ -39,7 +38,6 @@
             style="@style/Widget.Eve.Button"
             android:layout_width="wrap_content"
             android:layout_height="38dp"
-            android:fontFamily="@font/poppins_semibold"
             android:paddingHorizontal="12dp"
             android:text="+ New Poll"
             android:textSize="12sp" />

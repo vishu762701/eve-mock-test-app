@@ -139,4 +139,35 @@ class ContrastTokensTest {
         val darkRatio = contrastRatio(darkColors["eve_status_warning"]!!, darkColors["eve_status_warning_container"]!!)
         assertTrue("Dark eve_status_warning vs warning_container must be >= 4.5 (was $darkRatio)", darkRatio >= 4.5)
     }
+
+    @Test
+    fun testEvePremiumTokens_inLightAndDark() {
+        val lightColors = loadColors("src/main/res/values/colors.xml")
+        val darkColors = loadColors("src/main/res/values-night/colors.xml")
+
+        // eve_premium_text against screen background (eve_bg) and surface (eve_surface) must be >= 4.5:1
+        val lightTextRatioBg = contrastRatio(lightColors["eve_premium_text"]!!, lightColors["eve_bg"]!!)
+        val lightTextRatioSurface = contrastRatio(lightColors["eve_premium_text"]!!, lightColors["eve_surface"]!!)
+        assertTrue("Light eve_premium_text vs eve_bg must be >= 4.5 (was $lightTextRatioBg)", lightTextRatioBg >= 4.5)
+        assertTrue("Light eve_premium_text vs eve_surface must be >= 4.5 (was $lightTextRatioSurface)", lightTextRatioSurface >= 4.5)
+
+        val darkTextRatioBg = contrastRatio(darkColors["eve_premium_text"]!!, darkColors["eve_bg"]!!)
+        val darkTextRatioSurface = contrastRatio(darkColors["eve_premium_text"]!!, darkColors["eve_surface"]!!)
+        assertTrue("Dark eve_premium_text vs eve_bg must be >= 4.5 (was $darkTextRatioBg)", darkTextRatioBg >= 4.5)
+        assertTrue("Dark eve_premium_text vs eve_surface must be >= 4.5 (was $darkTextRatioSurface)", darkTextRatioSurface >= 4.5)
+
+        // eve_premium_text against eve_premium_container must be >= 4.5:1
+        val lightContainerRatio = contrastRatio(lightColors["eve_premium_text"]!!, lightColors["eve_premium_container"]!!)
+        assertTrue("Light eve_premium_text vs eve_premium_container must be >= 4.5 (was $lightContainerRatio)", lightContainerRatio >= 4.5)
+
+        val darkContainerRatio = contrastRatio(darkColors["eve_premium_text"]!!, darkColors["eve_premium_container"]!!)
+        assertTrue("Dark eve_premium_text vs eve_premium_container must be >= 4.5 (was $darkContainerRatio)", darkContainerRatio >= 4.5)
+
+        // eve_on_premium against eve_premium must be >= 4.5:1
+        val lightOnPremiumRatio = contrastRatio(lightColors["eve_on_premium"]!!, lightColors["eve_premium"]!!)
+        assertTrue("Light eve_on_premium vs eve_premium must be >= 4.5 (was $lightOnPremiumRatio)", lightOnPremiumRatio >= 4.5)
+
+        val darkOnPremiumRatio = contrastRatio(darkColors["eve_on_premium"]!!, darkColors["eve_premium"]!!)
+        assertTrue("Dark eve_on_premium vs eve_premium must be >= 4.5 (was $darkOnPremiumRatio)", darkOnPremiumRatio >= 4.5)
+    }
 }

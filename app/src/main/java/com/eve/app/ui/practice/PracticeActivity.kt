@@ -1,5 +1,7 @@
 package com.eve.app.ui.practice
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -18,7 +20,7 @@ import com.eve.app.util.UiState
 import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
 
-class PracticeActivity : AppCompatActivity() {
+class PracticeActivity : EveBaseActivity() {
     private lateinit var binding: ActivityPracticeBinding
     private val viewModel: PracticeViewModel by viewModels()
     private var exams: List<Exam> = emptyList()

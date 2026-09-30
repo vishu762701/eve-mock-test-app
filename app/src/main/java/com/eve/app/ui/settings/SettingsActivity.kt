@@ -1,5 +1,7 @@
 package com.eve.app.ui.settings
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ProgressBar
@@ -31,7 +33,7 @@ import androidx.core.os.LocaleListCompat
 import com.eve.app.ui.home.TargetExamsBottomSheet
 import com.eve.app.util.StreakHelper
 
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
     private var progressDialog: AlertDialog? = null
@@ -69,11 +71,59 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
 
+        setupFontSetting()
         setupReminderSetting()
         setupDailyGoalSetting()
         setupTargetExamsSetting()
         setupLanguageSetting()
         setupDeleteAccountSetting()
+    }
+
+    private fun setupFontSetting() {
+        fun refreshFontText() {
+            val choice = com.eve.app.util.FontManager.getFontChoice(this)
+            binding.tvFontValue.text = if (choice == com.eve.app.util.FontManager.FONT_DEVICE) "Device font" else "Eve default"
+        }
+        refreshFontText()
+
+        binding.rowFont.setOnClickListener {
+            showFontPickerBottomSheet {
+                refreshFontText()
+            }
+        }
+    }
+
+    private fun showFontPickerBottomSheet(onChanged: () -> Unit) {
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        val sheetBinding = com.eve.app.databinding.BottomSheetFontPickerBinding.inflate(layoutInflater)
+        dialog.setContentView(sheetBinding.root)
+
+        val currentChoice = com.eve.app.util.FontManager.getFontChoice(this)
+        sheetBinding.radioEveDefault.isChecked = (currentChoice == com.eve.app.util.FontManager.FONT_EVE_DEFAULT)
+        sheetBinding.radioDeviceFont.isChecked = (currentChoice == com.eve.app.util.FontManager.FONT_DEVICE)
+
+        // Live preview typography for sample lines
+        sheetBinding.tvEveDefaultTitle.typeface = com.eve.app.util.FontManager.typeface(this, bold = true)
+        sheetBinding.tvEveDefaultSample.typeface = androidx.core.content.res.ResourcesCompat.getFont(this, R.font.source_serif_4_regular)
+        sheetBinding.tvDeviceFontTitle.typeface = android.graphics.Typeface.create(android.graphics.Typeface.SANS_SERIF, android.graphics.Typeface.BOLD)
+        sheetBinding.tvDeviceFontSample.typeface = android.graphics.Typeface.SANS_SERIF
+
+        fun select(choice: String) {
+            if (currentChoice != choice) {
+                com.eve.app.util.FontManager.setFontChoice(this, choice)
+                dialog.dismiss()
+                onChanged()
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                recreate()
+            } else {
+                dialog.dismiss()
+            }
+        }
+
+        sheetBinding.rowEveDefault.setOnClickListener { select(com.eve.app.util.FontManager.FONT_EVE_DEFAULT) }
+        sheetBinding.rowDeviceFont.setOnClickListener { select(com.eve.app.util.FontManager.FONT_DEVICE) }
+
+        dialog.show()
     }
 
     private fun setupDailyGoalSetting() {

@@ -7,7 +7,7 @@
     android:layout_marginBottom="8dp"
     app:cardBackgroundColor="@color/eve_surface"
     app:cardCornerRadius="12dp"
-    app:cardElevation="1dp"
+    app:cardElevation="0dp"
     app:strokeColor="@color/eve_stroke"
     app:strokeWidth="1dp">
 
@@ -27,7 +27,6 @@
                 android:id="@+id/tvOrderAmount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_bold"
                 android:textColor="@color/eve_text"
                 android:textSize="17sp"
                 tools:text="₹99" />
@@ -37,7 +36,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:fontFamily="@font/poppins_medium"
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="12sp"
                 tools:text="(QR)" />
@@ -51,10 +49,9 @@
                 android:id="@+id/tvOrderStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_semibold"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="3dp"
-                android:textSize="11sp"
+                android:textSize="13sp"
                 tools:text="SUCCESS" />
         </LinearLayout>
 
@@ -63,7 +60,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:fontFamily="@font/poppins_regular"
             android:textColor="@color/eve_text_secondary"
             android:textSize="12sp"
             tools:text="Order ID: ORD_1727670000000_ABC" />
@@ -73,7 +69,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:fontFamily="@font/poppins_regular"
             android:textColor="@color/eve_text"
             android:textSize="13sp"
             tools:text="student@eve.app" />
@@ -83,9 +78,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:fontFamily="@font/poppins_regular"
             android:textColor="@color/eve_text_secondary"
-            android:textSize="11sp"
+            android:textSize="13sp"
             tools:text="Created: 29 Sep 2026, 10:30 PM" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

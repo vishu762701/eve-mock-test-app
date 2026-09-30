@@ -36,7 +36,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:fontFamily="@font/poppins_bold"
                 android:text="Question 1"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="14sp" />
@@ -47,12 +46,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:background="@drawable/bg_stat_mini"
-                android:fontFamily="@font/poppins_semibold"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="2dp"
                 android:text="Correct"
                 android:textColor="@color/eve_status_success"
-                android:textSize="11sp" />
+                android:textSize="13sp" />
 
             <View
                 android:layout_width="0dp"
@@ -67,6 +65,7 @@
                 android:padding="8dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_star_filled"
+                app:tint="@color/eve_premium"
                 android:visibility="gone" />
 
             <!-- Question Report Action Button (48dp touch target) -->
@@ -91,13 +90,13 @@
         <!-- 2. Question Text: Receives Primary Focus -->
         <TextView
             android:id="@+id/tvQ"
+            style="@style/TextAppearance.Eve.QuestionText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:fontFamily="@font/poppins_semibold"
-            android:lineSpacingExtra="5dp"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="16sp" />
+            android:lineSpacingMultiplier="1.25"
+            android:textColor="@color/eve_text"
+            android:textSize="18sp" />
 
         <!-- Review Options Container (Shows complete question with options) -->
         <LinearLayout
@@ -123,7 +122,6 @@
                     android:layout_width="26dp"
                     android:layout_height="26dp"
                     android:background="@drawable/bg_option_badge_default"
-                    android:fontFamily="@font/poppins_bold"
                     android:gravity="center"
                     android:text="A"
                     android:textColor="@color/eve_text"
@@ -135,7 +133,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_weight="1"
-                    android:fontFamily="@font/poppins"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="14sp" />
 
@@ -164,7 +161,6 @@
                     android:layout_width="26dp"
                     android:layout_height="26dp"
                     android:background="@drawable/bg_option_badge_default"
-                    android:fontFamily="@font/poppins_bold"
                     android:gravity="center"
                     android:text="B"
                     android:textColor="@color/eve_text"
@@ -176,7 +172,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_weight="1"
-                    android:fontFamily="@font/poppins"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="14sp" />
 
@@ -205,7 +200,6 @@
                     android:layout_width="26dp"
                     android:layout_height="26dp"
                     android:background="@drawable/bg_option_badge_default"
-                    android:fontFamily="@font/poppins_bold"
                     android:gravity="center"
                     android:text="C"
                     android:textColor="@color/eve_text"
@@ -217,7 +211,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_weight="1"
-                    android:fontFamily="@font/poppins"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="14sp" />
 
@@ -246,7 +239,6 @@
                     android:layout_width="26dp"
                     android:layout_height="26dp"
                     android:background="@drawable/bg_option_badge_default"
-                    android:fontFamily="@font/poppins_bold"
                     android:gravity="center"
                     android:text="D"
                     android:textColor="@color/eve_text"
@@ -258,7 +250,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_weight="1"
-                    android:fontFamily="@font/poppins"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="14sp" />
 
@@ -279,7 +270,6 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginTop="16dp"
-            android:fontFamily="@font/poppins_semibold"
             android:text="View Solution"
             android:textColor="?attr/colorOnSurface"
             app:cornerRadius="12dp"
@@ -310,7 +300,6 @@
             android:id="@+id/tvYourAnswer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins_medium"
             android:lineSpacingExtra="3dp"
             android:textSize="14sp" />
 
@@ -320,7 +309,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:fontFamily="@font/poppins_semibold"
             android:lineSpacingExtra="3dp"
             android:textColor="@color/eve_status_success"
             android:textSize="14sp" />
@@ -338,14 +326,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="📊"
-                android:textSize="11sp" />
+                android:textSize="13sp" />
 
             <TextView
                 android:id="@+id/tvAccuracyStat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:fontFamily="@font/poppins_medium"
                 android:text="--% got this right"
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="12sp" />
@@ -362,13 +349,11 @@
             android:padding="12dp">
 
             <TextView
+                style="@style/TextAppearance.Eve.Overline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_semibold"
-                android:letterSpacing="0.04"
                 android:text="TIME ANALYSIS"
-                android:textColor="@color/eve_text_secondary"
-                android:textSize="11sp" />
+                android:textColor="@color/eve_premium_text" />
 
             <!-- You Row -->
             <LinearLayout
@@ -381,7 +366,6 @@
                 <TextView
                     android:layout_width="32dp"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_medium"
                     android:text="You"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="12sp" />
@@ -399,7 +383,6 @@
                     android:id="@+id/tvTimeYou"
                     android:layout_width="40dp"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_medium"
                     android:gravity="end"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="12sp" />
@@ -416,7 +399,6 @@
                 <TextView
                     android:layout_width="32dp"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_medium"
                     android:text="Avg"
                     android:textColor="@color/eve_text_secondary"
                     android:textSize="12sp" />
@@ -434,7 +416,6 @@
                     android:id="@+id/tvTimeAvg"
                     android:layout_width="40dp"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_medium"
                     android:gravity="end"
                     android:textColor="@color/eve_text_secondary"
                     android:textSize="12sp" />
@@ -446,7 +427,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:fontFamily="@font/poppins_medium"
                 android:textSize="12sp" />
         </LinearLayout>
 
@@ -469,7 +449,6 @@
                 android:id="@+id/tvCorrectSummary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_bold"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="14sp" />
 
@@ -493,7 +472,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
-                    android:fontFamily="@font/poppins_bold"
                     android:letterSpacing="0.04"
                     android:text="KEY POINTS"
                     android:textColor="@color/eve_primary"
@@ -506,7 +484,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:fontFamily="@font/poppins"
                 android:lineSpacingExtra="4dp"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="13sp" />
@@ -543,7 +520,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:fontFamily="@font/poppins_medium"
                 android:text="Report an issue with this question"
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="12sp" />

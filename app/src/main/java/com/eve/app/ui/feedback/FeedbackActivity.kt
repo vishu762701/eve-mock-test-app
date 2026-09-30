@@ -1,5 +1,7 @@
 package com.eve.app.ui.feedback
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -13,7 +15,7 @@ import kotlinx.coroutines.launch
 /**
  * Task 2: Free-text feedback submission activity.
  */
-class FeedbackActivity : AppCompatActivity() {
+class FeedbackActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityFeedbackBinding
     private val repo = FeedbackRepository()

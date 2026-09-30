@@ -1,5 +1,7 @@
 package com.eve.app.ui.mistakes
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.content.Context
 import android.os.Bundle
 import android.view.View
@@ -16,7 +18,7 @@ import com.eve.app.util.NetworkUtil
 import com.eve.app.util.SecurityHelper
 import kotlinx.coroutines.launch
 
-class MistakesActivity : AppCompatActivity() {
+class MistakesActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityMistakesBinding
     private lateinit var adapter: MistakesAdapter

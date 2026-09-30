@@ -8,11 +8,12 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_primary"
+        android:minHeight="56dp"
+        android:background="@color/eve_bg"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="16dp"
-        android:paddingVertical="14dp">
+        android:paddingVertical="10dp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -45,9 +46,9 @@
             android:minHeight="48dp"
             android:paddingHorizontal="10dp"
             android:text="HI"
-            app:strokeColor="@color/eve_on_primary"
+            app:strokeColor="@color/eve_stroke"
             app:strokeWidth="1dp"
-            android:textColor="@color/eve_on_primary" />
+            android:textColor="@color/eve_text" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSubmit"
@@ -61,6 +62,11 @@
             app:strokeColor="@color/btn_submit_stroke"
             app:strokeWidth="1dp" />
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/eve_stroke" />
 
     <!-- QUESTION PALETTE NAVIGATION -->
     <androidx.recyclerview.widget.RecyclerView
@@ -137,9 +143,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="Questions load ho rahe hain…"
-                android:textColor="@color/eve_grey"
-                android:textSize="13sp" />
+                android:text="Loading questions…"
+                android:textColor="@color/eve_text_secondary"
+                android:textSize="14sp" />
         </LinearLayout>
 
         <LinearLayout

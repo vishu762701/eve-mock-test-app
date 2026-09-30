@@ -45,7 +45,6 @@
                     android:id="@+id/tvExamName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_semibold"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="15sp"
                     tools:text="SSC CGL Tier 1" />
@@ -54,7 +53,6 @@
                     android:id="@+id/tvExamCategory"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins"
                     android:textColor="@color/eve_text_secondary"
                     android:textSize="12sp"
                     tools:text="Category: SSC" />
@@ -90,7 +88,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="middle"
-                    android:fontFamily="@font/poppins_medium"
                     android:maxLines="1"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="13sp"
@@ -100,9 +97,8 @@
                     android:id="@+id/tvUploadDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins"
                     android:textColor="@color/eve_text_secondary"
-                    android:textSize="11sp"
+                    android:textSize="13sp"
                     tools:text="Uploaded: 24 Sep 2026" />
             </LinearLayout>
         </LinearLayout>

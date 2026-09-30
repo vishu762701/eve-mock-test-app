@@ -1,5 +1,7 @@
 package com.eve.app.ui.profile
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.net.Uri
@@ -30,7 +32,7 @@ import kotlinx.coroutines.tasks.await
 import java.util.Calendar
 import java.util.Locale
 
-class ProfileActivity : AppCompatActivity() {
+class ProfileActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityProfileBinding
     private val adminRepo = AdminRepository()

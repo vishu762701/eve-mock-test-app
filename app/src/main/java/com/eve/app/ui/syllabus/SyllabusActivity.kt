@@ -1,5 +1,7 @@
 package com.eve.app.ui.syllabus
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.Manifest
 import android.app.DownloadManager
 import android.content.BroadcastReceiver
@@ -28,7 +30,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import java.io.File
 
-class SyllabusActivity : AppCompatActivity() {
+class SyllabusActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivitySyllabusBinding
     private val examRepository = ExamRepository()

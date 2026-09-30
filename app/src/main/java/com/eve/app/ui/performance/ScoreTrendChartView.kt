@@ -46,6 +46,7 @@ class ScoreTrendChartView @JvmOverloads constructor(
     private val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = ContextCompat.getColor(context, com.eve.app.R.color.eve_chart_label)
         textSize = 24f
+        typeface = com.eve.app.util.FontManager.typeface(context, bold = false)
     }
 
     fun submit(newPoints: List<ScorePoint>) {

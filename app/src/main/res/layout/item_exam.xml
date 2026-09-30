@@ -9,9 +9,9 @@
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground"
     app:cardCornerRadius="@dimen/eve_radius_md"
-    app:cardElevation="1dp"
+    app:cardElevation="0dp"
     app:rippleColor="@color/eve_primary"
-    app:strokeWidth="0dp">
+    app:strokeWidth="1dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -27,7 +27,7 @@
             app:cardBackgroundColor="@android:color/transparent"
             app:cardCornerRadius="26dp"
             app:cardElevation="0dp"
-            app:strokeWidth="0dp">
+            app:strokeWidth="1dp">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/ivExamImage"

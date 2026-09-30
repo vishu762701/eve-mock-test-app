@@ -1,5 +1,7 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.os.Bundle
 import android.view.View
 import com.eve.app.R
@@ -14,7 +16,7 @@ import com.eve.app.data.repository.ExamRepository
 import com.eve.app.databinding.ActivityGeneratedTestsBinding
 import kotlinx.coroutines.launch
 
-class GeneratedTestsActivity : AppCompatActivity() {
+class GeneratedTestsActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityGeneratedTestsBinding
     private val examRepo = ExamRepository()

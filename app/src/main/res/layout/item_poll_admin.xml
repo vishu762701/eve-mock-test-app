@@ -8,7 +8,7 @@
     android:layout_marginVertical="8dp"
     app:cardBackgroundColor="@color/eve_surface"
     app:cardCornerRadius="@dimen/eve_radius_md"
-    app:cardElevation="2dp"
+    app:cardElevation="0dp"
     app:strokeColor="@color/eve_stroke"
     app:strokeWidth="1dp">
 
@@ -30,7 +30,6 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:fontFamily="@font/poppins_semibold"
                 android:textColor="@color/eve_text"
                 android:textSize="16sp"
                 tools:text="Which exam are you preparing for in 2026?" />
@@ -41,7 +40,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:background="@drawable/bg_circle_translucent"
-                android:fontFamily="@font/poppins_medium"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="4dp"
                 android:textSize="12sp"
@@ -59,7 +57,6 @@
                 android:id="@+id/tvTotalVotes"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins"
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="13sp"
                 tools:text="142 votes" />
@@ -69,7 +66,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:fontFamily="@font/poppins"
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="13sp"
                 tools:text="Ends: Oct 15, 2026" />
@@ -93,7 +89,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_medium"
                 android:text="Live Results"
                 android:textColor="@color/eve_text"
                 android:textSize="13sp" />
@@ -119,7 +114,6 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:fontFamily="@font/poppins"
                 android:text="Tap to view results"
                 android:textColor="@color/eve_primary"
                 android:textSize="12sp" />
@@ -129,7 +123,6 @@
                 style="@style/Widget.Eve.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
-                android:fontFamily="@font/poppins_medium"
                 android:paddingHorizontal="12dp"
                 android:textSize="12sp"
                 tools:text="Close Poll" />
@@ -140,7 +133,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
                 android:layout_marginStart="8dp"
-                android:fontFamily="@font/poppins_medium"
                 android:paddingHorizontal="12dp"
                 android:textColor="@color/eve_red"
                 android:textSize="12sp"

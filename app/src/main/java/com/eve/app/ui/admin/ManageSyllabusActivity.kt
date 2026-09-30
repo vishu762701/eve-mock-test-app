@@ -1,5 +1,7 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
@@ -27,7 +29,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class ManageSyllabusActivity : AppCompatActivity() {
+class ManageSyllabusActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityManageSyllabusBinding
     private val examRepo = ExamRepository()

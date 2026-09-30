@@ -30,7 +30,7 @@ class CircularTimerView @JvmOverloads constructor(
     private val strokePx = 3f * density
 
     private val normalColor: Int
-        get() = ContextCompat.getColor(context, R.color.eve_on_primary)
+        get() = ContextCompat.getColor(context, R.color.eve_text)
 
     private val warningColor: Int
         get() = ContextCompat.getColor(context, R.color.eve_header_warning)
@@ -52,12 +52,8 @@ class CircularTimerView @JvmOverloads constructor(
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textAlign = Paint.Align.CENTER
         color = normalColor
-        textSize = sp(15f)
-        typeface = try {
-            ResourcesCompat.getFont(context, R.font.poppins_bold) ?: Typeface.DEFAULT_BOLD
-        } catch (_: Throwable) {
-            Typeface.DEFAULT_BOLD
-        }
+        textSize = sp(14f)
+        typeface = com.eve.app.util.FontManager.typeface(context, bold = true)
     }
 
     private val oval = RectF()

@@ -1,5 +1,7 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -18,7 +20,7 @@ import java.util.Locale
 import com.eve.app.data.model.AdminAuditLog
 import com.eve.app.data.repository.AuditLogRepository
 
-class ManageUsersActivity : AppCompatActivity() {
+class ManageUsersActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityManageUsersBinding
     private val adminRepo = AdminRepository()

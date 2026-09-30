@@ -6,4 +6,15 @@
     <dimen name="eve_radius_sm">16dp</dimen>
     <dimen name="eve_radius_md">20dp</dimen>
     <dimen name="eve_radius_lg">28dp</dimen>
+
+    <!-- Spacing scale -->
+    <dimen name="eve_space_4">4dp</dimen>
+    <dimen name="eve_space_8">8dp</dimen>
+    <dimen name="eve_space_12">12dp</dimen>
+    <dimen name="eve_space_16">16dp</dimen>
+    <dimen name="eve_space_24">24dp</dimen>
+    <dimen name="eve_space_32">32dp</dimen>
+    <dimen name="eve_screen_padding_horizontal">20dp</dimen>
+    <dimen name="eve_card_padding_inner">16dp</dimen>
+    <dimen name="eve_list_item_spacing">12dp</dimen>
 </resources>

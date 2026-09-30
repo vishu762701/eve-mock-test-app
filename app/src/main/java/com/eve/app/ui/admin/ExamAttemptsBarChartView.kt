@@ -40,19 +40,21 @@ class ExamAttemptsBarChartView @JvmOverloads constructor(
     private val titlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = textColor
         textSize = dpToPx(13f)
-        isFakeBoldText = true
+        typeface = com.eve.app.util.FontManager.typeface(context, bold = true)
     }
 
     private val countPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = subTextColor
         textSize = dpToPx(12f)
         textAlign = Paint.Align.RIGHT
+        typeface = com.eve.app.util.FontManager.typeface(context, bold = false)
     }
 
     private val emptyPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = subTextColor
         textSize = dpToPx(13f)
         textAlign = Paint.Align.CENTER
+        typeface = com.eve.app.util.FontManager.typeface(context, bold = false)
     }
 
     private val rectF = RectF()

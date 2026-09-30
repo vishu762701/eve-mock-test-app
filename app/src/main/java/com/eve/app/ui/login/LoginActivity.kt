@@ -1,5 +1,7 @@
 package com.eve.app.ui.login
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
@@ -47,7 +49,7 @@ import com.eve.app.data.remote.ApiClient
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityLoginBinding
     private val auth by lazy { FirebaseAuth.getInstance() }

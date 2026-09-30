@@ -283,7 +283,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:textColor="#EF4444"
+                        android:textColor="@color/eve_login_error"
                         android:textSize="13sp"
                         android:visibility="gone" />
 
@@ -299,13 +299,13 @@
                             style="@style/Widget.Eve.Button"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:backgroundTint="#FF7A00"
+                            android:backgroundTint="@color/eve_login_button_bg"
                             android:text="Sign In"
-                            android:textColor="#FFFFFF"
+                            android:textColor="@color/eve_white"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             app:cornerRadius="12dp"
-                            app:strokeColor="#50FFA040"
+                            app:strokeColor="@color/eve_login_button_stroke"
                             app:strokeWidth="1dp" />
 
                         <ProgressBar
@@ -314,7 +314,7 @@
                             android:layout_height="22dp"
                             android:layout_gravity="center"
                             android:indeterminate="true"
-                            android:indeterminateTint="#FFFFFF"
+                            android:indeterminateTint="@color/eve_white"
                             android:visibility="gone" />
                     </FrameLayout>
 
@@ -384,7 +384,7 @@
                             android:layout_height="18dp"
                             android:layout_gravity="center"
                             android:indeterminate="true"
-                            android:indeterminateTint="#34A853"
+                            android:indeterminateTint="@color/eve_progress_green"
                             android:visibility="gone" />
                     </FrameLayout>
 

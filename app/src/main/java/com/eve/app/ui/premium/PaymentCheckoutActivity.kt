@@ -1,5 +1,7 @@
 package com.eve.app.ui.premium
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -16,7 +18,7 @@ import com.eve.app.util.HapticHelper
 import com.eve.app.util.QrCodeGenerator
 import kotlinx.coroutines.*
 
-class PaymentCheckoutActivity : AppCompatActivity() {
+class PaymentCheckoutActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityPaymentCheckoutBinding
 

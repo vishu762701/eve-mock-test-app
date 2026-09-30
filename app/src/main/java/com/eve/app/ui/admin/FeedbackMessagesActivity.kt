@@ -1,5 +1,7 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.os.Bundle
 import android.view.View
 import com.eve.app.util.AppBulletin
@@ -17,7 +19,7 @@ import kotlinx.coroutines.launch
 /**
  * Task 2: Admin activity to review and manage all student feedback messages.
  */
-class FeedbackMessagesActivity : AppCompatActivity() {
+class FeedbackMessagesActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityFeedbackMessagesBinding
     private val repo = FeedbackRepository()

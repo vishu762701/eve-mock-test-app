@@ -20,7 +20,6 @@
         android:id="@+id/tvSheetTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/poppins_bold"
         android:text="Select Your Target Exams"
         android:textColor="?attr/colorOnSurface"
         android:textSize="20sp" />
@@ -30,7 +29,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:fontFamily="@font/poppins_regular"
         android:text="Choose the exams you are preparing for to personalize your test feed."
         android:textColor="?attr/colorOnSurfaceVariant"
         android:textSize="14sp" />

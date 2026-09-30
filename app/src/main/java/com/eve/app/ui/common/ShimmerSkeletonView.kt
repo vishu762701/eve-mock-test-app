@@ -12,6 +12,8 @@ import android.graphics.Shader
 import android.util.AttributeSet
 import android.view.View
 import android.view.animation.LinearInterpolator
+import androidx.core.content.ContextCompat
+import com.eve.app.R
 import com.eve.app.util.ThemeSwitchAnimator
 
 /**
@@ -70,9 +72,8 @@ class ShimmerSkeletonView @JvmOverloads constructor(
 
     private fun updateShader(width: Float, height: Float) {
         if (width <= 0 || height <= 0) return
-        val isDark = ThemeSwitchAnimator.isDarkMode(context)
-        val baseColor = if (isDark) Color.parseColor("#262626") else Color.parseColor("#E0E0E0")
-        val highlightColor = if (isDark) Color.parseColor("#3D3D3D") else Color.parseColor("#F4F4F4")
+        val baseColor = ContextCompat.getColor(context, R.color.eve_shimmer_base)
+        val highlightColor = ContextCompat.getColor(context, R.color.eve_shimmer_highlight)
 
         val gradientWidth = width * 0.7f
         val shader = LinearGradient(

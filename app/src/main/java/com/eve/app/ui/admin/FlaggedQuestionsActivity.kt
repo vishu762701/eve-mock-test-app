@@ -1,5 +1,7 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -22,7 +24,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
-class FlaggedQuestionsActivity : AppCompatActivity() {
+class FlaggedQuestionsActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityFlaggedQuestionsBinding
     private val adminRepo = AdminRepository()

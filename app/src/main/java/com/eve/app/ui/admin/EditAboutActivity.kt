@@ -1,5 +1,7 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.os.Bundle
 import android.view.View
 import com.eve.app.util.AppBulletin
@@ -14,7 +16,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
-class EditAboutActivity : AppCompatActivity() {
+class EditAboutActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityEditAboutBinding
     private val repo = AppContentRepository()

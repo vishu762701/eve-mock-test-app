@@ -10,20 +10,22 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_primary"
+        android:minHeight="56dp"
+        android:background="@color/eve_bg"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="4dp"
-        android:paddingVertical="10dp">
+        android:paddingVertical="8dp">
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Back"
-            android:padding="8dp"
-            android:src="@drawable/ic_back" />
+            android:padding="12dp"
+            android:src="@drawable/ic_back"
+            app:tint="@color/eve_text" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -33,21 +35,20 @@
             android:paddingStart="4dp">
 
             <TextView
+                style="@style/TextAppearance.Eve.ScreenTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_bold"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text="Bookmarked Questions"
-                android:textColor="@color/eve_on_primary"
-                android:textSize="18sp" />
+                android:textColor="@color/eve_text" />
 
             <TextView
                 android:id="@+id/tvBookmarkCount"
+                style="@style/TextAppearance.Eve.BodySmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_regular"
-                android:textColor="@color/eve_on_primary"
-                android:alpha="0.85"
-                android:textSize="12sp"
+                android:textColor="@color/eve_text_secondary"
                 android:visibility="gone"
                 tools:text="3 questions saved"
                 tools:visibility="visible" />
@@ -63,10 +64,15 @@
             android:minHeight="48dp"
             android:paddingHorizontal="10dp"
             android:text="HI"
-            app:strokeColor="@color/eve_on_primary"
+            app:strokeColor="@color/eve_stroke"
             app:strokeWidth="1dp"
-            android:textColor="@color/eve_on_primary" />
+            android:textColor="@color/eve_text" />
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/eve_stroke" />
 
     <TextView
         android:id="@+id/tvOfflineBanner"
@@ -112,7 +118,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:fontFamily="@font/poppins_regular"
                 android:text="Loading bookmarks…"
                 android:textColor="@color/eve_grey"
                 android:textSize="13sp" />
@@ -142,7 +147,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:fontFamily="@font/poppins_semibold"
                 android:gravity="center"
                 android:text="No bookmarks yet"
                 android:textColor="@color/eve_text"
@@ -153,7 +157,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:fontFamily="@font/poppins_regular"
                 android:gravity="center"
                 android:text="Questions bookmarked during tests will appear here for review."
                 android:textColor="@color/eve_text_secondary"

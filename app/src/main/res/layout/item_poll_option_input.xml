@@ -13,7 +13,6 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:background="@drawable/bg_edit_text_rounded"
-        android:fontFamily="@font/poppins_regular"
         android:hint="Option text"
         android:inputType="textCapSentences"
         android:maxLines="1"

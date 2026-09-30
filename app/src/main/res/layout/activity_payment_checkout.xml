@@ -11,32 +11,41 @@
     <LinearLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="@color/eve_primary"
-        android:elevation="4dp"
+        android:layout_height="wrap_content"
+        android:minHeight="56dp"
+        android:background="@color/eve_bg"
+        android:elevation="0dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="16dp">
+        android:paddingHorizontal="4dp"
+        android:paddingVertical="8dp">
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Back"
+            android:padding="12dp"
             android:src="@drawable/ic_back"
-            app:tint="@color/eve_on_primary" />
+            app:tint="@color/eve_text" />
 
         <TextView
+            style="@style/TextAppearance.Eve.ScreenTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:fontFamily="@font/poppins_bold"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="Payment Checkout"
-            android:textColor="@color/eve_on_primary"
-            android:textSize="18sp" />
+            android:textColor="@color/eve_text" />
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/eve_stroke" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -56,7 +65,7 @@
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/eve_surface"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
+                app:cardElevation="0dp"
                 app:strokeColor="@color/eve_stroke"
                 app:strokeWidth="1dp">
 
@@ -71,7 +80,6 @@
                         android:id="@+id/tvPlanName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_medium"
                         android:textColor="@color/eve_text_secondary"
                         android:textSize="14sp"
                         tools:text="Premium Pro" />
@@ -81,7 +89,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:fontFamily="@font/poppins_bold"
                         android:textColor="@color/eve_text"
                         android:textSize="28sp"
                         tools:text="₹99" />
@@ -109,7 +116,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="6dp"
-                            android:fontFamily="@font/poppins_medium"
                             android:textColor="@color/eve_text_secondary"
                             android:textSize="13sp"
                             tools:text="Complete payment within 09:42" />
@@ -132,7 +138,7 @@
                     android:layout_height="wrap_content"
                     app:cardBackgroundColor="@android:color/white"
                     app:cardCornerRadius="16dp"
-                    app:cardElevation="4dp"
+                    app:cardElevation="0dp"
                     app:contentPadding="12dp"
                     app:strokeColor="@color/eve_stroke"
                     app:strokeWidth="1dp">
@@ -149,7 +155,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
-                    android:fontFamily="@font/poppins_regular"
                     android:gravity="center"
                     android:text="Scan with any UPI app (Google Pay, PhonePe, Paytm, BHIM)"
                     android:textColor="@color/eve_text_secondary"
@@ -185,7 +190,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:fontFamily="@font/poppins_regular"
                     android:gravity="center"
                     android:text="Tap below to pay directly with any installed UPI app."
                     android:textColor="@color/eve_text_secondary"
@@ -197,7 +201,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="52dp"
                     android:layout_marginTop="16dp"
-                    android:fontFamily="@font/poppins_bold"
                     android:text="Pay via UPI App"
                     android:textSize="15sp" />
             </LinearLayout>
@@ -231,7 +234,6 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="14dp"
                         android:layout_weight="1"
-                        android:fontFamily="@font/poppins_medium"
                         android:text="Waiting for payment... Premium activates automatically once verified."
                         android:textColor="@color/eve_text"
                         android:textSize="13sp" />
@@ -251,7 +253,6 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_bold"
                     android:text="Payment session expired"
                     android:textColor="@color/eve_status_error"
                     android:textSize="16sp" />
@@ -260,7 +261,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:fontFamily="@font/poppins_regular"
                     android:gravity="center"
                     android:text="The payment session timed out. Please start a new session."
                     android:textColor="@color/eve_text_secondary"

@@ -1,5 +1,7 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
@@ -38,7 +40,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class ManageExamsActivity : AppCompatActivity() {
+class ManageExamsActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityManageExamsBinding
     private val examRepo = ExamRepository()

@@ -21,6 +21,10 @@
     <color name="eve_offline_bg">#FFF4CC</color>
     <color name="eve_offline_text">#5F4300</color>
     <color name="eve_gold">#C59B27</color>
+    <color name="eve_premium">#B88B1E</color>
+    <color name="eve_premium_text">#8A6100</color>
+    <color name="eve_premium_container">#FBF3DC</color>
+    <color name="eve_on_premium">#111111</color>
     <color name="eve_silver">#687078</color>
     <color name="eve_bronze">#7A4B2A</color>
     <color name="eve_highlight_bg">#F0F0F0</color>
@@ -78,5 +82,16 @@
     <color name="eve_status_error_container">#FFEBEE</color>
     <color name="eve_header_warning">#FF5252</color>
     <color name="eve_lottie_tile_bg">#F5F5F5</color>
-    <color name="eve_floating_chip_stroke">@color/eve_stroke</color>
+    <color name="eve_floating_chip_stroke">@color/eve_premium</color>
+    <color name="eve_shimmer_base">#E0E0E0</color>
+    <color name="eve_shimmer_highlight">#F4F4F4</color>
+    <color name="eve_white">#FFFFFF</color>
+    <color name="eve_bulletin_bg">#EB202020</color>
+    <color name="eve_bulletin_stroke">#26FFFFFF</color>
+    <color name="eve_bulletin_text">#FFFFFF</color>
+    <color name="eve_bulletin_action">#FFB74D</color>
+    <color name="eve_login_error">#EF4444</color>
+    <color name="eve_login_button_bg">#FF7A00</color>
+    <color name="eve_login_button_stroke">#50FFA040</color>
+    <color name="eve_progress_green">#34A853</color>
 </resources>

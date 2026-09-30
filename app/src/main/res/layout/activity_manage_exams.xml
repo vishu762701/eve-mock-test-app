@@ -32,7 +32,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:fontFamily="@font/poppins_semibold"
             android:text="Manage Exam"
             android:textColor="@color/eve_text"
             android:textSize="18sp" />
@@ -61,7 +60,6 @@
                 android:id="@+id/tvLabelMainExam"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_semibold"
                 android:text="1. Main Exam"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
@@ -88,7 +86,6 @@
                         android:id="@+id/actvExam"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
-                        android:fontFamily="@font/poppins"
                         android:hint="Select main exam"
                         android:inputType="textCapWords"
                         android:maxLines="1"
@@ -105,7 +102,6 @@
                     android:layout_height="56dp"
                     android:layout_marginStart="8dp"
                     android:contentDescription="Create New Main Exam"
-                    android:fontFamily="@font/poppins_semibold"
                     android:minWidth="48dp"
                     android:text="+ New Main Exam" />
             </LinearLayout>
@@ -116,7 +112,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
-                android:fontFamily="@font/poppins_semibold"
                 android:text="2. Sub-Exam / Subject (optional)"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
@@ -146,7 +141,6 @@
                         android:id="@+id/actvParentExam"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
-                        android:fontFamily="@font/poppins"
                         android:hint="Sub-Exam / Subject"
                         android:inputType="textCapWords"
                         android:popupBackground="@color/eve_surface"
@@ -161,7 +155,6 @@
                     android:layout_height="56dp"
                     android:layout_marginStart="8dp"
                     android:contentDescription="Add Sub-Exam"
-                    android:fontFamily="@font/poppins_semibold"
                     android:minWidth="48dp"
                     android:text="+ Add Sub-Exam" />
             </LinearLayout>
@@ -171,7 +164,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
-                android:fontFamily="@font/poppins_semibold"
                 android:text="3. Test Duration (minutes)"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
@@ -192,7 +184,6 @@
                     android:id="@+id/etDuration"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins"
                     android:hint="Duration in minutes"
                     android:inputType="number"
                     android:maxLength="3"
@@ -206,7 +197,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
-                android:fontFamily="@font/poppins_semibold"
                 android:text="4. Test Number"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
@@ -227,7 +217,6 @@
                     android:id="@+id/etTestNumber"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins"
                     android:hint="Test Number"
                     android:inputType="textCapWords"
                     android:maxLines="1"
@@ -240,7 +229,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
-                android:fontFamily="@font/poppins_semibold"
                 android:text="5. Number of Questions"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
@@ -261,7 +249,6 @@
                     android:id="@+id/etQuestionCount"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins"
                     android:hint="Question Count"
                     android:inputType="number"
                     android:maxLines="1"
@@ -274,7 +261,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
-                android:fontFamily="@font/poppins_semibold"
                 android:text="6. Negative Marking"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
@@ -295,7 +281,6 @@
                     android:id="@+id/etNegativeMarking"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins"
                     android:hint="e.g. 1/3, 1/4, 0.25 or 0"
                     android:inputType="text"
                     android:maxLength="10"
@@ -310,7 +295,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
-                android:fontFamily="@font/poppins_semibold"
                 android:text="7. Scheduled Auto-Generation"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
@@ -328,7 +312,6 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:fontFamily="@font/poppins_medium"
                     android:text="Time: 00:00 (IST)" />
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
@@ -345,7 +328,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:fontFamily="@font/poppins"
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="12sp"
                 tools:text="Last run: Success on 24 Sep 2026, 05:00 AM" />
@@ -357,7 +339,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:fontFamily="@font/poppins_medium"
                 android:text="⚡ Generate Test Now (Admin On-Demand)"
                 android:textColor="@color/eve_primary" />
 
@@ -366,7 +347,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
-                android:fontFamily="@font/poppins_semibold"
                 android:text="8. AI Prompt for this Exam"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
@@ -389,7 +369,6 @@
                     android:id="@+id/etGenerationPrompt"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins"
                     android:gravity="top|start"
                     android:hint="Custom syllabus topics, focus areas, pattern notes..."
                     android:inputType="textMultiLine|textCapSentences"
@@ -405,7 +384,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
-                android:fontFamily="@font/poppins_semibold"
                 android:text="10. Generated Tests for this Exam"
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
@@ -414,7 +392,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:fontFamily="@font/poppins"
                 android:text="Review or delete AI-generated question batches for this exam."
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="12sp" />
@@ -432,7 +409,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:fontFamily="@font/poppins"
                 android:text="No generated tests for this exam yet."
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="12sp"
@@ -469,7 +445,6 @@
             style="@style/Widget.Eve.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins_semibold"
             android:text="Save Exam Settings" />
     </LinearLayout>
 </LinearLayout>

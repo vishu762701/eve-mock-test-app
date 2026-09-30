@@ -1,5 +1,7 @@
 package com.eve.app.ui.home
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
@@ -26,7 +28,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class ExamTestsActivity : AppCompatActivity() {
+class ExamTestsActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityExamTestsBinding
     private val examRepo = ExamRepository()

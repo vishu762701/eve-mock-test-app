@@ -7,7 +7,7 @@
     android:layout_marginBottom="8dp"
     app:cardBackgroundColor="@color/eve_card_bg"
     app:cardCornerRadius="12dp"
-    app:cardElevation="1dp"
+    app:cardElevation="0dp"
     app:strokeColor="@color/eve_stroke"
     app:strokeWidth="1dp">
 
@@ -38,7 +38,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ellipsize="end"
-                android:fontFamily="@font/poppins_semibold"
                 android:maxLines="1"
                 android:textColor="@color/eve_text"
                 android:textSize="15sp"
@@ -59,7 +58,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:ellipsize="end"
-            android:fontFamily="@font/poppins"
             android:maxLines="2"
             android:textColor="@color/eve_text_secondary"
             android:textSize="13sp"
@@ -77,9 +75,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:fontFamily="@font/poppins"
                 android:textColor="@color/eve_text_secondary"
-                android:textSize="11sp"
+                android:textSize="13sp"
                 tools:text="24 Sep 2026, 10:30 AM" />
 
             <TextView
@@ -87,11 +84,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_category_chip"
-                android:fontFamily="@font/poppins_medium"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="2dp"
                 android:textColor="@color/eve_primary"
-                android:textSize="10sp"
+                android:textSize="13sp"
                 tools:text="Target: All Users" />
         </LinearLayout>
     </LinearLayout>

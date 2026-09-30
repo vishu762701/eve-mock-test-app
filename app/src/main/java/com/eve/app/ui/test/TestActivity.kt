@@ -1,5 +1,7 @@
 package com.eve.app.ui.test
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -34,7 +36,7 @@ import com.eve.app.util.isHardcodedAdmin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class TestActivity : AppCompatActivity() {
+class TestActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityTestBinding
     private val viewModel: TestViewModel by viewModels()

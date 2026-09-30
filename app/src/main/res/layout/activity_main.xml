@@ -211,9 +211,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:fontFamily="@font/poppins_medium"
-            android:textColor="@color/eve_text"
-            android:textSize="13sp"
+            android:textColor="@color/eve_premium_text"
+            android:textSize="14sp"
+            android:textStyle="bold"
             android:visibility="gone" />
 
         <!-- Task A: Home Banner Image Carousel (Horizontal Swipeable Strip) -->
@@ -224,7 +224,7 @@
             android:layout_marginTop="14dp"
             android:visibility="gone"
             app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
+            app:cardElevation="0dp"
             app:cardBackgroundColor="@color/eve_card_bg"
             app:strokeWidth="1dp"
             app:strokeColor="@color/eve_stroke">
@@ -377,11 +377,11 @@
             android:clickable="true"
             android:focusable="true"
             android:visibility="gone"
-            app:cardBackgroundColor="@android:color/transparent"
+            app:cardBackgroundColor="@color/eve_surface"
             app:cardCornerRadius="36dp"
             app:cardElevation="0dp"
-            app:rippleColor="@android:color/transparent"
-            app:strokeWidth="0dp">
+            app:strokeColor="@color/eve_floating_chip_stroke"
+            app:strokeWidth="1.5dp">
 
             <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/lottieFloatingAirplane"
@@ -457,7 +457,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
-                android:fontFamily="@font/poppins_bold"
                 android:text="Student"
                 android:textColor="@color/eve_text"
                 android:textSize="17sp"
@@ -468,7 +467,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:fontFamily="@font/poppins_regular"
                 android:text="student@eve.app"
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="13sp" />
@@ -478,7 +476,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:fontFamily="@font/poppins_medium"
                 android:textColor="@color/eve_status_success"
                 android:textSize="12sp"
                 android:visibility="gone" />
@@ -521,7 +518,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:fontFamily="@font/poppins_medium"
                     android:text="Profile"
                     android:textColor="@color/eve_text"
                     android:textSize="15sp" />
@@ -551,7 +547,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:fontFamily="@font/poppins_medium"
                     android:text="Premium"
                     android:textColor="@color/eve_text"
                     android:textSize="15sp" />
@@ -581,7 +576,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:fontFamily="@font/poppins_medium"
                     android:text="Performance"
                     android:textColor="@color/eve_text"
                     android:textSize="15sp" />
@@ -611,7 +605,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:fontFamily="@font/poppins_medium"
                     android:text="Overall Leaderboard"
                     android:textColor="@color/eve_text"
                     android:textSize="15sp" />
@@ -641,7 +634,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:fontFamily="@font/poppins_medium"
                     android:text="Syllabus"
                     android:textColor="@color/eve_text"
                     android:textSize="15sp" />
@@ -671,7 +663,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:fontFamily="@font/poppins_medium"
                     android:text="About"
                     android:textColor="@color/eve_text"
                     android:textSize="15sp" />
@@ -701,7 +692,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:fontFamily="@font/poppins_medium"
                     android:text="Settings"
                     android:textColor="@color/eve_text"
                     android:textSize="15sp" />
@@ -739,7 +729,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:fontFamily="@font/poppins_semibold"
                 android:text="Scheduled Maintenance"
                 android:textColor="@color/eve_text"
                 android:textSize="20sp" />
@@ -749,7 +738,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:fontFamily="@font/poppins"
                 android:gravity="center"
                 android:lineSpacingExtra="3dp"
                 android:text="Eve Mock Test is currently undergoing scheduled maintenance. Please check back shortly."
@@ -795,7 +783,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:fontFamily="@font/poppins_semibold"
                 android:text="Update Required"
                 android:textColor="@color/eve_text"
                 android:textSize="20sp" />
@@ -805,7 +792,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:fontFamily="@font/poppins"
                 android:gravity="center"
                 android:lineSpacingExtra="3dp"
                 android:text="A newer version of Eve Mock Test is required to continue. Please update to the latest version for improved stability, questions, and security."

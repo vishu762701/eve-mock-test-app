@@ -64,7 +64,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
-                android:fontFamily="@font/poppins_medium"
                 android:text="Dark Mode"
                 android:textColor="@color/eve_text"
                 android:textSize="15sp" />
@@ -108,7 +107,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:fontFamily="@font/poppins_medium"
                     android:text="History"
                     android:textColor="@color/eve_text"
                     android:textSize="15sp" />
@@ -138,7 +136,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:fontFamily="@font/poppins_medium"
                     android:text="Bookmarks"
                     android:textColor="@color/eve_text"
                     android:textSize="15sp" />
@@ -168,7 +165,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:fontFamily="@font/poppins_medium"
                     android:text="Mistake Notebook"
                     android:textColor="@color/eve_text"
                     android:textSize="15sp" />
@@ -198,7 +194,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:fontFamily="@font/poppins_medium"
                     android:text="Topic-wise Test"
                     android:textColor="@color/eve_text"
                     android:textSize="15sp" />
@@ -228,7 +223,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:fontFamily="@font/poppins_medium"
                     android:text="PYQ"
                     android:textColor="@color/eve_text"
                     android:textSize="15sp" />
@@ -258,7 +252,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:fontFamily="@font/poppins_medium"
                     android:text="Logout"
                     android:textColor="@color/eve_red"
                     android:textSize="15sp" />

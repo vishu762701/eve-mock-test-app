@@ -43,5 +43,5 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
         android:textColor="@color/eve_grey"
-        android:textSize="11sp" />
+        android:textSize="13sp" />
 </LinearLayout>

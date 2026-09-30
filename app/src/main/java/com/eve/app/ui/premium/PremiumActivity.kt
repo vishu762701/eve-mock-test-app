@@ -1,5 +1,7 @@
 package com.eve.app.ui.premium
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -16,7 +18,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
-class PremiumActivity : AppCompatActivity() {
+class PremiumActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityPremiumBinding
 

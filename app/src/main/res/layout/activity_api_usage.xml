@@ -12,39 +12,49 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_primary"
+        android:minHeight="56dp"
+        android:background="@color/eve_bg"
         android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:paddingHorizontal="4dp"
-        android:paddingVertical="10dp">
+        android:paddingVertical="8dp">
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Back"
-            android:padding="8dp"
-            android:src="@drawable/ic_back" />
+            android:padding="12dp"
+            android:src="@drawable/ic_back"
+            app:tint="@color/eve_text" />
 
         <TextView
+            style="@style/TextAppearance.Eve.ScreenTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:fontFamily="@font/poppins_bold"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:paddingStart="4dp"
             android:text="API Usage &amp; Cost Monitor"
-            android:textColor="@color/eve_on_primary"
-            android:textSize="18sp" />
+            android:textColor="@color/eve_text" />
 
         <ImageButton
             android:id="@+id/btnRefresh"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Refresh"
-            android:padding="8dp"
+            android:padding="12dp"
             android:src="@drawable/ic_refresh"
-            app:tint="@color/eve_on_primary" />
+            app:tint="@color/eve_text" />
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/eve_stroke" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -63,7 +73,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_category_chip"
-                android:fontFamily="@font/poppins_bold"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="4dp"
                 android:text="📅 September 2026"
@@ -77,7 +86,7 @@
                 android:layout_marginTop="12dp"
                 app:cardBackgroundColor="@color/eve_card_bg"
                 app:cardCornerRadius="14dp"
-                app:cardElevation="2dp"
+                app:cardElevation="0dp"
                 app:strokeColor="@color/eve_stroke"
                 app:strokeWidth="1dp">
 
@@ -90,7 +99,6 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_semibold"
                         android:text="✨ Gemini AI Generation Calls"
                         android:textColor="@color/eve_text"
                         android:textSize="15sp" />
@@ -100,7 +108,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:fontFamily="@font/poppins_bold"
                         android:text="0"
                         android:textColor="@color/eve_primary"
                         android:textSize="32sp" />
@@ -109,7 +116,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:fontFamily="@font/poppins"
                         android:text="Total AI question generation calls this month (both scheduled auto-gen and manual 'Generate Now'). Resets automatically each calendar month."
                         android:textColor="@color/eve_text_secondary"
                         android:textSize="12sp" />
@@ -123,7 +129,7 @@
                 android:layout_marginTop="12dp"
                 app:cardBackgroundColor="@color/eve_card_bg"
                 app:cardCornerRadius="14dp"
-                app:cardElevation="2dp"
+                app:cardElevation="0dp"
                 app:strokeColor="@color/eve_stroke"
                 app:strokeWidth="1dp">
 
@@ -136,7 +142,6 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_semibold"
                         android:text="📝 Total Documents Created (Writes Proxy)"
                         android:textColor="@color/eve_text"
                         android:textSize="15sp" />
@@ -146,7 +151,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:fontFamily="@font/poppins_bold"
                         android:text="0"
                         android:textColor="@color/eve_green"
                         android:textSize="28sp" />
@@ -155,7 +159,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:fontFamily="@font/poppins"
                         android:text="Documents created across exams, questions, broadcasts, and feedback posts this month. Serves as an early indicator for Firestore database write volume."
                         android:textColor="@color/eve_text_secondary"
                         android:textSize="12sp" />
@@ -169,7 +172,7 @@
                 android:layout_marginTop="12dp"
                 app:cardBackgroundColor="@color/eve_card_bg"
                 app:cardCornerRadius="14dp"
-                app:cardElevation="2dp"
+                app:cardElevation="0dp"
                 app:strokeColor="@color/eve_stroke"
                 app:strokeWidth="1dp">
 
@@ -182,7 +185,6 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_semibold"
                         android:text="👥 Student Test Submissions (Reads Proxy)"
                         android:textColor="@color/eve_text"
                         android:textSize="15sp" />
@@ -192,7 +194,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:fontFamily="@font/poppins_bold"
                         android:text="0"
                         android:textColor="@color/eve_text"
                         android:textSize="28sp" />
@@ -201,7 +202,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:fontFamily="@font/poppins"
                         android:text="Total completed test attempts submitted by students this month. Correlates directly with student read operations and active engagement."
                         android:textColor="@color/eve_text_secondary"
                         android:textSize="12sp" />
@@ -237,7 +237,6 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
                         android:layout_weight="1"
-                        android:fontFamily="@font/poppins"
                         android:lineSpacingExtra="2dp"
                         android:text="Note: Check actual usage and billing in the Google Cloud Console and Firebase Console directly for precise, authoritative numbers. This in-app counter is an approximate early-warning indicator, not a billing source of truth."
                         android:textColor="@color/eve_text_secondary"

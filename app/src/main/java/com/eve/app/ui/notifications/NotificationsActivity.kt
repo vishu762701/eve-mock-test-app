@@ -1,5 +1,7 @@
 package com.eve.app.ui.notifications
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -12,7 +14,7 @@ import com.eve.app.util.NotificationStore
 import com.eve.app.util.StoredNotification
 import kotlinx.coroutines.launch
 
-class NotificationsActivity : AppCompatActivity() {
+class NotificationsActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityNotificationsBinding
     private val adapter = NotificationAdapter()

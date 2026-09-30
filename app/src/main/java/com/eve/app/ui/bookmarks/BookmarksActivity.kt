@@ -1,5 +1,7 @@
 package com.eve.app.ui.bookmarks
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -22,7 +24,7 @@ import com.eve.app.util.SecurityHelper
 import com.eve.app.util.UiState
 import kotlinx.coroutines.launch
 
-class BookmarksActivity : AppCompatActivity() {
+class BookmarksActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityBookmarksBinding
     private val viewModel: BookmarksViewModel by viewModels()

@@ -7,7 +7,7 @@
     android:layout_marginBottom="8dp"
     app:cardBackgroundColor="@color/eve_card_bg"
     app:cardCornerRadius="12dp"
-    app:cardElevation="1dp"
+    app:cardElevation="0dp"
     app:strokeColor="@color/eve_stroke"
     app:strokeWidth="1dp">
 
@@ -28,11 +28,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_category_chip"
-                android:fontFamily="@font/poppins_semibold"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="3dp"
                 android:textColor="@color/eve_primary"
-                android:textSize="11sp"
+                android:textSize="13sp"
                 tools:text="✨ New Exam" />
 
             <View
@@ -44,9 +43,8 @@
                 android:id="@+id/tvTimestamp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins"
                 android:textColor="@color/eve_text_secondary"
-                android:textSize="11sp"
+                android:textSize="13sp"
                 tools:text="27 Sep 2026, 05:00 PM" />
         </LinearLayout>
 
@@ -55,7 +53,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:fontFamily="@font/poppins_medium"
             android:textColor="@color/eve_text"
             android:textSize="14sp"
             tools:text="Deleted exam: SSC CGL Tier 1" />
@@ -65,7 +62,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:fontFamily="@font/poppins"
             android:textColor="@color/eve_text_secondary"
             android:textSize="12sp"
             tools:text="Performed by: pronlike9@gmail.com" />

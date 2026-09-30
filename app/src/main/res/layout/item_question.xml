@@ -41,10 +41,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
-                    android:fontFamily="@font/poppins_medium"
                     android:text="0:00"
                     android:textColor="@color/eve_text_secondary"
-                    android:textSize="12sp" />
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <View
@@ -93,14 +93,14 @@
         <!-- Question Text: Receives FULL Available Width -->
         <TextView
             android:id="@+id/tvQuestion"
+            style="@style/TextAppearance.Eve.QuestionText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:layout_marginBottom="14dp"
-            android:fontFamily="@font/poppins_semibold"
-            android:lineSpacingExtra="5dp"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="17sp" />
+            android:lineSpacingMultiplier="1.25"
+            android:textColor="@color/eve_text"
+            android:textSize="18sp" />
 
         <View
             android:layout_width="match_parent"

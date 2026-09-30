@@ -12,7 +12,7 @@
     android:foreground="?attr/selectableItemBackground"
     app:cardBackgroundColor="@color/eve_card_bg"
     app:cardCornerRadius="@dimen/eve_radius_md"
-    app:cardElevation="1dp"
+    app:cardElevation="0dp"
     app:strokeColor="@color/eve_stroke"
     app:strokeWidth="1dp">
 
@@ -38,7 +38,6 @@
                     android:id="@+id/tvSenderName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_semibold"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="15sp"
                     tools:text="Student Name" />
@@ -47,7 +46,6 @@
                     android:id="@+id/tvSenderEmail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins"
                     android:textColor="@color/eve_text_secondary"
                     android:textSize="12sp"
                     tools:text="student@example.com" />
@@ -58,12 +56,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_pill_accent"
-                android:fontFamily="@font/poppins_semibold"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="2dp"
                 android:text="NEW"
                 android:textColor="@color/eve_on_primary"
-                android:textSize="11sp"
+                android:textSize="13sp"
                 android:visibility="gone"
                 tools:visibility="visible" />
 
@@ -96,7 +93,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:fontFamily="@font/poppins"
             android:lineSpacingExtra="2dp"
             android:textColor="?attr/colorOnSurface"
             android:textSize="14sp"
@@ -108,9 +104,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginTop="8dp"
-            android:fontFamily="@font/poppins"
             android:textColor="@color/eve_grey"
-            android:textSize="11sp"
+            android:textSize="13sp"
             tools:text="24 Sep 2026, 06:30 PM" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

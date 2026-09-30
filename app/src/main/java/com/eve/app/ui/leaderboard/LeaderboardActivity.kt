@@ -1,5 +1,7 @@
 package com.eve.app.ui.leaderboard
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
@@ -26,7 +28,7 @@ import kotlinx.coroutines.launch
  * ResultActivity ("View Leaderboard" button) aur HistoryActivity (purana attempt review
  * karte waqt) — dono jagah se yahan aa sakte ho.
  */
-class LeaderboardActivity : AppCompatActivity() {
+class LeaderboardActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityLeaderboardBinding
     private val viewModel: LeaderboardViewModel by viewModels()

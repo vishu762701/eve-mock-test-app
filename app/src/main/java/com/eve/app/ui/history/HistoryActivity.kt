@@ -1,5 +1,7 @@
 package com.eve.app.ui.history
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -22,7 +24,7 @@ import java.util.Date
 import java.util.Locale
 import kotlinx.coroutines.launch
 
-class HistoryActivity : AppCompatActivity() {
+class HistoryActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityHistoryBinding
     private val viewModel: HistoryViewModel by viewModels()

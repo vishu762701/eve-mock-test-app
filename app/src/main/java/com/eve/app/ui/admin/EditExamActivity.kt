@@ -1,5 +1,7 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.ui.common.EveBaseActivity
+
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
@@ -33,7 +35,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
 
-class EditExamActivity : AppCompatActivity() {
+class EditExamActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityEditExamBinding
     private val examRepo = ExamRepository()

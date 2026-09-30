@@ -30,6 +30,17 @@ object ShareCardHelper {
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
 
+        val boldTypeface = try {
+            androidx.core.content.res.ResourcesCompat.getFont(context, com.eve.app.R.font.source_serif_4_bold) ?: Typeface.DEFAULT_BOLD
+        } catch (_: Throwable) {
+            Typeface.DEFAULT_BOLD
+        }
+        val regularTypeface = try {
+            androidx.core.content.res.ResourcesCompat.getFont(context, com.eve.app.R.font.source_serif_4_regular) ?: Typeface.DEFAULT
+        } catch (_: Throwable) {
+            Typeface.DEFAULT
+        }
+
         // 1. Dark Background
         val bgPaint = Paint().apply {
             color = Color.parseColor("#0F172A") // Deep slate
@@ -55,7 +66,7 @@ object ShareCardHelper {
         val brandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.parseColor("#38BDF8") // Sky blue
             textSize = 34f
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            typeface = boldTypeface
             letterSpacing = 0.15f
         }
         canvas.drawText("EVE MOCK TEST", 120f, 150f, brandPaint)
@@ -64,7 +75,7 @@ object ShareCardHelper {
         val titlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.WHITE
             textSize = 50f
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            typeface = boldTypeface
         }
         val truncatedName = if (examName.length > 36) examName.take(33) + "..." else examName
         canvas.drawText(truncatedName, 120f, 220f, titlePaint)
@@ -80,6 +91,7 @@ object ShareCardHelper {
         val scoreLabelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.parseColor("#94A3B8")
             textSize = 30f
+            typeface = regularTypeface
             letterSpacing = 0.08f
         }
         canvas.drawText("TOTAL SCORE", 120f, 330f, scoreLabelPaint)
@@ -87,7 +99,7 @@ object ShareCardHelper {
         val scoreValuePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.WHITE
             textSize = 100f
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            typeface = boldTypeface
         }
         canvas.drawText(scoreText, 120f, 440f, scoreValuePaint)
 
@@ -99,7 +111,7 @@ object ShareCardHelper {
         val pillTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.parseColor("#E0F2FE")
             textSize = 28f
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            typeface = boldTypeface
         }
         val pill1Rect = RectF(120f, 475f, 340f, 530f)
         canvas.drawRoundRect(pill1Rect, 20f, 20f, pillBgPaint)
@@ -114,9 +126,9 @@ object ShareCardHelper {
         val boxY = 570f
         val boxH = 160f
 
-        drawStatBox(canvas, 120f, boxY, boxWidth, boxH, "Correct", correctCount.toString(), "#10B981")
-        drawStatBox(canvas, 120f + boxWidth + 20f, boxY, boxWidth, boxH, "Wrong", wrongCount.toString(), "#EF4444")
-        drawStatBox(canvas, 120f + (boxWidth + 20f) * 2, boxY, boxWidth, boxH, "Skipped", skippedCount.toString(), "#94A3B8")
+        drawStatBox(canvas, 120f, boxY, boxWidth, boxH, "Correct", correctCount.toString(), "#10B981", boldTypeface, regularTypeface)
+        drawStatBox(canvas, 120f + boxWidth + 20f, boxY, boxWidth, boxH, "Wrong", wrongCount.toString(), "#EF4444", boldTypeface, regularTypeface)
+        drawStatBox(canvas, 120f + (boxWidth + 20f) * 2, boxY, boxWidth, boxH, "Skipped", skippedCount.toString(), "#94A3B8", boldTypeface, regularTypeface)
 
         // 7. Standing Card
         val standingRect = RectF(120f, 770f, width - 120f, 910f)
@@ -130,6 +142,7 @@ object ShareCardHelper {
         val standLabelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.parseColor("#94A3B8")
             textSize = 26f
+            typeface = regularTypeface
             letterSpacing = 0.05f
         }
         canvas.drawText("PERFORMANCE STANDING", 160f, 820f, standLabelPaint)
@@ -137,7 +150,7 @@ object ShareCardHelper {
         val standValuePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.parseColor("#38BDF8")
             textSize = 42f
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            typeface = boldTypeface
         }
         canvas.drawText(rankText, 160f, 880f, standValuePaint)
 
@@ -145,6 +158,7 @@ object ShareCardHelper {
         val footerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.parseColor("#64748B")
             textSize = 24f
+            typeface = regularTypeface
             textAlign = Paint.Align.CENTER
         }
         canvas.drawText("Master competitive exams with real exam analytics • Eve Mock Test", width / 2f, 1220f, footerPaint)
@@ -177,7 +191,9 @@ object ShareCardHelper {
         h: Float,
         label: String,
         value: String,
-        colorHex: String
+        colorHex: String,
+        boldTypeface: Typeface,
+        regularTypeface: Typeface
     ) {
         val rect = RectF(x, y, x + w, y + h)
         val fillPaint = Paint().apply {
@@ -195,7 +211,7 @@ object ShareCardHelper {
         val valPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.parseColor(colorHex)
             textSize = 46f
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            typeface = boldTypeface
             textAlign = Paint.Align.CENTER
         }
         canvas.drawText(value, x + w / 2, y + 65f, valPaint)
@@ -203,6 +219,7 @@ object ShareCardHelper {
         val lblPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.parseColor("#94A3B8")
             textSize = 22f
+            typeface = regularTypeface
             textAlign = Paint.Align.CENTER
         }
         canvas.drawText(label, x + w / 2, y + 115f, lblPaint)
