@@ -52,7 +52,9 @@ class PremiumActivity : EveBaseActivity() {
         }
 
         binding.starViewNotPremium.fallbackView = binding.ivHeaderStarFallback
+        binding.starViewNotPremium.lazyMode = true
         binding.starViewPremiumActive.fallbackView = binding.ivActiveStarFallback
+        binding.starViewPremiumActive.lazyMode = true
 
         loadData()
     }

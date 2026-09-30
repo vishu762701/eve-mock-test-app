@@ -1239,6 +1239,7 @@ class MainActivity : EveBaseActivity() {
         val starView = binding.lottieDrawerPremiumStar
         val fallback = binding.lottieDrawerPremiumStarFallback
         starView.fallbackView = fallback
+        starView.lazyMode = true
 
         val isDark = ThemeManager.isDarkMode(this)
         if (isDark) {

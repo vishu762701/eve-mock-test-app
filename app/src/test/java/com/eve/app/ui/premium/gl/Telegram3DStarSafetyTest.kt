@@ -128,4 +128,20 @@ class Telegram3DStarSafetyTest {
         assertEquals("FRAGMENT_STYLE must be 0", 0, GLIconRenderer.FRAGMENT_STYLE)
         assertEquals("TYPE_STAR must be 0", 0, Icon3D.TYPE_STAR)
     }
+
+    @Test
+    fun testNoEglTerminateInTelegram3DStarView() {
+        val starViewFile = findProjectFile("src/main/java/com/eve/app/ui/premium/gl/Telegram3DStarView.kt")
+        val content = starViewFile.readText()
+        assertFalse(
+            "Telegram3DStarView must never call eglTerminate on EGL_DEFAULT_DISPLAY as it breaks HWUI rendering",
+            content.contains("eglTerminate(")
+        )
+    }
+
+    @Test
+    fun testFallbackPreferenceAndFlagConstants() {
+        assertEquals("debug_force_star_fallback", Telegram3DStarView.PREF_FORCE_STAR_FALLBACK)
+        assertFalse("forceFallback should be false by default", Telegram3DStarView.forceFallback)
+    }
 }

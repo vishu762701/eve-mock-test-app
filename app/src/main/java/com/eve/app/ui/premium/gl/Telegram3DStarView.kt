@@ -49,9 +49,15 @@ class Telegram3DStarView @JvmOverloads constructor(
         val EASE_OUT_QUINT = PathInterpolator(0.23f, 1f, 0.32f, 1f)
         val DEFAULT_INTERPOLATOR = PathInterpolator(0.25f, 0.1f, 0.25f, 1.0f)
         val EASE_OUT = PathInterpolator(0.0f, 0.0f, 0.58f, 1.0f)
+
+        const val PREF_FORCE_STAR_FALLBACK = "debug_force_star_fallback"
+
+        @Volatile
+        var forceFallback: Boolean = false
     }
 
     var touched = false
+    var lazyMode = false
     var mRenderer: GLIconRenderer? = null
     var fallbackView: View? = null
         set(value) {
@@ -105,6 +111,12 @@ class Telegram3DStarView @JvmOverloads constructor(
 
     init {
         isOpaque = false
+        val prefs = context.getSharedPreferences("eve_prefs", Context.MODE_PRIVATE)
+        val prefForced = com.eve.app.BuildConfig.DEBUG && prefs.getBoolean(PREF_FORCE_STAR_FALLBACK, false)
+        if (forceFallback || prefForced) {
+            triggerFallback()
+        }
+
         val isDark = ThemeManager.isDarkMode(context)
         val renderer = GLIconRenderer(context, GLIconRenderer.FRAGMENT_STYLE, Icon3D.TYPE_STAR)
         renderer.updateColors(isDark)
@@ -299,7 +311,11 @@ class Telegram3DStarView @JvmOverloads constructor(
     }
 
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
-        startThread(surface, width, height)
+        mSurface = surface
+        setDimensions(width, height)
+        if (!lazyMode || !isPaused()) {
+            startThread(surface, width, height)
+        }
     }
 
     override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
@@ -312,6 +328,7 @@ class Telegram3DStarView @JvmOverloads constructor(
 
     override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
         stopThread()
+        mSurface = null
         return true
     }
 
@@ -319,7 +336,12 @@ class Telegram3DStarView @JvmOverloads constructor(
     }
 
     fun startThread(surface: SurfaceTexture, width: Int, height: Int) {
-        if (glFailed) return
+        val prefs = context.getSharedPreferences("eve_prefs", Context.MODE_PRIVATE)
+        val prefForced = com.eve.app.BuildConfig.DEBUG && prefs.getBoolean(PREF_FORCE_STAR_FALLBACK, false)
+        if (glFailed || forceFallback || prefForced) {
+            triggerFallback()
+            return
+        }
         stopThread()
         thread = RenderThread()
         mSurface = surface
@@ -352,7 +374,13 @@ class Telegram3DStarView @JvmOverloads constructor(
         if (isPaused) {
             mainHandler.removeCallbacks(idleAnimationRunnable)
             cancelAnimations()
+            if (lazyMode) {
+                stopThread()
+            }
         } else {
+            if (lazyMode && thread == null && mSurface != null && surfaceWidth > 0 && surfaceHeight > 0) {
+                startThread(mSurface!!, surfaceWidth, surfaceHeight)
+            }
             if (!isAnimationDisabled() && !glFailed) {
                 scheduleIdleAnimation(idleDelay)
             }
@@ -820,7 +848,8 @@ class Telegram3DStarView @JvmOverloads constructor(
                                 egl.eglDestroyContext(dpy, ctx)
                             }
                         }
-                        egl.eglTerminate(dpy)
+                        // Do not terminate EGL display connection on Android;
+                        // it destroys process-wide display connection and crashes Android HWUI rendering.
                     }
                 }
             }

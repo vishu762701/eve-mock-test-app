@@ -329,6 +329,9 @@ class Icon3D(context: Context, val type: Int = TYPE_STAR) {
         if (bgBmp != null) {
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mBackgroundTextureHandle)
             GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bgBmp, 0)
+            if (!bgBmp.isRecycled) {
+                bgBmp.recycle()
+            }
             backgroundBitmap = null
         }
 
@@ -454,6 +457,26 @@ class Icon3D(context: Context, val type: Int = TYPE_STAR) {
         if (mProgramObject != 0) {
             GLES20.glDeleteProgram(mProgramObject)
             mProgramObject = 0
+        }
+        buffers?.let { buf ->
+            GLES20.glDeleteBuffers(buf.size, buf, 0)
+            buffers = null
+        }
+        if (mBackgroundTextureHandle != 0) {
+            GLES20.glDeleteTextures(1, intArrayOf(mBackgroundTextureHandle), 0)
+            mBackgroundTextureHandle = 0
+        }
+        if (mTextureDataHandle != 0) {
+            GLES20.glDeleteTextures(1, intArrayOf(mTextureDataHandle), 0)
+            mTextureDataHandle = 0
+        }
+        texture?.let {
+            if (!it.isRecycled) it.recycle()
+            texture = null
+        }
+        backgroundBitmap?.let {
+            if (!it.isRecycled) it.recycle()
+            backgroundBitmap = null
         }
     }
 }
