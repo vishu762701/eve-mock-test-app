@@ -541,16 +541,29 @@
                 android:orientation="horizontal"
                 android:paddingHorizontal="16dp">
 
-                <com.airbnb.lottie.LottieAnimationView
-                    android:id="@+id/lottieDrawerPremiumStar"
+                <FrameLayout
                     android:layout_width="36dp"
                     android:layout_height="36dp"
-                    android:layout_marginStart="-6dp"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="Premium"
-                    app:lottie_autoPlay="false"
-                    app:lottie_loop="false"
-                    app:lottie_rawRes="@raw/premium_star" />
+                    android:layout_marginStart="-6dp">
+
+                    <com.airbnb.lottie.LottieAnimationView
+                        android:id="@+id/lottieDrawerPremiumStarFallback"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        android:contentDescription="Premium"
+                        android:visibility="gone"
+                        app:lottie_autoPlay="false"
+                        app:lottie_loop="false"
+                        app:lottie_rawRes="@raw/premium_star" />
+
+                    <com.eve.app.ui.premium.gl.Telegram3DStarView
+                        android:id="@+id/lottieDrawerPremiumStar"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        android:contentDescription="Premium" />
+                </FrameLayout>
 
                 <TextView
                     android:layout_width="wrap_content"

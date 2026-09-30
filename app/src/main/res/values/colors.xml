@@ -27,6 +27,13 @@
     <color name="eve_premium_container">#E3FF3B</color>
     <color name="eve_chip_premium_stroke">@android:color/transparent</color>
     <color name="eve_on_premium">#111111</color>
+    <!-- Telegram 3D Premium Star tokens -->
+    <color name="eve_premium_gradient_1">#55A5FF</color>
+    <color name="eve_premium_gradient_2">#A767FF</color>
+    <color name="eve_premium_gradient_3">#DB5C9D</color>
+    <color name="eve_premium_gradient_4">#F38926</color>
+    <color name="eve_premium_star_1">#FFFFFF</color>
+    <color name="eve_premium_star_2">#E3ECFA</color>
     <color name="eve_silver">#687078</color>
     <color name="eve_bronze">#7A4B2A</color>
     <color name="eve_highlight_bg">#F0F0F0</color>

@@ -88,13 +88,27 @@
                         android:orientation="vertical"
                         android:paddingVertical="16dp">
 
-                        <ImageView
-                            android:layout_width="64dp"
-                            android:layout_height="64dp"
-                            android:background="@drawable/bg_circle_primary"
-                            android:padding="16dp"
-                            android:src="@drawable/ic_star_filled"
-                            app:tint="@color/eve_status_warning" />
+                        <FrameLayout
+                            android:layout_width="190dp"
+                            android:layout_height="190dp">
+
+                            <ImageView
+                                android:id="@+id/ivHeaderStarFallback"
+                                android:layout_width="64dp"
+                                android:layout_height="64dp"
+                                android:layout_gravity="center"
+                                android:background="@drawable/bg_circle_primary"
+                                android:padding="16dp"
+                                android:src="@drawable/ic_star_filled"
+                                android:visibility="gone"
+                                app:tint="@color/eve_status_warning" />
+
+                            <com.eve.app.ui.premium.gl.Telegram3DStarView
+                                android:id="@+id/starViewNotPremium"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@android:color/transparent" />
+                        </FrameLayout>
 
                         <TextView
                             android:id="@+id/tvPlanTitle"
@@ -295,11 +309,25 @@
                             android:orientation="vertical"
                             android:padding="24dp">
 
-                            <ImageView
-                                android:layout_width="56dp"
-                                android:layout_height="56dp"
-                                android:src="@drawable/ic_star_filled"
-                                app:tint="@color/eve_status_warning" />
+                            <FrameLayout
+                                android:layout_width="140dp"
+                                android:layout_height="140dp">
+
+                                <ImageView
+                                    android:id="@+id/ivActiveStarFallback"
+                                    android:layout_width="56dp"
+                                    android:layout_height="56dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_star_filled"
+                                    android:visibility="gone"
+                                    app:tint="@color/eve_status_warning" />
+
+                                <com.eve.app.ui.premium.gl.Telegram3DStarView
+                                    android:id="@+id/starViewPremiumActive"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:background="@android:color/transparent" />
+                            </FrameLayout>
 
                             <TextView
                                 android:id="@+id/tvActiveTitle"

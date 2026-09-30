@@ -51,7 +51,27 @@ class PremiumActivity : EveBaseActivity() {
             showPaymentMethodPicker()
         }
 
+        binding.starViewNotPremium.fallbackView = binding.ivHeaderStarFallback
+        binding.starViewPremiumActive.fallbackView = binding.ivActiveStarFallback
+
         loadData()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding.starViewNotPremium.setPaused(true)
+        binding.starViewPremiumActive.setPaused(true)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (binding.layoutNotPremium.visibility == View.VISIBLE) {
+            binding.starViewNotPremium.setPaused(false)
+            binding.starViewNotPremium.updateTheme()
+        } else if (binding.layoutPremiumActive.visibility == View.VISIBLE) {
+            binding.starViewPremiumActive.setPaused(false)
+            binding.starViewPremiumActive.updateTheme()
+        }
     }
 
     private fun loadData() {
@@ -85,6 +105,11 @@ class PremiumActivity : EveBaseActivity() {
             binding.layoutNotPremium.visibility = View.GONE
             binding.layoutPremiumActive.visibility = View.VISIBLE
 
+            binding.starViewNotPremium.setPaused(true)
+            binding.starViewPremiumActive.setPaused(false)
+            binding.starViewPremiumActive.updateTheme()
+            binding.starViewPremiumActive.startEnterAnimation()
+
             if (status.isLifetime) {
                 binding.tvActiveExpiry.text = "Lifetime Premium Active"
             } else if (status.expiresAt != null && status.expiresAt > 0) {
@@ -97,6 +122,11 @@ class PremiumActivity : EveBaseActivity() {
             // User is not Premium
             binding.layoutNotPremium.visibility = View.VISIBLE
             binding.layoutPremiumActive.visibility = View.GONE
+
+            binding.starViewPremiumActive.setPaused(true)
+            binding.starViewNotPremium.setPaused(false)
+            binding.starViewNotPremium.updateTheme()
+            binding.starViewNotPremium.startEnterAnimation()
 
             binding.tvPlanTitle.text = plan.planName.ifBlank { "EVE Premium" }
             if (plan.description.isNotBlank()) {

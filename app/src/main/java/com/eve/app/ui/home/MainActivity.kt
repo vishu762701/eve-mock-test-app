@@ -377,10 +377,17 @@ class MainActivity : EveBaseActivity() {
                 binding.lottieFloatingAirplane.resumeAnimation()
             }
         }
+        if (::binding.isInitialized && binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            binding.lottieDrawerPremiumStar.setPaused(false)
+            binding.lottieDrawerPremiumStar.updateTheme()
+        }
     }
 
     override fun onPause() {
         super.onPause()
+        if (::binding.isInitialized) {
+            binding.lottieDrawerPremiumStar.setPaused(true)
+        }
         if (::binding.isInitialized && binding.cardFloatingAirplane.visibility == View.VISIBLE) {
             binding.lottieFloatingAirplane.pauseAnimation()
         }
@@ -1123,6 +1130,7 @@ class MainActivity : EveBaseActivity() {
             override fun onDrawerClosed(drawerView: View) {
                 binding.ivDrawerGlassBlurBackground.setImageDrawable(null)
                 drawerBlurBitmap = null
+                binding.lottieDrawerPremiumStar.setPaused(true)
             }
         })
 
@@ -1228,40 +1236,51 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun setupDrawerPremiumStar() {
-        val isDark = ThemeManager.isDarkMode(this)
-        val lottie = binding.lottieDrawerPremiumStar
+        val starView = binding.lottieDrawerPremiumStar
+        val fallback = binding.lottieDrawerPremiumStarFallback
+        starView.fallbackView = fallback
 
+        val isDark = ThemeManager.isDarkMode(this)
         if (isDark) {
-            lottie.setAnimation(R.raw.premium_star)
+            fallback.setAnimation(R.raw.premium_star)
             val limeColor = ContextCompat.getColor(this, R.color.eve_premium)
             val keyPath = KeyPath("**")
-            lottie.addValueCallback(keyPath, LottieProperty.COLOR, SimpleLottieValueCallback { limeColor })
-            lottie.addValueCallback(keyPath, LottieProperty.STROKE_COLOR, SimpleLottieValueCallback { limeColor })
+            fallback.addValueCallback(keyPath, LottieProperty.COLOR, SimpleLottieValueCallback { limeColor })
+            fallback.addValueCallback(keyPath, LottieProperty.STROKE_COLOR, SimpleLottieValueCallback { limeColor })
         } else {
-            lottie.setAnimation(R.raw.premium_star_light)
+            fallback.setAnimation(R.raw.premium_star_light)
         }
 
-        lottie.repeatCount = 0
-        lottie.addLottieOnCompositionLoadedListener {
-            if (!lottie.isAnimating) {
-                lottie.progress = 1f
+        fallback.repeatCount = 0
+        fallback.addLottieOnCompositionLoadedListener {
+            if (!fallback.isAnimating) {
+                fallback.progress = 1f
             }
         }
-        lottie.progress = 1f
+        fallback.progress = 1f
+
+        starView.setPaused(true)
     }
 
     private fun playDrawerPremiumStar() {
-        val animScale = Settings.Global.getFloat(
-            contentResolver,
-            Settings.Global.ANIMATOR_DURATION_SCALE,
-            1.0f
-        )
-        val lottie = binding.lottieDrawerPremiumStar
-        if (animScale == 0f) {
-            lottie.progress = 1f
-        } else {
-            lottie.progress = 0f
-            lottie.playAnimation()
+        val starView = binding.lottieDrawerPremiumStar
+        starView.setPaused(false)
+        starView.updateTheme()
+        starView.startEnterAnimation()
+
+        if (binding.lottieDrawerPremiumStarFallback.visibility == View.VISIBLE) {
+            val animScale = Settings.Global.getFloat(
+                contentResolver,
+                Settings.Global.ANIMATOR_DURATION_SCALE,
+                1.0f
+            )
+            val fallback = binding.lottieDrawerPremiumStarFallback
+            if (animScale == 0f) {
+                fallback.progress = 1f
+            } else {
+                fallback.progress = 0f
+                fallback.playAnimation()
+            }
         }
     }
 }
