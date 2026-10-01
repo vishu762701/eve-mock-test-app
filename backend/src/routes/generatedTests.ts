@@ -3,6 +3,7 @@
 // ============================================================================
 
 import { Hono } from "hono";
+import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { generateQuestions, getIstTimeAndDate, incrementTestNumber, GeminiProviderError } from "../ai/generator";
 import { requireAdmin } from "../middleware/authMiddleware";
 import { AuthUser, Env, ExamRow, GeneratedTestRow } from "../types";
@@ -226,7 +227,10 @@ generatedTestRoutes.post("/generate-now", requireAdmin, async (c) => {
   } catch (err: any) {
     const isGeminiErr = err instanceof GeminiProviderError;
     const userMsg = isGeminiErr ? err.userFacingMessage : (err.userFacingMessage || err.message || "Generation failed");
-    const httpStatus = isGeminiErr && err.httpStatus >= 400 && err.httpStatus < 600 ? err.httpStatus : 500;
+    const httpStatus: ContentfulStatusCode =
+      isGeminiErr && err.httpStatus >= 400 && err.httpStatus < 600
+        ? (err.httpStatus as ContentfulStatusCode)
+        : 500;
     const errorCode = isGeminiErr ? err.code : "GENERATION_FAILED";
 
     await db
@@ -241,6 +245,6 @@ generatedTestRoutes.post("/generate-now", requireAdmin, async (c) => {
       .bind(userMsg.slice(0, 200), Date.now(), examId)
       .run();
 
-    return c.json({ success: false, error: userMsg, code: errorCode }, httpStatus as any);
+    return c.json({ success: false, error: userMsg, code: errorCode }, httpStatus);
   }
 });
