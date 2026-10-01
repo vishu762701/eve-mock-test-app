@@ -11,6 +11,7 @@ import com.eve.app.data.repository.PinnedExamsRepository
 import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.util.Constants
 import com.eve.app.util.UiState
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,6 +44,7 @@ class HomeViewModel : ViewModel() {
     private var pinnedObserverJob: Job? = null
     private var feedbackObserverJob: Job? = null
     private var allLoadedExams: List<Exam> = emptyList()
+    private var hasLoadedOnce = false
     private var loadJob: Job? = null
     private var lastUserLoaded: String? = null
     private var lastAdminLoaded: Boolean? = null
@@ -98,6 +100,7 @@ class HomeViewModel : ViewModel() {
         val cached = loadCachedExams()
         if (cached.isNotEmpty()) {
             allLoadedExams = cached
+            hasLoadedOnce = true
             _examState.value = UiState.Success(cached)
         }
         load()
@@ -106,16 +109,19 @@ class HomeViewModel : ViewModel() {
     fun load() {
         if (loadJob?.isActive == true) return
         loadJob = viewModelScope.launch(coroutineExceptionHandler) {
-            if (allLoadedExams.isEmpty()) {
+            if (!hasLoadedOnce && allLoadedExams.isEmpty()) {
                 _examState.value = UiState.Loading
             }
             try {
                 val exams = repo.getExams()
                 allLoadedExams = exams
+                hasLoadedOnce = true
                 saveCachedExams(exams)
                 _examState.value = UiState.Success(exams)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
-                if (allLoadedExams.isEmpty()) {
+                if (!hasLoadedOnce) {
                     _examState.value = UiState.Error(e.toUserFriendlyMessage())
                 }
             }
@@ -162,7 +168,7 @@ class HomeViewModel : ViewModel() {
 
     fun loadForUser(userId: String, isAdmin: Boolean, force: Boolean = false) {
         val now = System.currentTimeMillis()
-        if (!force && lastUserLoaded == userId && lastAdminLoaded == isAdmin && (now - lastLoadedTime < 10_000L) && allLoadedExams.isNotEmpty()) {
+        if (!force && lastUserLoaded == userId && lastAdminLoaded == isAdmin && (now - lastLoadedTime < 10_000L) && hasLoadedOnce) {
             if (pinnedObserverJob?.isActive != true) {
                 pinnedObserverJob?.cancel()
                 pinnedObserverJob = viewModelScope.launch(coroutineExceptionHandler) {
@@ -179,12 +185,13 @@ class HomeViewModel : ViewModel() {
 
         loadJob?.cancel()
         loadJob = viewModelScope.launch(coroutineExceptionHandler) {
-            if (allLoadedExams.isEmpty()) {
+            if (!hasLoadedOnce && allLoadedExams.isEmpty()) {
                 _examState.value = UiState.Loading
             }
             try {
                 val exams = repo.getExams()
                 allLoadedExams = exams
+                hasLoadedOnce = true
                 saveCachedExams(exams)
                 _examState.value = UiState.Success(exams)
                 if (isAdmin) {
@@ -192,12 +199,16 @@ class HomeViewModel : ViewModel() {
                 } else {
                     val locks = try {
                         repo.getAttemptedExamIds(userId).filter { !isAttemptCleared(it) }
+                    } catch (e: CancellationException) {
+                        throw e
                     } catch (_: Exception) {
                         // optional: failure is fine
                         emptyList()
                     }
                     val attempts = try {
                         historyRepo.getAttempts(userId).filter { !isAttemptCleared(it.examId) }
+                    } catch (e: CancellationException) {
+                        throw e
                     } catch (_: Exception) {
                         // optional: failure is fine
                         emptyList()
@@ -211,8 +222,10 @@ class HomeViewModel : ViewModel() {
                     }
                     _attemptInfo.value = AttemptInfo(ids.toSet(), map)
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
-                if (allLoadedExams.isEmpty()) {
+                if (!hasLoadedOnce) {
                     _examState.value = UiState.Error(e.toUserFriendlyMessage())
                 }
             }

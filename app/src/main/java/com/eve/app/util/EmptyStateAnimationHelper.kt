@@ -86,13 +86,14 @@ object EmptyStateAnimationHelper {
         lottieView.setBackgroundResource(android.R.color.transparent)
         lottieView.repeatCount = 0
 
-        // If already actively playing, let it finish cleanly without interruption
-        if (lottieView.isAnimating) {
+        // If already actively playing search animation, let it finish cleanly without interruption
+        if (lottieView.isAnimating && lottieView.tag == R.raw.search) {
             return false
         }
 
         val currentTag = lottieView.tag
         if (currentTag != R.raw.search) {
+            lottieView.cancelAnimation()
             lottieView.setAnimation(R.raw.search)
             lottieView.tag = R.raw.search
         }
@@ -148,5 +149,21 @@ object EmptyStateAnimationHelper {
         if (lottieView.isAnimating) {
             lottieView.cancelAnimation()
         }
+    }
+
+    /**
+     * Shows the 404 ERROR animation (res/raw/error_404.json).
+     * Cancels any running animation, clears dark-mode color value callbacks,
+     * sets R.raw.error_404, sets lottieView.tag = R.raw.error_404, and plays.
+     */
+    fun showErrorState(lottieView: LottieAnimationView) {
+        lottieView.cancelAnimation()
+        lottieView.removeAllAnimatorListeners()
+        lottieView.addValueCallback(keyPathAll, LottieProperty.COLOR, null as LottieValueCallback<Int>?)
+        lottieView.addValueCallback(keyPathAll, LottieProperty.STROKE_COLOR, null as LottieValueCallback<Int>?)
+        lottieView.setAnimation(R.raw.error_404)
+        lottieView.tag = R.raw.error_404
+        lottieView.repeatCount = 0
+        lottieView.playAnimation()
     }
 }

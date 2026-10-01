@@ -98,8 +98,7 @@ class HistoryActivity : EveBaseActivity() {
                 binding.progressGroup.visibility = View.GONE
                 binding.messageGroup.visibility = View.VISIBLE
                 binding.btnRetry.visibility = View.VISIBLE
-                binding.ivMessageIcon.setAnimation(R.raw.error_404)
-                binding.ivMessageIcon.playAnimation()
+                com.eve.app.util.EmptyStateAnimationHelper.showErrorState(binding.ivMessageIcon)
                 if (NetworkUtil.isOnline(this)) {
                     binding.tvMessage.text = "Something went wrong"
                     binding.tvMessageSub.text = state.message

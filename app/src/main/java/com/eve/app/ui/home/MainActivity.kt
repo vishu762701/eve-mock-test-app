@@ -364,6 +364,7 @@ class MainActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        hasEmptyPlayed = false
         isExamNavigating = false
         checkAppConfigAndMaintenance()
         FirebaseAuth.getInstance().currentUser?.let { current ->
@@ -571,7 +572,6 @@ class MainActivity : EveBaseActivity() {
                 binding.tvMessageSub.text = "Try searching for a different keyword or category."
             } else {
                 binding.messageGroup.visibility = View.GONE
-                hasEmptyPlayed = false
                 adapter.submit(filtered)
             }
         } else {
@@ -590,7 +590,6 @@ class MainActivity : EveBaseActivity() {
                 }
             } else {
                 binding.messageGroup.visibility = View.GONE
-                hasEmptyPlayed = false
                 adapter.submit(lastLoadedItems)
             }
         }
@@ -1004,6 +1003,7 @@ class MainActivity : EveBaseActivity() {
     private fun render(state: UiState<HomeUiData>) {
         when (state) {
             is UiState.Loading -> {
+                hasEmptyPlayed = false
                 if (lastLoadedItems.isNotEmpty()) {
                     binding.shimmerSkeletonHome.visibility = View.GONE
                     binding.rvExams.visibility = View.VISIBLE
@@ -1037,6 +1037,7 @@ class MainActivity : EveBaseActivity() {
                 }
             }
             is UiState.Error -> {
+                hasEmptyPlayed = false
                 if (lastLoadedItems.isNotEmpty()) {
                     binding.shimmerSkeletonHome.visibility = View.GONE
                     binding.rvExams.visibility = View.VISIBLE
@@ -1046,8 +1047,7 @@ class MainActivity : EveBaseActivity() {
                     binding.progressGroup.visibility = View.GONE
                     binding.messageGroup.visibility = View.VISIBLE
                     binding.btnRetry.visibility = View.VISIBLE
-                    binding.ivMessageIcon.setAnimation(R.raw.error_404)
-                    binding.ivMessageIcon.playAnimation()
+                    com.eve.app.util.EmptyStateAnimationHelper.showErrorState(binding.ivMessageIcon)
                     if (NetworkUtil.isOnline(this)) {
                         binding.tvMessage.text = "Something went wrong"
                         binding.tvMessageSub.text = state.message
