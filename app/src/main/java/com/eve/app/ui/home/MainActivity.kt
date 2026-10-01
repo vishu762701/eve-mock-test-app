@@ -401,9 +401,12 @@ class MainActivity : EveBaseActivity() {
                 binding.lottieFloatingAirplane.resumeAnimation()
             }
         }
-        if (::binding.isInitialized && binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            binding.lottieDrawerPremiumStar.setPaused(false)
-            binding.lottieDrawerPremiumStar.updateTheme()
+        if (::binding.isInitialized) {
+            setupDrawerPremiumStar()
+            if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                binding.lottieDrawerPremiumStar.setPaused(false)
+                binding.lottieDrawerPremiumStar.updateTheme()
+            }
         }
     }
 
@@ -1153,8 +1156,11 @@ class MainActivity : EveBaseActivity() {
         // Scoped frosted-glass blur: blur ONLY the drawer panel, never the rest of the screen
         binding.drawerLayout.addDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-                if (slideOffset > 0f && drawerBlurBitmap == null) {
-                    captureDrawerBlur()
+                if (slideOffset > 0f) {
+                    if (drawerBlurBitmap == null) {
+                        captureDrawerBlur()
+                    }
+                    binding.lottieDrawerPremiumStar.setPaused(false)
                 }
             }
 
@@ -1280,17 +1286,13 @@ class MainActivity : EveBaseActivity() {
         val starView = binding.lottieDrawerPremiumStar
         val fallback = binding.lottieDrawerPremiumStarFallback
         starView.fallbackView = fallback
-        starView.lazyMode = true
+        starView.lazyMode = false
         starView.animationSpeedMultiplier = 1.5f
         fallback.speed = 1.5f
 
         val isDark = ThemeManager.isDarkMode(this)
         if (isDark) {
             fallback.setAnimation(R.raw.premium_star)
-            val limeColor = ContextCompat.getColor(this, R.color.eve_premium)
-            val keyPath = KeyPath("**")
-            fallback.addValueCallback(keyPath, LottieProperty.COLOR, SimpleLottieValueCallback { limeColor })
-            fallback.addValueCallback(keyPath, LottieProperty.STROKE_COLOR, SimpleLottieValueCallback { limeColor })
         } else {
             fallback.setAnimation(R.raw.premium_star_light)
         }
@@ -1307,7 +1309,9 @@ class MainActivity : EveBaseActivity() {
             fallback.visibility = View.VISIBLE
             starView.visibility = View.GONE
         } else {
-            starView.setPaused(true)
+            fallback.visibility = View.VISIBLE
+            starView.visibility = View.VISIBLE
+            starView.updateTheme()
         }
     }
 

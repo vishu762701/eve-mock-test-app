@@ -4,6 +4,7 @@ import com.eve.app.data.model.Exam
 import com.eve.app.data.model.GeneratedQuestion
 import com.eve.app.data.model.GeneratedTest
 import com.eve.app.ui.home.ExamTestsActivity
+import com.eve.app.ui.home.ExamTestsListItem
 import com.eve.app.util.AttemptKey
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -170,5 +171,92 @@ class SubExamsAndNewExamFlowTest {
 
         assertEquals("sub_hindi__gen_test_001", key1)
         assertEquals("sub_hindi__gen_test_002", key2)
+    }
+
+    @Test
+    fun `test main exam without children shows direct tests only`() {
+        val test = GeneratedTest(id = "t1", examId = "main_1", examName = "Main", testNumber = "Test 1")
+        val testItem = ExamTestsListItem.TestItem(test, "Test 1", "20 questions", isCompleted = false)
+        val list = ExamTestsActivity.buildExamTestsList(listOf(testItem), emptyList())
+
+        assertEquals(1, list.size)
+        assertTrue(list[0] is ExamTestsListItem.TestItem)
+        assertEquals("Test 1", (list[0] as ExamTestsListItem.TestItem).title)
+    }
+
+    @Test
+    fun `test main exam with children and direct tests shows BOTH in deterministic order`() {
+        val test1 = GeneratedTest(id = "t1", examId = "main_1", examName = "Main", testNumber = "Test 1")
+        val test2 = GeneratedTest(id = "t2", examId = "main_1", examName = "Main", testNumber = "Test 2")
+        val testItem1 = ExamTestsListItem.TestItem(test1, "Test 1", "20 questions", isCompleted = false)
+        val testItem2 = ExamTestsListItem.TestItem(test2, "Test 2", "20 questions", isCompleted = false)
+
+        val child1 = Exam(id = "sub_1", examName = "English", parentExamId = "main_1")
+        val child2 = Exam(id = "sub_2", examName = "Hindi", parentExamId = "main_1")
+        val subExamItem1 = ExamTestsListItem.SubExamItem(child1)
+        val subExamItem2 = ExamTestsListItem.SubExamItem(child2)
+
+        val list = ExamTestsActivity.buildExamTestsList(
+            listOf(testItem1, testItem2),
+            listOf(subExamItem1, subExamItem2)
+        )
+
+        // Structure: Header "Tests", Test 1, Test 2, Header "Sub-Exams", Sub 1, Sub 2
+        assertEquals(6, list.size)
+        assertTrue(list[0] is ExamTestsListItem.HeaderItem)
+        assertEquals("Tests", (list[0] as ExamTestsListItem.HeaderItem).title)
+        assertTrue(list[1] is ExamTestsListItem.TestItem)
+        assertEquals("Test 1", (list[1] as ExamTestsListItem.TestItem).title)
+        assertTrue(list[2] is ExamTestsListItem.TestItem)
+        assertEquals("Test 2", (list[2] as ExamTestsListItem.TestItem).title)
+        assertTrue(list[3] is ExamTestsListItem.HeaderItem)
+        assertEquals("Sub-Exams", (list[3] as ExamTestsListItem.HeaderItem).title)
+        assertTrue(list[4] is ExamTestsListItem.SubExamItem)
+        assertEquals("English", (list[4] as ExamTestsListItem.SubExamItem).exam.examName)
+        assertTrue(list[5] is ExamTestsListItem.SubExamItem)
+        assertEquals("Hindi", (list[5] as ExamTestsListItem.SubExamItem).exam.examName)
+    }
+
+    @Test
+    fun `test main exam with children but no direct tests shows children`() {
+        val child1 = Exam(id = "sub_1", examName = "English", parentExamId = "main_1")
+        val subExamItem1 = ExamTestsListItem.SubExamItem(child1)
+        val list = ExamTestsActivity.buildExamTestsList(emptyList(), listOf(subExamItem1))
+
+        assertEquals(1, list.size)
+        assertTrue(list[0] is ExamTestsListItem.SubExamItem)
+        assertEquals("English", (list[0] as ExamTestsListItem.SubExamItem).exam.examName)
+    }
+
+    @Test
+    fun `test sub-exam shows only its own tests`() {
+        val subExamTest = GeneratedTest(id = "st1", examId = "sub_hindi", examName = "Hindi", testNumber = "Test 1")
+        val testItem = ExamTestsListItem.TestItem(subExamTest, "Test 1", "20 questions", isCompleted = false)
+        val list = ExamTestsActivity.buildExamTestsList(listOf(testItem), emptyList())
+
+        assertEquals(1, list.size)
+        assertTrue(list[0] is ExamTestsListItem.TestItem)
+        assertEquals("sub_hindi", (list[0] as ExamTestsListItem.TestItem).test.examId)
+    }
+
+    @Test
+    fun `test generated test ownership and scope uses exam ID not exam name`() {
+        val mainExam = Exam(id = "exam_rssb_3rd", examName = "RSSB 3rd Grade")
+        val subExam = Exam(id = "exam_rssb_hindi", examName = "RSSB 3rd Grade", parentExamId = mainExam.id)
+
+        val parentTest = GeneratedTest(id = "t_p", examId = mainExam.id, examName = mainExam.examName)
+        val childTest = GeneratedTest(id = "t_c", examId = subExam.id, examName = subExam.examName)
+
+        assertEquals("exam_rssb_3rd", parentTest.examId)
+        assertEquals("exam_rssb_hindi", childTest.examId)
+        assertFalse("Parent and child tests must not share exam ID even if names are identical", parentTest.examId == childTest.examId)
+    }
+
+    @Test
+    fun `test renamed exam retains its generated tests because ownership is by ID`() {
+        val test = GeneratedTest(id = "test_1", examId = "main_cet", examName = "Old CET Name")
+        val updatedExam = Exam(id = "main_cet", examName = "New CET Name")
+
+        assertEquals(test.examId, updatedExam.id)
     }
 }

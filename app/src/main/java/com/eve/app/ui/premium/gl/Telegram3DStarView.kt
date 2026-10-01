@@ -688,7 +688,7 @@ class Telegram3DStarView @JvmOverloads constructor(
         set.start()
     }
 
-    private fun triggerFallback() {
+    fun triggerFallback() {
         glFailed = true
         isRunning = false
         mainHandler.post {
@@ -713,6 +713,7 @@ class Telegram3DStarView @JvmOverloads constructor(
 
             try {
                 initGL()
+                initializeRenderer(mRenderer)
             } catch (e: Throwable) {
                 e.printStackTrace()
                 triggerFallback()

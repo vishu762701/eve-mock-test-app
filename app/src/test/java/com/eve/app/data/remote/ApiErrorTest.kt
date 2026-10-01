@@ -143,4 +143,19 @@ class ApiErrorTest {
         val apiErrorTimeout = timeoutEx.toApiError()
         assertTrue(apiErrorTimeout is ApiError.Timeout)
     }
+
+    @Test
+    fun testGeminiRawProviderErrorSanitization() {
+        val rawGoogle401 = """{"error": "Gemini API error (401) on model gemini-3.5-flash-lite: {\"error\": {\"code\": 401, \"message\": \"The bound service account is deleted or disabled. The service account bound to the API key must be active.\", \"status\": \"ACCOUNT_STATE_INVALID\"}}"}"""
+        val exception = createHttpException(500, rawGoogle401)
+        val apiError = exception.toApiError()
+
+        val msgDebug = apiError.userMessage(isDebug = true)
+        val msgRelease = apiError.userMessage(isDebug = false)
+
+        assertTrue(msgDebug.contains("AI generation is temporarily unavailable"))
+        assertTrue(msgRelease.contains("AI generation is temporarily unavailable"))
+        org.junit.Assert.assertFalse(msgDebug.contains("service account"))
+        org.junit.Assert.assertFalse(msgDebug.contains("ACCOUNT_STATE_INVALID"))
+    }
 }

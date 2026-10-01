@@ -10,6 +10,11 @@ export interface Env {
   SUPABASE_PUBLISHABLE_KEY: string;
   SUPABASE_SERVICE_ROLE_KEY?: string; // Cloudflare secret
   GEMINI_API_KEY?: string;           // Cloudflare secret
+  GEMINI_API_KEY_1?: string;         // Cloudflare secret slot 1
+  GEMINI_API_KEY_2?: string;         // Cloudflare secret slot 2
+  GEMINI_API_KEY_3?: string;         // Cloudflare secret slot 3
+  GEMINI_API_KEY_4?: string;         // Cloudflare secret slot 4
+  GEMINI_API_KEYS?: string;          // Comma-separated list of Cloudflare secrets
   GEMINI_MODEL?: string;
   DIAGNOSTIC_KEY?: string;           // Cloudflare secret or environment variable
   LEGACY_ANSWER_LEAK?: string;

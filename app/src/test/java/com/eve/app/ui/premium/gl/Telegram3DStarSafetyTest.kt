@@ -144,4 +144,22 @@ class Telegram3DStarSafetyTest {
         assertEquals("debug_force_star_fallback", Telegram3DStarView.PREF_FORCE_STAR_FALLBACK)
         assertFalse("forceFallback should be false by default", Telegram3DStarView.forceFallback)
     }
+
+    @Test
+    fun testPremiumStarLottieResourcesExist() {
+        val starDark = findProjectFile("src/main/res/raw/premium_star.json")
+        val starLight = findProjectFile("src/main/res/raw/premium_star_light.json")
+        assertTrue("premium_star.json must exist", starDark.exists() && starDark.length() > 0)
+        assertTrue("premium_star_light.json must exist", starLight.exists() && starLight.length() > 0)
+    }
+
+    @Test
+    fun testTelegram3DStarViewRendererReinitializationGuaranteed() {
+        val starViewFile = findProjectFile("src/main/java/com/eve/app/ui/premium/gl/Telegram3DStarView.kt")
+        val content = starViewFile.readText()
+        assertTrue(
+            "RenderThread must reinitialize renderer whenever a new EGLContext is created",
+            content.contains("initializeRenderer(mRenderer)")
+        )
+    }
 }

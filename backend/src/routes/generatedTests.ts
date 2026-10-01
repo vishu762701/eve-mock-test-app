@@ -3,7 +3,7 @@
 // ============================================================================
 
 import { Hono } from "hono";
-import { generateQuestions, getIstTimeAndDate, incrementTestNumber } from "../ai/generator";
+import { generateQuestions, getIstTimeAndDate, incrementTestNumber, GeminiProviderError } from "../ai/generator";
 import { requireAdmin } from "../middleware/authMiddleware";
 import { AuthUser, Env, ExamRow, GeneratedTestRow } from "../types";
 
@@ -224,6 +224,11 @@ generatedTestRoutes.post("/generate-now", requireAdmin, async (c) => {
       },
     });
   } catch (err: any) {
+    const isGeminiErr = err instanceof GeminiProviderError;
+    const userMsg = isGeminiErr ? err.userFacingMessage : (err.userFacingMessage || err.message || "Generation failed");
+    const httpStatus = isGeminiErr && err.httpStatus >= 400 && err.httpStatus < 600 ? err.httpStatus : 500;
+    const errorCode = isGeminiErr ? err.code : "GENERATION_FAILED";
+
     await db
       .prepare(
         `UPDATE exams SET
@@ -233,9 +238,9 @@ generatedTestRoutes.post("/generate-now", requireAdmin, async (c) => {
           last_generation_time = ?
          WHERE id = ?`
       )
-      .bind(String(err.message || "Unknown error").slice(0, 200), Date.now(), examId)
+      .bind(userMsg.slice(0, 200), Date.now(), examId)
       .run();
 
-    return c.json({ success: false, error: err.message || "Generation failed" }, 500);
+    return c.json({ success: false, error: userMsg, code: errorCode }, httpStatus);
   }
 });

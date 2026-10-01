@@ -2,7 +2,7 @@
 // Phase 4: Scheduled AI Test Generation Cron Handler (Every 5 minutes)
 // ============================================================================
 
-import { generateQuestions, getIstTimeAndDate, incrementTestNumber } from "../ai/generator";
+import { generateQuestions, getIstTimeAndDate, incrementTestNumber, GeminiProviderError } from "../ai/generator";
 import { Env, ExamRow } from "../types";
 
 export async function handleScheduledTestGeneration(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
@@ -177,7 +177,8 @@ export async function handleScheduledTestGeneration(event: ScheduledEvent, env: 
         `[Scheduler] Successfully inserted test '${title}' (${questions.length} questions). Exam metadata updated and lock released for '${examName}'.`
       );
     } catch (err: any) {
-      console.error(`[Scheduler] Generation failed for '${examName}':`, err.message);
+      const safeMsg = (err instanceof GeminiProviderError ? err.userFacingMessage : err.message) || "Unknown error";
+      console.error(`[Scheduler] Generation failed for '${examName}':`, safeMsg);
 
       const finishTime = Date.now();
       await db.batch([
@@ -190,7 +191,7 @@ export async function handleScheduledTestGeneration(event: ScheduledEvent, env: 
               last_generation_time = ?
              WHERE id = ?`
           )
-          .bind(String(err.message || "Unknown error").slice(0, 200), finishTime, examId),
+          .bind(safeMsg.slice(0, 200), finishTime, examId),
         db
           .prepare(
             "INSERT INTO generation_logs (id, exam_id, exam_name, status, message, timestamp) VALUES (?, ?, ?, ?, ?, ?)"
@@ -200,7 +201,7 @@ export async function handleScheduledTestGeneration(event: ScheduledEvent, env: 
             examId,
             examName,
             "failed",
-            String(err.message || "Unknown error").slice(0, 200),
+            safeMsg.slice(0, 200),
             finishTime
           ),
       ]);

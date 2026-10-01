@@ -52,6 +52,10 @@ sealed class ApiError : Exception() {
 
     data class Server(val code: Int, val serverMessage: String? = null) : ApiError() {
         override fun userMessage(isDebug: Boolean): String {
+            val sanitized = sanitizeErrorMessage(serverMessage)
+            if (sanitized != null && sanitized != serverMessage) {
+                return sanitized
+            }
             return if (isDebug) {
                 "[HTTP $code] Server Error: ${serverMessage ?: "Internal error"}"
             } else {
@@ -138,6 +142,33 @@ sealed class ApiError : Exception() {
             }
         }
     }
+}
+
+fun sanitizeErrorMessage(msg: String?): String? {
+    if (msg.isNullOrBlank()) return null
+    val lower = msg.lowercase()
+    if (
+        lower.contains("account_state_invalid") ||
+        lower.contains("service account") ||
+        lower.contains("api_key_invalid") ||
+        lower.contains("gemini api error (401") ||
+        lower.contains("gemini api error (400") ||
+        lower.contains("gemini api error (403")
+    ) {
+        return "AI generation is temporarily unavailable because the AI service credentials are inactive or invalid."
+    }
+    if (lower.contains("resource_exhausted") || lower.contains("quota")) {
+        return "AI generation quota has been reached. Please try again later."
+    }
+    if (
+        lower.contains("gemini api error (5") ||
+        lower.contains("high demand") ||
+        lower.contains("unavailable") ||
+        lower.contains("temporary provider")
+    ) {
+        return "AI service is temporarily unavailable. Please try again shortly."
+    }
+    return msg
 }
 
 fun Throwable.toApiError(): ApiError = ApiError.from(this)

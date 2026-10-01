@@ -142,6 +142,141 @@ function parseAndValidateQuestions(rawText: string): GeneratedQuestionItem[] {
   return validQuestions;
 }
 
+export enum GeminiErrorCode {
+  CONFIGURATION_MISSING = "CONFIGURATION_MISSING",
+  AUTH_ACCOUNT_INVALID = "AUTH_ACCOUNT_INVALID",
+  AUTH_INVALID = "AUTH_INVALID",
+  PERMISSION_DENIED = "PERMISSION_DENIED",
+  QUOTA_EXCEEDED = "QUOTA_EXCEEDED",
+  RATE_LIMITED = "RATE_LIMITED",
+  MODEL_NOT_FOUND = "MODEL_NOT_FOUND",
+  TEMPORARY_PROVIDER_ERROR = "TEMPORARY_PROVIDER_ERROR",
+  NETWORK_ERROR = "NETWORK_ERROR",
+  INVALID_GEMINI_RESPONSE = "INVALID_GEMINI_RESPONSE",
+  INVALID_GENERATED_QUESTIONS = "INVALID_GENERATED_QUESTIONS",
+}
+
+export class GeminiProviderError extends Error {
+  code: GeminiErrorCode;
+  httpStatus: number;
+  userFacingMessage: string;
+  isCredentialFailure: boolean;
+
+  constructor(
+    code: GeminiErrorCode,
+    httpStatus: number,
+    userFacingMessage: string,
+    internalDetails?: string
+  ) {
+    super(userFacingMessage);
+    this.name = "GeminiProviderError";
+    this.code = code;
+    this.httpStatus = httpStatus;
+    this.userFacingMessage = userFacingMessage;
+    this.isCredentialFailure =
+      code === GeminiErrorCode.AUTH_ACCOUNT_INVALID ||
+      code === GeminiErrorCode.AUTH_INVALID ||
+      code === GeminiErrorCode.PERMISSION_DENIED;
+  }
+}
+
+export function getGeminiApiKeys(env: Env): string[] {
+  const keys: string[] = [];
+  if (env.GEMINI_API_KEY) keys.push(env.GEMINI_API_KEY.trim());
+  if (env.GEMINI_API_KEY_1) keys.push(env.GEMINI_API_KEY_1.trim());
+  if (env.GEMINI_API_KEY_2) keys.push(env.GEMINI_API_KEY_2.trim());
+  if (env.GEMINI_API_KEY_3) keys.push(env.GEMINI_API_KEY_3.trim());
+  if (env.GEMINI_API_KEY_4) keys.push(env.GEMINI_API_KEY_4.trim());
+  if (env.GEMINI_API_KEYS) {
+    const list = env.GEMINI_API_KEYS.split(/[,;\s]+/).map((k) => k.trim()).filter(Boolean);
+    keys.push(...list);
+  }
+  return Array.from(new Set(keys.filter((k) => k.length > 0)));
+}
+
+export function classifyGeminiError(status: number, errText: string): GeminiProviderError {
+  const lower = (errText || "").toLowerCase();
+
+  if (status === 401) {
+    if (
+      lower.includes("account_state_invalid") ||
+      lower.includes("deleted or disabled") ||
+      lower.includes("service account")
+    ) {
+      return new GeminiProviderError(
+        GeminiErrorCode.AUTH_ACCOUNT_INVALID,
+        401,
+        "AI generation is temporarily unavailable because the AI service credentials are inactive or invalid."
+      );
+    }
+    return new GeminiProviderError(
+      GeminiErrorCode.AUTH_INVALID,
+      401,
+      "AI generation is temporarily unavailable because the AI service credentials are inactive or invalid."
+    );
+  }
+
+  if (status === 400) {
+    if (lower.includes("api_key_invalid") || (lower.includes("invalid_argument") && lower.includes("key"))) {
+      return new GeminiProviderError(
+        GeminiErrorCode.AUTH_INVALID,
+        400,
+        "AI generation is temporarily unavailable because the AI service credentials are inactive or invalid."
+      );
+    }
+    return new GeminiProviderError(
+      GeminiErrorCode.INVALID_GEMINI_RESPONSE,
+      400,
+      "AI generation request was invalid or rejected by provider."
+    );
+  }
+
+  if (status === 403) {
+    return new GeminiProviderError(
+      GeminiErrorCode.PERMISSION_DENIED,
+      403,
+      "AI generation is temporarily unavailable due to insufficient permissions on the AI service."
+    );
+  }
+
+  if (status === 404) {
+    return new GeminiProviderError(
+      GeminiErrorCode.MODEL_NOT_FOUND,
+      404,
+      "The configured AI generation model is currently unavailable."
+    );
+  }
+
+  if (status === 429) {
+    if (lower.includes("resource_exhausted") || lower.includes("quota")) {
+      return new GeminiProviderError(
+        GeminiErrorCode.QUOTA_EXCEEDED,
+        429,
+        "AI generation quota has been reached. Please try again later."
+      );
+    }
+    return new GeminiProviderError(
+      GeminiErrorCode.RATE_LIMITED,
+      429,
+      "AI generation is currently rate-limited. Please wait a moment and try again."
+    );
+  }
+
+  if (status >= 500 && status <= 599) {
+    return new GeminiProviderError(
+      GeminiErrorCode.TEMPORARY_PROVIDER_ERROR,
+      status,
+      "AI service is temporarily unavailable. Please try again shortly."
+    );
+  }
+
+  return new GeminiProviderError(
+    GeminiErrorCode.TEMPORARY_PROVIDER_ERROR,
+    status,
+    "AI service is temporarily unavailable. Please try again shortly."
+  );
+}
+
 export async function generateQuestions(
   env: Env,
   examName: string,
@@ -149,18 +284,18 @@ export async function generateQuestions(
   targetCount: number,
   customPrompt: string
 ): Promise<GeneratedQuestionItem[]> {
-  const apiKey = (env.GEMINI_API_KEY || "").trim();
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not configured.");
+  const candidateKeys = getGeminiApiKeys(env);
+  if (candidateKeys.length === 0) {
+    throw new GeminiProviderError(
+      GeminiErrorCode.CONFIGURATION_MISSING,
+      500,
+      "AI generation is not configured correctly. Please contact the administrator."
+    );
   }
-  const candidateKeys = [apiKey];
 
-  const preferredModel = env.GEMINI_MODEL || "gemini-3.1-flash-lite";
-  const rawCandidateModels = [preferredModel, "gemini-3.1-flash-lite", "gemini-3.8-flash", "gemini-3.5-flash-lite"];
-  const candidateModels = Array.from(new Set(rawCandidateModels.filter(Boolean)));
-
+  const authoritativeModel = (env.GEMINI_MODEL || "gemini-3.5-flash-lite").trim();
   const CHUNK_SIZE = 25;
-  const numChunks = Math.ceil(targetCount / CHUNK_SIZE);
+  const numChunks = Math.max(1, Math.ceil(targetCount / CHUNK_SIZE));
   const collected: GeneratedQuestionItem[] = [];
   const seenTexts = new Set<string>();
 
@@ -177,60 +312,98 @@ export async function generateQuestions(
     };
 
     let chunkSuccess = false;
-    let lastError: Error | null = null;
+    let lastError: GeminiProviderError | Error | null = null;
+    const correlationId = crypto.randomUUID();
 
-    keyLoop: for (const apiKey of candidateKeys) {
-      for (const model of candidateModels) {
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
-        try {
-          const res = await fetch(endpoint, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "x-goog-api-key": apiKey,
-            },
-            body: JSON.stringify(body),
-          });
+    keyLoop: for (let keyIdx = 0; keyIdx < candidateKeys.length; keyIdx++) {
+      const apiKey = candidateKeys[keyIdx];
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(authoritativeModel)}:generateContent`;
 
-          if (!res.ok) {
-            const errText = await res.text();
-            lastError = new Error(`Gemini API error (${res.status}) on model ${model}: ${errText}`);
-            if (res.status === 403 || (res.status === 400 && errText.includes("API_KEY_INVALID"))) {
-              continue keyLoop;
-            }
-            continue;
+      try {
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": apiKey,
+          },
+          body: JSON.stringify(body),
+        });
+
+        if (!res.ok) {
+          const errText = await res.text();
+          const providerErr = classifyGeminiError(res.status, errText);
+          lastError = providerErr;
+
+          // Safe diagnostic logging: Never log the API key
+          console.warn(
+            `[Gemini Diagnostics] Slot ${keyIdx} HTTP ${res.status} [${providerErr.code}], model: ${authoritativeModel}, correlationId: ${correlationId}`
+          );
+
+          if (providerErr.isCredentialFailure) {
+            // Immediately skip dead credential slot and try next slot
+            continue keyLoop;
           }
+          continue keyLoop;
+        }
 
-          const data = (await res.json()) as any;
-          const rawJson = data.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (!rawJson) {
-            lastError = new Error(`Empty candidate received from Gemini API on model ${model}`);
-            continue;
-          }
+        const data = (await res.json()) as any;
+        const rawJson = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!rawJson) {
+          lastError = new GeminiProviderError(
+            GeminiErrorCode.INVALID_GEMINI_RESPONSE,
+            500,
+            "AI service returned an empty response."
+          );
+          continue keyLoop;
+        }
 
-          const parsed = parseAndValidateQuestions(rawJson);
-          for (const q of parsed) {
-            const norm = q.questionText.trim().toLowerCase();
-            if (!seenTexts.has(norm)) {
-              seenTexts.add(norm);
-              collected.push(q);
-            }
+        const parsed = parseAndValidateQuestions(rawJson);
+        if (parsed.length === 0) {
+          lastError = new GeminiProviderError(
+            GeminiErrorCode.INVALID_GENERATED_QUESTIONS,
+            500,
+            "Failed to produce valid multiple-choice questions."
+          );
+          continue keyLoop;
+        }
+
+        for (const q of parsed) {
+          const norm = q.questionText.trim().toLowerCase();
+          if (!seenTexts.has(norm)) {
+            seenTexts.add(norm);
+            collected.push(q);
           }
-          chunkSuccess = true;
-          break keyLoop;
-        } catch (err: any) {
+        }
+        chunkSuccess = true;
+        break keyLoop;
+      } catch (err: any) {
+        if (err instanceof GeminiProviderError) {
           lastError = err;
+        } else {
+          lastError = new GeminiProviderError(
+            GeminiErrorCode.NETWORK_ERROR,
+            503,
+            "Unable to connect to AI generation service. Please try again."
+          );
         }
       }
     }
 
     if (!chunkSuccess) {
-      throw lastError || new Error(`Failed to generate questions for chunk ${c + 1} with all available keys and models.`);
+      throw lastError || new GeminiProviderError(
+        GeminiErrorCode.TEMPORARY_PROVIDER_ERROR,
+        500,
+        "Failed to generate questions with all configured credentials."
+      );
     }
   }
 
   if (collected.length === 0) {
-    throw new Error(`Failed to generate valid questions for ${examName}.`);
+    throw new GeminiProviderError(
+      GeminiErrorCode.INVALID_GENERATED_QUESTIONS,
+      500,
+      `Failed to generate valid questions for ${examName}.`
+    );
   }
 
   return collected;

@@ -111,66 +111,61 @@ class ExamTestsActivity : EveBaseActivity() {
                     binding.tvTitle.text = examName
                 }
 
+                // 1. Direct sub-exams
                 val children = allExams.filter { it.parentExamId == examId }
                     .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.examName })
+                val subExamItems = children.map { ExamTestsListItem.SubExamItem(it) }
 
-                if (children.isNotEmpty()) {
-                    // SUB-EXAM MODE
-                    binding.progressBar.visibility = View.GONE
+                // 2. Direct tests for this exam
+                val liveTests = examRepo.getLiveGeneratedTests(examId)
+                val sortedTests = liveTests.sortedWith(
+                    compareBy<GeneratedTest> {
+                        extractEndingInteger(it.testNumber) ?: Int.MAX_VALUE
+                    }.thenBy { it.generatedAt }
+                )
+
+                val uid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
+                val attemptedLocks = if (uid.isNotBlank()) {
+                    try { examRepo.getAttemptedExamIds(uid) } catch (_: Exception) { emptyList() }
+                } else emptyList()
+
+                val durationMinutes = currentExam?.timeLimitMinutes ?: 30
+                val sessionStore = TestSessionStore(this@ExamTestsActivity)
+                val serverNow = System.currentTimeMillis()
+
+                val testItems = sortedTests.map { test ->
+                    val testKey = AttemptKey.forTest(examId, test.id)
+                    val isCompleted = attemptedLocks.contains(testKey) || HomeViewModel.isAttemptSubmitted(testKey)
+                    val isResume = !isCompleted && sessionStore.hasSession(testKey)
+                    val isLocked = !isCompleted && TestScheduleHelper.isLocked(test.availableFrom, serverNow)
+                    val qCount = if (test.questionCount > 0) test.questionCount else test.questions.size
+                    val subtitle = "$qCount questions \u2022 $durationMinutes minutes"
+                    val opensText = if (isLocked) TestScheduleHelper.formatOpensAt(test.availableFrom) else ""
+                    val title = test.testNumber.ifBlank { "Test" }
+
+                    ExamTestsListItem.TestItem(
+                        test = test,
+                        title = title,
+                        subtitle = subtitle,
+                        isCompleted = isCompleted,
+                        isResume = isResume,
+                        isLocked = isLocked,
+                        opensText = opensText
+                    )
+                }
+
+                binding.progressBar.visibility = View.GONE
+
+                val combinedItems = buildExamTestsList(testItems, subExamItems)
+
+                if (combinedItems.isEmpty()) {
+                    binding.rvTests.visibility = View.GONE
+                    binding.tvEmpty.visibility = View.VISIBLE
+                    adapter.submitList(emptyList())
+                } else {
                     binding.tvEmpty.visibility = View.GONE
                     binding.rvTests.visibility = View.VISIBLE
-                    adapter.submitList(children.map { ExamTestsListItem.SubExamItem(it) })
-                } else {
-                    // TEST MODE
-                    val liveTests = examRepo.getLiveGeneratedTests(examId)
-                    binding.progressBar.visibility = View.GONE
-
-                    if (liveTests.isEmpty()) {
-                        binding.rvTests.visibility = View.GONE
-                        binding.tvEmpty.visibility = View.VISIBLE
-                        adapter.submitList(emptyList())
-                    } else {
-                        binding.tvEmpty.visibility = View.GONE
-                        binding.rvTests.visibility = View.VISIBLE
-
-                        val sortedTests = liveTests.sortedWith(
-                            compareBy<GeneratedTest> {
-                                extractEndingInteger(it.testNumber) ?: Int.MAX_VALUE
-                            }.thenBy { it.generatedAt }
-                        )
-
-                        val uid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
-                        val attemptedLocks = if (uid.isNotBlank()) {
-                            try { examRepo.getAttemptedExamIds(uid) } catch (_: Exception) { emptyList() }
-                        } else emptyList()
-
-                        val durationMinutes = currentExam?.timeLimitMinutes ?: 30
-                        val sessionStore = TestSessionStore(this@ExamTestsActivity)
-                        val serverNow = System.currentTimeMillis()
-
-                        val testItems = sortedTests.map { test ->
-                            val testKey = AttemptKey.forTest(examId, test.id)
-                            val isCompleted = attemptedLocks.contains(testKey) || HomeViewModel.isAttemptSubmitted(testKey)
-                            val isResume = !isCompleted && sessionStore.hasSession(testKey)
-                            val isLocked = !isCompleted && TestScheduleHelper.isLocked(test.availableFrom, serverNow)
-                            val qCount = if (test.questionCount > 0) test.questionCount else test.questions.size
-                            val subtitle = "$qCount questions \u2022 $durationMinutes minutes"
-                            val opensText = if (isLocked) TestScheduleHelper.formatOpensAt(test.availableFrom) else ""
-                            val title = test.testNumber.ifBlank { "Test" }
-
-                            ExamTestsListItem.TestItem(
-                                test = test,
-                                title = title,
-                                subtitle = subtitle,
-                                isCompleted = isCompleted,
-                                isResume = isResume,
-                                isLocked = isLocked,
-                                opensText = opensText
-                            )
-                        }
-
-                        adapter.submitList(testItems)
-                    }
+                    adapter.submitList(combinedItems)
                 }
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
@@ -219,6 +214,24 @@ class ExamTestsActivity : EveBaseActivity() {
         fun extractEndingInteger(testNumber: String): Int? {
             val match = Regex("""(\d+)\s*$""").find(testNumber.trim())
             return match?.groupValues?.get(1)?.toIntOrNull()
+        }
+
+        fun buildExamTestsList(
+            testItems: List<ExamTestsListItem.TestItem>,
+            subExamItems: List<ExamTestsListItem.SubExamItem>
+        ): List<ExamTestsListItem> {
+            val result = mutableListOf<ExamTestsListItem>()
+            if (testItems.isNotEmpty() && subExamItems.isNotEmpty()) {
+                result.add(ExamTestsListItem.HeaderItem("Tests"))
+                result.addAll(testItems)
+                result.add(ExamTestsListItem.HeaderItem("Sub-Exams"))
+                result.addAll(subExamItems)
+            } else if (testItems.isNotEmpty()) {
+                result.addAll(testItems)
+            } else if (subExamItems.isNotEmpty()) {
+                result.addAll(subExamItems)
+            }
+            return result
         }
     }
 }

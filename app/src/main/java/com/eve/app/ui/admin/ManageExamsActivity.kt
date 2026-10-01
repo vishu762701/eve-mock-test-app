@@ -79,6 +79,7 @@ class ManageExamsActivity : EveBaseActivity() {
     private var isNewSubExamMode: Boolean = false
     private val isNewMode: Boolean get() = isNewMainExamMode || isNewSubExamMode
     private var previouslySelectedExamId: String = ""
+    private var isGenerating: Boolean = false
 
     private val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
 
@@ -444,6 +445,7 @@ class ManageExamsActivity : EveBaseActivity() {
         binding.btnGenerateNow.visibility = View.VISIBLE
         initialExam = getCurrentFormAsExam()
         loadGeneratedTestsForExam()
+        updateActiveContextBanner()
     }
 
     private fun enterNewMainExamMode() {
@@ -499,6 +501,7 @@ class ManageExamsActivity : EveBaseActivity() {
         binding.tilNegativeMarking.error = null
 
         initialExam = getCurrentFormAsExam()
+        updateActiveContextBanner()
 
         binding.actvExam.requestFocus()
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
@@ -530,6 +533,7 @@ class ManageExamsActivity : EveBaseActivity() {
         val parent = selectedMainExam ?: return
         isNewSubExamMode = true
         isNewMainExamMode = false
+        selectedSubExam = null
         previouslySelectedExamId = currentExamId
         currentExamId = ""
         currentParentExamId = parent.id
@@ -577,6 +581,7 @@ class ManageExamsActivity : EveBaseActivity() {
         binding.tilNegativeMarking.error = null
 
         initialExam = getCurrentFormAsExam()
+        updateActiveContextBanner()
 
         binding.actvParentExam.requestFocus()
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
@@ -645,6 +650,7 @@ class ManageExamsActivity : EveBaseActivity() {
                 }
             }
         }
+        updateActiveContextBanner()
     }
 
     private fun updateTimePickerState(enabled: Boolean) {
@@ -684,28 +690,105 @@ class ManageExamsActivity : EveBaseActivity() {
         }
     }
 
-    private fun triggerGenerateNow() {
-        if (currentExamId.isBlank()) return
+    private fun updateActiveContextBanner() {
+        when {
+            isNewMainExamMode -> {
+                binding.tvActiveContextBadge.text = "NEW MAIN EXAM"
+                binding.tvActiveContextBadge.setBackgroundResource(R.drawable.bg_active_context_badge)
+                binding.tvActiveContextTitle.text = "Creating New Main Exam"
+                binding.tvActiveContextSubtitle.text = "Save this exam before generating tests or configuring schedules."
+                binding.tvGenTestsSectionTitle.text = "Generated Tests"
+            }
+            isNewSubExamMode -> {
+                val parentName = selectedMainExam?.examName.orEmpty()
+                binding.tvActiveContextBadge.text = "NEW SUB-EXAM"
+                binding.tvActiveContextBadge.setBackgroundResource(R.drawable.bg_active_context_badge)
+                binding.tvActiveContextTitle.text = if (parentName.isNotBlank()) "Creating Sub-Exam under $parentName" else "Creating Sub-Exam"
+                binding.tvActiveContextSubtitle.text = "Save this sub-exam before generating tests or configuring schedules."
+                binding.tvGenTestsSectionTitle.text = "Generated Tests"
+            }
+            selectedSubExam != null -> {
+                val subName = selectedSubExam!!.examName
+                val parentName = selectedMainExam?.examName.orEmpty()
+                binding.tvActiveContextBadge.text = "SUB-EXAM"
+                binding.tvActiveContextBadge.setBackgroundResource(R.drawable.bg_active_context_badge)
+                binding.tvActiveContextTitle.text = if (parentName.isNotBlank()) "$subName (under $parentName)" else subName
+                binding.tvActiveContextSubtitle.text = "Test rules, syllabus prompt, and on-demand generation apply to '$subName'."
+                binding.tvGenTestsSectionTitle.text = "Generated Tests for $subName"
+            }
+            selectedMainExam != null -> {
+                val mainName = selectedMainExam!!.examName
+                binding.tvActiveContextBadge.text = "MAIN EXAM"
+                binding.tvActiveContextBadge.setBackgroundResource(R.drawable.bg_active_context_badge)
+                binding.tvActiveContextTitle.text = mainName
+                binding.tvActiveContextSubtitle.text = "Test rules, syllabus prompt, and on-demand generation apply directly to '$mainName'."
+                binding.tvGenTestsSectionTitle.text = "Generated Tests for $mainName (Direct)"
+            }
+            else -> {
+                binding.tvActiveContextBadge.text = "EXAM"
+                binding.tvActiveContextBadge.setBackgroundResource(R.drawable.bg_active_context_badge)
+                binding.tvActiveContextTitle.text = "No Exam Selected"
+                binding.tvActiveContextSubtitle.text = "Select an existing exam or create a new one above."
+                binding.tvGenTestsSectionTitle.text = "Generated Tests"
+            }
+        }
+    }
 
-        val examName = if (selectedSubExam != null) selectedSubExam!!.examName else binding.actvExam.text?.toString()?.trim().orEmpty()
+    private fun triggerGenerateNow() {
+        if (isGenerating) return
+
+        if (currentExamId.isBlank() || isNewMode) {
+            AppBulletin.showError(this, "Please save the exam first before generating tests.")
+            return
+        }
+
+        val targetExam = examList.find { it.id == currentExamId }
+        if (targetExam == null) {
+            AppBulletin.showError(this, "The selected exam entity could not be found. Please reselect.")
+            return
+        }
+
+        // Validate question count
+        val countRaw = binding.etQuestionCount.text?.toString()?.trim().orEmpty()
+        val count = countRaw.toIntOrNull()
+        if (count == null || count !in 1..200) {
+            binding.tilQuestionCount.error = "Question count must be between 1 and 200"
+            binding.etQuestionCount.requestFocus()
+            return
+        }
+        binding.tilQuestionCount.error = null
+
+        // Validate test number
+        val testNumber = binding.etTestNumber.text?.toString()?.trim().orEmpty()
+        if (testNumber.isBlank()) {
+            binding.tilTestNumber.error = "Enter test number, e.g. Test 1"
+            binding.etTestNumber.requestFocus()
+            return
+        }
+        binding.tilTestNumber.error = null
+
+        val examName = if (selectedSubExam != null) selectedSubExam!!.examName else selectedMainExam?.examName ?: targetExam.examName
+        val targetId = currentExamId
+
         MaterialAlertDialogBuilder(this)
             .setTitle("Generate Test Now?")
             .setMessage("This will trigger AI to generate a fresh test for '$examName' immediately using the configured prompt and question count.")
             .setPositiveButton("Generate") { _, _ ->
+                if (isGenerating) return@setPositiveButton
+                isGenerating = true
                 binding.btnGenerateNow.isEnabled = false
                 binding.progressBar.visibility = View.VISIBLE
+
                 lifecycleScope.launch {
                     try {
-                        val count = binding.etQuestionCount.text?.toString()?.toIntOrNull() ?: 20
+                        val promptNotes = binding.etGenerationPrompt.text?.toString()?.trim().orEmpty()
                         val data = mapOf<String, Any>(
-                            "examId" to currentExamId,
+                            "examId" to targetId,
                             "questionCount" to count,
-                            "testNumber" to binding.etTestNumber.text?.toString()?.trim().orEmpty(),
-                            "customPromptNotes" to binding.etGenerationPrompt.text?.toString()?.trim().orEmpty()
+                            "testNumber" to testNumber,
+                            "customPromptNotes" to promptNotes
                         )
                         val res = ApiClient.apiService.triggerAiTestGeneration(data)
-                        binding.btnGenerateNow.isEnabled = true
-                        binding.progressBar.visibility = View.GONE
                         binding.compactErrorView.hide()
 
                         if (!res.success) {
@@ -727,18 +810,20 @@ class ManageExamsActivity : EveBaseActivity() {
                                 .setMessage("Successfully generated $generatedCount questions for '$examName'.\n\nYou can review or publish them in the Generated Tests section below.")
                                 .setPositiveButton("OK", null)
                                 .show()
-                            loadExams(targetExamId = currentExamId)
+                            loadExams(targetExamId = targetId)
                             loadGeneratedTestsForExam()
                         }
                     } catch (e: Exception) {
-                        binding.btnGenerateNow.isEnabled = true
-                        binding.progressBar.visibility = View.GONE
                         val err = e.toUserFriendlyMessage()
                         MaterialAlertDialogBuilder(this@ManageExamsActivity)
                             .setTitle("Generation Failed")
                             .setMessage("Failed to generate test questions:\n\n$err")
                             .setPositiveButton("OK", null)
                             .show()
+                    } finally {
+                        isGenerating = false
+                        binding.btnGenerateNow.isEnabled = true
+                        binding.progressBar.visibility = View.GONE
                     }
                 }
             }
