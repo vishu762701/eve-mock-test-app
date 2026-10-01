@@ -22,6 +22,21 @@ export function parseAttemptKey(key: string): { sourceExamId: string; generatedT
   return { sourceExamId: trimmed, generatedTestId: null };
 }
 
+export function canonicalGeneratedQuestionId(testId: string, index: number): string {
+  return `${testId.trim()}_${index}`;
+}
+
+export function parseGeneratedQuestionId(questionId: string): { testId: string; index: number } | null {
+  const trimmed = (questionId || "").trim();
+  const lastUnderscore = trimmed.lastIndexOf("_");
+  if (lastUnderscore <= 0) return null;
+  const testId = trimmed.substring(0, lastUnderscore);
+  const idxStr = trimmed.substring(lastUnderscore + 1);
+  const index = parseInt(idxStr, 10);
+  if (isNaN(index) || index < 0) return null;
+  return { testId, index };
+}
+
 const VALID_OPTIONS = new Set(["A", "B", "C", "D"]);
 
 function questionOptionText(q: any, letter: string): string {
@@ -56,7 +71,7 @@ attemptRoutes.post("/start", async (c) => {
     return c.json({ success: false, error: "examId is required" }, 400);
   }
 
-  const { sourceExamId, generatedTestId } = parseAttemptKey(examId);
+  let { sourceExamId, generatedTestId } = parseAttemptKey(examId);
 
   // Read exam row for time limit
   const examRow = await db
@@ -94,6 +109,10 @@ attemptRoutes.post("/start", async (c) => {
       return c.json({ success: false, error: "Test not found" }, 404);
     }
 
+    if (generatedTestRow.exam_id !== sourceExamId) {
+      return c.json({ success: false, error: "Test does not belong to specified exam" }, 400);
+    }
+
     if (!user.isAdmin && generatedTestRow.status !== "live" && generatedTestRow.status !== "published") {
       return c.json({ success: false, error: "Test is not available" }, 403);
     }
@@ -101,6 +120,16 @@ attemptRoutes.post("/start", async (c) => {
     const availableFrom = generatedTestRow.available_from || 0;
     if (availableFrom > Date.now()) {
       return c.json({ success: false, error: "Test not open yet", availableFrom }, 403);
+    }
+  } else {
+    // Check if sourceExamId is directly a generated test ID
+    const directTest = await db
+      .prepare("SELECT * FROM generated_tests WHERE id = ?")
+      .bind(sourceExamId)
+      .first<GeneratedTestRow>();
+    if (directTest) {
+      generatedTestRow = directTest;
+      generatedTestId = directTest.id;
     }
   }
 
@@ -167,7 +196,7 @@ attemptRoutes.post("/start", async (c) => {
 
     const shouldHide = hideAnswers(c);
     questions = parsedQuestions.map((q, idx) => ({
-      id: `${generatedTestId}_${idx}`,
+      id: canonicalGeneratedQuestionId(generatedTestId!, idx),
       examId: generatedTestRow!.exam_id,
       questionText: q.question_text || q.questionText || "",
       optionA: q.option_a || q.optionA || "",
@@ -397,12 +426,16 @@ attemptRoutes.post("/submit", async (c) => {
 
   if (generatedTestId) {
     const gRow = await db
-      .prepare("SELECT questions_json FROM generated_tests WHERE id = ?")
+      .prepare("SELECT id, exam_id, questions_json FROM generated_tests WHERE id = ?")
       .bind(generatedTestId)
-      .first<{ questions_json: string }>();
+      .first<{ id: string; exam_id: string; questions_json: string }>();
 
     if (!gRow) {
       return c.json({ success: false, error: "Generated test not found" }, 400);
+    }
+
+    if (gRow.exam_id !== sourceExamId) {
+      return c.json({ success: false, error: "Test does not belong to specified exam" }, 400);
     }
 
     let parsedQuestions: any[] = [];
@@ -411,7 +444,7 @@ attemptRoutes.post("/submit", async (c) => {
     } catch (_e) {}
 
     parsedQuestions.forEach((q, idx) => {
-      const qId = `${generatedTestId}_${idx}`;
+      const qId = canonicalGeneratedQuestionId(generatedTestId!, idx);
       const entry: ExpectedQ = {
         id: qId,
         questionText: q.question_text || q.questionText || "",
@@ -481,16 +514,22 @@ attemptRoutes.post("/submit", async (c) => {
 
     const candidateGenTestId = rawAnswers
       .map((a) => String(a?.questionId || "").trim())
-      .find((id) => id.includes("_"))
-      ?.split("_")?.[0];
+      .map((id) => parseGeneratedQuestionId(id)?.testId)
+      .find((id) => Boolean(id));
 
     if ((!dbQs || dbQs.length === 0 || candidateGenTestId) && expectedMap.size === 0) {
       let gRow: { questions_json: string; id: string } | null = null;
       if (candidateGenTestId) {
         gRow = await db
-          .prepare("SELECT id, questions_json FROM generated_tests WHERE id = ?")
-          .bind(candidateGenTestId)
+          .prepare("SELECT id, questions_json FROM generated_tests WHERE id = ? AND exam_id = ?")
+          .bind(candidateGenTestId, sourceExamId)
           .first<{ id: string; questions_json: string }>();
+        if (!gRow) {
+          gRow = await db
+            .prepare("SELECT id, questions_json FROM generated_tests WHERE id = ?")
+            .bind(candidateGenTestId)
+            .first<{ id: string; questions_json: string }>();
+        }
       }
       if (!gRow) {
         gRow = await db
@@ -508,7 +547,7 @@ attemptRoutes.post("/submit", async (c) => {
         } catch (_e) {}
 
         parsedQuestions.forEach((q, idx) => {
-          const qId = `${gRow!.id}_${idx}`;
+          const qId = canonicalGeneratedQuestionId(gRow!.id, idx);
           const entry: ExpectedQ = {
             id: qId,
             questionText: q.question_text || q.questionText || "",
@@ -580,7 +619,11 @@ attemptRoutes.post("/submit", async (c) => {
     });
   }
 
-  if (submittedPicksMap.size === 0) {
+  if (expectedMap.size === 0) {
+    return c.json({ success: false, error: "No questions found for this exam" }, 400);
+  }
+
+  if (rawAnswers.length > 0 && submittedPicksMap.size === 0) {
     return c.json({ success: false, error: "No valid answers in payload" }, 400);
   }
 

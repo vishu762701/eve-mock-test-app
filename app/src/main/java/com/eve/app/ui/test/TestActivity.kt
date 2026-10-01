@@ -432,11 +432,22 @@ class TestActivity : EveBaseActivity() {
         val attemptName = sessionTitle()
         val isStandardMock = topic.isBlank() && pyqYear == 0
 
-        val rawAnswers = items.map {
+        if (items.isEmpty()) {
+            showSubmissionError("No questions found in this test payload.", attemptName, items)
+            return
+        }
+
+        val validItems = items.filter { it.questionId.isNotBlank() && it.number > 0 }
+        if (validItems.isEmpty()) {
+            showSubmissionError("No valid questions found in submission payload.", attemptName, items)
+            return
+        }
+
+        val rawAnswers = validItems.map {
             mapOf(
-                "questionId" to it.questionId,
+                "questionId" to it.questionId.trim(),
                 "number" to it.number,
-                "selected" to it.selected,
+                "selected" to it.selected.trim().uppercase(),
                 "isBookmarked" to it.isBookmarked,
                 "timeTakenSeconds" to it.timeTakenSeconds
             )
@@ -574,12 +585,14 @@ class TestActivity : EveBaseActivity() {
     }
 
     private fun handleOfflineSubmit(attemptName: String, items: List<AnswerItem>) {
+        val targetExamId = if (viewModel.currentExamId.isNotBlank()) viewModel.currentExamId else examId
         viewModel.clearSession(examId)
+        viewModel.clearSession(targetExamId)
         com.eve.app.util.HapticHelper.performSubmitFailure(binding.root)
 
         val pending = com.eve.app.data.local.PendingSubmission(
             clientAttemptId = viewModel.clientAttemptId,
-            examId = examId,
+            examId = targetExamId,
             examName = attemptName,
             category = examCategory,
             answers = items.map {
@@ -599,7 +612,7 @@ class TestActivity : EveBaseActivity() {
         com.eve.app.worker.SubmitWorker.enqueue(this, viewModel.clientAttemptId)
         if (topic.isBlank() && pyqYear == 0) {
             lifecycleScope.launch {
-                com.eve.app.util.AttemptLimitManager.recordAttempt(this@TestActivity, examId)
+                com.eve.app.util.AttemptLimitManager.recordAttempt(this@TestActivity, targetExamId)
             }
         }
 

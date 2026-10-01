@@ -20,4 +20,18 @@ object AttemptKey {
     fun isTestKey(key: String): Boolean {
         return key.contains(SEP) && !generatedTestId(key).isNullOrBlank()
     }
+
+    fun canonicalQuestionId(testId: String, index: Int): String {
+        return "${testId.trim()}_$index"
+    }
+
+    fun parseGeneratedQuestionId(questionId: String): Pair<String, Int>? {
+        val trimmed = questionId.trim()
+        val lastUnderscore = trimmed.lastIndexOf('_')
+        if (lastUnderscore <= 0) return null
+        val testId = trimmed.substring(0, lastUnderscore)
+        val idx = trimmed.substring(lastUnderscore + 1).toIntOrNull() ?: return null
+        if (idx < 0) return null
+        return Pair(testId, idx)
+    }
 }

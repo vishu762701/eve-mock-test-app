@@ -116,7 +116,7 @@ class ResultActivity : EveBaseActivity() {
                         val genTest = examRepo.getGeneratedTest(genTestId)
                         genTest?.questions?.mapIndexed { idx, gq ->
                             com.eve.app.data.model.Question(
-                                id = "${genTest.id}_$idx",
+                                id = AttemptKey.canonicalQuestionId(genTest.id, idx),
                                 examId = sourceExamId,
                                 questionText = gq.questionText,
                                 optionA = gq.optionA,
@@ -133,7 +133,7 @@ class ResultActivity : EveBaseActivity() {
                             val live = examRepo.getLiveGeneratedTests(sourceExamId).firstOrNull()
                             live?.questions?.mapIndexed { idx, gq ->
                                 com.eve.app.data.model.Question(
-                                    id = "${live.id}_$idx",
+                                    id = AttemptKey.canonicalQuestionId(live.id, idx),
                                     examId = sourceExamId,
                                     questionText = gq.questionText,
                                     optionA = gq.optionA,

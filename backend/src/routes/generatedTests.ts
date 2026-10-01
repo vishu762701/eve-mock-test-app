@@ -241,6 +241,6 @@ generatedTestRoutes.post("/generate-now", requireAdmin, async (c) => {
       .bind(userMsg.slice(0, 200), Date.now(), examId)
       .run();
 
-    return c.json({ success: false, error: userMsg, code: errorCode }, httpStatus);
+    return c.json({ success: false, error: userMsg, code: errorCode }, httpStatus as any);
   }
 });

@@ -44,6 +44,10 @@ object TargetExamsBottomSheet {
                 text = exam.examName
                 isCheckable = true
                 isChecked = currentTargets.contains(exam.id)
+                setCheckedIconResource(com.eve.app.R.drawable.ic_target_exam_checked)
+                checkedIconTint = null
+                chipIconSize = resources.getDimension(com.eve.app.R.dimen.target_exam_chip_icon_size)
+                isCheckedIconVisible = true
             }
             binding.chipGroupExams.addView(chip)
             chipMap[chip.id] = exam.id

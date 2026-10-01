@@ -17,4 +17,5 @@
     <dimen name="eve_screen_padding_horizontal">20dp</dimen>
     <dimen name="eve_card_padding_inner">16dp</dimen>
     <dimen name="eve_list_item_spacing">12dp</dimen>
+    <dimen name="target_exam_chip_icon_size">22dp</dimen>
 </resources>

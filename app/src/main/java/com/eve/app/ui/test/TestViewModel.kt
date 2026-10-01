@@ -81,7 +81,12 @@ class TestViewModel : ViewModel() {
         if (started) return
         started = true
         currentExamName = examName
-        currentExamId = examId
+        val effectiveExamId = if (testId.isNotBlank() && !examId.contains(AttemptKey.SEP)) {
+            AttemptKey.forTest(examId, testId)
+        } else {
+            examId
+        }
+        currentExamId = effectiveExamId
 
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
@@ -103,15 +108,15 @@ class TestViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val isStandardMock = topic.isBlank() && pyqYear == 0 && !fromBookmark
-                val canAttempt = com.eve.app.util.AttemptLimitManager.canAttempt(com.eve.app.EveApplication.instance, examId)
-                if (!isAdmin && user != null && examId.isNotBlank() && isStandardMock && !canAttempt) {
+                val canAttempt = com.eve.app.util.AttemptLimitManager.canAttempt(com.eve.app.EveApplication.instance, effectiveExamId)
+                if (!isAdmin && user != null && effectiveExamId.isNotBlank() && isStandardMock && !canAttempt) {
                     _alreadyAttempted.value = true
                     started = false
                     return@launch
                 }
 
                 val sessionStore = com.eve.app.data.local.TestSessionStore(com.eve.app.EveApplication.instance)
-                val existingSession = sessionStore.getSession(examId)
+                val existingSession = sessionStore.getSession(effectiveExamId)
                 if (existingSession != null) {
                     restoredQuestionIndex = existingSession.currentQuestionIndex
                 }
@@ -119,9 +124,9 @@ class TestViewModel : ViewModel() {
                 var remainingSec = timeLimitMinutes * 60L
                 var serverQuestions: List<Question>? = null
 
-                if (isStandardMock && user != null && examId.isNotBlank()) {
+                if (isStandardMock && user != null && effectiveExamId.isNotBlank()) {
                     try {
-                        val startRes = com.eve.app.data.remote.ApiClient.api.startAttempt(mapOf("examId" to examId))
+                        val startRes = com.eve.app.data.remote.ApiClient.api.startAttempt(mapOf("examId" to effectiveExamId))
                         if (startRes.success && startRes.data != null) {
                             val d = startRes.data
                             initialStartedAt = d.startedAt
@@ -170,15 +175,15 @@ class TestViewModel : ViewModel() {
                     // admin jaisa upload kiya waisa paper feel rahe.
                     pyqYear > 0 -> repo.getPyqQuestions(examId, pyqYear, pyqPaper)
                     topic.isNotBlank() -> repo.getQuestionsForTopic(examId, topic).shuffled().take(10)
-                    AttemptKey.generatedTestId(examId) != null -> {
-                        val genTestId = AttemptKey.generatedTestId(examId).orEmpty()
-                        val sourceExamId = AttemptKey.sourceExamId(examId)
-                        currentExamId = examId
+                    AttemptKey.generatedTestId(effectiveExamId) != null -> {
+                        val genTestId = AttemptKey.generatedTestId(effectiveExamId).orEmpty()
+                        val sourceExamId = AttemptKey.sourceExamId(effectiveExamId)
+                        currentExamId = effectiveExamId
                         val test = if (genTestId.isNotBlank()) repo.getGeneratedTest(genTestId) else null
                         if (test != null && test.isLive && test.questions.isNotEmpty()) {
                             test.questions.mapIndexed { idx, gq ->
                                 Question(
-                                    id = "${test.id}_$idx",
+                                    id = AttemptKey.canonicalQuestionId(test.id, idx),
                                     examId = sourceExamId,
                                     questionText = gq.questionText,
                                     optionA = gq.optionA,
@@ -199,7 +204,7 @@ class TestViewModel : ViewModel() {
                             currentExamId = AttemptKey.forTest(examId, test.id)
                             test.questions.mapIndexed { idx, gq ->
                                 Question(
-                                    id = "${test.id}_$idx",
+                                    id = AttemptKey.canonicalQuestionId(test.id, idx),
                                     examId = examId,
                                     questionText = gq.questionText,
                                     optionA = gq.optionA,
@@ -226,7 +231,7 @@ class TestViewModel : ViewModel() {
                                 currentExamId = AttemptKey.forTest(examId, latestLive.id)
                                 latestLive.questions.mapIndexed { idx, gq ->
                                     Question(
-                                        id = "${latestLive.id}_$idx",
+                                        id = AttemptKey.canonicalQuestionId(latestLive.id, idx),
                                         examId = examId,
                                         questionText = gq.questionText,
                                         optionA = gq.optionA,

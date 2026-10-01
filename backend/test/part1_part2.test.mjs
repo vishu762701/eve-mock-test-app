@@ -751,5 +751,138 @@ test("Public EVE ID generation follows EV-XXXXXX format, guarantees uniqueness, 
   assert.equal(recheckId, backfilledId);
 });
 
+// 19. Canonical Question ID Contract and Submission Semantics
+test("canonical question ID construction and robust parsing with underscores", () => {
+  function canonicalGeneratedQuestionId(testId, index) {
+    return `${testId.trim()}_${index}`;
+  }
+
+  function parseGeneratedQuestionId(questionId) {
+    const trimmed = (questionId || "").trim();
+    const lastUnderscore = trimmed.lastIndexOf("_");
+    if (lastUnderscore <= 0) return null;
+    const testId = trimmed.substring(0, lastUnderscore);
+    const idxStr = trimmed.substring(lastUnderscore + 1);
+    const index = parseInt(idxStr, 10);
+    if (isNaN(index) || index < 0) return null;
+    return { testId, index };
+  }
+
+  // Standard UUID format
+  const uuid = "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d";
+  const qId1 = canonicalGeneratedQuestionId(uuid, 5);
+  assert.equal(qId1, "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d_5");
+  const parsed1 = parseGeneratedQuestionId(qId1);
+  assert.deepEqual(parsed1, { testId: uuid, index: 5 });
+
+  // Test ID containing multiple underscores (e.g., gen_mock_test_123)
+  const complexId = "gen_mock_test_123";
+  const qId2 = canonicalGeneratedQuestionId(complexId, 0);
+  assert.equal(qId2, "gen_mock_test_123_0");
+  const parsed2 = parseGeneratedQuestionId(qId2);
+  assert.deepEqual(parsed2, { testId: complexId, index: 0 });
+
+  // Invalid question IDs
+  assert.equal(parseGeneratedQuestionId("no_underscore"), null);
+  assert.equal(parseGeneratedQuestionId("_123"), null);
+  assert.equal(parseGeneratedQuestionId("test_invalid_index"), null);
+  assert.equal(parseGeneratedQuestionId(""), null);
+});
+
+test("submission semantics: zero answers, partial answers, full answers, and rejected malformed IDs", () => {
+  const VALID_OPTIONS = new Set(["A", "B", "C", "D"]);
+  const expectedQuestions = [
+    { id: "test_1_0", correctAnswer: "A" },
+    { id: "test_1_1", correctAnswer: "B" },
+    { id: "test_1_2", correctAnswer: "C" },
+  ];
+  const expectedMap = new Map(expectedQuestions.map((q) => [q.id, q]));
+
+  function validateAndGrade(rawAnswers) {
+    const submittedPicksMap = new Map();
+    for (const a of rawAnswers) {
+      const qId = String(a?.questionId || "").trim();
+      if (!qId || !expectedMap.has(qId) || submittedPicksMap.has(qId)) continue;
+      const selectedRaw = String(a?.selected || "").trim().toUpperCase();
+      submittedPicksMap.set(qId, {
+        selected: VALID_OPTIONS.has(selectedRaw) ? selectedRaw : "",
+      });
+    }
+
+    if (expectedMap.size === 0) {
+      return { status: 400, error: "No questions found for this exam" };
+    }
+
+    if (rawAnswers.length > 0 && submittedPicksMap.size === 0) {
+      return { status: 400, error: "No valid answers in payload" };
+    }
+
+    let correct = 0, wrong = 0, unattempted = 0;
+    for (const q of expectedQuestions) {
+      const pick = submittedPicksMap.get(q.id);
+      const selected = pick ? pick.selected : "";
+      if (!selected) {
+        unattempted++;
+      } else if (selected === q.correctAnswer) {
+        correct++;
+      } else {
+        wrong++;
+      }
+    }
+
+    return { status: 200, correct, wrong, unattempted, score: correct };
+  }
+
+  // CASE 1: User opens test and selects ZERO answers (all empty selected strings) -> ACCEPTED
+  const resCase1 = validateAndGrade([
+    { questionId: "test_1_0", selected: "" },
+    { questionId: "test_1_1", selected: "" },
+    { questionId: "test_1_2", selected: "" },
+  ]);
+  assert.equal(resCase1.status, 200);
+  assert.equal(resCase1.score, 0);
+  assert.equal(resCase1.correct, 0);
+  assert.equal(resCase1.wrong, 0);
+  assert.equal(resCase1.unattempted, 3);
+
+  // CASE 1B: User submits empty answers array [] -> ACCEPTED
+  const resCase1B = validateAndGrade([]);
+  assert.equal(resCase1B.status, 200);
+  assert.equal(resCase1B.score, 0);
+  assert.equal(resCase1B.unattempted, 3);
+
+  // CASE 2: Some answers selected -> ACCEPTED & GRADED
+  const resCase2 = validateAndGrade([
+    { questionId: "test_1_0", selected: "A" },
+    { questionId: "test_1_1", selected: "" },
+    { questionId: "test_1_2", selected: "D" },
+  ]);
+  assert.equal(resCase2.status, 200);
+  assert.equal(resCase2.correct, 1);
+  assert.equal(resCase2.wrong, 1);
+  assert.equal(resCase2.unattempted, 1);
+  assert.equal(resCase2.score, 1);
+
+  // CASE 3: All answers selected -> ACCEPTED & GRADED
+  const resCase3 = validateAndGrade([
+    { questionId: "test_1_0", selected: "A" },
+    { questionId: "test_1_1", selected: "B" },
+    { questionId: "test_1_2", selected: "C" },
+  ]);
+  assert.equal(resCase3.status, 200);
+  assert.equal(resCase3.correct, 3);
+  assert.equal(resCase3.wrong, 0);
+  assert.equal(resCase3.unattempted, 0);
+  assert.equal(resCase3.score, 3);
+
+  // CASE 4: Malformed/nonexistent question ID -> REJECTED with 400
+  const resCase4 = validateAndGrade([
+    { questionId: "malformed_question_xyz", selected: "A" },
+    { questionId: "foreign_question_123", selected: "B" },
+  ]);
+  assert.equal(resCase4.status, 400);
+  assert.equal(resCase4.error, "No valid answers in payload");
+});
+
 
 
