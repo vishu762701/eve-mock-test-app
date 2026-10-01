@@ -16,6 +16,7 @@ export interface Env {
   GEMINI_API_KEY_4?: string;         // Cloudflare secret slot 4
   GEMINI_API_KEYS?: string;          // Comma-separated list of Cloudflare secrets
   GEMINI_MODEL?: string;
+  GEMINI_FALLBACK_MODELS?: string;
   DIAGNOSTIC_KEY?: string;           // Cloudflare secret or environment variable
   LEGACY_ANSWER_LEAK?: string;
 }

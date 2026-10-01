@@ -4,6 +4,34 @@ import com.eve.app.data.model.*
 import okhttp3.RequestBody
 import retrofit2.http.*
 
+data class AiHealthSlot(
+    val slot: String = "",
+    val ok: Boolean = false,
+    val latencyMs: Long = 0L,
+    val providerStatus: String = "",
+    val message: String = ""
+)
+
+data class AiHealthResponse(
+    val primaryModel: String? = null,
+    val workingModel: String? = null,
+    val slots: List<AiHealthSlot> = emptyList()
+)
+
+data class AiGenerationErrorDetails(
+    val providerStatus: String? = null,
+    val providerMessage: String? = null,
+    val model: String? = null,
+    val correlationId: String? = null
+)
+
+data class AiGenerationErrorResponse(
+    val success: Boolean = false,
+    val error: String? = null,
+    val code: String? = null,
+    val details: AiGenerationErrorDetails? = null
+)
+
 data class AttemptSubmitResult(
     val attemptId: String,
     val score: Double,
@@ -457,6 +485,9 @@ interface EveApiService {
 
     @POST("api/generated-tests/generate-now")
     suspend fun triggerAiTestGeneration(@Body body: Map<String, @JvmSuppressWildcards Any>): ApiResponse<Map<String, Any>>
+
+    @POST("api/admin/ai-health")
+    suspend fun checkAiHealth(): ApiResponse<AiHealthResponse>
 
     // --- Floating Community Link ---
     @GET("api/floating-link")

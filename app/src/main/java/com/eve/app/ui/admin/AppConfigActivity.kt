@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import com.eve.app.BuildConfig
 import com.eve.app.data.model.AdminAuditLog
 import com.eve.app.data.model.AppConfig
+import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.AuditLogRepository
@@ -35,6 +36,10 @@ class AppConfigActivity : EveBaseActivity() {
 
         binding.btnSaveConfig.setOnClickListener {
             validateAndSaveConfig()
+        }
+
+        binding.btnTestAiHealth.setOnClickListener {
+            testAiHealth()
         }
 
         loadConfig()
@@ -107,6 +112,66 @@ class AppConfigActivity : EveBaseActivity() {
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
                 AppBulletin.showError(this@AppConfigActivity, "Error saving: ${e.toUserFriendlyMessage()}")
+            }
+        }
+    }
+
+    private fun testAiHealth() {
+        binding.progressBar.visibility = View.VISIBLE
+        binding.btnTestAiHealth.isEnabled = false
+        lifecycleScope.launch {
+            try {
+                val res = ApiClient.apiService.checkAiHealth()
+                binding.progressBar.visibility = View.GONE
+                if (!res.success) {
+                    val errMsg = res.error ?: "Failed to perform AI health check"
+                    MaterialAlertDialogBuilder(this@AppConfigActivity)
+                        .setTitle("AI Health Check Failed")
+                        .setMessage(errMsg)
+                        .setPositiveButton("OK", null)
+                        .show()
+                } else {
+                    val data = res.data
+                    val workingModel = data?.workingModel ?: "None"
+                    val primaryModel = data?.primaryModel ?: "gemini-3.5-flash-lite"
+                    val slots = data?.slots.orEmpty()
+
+                    val message = buildString {
+                        appendLine("Primary Model: $primaryModel")
+                        appendLine("Working Model: $workingModel")
+                        appendLine()
+                        if (slots.isEmpty()) {
+                            appendLine("No Gemini API keys configured on backend.")
+                        } else {
+                            slots.forEach { slot ->
+                                val statusIcon = if (slot.ok) "✔" else "✖"
+                                appendLine("$statusIcon ${slot.slot}: ${if (slot.ok) "OK" else "FAILED"} (${slot.latencyMs}ms)")
+                                appendLine("   Status: ${slot.providerStatus.ifBlank { "UNKNOWN" }}")
+                                if (slot.message.isNotBlank()) {
+                                    appendLine("   Message: ${slot.message}")
+                                }
+                                appendLine()
+                            }
+                        }
+                    }.trim()
+
+                    MaterialAlertDialogBuilder(this@AppConfigActivity)
+                        .setTitle("AI Connection Health")
+                        .setMessage(message)
+                        .setPositiveButton("OK", null)
+                        .show()
+                }
+            } catch (e: Exception) {
+                binding.progressBar.visibility = View.GONE
+                val errMsg = e.toUserFriendlyMessage()
+                MaterialAlertDialogBuilder(this@AppConfigActivity)
+                    .setTitle("AI Health Check Failed")
+                    .setMessage(errMsg)
+                    .setPositiveButton("OK", null)
+                    .show()
+            } finally {
+                binding.progressBar.visibility = View.GONE
+                binding.btnTestAiHealth.isEnabled = true
             }
         }
     }

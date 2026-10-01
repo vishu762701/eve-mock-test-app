@@ -6,6 +6,8 @@ import { Hono } from "hono";
 import { requireAdmin } from "../middleware/authMiddleware";
 import { AuthUser, Env, PremiumConfigRow, PremiumEntitlementRow, PremiumOrderRow } from "../types";
 import { activateUserPremium, getPremiumConfig } from "./premium";
+import { getGeminiApiKeys, getModelChain, classifyGeminiError } from "../ai/generator";
+import { checkRateLimit } from "../middleware/rateLimiter";
 
 export const adminRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
@@ -690,3 +692,130 @@ adminRoutes.post("/premium/users/revoke", async (c) => {
   return c.json({ success: true, data: { userId, status: "REVOKED" } });
 });
 
+// POST /api/admin/ai-health - Test AI connection per key slot and model chain (Rate-limited: 1 call per 10s)
+adminRoutes.post("/ai-health", async (c) => {
+  const db = c.env.DB;
+  const { limited, retryAfter } = await checkRateLimit(db, "rate:admin:ai-health", 1, 10);
+  if (limited) {
+    c.header("Retry-After", String(retryAfter));
+    return c.json(
+      {
+        success: false,
+        error: `AI health check rate limit exceeded. Please wait ${retryAfter}s before testing again.`,
+      },
+      429
+    );
+  }
+
+  const candidateKeys = getGeminiApiKeys(c.env);
+  const modelChain = getModelChain(c.env);
+  const primaryModel = modelChain[0] || "gemini-3.5-flash-lite";
+
+  if (candidateKeys.length === 0) {
+    return c.json({
+      success: true,
+      data: {
+        primaryModel,
+        workingModel: null,
+        slots: [],
+      },
+    });
+  }
+
+  const slots: Array<{
+    slot: string;
+    ok: boolean;
+    latencyMs: number;
+    providerStatus: string;
+    message: string;
+  }> = [];
+
+  let primaryWorked = false;
+
+  for (let i = 0; i < candidateKeys.length; i++) {
+    const key = candidateKeys[i];
+    const slotLabel = `Key ${i + 1}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(primaryModel)}:generateContent`;
+    const start = Date.now();
+    let ok = false;
+    let latencyMs = 0;
+    let providerStatus = "UNKNOWN";
+    let message = "";
+
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": key,
+        },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: "ping" }] }],
+        }),
+      });
+      latencyMs = Date.now() - start;
+
+      if (res.ok) {
+        ok = true;
+        providerStatus = "OK";
+        message = "Healthy";
+        primaryWorked = true;
+      } else {
+        const errText = await res.text();
+        const classified = classifyGeminiError(res.status, errText, { keysToRedact: candidateKeys });
+        providerStatus = classified.providerStatus || (res.status === 429 ? "RESOURCE_EXHAUSTED" : res.status === 404 ? "NOT_FOUND" : `HTTP_${res.status}`);
+        message = classified.userFacingMessage;
+      }
+    } catch (e: any) {
+      latencyMs = Date.now() - start;
+      providerStatus = "NETWORK_ERROR";
+      message = "Network connection failed";
+    }
+
+    slots.push({
+      slot: slotLabel,
+      ok,
+      latencyMs,
+      providerStatus,
+      message,
+    });
+  }
+
+  let workingModel: string | null = null;
+  if (primaryWorked) {
+    workingModel = primaryModel;
+  } else {
+    // If primary model failed across all slots, test fallback models in the chain
+    fallbackSearch: for (let m = 1; m < modelChain.length; m++) {
+      const testModel = modelChain[m];
+      for (const key of candidateKeys) {
+        try {
+          const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(testModel)}:generateContent`;
+          const res = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-goog-api-key": key,
+            },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: "ping" }] }],
+            }),
+          });
+          if (res.ok) {
+            workingModel = testModel;
+            break fallbackSearch;
+          }
+        } catch {}
+      }
+    }
+  }
+
+  return c.json({
+    success: true,
+    data: {
+      primaryModel,
+      workingModel,
+      slots,
+    },
+  });
+});

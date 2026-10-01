@@ -230,11 +230,26 @@ generatedTestRoutes.post("/generate-now", requireAdmin, async (c) => {
   } catch (err: any) {
     const isGeminiErr = err instanceof GeminiProviderError;
     const userMsg = isGeminiErr ? err.userFacingMessage : (err.userFacingMessage || err.message || "Generation failed");
-    const httpStatus: ContentfulStatusCode =
-      isGeminiErr && err.httpStatus >= 400 && err.httpStatus < 600
-        ? (err.httpStatus as ContentfulStatusCode)
-        : 500;
+    const isTemporary = isGeminiErr && (err.isTransient || err.httpStatus === 429 || err.httpStatus === 503);
+    const httpStatus: ContentfulStatusCode = isGeminiErr ? (isTemporary ? 503 : 502) : 500;
     const errorCode = isGeminiErr ? err.code : "GENERATION_FAILED";
+
+    const details = isGeminiErr
+      ? {
+          providerStatus: err.providerStatus || null,
+          providerMessage: err.providerMessage || null,
+          model: err.model || null,
+          correlationId: err.correlationId || null,
+        }
+      : {
+          providerStatus: null,
+          providerMessage: err.message ? String(err.message).slice(0, 300) : null,
+          model: null,
+          correlationId: null,
+        };
+
+    const shortCode = isGeminiErr ? ` [${err.code}]` : "";
+    const errorToStore = `${userMsg}${shortCode}`.slice(0, 200);
 
     await db
       .prepare(
@@ -245,9 +260,17 @@ generatedTestRoutes.post("/generate-now", requireAdmin, async (c) => {
           last_generation_time = ?
          WHERE id = ?`
       )
-      .bind(userMsg.slice(0, 200), Date.now(), examId)
+      .bind(errorToStore, Date.now(), examId)
       .run();
 
-    return c.json({ success: false, error: userMsg, code: errorCode }, httpStatus);
+    return c.json(
+      {
+        success: false,
+        error: userMsg,
+        code: errorCode,
+        details,
+      },
+      httpStatus
+    );
   }
 });

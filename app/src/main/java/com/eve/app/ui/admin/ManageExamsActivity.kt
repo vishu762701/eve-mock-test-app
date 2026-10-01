@@ -28,6 +28,7 @@ import com.eve.app.data.model.Exam
 import com.eve.app.data.model.GeneratedTest
 import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.toUserFriendlyMessage
+import com.eve.app.data.remote.sanitizeErrorMessage
 import com.eve.app.data.repository.ApiUsageRepository
 import com.eve.app.data.repository.AuditLogRepository
 import com.eve.app.data.repository.ExamRepository
@@ -303,6 +304,21 @@ class ManageExamsActivity : EveBaseActivity() {
 
         binding.btnPickTime.setOnClickListener {
             showTimePicker()
+        }
+
+        val publishOptions = arrayOf("Use global default", "Always Live", "Always Paused")
+        val publishAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, publishOptions)
+        binding.actvPublishMode.setAdapter(publishAdapter)
+        binding.actvPublishMode.setOnItemClickListener { _, _, position, _ ->
+            val selected = publishOptions.getOrNull(position) ?: "Use global default"
+            binding.tvPublishModeHelper.text = when (selected) {
+                "Always Live" -> "New AI tests go live for students immediately."
+                "Always Paused" -> "New AI tests stay paused until you publish them."
+                else -> "Follows the global setting in App Config."
+            }
+        }
+        binding.actvPublishMode.setOnClickListener {
+            binding.actvPublishMode.showDropDown()
         }
 
         binding.btnGenerateNow.setOnClickListener {
@@ -687,7 +703,12 @@ class ManageExamsActivity : EveBaseActivity() {
         val timeStr = if (exam.lastGenerationTime > 0) dateFormat.format(Date(exam.lastGenerationTime)) else exam.lastGeneratedDate
         binding.tvLastRunStatus.text = when {
             status.equals("success", ignoreCase = true) -> "Last run: Success on $timeStr"
-            status.equals("failed", ignoreCase = true) -> "Last run: Failed (${exam.lastGenerationError}) - $timeStr"
+            status.equals("failed", ignoreCase = true) -> {
+                val rawErr = exam.lastGenerationError
+                val friendly = sanitizeErrorMessage(rawErr) ?: rawErr.ifBlank { "Unknown error" }
+                val clean = if (friendly.contains("Server Error:")) friendly.substringAfter("Server Error:").trim() else friendly
+                "Last run: Failed ($clean) - $timeStr"
+            }
             status.equals("running", ignoreCase = true) -> "Last run: Currently generating..."
             else -> "Last run: Not run yet"
         }
@@ -795,12 +816,7 @@ class ManageExamsActivity : EveBaseActivity() {
                         binding.compactErrorView.hide()
 
                         if (!res.success) {
-                            val err = res.error ?: "Generation failed"
-                            MaterialAlertDialogBuilder(this@ManageExamsActivity)
-                                .setTitle("Generation Failed")
-                                .setMessage("Failed to generate test questions:\n\n$err")
-                                .setPositiveButton("OK", null)
-                                .show()
+                            showGenerationErrorDialog(res.error, null)
                         } else {
                             val generatedCount = res.data?.get("count") ?: count
                             auditLogRepo.recordLog(
@@ -817,12 +833,7 @@ class ManageExamsActivity : EveBaseActivity() {
                             loadGeneratedTestsForExam()
                         }
                     } catch (e: Exception) {
-                        val err = e.toUserFriendlyMessage()
-                        MaterialAlertDialogBuilder(this@ManageExamsActivity)
-                            .setTitle("Generation Failed")
-                            .setMessage("Failed to generate test questions:\n\n$err")
-                            .setPositiveButton("OK", null)
-                            .show()
+                        showGenerationErrorDialog(null, e)
                     } finally {
                         isGenerating = false
                         binding.btnGenerateNow.isEnabled = true
@@ -934,19 +945,130 @@ class ManageExamsActivity : EveBaseActivity() {
     }
 
     private fun getSelectedPublishMode(): String {
-        return when (binding.togglePublishMode.checkedButtonId) {
-            R.id.btnPublishLive -> "live"
-            R.id.btnPublishPaused -> "paused"
+        return when (binding.actvPublishMode.text?.toString()?.trim()) {
+            "Always Live" -> "live"
+            "Always Paused" -> "paused"
             else -> "inherit"
         }
     }
 
     private fun setSelectedPublishMode(mode: String) {
-        when (mode.lowercase()) {
-            "live" -> binding.togglePublishMode.check(R.id.btnPublishLive)
-            "paused" -> binding.togglePublishMode.check(R.id.btnPublishPaused)
-            else -> binding.togglePublishMode.check(R.id.btnPublishInherit)
+        val (displayText, helperText) = when (mode.lowercase()) {
+            "live", "published" -> "Always Live" to "New AI tests go live for students immediately."
+            "paused" -> "Always Paused" to "New AI tests stay paused until you publish them."
+            else -> "Use global default" to "Follows the global setting in App Config."
         }
+        binding.actvPublishMode.setText(displayText, false)
+        binding.tvPublishModeHelper.text = helperText
+    }
+
+    private fun showGenerationErrorDialog(rawErrorMsg: String?, throwable: Throwable?) {
+        var friendlyMessage: String = "AI question generation failed. Please try again."
+        var errorCode = ""
+        var providerStatus = ""
+        var providerMessage = ""
+        var model = ""
+        var correlationId = ""
+
+        if (throwable is retrofit2.HttpException) {
+            val errorBody = try {
+                throwable.response()?.errorBody()?.string()
+            } catch (_: Exception) {
+                null
+            }
+
+            if (!errorBody.isNullOrBlank()) {
+                try {
+                    val element = com.google.gson.JsonParser.parseString(errorBody)
+                    if (element.isJsonObject) {
+                        val obj = element.asJsonObject
+                        if (obj.has("error") && !obj.get("error").isJsonNull) {
+                            friendlyMessage = obj.get("error").asString
+                        }
+                        if (obj.has("code") && !obj.get("code").isJsonNull) {
+                            errorCode = obj.get("code").asString
+                        }
+                        if (obj.has("details") && obj.get("details").isJsonObject) {
+                            val det = obj.getAsJsonObject("details")
+                            providerStatus = det.get("providerStatus")?.takeIf { !it.isJsonNull }?.asString.orEmpty()
+                            providerMessage = det.get("providerMessage")?.takeIf { !it.isJsonNull }?.asString.orEmpty()
+                            model = det.get("model")?.takeIf { !it.isJsonNull }?.asString.orEmpty()
+                            correlationId = det.get("correlationId")?.takeIf { !it.isJsonNull }?.asString.orEmpty()
+                        }
+                    }
+                } catch (_: Exception) {}
+            }
+            if (providerStatus.isBlank()) {
+                providerStatus = "HTTP ${throwable.code()}"
+            }
+        } else if (!rawErrorMsg.isNullOrBlank()) {
+            friendlyMessage = rawErrorMsg
+        } else if (throwable != null) {
+            friendlyMessage = throwable.toUserFriendlyMessage()
+        }
+
+        friendlyMessage = sanitizeErrorMessage(friendlyMessage) ?: friendlyMessage
+        if (friendlyMessage.contains("Server Error:")) {
+            friendlyMessage = friendlyMessage.substringAfter("Server Error:").trim()
+        }
+
+        val context = this@ManageExamsActivity
+        val density = resources.displayMetrics.density
+        val container = android.widget.LinearLayout(context).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            val padH = (24 * density).toInt()
+            val padV = (8 * density).toInt()
+            setPadding(padH, padV, padH, padV)
+        }
+
+        val tvMsg = android.widget.TextView(context).apply {
+            text = friendlyMessage
+            textSize = 15f
+            setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.eve_text))
+            setLineSpacing(0f, 1.2f)
+        }
+        container.addView(tvMsg)
+
+        val techLine = buildString {
+            append("Technical details: ")
+            append("Status: ${providerStatus.ifBlank { "N/A" }} | ")
+            append("Model: ${model.ifBlank { "N/A" }} | ")
+            append("ID: ${correlationId.ifBlank { "N/A" }}")
+        }
+
+        val tvDetails = android.widget.TextView(context).apply {
+            text = techLine
+            textSize = 12f
+            setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.eve_text_secondary))
+            setTextIsSelectable(true)
+            val topMargin = (16 * density).toInt()
+            layoutParams = android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { setMargins(0, topMargin, 0, 0) }
+        }
+        container.addView(tvDetails)
+
+        val fullDiagnostic = buildString {
+            appendLine("Error: $friendlyMessage")
+            if (errorCode.isNotBlank()) appendLine("Code: $errorCode")
+            appendLine("Status: ${providerStatus.ifBlank { "N/A" }}")
+            if (providerMessage.isNotBlank()) appendLine("Provider Message: $providerMessage")
+            appendLine("Model: ${model.ifBlank { "N/A" }}")
+            appendLine("Correlation ID: ${correlationId.ifBlank { "N/A" }}")
+        }.trim()
+
+        MaterialAlertDialogBuilder(context)
+            .setTitle("Generation failed")
+            .setView(container)
+            .setPositiveButton("OK", null)
+            .setNeutralButton("Copy details") { _, _ ->
+                val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                val clip = android.content.ClipData.newPlainText("AI Generation Details", fullDiagnostic)
+                clipboard.setPrimaryClip(clip)
+                android.widget.Toast.makeText(context, "Details copied to clipboard", android.widget.Toast.LENGTH_SHORT).show()
+            }
+            .show()
     }
 
     private fun getCurrentFormAsExam(): Exam {

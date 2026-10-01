@@ -180,8 +180,11 @@ export async function handleScheduledTestGeneration(event: ScheduledEvent, env: 
         `[Scheduler] Successfully inserted test '${title}' (${questions.length} questions). Exam metadata updated and lock released for '${examName}'.`
       );
     } catch (err: any) {
-      const safeMsg = (err instanceof GeminiProviderError ? err.userFacingMessage : err.message) || "Unknown error";
-      console.error(`[Scheduler] Generation failed for '${examName}':`, safeMsg);
+      const isGeminiErr = err instanceof GeminiProviderError;
+      const safeMsg = (isGeminiErr ? err.userFacingMessage : err.message) || "Unknown error";
+      const shortCode = isGeminiErr ? ` [${err.code}]` : "";
+      const errorToStore = `${safeMsg}${shortCode}`.slice(0, 200);
+      console.error(`[Scheduler] Generation failed for '${examName}':`, errorToStore);
 
       const finishTime = Date.now();
       await db.batch([
@@ -194,7 +197,7 @@ export async function handleScheduledTestGeneration(event: ScheduledEvent, env: 
               last_generation_time = ?
              WHERE id = ?`
           )
-          .bind(safeMsg.slice(0, 200), finishTime, examId),
+          .bind(errorToStore, finishTime, examId),
         db
           .prepare(
             "INSERT INTO generation_logs (id, exam_id, exam_name, status, message, timestamp) VALUES (?, ?, ?, ?, ?, ?)"
@@ -204,7 +207,7 @@ export async function handleScheduledTestGeneration(event: ScheduledEvent, env: 
             examId,
             examName,
             "failed",
-            safeMsg.slice(0, 200),
+            errorToStore,
             finishTime
           ),
       ]);
