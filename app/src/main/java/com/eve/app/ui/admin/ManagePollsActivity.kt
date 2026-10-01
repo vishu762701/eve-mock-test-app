@@ -53,6 +53,11 @@ class ManagePollsActivity : EveBaseActivity() {
         loadPolls()
     }
 
+    override fun onResume() {
+        super.onResume()
+        binding.emptyStateView.resetPlayOnNextShow()
+    }
+
     private fun loadPolls() {
         binding.progressBar.visibility = View.VISIBLE
         binding.emptyStateView.hide()

@@ -100,6 +100,11 @@ class GeneratedTestsActivity : EveBaseActivity() {
         loadTests()
     }
 
+    override fun onResume() {
+        super.onResume()
+        hasEmptyPlayed = false
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("key_empty_played", hasEmptyPlayed)
@@ -120,7 +125,7 @@ class GeneratedTestsActivity : EveBaseActivity() {
                         hasEmptyPlayed
                     )
                 } else {
-                    hasEmptyPlayed = false
+                    com.eve.app.util.EmptyStateAnimationHelper.stopEmptyState(binding.lottieEmpty)
                 }
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE

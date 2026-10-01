@@ -105,9 +105,12 @@ class AdminActivity : EveBaseActivity() {
         onRemove = { email -> confirmRemoveAdmin(email) }
     )
 
+    private var hasEmptyPlayed = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setBackgroundDrawableResource(R.color.eve_bg)
+        hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
         binding = ActivityAdminBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -344,20 +347,12 @@ class AdminActivity : EveBaseActivity() {
             binding.layoutEmptyQuestions.visibility = View.GONE
             binding.rvQuestions.visibility = View.VISIBLE
             binding.tvNoQuestions.visibility = View.GONE
+            com.eve.app.util.EmptyStateAnimationHelper.stopEmptyState(binding.ivEmptyStateFolder)
         }
     }
 
     private fun animateEmptyFolderIcon() {
-        binding.ivEmptyStateFolder.alpha = 0f
-        binding.ivEmptyStateFolder.scaleX = 0.8f
-        binding.ivEmptyStateFolder.scaleY = 0.8f
-        binding.ivEmptyStateFolder.animate()
-            .alpha(1f)
-            .scaleX(1f)
-            .scaleY(1f)
-            .setDuration(300)
-            .setInterpolator(android.view.animation.DecelerateInterpolator())
-            .start()
+        hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(binding.ivEmptyStateFolder, hasEmptyPlayed)
     }
 
     private fun showAddQuestionDialog(selectedExam: Exam) {
@@ -1201,7 +1196,13 @@ class AdminActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        hasEmptyPlayed = false
         loadAppConfigAndMaintenance()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("key_empty_played", hasEmptyPlayed)
     }
 
     private fun setupMaintenanceControls() {

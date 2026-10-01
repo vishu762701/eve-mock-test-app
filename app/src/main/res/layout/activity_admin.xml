@@ -322,13 +322,15 @@
                     android:paddingHorizontal="24dp"
                     android:paddingVertical="36dp">
 
-                    <ImageView
+                    <com.airbnb.lottie.LottieAnimationView
                         android:id="@+id/ivEmptyStateFolder"
                         android:layout_width="88dp"
                         android:layout_height="88dp"
+                        android:background="@android:color/transparent"
                         android:contentDescription="No exam selected placeholder"
-                        android:src="@drawable/ic_empty_state_folder"
-                        app:tint="@color/eve_text_secondary" />
+                        app:lottie_autoPlay="false"
+                        app:lottie_loop="false"
+                        app:lottie_rawRes="@raw/search" />
 
                     <TextView
                         android:id="@+id/tvEmptyQuestionsTitle"

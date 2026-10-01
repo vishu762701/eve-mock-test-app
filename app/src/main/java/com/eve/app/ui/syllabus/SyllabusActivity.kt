@@ -98,6 +98,11 @@ class SyllabusActivity : EveBaseActivity() {
         )
     }
 
+    override fun onResume() {
+        super.onResume()
+        binding.emptyStateView.resetPlayOnNextShow()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         try {

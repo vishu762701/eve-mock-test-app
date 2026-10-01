@@ -18,6 +18,7 @@ import com.eve.app.databinding.ActivityManageExistingExamsBinding
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.AppUndoBar
+import com.eve.app.util.EmptyStateAnimationHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 
@@ -29,9 +30,11 @@ class ManageExistingExamsActivity : EveBaseActivity() {
     private lateinit var adapter: ExistingExamsAdapter
 
     private var allExamsWithStats: List<ExamWithStats> = emptyList()
+    private var hasEmptyPlayed = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
         binding = ActivityManageExistingExamsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -57,7 +60,13 @@ class ManageExistingExamsActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        hasEmptyPlayed = false
         loadExams()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("key_empty_played", hasEmptyPlayed)
     }
 
     private fun loadExams() {
@@ -106,9 +115,11 @@ class ManageExistingExamsActivity : EveBaseActivity() {
         if (filtered.isEmpty()) {
             binding.emptyGroup.visibility = View.VISIBLE
             binding.rvExams.visibility = View.GONE
+            hasEmptyPlayed = EmptyStateAnimationHelper.showEmptyState(binding.lottieEmpty, hasEmptyPlayed)
         } else {
             binding.emptyGroup.visibility = View.GONE
             binding.rvExams.visibility = View.VISIBLE
+            EmptyStateAnimationHelper.stopEmptyState(binding.lottieEmpty)
         }
     }
 

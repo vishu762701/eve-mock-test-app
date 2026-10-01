@@ -288,23 +288,25 @@ class AdminDashboardSevenFixesTest {
     }
 
     // =========================================================================
-    // FIX 7: PREMIUM EMPTY-STATE FOLDER ICON VECTOR DRAWABLE
+    // FIX 7: EMPTY-STATE PLACEHOLDER LOTTIE ANIMATION & FOLDER ASSET REMOVAL
     // =========================================================================
     @Test
-    fun testFix7_telegramFolderVectorDrawableAttributes() {
+    fun testFix7_adminPlaceholderIsLottieWithSearchAndFolderRemoved() {
         val folderXmlFile = File("src/main/res/drawable/ic_empty_state_folder.xml")
-        assertTrue("ic_empty_state_folder.xml must exist in res/drawable", folderXmlFile.exists())
+        assertFalse("ic_empty_state_folder.xml must no longer exist in res/drawable", folderXmlFile.exists())
 
-        val factory = DocumentBuilderFactory.newInstance()
-        val builder = factory.newDocumentBuilder()
-        val doc = builder.parse(folderXmlFile)
+        val adminXmlFile = File("src/main/res/layout/activity_admin.xml")
+        assertTrue("activity_admin.xml must exist", adminXmlFile.exists())
+        val content = adminXmlFile.readText()
 
-        val root = doc.documentElement
-        assertEquals("Root element must be <vector>", "vector", root.nodeName)
-        assertEquals("viewportWidth must be 72", "72", root.getAttribute("android:viewportWidth"))
-        assertEquals("viewportHeight must be 72", "72", root.getAttribute("android:viewportHeight"))
-
-        val paths = root.getElementsByTagName("path")
-        assertTrue("Vector must contain paths", paths.length >= 3)
+        assertTrue(
+            "ivEmptyStateFolder must be a LottieAnimationView",
+            content.contains("<com.airbnb.lottie.LottieAnimationView") &&
+                content.contains("android:id=\"@+id/ivEmptyStateFolder\"")
+        )
+        assertTrue(
+            "ivEmptyStateFolder must use @raw/search",
+            content.contains("app:lottie_rawRes=\"@raw/search\"")
+        )
     }
 }

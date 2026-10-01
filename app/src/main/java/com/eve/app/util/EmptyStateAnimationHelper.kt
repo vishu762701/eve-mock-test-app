@@ -88,7 +88,7 @@ object EmptyStateAnimationHelper {
 
         // If already actively playing search animation, let it finish cleanly without interruption
         if (lottieView.isAnimating && lottieView.tag == R.raw.search) {
-            return false
+            return true
         }
 
         val currentTag = lottieView.tag
@@ -139,7 +139,7 @@ object EmptyStateAnimationHelper {
             }
         }
 
-        return false
+        return true
     }
 
     /**

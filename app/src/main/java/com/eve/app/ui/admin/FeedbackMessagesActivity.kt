@@ -51,6 +51,11 @@ class FeedbackMessagesActivity : EveBaseActivity() {
         loadMessages()
     }
 
+    override fun onResume() {
+        super.onResume()
+        binding.emptyStateView.resetPlayOnNextShow()
+    }
+
     private fun loadMessages() {
         binding.progressBar.visibility = View.VISIBLE
         binding.emptyStateView.hide()

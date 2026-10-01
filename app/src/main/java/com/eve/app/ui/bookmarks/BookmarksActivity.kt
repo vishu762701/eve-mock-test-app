@@ -102,6 +102,11 @@ class BookmarksActivity : EveBaseActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        hasEmptyPlayed = false
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("key_empty_played", hasEmptyPlayed)
@@ -110,6 +115,7 @@ class BookmarksActivity : EveBaseActivity() {
     private fun renderState(state: UiState<List<BookmarkedQuestion>>) {
         when (state) {
             is UiState.Loading -> {
+                hasEmptyPlayed = false
                 binding.progressGroup.visibility = View.VISIBLE
                 binding.messageGroup.visibility = View.GONE
             }
@@ -129,12 +135,13 @@ class BookmarksActivity : EveBaseActivity() {
                     binding.tvMessage.text = "No bookmarks yet"
                     binding.tvMessageSub.text = "Star questions during a test to review or practice them here anytime."
                 } else {
-                    hasEmptyPlayed = false
+                    EmptyStateAnimationHelper.stopEmptyState(binding.ivMessageIcon)
                     binding.tvBookmarkCount.visibility = View.VISIBLE
                     binding.tvBookmarkCount.text = "${state.data.size} saved"
                 }
             }
             is UiState.Error -> {
+                hasEmptyPlayed = false
                 binding.progressGroup.visibility = View.GONE
                 binding.messageGroup.visibility = View.VISIBLE
                 binding.btnRetry.visibility = View.VISIBLE

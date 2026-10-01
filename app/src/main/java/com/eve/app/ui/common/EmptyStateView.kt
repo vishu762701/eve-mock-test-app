@@ -75,8 +75,15 @@ class EmptyStateView @JvmOverloads constructor(
         hasPlayedOnce = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(binding.lottieEmpty, hasPlayedOnce)
     }
 
-    fun hide() {
+    fun resetPlayOnNextShow() {
         hasPlayedOnce = false
+    }
+
+    fun resetPlayback() {
+        hasPlayedOnce = false
+    }
+
+    fun hide() {
         com.eve.app.util.EmptyStateAnimationHelper.stopEmptyState(binding.lottieEmpty)
         visibility = View.GONE
     }

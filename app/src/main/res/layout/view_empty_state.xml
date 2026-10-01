@@ -15,7 +15,7 @@
         android:background="@android:color/transparent"
         app:lottie_autoPlay="false"
         app:lottie_loop="false"
-        app:lottie_rawRes="@raw/no_files" />
+        app:lottie_rawRes="@raw/search" />
 
     <TextView
         android:id="@+id/tvEmptyTitle"
