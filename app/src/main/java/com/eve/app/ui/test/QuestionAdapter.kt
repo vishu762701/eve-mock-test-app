@@ -2,13 +2,15 @@ package com.eve.app.ui.test
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.animation.ValueAnimator
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.view.animation.OvershootInterpolator
+import android.view.animation.DecelerateInterpolator
 import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.R
 import com.eve.app.data.model.Question
 import com.eve.app.databinding.ItemQuestionBinding
+import com.eve.app.util.HapticHelper
 
 class QuestionAdapter(
     private val questions: List<Question>,
@@ -39,6 +41,8 @@ class QuestionAdapter(
     }
 
     inner class VH(private val b: ItemQuestionBinding) : RecyclerView.ViewHolder(b.root) {
+        private var currentAnimator: ValueAnimator? = null
+
         fun updateTimer(seconds: Long) {
             b.tvQuestionTimer.text = formatQuestionTime(seconds)
         }
@@ -50,41 +54,138 @@ class QuestionAdapter(
             }
 
             val hindi = isHindi()
-            b.tvQuestion.text = "Q${position + 1}. ${q.displayQuestionText(hindi)}"
+            val questionText = "Q${position + 1}. ${q.displayQuestionText(hindi)}"
+            b.tvQuestion.text = questionText
             b.rbA.text = "A. ${q.displayOptionText("A", hindi)}"
             b.rbB.text = "B. ${q.displayOptionText("B", hindi)}"
             b.rbC.text = "C. ${q.displayOptionText("C", hindi)}"
             b.rbD.text = "D. ${q.displayOptionText("D", hindi)}"
 
-            fun refreshBookmarkIcon() {
-                b.btnBookmark.setImageResource(
-                    if (getBookmarked(position)) R.drawable.ic_star_filled else R.drawable.ic_star_outline
-                )
-            }
-            refreshBookmarkIcon()
+            // Reset scroll position and auto-fit question text and options to the viewport
+            b.svQuestion.scrollTo(0, 0)
+            val optionsList = listOf(b.rbA, b.rbB, b.rbC, b.rbD)
+            QuestionFitHelper.fitQuestionAndOptions(
+                tvQuestion = b.tvQuestion,
+                svQuestion = b.svQuestion,
+                ivScrollHint = b.ivScrollHint,
+                options = optionsList,
+                questionText = questionText
+            )
+
+            // Cancel any in-flight star animation on recycled view and restore clean baseline
+            currentAnimator?.cancel()
+            currentAnimator = null
+            b.sparkleView.reset()
+            b.btnBookmark.rotation = 0f
+            b.btnBookmark.scaleX = 1f
+            b.btnBookmark.scaleY = 1f
+            b.btnBookmark.setImageResource(
+                if (getBookmarked(position)) R.drawable.ic_star_filled else R.drawable.ic_star_outline
+            )
+
             b.btnBookmark.setOnClickListener {
                 onToggleBookmark(position)
-                b.btnBookmark.animate().cancel()
-                b.btnBookmark.animate()
-                    .scaleX(0.6f).scaleY(0.6f)
-                    .setDuration(90)
-                    .setListener(object : AnimatorListenerAdapter() {
-                        override fun onAnimationEnd(animation: Animator) {
-                            refreshBookmarkIcon()
-                            b.btnBookmark.animate()
-                                .scaleX(1f).scaleY(1f)
-                                .setDuration(220)
-                                .setInterpolator(OvershootInterpolator(3f))
-                                .setListener(null)
-                                .start()
+                val nowBookmarked = getBookmarked(position)
+                currentAnimator?.cancel()
+                currentAnimator = null
+                b.sparkleView.reset()
+
+                if (nowBookmarked) {
+                    // Bookmark ON: 360° spin + scale pop (1 -> 1.3 -> 1) with sparkle burst and light haptic
+                    HapticHelper.performLight(b.btnBookmark)
+                    b.sparkleView.startSparkle()
+
+                    var iconSwapped = false
+                    val anim = ValueAnimator.ofFloat(0f, 1f).apply {
+                        duration = 420L
+                        interpolator = DecelerateInterpolator()
+                        addUpdateListener { va ->
+                            val fraction = va.animatedFraction
+                            b.btnBookmark.rotation = fraction * 360f
+
+                            val scale = if (fraction < 0.4f) {
+                                1f + (fraction / 0.4f) * 0.3f
+                            } else {
+                                val popFraction = (fraction - 0.4f) / 0.6f
+                                1.3f - popFraction * 0.3f
+                            }
+                            b.btnBookmark.scaleX = scale
+                            b.btnBookmark.scaleY = scale
+
+                            if (!iconSwapped && fraction >= 0.4f) {
+                                iconSwapped = true
+                                b.btnBookmark.setImageResource(R.drawable.ic_star_filled)
+                            }
                         }
-                    })
-                    .start()
+                        addListener(object : AnimatorListenerAdapter() {
+                            override fun onAnimationEnd(animation: Animator) {
+                                b.btnBookmark.rotation = 0f
+                                b.btnBookmark.scaleX = 1f
+                                b.btnBookmark.scaleY = 1f
+                                b.btnBookmark.setImageResource(
+                                    if (getBookmarked(position)) R.drawable.ic_star_filled else R.drawable.ic_star_outline
+                                )
+                                currentAnimator = null
+                            }
+
+                            override fun onAnimationCancel(animation: Animator) {
+                                b.btnBookmark.rotation = 0f
+                                b.btnBookmark.scaleX = 1f
+                                b.btnBookmark.scaleY = 1f
+                                b.btnBookmark.setImageResource(
+                                    if (getBookmarked(position)) R.drawable.ic_star_filled else R.drawable.ic_star_outline
+                                )
+                                currentAnimator = null
+                            }
+                        })
+                    }
+                    currentAnimator = anim
+                    anim.start()
+                } else {
+                    // Bookmark OFF: quick reverse feel (~180ms: small scale down + counter-rotation)
+                    b.btnBookmark.setImageResource(R.drawable.ic_star_outline)
+                    val anim = ValueAnimator.ofFloat(0f, 1f).apply {
+                        duration = 180L
+                        interpolator = DecelerateInterpolator()
+                        addUpdateListener { va ->
+                            val fraction = va.animatedFraction
+                            b.btnBookmark.rotation = -30f * (1f - fraction)
+                            val scale = if (fraction < 0.5f) {
+                                1f - (fraction / 0.5f) * 0.15f
+                            } else {
+                                0.85f + ((fraction - 0.5f) / 0.5f) * 0.15f
+                            }
+                            b.btnBookmark.scaleX = scale
+                            b.btnBookmark.scaleY = scale
+                        }
+                        addListener(object : AnimatorListenerAdapter() {
+                            override fun onAnimationEnd(animation: Animator) {
+                                b.btnBookmark.rotation = 0f
+                                b.btnBookmark.scaleX = 1f
+                                b.btnBookmark.scaleY = 1f
+                                b.btnBookmark.setImageResource(
+                                    if (getBookmarked(position)) R.drawable.ic_star_filled else R.drawable.ic_star_outline
+                                )
+                                currentAnimator = null
+                            }
+
+                            override fun onAnimationCancel(animation: Animator) {
+                                b.btnBookmark.rotation = 0f
+                                b.btnBookmark.scaleX = 1f
+                                b.btnBookmark.scaleY = 1f
+                                b.btnBookmark.setImageResource(
+                                    if (getBookmarked(position)) R.drawable.ic_star_filled else R.drawable.ic_star_outline
+                                )
+                                currentAnimator = null
+                            }
+                        })
+                    }
+                    currentAnimator = anim
+                    anim.start()
+                }
             }
 
-
-
-            // Recycled view me purana state / listener saaf karo, phir saved answer restore karo
+            // Clear previous listener on recycled view, then restore saved answer selection
             b.rgOptions.setOnCheckedChangeListener(null)
             b.rgOptions.clearCheck()
             when (getSelected(position)) {
@@ -102,7 +203,7 @@ class QuestionAdapter(
                     else -> ""
                 }
                 if (letter.isNotEmpty()) {
-                    com.eve.app.util.HapticHelper.performOptionSelect(b.root)
+                    HapticHelper.performOptionSelect(b.root)
                     onSelect(position, letter)
                 }
             }

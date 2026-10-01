@@ -3,6 +3,7 @@
 // ============================================================================
 
 import { generateQuestions, getIstTimeAndDate, incrementTestNumber, GeminiProviderError } from "../ai/generator";
+import { resolvePublishStatus } from "../util/publishMode";
 import { Env, ExamRow } from "../types";
 
 export async function handleScheduledTestGeneration(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
@@ -128,12 +129,13 @@ export async function handleScheduledTestGeneration(event: ScheduledEvent, env: 
       const title = `${examName} - ${testNumber}`;
       const nextTestNumber = incrementTestNumber(testNumber);
       const finishTime = Date.now();
+      const initialStatus = await resolvePublishStatus(db, exam);
 
       await db.batch([
         db
           .prepare(
             `INSERT INTO generated_tests (id, exam_id, exam_name, test_number, title, generated_at, status, question_count, syllabus_used, prompt_used, questions_json)
-             VALUES (?, ?, ?, ?, ?, ?, 'paused', ?, ?, ?, ?)`
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
           )
           .bind(
             testId,
@@ -142,6 +144,7 @@ export async function handleScheduledTestGeneration(event: ScheduledEvent, env: 
             testNumber,
             title,
             finishTime,
+            initialStatus,
             questions.length,
             exam.syllabus || "",
             prompt,

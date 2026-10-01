@@ -110,7 +110,8 @@ class ExamRepository(
         imageUrl: String = "",
         negativeMarkingText: String = "0",
         negativeMarkingValue: Double = 0.0,
-        parentExamId: String = ""
+        parentExamId: String = "",
+        publishMode: String = "inherit"
     ): String {
         val trimmed = name.trim()
         val data = mapOf(
@@ -128,7 +129,8 @@ class ExamRepository(
             "imageUrl" to imageUrl,
             "negativeMarkingText" to negativeMarkingText,
             "negativeMarkingValue" to negativeMarkingValue,
-            "parentExamId" to parentExamId.trim()
+            "parentExamId" to parentExamId.trim(),
+            "publishMode" to publishMode.trim()
         )
         val res = api.createExam(data)
         if (!res.success || res.data == null) {
@@ -162,7 +164,8 @@ class ExamRepository(
             "cutoffs" to exam.cutoffs,
             "negativeMarkingText" to exam.negativeMarkingText,
             "negativeMarkingValue" to exam.negativeMarkingValue,
-            "parentExamId" to exam.parentExamId.trim()
+            "parentExamId" to exam.parentExamId.trim(),
+            "publishMode" to exam.publishMode.trim()
         )
         val res = api.updateExam(exam.id, data)
         if (!res.success) throw Exception(res.error ?: "Failed to update exam")
@@ -181,7 +184,8 @@ class ExamRepository(
         timeLimitMinutes: Int = 30,
         negativeMarkingText: String = "0",
         negativeMarkingValue: Double = 0.0,
-        parentExamId: String = ""
+        parentExamId: String = "",
+        publishMode: String = "inherit"
     ) {
         val data = mapOf<String, Any>(
             "examName" to examName.trim(),
@@ -195,7 +199,8 @@ class ExamRepository(
             "generationPrompt" to generationPrompt.trim(),
             "negativeMarkingText" to negativeMarkingText,
             "negativeMarkingValue" to negativeMarkingValue,
-            "parentExamId" to parentExamId.trim()
+            "parentExamId" to parentExamId.trim(),
+            "publishMode" to publishMode.trim()
         )
         val res = api.updateExam(examId, data)
         if (!res.success) throw Exception(res.error ?: "Failed to update exam settings")

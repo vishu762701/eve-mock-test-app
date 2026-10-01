@@ -125,7 +125,8 @@ class AdminRepository {
         val body = mapOf(
             "minimum_supported_version_code" to config.minimum_supported_version_code,
             "maintenance_mode" to config.maintenance_mode,
-            "maintenance_message" to config.maintenance_message
+            "maintenance_message" to config.maintenance_message,
+            "default_publish_mode" to config.default_publish_mode
         )
         val response = api.updateAppConfig(body)
         if (!response.success) {

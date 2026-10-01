@@ -435,6 +435,7 @@ class ManageExamsActivity : EveBaseActivity() {
         binding.switchAutoGen.isChecked = exam.autoGenerationEnabled
         updateTimePickerState(exam.autoGenerationEnabled)
         binding.btnPickTime.text = "Time: $currentAutoGenTime (IST)"
+        setSelectedPublishMode(exam.publishMode)
 
         updateLastRunUi(exam)
 
@@ -482,6 +483,7 @@ class ManageExamsActivity : EveBaseActivity() {
         binding.switchAutoGen.alpha = 1.0f
         updateTimePickerState(false)
         binding.btnPickTime.text = "Time: 00:00 (IST)"
+        setSelectedPublishMode("inherit")
 
         binding.tvLastRunStatus.text = "New main exam — save before generating tests"
         binding.etGenerationPrompt.setText("")
@@ -562,6 +564,7 @@ class ManageExamsActivity : EveBaseActivity() {
         binding.switchAutoGen.alpha = 1.0f
         updateTimePickerState(false)
         binding.btnPickTime.text = "Time: 00:00 (IST)"
+        setSelectedPublishMode("inherit")
 
         binding.tvLastRunStatus.text = "New sub-exam under ${parent.examName} — save before generating tests"
         binding.etGenerationPrompt.setText(parent.generationPrompt)
@@ -930,6 +933,22 @@ class ManageExamsActivity : EveBaseActivity() {
             .show()
     }
 
+    private fun getSelectedPublishMode(): String {
+        return when (binding.togglePublishMode.checkedButtonId) {
+            R.id.btnPublishLive -> "live"
+            R.id.btnPublishPaused -> "paused"
+            else -> "inherit"
+        }
+    }
+
+    private fun setSelectedPublishMode(mode: String) {
+        when (mode.lowercase()) {
+            "live" -> binding.togglePublishMode.check(R.id.btnPublishLive)
+            "paused" -> binding.togglePublishMode.check(R.id.btnPublishPaused)
+            else -> binding.togglePublishMode.check(R.id.btnPublishInherit)
+        }
+    }
+
     private fun getCurrentFormAsExam(): Exam {
         val duration = binding.etDuration.text?.toString()?.trim()?.toIntOrNull() ?: 0
         val count = binding.etQuestionCount.text?.toString()?.trim()?.toIntOrNull() ?: 0
@@ -961,7 +980,8 @@ class ManageExamsActivity : EveBaseActivity() {
             syllabusUrl = currentSyllabusUrl,
             syllabusFileName = currentSyllabusFileName,
             syllabusUploadedAt = currentSyllabusUploadedAt,
-            generationPrompt = binding.etGenerationPrompt.text?.toString()?.trim().orEmpty()
+            generationPrompt = binding.etGenerationPrompt.text?.toString()?.trim().orEmpty(),
+            publishMode = getSelectedPublishMode()
         )
     }
 
@@ -977,7 +997,8 @@ class ManageExamsActivity : EveBaseActivity() {
             current.autoGenerationEnabled != init.autoGenerationEnabled ||
             current.autoGenTime != init.autoGenTime ||
             current.syllabusUrl != init.syllabusUrl ||
-            current.generationPrompt != init.generationPrompt
+            current.generationPrompt != init.generationPrompt ||
+            current.publishMode != init.publishMode
     }
 
     private fun saveExamSettings(onSuccess: (() -> Unit)? = null) {
@@ -1087,6 +1108,7 @@ class ManageExamsActivity : EveBaseActivity() {
 
         val autoGen = binding.switchAutoGen.isChecked
         val prompt = binding.etGenerationPrompt.text?.toString()?.trim().orEmpty()
+        val publishMode = getSelectedPublishMode()
 
         binding.btnSave.isEnabled = false
         binding.progressBar.visibility = View.VISIBLE
@@ -1108,7 +1130,8 @@ class ManageExamsActivity : EveBaseActivity() {
                         timeLimitMinutes = duration,
                         negativeMarkingText = parsedNeg.first,
                         negativeMarkingValue = parsedNeg.second,
-                        parentExamId = currentParentExamId
+                        parentExamId = currentParentExamId,
+                        publishMode = publishMode
                     )
                     Log.d("EVE_MANAGE_EXAM", "updateExamFullSettings success: examId=$currentExamId")
                     auditLogRepo.recordLog(
@@ -1130,7 +1153,8 @@ class ManageExamsActivity : EveBaseActivity() {
                         generationPrompt = prompt,
                         negativeMarkingText = parsedNeg.first,
                         negativeMarkingValue = parsedNeg.second,
-                        parentExamId = currentParentExamId
+                        parentExamId = currentParentExamId,
+                        publishMode = publishMode
                     )
                     Log.d("EVE_MANAGE_EXAM", "addExam success: newId=$newId, isSavingSubExam=$isSavingSubExam")
                     currentExamId = newId

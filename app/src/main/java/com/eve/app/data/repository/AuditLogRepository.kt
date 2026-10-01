@@ -1,11 +1,15 @@
 package com.eve.app.data.repository
 
+import android.util.Log
 import com.eve.app.data.model.AdminAuditLog
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import kotlinx.coroutines.tasks.await
-import java.util.Calendar
+import com.eve.app.data.remote.ApiClient
+import com.eve.app.data.remote.CreateAuditLogRequest
+import com.eve.app.data.remote.EveApiService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 enum class AuditLogTimeRange {
     TODAY,
@@ -13,81 +17,59 @@ enum class AuditLogTimeRange {
     ALL_TIME
 }
 
-class AuditLogRepository {
+class AuditLogRepository(
+    private val api: EveApiService = ApiClient.api
+) {
 
-    private val firestore get() = FirebaseFirestore.getInstance()
-    private val auth get() = FirebaseAuth.getInstance()
+    companion object {
+        // Lifecycle-safe application scope for non-blocking fire-and-forget audit logging
+        private val auditScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    }
 
     fun recordLog(
         actionType: String,
         description: String,
         adminEmail: String? = null
     ) {
-        try {
-            val email = adminEmail?.takeIf { it.isNotBlank() }
-                ?: auth.currentUser?.email
-                ?: "admin@eve.app"
-
-            val log = hashMapOf(
-                "actionType" to actionType,
-                "description" to description,
-                "adminEmail" to email,
-                "timestamp" to System.currentTimeMillis()
-            )
-
-            firestore.collection("admin_audit_log").add(log)
-        } catch (e: Exception) {
-            // Non-blocking fallback: never fail admin core workflows if audit logging fails
-            e.printStackTrace()
+        auditScope.launch {
+            try {
+                api.createAuditLog(
+                    CreateAuditLogRequest(
+                        actionType = actionType,
+                        description = description,
+                        adminEmail = adminEmail
+                    )
+                )
+            } catch (e: Exception) {
+                // Non-blocking fallback: never fail admin core workflows if audit logging fails
+                Log.w("AuditLogRepo", "Failed to record audit log: ${e.message}")
+            }
         }
     }
 
-    suspend fun getLogs(timeRange: AuditLogTimeRange = AuditLogTimeRange.ALL_TIME): List<AdminAuditLog> {
-        return try {
-            val cutoff = when (timeRange) {
-                AuditLogTimeRange.TODAY -> {
-                    val cal = Calendar.getInstance().apply {
-                        set(Calendar.HOUR_OF_DAY, 0)
-                        set(Calendar.MINUTE, 0)
-                        set(Calendar.SECOND, 0)
-                        set(Calendar.MILLISECOND, 0)
-                    }
-                    cal.timeInMillis
-                }
-                AuditLogTimeRange.LAST_7_DAYS -> {
-                    System.currentTimeMillis() - (7L * 24 * 60 * 60 * 1000)
-                }
-                AuditLogTimeRange.ALL_TIME -> 0L
+    suspend fun getLogs(timeRange: AuditLogTimeRange = AuditLogTimeRange.ALL_TIME): List<AdminAuditLog> = withContext(Dispatchers.IO) {
+        try {
+            val rangeParam = when (timeRange) {
+                AuditLogTimeRange.TODAY -> "today"
+                AuditLogTimeRange.LAST_7_DAYS -> "7d"
+                AuditLogTimeRange.ALL_TIME -> "all"
             }
-
-            val query = if (cutoff > 0L) {
-                firestore.collection("admin_audit_log")
-                    .whereGreaterThanOrEqualTo("timestamp", cutoff)
-                    .orderBy("timestamp", Query.Direction.DESCENDING)
-                    .limit(200)
+            val response = api.getAdminAuditLogs(range = rangeParam)
+            if (response.success && response.data != null) {
+                response.data.map { dto ->
+                    AdminAuditLog(
+                        id = dto.id,
+                        actionType = dto.actionType,
+                        description = dto.description,
+                        adminEmail = dto.adminEmail,
+                        timestamp = dto.timestamp
+                    )
+                }
             } else {
-                firestore.collection("admin_audit_log")
-                    .orderBy("timestamp", Query.Direction.DESCENDING)
-                    .limit(200)
-            }
-
-            val snap = query.get().await()
-            snap.documents.mapNotNull { doc ->
-                val id = doc.id
-                val type = doc.getString("actionType").orEmpty()
-                val desc = doc.getString("description").orEmpty()
-                val email = doc.getString("adminEmail").orEmpty()
-                val time = doc.getLong("timestamp") ?: 0L
-                AdminAuditLog(
-                    id = id,
-                    actionType = type,
-                    description = desc,
-                    adminEmail = email,
-                    timestamp = time
-                )
+                emptyList()
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("AuditLogRepo", "Failed to fetch audit logs", e)
             emptyList()
         }
     }

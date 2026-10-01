@@ -107,6 +107,44 @@ data class AuthUserResponse(
     val isAdmin: Boolean
 )
 
+data class SubmitReportRequest(
+    val questionId: String,
+    val examId: String,
+    val examName: String,
+    val questionText: String,
+    val reason: String,
+    val comment: String
+)
+
+data class QuestionReportDto(
+    val id: String = "",
+    val questionId: String = "",
+    val examId: String = "",
+    val examName: String = "",
+    val questionText: String = "",
+    val reason: String = "",
+    val comment: String = "",
+    val studentId: String = "",
+    val studentEmail: String = "",
+    val timestamp: Long = 0L,
+    val status: String = "pending",
+    val reportType: String = "content"
+)
+
+data class CreateAuditLogRequest(
+    val actionType: String,
+    val description: String,
+    val adminEmail: String? = null
+)
+
+data class AdminAuditLogDto(
+    val id: String = "",
+    val actionType: String = "",
+    val description: String = "",
+    val adminEmail: String = "",
+    val timestamp: Long = 0L
+)
+
 interface EveApiService {
 
     // --- Auth & Profile ---
@@ -470,4 +508,27 @@ interface EveApiService {
 
     @POST("api/admin/premium/users/revoke")
     suspend fun revokePremium(@Body body: AdminRevokeRequest): ApiResponse<Any>
+
+    // --- Question Reports ---
+    @POST("api/reports")
+    suspend fun submitReport(@Body body: SubmitReportRequest): ApiResponse<Map<String, Any>>
+
+    @GET("api/admin/reports")
+    suspend fun getAdminReports(@Query("type") type: String? = null): ApiResponse<List<QuestionReportDto>>
+
+    @PUT("api/admin/reports/{id}/dismiss")
+    suspend fun dismissReport(@Path("id") id: String): ApiResponse<Unit>
+
+    @POST("api/admin/reports/dismiss-batch")
+    suspend fun dismissReportBatch(@Body body: Map<String, List<String>>): ApiResponse<Unit>
+
+    @DELETE("api/admin/reports/{id}")
+    suspend fun deleteReport(@Path("id") id: String): ApiResponse<Unit>
+
+    // --- Admin Audit Log ---
+    @POST("api/admin/audit-log")
+    suspend fun createAuditLog(@Body body: CreateAuditLogRequest): ApiResponse<Unit>
+
+    @GET("api/admin/audit-log")
+    suspend fun getAdminAuditLogs(@Query("range") range: String = "all"): ApiResponse<List<AdminAuditLogDto>>
 }

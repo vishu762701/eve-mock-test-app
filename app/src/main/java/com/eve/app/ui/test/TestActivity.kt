@@ -391,7 +391,7 @@ class TestActivity : EveBaseActivity() {
     private fun updateNav(position: Int) {
         if (totalQuestions == 0) return
         val title = sessionTitle()
-        binding.tvProgress.text = "$title  •  Question ${position + 1} / $totalQuestions"
+        binding.tvTestTitle.text = title
         binding.btnPrev.isEnabled = position > 0
         if (position >= totalQuestions - 1) {
             binding.btnNext.text = "Submit"

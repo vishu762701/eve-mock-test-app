@@ -104,4 +104,17 @@
     <color name="eve_login_button_stroke">#50FFA040</color>
     <color name="eve_progress_green">#34A853</color>
     <color name="eve_target_exam_check_blue">#2481CC</color>
+
+    <!-- Task 4: Premium Report Button Tokens (Light Mode) -->
+    <color name="eve_report_amber">#B26A00</color>
+    <color name="eve_report_button_bg">#1FB26A00</color>
+    <color name="eve_report_button_bg_pressed">#33B26A00</color>
+
+    <!-- Task 7: Bookmark Star & Test Screen Tokens (Light Mode) -->
+    <color name="eve_star_fill">#E3FF3B</color>
+    <color name="eve_star_stroke">#111111</color>
+    <color name="eve_star_outline_stroke">#757575</color>
+    <color name="eve_option_selected_bg">#1AE3FF3B</color>
+    <color name="eve_option_selected_stroke">#789800</color>
+    <color name="eve_option_dot_selected">#789800</color>
 </resources>

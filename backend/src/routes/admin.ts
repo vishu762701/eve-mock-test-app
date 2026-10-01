@@ -284,18 +284,45 @@ adminRoutes.get("/users/:id/attempts", async (c) => {
 // PUT /api/admin/config - Update app configuration
 adminRoutes.put("/config", async (c) => {
   const body = await c.req.json().catch(() => ({}));
-  const minVersion = Number(body.minimum_supported_version_code || 1);
-  const maintenanceMode = Boolean(body.maintenance_mode);
-  const maintenanceMessage = String(
-    body.maintenance_message ||
-      "Eve Mock Test is currently undergoing scheduled maintenance. Please check back shortly."
-  );
   const db = c.env.DB;
 
+  let prevConfig: any = {};
+  try {
+    const existing = await db
+      .prepare("SELECT body FROM app_content WHERE id = 'app_config'")
+      .first<{ body: string }>();
+    if (existing && existing.body) {
+      prevConfig = JSON.parse(existing.body);
+    }
+  } catch {}
+
+  const minVersion = body.minimum_supported_version_code !== undefined
+    ? Number(body.minimum_supported_version_code)
+    : (prevConfig.minimum_supported_version_code !== undefined ? Number(prevConfig.minimum_supported_version_code) : 1);
+  const maintenanceMode = body.maintenance_mode !== undefined
+    ? Boolean(body.maintenance_mode)
+    : (prevConfig.maintenance_mode !== undefined ? Boolean(prevConfig.maintenance_mode) : false);
+  const maintenanceMessage = body.maintenance_message !== undefined
+    ? String(body.maintenance_message)
+    : (prevConfig.maintenance_message !== undefined
+        ? String(prevConfig.maintenance_message)
+        : "Eve Mock Test is currently undergoing scheduled maintenance. Please check back shortly.");
+
+  let defaultPublishMode = prevConfig.default_publish_mode || "paused";
+  if (body.default_publish_mode !== undefined && body.default_publish_mode !== null) {
+    const mode = String(body.default_publish_mode).trim().toLowerCase();
+    if (mode !== "paused" && mode !== "live") {
+      return c.json({ success: false, error: "default_publish_mode must be 'paused' or 'live'" }, 400);
+    }
+    defaultPublishMode = mode;
+  }
+
   const configObj = {
+    ...prevConfig,
     minimum_supported_version_code: minVersion,
     maintenance_mode: maintenanceMode,
     maintenance_message: maintenanceMessage,
+    default_publish_mode: defaultPublishMode,
   };
 
   try {

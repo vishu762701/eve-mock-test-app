@@ -296,7 +296,8 @@ class ManageSyllabusActivity : EveBaseActivity() {
                             timeLimitMinutes = target.timeLimitMinutes,
                             negativeMarkingText = target.negativeMarkingText,
                             negativeMarkingValue = target.negativeMarkingValue,
-                            parentExamId = target.parentExamId
+                            parentExamId = target.parentExamId,
+                            publishMode = target.publishMode
                         )
                         // Clear syllabus from previous exam
                         examRepo.updateExamFullSettings(
@@ -312,7 +313,8 @@ class ManageSyllabusActivity : EveBaseActivity() {
                             timeLimitMinutes = currentExam.timeLimitMinutes,
                             negativeMarkingText = currentExam.negativeMarkingText,
                             negativeMarkingValue = currentExam.negativeMarkingValue,
-                            parentExamId = currentExam.parentExamId
+                            parentExamId = currentExam.parentExamId,
+                            publishMode = currentExam.publishMode
                         )
                         binding.progressBarTop.visibility = View.GONE
                         AppBulletin.showSuccess(this@ManageSyllabusActivity, "Syllabus reassigned to ${target.examName}")

@@ -13,6 +13,7 @@ import com.eve.app.R
 import com.eve.app.data.model.AnswerItem
 import com.eve.app.data.model.FlaggedQuestion
 import com.eve.app.data.model.Question
+import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.data.repository.FlaggedQuestionRepository
 import com.eve.app.util.AppBulletin
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -117,13 +118,25 @@ object ReportQuestionDialog {
                     } else {
                         "Thank you! Technical bug report submitted to engineering."
                     }
+                    android.util.Log.d("ReportQuestionDialog", "Report submitted successfully for q=$questionId")
                     AppBulletin.showSuccess(activity, msg)
                     onSubmitted?.invoke(true)
                     dialog.dismiss()
                 } else {
                     btnSubmit.isEnabled = true
                     btnSubmit.text = "Submit Report"
-                    val err = result.exceptionOrNull()?.localizedMessage ?: "Could not submit report. Please try again."
+                    val ex = result.exceptionOrNull()
+                    val httpStatus = when (ex) {
+                        is retrofit2.HttpException -> ex.code()
+                        is com.eve.app.data.remote.ApiError.SessionExpired -> ex.code
+                        is com.eve.app.data.remote.ApiError.Forbidden -> ex.code
+                        is com.eve.app.data.remote.ApiError.NotFound -> ex.code
+                        is com.eve.app.data.remote.ApiError.Conflict -> ex.code
+                        is com.eve.app.data.remote.ApiError.Server -> ex.code
+                        else -> null
+                    }
+                    android.util.Log.e("ReportQuestionDialog", "Report submission failed (HTTP $httpStatus): ${ex?.message}", ex)
+                    val err = ex?.toUserFriendlyMessage() ?: "Could not submit report. Please try again."
                     tvError.visibility = View.VISIBLE
                     tvError.text = err
                     AppBulletin.showError(activity, err)

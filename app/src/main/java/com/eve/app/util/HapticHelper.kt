@@ -10,6 +10,10 @@ object HapticHelper {
         view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
     }
 
+    fun performLight(view: View) {
+        view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+    }
+
     fun performSubmitSuccess(view: View) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)

@@ -5,6 +5,7 @@
 import { Hono } from "hono";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { generateQuestions, getIstTimeAndDate, incrementTestNumber, GeminiProviderError } from "../ai/generator";
+import { resolvePublishStatus } from "../util/publishMode";
 import { requireAdmin } from "../middleware/authMiddleware";
 import { AuthUser, Env, ExamRow, GeneratedTestRow } from "../types";
 
@@ -182,12 +183,13 @@ generatedTestRoutes.post("/generate-now", requireAdmin, async (c) => {
     const now = Date.now();
     const title = `${examName} - ${testNumber}`;
     const nextTestNumber = incrementTestNumber(testNumber);
+    const initialStatus = await resolvePublishStatus(db, exam);
 
     await db.batch([
       db
         .prepare(
           `INSERT INTO generated_tests (id, exam_id, exam_name, test_number, title, generated_at, status, question_count, syllabus_used, prompt_used, questions_json)
-           VALUES (?, ?, ?, ?, ?, ?, 'paused', ?, ?, ?, ?)`
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         )
         .bind(
           testId,
@@ -196,6 +198,7 @@ generatedTestRoutes.post("/generate-now", requireAdmin, async (c) => {
           testNumber,
           title,
           now,
+          initialStatus,
           questions.length,
           exam.syllabus || "",
           customPrompt,

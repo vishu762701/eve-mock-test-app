@@ -20,13 +20,9 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 /**
- * Phase 16: Leaderboard/Rank. Kisi bhi exam ke top scorers dikhata hai, aur agar current
- * user ne wo exam attempt kiya hai to upar ek highlighted card me uska apna rank +
- * "top X%" bhi dikhta hai. Data `leaderboard` collection se aata hai jo Cloud Function
- * automatically maintain karta hai (dekho LeaderboardEntry.kt ka comment).
- *
- * ResultActivity ("View Leaderboard" button) aur HistoryActivity (purana attempt review
- * karte waqt) — dono jagah se yahan aa sakte ho.
+ * Leaderboard / Rank screen. Displays top scorers for an exam, and if the current
+ * user attempted the exam, displays a prominent card at the top with their rank
+ * and percentile.
  */
 class LeaderboardActivity : EveBaseActivity() {
 
@@ -115,9 +111,33 @@ class LeaderboardActivity : EveBaseActivity() {
             return
         }
         binding.cardYourRank.visibility = View.VISIBLE
-        binding.tvYourRank.text = "Your Rank: #${rankInfo.rank}"
-        binding.tvYourPercentile.text =
-            "Top ${rankInfo.topPercent}% of ${rankInfo.totalParticipants} students"
-        binding.tvYourScore.text = "${rankInfo.scoreText}/${rankInfo.total}"
+        binding.tvRankMedallion.text = "#${rankInfo.rank}"
+        binding.tvYourRank.text = "#${rankInfo.rank}"
+        binding.tvYourPercentile.text = if (rankInfo.totalParticipants <= 1) {
+            "You're the first to attempt this test"
+        } else {
+            val studentWord = if (rankInfo.totalParticipants == 1) "student" else "students"
+            "Top ${rankInfo.topPercent}% of ${rankInfo.totalParticipants} $studentWord"
+        }
+
+        val scoreSpannable = android.text.SpannableStringBuilder().apply {
+            append(rankInfo.scoreText)
+            val secondaryColor = androidx.core.content.ContextCompat.getColor(this@LeaderboardActivity, R.color.eve_text_secondary)
+            val start = length
+            append("/${rankInfo.total}")
+            setSpan(
+                android.text.style.ForegroundColorSpan(secondaryColor),
+                start,
+                length,
+                android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            setSpan(
+                android.text.style.RelativeSizeSpan(0.85f),
+                start,
+                length,
+                android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+        binding.tvYourScore.text = scoreSpannable
     }
 }

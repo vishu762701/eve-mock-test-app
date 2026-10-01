@@ -106,11 +106,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Leaderboard" />
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Analysis" />
     </com.google.android.material.tabs.TabLayout>
 
     <View
@@ -486,13 +481,28 @@
                                 android:textSize="13sp" />
                             <TextView
                                 android:id="@+id/tvCutoffSelectedCategory"
-                                android:layout_width="0dp"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="6dp"
-                                android:layout_weight="1"
+                                android:layout_marginStart="8dp"
+                                android:minHeight="48dp"
+                                android:background="@drawable/bg_category_dropdown_pill"
+                                android:stateListAnimator="@animator/press_scale"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:gravity="center_vertical"
+                                android:paddingHorizontal="12dp"
+                                android:paddingVertical="6dp"
                                 android:text="General"
-                                android:textColor="?attr/colorOnSurface"
-                                android:textSize="15sp" />
+                                android:textColor="@color/eve_text"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                app:drawableEndCompat="@drawable/ic_chevron_down"
+                                app:drawableTint="@color/eve_text"
+                                android:drawablePadding="8dp" />
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                android:layout_weight="1" />
                             <TextView
                                 android:id="@+id/tvCutoffVerdict"
                                 android:layout_width="wrap_content"
@@ -564,289 +574,257 @@
                             android:textSize="13sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
-                <!-- Section Header for Categories List -->
+                </LinearLayout>
+
+                <!-- Section Header for Analysis -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="22dp"
                     android:layout_marginBottom="8dp"
                     android:letterSpacing="0.04"
-                    android:text="SELECT CATEGORY TO COMPARE"
+                    android:text="ANALYSIS"
                     android:textColor="@color/eve_text_secondary"
-                    android:textSize="12sp" />
-                <!-- Categories Proper List (General, OBC, SC, ST, EWS) -->
-                <com.google.android.material.card.MaterialCardView
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <!-- Merged Analysis Section -->
+                <LinearLayout
+                    android:id="@+id/sectionAnalysis"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/eve_surface"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_stroke"
-                    app:strokeWidth="1dp">
-                    <LinearLayout
+                    android:orientation="vertical"
+                    android:visibility="visible">
+
+                    <!-- Summary Metrics Card -->
+                    <com.google.android.material.card.MaterialCardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
-                        <!-- Row 1: General -->
+                        app:cardBackgroundColor="@color/eve_surface"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/eve_stroke"
+                        app:strokeWidth="1dp">
+
                         <LinearLayout
-                            android:id="@+id/rowCatGeneral"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="?attr/selectableItemBackground"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="14dp">
-                            <LinearLayout
-                                android:layout_width="0dp"
+                            android:orientation="vertical"
+                            android:padding="18dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-                                <TextView
-                                    android:layout_width="wrap_content"
+                                android:letterSpacing="0.04"
+                                android:text="PERFORMANCE SUMMARY"
+                                android:textColor="@color/eve_text_secondary"
+                                android:textSize="12sp" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="14dp"
+                                android:baselineAligned="false"
+                                android:orientation="horizontal">
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
                                     android:layout_height="wrap_content"
-                                    android:text="General"
-                                    android:textColor="?attr/colorOnSurface"
-                                    android:textSize="15sp" />
-                                <TextView
-                                    android:id="@+id/tvSubGeneral"
-                                    android:layout_width="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:id="@+id/tvAnalysisAttempted"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="0%"
+                                        android:textColor="?attr/colorOnSurface"
+                                        android:textSize="18sp" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Attempted"
+                                        android:textColor="@color/eve_text_secondary"
+                                        android:textSize="13sp" />
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:text="No cutoff configured"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="12sp" />
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:id="@+id/tvAnalysisAccuracy"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="0%"
+                                        android:textColor="@color/eve_status_success"
+                                        android:textSize="18sp" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Accuracy"
+                                        android:textColor="@color/eve_text_secondary"
+                                        android:textSize="13sp" />
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:id="@+id/tvAnalysisAvgTime"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="0s"
+                                        android:textColor="@color/eve_primary"
+                                        android:textSize="18sp" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Avg / Question"
+                                        android:textColor="@color/eve_text_secondary"
+                                        android:textSize="13sp" />
+                                </LinearLayout>
                             </LinearLayout>
-                            <ImageView
-                                android:id="@+id/ivCheckGeneral"
-                                android:layout_width="22dp"
-                                android:layout_height="22dp"
-                                android:contentDescription="Selected category"
-                                android:src="@drawable/ic_check_circle"
-                                app:tint="@color/eve_red" />
                         </LinearLayout>
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="@color/eve_stroke" />
-                        <!-- Row 2: OBC -->
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Question Pace Chart Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        app:cardBackgroundColor="@color/eve_surface"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/eve_stroke"
+                        app:strokeWidth="1dp">
+
                         <LinearLayout
-                            android:id="@+id/rowCatObc"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="?attr/selectableItemBackground"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="14dp">
-                            <LinearLayout
-                                android:layout_width="0dp"
+                            android:orientation="vertical"
+                            android:padding="18dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-                                <TextView
+                                android:letterSpacing="0.04"
+                                android:text="TIME PER QUESTION"
+                                android:textColor="@color/eve_text_secondary"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:id="@+id/tvChartDetail"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="Tap a bar to inspect time taken"
+                                android:textColor="@color/eve_text_secondary"
+                                android:textSize="12sp" />
+
+                            <HorizontalScrollView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="12dp"
+                                android:scrollbars="none">
+
+                                <com.eve.app.ui.result.QuestionTimeChartView
+                                    android:id="@+id/chartTimeView"
                                     android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="OBC"
-                                    android:textColor="?attr/colorOnSurface"
-                                    android:textSize="15sp" />
-                                <TextView
-                                    android:id="@+id/tvSubObc"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:text="No cutoff configured"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="12sp" />
-                            </LinearLayout>
-                            <ImageView
-                                android:id="@+id/ivCheckObc"
-                                android:layout_width="22dp"
-                                android:layout_height="22dp"
-                                android:contentDescription="Selected category"
-                                android:src="@drawable/ic_check_circle"
-                                android:visibility="invisible"
-                                app:tint="@color/eve_red" />
+                                    android:layout_height="180dp" />
+                            </HorizontalScrollView>
                         </LinearLayout>
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="@color/eve_stroke" />
-                        <!-- Row 3: SC -->
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Slowest Questions Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardSlowestQuestions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        app:cardBackgroundColor="@color/eve_surface"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/eve_stroke"
+                        app:strokeWidth="1dp">
+
                         <LinearLayout
-                            android:id="@+id/rowCatSc"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="?attr/selectableItemBackground"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="14dp">
-                            <LinearLayout
-                                android:layout_width="0dp"
+                            android:orientation="vertical"
+                            android:padding="18dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="SC"
-                                    android:textColor="?attr/colorOnSurface"
-                                    android:textSize="15sp" />
-                                <TextView
-                                    android:id="@+id/tvSubSc"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:text="No cutoff configured"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="12sp" />
-                            </LinearLayout>
-                            <ImageView
-                                android:id="@+id/ivCheckSc"
-                                android:layout_width="22dp"
-                                android:layout_height="22dp"
-                                android:contentDescription="Selected category"
-                                android:src="@drawable/ic_check_circle"
-                                android:visibility="invisible"
-                                app:tint="@color/eve_red" />
+                                android:letterSpacing="0.04"
+                                android:text="SLOWEST QUESTIONS"
+                                android:textColor="@color/eve_text_secondary"
+                                android:textSize="12sp" />
+
+                            <LinearLayout
+                                android:id="@+id/layoutSlowestList"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:orientation="vertical" />
                         </LinearLayout>
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="@color/eve_stroke" />
-                        <!-- Row 4: ST -->
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Topic Accuracy Breakdown Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        app:cardBackgroundColor="@color/eve_surface"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/eve_stroke"
+                        app:strokeWidth="1dp">
+
                         <LinearLayout
-                            android:id="@+id/rowCatSt"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="?attr/selectableItemBackground"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="14dp">
-                            <LinearLayout
-                                android:layout_width="0dp"
+                            android:orientation="vertical"
+                            android:padding="18dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="ST"
-                                    android:textColor="?attr/colorOnSurface"
-                                    android:textSize="15sp" />
-                                <TextView
-                                    android:id="@+id/tvSubSt"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:text="No cutoff configured"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="12sp" />
-                            </LinearLayout>
-                            <ImageView
-                                android:id="@+id/ivCheckSt"
-                                android:layout_width="22dp"
-                                android:layout_height="22dp"
-                                android:contentDescription="Selected category"
-                                android:src="@drawable/ic_check_circle"
-                                android:visibility="invisible"
-                                app:tint="@color/eve_red" />
-                        </LinearLayout>
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="@color/eve_stroke" />
-                        <!-- Row 5: EWS -->
-                        <LinearLayout
-                            android:id="@+id/rowCatEws"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="?attr/selectableItemBackground"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="14dp">
+                                android:letterSpacing="0.04"
+                                android:text="TOPIC-WISE ACCURACY (WEAKEST FIRST)"
+                                android:textColor="@color/eve_text_secondary"
+                                android:textSize="12sp" />
+
                             <LinearLayout
-                                android:layout_width="0dp"
+                                android:id="@+id/layoutTopicList"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="EWS"
-                                    android:textColor="?attr/colorOnSurface"
-                                    android:textSize="15sp" />
-                                <TextView
-                                    android:id="@+id/tvSubEws"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:text="No cutoff configured"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="12sp" />
-                            </LinearLayout>
-                            <ImageView
-                                android:id="@+id/ivCheckEws"
-                                android:layout_width="22dp"
-                                android:layout_height="22dp"
-                                android:contentDescription="Selected category"
-                                android:src="@drawable/ic_check_circle"
-                                android:visibility="invisible"
-                                app:tint="@color/eve_red" />
+                                android:layout_marginTop="12dp"
+                                android:orientation="vertical" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnPracticeWeakest"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="16dp"
+                                android:minHeight="48dp"
+                                android:text="Practice Weakest Topic"
+                                android:visibility="gone" />
                         </LinearLayout>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                    </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
-
-                <!-- Supporting: Speed & Time Analysis Card -->
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    app:cardBackgroundColor="@color/eve_surface"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_stroke"
-                    app:strokeWidth="1dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="18dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:letterSpacing="0.04"
-                            android:text="TIME &amp; PACE INSIGHTS"
-                            android:textColor="@color/eve_text_secondary"
-                            android:textSize="12sp" />
-
-                        <TextView
-                            android:id="@+id/tvTimeSummary"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:lineSpacingExtra="4dp"
-                            android:text="Pace calculations will appear here."
-                            android:textColor="?attr/colorOnSurface"
-                            android:textSize="13sp" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
 
@@ -1130,247 +1108,6 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
-
-            <!-- ========================================================== -->
-            <!-- SECTION 4: ANALYSIS                                        -->
-            <!-- ========================================================== -->
-            <LinearLayout
-                android:id="@+id/sectionAnalysis"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp"
-                android:visibility="gone">
-
-                <!-- Summary Metrics Card -->
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/eve_surface"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_stroke"
-                    app:strokeWidth="1dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="18dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:letterSpacing="0.04"
-                            android:text="PERFORMANCE SUMMARY"
-                            android:textColor="@color/eve_text_secondary"
-                            android:textSize="12sp" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="14dp"
-                            android:baselineAligned="false"
-                            android:orientation="horizontal">
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:id="@+id/tvAnalysisAttempted"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="0%"
-                                    android:textColor="?attr/colorOnSurface"
-                                    android:textSize="18sp" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Attempted"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="13sp" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:id="@+id/tvAnalysisAccuracy"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="0%"
-                                    android:textColor="@color/eve_status_success"
-                                    android:textSize="18sp" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Accuracy"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="13sp" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:id="@+id/tvAnalysisAvgTime"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="0s"
-                                    android:textColor="@color/eve_primary"
-                                    android:textSize="18sp" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Avg / Question"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="13sp" />
-                            </LinearLayout>
-                        </LinearLayout>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Question Pace Chart Card -->
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    app:cardBackgroundColor="@color/eve_surface"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_stroke"
-                    app:strokeWidth="1dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="18dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:letterSpacing="0.04"
-                            android:text="TIME PER QUESTION"
-                            android:textColor="@color/eve_text_secondary"
-                            android:textSize="12sp" />
-
-                        <TextView
-                            android:id="@+id/tvChartDetail"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="Tap a bar to inspect time taken"
-                            android:textColor="@color/eve_text_secondary"
-                            android:textSize="12sp" />
-
-                        <HorizontalScrollView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:scrollbars="none">
-
-                            <com.eve.app.ui.result.QuestionTimeChartView
-                                android:id="@+id/chartTimeView"
-                                android:layout_width="wrap_content"
-                                android:layout_height="180dp" />
-                        </HorizontalScrollView>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Slowest Questions Card -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardSlowestQuestions"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    app:cardBackgroundColor="@color/eve_surface"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_stroke"
-                    app:strokeWidth="1dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="18dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:letterSpacing="0.04"
-                            android:text="SLOWEST QUESTIONS"
-                            android:textColor="@color/eve_text_secondary"
-                            android:textSize="12sp" />
-
-                        <LinearLayout
-                            android:id="@+id/layoutSlowestList"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:orientation="vertical" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Topic Accuracy Breakdown Card -->
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    app:cardBackgroundColor="@color/eve_surface"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_stroke"
-                    app:strokeWidth="1dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="18dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:letterSpacing="0.04"
-                            android:text="TOPIC-WISE ACCURACY (WEAKEST FIRST)"
-                            android:textColor="@color/eve_text_secondary"
-                            android:textSize="12sp" />
-
-                        <LinearLayout
-                            android:id="@+id/layoutTopicList"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:orientation="vertical" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnPracticeWeakest"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
-                            android:minHeight="48dp"
-                            android:text="Practice Weakest Topic"
-                            android:visibility="gone" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
         </FrameLayout>
     </androidx.core.widget.NestedScrollView>
 
@@ -1391,46 +1128,31 @@
             android:layout_marginBottom="8dp"
             android:background="@color/eve_stroke" />
 
-        <!-- Secondary Action Buttons: Reattempt & Leaderboard -->
+        <!-- Action Cluster: Reattempt -->
         <LinearLayout
             android:id="@+id/layoutActionCluster"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:visibility="gone">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnReattempt"
-                style="@style/Widget.Eve.OutlinedButton"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="6dp"
-                android:layout_weight="1"
-                android:minHeight="42dp"
-                android:paddingHorizontal="12dp"
+                android:minHeight="48dp"
                 android:text="Reattempt"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textSize="15sp"
+                android:textColor="#111111"
+                app:backgroundTint="@color/eve_premium"
                 app:icon="@drawable/ic_refresh"
-                app:iconSize="16dp"
-                app:strokeColor="@color/eve_stroke" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnLeaderboard"
-                style="@style/Widget.Eve.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:layout_weight="1"
-                android:minHeight="42dp"
-                android:paddingHorizontal="12dp"
-                android:text="Leaderboard"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="12sp"
-                app:icon="@drawable/ic_trophy"
-                app:iconSize="16dp"
-                app:strokeColor="@color/eve_stroke" />
+                app:iconTint="#111111"
+                app:iconSize="18dp"
+                app:iconGravity="textStart"
+                app:cornerRadius="@dimen/eve_radius_md"
+                app:strokeWidth="0dp"
+                android:stateListAnimator="@animator/press_scale" />
         </LinearLayout>
 
         <!-- Strong Final Action: Close -->

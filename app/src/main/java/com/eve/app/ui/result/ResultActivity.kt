@@ -5,6 +5,8 @@ import com.eve.app.ui.common.EveBaseActivity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -268,24 +270,7 @@ class ResultActivity : EveBaseActivity() {
             }
         )
 
-        // Speed and Pace Summary
-        val timedItems = allItems.filter { it.timeTakenSeconds > 0 }
-        if (timedItems.isNotEmpty()) {
-            val avgSeconds = kotlin.math.round(timedItems.map { it.timeTakenSeconds }.average()).toLong()
-            val fastest = timedItems.minByOrNull { it.timeTakenSeconds }
-            val slowest = timedItems.maxByOrNull { it.timeTakenSeconds }
-            val timeParts = mutableListOf<String>()
-            timeParts.add("Avg: ${avgSeconds}s / question")
-            if (fastest != null && slowest != null && fastest.number != slowest.number) {
-                timeParts.add("Fastest: Q${fastest.number} (${fastest.timeTakenSeconds}s)")
-                timeParts.add("Slowest: Q${slowest.number} (${slowest.timeTakenSeconds}s)")
-            } else if (fastest != null) {
-                timeParts.add("Fastest: Q${fastest.number} (${fastest.timeTakenSeconds}s)")
-            }
-            binding.tvTimeSummary.text = timeParts.joinToString("  •  ")
-        } else {
-            binding.tvTimeSummary.text = "Accuracy: $accFormatted%  •  Total Questions: $total"
-        }
+
 
         // Share Card Button
         binding.btnShare.setOnClickListener {
@@ -331,17 +316,6 @@ class ResultActivity : EveBaseActivity() {
         loadDepthStatsAndCutoffs(currentExamId)
 
         // Bottom Actions
-        val showLeaderboard = currentExamId.isNotBlank()
-        binding.btnLeaderboard.visibility = if (showLeaderboard) View.VISIBLE else View.GONE
-        if (showLeaderboard) {
-            binding.btnLeaderboard.setOnClickListener {
-                startActivity(
-                    Intent(this, LeaderboardActivity::class.java)
-                        .putExtra(Constants.EXTRA_EXAM_ID, currentExamId)
-                        .putExtra(Constants.EXTRA_EXAM_NAME, currentExamName)
-                )
-            }
-        }
         binding.btnOpenLeaderboard.setOnClickListener {
             if (currentExamId.isNotBlank()) {
                 startActivity(
@@ -356,7 +330,7 @@ class ResultActivity : EveBaseActivity() {
         if (currentExamId.isBlank()) {
             binding.tvLeaderboardTabSubtitle.text = "Leaderboard is only available for scheduled and published mock tests."
         }
-        binding.layoutActionCluster.visibility = if (canReattempt || showLeaderboard) View.VISIBLE else View.GONE
+        binding.layoutActionCluster.visibility = if (canReattempt) View.VISIBLE else View.GONE
 
         binding.btnHome.setOnClickListener { close() }
     }
@@ -368,7 +342,6 @@ class ResultActivity : EveBaseActivity() {
                 binding.sectionReview.visibility = if (pos == 0) View.VISIBLE else View.GONE
                 binding.sectionOverview.visibility = if (pos == 1) View.VISIBLE else View.GONE
                 binding.sectionLeaderboard.visibility = if (pos == 2) View.VISIBLE else View.GONE
-                binding.sectionAnalysis.visibility = if (pos == 3) View.VISIBLE else View.GONE
 
                 if (pos == 0) {
                     selectQuestion(selectedQuestionIndex)
@@ -693,11 +666,9 @@ class ResultActivity : EveBaseActivity() {
             else -> "General"
         }
 
-        binding.rowCatGeneral.setOnClickListener { selectCutoffCategory("General") }
-        binding.rowCatObc.setOnClickListener { selectCutoffCategory("OBC") }
-        binding.rowCatSc.setOnClickListener { selectCutoffCategory("SC") }
-        binding.rowCatSt.setOnClickListener { selectCutoffCategory("ST") }
-        binding.rowCatEws.setOnClickListener { selectCutoffCategory("EWS") }
+        binding.tvCutoffSelectedCategory.setOnClickListener {
+            showCategoryBottomSheet()
+        }
 
         updateCutoffUI()
     }
@@ -707,8 +678,82 @@ class ResultActivity : EveBaseActivity() {
         updateCutoffUI()
     }
 
+    private fun showCategoryBottomSheet() {
+        val sheetView = layoutInflater.inflate(R.layout.bottom_sheet_category_picker, null)
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        dialog.setContentView(sheetView)
+
+        data class CategoryRowItem(
+            val row: View,
+            val tvSub: TextView,
+            val ivCheck: ImageView,
+            val category: String
+        )
+
+        val rows = listOf(
+            CategoryRowItem(
+                sheetView.findViewById(R.id.rowSheetGeneral),
+                sheetView.findViewById(R.id.tvSheetSubGeneral),
+                sheetView.findViewById(R.id.ivSheetCheckGeneral),
+                "General"
+            ),
+            CategoryRowItem(
+                sheetView.findViewById(R.id.rowSheetObc),
+                sheetView.findViewById(R.id.tvSheetSubObc),
+                sheetView.findViewById(R.id.ivSheetCheckObc),
+                "OBC"
+            ),
+            CategoryRowItem(
+                sheetView.findViewById(R.id.rowSheetSc),
+                sheetView.findViewById(R.id.tvSheetSubSc),
+                sheetView.findViewById(R.id.ivSheetCheckSc),
+                "SC"
+            ),
+            CategoryRowItem(
+                sheetView.findViewById(R.id.rowSheetSt),
+                sheetView.findViewById(R.id.tvSheetSubSt),
+                sheetView.findViewById(R.id.ivSheetCheckSt),
+                "ST"
+            ),
+            CategoryRowItem(
+                sheetView.findViewById(R.id.rowSheetEws),
+                sheetView.findViewById(R.id.tvSheetSubEws),
+                sheetView.findViewById(R.id.ivSheetCheckEws),
+                "EWS"
+            )
+        )
+
+        for (item in rows) {
+            val isSelected = selectedCutoffCategory.equals(item.category, ignoreCase = true)
+            item.ivCheck.visibility = if (isSelected) View.VISIBLE else View.INVISIBLE
+
+            val c = examCutoffs[item.category]
+            if (c != null && c > 0) {
+                val cStr = if (c % 1.0 == 0.0) c.toInt().toString() else c.toString()
+                val qualified = currentScore >= c
+                item.tvSub.text = if (qualified) "Cutoff: $cStr  •  Qualified ✓" else "Cutoff: $cStr  •  Not Qualified ✗"
+                item.tvSub.setTextColor(
+                    ContextCompat.getColor(
+                        this,
+                        if (qualified) R.color.eve_status_success else R.color.eve_status_error
+                    )
+                )
+            } else {
+                item.tvSub.text = "No cutoff configured"
+                item.tvSub.setTextColor(ContextCompat.getColor(this, R.color.eve_text_secondary))
+            }
+
+            item.row.setOnClickListener {
+                selectCutoffCategory(item.category)
+                dialog.dismiss()
+            }
+        }
+
+        dialog.show()
+    }
+
     private fun updateCutoffUI() {
-        // 1. Update Hero Card
+        // Update Hero Card
         binding.tvCutoffSelectedCategory.text = selectedCutoffCategory
         val cutoff = examCutoffs[selectedCutoffCategory]
         val scoreStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format(java.util.Locale.US, "%.2f", currentScore)
@@ -737,58 +782,6 @@ class ResultActivity : EveBaseActivity() {
             binding.tvCutoffVerdict.text = "No Cutoff Set"
             binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.eve_text_secondary))
             binding.tvCutoffRelationship.text = "No qualifying cutoff mark is configured for the $selectedCutoffCategory category."
-        }
-
-        // 2. Update Categories List Rows
-        updateCategoryRow(
-            category = "General",
-            tvSub = binding.tvSubGeneral,
-            ivCheck = binding.ivCheckGeneral
-        )
-        updateCategoryRow(
-            category = "OBC",
-            tvSub = binding.tvSubObc,
-            ivCheck = binding.ivCheckObc
-        )
-        updateCategoryRow(
-            category = "SC",
-            tvSub = binding.tvSubSc,
-            ivCheck = binding.ivCheckSc
-        )
-        updateCategoryRow(
-            category = "ST",
-            tvSub = binding.tvSubSt,
-            ivCheck = binding.ivCheckSt
-        )
-        updateCategoryRow(
-            category = "EWS",
-            tvSub = binding.tvSubEws,
-            ivCheck = binding.ivCheckEws
-        )
-    }
-
-    private fun updateCategoryRow(
-        category: String,
-        tvSub: android.widget.TextView,
-        ivCheck: android.widget.ImageView
-    ) {
-        val isSelected = selectedCutoffCategory.equals(category, ignoreCase = true)
-        ivCheck.visibility = if (isSelected) View.VISIBLE else View.INVISIBLE
-
-        val c = examCutoffs[category]
-        if (c != null && c > 0) {
-            val cStr = if (c % 1.0 == 0.0) c.toInt().toString() else c.toString()
-            val qualified = currentScore >= c
-            tvSub.text = if (qualified) "Cutoff: $cStr  •  Qualified ✓" else "Cutoff: $cStr  •  Not Qualified ✗"
-            tvSub.setTextColor(
-                ContextCompat.getColor(
-                    this,
-                    if (qualified) R.color.eve_status_success else R.color.eve_status_error
-                )
-            )
-        } else {
-            tvSub.text = "No cutoff configured"
-            tvSub.setTextColor(ContextCompat.getColor(this, R.color.eve_text_secondary))
         }
     }
 

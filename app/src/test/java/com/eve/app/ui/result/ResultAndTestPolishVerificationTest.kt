@@ -188,9 +188,9 @@ class ResultAndTestPolishVerificationTest {
 
         assertTrue("btnBookmark must exist", content.contains("android:id=\"@+id/btnBookmark\""))
         assertTrue("btnReport must exist", content.contains("android:id=\"@+id/btnReport\""))
-        assertTrue("btnReport must use ic_warning", content.contains("@drawable/ic_warning"))
+        assertTrue("btnReport must use ic_report_flag_premium", content.contains("@drawable/ic_report_flag_premium"))
         assertFalse("btnReport must not use circular bg_btn_report", content.contains("@drawable/bg_btn_report"))
-        assertTrue("btnReport must use selectableItemBackgroundBorderless", content.contains("?attr/selectableItemBackgroundBorderless"))
+        assertTrue("btnReport must use bg_report_button", content.contains("@drawable/bg_report_button"))
         assertTrue("Touch target FrameLayout must be 48dp", content.contains("android:layout_width=\"48dp\"") && content.contains("android:layout_height=\"48dp\""))
     }
 
@@ -206,7 +206,7 @@ class ResultAndTestPolishVerificationTest {
         assertTrue("layoutOptionsContainer must exist to show question options", content.contains("android:id=\"@+id/layoutOptionsContainer\""))
         assertTrue("layoutSolutionDetails must exist", content.contains("android:id=\"@+id/layoutSolutionDetails\""))
         assertTrue("layoutSolutionDetails must be initially gone", content.contains("android:id=\"@+id/layoutSolutionDetails\"") && content.contains("android:visibility=\"gone\""))
-        assertTrue("Report icon in item_answer must use ic_warning", content.contains("android:id=\"@+id/ivReportQuestion\"") && content.contains("@drawable/ic_warning"))
+        assertTrue("Report icon in item_answer must use ic_report_flag_premium", content.contains("android:id=\"@+id/ivReportQuestion\"") && content.contains("@drawable/ic_report_flag_premium"))
         assertFalse("Report icon in item_answer must not have circular bg_btn_report", content.contains("@drawable/bg_btn_report"))
     }
 
@@ -252,18 +252,26 @@ class ResultAndTestPolishVerificationTest {
         val cutoffPos = content.indexOf("android:id=\"@+id/sectionCutoff\"")
         assertTrue("sectionCutoff must be nested inside sectionOverview", cutoffPos in overviewStart until reviewStart)
 
-        // 2. Cutoff Category List Rows & Active Indicators
-        assertTrue("rowCatGeneral must exist", content.contains("android:id=\"@+id/rowCatGeneral\""))
-        assertTrue("rowCatObc must exist", content.contains("android:id=\"@+id/rowCatObc\""))
-        assertTrue("rowCatSc must exist", content.contains("android:id=\"@+id/rowCatSc\""))
-        assertTrue("rowCatSt must exist", content.contains("android:id=\"@+id/rowCatSt\""))
-        assertTrue("rowCatEws must exist", content.contains("android:id=\"@+id/rowCatEws\""))
+        // 2. Cutoff Category Selection Dropdown Pill & Bottom Sheet Rows
+        assertTrue("tvCutoffSelectedCategory must exist as dropdown pill", content.contains("android:id=\"@+id/tvCutoffSelectedCategory\""))
 
-        assertTrue("ivCheckGeneral must exist", content.contains("android:id=\"@+id/ivCheckGeneral\""))
-        assertTrue("ivCheckObc must exist", content.contains("android:id=\"@+id/ivCheckObc\""))
-        assertTrue("ivCheckSc must exist", content.contains("android:id=\"@+id/ivCheckSc\""))
-        assertTrue("ivCheckSt must exist", content.contains("android:id=\"@+id/ivCheckSt\""))
-        assertTrue("ivCheckEws must exist", content.contains("android:id=\"@+id/ivCheckEws\""))
+        val sheetFile = File("src/main/res/layout/bottom_sheet_category_picker.xml").takeIf { it.exists() }
+            ?: File("app/src/main/res/layout/bottom_sheet_category_picker.xml").takeIf { it.exists() }
+            ?: File("eve-mock-test-app/app/src/main/res/layout/bottom_sheet_category_picker.xml")
+        assertTrue("bottom_sheet_category_picker.xml must exist", sheetFile != null && sheetFile.exists())
+        val sheetContent = sheetFile!!.readText()
+
+        assertTrue("rowSheetGeneral must exist", sheetContent.contains("android:id=\"@+id/rowSheetGeneral\""))
+        assertTrue("rowSheetObc must exist", sheetContent.contains("android:id=\"@+id/rowSheetObc\""))
+        assertTrue("rowSheetSc must exist", sheetContent.contains("android:id=\"@+id/rowSheetSc\""))
+        assertTrue("rowSheetSt must exist", sheetContent.contains("android:id=\"@+id/rowSheetSt\""))
+        assertTrue("rowSheetEws must exist", sheetContent.contains("android:id=\"@+id/rowSheetEws\""))
+
+        assertTrue("ivSheetCheckGeneral must exist", sheetContent.contains("android:id=\"@+id/ivSheetCheckGeneral\""))
+        assertTrue("ivSheetCheckObc must exist", sheetContent.contains("android:id=\"@+id/ivSheetCheckObc\""))
+        assertTrue("ivSheetCheckSc must exist", sheetContent.contains("android:id=\"@+id/ivSheetCheckSc\""))
+        assertTrue("ivSheetCheckSt must exist", sheetContent.contains("android:id=\"@+id/ivSheetCheckSt\""))
+        assertTrue("ivSheetCheckEws must exist", sheetContent.contains("android:id=\"@+id/ivSheetCheckEws\""))
 
         // 3. Header Language Toggle
         assertTrue("btnLanguage must exist", content.contains("android:id=\"@+id/btnLanguage\""))

@@ -55,6 +55,7 @@ function mapExamRow(row: ExamRow) {
     negativeMarkingText: row.negative_marking_text || "0",
     negativeMarkingValue: row.negative_marking_value ?? 0,
     parentExamId: row.parent_exam_id || "",
+    publishMode: row.publish_mode || "inherit",
   };
 }
 
@@ -96,6 +97,15 @@ examRoutes.post("/", requireAdmin, async (c) => {
   const generationPrompt = String(body.generationPrompt || "").trim();
   const imageUrl = String(body.imageUrl || "").trim();
   const parentExamId = String(body.parentExamId || "").trim();
+
+  let publishMode = "inherit";
+  if (body.publishMode !== undefined && body.publishMode !== null) {
+    const mode = String(body.publishMode).trim().toLowerCase();
+    if (mode !== "inherit" && mode !== "live" && mode !== "paused") {
+      return c.json({ success: false, error: "publishMode must be 'inherit', 'live', or 'paused'" }, 400);
+    }
+    publishMode = mode;
+  }
 
   if (!name) {
     return c.json({ success: false, error: "Exam name cannot be empty" }, 400);
@@ -142,8 +152,8 @@ examRoutes.post("/", requireAdmin, async (c) => {
       `INSERT INTO exams (
         id, exam_name, time_limit_minutes, category, test_number, question_count,
         auto_generation_enabled, auto_gen_time, timezone, generation_prompt, image_url,
-        negative_marking_text, negative_marking_value, parent_exam_id
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        negative_marking_text, negative_marking_value, parent_exam_id, publish_mode
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .bind(
       id,
@@ -159,7 +169,8 @@ examRoutes.post("/", requireAdmin, async (c) => {
       imageUrl,
       negText,
       negValue,
-      parentExamId
+      parentExamId,
+      publishMode
     )
     .run();
 
@@ -214,6 +225,15 @@ examRoutes.put("/:id", requireAdmin, async (c) => {
   const category = body.category !== undefined ? String(body.category).trim() : existing.category;
   const parentExamId = body.parentExamId !== undefined ? String(body.parentExamId).trim() : (existing.parent_exam_id || "");
 
+  let publishMode = existing.publish_mode || "inherit";
+  if (body.publishMode !== undefined && body.publishMode !== null) {
+    const mode = String(body.publishMode).trim().toLowerCase();
+    if (mode !== "inherit" && mode !== "live" && mode !== "paused") {
+      return c.json({ success: false, error: "publishMode must be 'inherit', 'live', or 'paused'" }, 400);
+    }
+    publishMode = mode;
+  }
+
   if (parentExamId) {
     if (parentExamId === id) {
       return c.json({ success: false, error: "An exam cannot be its own parent" }, 400);
@@ -258,7 +278,8 @@ examRoutes.put("/:id", requireAdmin, async (c) => {
         generation_prompt = ?,
         negative_marking_text = ?,
         negative_marking_value = ?,
-        parent_exam_id = ?
+        parent_exam_id = ?,
+        publish_mode = ?
        WHERE id = ?`
     )
     .bind(
@@ -275,6 +296,7 @@ examRoutes.put("/:id", requireAdmin, async (c) => {
       negText,
       negValue,
       parentExamId,
+      publishMode,
       id
     )
     .run();

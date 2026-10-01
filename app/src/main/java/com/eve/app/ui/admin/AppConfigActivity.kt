@@ -49,6 +49,11 @@ class AppConfigActivity : EveBaseActivity() {
                 binding.switchMaintenanceMode.isChecked = config.maintenance_mode
                 binding.etMaintenanceMessage.setText(config.maintenance_message)
                 binding.etMinVersionCode.setText(config.minimum_supported_version_code.toString())
+                if (config.default_publish_mode.equals("live", ignoreCase = true)) {
+                    binding.rbPublishLive.isChecked = true
+                } else {
+                    binding.rbPublishPaused.isChecked = true
+                }
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
                 AppBulletin.showError(this@AppConfigActivity, "Failed to load config: ${e.toUserFriendlyMessage()}")
@@ -61,18 +66,26 @@ class AppConfigActivity : EveBaseActivity() {
         val message = binding.etMaintenanceMessage.text?.toString()?.trim().orEmpty()
         val minVersionStr = binding.etMinVersionCode.text?.toString()?.trim().orEmpty()
         val minVersion = minVersionStr.toIntOrNull() ?: 1
+        val defaultPublishMode = if (binding.rbPublishLive.isChecked) "live" else "paused"
+
+        val configToSave = AppConfig(
+            minimum_supported_version_code = minVersion,
+            maintenance_mode = maintenanceMode,
+            maintenance_message = message,
+            default_publish_mode = defaultPublishMode
+        )
 
         if (maintenanceMode) {
             MaterialAlertDialogBuilder(this)
                 .setTitle("Enable Maintenance Mode?")
                 .setMessage("Are you sure? When maintenance mode is active, students opening the app will be blocked by a full-screen maintenance notice.")
                 .setPositiveButton("Enable Maintenance") { _, _ ->
-                    saveConfig(AppConfig(minVersion, maintenanceMode, message))
+                    saveConfig(configToSave)
                 }
                 .setNegativeButton("Cancel", null)
                 .show()
         } else {
-            saveConfig(AppConfig(minVersion, maintenanceMode, message))
+            saveConfig(configToSave)
         }
     }
 

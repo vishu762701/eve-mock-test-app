@@ -32,7 +32,8 @@ data class Exam(
     val cutoffs: Map<String, Double> = emptyMap(),
     val negativeMarkingText: String = "0",
     val negativeMarkingValue: Double = 0.0,
-    val parentExamId: String = ""
+    val parentExamId: String = "",
+    val publishMode: String = "inherit"
 ) {
     val categoryOrOther: String get() = category.ifBlank { "Other" }
     val autoGenEnabled: Boolean get() = autoGenerationEnabled

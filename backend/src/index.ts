@@ -21,6 +21,7 @@ import { leaderboardRoutes } from "./routes/leaderboard";
 import { pinRoutes } from "./routes/pins";
 import { pollRoutes } from "./routes/polls";
 import { premiumRoutes } from "./routes/premium";
+import { reportRoutes, adminReportRoutes, adminAuditLogRoutes } from "./routes/reports";
 import { questionRoutes } from "./routes/questions";
 import { SupabaseStorage } from "./supabase";
 import { AuthUser, Env } from "./types";
@@ -65,6 +66,9 @@ app.get("/api/app-config", async (c) => {
     const row = await db.prepare("SELECT body FROM app_content WHERE id = 'app_config'").first<{ body: string }>();
     if (row && row.body) {
       const config = JSON.parse(row.body);
+      if (!config.default_publish_mode) {
+        config.default_publish_mode = "paused";
+      }
       return c.json({ success: true, data: config });
     }
   } catch {}
@@ -74,6 +78,7 @@ app.get("/api/app-config", async (c) => {
       minimum_supported_version_code: 1,
       maintenance_mode: false,
       maintenance_message: "Eve Mock Test is currently undergoing scheduled maintenance. Please check back shortly.",
+      default_publish_mode: "paused",
     },
   });
 });
@@ -243,6 +248,9 @@ app.route("/api/app-content", appContentRoutes);
 app.route("/api/admin", adminRoutes);
 app.route("/api/generated-tests", generatedTestRoutes);
 app.route("/api/premium", premiumRoutes);
+app.route("/api/reports", reportRoutes);
+app.route("/api/admin/reports", adminReportRoutes);
+app.route("/api/admin/audit-log", adminAuditLogRoutes);
 
 // 6. Global Error Handling & 404
 app.notFound((c) => {

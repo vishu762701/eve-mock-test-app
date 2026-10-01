@@ -58,6 +58,7 @@ export interface ExamRow {
   negative_marking_text: string;
   negative_marking_value: number;
   parent_exam_id?: string;
+  publish_mode?: string;
 }
 
 export interface QuestionRow {
@@ -322,4 +323,27 @@ export interface PremiumEntitlementRow {
   source: string;
   created_at: number;
   updated_at: number;
+}
+
+export interface QuestionReportRow {
+  id: string;
+  question_id: string;
+  exam_id: string;
+  exam_name: string;
+  question_text: string;
+  reason: string;
+  comment: string | null;
+  student_id: string;
+  student_email: string;
+  timestamp: number;
+  status: string;
+  report_type: string;
+}
+
+export interface AdminAuditLogRow {
+  id: string;
+  action_type: string;
+  description: string;
+  admin_email: string;
+  timestamp: number;
 }

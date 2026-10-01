@@ -151,6 +151,46 @@
                         android:textColor="@color/eve_text_secondary"
                         android:textSize="13sp" />
 
+                    <!-- Default AI Test Publish Mode -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Default AI Test Status"
+                        android:textColor="@color/eve_text"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Applies to all exams unless an exam overrides it. Existing tests are not changed."
+                        android:textColor="@color/eve_text_secondary"
+                        android:textSize="12sp" />
+
+                    <RadioGroup
+                        android:id="@+id/rgDefaultPublishMode"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp">
+
+                        <com.google.android.material.radiobutton.MaterialRadioButton
+                            android:id="@+id/rbPublishPaused"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Keep new AI tests paused (review first)"
+                            android:textColor="@color/eve_text"
+                            android:textSize="14sp" />
+
+                        <com.google.android.material.radiobutton.MaterialRadioButton
+                            android:id="@+id/rbPublishLive"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Publish new AI tests live automatically"
+                            android:textColor="@color/eve_text"
+                            android:textSize="14sp" />
+                    </RadioGroup>
+
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSaveConfig"
                         style="@style/Widget.Eve.Button"

@@ -62,13 +62,15 @@ class TelegramRadioButton @JvmOverloads constructor(
         val checkedBg = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadius = cornerPx
-            setColor(ContextCompat.getColor(context, R.color.eve_surface_variant))
+            setColor(ContextCompat.getColor(context, R.color.eve_option_selected_bg))
+            setStroke((1.5f * density).toInt(), ContextCompat.getColor(context, R.color.eve_option_selected_stroke))
         }
 
         val uncheckedBg = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadius = cornerPx
             setColor(Color.TRANSPARENT)
+            setStroke((1f * density).toInt(), ContextCompat.getColor(context, R.color.eve_stroke))
         }
 
         val contentStateList = StateListDrawable().apply {
@@ -125,7 +127,7 @@ class TelegramRadioButton @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
         val unselectedColor = ContextCompat.getColor(context, R.color.eve_grey)
-        val selectedColor = ContextCompat.getColor(context, R.color.eve_text)
+        val selectedColor = ContextCompat.getColor(context, R.color.eve_option_dot_selected)
 
         val currentRingColor = argbEvaluator.evaluate(checkProgress, unselectedColor, selectedColor) as Int
         ringPaint.color = currentRingColor
