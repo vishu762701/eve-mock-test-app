@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.text.InputType
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -184,6 +185,26 @@ class ManageExamsActivity : EveBaseActivity() {
 
         binding.btnNewExam.setOnClickListener {
             if (isNewMainExamMode) {
+                val hasMainExams = examList.any { it.parentExamId.isBlank() }
+                if (!hasMainExams) {
+                    if (isDirty()) {
+                        MaterialAlertDialogBuilder(this)
+                            .setTitle("Unsaved Changes")
+                            .setMessage("You have unsaved changes. Do you want to save before canceling?")
+                            .setPositiveButton("Save") { _, _ ->
+                                saveExamSettings { finish() }
+                            }
+                            .setNegativeButton("Discard") { _, _ ->
+                                finish()
+                            }
+                            .setNeutralButton("Cancel", null)
+                            .show()
+                    } else {
+                        finish()
+                    }
+                    return@setOnClickListener
+                }
+
                 if (isDirty()) {
                     MaterialAlertDialogBuilder(this)
                         .setTitle("Unsaved Changes")
@@ -298,14 +319,10 @@ class ManageExamsActivity : EveBaseActivity() {
         if (exam.id == selectedMainExam?.id && selectedSubExam == null) return
         if (isDirty()) {
             promptUnsavedChanges {
-                selectedMainExam = exam
-                selectedSubExam = null
-                loadEntity(exam)
+                selectExamEntity(exam)
             }
         } else {
-            selectedMainExam = exam
-            selectedSubExam = null
-            loadEntity(exam)
+            selectExamEntity(exam)
         }
     }
 
@@ -332,6 +349,17 @@ class ManageExamsActivity : EveBaseActivity() {
             .show()
     }
 
+    private fun selectExamEntity(exam: Exam) {
+        if (exam.parentExamId.isNotBlank()) {
+            selectedMainExam = examList.find { it.id == exam.parentExamId }
+            selectedSubExam = exam
+        } else {
+            selectedMainExam = exam
+            selectedSubExam = null
+        }
+        loadEntity(exam)
+    }
+
     private fun loadExams(targetExamId: String? = null) {
         binding.progressBar.visibility = View.VISIBLE
         lifecycleScope.launch {
@@ -344,46 +372,20 @@ class ManageExamsActivity : EveBaseActivity() {
                 dropdownAdapter.setExams(mainExams)
 
                 if (mainExams.isEmpty()) {
-                    enterNewMainExamMode()
+                    if (!isNewMainExamMode) {
+                        enterNewMainExamMode()
+                    }
                     return@launch
                 }
 
                 if (targetExamId != null) {
-                    val target = examList.find { it.id == targetExamId }
-                    if (target != null) {
-                        if (target.parentExamId.isNotBlank()) {
-                            selectedMainExam = examList.find { it.id == target.parentExamId } ?: mainExams.first()
-                            selectedSubExam = target
-                        } else {
-                            selectedMainExam = target
-                            selectedSubExam = null
-                        }
-                        loadEntity(target)
-                    } else {
-                        selectedMainExam = mainExams.first()
-                        selectedSubExam = null
-                        loadEntity(selectedMainExam!!)
-                    }
+                    val target = examList.find { it.id == targetExamId } ?: mainExams.first()
+                    selectExamEntity(target)
                 } else if (currentExamId.isNotBlank()) {
-                    val current = examList.find { it.id == currentExamId }
-                    if (current != null) {
-                        if (current.parentExamId.isNotBlank()) {
-                            selectedMainExam = examList.find { it.id == current.parentExamId } ?: mainExams.first()
-                            selectedSubExam = current
-                        } else {
-                            selectedMainExam = current
-                            selectedSubExam = null
-                        }
-                        loadEntity(current)
-                    } else {
-                        selectedMainExam = mainExams.first()
-                        selectedSubExam = null
-                        loadEntity(selectedMainExam!!)
-                    }
-                } else {
-                    selectedMainExam = mainExams.first()
-                    selectedSubExam = null
-                    loadEntity(selectedMainExam!!)
+                    val current = examList.find { it.id == currentExamId } ?: mainExams.first()
+                    selectExamEntity(current)
+                } else if (!isNewMainExamMode && !isNewSubExamMode) {
+                    selectExamEntity(mainExams.first())
                 }
                 binding.compactErrorView.hide()
             } catch (e: Exception) {
@@ -417,6 +419,8 @@ class ManageExamsActivity : EveBaseActivity() {
 
         if (exam.parentExamId.isBlank()) {
             binding.actvExam.setText(exam.examName, false)
+        } else {
+            binding.actvExam.setText(selectedMainExam?.examName ?: exam.examName, false)
         }
         updateSubExamDropdown()
 
@@ -445,6 +449,7 @@ class ManageExamsActivity : EveBaseActivity() {
     private fun enterNewMainExamMode() {
         isNewMainExamMode = true
         isNewSubExamMode = false
+        selectedSubExam = null
         previouslySelectedExamId = currentExamId
         currentExamId = ""
         currentParentExamId = ""
@@ -502,13 +507,13 @@ class ManageExamsActivity : EveBaseActivity() {
 
     private fun exitNewMainExamModeAndRestore() {
         exitNewMainExamMode()
-        val targetId = previouslySelectedExamId.ifBlank { examList.firstOrNull()?.id.orEmpty() }
-        val target = examList.find { it.id == targetId } ?: examList.firstOrNull()
-        if (target != null) {
-            loadEntity(target)
-        } else {
-            enterNewMainExamMode()
+        val mainExams = examList.filter { it.parentExamId.isBlank() }
+        if (mainExams.isEmpty()) {
+            finish()
+            return
         }
+        val target = examList.find { it.id == previouslySelectedExamId } ?: mainExams.first()
+        selectExamEntity(target)
     }
 
     private fun exitNewMainExamMode() {
@@ -581,7 +586,7 @@ class ManageExamsActivity : EveBaseActivity() {
     private fun exitNewSubExamModeAndRestore() {
         exitNewSubExamMode()
         if (selectedMainExam != null) {
-            loadEntity(selectedSubExam ?: selectedMainExam!!)
+            selectExamEntity(selectedSubExam ?: selectedMainExam!!)
         } else {
             loadExams()
         }
@@ -621,12 +626,10 @@ class ManageExamsActivity : EveBaseActivity() {
                 if (selectedSubExam != null) {
                     if (isDirty()) {
                         promptUnsavedChanges {
-                            selectedSubExam = null
-                            loadEntity(selectedMainExam!!)
+                            selectExamEntity(selectedMainExam!!)
                         }
                     } else {
-                        selectedSubExam = null
-                        loadEntity(selectedMainExam!!)
+                        selectExamEntity(selectedMainExam!!)
                     }
                 }
             } else {
@@ -634,12 +637,10 @@ class ManageExamsActivity : EveBaseActivity() {
                 if (chosenSub != null && chosenSub.id != selectedSubExam?.id) {
                     if (isDirty()) {
                         promptUnsavedChanges {
-                            selectedSubExam = chosenSub
-                            loadEntity(chosenSub)
+                            selectExamEntity(chosenSub)
                         }
                     } else {
-                        selectedSubExam = chosenSub
-                        loadEntity(chosenSub)
+                        selectExamEntity(chosenSub)
                     }
                 }
             }
@@ -851,12 +852,15 @@ class ManageExamsActivity : EveBaseActivity() {
         val parsedNeg = parseNegativeMarking(negText)
         val negVal = parsedNeg?.second ?: 0.0
 
-        val name = when {
-            isNewSubExamMode -> binding.actvParentExam.text?.toString()?.trim().orEmpty()
-            selectedSubExam != null -> selectedSubExam!!.examName
-            isNewMainExamMode -> binding.actvExam.text?.toString()?.trim().orEmpty()
-            else -> selectedMainExam?.examName ?: binding.actvExam.text?.toString()?.trim().orEmpty()
-        }
+        val name = resolveExamName(
+            isNewSubExamMode = isNewSubExamMode,
+            newSubExamTypedText = binding.actvParentExam.text?.toString().orEmpty(),
+            isNewMainExamMode = isNewMainExamMode,
+            newMainExamTypedText = binding.actvExam.text?.toString().orEmpty(),
+            selectedSubExam = selectedSubExam,
+            selectedMainExam = selectedMainExam,
+            currentExamFieldText = binding.actvExam.text?.toString().orEmpty()
+        )
 
         return Exam(
             id = currentExamId,
@@ -892,16 +896,26 @@ class ManageExamsActivity : EveBaseActivity() {
     }
 
     private fun saveExamSettings(onSuccess: (() -> Unit)? = null) {
-        val isSavingSubExam = isNewSubExamMode || selectedSubExam != null
-        val name = when {
-            isNewSubExamMode -> binding.actvParentExam.text?.toString()?.trim().orEmpty()
-            selectedSubExam != null -> selectedSubExam!!.examName
-            isNewMainExamMode -> binding.actvExam.text?.toString()?.trim().orEmpty()
-            else -> binding.actvExam.text?.toString()?.trim().orEmpty().ifBlank { selectedMainExam?.examName.orEmpty() }
-        }
+        val isSavingSubExam = computeIsSavingSubExam(
+            isNewSubExamMode = isNewSubExamMode,
+            isNewMainExamMode = isNewMainExamMode,
+            selectedSubExam = selectedSubExam
+        )
+        val name = resolveExamName(
+            isNewSubExamMode = isNewSubExamMode,
+            newSubExamTypedText = binding.actvParentExam.text?.toString().orEmpty(),
+            isNewMainExamMode = isNewMainExamMode,
+            newMainExamTypedText = binding.actvExam.text?.toString().orEmpty(),
+            selectedSubExam = selectedSubExam,
+            selectedMainExam = selectedMainExam,
+            currentExamFieldText = binding.actvExam.text?.toString().orEmpty()
+        )
+
+        Log.d("EVE_MANAGE_EXAM", "saveExamSettings started: isSavingSubExam=$isSavingSubExam, name='$name', currentExamId='$currentExamId', currentParentExamId='$currentParentExamId'")
 
         // 1. Exam Name Validation: trim, min 2 chars, unique case-insensitively among exams with the SAME parent
         if (name.length < 2) {
+            Log.d("EVE_MANAGE_EXAM", "Validation failed: examName length < 2 ('$name')")
             if (isSavingSubExam) {
                 binding.tilParentExam.error = "Sub-exam name must be at least 2 characters"
                 binding.actvParentExam.requestFocus()
@@ -918,6 +932,7 @@ class ManageExamsActivity : EveBaseActivity() {
                 it.examName.trim().equals(name, ignoreCase = true)
         }
         if (isDuplicate) {
+            Log.d("EVE_MANAGE_EXAM", "Validation failed: duplicate exam name '$name' under parent '$currentParentExamId'")
             if (isSavingSubExam) {
                 binding.tilParentExam.error = "A sub-exam with this name already exists here"
                 binding.actvParentExam.requestFocus()
@@ -934,6 +949,7 @@ class ManageExamsActivity : EveBaseActivity() {
         if (currentParentExamId.isNotBlank()) {
             val parent = examList.find { it.id == currentParentExamId }
             if (parent == null || parent.parentExamId.isNotBlank() || parent.id == currentExamId) {
+                Log.d("EVE_MANAGE_EXAM", "Validation failed: invalid parent exam '$currentParentExamId'")
                 binding.tilParentExam.error = "Invalid parent exam"
                 binding.actvParentExam.requestFocus()
                 return
@@ -945,6 +961,7 @@ class ManageExamsActivity : EveBaseActivity() {
         val durationRaw = binding.etDuration.text?.toString()?.trim().orEmpty()
         val duration = durationRaw.toIntOrNull()
         if (durationRaw.isEmpty() || duration == null || duration !in 1..600) {
+            Log.d("EVE_MANAGE_EXAM", "Validation failed: duration invalid ('$durationRaw')")
             binding.tilDuration.error = "Enter minutes between 1 and 600"
             binding.etDuration.requestFocus()
             return
@@ -954,6 +971,7 @@ class ManageExamsActivity : EveBaseActivity() {
         // 4. Test Number Validation: empty -> "Enter test number, e.g. Test 1"
         val testNumber = binding.etTestNumber.text?.toString()?.trim().orEmpty()
         if (testNumber.isEmpty()) {
+            Log.d("EVE_MANAGE_EXAM", "Validation failed: testNumber is empty")
             binding.tilTestNumber.error = "Enter test number, e.g. Test 1"
             binding.etTestNumber.requestFocus()
             return
@@ -964,6 +982,7 @@ class ManageExamsActivity : EveBaseActivity() {
         val countRaw = binding.etQuestionCount.text?.toString()?.trim().orEmpty()
         val count = countRaw.toIntOrNull()
         if (countRaw.isEmpty() || count == null || count !in 1..200) {
+            Log.d("EVE_MANAGE_EXAM", "Validation failed: questionCount invalid ('$countRaw')")
             binding.tilQuestionCount.error = "Question count must be between 1 and 200"
             binding.etQuestionCount.requestFocus()
             return
@@ -974,6 +993,7 @@ class ManageExamsActivity : EveBaseActivity() {
         val negStr = binding.etNegativeMarking.text?.toString()?.trim().orEmpty()
         val parsedNeg = parseNegativeMarking(negStr)
         if (negStr.isEmpty() || parsedNeg == null) {
+            Log.d("EVE_MANAGE_EXAM", "Validation failed: negativeMarking invalid ('$negStr')")
             binding.tilNegativeMarking.error = "Enter like 1/3, 1/4, 0.25 or 0"
             binding.etNegativeMarking.requestFocus()
             return
@@ -1005,6 +1025,7 @@ class ManageExamsActivity : EveBaseActivity() {
                         negativeMarkingValue = parsedNeg.second,
                         parentExamId = currentParentExamId
                     )
+                    Log.d("EVE_MANAGE_EXAM", "updateExamFullSettings success: examId=$currentExamId")
                     auditLogRepo.recordLog(
                         AdminAuditLog.ACTION_EXAM_EDITED,
                         "Updated settings & AI config for '$name'"
@@ -1026,6 +1047,7 @@ class ManageExamsActivity : EveBaseActivity() {
                         negativeMarkingValue = parsedNeg.second,
                         parentExamId = currentParentExamId
                     )
+                    Log.d("EVE_MANAGE_EXAM", "addExam success: newId=$newId, isSavingSubExam=$isSavingSubExam")
                     currentExamId = newId
                     val auditMsg = if (isSavingSubExam) {
                         "Created sub-exam '$name' under '${selectedMainExam?.examName}'"
@@ -1055,6 +1077,7 @@ class ManageExamsActivity : EveBaseActivity() {
                 loadGeneratedTestsForExam()
                 onSuccess?.invoke()
             } catch (e: Exception) {
+                Log.d("EVE_MANAGE_EXAM", "Failed to save exam: ${e.message}", e)
                 binding.btnSave.isEnabled = true
                 binding.progressBar.visibility = View.GONE
                 binding.compactErrorView.show(
@@ -1085,6 +1108,26 @@ class ManageExamsActivity : EveBaseActivity() {
             return
         }
         if (isNewMainExamMode) {
+            val hasMainExams = examList.any { it.parentExamId.isBlank() }
+            if (!hasMainExams) {
+                if (isDirty()) {
+                    MaterialAlertDialogBuilder(this)
+                        .setTitle("Unsaved Changes")
+                        .setMessage("You have unsaved changes. Do you want to save before leaving?")
+                        .setPositiveButton("Save") { _, _ ->
+                            saveExamSettings { finish() }
+                        }
+                        .setNegativeButton("Discard") { _, _ ->
+                            finish()
+                        }
+                        .setNeutralButton("Cancel", null)
+                        .show()
+                } else {
+                    finish()
+                }
+                return
+            }
+
             if (isDirty()) {
                 MaterialAlertDialogBuilder(this)
                     .setTitle("Unsaved Changes")
@@ -1120,6 +1163,32 @@ class ManageExamsActivity : EveBaseActivity() {
     }
 
     companion object {
+        fun computeIsSavingSubExam(
+            isNewSubExamMode: Boolean,
+            isNewMainExamMode: Boolean,
+            selectedSubExam: Exam?
+        ): Boolean {
+            return isNewSubExamMode || (!isNewMainExamMode && selectedSubExam != null)
+        }
+
+        fun resolveExamName(
+            isNewSubExamMode: Boolean,
+            newSubExamTypedText: String,
+            isNewMainExamMode: Boolean,
+            newMainExamTypedText: String,
+            selectedSubExam: Exam?,
+            selectedMainExam: Exam?,
+            currentExamFieldText: String = ""
+        ): String {
+            return when {
+                isNewSubExamMode -> newSubExamTypedText.trim()
+                isNewMainExamMode -> newMainExamTypedText.trim()
+                selectedSubExam != null -> selectedSubExam.examName.trim()
+                selectedMainExam != null -> selectedMainExam.examName.trim()
+                else -> currentExamFieldText.trim()
+            }
+        }
+
         fun parseNegativeMarking(raw: String): Pair<String, Double>? {
             val trimmed = raw.trim()
             if (trimmed.isEmpty() || trimmed.contains(" ")) return null
