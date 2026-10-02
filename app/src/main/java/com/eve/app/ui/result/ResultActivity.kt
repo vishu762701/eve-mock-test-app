@@ -38,6 +38,7 @@ import com.eve.app.util.NumberCountUpHelper
 import com.eve.app.util.SecurityHelper
 import com.eve.app.util.ShareCardHelper
 import com.eve.app.util.TopicAccuracyHelper
+import com.eve.app.ui.common.ExpandableCardHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.launch
@@ -45,6 +46,7 @@ import kotlinx.coroutines.launch
 class ResultActivity : EveBaseActivity() {
 
     private val viewModel: ResultViewModel by viewModels()
+    private val expandedCardStates = mutableMapOf<String, Boolean>()
     private lateinit var allItems: List<AnswerItem>
     private lateinit var binding: ActivityResultBinding
 
@@ -76,6 +78,13 @@ class ResultActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        savedInstanceState?.let { bundle ->
+            listOf("card_perf_standing", "card_time_per_question", "card_slowest_questions", "card_topic_accuracy").forEach { key ->
+                if (bundle.containsKey(key)) {
+                    expandedCardStates[key] = bundle.getBoolean(key)
+                }
+            }
+        }
         SecurityHelper.applyScreenProtection(this)
         binding = ActivityResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -315,6 +324,9 @@ class ResultActivity : EveBaseActivity() {
         // Setup Cutoff / Performance (Section 2)
         loadDepthStatsAndCutoffs(currentExamId)
 
+        // Setup Collapsible Cards on Overview Screen
+        setupExpandableCards()
+
         // Bottom Actions
         binding.btnOpenLeaderboard.setOnClickListener {
             if (currentExamId.isNotBlank()) {
@@ -333,6 +345,67 @@ class ResultActivity : EveBaseActivity() {
         binding.layoutActionCluster.visibility = if (canReattempt) View.VISIBLE else View.GONE
 
         binding.btnHome.setOnClickListener { close() }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        for ((key, value) in expandedCardStates) {
+            outState.putBoolean(key, value)
+        }
+    }
+
+    private fun setupExpandableCards() {
+        ExpandableCardHelper(
+            cardView = binding.cardPerformanceStanding,
+            headerView = binding.headerPerformanceStanding,
+            chevronView = binding.ivPerformanceStandingChevron,
+            hintView = binding.tvPerformanceStandingHint,
+            collapsedSummaryView = null,
+            expandedContentView = binding.layoutPerformanceStandingExpanded,
+            scrollView = binding.scrollResultContent,
+            cardTitle = "Performance Standing",
+            stateKey = "card_perf_standing",
+            stateStore = expandedCardStates
+        )
+
+        ExpandableCardHelper(
+            cardView = binding.cardTimePerQuestion,
+            headerView = binding.headerTimePerQuestion,
+            chevronView = binding.ivTimePerQuestionChevron,
+            hintView = binding.tvTimePerQuestionHint,
+            collapsedSummaryView = binding.tvTimePerQuestionCollapsed,
+            expandedContentView = binding.layoutTimePerQuestionExpanded,
+            scrollView = binding.scrollResultContent,
+            cardTitle = "Time Per Question",
+            stateKey = "card_time_per_question",
+            stateStore = expandedCardStates
+        )
+
+        ExpandableCardHelper(
+            cardView = binding.cardSlowestQuestions,
+            headerView = binding.headerSlowestQuestions,
+            chevronView = binding.ivSlowestChevron,
+            hintView = binding.tvSlowestHint,
+            collapsedSummaryView = binding.tvSlowestCollapsed,
+            expandedContentView = binding.layoutSlowestExpanded,
+            scrollView = binding.scrollResultContent,
+            cardTitle = "Slowest Questions",
+            stateKey = "card_slowest_questions",
+            stateStore = expandedCardStates
+        )
+
+        ExpandableCardHelper(
+            cardView = binding.cardTopicAccuracy,
+            headerView = binding.headerTopicAccuracy,
+            chevronView = binding.ivTopicChevron,
+            hintView = binding.tvTopicHint,
+            collapsedSummaryView = binding.tvTopicCollapsed,
+            expandedContentView = binding.layoutTopicExpanded,
+            scrollView = binding.scrollResultContent,
+            cardTitle = "Topic-wise Accuracy",
+            stateKey = "card_topic_accuracy",
+            stateStore = expandedCardStates
+        )
     }
 
     private fun setupTabLayout() {
@@ -372,6 +445,7 @@ class ResultActivity : EveBaseActivity() {
             0L
         }
         binding.tvAnalysisAvgTime.text = "${avgSeconds}s"
+        binding.tvTimePerQuestionCollapsed.text = "Average: ${avgSeconds}s / question"
 
         // Pace chart
         val barItems = allItems.mapIndexed { index, item ->
@@ -394,6 +468,18 @@ class ResultActivity : EveBaseActivity() {
 
         // 3 Slowest Questions
         val slowest = allItems.filter { it.timeTakenSeconds > 0 }.sortedByDescending { it.timeTakenSeconds }.take(3)
+        if (slowest.isNotEmpty()) {
+            val firstSlow = slowest.first()
+            val firstStatus = when {
+                firstSlow.isCorrect -> "Correct"
+                firstSlow.isAttempted -> "Wrong"
+                else -> "Skipped"
+            }
+            val moreSuffix = if (slowest.size > 1) " (+${slowest.size - 1} more)" else ""
+            binding.tvSlowestCollapsed.text = "Q${firstSlow.number}: ${firstSlow.timeTakenSeconds}s • $firstStatus$moreSuffix"
+        } else {
+            binding.tvSlowestCollapsed.text = "No timed questions recorded."
+        }
         binding.layoutSlowestList.removeAllViews()
         if (slowest.isNotEmpty()) {
             for (item in slowest) {
@@ -432,6 +518,12 @@ class ResultActivity : EveBaseActivity() {
 
         // Topic-wise accuracy list (weakest first)
         val topicAccs = TopicAccuracyHelper.aggregate(allItems)
+        if (topicAccs.isNotEmpty()) {
+            val weakest = topicAccs.first()
+            binding.tvTopicCollapsed.text = "Weakest: ${weakest.topic} (${weakest.accuracy}%)"
+        } else {
+            binding.tvTopicCollapsed.text = "No topics tagged for these questions."
+        }
         binding.layoutTopicList.removeAllViews()
         if (topicAccs.isNotEmpty()) {
             for (ta in topicAccs) {

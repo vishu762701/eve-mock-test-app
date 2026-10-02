@@ -55,6 +55,7 @@
         <item name="textAppearanceLabelSmall">@style/TextAppearance.Eve.DeviceFont.LabelSmall</item>
     </style>
     <style name="ShapeCircle" parent=""><item name="cornerFamily">rounded</item><item name="cornerSize">50%</item></style>
+    <style name="ShapeRounded14" parent=""><item name="cornerFamily">rounded</item><item name="cornerSize">14dp</item></style>
 
     <style name="Eve.WindowAnimation" parent="@android:style/Animation.Activity">
         <item name="android:activityOpenEnterAnimation">@anim/slide_in_right</item>

@@ -145,14 +145,14 @@ class ContrastTokensTest {
         val lightColors = loadColors("src/main/res/values/colors.xml")
         val darkColors = loadColors("src/main/res/values-night/colors.xml")
         // Explicit required contrast pairs:
-        // dark: #E3FF3B on #000000 and #111111 must be >= 4.5:1
+        // dark: eve_premium on #000000 and #111111 must be >= 4.5:1
         val darkRatio000000 = contrastRatio(darkColors["eve_premium"]!!, "#000000")
         val darkRatio111111 = contrastRatio(darkColors["eve_premium"]!!, "#111111")
-        assertTrue("Dark #E3FF3B on #000000 must be >= 4.5 (was $darkRatio000000)", darkRatio000000 >= 4.5)
-        assertTrue("Dark #E3FF3B on #111111 must be >= 4.5 (was $darkRatio111111)", darkRatio111111 >= 4.5)
-        // light: #111111 on #E3FF3B must be >= 4.5:1
-        val lightRatio111111onLime = contrastRatio("#111111", lightColors["eve_premium"]!!)
-        assertTrue("Light #111111 on #E3FF3B must be >= 4.5 (was $lightRatio111111onLime)", lightRatio111111onLime >= 4.5)
+        assertTrue("Dark eve_premium on #000000 must be >= 4.5 (was $darkRatio000000)", darkRatio000000 >= 4.5)
+        assertTrue("Dark eve_premium on #111111 must be >= 4.5 (was $darkRatio111111)", darkRatio111111 >= 4.5)
+        // light: eve_on_premium on eve_premium must be >= 4.5:1
+        val lightRatioOnPremium = contrastRatio(lightColors["eve_on_premium"]!!, lightColors["eve_premium"]!!)
+        assertTrue("Light eve_on_premium on eve_premium must be >= 4.5 (was $lightRatioOnPremium)", lightRatioOnPremium >= 4.5)
 
         // eve_premium_text against screen background (eve_bg) and surface (eve_surface) must be >= 4.5:1
         val lightTextRatioBg = contrastRatio(lightColors["eve_premium_text"]!!, lightColors["eve_bg"]!!)

@@ -1,30 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Phase 24: premium "bubble" buttons — taller, rounder (pill-ish), matching the
-         Telegram-style redesign. -->
+    <!-- Buttons (shared styles):
+         Primary = green fill/white text (Save and Next, Start, Resume, Reattempt, Practice Weakest Topic)
+         Neutral = inverting black/white (Close, secondary CTAs)
+         Outlined = 1dp border (Previous, Clear response, Mark for review)
+         All 48dp min height, press scale 0.97 (existing press_scale), ripple clipped to the shape. -->
+
     <style name="Widget.Eve.Button" parent="Widget.Material3.Button">
-        <item name="android:minHeight">50dp</item>
+        <item name="android:minHeight">48dp</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">15sp</item>
         <item name="android:textStyle">bold</item>
         <item name="backgroundTint">@color/eve_button_bg</item>
         <item name="android:textColor">@color/eve_button_text</item>
-        <item name="cornerRadius">@dimen/eve_radius_md</item>
-        <item name="android:insetTop">2dp</item>
-        <item name="android:insetBottom">2dp</item>
+        <item name="cornerRadius">@dimen/eve_radius_button</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
         <item name="android:letterSpacing">0</item>
         <item name="android:stateListAnimator">@animator/press_scale</item>
     </style>
+
+    <style name="Widget.Eve.Button.Primary" parent="Widget.Eve.Button">
+        <item name="backgroundTint">@color/eve_button_primary_bg</item>
+        <item name="android:textColor">@color/eve_button_primary_text</item>
+        <item name="iconTint">@color/eve_button_primary_text</item>
+    </style>
+
+    <style name="Widget.Eve.Button.Neutral" parent="Widget.Eve.Button">
+        <item name="backgroundTint">@color/eve_button_neutral_bg</item>
+        <item name="android:textColor">@color/eve_button_neutral_text</item>
+        <item name="iconTint">@color/eve_button_neutral_text</item>
+    </style>
+
     <style name="Widget.Eve.OutlinedButton" parent="Widget.Material3.Button.OutlinedButton">
-        <item name="android:minHeight">50dp</item>
+        <item name="android:minHeight">48dp</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">15sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="cornerRadius">@dimen/eve_radius_md</item>
-        <item name="strokeWidth">1.4dp</item>
+        <item name="cornerRadius">@dimen/eve_radius_button</item>
+        <item name="strokeWidth">1dp</item>
         <item name="strokeColor">@color/eve_stroke</item>
+        <item name="android:textColor">@color/eve_text</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
         <item name="android:stateListAnimator">@animator/press_scale</item>
     </style>
+
     <style name="Widget.Eve.ChipButton.Delete" parent="Widget.Eve.OutlinedButton">
         <item name="android:minHeight">36dp</item>
         <item name="android:paddingLeft">10dp</item>
@@ -40,26 +61,33 @@
         <item name="android:textStyle">normal</item>
         <item name="strokeColor">@color/eve_stroke</item>
         <item name="strokeWidth">1dp</item>
-        <item name="cornerRadius">10dp</item>
+        <item name="cornerRadius">@dimen/eve_radius_input</item>
     </style>
+
     <style name="Widget.Eve.TextButton" parent="Widget.Material3.Button.TextButton">
         <item name="android:minHeight">44dp</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">14sp</item>
-        <item name="cornerRadius">@dimen/eve_radius_sm</item>
+        <item name="cornerRadius">@dimen/eve_radius_button</item>
+        <item name="android:textColor">@color/eve_text</item>
     </style>
-    <!-- One card style: radius eve_radius_md, 1dp eve_stroke hairline, no random elevation -->
+
+    <!-- One card style: radius 20dp, 1dp eve_stroke hairline -->
     <style name="Widget.Eve.Card" parent="Widget.Material3.CardView.Elevated">
-        <item name="cardCornerRadius">@dimen/eve_radius_md</item>
+        <item name="cardCornerRadius">@dimen/eve_radius_card</item>
         <item name="cardElevation">0dp</item>
         <item name="strokeWidth">1dp</item>
         <item name="strokeColor">@color/eve_stroke</item>
         <item name="cardBackgroundColor">@color/eve_surface</item>
         <item name="android:stateListAnimator">@animator/press_scale</item>
     </style>
+
     <style name="Eve.TopBar" parent="">
-        <item name="android:background">@color/eve_bg</item><item name="android:minHeight">64dp</item>
-        <item name="android:elevation">0dp</item><item name="android:paddingStart">16dp</item><item name="android:paddingEnd">16dp</item>
+        <item name="android:background">@color/eve_bg</item>
+        <item name="android:minHeight">64dp</item>
+        <item name="android:elevation">0dp</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingEnd">20dp</item>
     </style>
     <style name="Eve.Screen" parent=""><item name="android:background">@color/eve_bg</item></style>
     <style name="Eve.Title" parent=""><item name="android:textColor">@color/eve_text</item><item name="android:textSize">22sp</item><item name="android:textStyle">bold</item></style>
@@ -71,7 +99,7 @@
         <item name="android:minHeight">30dp</item>
         <item name="chipMinHeight">30dp</item>
         <item name="android:textSize">13sp</item>
-        <item name="chipCornerRadius">15dp</item>
+        <item name="chipCornerRadius">@dimen/eve_radius_pill</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
         <item name="chipStartPadding">10dp</item>
@@ -81,5 +109,16 @@
         <item name="android:textColor">@color/cutoff_chip_text</item>
         <item name="chipBackgroundColor">@color/cutoff_chip_bg</item>
         <item name="checkedIconVisible">false</item>
+    </style>
+
+    <style name="Widget.Eve.CategoryChip" parent="Widget.Material3.Chip.Filter">
+        <item name="chipCornerRadius">@dimen/eve_radius_pill</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="chipStrokeColor">@color/selector_category_chip_stroke</item>
+        <item name="chipBackgroundColor">@color/selector_category_chip_bg</item>
+        <item name="android:textColor">@color/selector_category_chip_text</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="chipMinHeight">36dp</item>
+        <item name="android:textSize">13sp</item>
     </style>
 </resources>

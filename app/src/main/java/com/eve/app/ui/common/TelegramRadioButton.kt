@@ -50,8 +50,8 @@ class TelegramRadioButton @JvmOverloads constructor(
         // Clear default Android radio graphic
         buttonDrawable = null
 
-        // 2b & 2c: Bounded, theme-adaptive 12dp rounded-rect ripple and selected subtle background
-        val cornerPx = 12f * density
+        // 2b & 2c: Bounded, theme-adaptive 14dp rounded-rect ripple and selected subtle background
+        val cornerPx = 14f * density
         val isDark = ThemeSwitchAnimator.isDarkMode(context)
         val rippleColor = if (isDark) {
             Color.argb(38, 255, 255, 255) // ~15% white
@@ -108,6 +108,22 @@ class TelegramRadioButton @JvmOverloads constructor(
 
     private fun animateCheckProgress(target: Float) {
         if (!isAttachedToWindow || width == 0) {
+            checkProgress = target
+            invalidate()
+            return
+        }
+
+        val animScale = try {
+            android.provider.Settings.Global.getFloat(
+                context.contentResolver,
+                android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,
+                1f
+            )
+        } catch (_: Exception) {
+            1f
+        }
+        if (animScale == 0f) {
+            checkAnimator?.cancel()
             checkProgress = target
             invalidate()
             return

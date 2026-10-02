@@ -30,7 +30,7 @@ class CircularTimerView @JvmOverloads constructor(
     private val strokePx = 3f * density
 
     private val normalColor: Int
-        get() = ContextCompat.getColor(context, R.color.eve_text)
+        get() = ContextCompat.getColor(context, R.color.eve_green)
 
     private val warningColor: Int
         get() = ContextCompat.getColor(context, R.color.eve_header_warning)
@@ -112,7 +112,13 @@ class CircularTimerView @JvmOverloads constructor(
 
         val targetProgress = (remainingSeconds.toFloat() / totalSeconds.toFloat()).coerceIn(0f, 1f)
 
-        if (isFirstUpdate) {
+        val animScale = android.provider.Settings.Global.getFloat(
+            context.contentResolver,
+            android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,
+            1f
+        )
+
+        if (isFirstUpdate || animScale == 0f) {
             isFirstUpdate = false
             currentProgress = targetProgress
             invalidate()
@@ -133,6 +139,16 @@ class CircularTimerView @JvmOverloads constructor(
         // Color transition: warning red if <= 60s or remaining <= 10%
         val isWarning = (remainingSeconds <= 60L || targetProgress <= 0.10f)
         val targetColor = if (isWarning) warningColor else normalColor
+
+        if (animScale == 0f) {
+            colorAnimator?.cancel()
+            colorAnimator = null
+            currentColor = targetColor
+            progressPaint.color = targetColor
+            textPaint.color = targetColor
+            invalidate()
+            return
+        }
 
         if (targetColor != currentColor && colorAnimator == null) {
             colorAnimator = ValueAnimator.ofObject(argbEvaluator, currentColor, targetColor).apply {

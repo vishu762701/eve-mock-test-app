@@ -64,7 +64,7 @@ class ExamAdapter(
             )
         }
 
-        fun bind(exam: Exam, attempted: Boolean, isPinned: Boolean, attempt: com.eve.app.data.model.TestAttempt?) {
+        fun bind(exam: Exam, attempted: Boolean, isPinned: Boolean, attempt: com.eve.app.data.model.TestAttempt?, position: Int) {
             currentExamId = exam.id
             b.tvExamName.text = exam.examName
             b.tvExamTime.text = if (attempted) {
@@ -76,6 +76,27 @@ class ExamAdapter(
                     exam.categoryOrOther
                 )
             }
+
+            val ctx = b.root.context
+            val isDark = com.eve.app.util.ThemeSwitchAnimator.isDarkMode(ctx)
+            if (isDark) {
+                val bg = if (position % 2 == 0) com.eve.app.R.color.eve_surface else com.eve.app.R.color.eve_surface_2
+                b.root.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, bg))
+                b.tvExamName.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_text))
+                b.tvExamTime.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_text_secondary))
+            } else {
+                if (position % 2 == 0) {
+                    b.root.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_surface))
+                    b.tvExamName.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_text))
+                    b.tvExamTime.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_text_secondary))
+                } else {
+                    b.root.setCardBackgroundColor(android.graphics.Color.parseColor("#0B0B0D"))
+                    b.tvExamName.setTextColor(android.graphics.Color.parseColor("#F5F5F7"))
+                    b.tvExamTime.setTextColor(android.graphics.Color.parseColor("#9A9AA3"))
+                }
+            }
+            b.root.strokeColor = androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_stroke)
+            b.root.strokeWidth = (1 * ctx.resources.displayMetrics.density).toInt()
 
             val hasLogo = exam.imageUrl.isNotBlank()
             if (hasLogo) {
@@ -221,7 +242,7 @@ class ExamAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = items[position]) {
             is HomeListItem.Header -> (holder as HeaderVH).bind(item)
-            is HomeListItem.ExamRow -> (holder as ExamVH).bind(item.exam, item.attempted, item.isPinned, item.attempt)
+            is HomeListItem.ExamRow -> (holder as ExamVH).bind(item.exam, item.attempted, item.isPinned, item.attempt, position)
             is HomeListItem.FeedbackPostRow -> (holder as FeedbackPostVH).bind(item.post)
         }
     }

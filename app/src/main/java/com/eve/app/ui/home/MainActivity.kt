@@ -864,23 +864,33 @@ class MainActivity : EveBaseActivity() {
     private fun setupBannerDots(count: Int, selectedIndex: Int) {
         binding.layoutBannerDots.removeAllViews()
         val density = resources.displayMetrics.density
-        val size = (7 * density).toInt()
-        val margin = (4 * density).toInt()
+        val margin = (3 * density).toInt()
+        val h = (6 * density).toInt()
         for (i in 0 until count) {
+            val isActive = (i == selectedIndex)
+            val w = if (isActive) (16 * density).toInt() else (6 * density).toInt()
             val dot = View(this).apply {
-                layoutParams = android.widget.LinearLayout.LayoutParams(size, size).apply {
+                layoutParams = android.widget.LinearLayout.LayoutParams(w, h).apply {
                     setMargins(margin, 0, margin, 0)
                 }
-                setBackgroundResource(if (i == selectedIndex) R.drawable.bg_banner_dot_active else R.drawable.bg_banner_dot_inactive)
+                setBackgroundResource(if (isActive) R.drawable.bg_banner_dot_active else R.drawable.bg_banner_dot_inactive)
             }
             binding.layoutBannerDots.addView(dot)
         }
     }
 
     private fun updateBannerDots(selectedIndex: Int) {
+        val density = resources.displayMetrics.density
+        val margin = (3 * density).toInt()
+        val h = (6 * density).toInt()
         for (i in 0 until binding.layoutBannerDots.childCount) {
-            val dot = binding.layoutBannerDots.getChildAt(i)
-            dot?.setBackgroundResource(if (i == selectedIndex) R.drawable.bg_banner_dot_active else R.drawable.bg_banner_dot_inactive)
+            val dot = binding.layoutBannerDots.getChildAt(i) ?: continue
+            val isActive = (i == selectedIndex)
+            val w = if (isActive) (16 * density).toInt() else (6 * density).toInt()
+            dot.layoutParams = android.widget.LinearLayout.LayoutParams(w, h).apply {
+                setMargins(margin, 0, margin, 0)
+            }
+            dot.setBackgroundResource(if (isActive) R.drawable.bg_banner_dot_active else R.drawable.bg_banner_dot_inactive)
         }
     }
 
@@ -1084,6 +1094,12 @@ class MainActivity : EveBaseActivity() {
                 text = category
                 isCheckable = true
                 isChecked = category == selected
+                chipCornerRadius = 100f * resources.displayMetrics.density
+                chipStrokeWidth = 1f * resources.displayMetrics.density
+                chipStrokeColor = androidx.core.content.ContextCompat.getColorStateList(this@MainActivity, R.color.selector_category_chip_stroke)
+                chipBackgroundColor = androidx.core.content.ContextCompat.getColorStateList(this@MainActivity, R.color.selector_category_chip_bg)
+                setTextColor(androidx.core.content.ContextCompat.getColorStateList(this@MainActivity, R.color.selector_category_chip_text))
+                isCheckedIconVisible = false
                 setOnClickListener { viewModel.selectCategory(category) }
             }
             binding.chipGroupCategory.addView(chip)

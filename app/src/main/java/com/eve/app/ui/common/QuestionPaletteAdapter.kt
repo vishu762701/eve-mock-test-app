@@ -77,19 +77,19 @@ class QuestionPaletteAdapter(
             val bgColor = when (item.state) {
                 PaletteState.CORRECT -> ContextCompat.getColor(ctx, R.color.eve_status_success)
                 PaletteState.WRONG -> ContextCompat.getColor(ctx, R.color.eve_status_error)
-                PaletteState.ANSWERED -> ContextCompat.getColor(ctx, R.color.eve_primary)
+                PaletteState.ANSWERED -> ContextCompat.getColor(ctx, R.color.eve_green_fill)
                 PaletteState.UNATTEMPTED -> ContextCompat.getColor(ctx, R.color.eve_surface_variant)
                 PaletteState.VISITED -> ContextCompat.getColor(ctx, android.R.color.transparent)
-                PaletteState.MARKED -> ContextCompat.getColor(ctx, R.color.eve_status_warning)
-                PaletteState.ANSWERED_MARKED -> ContextCompat.getColor(ctx, R.color.eve_primary)
+                PaletteState.MARKED -> ContextCompat.getColor(ctx, R.color.eve_surface)
+                PaletteState.ANSWERED_MARKED -> ContextCompat.getColor(ctx, R.color.eve_green_fill)
             }
 
             val textColor = when (item.state) {
                 PaletteState.CORRECT,
                 PaletteState.WRONG,
                 PaletteState.ANSWERED,
-                PaletteState.MARKED,
-                PaletteState.ANSWERED_MARKED -> ContextCompat.getColor(ctx, R.color.eve_on_primary)
+                PaletteState.ANSWERED_MARKED -> ContextCompat.getColor(ctx, R.color.eve_button_primary_text)
+                PaletteState.MARKED -> ContextCompat.getColor(ctx, R.color.eve_text)
                 PaletteState.UNATTEMPTED -> ContextCompat.getColor(ctx, R.color.eve_text_secondary)
                 PaletteState.VISITED -> ContextCompat.getColor(ctx, R.color.eve_status_error)
             }
@@ -97,8 +97,8 @@ class QuestionPaletteAdapter(
             b.cardCircle.setCardBackgroundColor(bgColor)
             b.tvCircleNumber.setTextColor(textColor)
 
-            // Dot indicator for ANSWERED_MARKED
-            if (item.state == PaletteState.ANSWERED_MARKED) {
+            // Dot indicator for marked for review (orange dot)
+            if (item.state == PaletteState.MARKED || item.state == PaletteState.ANSWERED_MARKED) {
                 b.dotMarked.visibility = View.VISIBLE
             } else {
                 b.dotMarked.visibility = View.GONE
@@ -107,8 +107,8 @@ class QuestionPaletteAdapter(
             // Stroke and elevation
             if (item.isActive) {
                 b.cardCircle.strokeWidth = stroke3dp
-                b.cardCircle.strokeColor = ContextCompat.getColor(ctx, R.color.eve_primary)
-                b.cardCircle.cardElevation = 4f
+                b.cardCircle.strokeColor = ContextCompat.getColor(ctx, R.color.eve_text)
+                b.cardCircle.cardElevation = 0f
             } else {
                 if (item.state == PaletteState.VISITED) {
                     b.cardCircle.strokeWidth = stroke2dp

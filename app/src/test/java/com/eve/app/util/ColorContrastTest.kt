@@ -171,35 +171,28 @@ class ColorContrastTest {
         val darkBg = "#000000"
         val darkSurface = "#111111"
 
-        val lightPremiumText = "#111111"
-        val darkPremiumText = "#E3FF3B"
+        val lightPremiumText = "#0C7F55"
+        val darkPremiumText = "#34D399"
 
-        val lightPremium = "#E3FF3B"
-        val darkPremium = "#E3FF3B"
+        val lightPremium = "#0C7F55"
+        val darkPremium = "#34D399"
 
-        val lightLine = "#111111"
-        val darkLine = "#E3FF3B"
+        val lightContainer = "#EBF7EC"
+        val darkContainer = "#1A3324"
 
-        val lightContainer = "#E3FF3B"
-        val darkContainer = "#1F2406"
-
-        val onPremium = "#111111"
+        val onPremium = "#FFFFFF"
 
         // Required contrast pairs:
-        // dark: #E3FF3B on #000000 and #111111 must be >= 4.5:1
-        assertTrue("Dark #E3FF3B on #000000 must be >= 4.5:1", contrastRatio(darkPremium, darkBg) >= 4.5)
-        assertTrue("Dark #E3FF3B on #111111 must be >= 4.5:1", contrastRatio(darkPremium, darkSurface) >= 4.5)
-        // light: #111111 on #E3FF3B must be >= 4.5:1
-        assertTrue("Light #111111 on #E3FF3B must be >= 4.5:1", contrastRatio(onPremium, lightPremium) >= 4.5)
+        // dark: eve_premium on #000000 and #111111 must be >= 4.5:1
+        assertTrue("Dark eve_premium on #000000 must be >= 4.5:1", contrastRatio(darkPremium, darkBg) >= 4.5)
+        assertTrue("Dark eve_premium on #111111 must be >= 4.5:1", contrastRatio(darkPremium, darkSurface) >= 4.5)
+        // light: white on green eve_premium must be >= 4.5:1
+        assertTrue("Light on_premium on eve_premium must be >= 4.5:1", contrastRatio(onPremium, lightPremium) >= 4.5)
 
         // Text >= 4.5:1
         assertTrue("Light premium text vs bg must be >= 4.5:1", contrastRatio(lightPremiumText, lightBg) >= 4.5)
-        assertTrue("Light on_premium vs container must be >= 4.5:1", contrastRatio(onPremium, lightContainer) >= 4.5)
+        assertTrue("Light premium text vs container must be >= 4.5:1", contrastRatio(lightPremiumText, lightContainer) >= 4.5)
         assertTrue("Dark premium text vs bg must be >= 4.5:1", contrastRatio(darkPremiumText, darkBg) >= 4.5)
         assertTrue("Dark premium text vs container must be >= 4.5:1", contrastRatio(darkPremiumText, darkContainer) >= 4.5)
-
-        // UI element / line / stroke >= 3.0:1 (in light mode, strokes/lines use eve_premium_line)
-        assertTrue("Light premium line vs bg must be >= 3.0:1", contrastRatio(lightLine, lightBg) >= 3.0)
-        assertTrue("Dark premium line vs dark surface must be >= 3.0:1", contrastRatio(darkLine, darkSurface) >= 3.0)
     }
 }

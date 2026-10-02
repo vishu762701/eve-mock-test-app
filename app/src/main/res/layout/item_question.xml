@@ -91,7 +91,7 @@
                 android:padding="6dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_report_flag_premium"
-                app:tint="@color/eve_report_amber" />
+                app:tint="@color/eve_report_red" />
         </FrameLayout>
     </LinearLayout>
 

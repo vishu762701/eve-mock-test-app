@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Phase 24: single source of truth for the Telegram-style "bubble" corner radius.
-         Every card that used to hardcode 14dp/16dp/18dp/24dp now points here, so the
-         whole app's roundness can be tuned in one place. -->
+    <!-- Eve Design System Geometry & Radii -->
+    <!-- Shapes: rectangular cards 20dp; buttons 16dp; icon containers 14dp rounded squares; inputs 14dp; chips/badges full pills -->
+    <dimen name="eve_radius_card">20dp</dimen>
+    <dimen name="eve_radius_button">16dp</dimen>
+    <dimen name="eve_radius_icon_container">14dp</dimen>
+    <dimen name="eve_radius_input">14dp</dimen>
+    <dimen name="eve_radius_pill">100dp</dimen>
+
+    <!-- Backward-compatible radius tokens -->
     <dimen name="eve_radius_sm">16dp</dimen>
     <dimen name="eve_radius_md">20dp</dimen>
-    <dimen name="eve_radius_lg">28dp</dimen>
+    <dimen name="eve_radius_lg">20dp</dimen>
 
-    <!-- Spacing scale -->
+    <!-- 4dp Spacing Grid -->
     <dimen name="eve_space_4">4dp</dimen>
     <dimen name="eve_space_8">8dp</dimen>
     <dimen name="eve_space_12">12dp</dimen>
     <dimen name="eve_space_16">16dp</dimen>
+    <dimen name="eve_space_20">20dp</dimen>
     <dimen name="eve_space_24">24dp</dimen>
     <dimen name="eve_space_32">32dp</dimen>
     <dimen name="eve_screen_padding_horizontal">20dp</dimen>
