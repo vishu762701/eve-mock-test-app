@@ -4,29 +4,29 @@
     <font
         android:fontStyle="normal"
         android:fontWeight="400"
-        android:font="@font/source_serif_4_regular"
+        android:font="@font/poppins_regular"
         app:fontStyle="normal"
         app:fontWeight="400"
-        app:font="@font/source_serif_4_regular" />
+        app:font="@font/poppins_regular" />
     <font
         android:fontStyle="normal"
         android:fontWeight="500"
-        android:font="@font/source_serif_4_medium"
+        android:font="@font/poppins_medium"
         app:fontStyle="normal"
         app:fontWeight="500"
-        app:font="@font/source_serif_4_medium" />
+        app:font="@font/poppins_medium" />
     <font
         android:fontStyle="normal"
         android:fontWeight="600"
-        android:font="@font/source_serif_4_semibold"
+        android:font="@font/poppins_semibold"
         app:fontStyle="normal"
         app:fontWeight="600"
-        app:font="@font/source_serif_4_semibold" />
+        app:font="@font/poppins_semibold" />
     <font
         android:fontStyle="normal"
         android:fontWeight="700"
-        android:font="@font/source_serif_4_bold"
+        android:font="@font/poppins_bold"
         app:fontStyle="normal"
         app:fontWeight="700"
-        app:font="@font/source_serif_4_bold" />
+        app:font="@font/poppins_bold" />
 </font-family>

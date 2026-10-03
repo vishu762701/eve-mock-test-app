@@ -11,8 +11,9 @@
         <item name="colorOnSurface">@color/eve_text</item><item name="colorOutline">@color/eve_stroke</item>
         <item name="android:windowBackground">@color/eve_bg</item><item name="android:statusBarColor">@color/eve_bg</item>
         <item name="android:navigationBarColor">@color/eve_bg</item><item name="android:windowLightStatusBar">true</item>
-        <item name="android:fontFamily">@font/source_serif_4</item>
-        <item name="fontFamily">@font/source_serif_4</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:fontFamily">@font/poppins</item>
+        <item name="fontFamily">@font/poppins</item>
         <item name="textAppearanceDisplayLarge">@style/TextAppearance.Eve.M3.DisplayLarge</item>
         <item name="textAppearanceDisplayMedium">@style/TextAppearance.Eve.M3.DisplayMedium</item>
         <item name="textAppearanceDisplaySmall">@style/TextAppearance.Eve.M3.DisplaySmall</item>

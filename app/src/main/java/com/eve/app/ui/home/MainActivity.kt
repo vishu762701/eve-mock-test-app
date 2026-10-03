@@ -254,7 +254,11 @@ class MainActivity : EveBaseActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
+        val isDark = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        WindowInsetsControllerCompat(window, window.decorView).apply {
+            isAppearanceLightStatusBars = !isDark
+            isAppearanceLightNavigationBars = !isDark
+        }
         applyFindTestPanelBackground()
 
         Log.e("EVE_STARTUP", "stage: setupDrawer")

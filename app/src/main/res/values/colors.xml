@@ -10,10 +10,10 @@
     <color name="eve_stroke">#E9E9EE</color>
     <color name="eve_text">#0B0B0D</color>
     <color name="eve_text_secondary">#6B6B76</color>
-    <color name="eve_header_ink">#101117</color>
-    <color name="eve_header_ink_text">#F5F5F7</color>
-    <color name="eve_header_ink_secondary">#9A9BA5</color>
-    <color name="eve_header_ink_icon">#FFFFFF</color>
+    <color name="eve_header_ink">#FFFFFF</color>
+    <color name="eve_header_ink_text">#0B0B0D</color>
+    <color name="eve_header_ink_secondary">#6B6B76</color>
+    <color name="eve_header_ink_icon">#0B0B0D</color>
 
     <!-- Glass card fill #F3F5F9 with hairline #E3E5EA -->
     <color name="eve_glass_card_fill">#F3F5F9</color>

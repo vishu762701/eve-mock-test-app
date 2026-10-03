@@ -9,6 +9,8 @@
     <style name="TextAppearance.Eve.Display">
         <item name="android:textSize">34sp</item>
         <item name="android:textStyle">bold</item>
+        <item name="fontFamily">@font/poppins_semibold</item>
+        <item name="android:fontFamily">@font/poppins_semibold</item>
         <item name="android:textColor">@color/eve_text</item>
     </style>
 
@@ -16,6 +18,8 @@
     <style name="TextAppearance.Eve.ScreenTitle">
         <item name="android:textSize">22sp</item>
         <item name="android:textStyle">bold</item>
+        <item name="fontFamily">@font/poppins_bold</item>
+        <item name="android:fontFamily">@font/poppins_bold</item>
         <item name="android:textColor">@color/eve_text</item>
     </style>
 
@@ -23,6 +27,8 @@
     <style name="TextAppearance.Eve.Heading">
         <item name="android:textSize">20sp</item>
         <item name="android:textStyle">bold</item>
+        <item name="fontFamily">@font/poppins_bold</item>
+        <item name="android:fontFamily">@font/poppins_bold</item>
         <item name="android:textColor">@color/eve_text</item>
     </style>
 
@@ -38,6 +44,8 @@
     <style name="TextAppearance.Eve.Subheading">
         <item name="android:textSize">17sp</item>
         <item name="android:textStyle">bold</item>
+        <item name="fontFamily">@font/poppins_bold</item>
+        <item name="android:fontFamily">@font/poppins_bold</item>
         <item name="android:textColor">@color/eve_text</item>
     </style>
 
@@ -45,6 +53,8 @@
     <style name="TextAppearance.Eve.Body">
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">normal</item>
+        <item name="fontFamily">@font/poppins_regular</item>
+        <item name="android:fontFamily">@font/poppins_regular</item>
         <item name="android:textColor">@color/eve_text</item>
     </style>
 
@@ -52,6 +62,8 @@
     <style name="TextAppearance.Eve.Button">
         <item name="android:textSize">15sp</item>
         <item name="android:textStyle">bold</item>
+        <item name="fontFamily">@font/poppins_semibold</item>
+        <item name="android:fontFamily">@font/poppins_semibold</item>
         <item name="android:textColor">@color/eve_text</item>
     </style>
 
@@ -59,6 +71,8 @@
     <style name="TextAppearance.Eve.BodySmall">
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">normal</item>
+        <item name="fontFamily">@font/poppins_regular</item>
+        <item name="android:fontFamily">@font/poppins_regular</item>
         <item name="android:textColor">@color/eve_text_secondary</item>
     </style>
 
@@ -66,6 +80,8 @@
     <style name="TextAppearance.Eve.Caption">
         <item name="android:textSize">13sp</item>
         <item name="android:textStyle">normal</item>
+        <item name="fontFamily">@font/poppins_regular</item>
+        <item name="android:fontFamily">@font/poppins_regular</item>
         <item name="android:textColor">@color/eve_text_secondary</item>
     </style>
 
@@ -75,6 +91,8 @@
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:letterSpacing">0.06</item>
+        <item name="fontFamily">@font/poppins_bold</item>
+        <item name="android:fontFamily">@font/poppins_bold</item>
         <item name="android:textColor">@color/eve_premium_text</item>
     </style>
 
@@ -82,22 +100,22 @@
         <item name="android:textColor">@color/eve_text_secondary</item>
     </style>
 
-    <!-- M3 Typography overrides for Eve Default (Source Serif 4) -->
-    <style name="TextAppearance.Eve.M3.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge"><item name="android:fontFamily">@font/source_serif_4</item><item name="fontFamily">@font/source_serif_4</item></style>
-    <style name="TextAppearance.Eve.M3.DisplayMedium" parent="TextAppearance.Material3.DisplayMedium"><item name="android:fontFamily">@font/source_serif_4</item><item name="fontFamily">@font/source_serif_4</item></style>
-    <style name="TextAppearance.Eve.M3.DisplaySmall" parent="TextAppearance.Material3.DisplaySmall"><item name="android:fontFamily">@font/source_serif_4</item><item name="fontFamily">@font/source_serif_4</item></style>
-    <style name="TextAppearance.Eve.M3.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge"><item name="android:fontFamily">@font/source_serif_4</item><item name="fontFamily">@font/source_serif_4</item></style>
-    <style name="TextAppearance.Eve.M3.HeadlineMedium" parent="TextAppearance.Material3.HeadlineMedium"><item name="android:fontFamily">@font/source_serif_4</item><item name="fontFamily">@font/source_serif_4</item></style>
-    <style name="TextAppearance.Eve.M3.HeadlineSmall" parent="TextAppearance.Material3.HeadlineSmall"><item name="android:fontFamily">@font/source_serif_4</item><item name="fontFamily">@font/source_serif_4</item></style>
-    <style name="TextAppearance.Eve.M3.TitleLarge" parent="TextAppearance.Material3.TitleLarge"><item name="android:fontFamily">@font/source_serif_4</item><item name="fontFamily">@font/source_serif_4</item></style>
-    <style name="TextAppearance.Eve.M3.TitleMedium" parent="TextAppearance.Material3.TitleMedium"><item name="android:fontFamily">@font/source_serif_4</item><item name="fontFamily">@font/source_serif_4</item></style>
-    <style name="TextAppearance.Eve.M3.TitleSmall" parent="TextAppearance.Material3.TitleSmall"><item name="android:fontFamily">@font/source_serif_4</item><item name="fontFamily">@font/source_serif_4</item></style>
-    <style name="TextAppearance.Eve.M3.BodyLarge" parent="TextAppearance.Material3.BodyLarge"><item name="android:fontFamily">@font/source_serif_4</item><item name="fontFamily">@font/source_serif_4</item></style>
-    <style name="TextAppearance.Eve.M3.BodyMedium" parent="TextAppearance.Material3.BodyMedium"><item name="android:fontFamily">@font/source_serif_4</item><item name="fontFamily">@font/source_serif_4</item></style>
-    <style name="TextAppearance.Eve.M3.BodySmall" parent="TextAppearance.Material3.BodySmall"><item name="android:fontFamily">@font/source_serif_4</item><item name="fontFamily">@font/source_serif_4</item></style>
-    <style name="TextAppearance.Eve.M3.LabelLarge" parent="TextAppearance.Material3.LabelLarge"><item name="android:fontFamily">@font/source_serif_4</item><item name="fontFamily">@font/source_serif_4</item></style>
-    <style name="TextAppearance.Eve.M3.LabelMedium" parent="TextAppearance.Material3.LabelMedium"><item name="android:fontFamily">@font/source_serif_4</item><item name="fontFamily">@font/source_serif_4</item></style>
-    <style name="TextAppearance.Eve.M3.LabelSmall" parent="TextAppearance.Material3.LabelSmall"><item name="android:fontFamily">@font/source_serif_4</item><item name="fontFamily">@font/source_serif_4</item></style>
+    <!-- M3 Typography overrides for Eve Default (Poppins) -->
+    <style name="TextAppearance.Eve.M3.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge"><item name="android:fontFamily">@font/poppins</item><item name="fontFamily">@font/poppins</item></style>
+    <style name="TextAppearance.Eve.M3.DisplayMedium" parent="TextAppearance.Material3.DisplayMedium"><item name="android:fontFamily">@font/poppins</item><item name="fontFamily">@font/poppins</item></style>
+    <style name="TextAppearance.Eve.M3.DisplaySmall" parent="TextAppearance.Material3.DisplaySmall"><item name="android:fontFamily">@font/poppins</item><item name="fontFamily">@font/poppins</item></style>
+    <style name="TextAppearance.Eve.M3.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge"><item name="android:fontFamily">@font/poppins</item><item name="fontFamily">@font/poppins</item></style>
+    <style name="TextAppearance.Eve.M3.HeadlineMedium" parent="TextAppearance.Material3.HeadlineMedium"><item name="android:fontFamily">@font/poppins</item><item name="fontFamily">@font/poppins</item></style>
+    <style name="TextAppearance.Eve.M3.HeadlineSmall" parent="TextAppearance.Material3.HeadlineSmall"><item name="android:fontFamily">@font/poppins</item><item name="fontFamily">@font/poppins</item></style>
+    <style name="TextAppearance.Eve.M3.TitleLarge" parent="TextAppearance.Material3.TitleLarge"><item name="android:fontFamily">@font/poppins</item><item name="fontFamily">@font/poppins</item></style>
+    <style name="TextAppearance.Eve.M3.TitleMedium" parent="TextAppearance.Material3.TitleMedium"><item name="android:fontFamily">@font/poppins</item><item name="fontFamily">@font/poppins</item></style>
+    <style name="TextAppearance.Eve.M3.TitleSmall" parent="TextAppearance.Material3.TitleSmall"><item name="android:fontFamily">@font/poppins</item><item name="fontFamily">@font/poppins</item></style>
+    <style name="TextAppearance.Eve.M3.BodyLarge" parent="TextAppearance.Material3.BodyLarge"><item name="android:fontFamily">@font/poppins</item><item name="fontFamily">@font/poppins</item></style>
+    <style name="TextAppearance.Eve.M3.BodyMedium" parent="TextAppearance.Material3.BodyMedium"><item name="android:fontFamily">@font/poppins</item><item name="fontFamily">@font/poppins</item></style>
+    <style name="TextAppearance.Eve.M3.BodySmall" parent="TextAppearance.Material3.BodySmall"><item name="android:fontFamily">@font/poppins</item><item name="fontFamily">@font/poppins</item></style>
+    <style name="TextAppearance.Eve.M3.LabelLarge" parent="TextAppearance.Material3.LabelLarge"><item name="android:fontFamily">@font/poppins</item><item name="fontFamily">@font/poppins</item></style>
+    <style name="TextAppearance.Eve.M3.LabelMedium" parent="TextAppearance.Material3.LabelMedium"><item name="android:fontFamily">@font/poppins</item><item name="fontFamily">@font/poppins</item></style>
+    <style name="TextAppearance.Eve.M3.LabelSmall" parent="TextAppearance.Material3.LabelSmall"><item name="android:fontFamily">@font/poppins</item><item name="fontFamily">@font/poppins</item></style>
 
     <!-- M3 Typography overrides for Device Font (sans-serif) -->
     <style name="TextAppearance.Eve.DeviceFont.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>

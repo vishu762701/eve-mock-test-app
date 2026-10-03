@@ -3,7 +3,7 @@
     <!-- Eve Design System Geometry & Radii — MASTER_TASK_V3 Approved -->
     <!-- Shapes: cards 28dp, tiles 24dp, small tiles 14dp, bottom sheet top corners 32dp; buttons, tab control, streak pill and filter chips full pills -->
     <dimen name="eve_radius_card">28dp</dimen>
-    <dimen name="eve_radius_tile">24dp</dimen>
+    <dimen name="eve_radius_tile">20dp</dimen>
     <dimen name="eve_radius_tile_small">14dp</dimen>
     <dimen name="eve_radius_bottom_sheet">32dp</dimen>
     <dimen name="eve_radius_button">999dp</dimen>
