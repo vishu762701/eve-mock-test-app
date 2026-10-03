@@ -3,7 +3,6 @@ package com.eve.app.ui.common
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
@@ -11,6 +10,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.animation.LinearInterpolator
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import com.eve.app.R
 
 /**
@@ -54,12 +54,7 @@ class CircularCountdownView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         val fgColor = ContextCompat.getColor(context, R.color.eve_bulletin_text)
-        val trackColor = Color.argb(
-            60,
-            Color.red(fgColor),
-            Color.green(fgColor),
-            Color.blue(fgColor)
-        )
+        val trackColor = ColorUtils.setAlphaComponent(fgColor, 60)
         trackPaint.color = trackColor
         progressPaint.color = fgColor
         iconDrawable?.setTint(fgColor)
