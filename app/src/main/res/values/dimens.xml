@@ -1,17 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Eve Design System Geometry & Radii -->
-    <!-- Shapes: rectangular cards 20dp; buttons 16dp; icon containers 14dp rounded squares; inputs 14dp; chips/badges full pills -->
-    <dimen name="eve_radius_card">20dp</dimen>
-    <dimen name="eve_radius_button">16dp</dimen>
+    <!-- Eve Design System Geometry & Radii — MASTER_TASK_V3 Approved -->
+    <!-- Shapes: cards 28dp, tiles 24dp, small tiles 14dp, bottom sheet top corners 32dp; buttons, tab control, streak pill and filter chips full pills -->
+    <dimen name="eve_radius_card">28dp</dimen>
+    <dimen name="eve_radius_tile">24dp</dimen>
+    <dimen name="eve_radius_tile_small">14dp</dimen>
+    <dimen name="eve_radius_bottom_sheet">32dp</dimen>
+    <dimen name="eve_radius_button">999dp</dimen>
+    <dimen name="eve_radius_pill">999dp</dimen>
     <dimen name="eve_radius_icon_container">14dp</dimen>
     <dimen name="eve_radius_input">14dp</dimen>
-    <dimen name="eve_radius_pill">100dp</dimen>
 
     <!-- Backward-compatible radius tokens -->
-    <dimen name="eve_radius_sm">16dp</dimen>
-    <dimen name="eve_radius_md">20dp</dimen>
-    <dimen name="eve_radius_lg">20dp</dimen>
+    <dimen name="eve_radius_sm">14dp</dimen>
+    <dimen name="eve_radius_md">24dp</dimen>
+    <dimen name="eve_radius_lg">28dp</dimen>
+
+    <!-- Depths & Elevations -->
+    <dimen name="eve_card_elevation_light">2dp</dimen>
+    <dimen name="eve_card_elevation_dark">0dp</dimen>
+    <dimen name="eve_stroke_hairline">1dp</dimen>
 
     <!-- 4dp Spacing Grid -->
     <dimen name="eve_space_4">4dp</dimen>

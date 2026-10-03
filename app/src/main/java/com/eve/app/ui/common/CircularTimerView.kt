@@ -27,19 +27,18 @@ class CircularTimerView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
     private val density = resources.displayMetrics.density
-    private val strokePx = 3f * density
+    private val strokePx = 2.5f * density
 
     private val normalColor: Int
-        get() = ContextCompat.getColor(context, R.color.eve_green)
+        get() = ContextCompat.getColor(context, R.color.eve_text)
 
     private val warningColor: Int
-        get() = ContextCompat.getColor(context, R.color.eve_header_warning)
+        get() = ContextCompat.getColor(context, R.color.eve_timer_warning)
 
     private val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = strokePx
-        val nc = normalColor
-        color = Color.argb(64, Color.red(nc), Color.green(nc), Color.blue(nc))
+        color = ContextCompat.getColor(context, R.color.eve_border)
     }
 
     private val progressPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -52,8 +51,8 @@ class CircularTimerView @JvmOverloads constructor(
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textAlign = Paint.Align.CENTER
         color = normalColor
-        textSize = sp(14f)
-        typeface = com.eve.app.util.FontManager.typeface(context, bold = true)
+        textSize = sp(13f)
+        typeface = ResourcesCompat.getFont(context, R.font.poppins_semibold) ?: Typeface.DEFAULT_BOLD
     }
 
     private val oval = RectF()
@@ -172,9 +171,9 @@ class CircularTimerView @JvmOverloads constructor(
     }
 
     fun updateThemeColors() {
-        val nc = normalColor
-        trackPaint.color = Color.argb(64, Color.red(nc), Color.green(nc), Color.blue(nc))
+        trackPaint.color = ContextCompat.getColor(context, R.color.eve_border)
         if (colorAnimator == null && currentColor != warningColor) {
+            val nc = normalColor
             currentColor = nc
             progressPaint.color = nc
             textPaint.color = nc

@@ -92,6 +92,9 @@ class ResultActivity : EveBaseActivity() {
         onBackPressedDispatcher.addCallback(this) {
             close()
         }
+        binding.btnBack?.setOnClickListener {
+            close()
+        }
 
         currentExamId = intent.getStringExtra(Constants.EXTRA_EXAM_ID).orEmpty()
         val examName = intent.getStringExtra(Constants.EXTRA_EXAM_NAME)
@@ -856,7 +859,8 @@ class ResultActivity : EveBaseActivity() {
             binding.tvCutoffValue.text = "Cutoff: $cutoffStr"
             if (currentScore >= cutoff) {
                 binding.tvCutoffVerdict.text = "Qualified ✓"
-                binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.eve_status_success))
+                binding.tvCutoffVerdict.setBackgroundResource(R.drawable.bg_tile_right)
+                binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.eve_tile_right_text))
                 val diff = currentScore - cutoff
                 binding.tvCutoffRelationship.text = if (diff >= 0.05) {
                     "You cleared the $selectedCutoffCategory cutoff mark by +${String.format(java.util.Locale.US, "%.1f", diff)} marks."
@@ -865,13 +869,15 @@ class ResultActivity : EveBaseActivity() {
                 }
             } else {
                 binding.tvCutoffVerdict.text = "Not Qualified ✗"
-                binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.eve_status_error))
+                binding.tvCutoffVerdict.setBackgroundResource(R.drawable.bg_tile_wrong)
+                binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.eve_tile_wrong_text))
                 val diff = cutoff - currentScore
                 binding.tvCutoffRelationship.text = "You are ${String.format(java.util.Locale.US, "%.1f", diff)} marks below the $selectedCutoffCategory cutoff threshold."
             }
         } else {
             binding.tvCutoffValue.text = "Cutoff: Not Configured"
             binding.tvCutoffVerdict.text = "No Cutoff Set"
+            binding.tvCutoffVerdict.setBackgroundResource(R.drawable.bg_tile_surface2)
             binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.eve_text_secondary))
             binding.tvCutoffRelationship.text = "No qualifying cutoff mark is configured for the $selectedCutoffCategory category."
         }

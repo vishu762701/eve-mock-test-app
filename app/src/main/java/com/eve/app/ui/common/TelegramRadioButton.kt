@@ -50,8 +50,8 @@ class TelegramRadioButton @JvmOverloads constructor(
         // Clear default Android radio graphic
         buttonDrawable = null
 
-        // 2b & 2c: Bounded, theme-adaptive 14dp rounded-rect ripple and selected subtle background
-        val cornerPx = 14f * density
+        // 24dp cards, surface with hairline; selected = right tile fill + 1.5dp right-border + filled green radio
+        val cornerPx = 24f * density
         val isDark = ThemeSwitchAnimator.isDarkMode(context)
         val rippleColor = if (isDark) {
             Color.argb(38, 255, 255, 255) // ~15% white
@@ -62,15 +62,15 @@ class TelegramRadioButton @JvmOverloads constructor(
         val checkedBg = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadius = cornerPx
-            setColor(ContextCompat.getColor(context, R.color.eve_option_selected_bg))
-            setStroke((1.5f * density).toInt(), ContextCompat.getColor(context, R.color.eve_option_selected_stroke))
+            setColor(ContextCompat.getColor(context, R.color.eve_tile_right_fill))
+            setStroke((1.5f * density).toInt(), ContextCompat.getColor(context, R.color.eve_tile_right_border))
         }
 
         val uncheckedBg = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadius = cornerPx
-            setColor(Color.TRANSPARENT)
-            setStroke((1f * density).toInt(), ContextCompat.getColor(context, R.color.eve_stroke))
+            setColor(ContextCompat.getColor(context, R.color.eve_surface))
+            setStroke((1f * density).toInt(), ContextCompat.getColor(context, R.color.eve_border))
         }
 
         val contentStateList = StateListDrawable().apply {
@@ -142,7 +142,7 @@ class TelegramRadioButton @JvmOverloads constructor(
     }
 
     override fun onDraw(canvas: Canvas) {
-        val unselectedColor = ContextCompat.getColor(context, R.color.eve_grey)
+        val unselectedColor = ContextCompat.getColor(context, R.color.eve_text_secondary)
         val selectedColor = ContextCompat.getColor(context, R.color.eve_option_dot_selected)
 
         val currentRingColor = argbEvaluator.evaluate(checkProgress, unselectedColor, selectedColor) as Int

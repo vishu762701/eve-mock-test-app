@@ -29,6 +29,8 @@ import android.provider.Settings
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import com.eve.app.ui.common.HomePanelWashDrawable
 import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.model.KeyPath
 import com.airbnb.lottie.value.SimpleLottieValueCallback
@@ -252,6 +254,9 @@ class MainActivity : EveBaseActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
+        applyFindTestPanelBackground()
+
         Log.e("EVE_STARTUP", "stage: setupDrawer")
         setupDrawer(user)
 
@@ -364,6 +369,7 @@ class MainActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        applyFindTestPanelBackground()
         hasEmptyPlayed = false
         isExamNavigating = false
         checkAppConfigAndMaintenance()
@@ -940,12 +946,12 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun setupNotificationBell() {
-        val textColor = ContextCompat.getColor(this, R.color.eve_text)
+        val iconColor = ContextCompat.getColor(this, R.color.eve_header_ink_icon)
         binding.btnNotification.addValueCallback(
             com.airbnb.lottie.model.KeyPath("**"),
             com.airbnb.lottie.LottieProperty.COLOR_FILTER
         ) {
-            android.graphics.PorterDuffColorFilter(textColor, android.graphics.PorterDuff.Mode.SRC_ATOP)
+            android.graphics.PorterDuffColorFilter(iconColor, android.graphics.PorterDuff.Mode.SRC_ATOP)
         }
         binding.btnNotification.repeatCount = 0
 
@@ -961,6 +967,17 @@ class MainActivity : EveBaseActivity() {
             binding.btnNotification.postDelayed({
                 startActivity(Intent(this, NotificationsActivity::class.java))
             }, 350)
+        }
+    }
+
+    private fun applyFindTestPanelBackground() {
+        val isNight = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        if (!isNight) {
+            val radiusPx = resources.getDimension(R.dimen.eve_radius_card)
+            val strokePx = resources.displayMetrics.density * 1f
+            binding.panelFindTest.background = HomePanelWashDrawable(radiusPx, strokePx)
+        } else {
+            binding.panelFindTest.setBackgroundResource(R.drawable.bg_panel_card)
         }
     }
 

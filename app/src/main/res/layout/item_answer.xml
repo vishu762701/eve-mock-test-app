@@ -77,13 +77,13 @@
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:layout_gravity="center"
-                    android:background="@drawable/bg_report_button"
+                    android:background="?attr/selectableItemBackgroundBorderless"
                     android:stateListAnimator="@animator/press_scale"
                     android:contentDescription="Report this question"
                     android:padding="6dp"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_report_flag_premium"
-                    app:tint="@color/eve_report_red" />
+                    app:tint="@color/eve_text_secondary" />
             </FrameLayout>
         </LinearLayout>
 

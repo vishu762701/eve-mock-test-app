@@ -74,50 +74,56 @@ class QuestionPaletteAdapter(
 
             b.tvCircleNumber.text = item.number.toString()
 
-            val bgColor = when (item.state) {
-                PaletteState.CORRECT -> ContextCompat.getColor(ctx, R.color.eve_status_success)
-                PaletteState.WRONG -> ContextCompat.getColor(ctx, R.color.eve_status_error)
-                PaletteState.ANSWERED -> ContextCompat.getColor(ctx, R.color.eve_green_fill)
-                PaletteState.UNATTEMPTED -> ContextCompat.getColor(ctx, R.color.eve_surface_variant)
-                PaletteState.VISITED -> ContextCompat.getColor(ctx, android.R.color.transparent)
-                PaletteState.MARKED -> ContextCompat.getColor(ctx, R.color.eve_surface)
-                PaletteState.ANSWERED_MARKED -> ContextCompat.getColor(ctx, R.color.eve_green_fill)
-            }
+            val bgColor: Int
+            val textColor: Int
+            val strokeColor: Int
+            val strokeW: Int
 
-            val textColor = when (item.state) {
-                PaletteState.CORRECT,
-                PaletteState.WRONG,
-                PaletteState.ANSWERED,
-                PaletteState.ANSWERED_MARKED -> ContextCompat.getColor(ctx, R.color.eve_button_primary_text)
-                PaletteState.MARKED -> ContextCompat.getColor(ctx, R.color.eve_text)
-                PaletteState.UNATTEMPTED -> ContextCompat.getColor(ctx, R.color.eve_text_secondary)
-                PaletteState.VISITED -> ContextCompat.getColor(ctx, R.color.eve_status_error)
+            if (item.isActive) {
+                bgColor = ContextCompat.getColor(ctx, R.color.eve_surface)
+                textColor = ContextCompat.getColor(ctx, R.color.eve_text)
+                strokeColor = ContextCompat.getColor(ctx, R.color.eve_text)
+                strokeW = stroke2dp
+            } else {
+                strokeW = (1 * density).toInt().coerceAtLeast(1)
+                when (item.state) {
+                    PaletteState.CORRECT,
+                    PaletteState.ANSWERED -> {
+                        bgColor = ContextCompat.getColor(ctx, R.color.eve_tile_right_fill)
+                        textColor = ContextCompat.getColor(ctx, R.color.eve_tile_right_text)
+                        strokeColor = ContextCompat.getColor(ctx, R.color.eve_tile_right_border)
+                    }
+                    PaletteState.WRONG -> {
+                        bgColor = ContextCompat.getColor(ctx, R.color.eve_tile_wrong_fill)
+                        textColor = ContextCompat.getColor(ctx, R.color.eve_tile_wrong_text)
+                        strokeColor = ContextCompat.getColor(ctx, R.color.eve_tile_wrong_border)
+                    }
+                    PaletteState.MARKED,
+                    PaletteState.ANSWERED_MARKED -> {
+                        bgColor = ContextCompat.getColor(ctx, R.color.eve_tile_medium_fill)
+                        textColor = ContextCompat.getColor(ctx, R.color.eve_tile_medium_text)
+                        strokeColor = ContextCompat.getColor(ctx, R.color.eve_tile_medium_border)
+                    }
+                    PaletteState.UNATTEMPTED,
+                    PaletteState.VISITED -> {
+                        bgColor = ContextCompat.getColor(ctx, R.color.eve_surface_2)
+                        textColor = ContextCompat.getColor(ctx, R.color.eve_text_secondary)
+                        strokeColor = ContextCompat.getColor(ctx, R.color.eve_border)
+                    }
+                }
             }
 
             b.cardCircle.setCardBackgroundColor(bgColor)
             b.tvCircleNumber.setTextColor(textColor)
+            b.cardCircle.strokeWidth = strokeW
+            b.cardCircle.strokeColor = strokeColor
+            b.cardCircle.cardElevation = 0f
 
             // Dot indicator for marked for review (orange dot)
             if (item.state == PaletteState.MARKED || item.state == PaletteState.ANSWERED_MARKED) {
                 b.dotMarked.visibility = View.VISIBLE
             } else {
                 b.dotMarked.visibility = View.GONE
-            }
-
-            // Stroke and elevation
-            if (item.isActive) {
-                b.cardCircle.strokeWidth = stroke3dp
-                b.cardCircle.strokeColor = ContextCompat.getColor(ctx, R.color.eve_text)
-                b.cardCircle.cardElevation = 0f
-            } else {
-                if (item.state == PaletteState.VISITED) {
-                    b.cardCircle.strokeWidth = stroke2dp
-                    b.cardCircle.strokeColor = ContextCompat.getColor(ctx, R.color.eve_status_error)
-                } else {
-                    b.cardCircle.strokeWidth = (1 * density).toInt().coerceAtLeast(1)
-                    b.cardCircle.strokeColor = ContextCompat.getColor(ctx, R.color.eve_stroke)
-                }
-                b.cardCircle.cardElevation = 0f
             }
 
             b.root.setOnClickListener {

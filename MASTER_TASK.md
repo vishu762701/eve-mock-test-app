@@ -1,3 +1,5 @@
+> **SUPERSEDED by MASTER_TASK_V3: all accent/colour rules in this file, including the old lime accent, are obsolete**
+
 # EVE APP: MASTER TASK
 
 Everything Antigravity must do is in this file. It is complete. No further messages are coming. Read all of it, then start.

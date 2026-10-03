@@ -1,3 +1,5 @@
+> **SUPERSEDED by MASTER_TASK_V3: all accent/colour rules in this file, including the old lime accent, are obsolete**
+
 # MASTER_TASK_V2 — Eve fix batch (7 tasks)
 
 Read this whole file first. Then implement every task in order. Follow `GEMINI.md` (autonomous execution, strict scope discipline). This file is a NEW batch; the old `MASTER_TASK.md` and `ADDENDUM_1.md` are frozen/completed — do not re-open them.

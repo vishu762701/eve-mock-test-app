@@ -43,16 +43,13 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLanguage"
-            style="@style/Widget.Eve.TextButton"
+            style="@style/Widget.Eve.Button.LilacPill"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="48dp"
-            android:minHeight="48dp"
-            android:paddingHorizontal="10dp"
-            android:text="HI"
-            app:strokeColor="@color/eve_stroke"
-            app:strokeWidth="1dp"
-            android:textColor="@color/eve_text" />
+            android:minHeight="40dp"
+            android:paddingHorizontal="14dp"
+            android:text="HI" />
     </LinearLayout>
 
     <View
@@ -179,9 +176,9 @@
         android:layout_height="wrap_content"
         android:background="@color/eve_surface"
         android:orientation="vertical"
-        android:paddingHorizontal="12dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp">
+        android:paddingHorizontal="20dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="12dp">
 
         <!-- Action Row 1: Clear Response & Mark for Review -->
         <LinearLayout
@@ -191,7 +188,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnClear"
-                style="@style/Widget.Eve.OutlinedButton"
+                style="@style/Widget.Eve.Button.Soft"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="6dp"
@@ -201,7 +198,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnMarkReview"
-                style="@style/Widget.Eve.OutlinedButton"
+                style="@style/Widget.Eve.Button.Soft"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
@@ -214,17 +211,17 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="8dp"
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPrev"
-                style="@style/Widget.Eve.OutlinedButton"
+                style="@style/Widget.Eve.Button.Outlined"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="6dp"
                 android:layout_weight="1"
-                android:minHeight="44dp"
+                android:minHeight="48dp"
                 android:text="Previous" />
 
             <com.google.android.material.button.MaterialButton

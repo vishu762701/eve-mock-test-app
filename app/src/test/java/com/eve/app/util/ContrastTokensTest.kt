@@ -190,4 +190,76 @@ class ContrastTokensTest {
         assertTrue("Dark eve_premium_line vs eve_bg must be >= 4.5 (was $darkLineRatioBg)", darkLineRatioBg >= 4.5)
         assertTrue("Dark eve_premium_line vs eve_surface must be >= 4.5 (was $darkLineRatioSurface)", darkLineRatioSurface >= 4.5)
     }
+
+    @Test
+    fun testMasterTaskV3Tokens_contrastCompliance_inLightAndDark() {
+        val lightColors = loadColors("src/main/res/values/colors.xml")
+        val darkColors = loadColors("src/main/res/values-night/colors.xml")
+
+        // 1. Text on Canvas and Surface (>= 4.5:1)
+        val lightTextRatioCanvas = contrastRatio(lightColors["eve_text"]!!, lightColors["eve_canvas"]!!)
+        val lightTextRatioSurface = contrastRatio(lightColors["eve_text"]!!, lightColors["eve_surface"]!!)
+        val lightSecRatioCanvas = contrastRatio(lightColors["eve_text_secondary"]!!, lightColors["eve_canvas"]!!)
+        val lightSecRatioSurface = contrastRatio(lightColors["eve_text_secondary"]!!, lightColors["eve_surface"]!!)
+
+        assertTrue("Light eve_text on canvas must be >= 4.5 (was $lightTextRatioCanvas)", lightTextRatioCanvas >= 4.5)
+        assertTrue("Light eve_text on surface must be >= 4.5 (was $lightTextRatioSurface)", lightTextRatioSurface >= 4.5)
+        assertTrue("Light eve_text_secondary on canvas must be >= 4.5 (was $lightSecRatioCanvas)", lightSecRatioCanvas >= 4.5)
+        assertTrue("Light eve_text_secondary on surface must be >= 4.5 (was $lightSecRatioSurface)", lightSecRatioSurface >= 4.5)
+
+        val darkTextRatioCanvas = contrastRatio(darkColors["eve_text"]!!, darkColors["eve_canvas"]!!)
+        val darkTextRatioSurface = contrastRatio(darkColors["eve_text"]!!, darkColors["eve_surface"]!!)
+        val darkSecRatioCanvas = contrastRatio(darkColors["eve_text_secondary"]!!, darkColors["eve_canvas"]!!)
+        val darkSecRatioSurface = contrastRatio(darkColors["eve_text_secondary"]!!, darkColors["eve_surface"]!!)
+
+        assertTrue("Dark eve_text on canvas must be >= 4.5 (was $darkTextRatioCanvas)", darkTextRatioCanvas >= 4.5)
+        assertTrue("Dark eve_text on surface must be >= 4.5 (was $darkTextRatioSurface)", darkTextRatioSurface >= 4.5)
+        assertTrue("Dark eve_text_secondary on canvas must be >= 4.5 (was $darkSecRatioCanvas)", darkSecRatioCanvas >= 4.5)
+        assertTrue("Dark eve_text_secondary on surface must be >= 4.5 (was $darkSecRatioSurface)", darkSecRatioSurface >= 4.5)
+
+        // 2. Semantic Tiles: text-on-fill pairs (>= 4.5:1)
+        // Right tile
+        val lightRightRatio = contrastRatio(lightColors["eve_tile_right_text"]!!, lightColors["eve_tile_right_fill"]!!)
+        val darkRightRatio = contrastRatio(darkColors["eve_tile_right_text"]!!, darkColors["eve_tile_right_fill"]!!)
+        assertTrue("Light right tile text-on-fill must be >= 4.5 (was $lightRightRatio)", lightRightRatio >= 4.5)
+        assertTrue("Dark right tile text-on-fill must be >= 4.5 (was $darkRightRatio)", darkRightRatio >= 4.5)
+
+        // Wrong tile
+        val lightWrongRatio = contrastRatio(lightColors["eve_tile_wrong_text"]!!, lightColors["eve_tile_wrong_fill"]!!)
+        val darkWrongRatio = contrastRatio(darkColors["eve_tile_wrong_text"]!!, darkColors["eve_tile_wrong_fill"]!!)
+        assertTrue("Light wrong tile text-on-fill must be >= 4.5 (was $lightWrongRatio)", lightWrongRatio >= 4.5)
+        assertTrue("Dark wrong tile text-on-fill must be >= 4.5 (was $darkWrongRatio)", darkWrongRatio >= 4.5)
+
+        // Medium tile (accuracy, marked for review)
+        val lightMediumRatio = contrastRatio(lightColors["eve_tile_medium_text"]!!, lightColors["eve_tile_medium_fill"]!!)
+        val darkMediumRatio = contrastRatio(darkColors["eve_tile_medium_text"]!!, darkColors["eve_tile_medium_fill"]!!)
+        assertTrue("Light medium tile text-on-fill must be >= 4.5 (was $lightMediumRatio)", lightMediumRatio >= 4.5)
+        assertTrue("Dark medium tile text-on-fill must be >= 4.5 (was $darkMediumRatio)", darkMediumRatio >= 4.5)
+
+        // 3. Selection Accents: yellow #FFD52E with #0B0B0D content (>= 4.5:1)
+        val lightYellowRatio = contrastRatio(lightColors["eve_chip_selected_text"]!!, lightColors["eve_chip_selected_bg"]!!)
+        val darkYellowRatio = contrastRatio(darkColors["eve_chip_selected_text"]!!, darkColors["eve_chip_selected_bg"]!!)
+        assertTrue("Light yellow selection content must be >= 4.5 (was $lightYellowRatio)", lightYellowRatio >= 4.5)
+        assertTrue("Dark yellow selection content must be >= 4.5 (was $darkYellowRatio)", darkYellowRatio >= 4.5)
+
+        // 4. Lilac tab/segment/HI chip (>= 4.5:1)
+        val lightLilacRatio = contrastRatio(lightColors["eve_chip_hi_text"]!!, lightColors["eve_chip_hi_bg"]!!)
+        val darkLilacRatio = contrastRatio(darkColors["eve_chip_hi_text"]!!, darkColors["eve_chip_hi_bg"]!!)
+        assertTrue("Light lilac pill text-on-fill must be >= 4.5 (was $lightLilacRatio)", lightLilacRatio >= 4.5)
+        assertTrue("Dark lilac pill text-on-fill must be >= 4.5 (was $darkLilacRatio)", darkLilacRatio >= 4.5)
+
+        // 5. Header Ink Zone (>= 4.5:1 for text, >= 3:1 for UI icons)
+        val lightHeaderInkTextRatio = contrastRatio(lightColors["eve_header_ink_text"]!!, lightColors["eve_header_ink"]!!)
+        val lightHeaderInkSecRatio = contrastRatio(lightColors["eve_header_ink_secondary"]!!, lightColors["eve_header_ink"]!!)
+        val lightHeaderInkIconRatio = contrastRatio(lightColors["eve_header_ink_icon"]!!, lightColors["eve_header_ink"]!!)
+        assertTrue("Header ink text must be >= 4.5 (was $lightHeaderInkTextRatio)", lightHeaderInkTextRatio >= 4.5)
+        assertTrue("Header ink secondary must be >= 4.5 (was $lightHeaderInkSecRatio)", lightHeaderInkSecRatio >= 4.5)
+        assertTrue("Header ink icon must be >= 3.0 (was $lightHeaderInkIconRatio)", lightHeaderInkIconRatio >= 3.0)
+
+        // 6. Primary Inverting Buttons (>= 4.5:1)
+        val lightButtonRatio = contrastRatio(lightColors["eve_button_primary_text"]!!, lightColors["eve_button_primary_bg"]!!)
+        val darkButtonRatio = contrastRatio(darkColors["eve_button_primary_text"]!!, darkColors["eve_button_primary_bg"]!!)
+        assertTrue("Light primary button text-on-fill must be >= 4.5 (was $lightButtonRatio)", lightButtonRatio >= 4.5)
+        assertTrue("Dark primary button text-on-fill must be >= 4.5 (was $darkButtonRatio)", darkButtonRatio >= 4.5)
+    }
 }

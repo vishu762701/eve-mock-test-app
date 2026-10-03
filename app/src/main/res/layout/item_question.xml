@@ -74,7 +74,7 @@
                 android:src="@drawable/ic_star_outline" />
         </FrameLayout>
 
-        <!-- Report Question Action (48dp touch target, premium amber flag) -->
+        <!-- Report Question Action (48dp touch target, bare icon) -->
         <FrameLayout
             android:layout_width="48dp"
             android:layout_height="48dp"
@@ -82,16 +82,16 @@
 
             <ImageButton
                 android:id="@+id/btnReport"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:layout_gravity="center"
-                android:background="@drawable/bg_report_button"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:stateListAnimator="@animator/press_scale"
                 android:contentDescription="Report this question"
-                android:padding="6dp"
+                android:padding="8dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_report_flag_premium"
-                app:tint="@color/eve_report_red" />
+                app:tint="@color/eve_text_secondary" />
         </FrameLayout>
     </LinearLayout>
 

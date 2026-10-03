@@ -58,10 +58,10 @@ class ExamAdapter(
         private var isLottieMode: Boolean = false
 
         init {
-            b.examIconContainer.strokeWidth = 0
-            b.examIconContainer.setCardBackgroundColor(
-                androidx.core.content.ContextCompat.getColor(b.root.context, android.R.color.transparent)
-            )
+            val ctx = b.root.context
+            b.examIconContainer.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_exam_icon_tile_bg))
+            b.examIconContainer.strokeColor = androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_exam_icon_tile_border)
+            b.examIconContainer.strokeWidth = (1 * ctx.resources.displayMetrics.density).toInt()
         }
 
         fun bind(exam: Exam, attempted: Boolean, isPinned: Boolean, attempt: com.eve.app.data.model.TestAttempt?, position: Int) {
@@ -78,25 +78,13 @@ class ExamAdapter(
             }
 
             val ctx = b.root.context
-            val isDark = com.eve.app.util.ThemeSwitchAnimator.isDarkMode(ctx)
-            if (isDark) {
-                val bg = if (position % 2 == 0) com.eve.app.R.color.eve_surface else com.eve.app.R.color.eve_surface_2
-                b.root.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, bg))
-                b.tvExamName.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_text))
-                b.tvExamTime.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_text_secondary))
-            } else {
-                if (position % 2 == 0) {
-                    b.root.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_surface))
-                    b.tvExamName.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_text))
-                    b.tvExamTime.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_text_secondary))
-                } else {
-                    b.root.setCardBackgroundColor(android.graphics.Color.parseColor("#0B0B0D"))
-                    b.tvExamName.setTextColor(android.graphics.Color.parseColor("#F5F5F7"))
-                    b.tvExamTime.setTextColor(android.graphics.Color.parseColor("#9A9AA3"))
-                }
-            }
-            b.root.strokeColor = androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_stroke)
+            b.root.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_glass_card_fill))
+            b.root.strokeColor = androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_glass_card_hairline)
             b.root.strokeWidth = (1 * ctx.resources.displayMetrics.density).toInt()
+            b.tvExamName.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_text))
+            b.tvExamTime.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_text_secondary))
+            b.examIconContainer.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_exam_icon_tile_bg))
+            b.examIconContainer.strokeColor = androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_exam_icon_tile_border)
 
             val hasLogo = exam.imageUrl.isNotBlank()
             if (hasLogo) {

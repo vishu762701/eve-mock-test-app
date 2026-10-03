@@ -24,17 +24,23 @@ class LeaderboardAdapter(
             val ctx = b.root.context
 
             b.tvRank.text = "#$rank"
-            b.tvRank.setTextColor(
-                ContextCompat.getColor(
-                    ctx,
-                    when (rank) {
-                        1 -> R.color.eve_premium_text
-                        2 -> R.color.eve_silver
-                        3 -> R.color.eve_bronze
-                        else -> R.color.eve_grey
-                    }
-                )
-            )
+            when (rank) {
+                1 -> {
+                    b.tvRank.setBackgroundResource(R.drawable.bg_tile_medium)
+                    b.tvRank.setTextColor(ContextCompat.getColor(ctx, R.color.eve_tile_medium_text))
+                    b.tvRank.setPadding((6 * ctx.resources.displayMetrics.density).toInt(), (2 * ctx.resources.displayMetrics.density).toInt(), (6 * ctx.resources.displayMetrics.density).toInt(), (2 * ctx.resources.displayMetrics.density).toInt())
+                }
+                2, 3 -> {
+                    b.tvRank.setBackgroundResource(R.drawable.bg_tile_surface2)
+                    b.tvRank.setTextColor(ContextCompat.getColor(ctx, R.color.eve_text_secondary))
+                    b.tvRank.setPadding((6 * ctx.resources.displayMetrics.density).toInt(), (2 * ctx.resources.displayMetrics.density).toInt(), (6 * ctx.resources.displayMetrics.density).toInt(), (2 * ctx.resources.displayMetrics.density).toInt())
+                }
+                else -> {
+                    b.tvRank.background = null
+                    b.tvRank.setTextColor(ContextCompat.getColor(ctx, R.color.eve_text_secondary))
+                    b.tvRank.setPadding(0, 0, 0, 0)
+                }
+            }
 
             val avatar = com.eve.app.util.AvatarDrawable.create(entry.displayName, entry.userId)
             (b.tvAvatarInitial.parent as? android.view.View)?.background = avatar
@@ -44,9 +50,9 @@ class LeaderboardAdapter(
             val isMe = currentUserId != null && entry.userId == currentUserId
             b.tvName.text = if (isMe) "${entry.displayName} (You)" else entry.displayName
             b.root.setCardBackgroundColor(
-                ContextCompat.getColor(ctx, if (isMe) R.color.eve_highlight_bg else R.color.eve_card_bg)
+                ContextCompat.getColor(ctx, R.color.eve_surface)
             )
-            b.root.strokeColor = ContextCompat.getColor(ctx, if (isMe) R.color.eve_premium_line else R.color.eve_stroke)
+            b.root.strokeColor = ContextCompat.getColor(ctx, if (isMe) R.color.eve_text else R.color.eve_border)
             b.root.strokeWidth = if (isMe) (1.5f * ctx.resources.displayMetrics.density).toInt() else (1f * ctx.resources.displayMetrics.density).toInt()
         }
     }

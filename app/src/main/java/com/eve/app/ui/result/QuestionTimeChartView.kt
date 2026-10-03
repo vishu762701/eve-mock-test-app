@@ -1,8 +1,8 @@
 package com.eve.app.ui.result
 
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.util.AttributeSet
@@ -10,6 +10,7 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.ContextCompat
 import com.eve.app.R
+import com.eve.app.util.FontManager
 
 class QuestionTimeChartView @JvmOverloads constructor(
     context: Context,
@@ -38,22 +39,46 @@ class QuestionTimeChartView @JvmOverloads constructor(
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textSize = 13f * density
         textAlign = Paint.Align.CENTER
-        typeface = com.eve.app.util.FontManager.typeface(context, bold = false)
     }
     private val valuePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textSize = 13f * density
         textAlign = Paint.Align.CENTER
-        color = ContextCompat.getColor(context, R.color.eve_text_secondary)
-        typeface = com.eve.app.util.FontManager.typeface(context, bold = false)
     }
 
-    private val colorCorrect = ContextCompat.getColor(context, R.color.eve_status_success)
-    private val colorWrong = ContextCompat.getColor(context, R.color.eve_status_error)
-    private val colorSkipped = ContextCompat.getColor(context, R.color.eve_stroke)
-    private val colorLabel = ContextCompat.getColor(context, R.color.eve_text_secondary)
-    private val colorSelected = ContextCompat.getColor(context, R.color.eve_primary)
+    private var colorNeutral = 0
+    private var colorSlowest = 0
+    private var colorSkipped = 0
+    private var colorLabel = 0
+    private var colorSelected = 0
 
     private val barRect = RectF()
+
+    init {
+        resolveColors()
+    }
+
+    private fun resolveColors() {
+        colorNeutral = ContextCompat.getColor(context, R.color.eve_text_secondary)
+        colorSlowest = ContextCompat.getColor(context, R.color.eve_status_error)
+        colorSkipped = ContextCompat.getColor(context, R.color.eve_border)
+        colorLabel = ContextCompat.getColor(context, R.color.eve_text_secondary)
+        colorSelected = ContextCompat.getColor(context, R.color.eve_text)
+
+        textPaint.typeface = FontManager.typeface(context, bold = false)
+        valuePaint.typeface = FontManager.typeface(context, bold = false)
+        valuePaint.color = colorLabel
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        resolveColors()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig)
+        resolveColors()
+        invalidate()
+    }
 
     fun setItems(barItems: List<BarItem>) {
         items = barItems
@@ -81,6 +106,7 @@ class QuestionTimeChartView @JvmOverloads constructor(
         if (items.isEmpty()) return
 
         val maxSec = (items.maxOfOrNull { it.timeSeconds } ?: 30L).coerceAtLeast(15L).toFloat()
+        val slowestSec = items.maxOfOrNull { it.timeSeconds } ?: 0L
         val chartHeight = height - topMargin - bottomMargin
         val startX = paddingLeft + barSpacing
 
@@ -97,10 +123,11 @@ class QuestionTimeChartView @JvmOverloads constructor(
             val top = height - bottomMargin - barH
             val bottom = height - bottomMargin
 
+            val isSlowest = item.timeSeconds > 0 && item.timeSeconds == slowestSec
             barPaint.color = when {
                 i == selectedIndex -> colorSelected
-                item.isCorrect -> colorCorrect
-                item.isAttempted -> colorWrong
+                isSlowest -> colorSlowest
+                item.timeSeconds > 0 -> colorNeutral
                 else -> colorSkipped
             }
 
@@ -110,6 +137,7 @@ class QuestionTimeChartView @JvmOverloads constructor(
 
             // Draw time value on top of bar
             if (item.timeSeconds > 0) {
+                valuePaint.color = if (isSlowest) colorSlowest else colorLabel
                 canvas.drawText("${item.timeSeconds}s", left + barWidth / 2, top - 4f * density, valuePaint)
             }
 
