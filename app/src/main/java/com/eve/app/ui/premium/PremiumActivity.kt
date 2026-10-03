@@ -189,7 +189,7 @@ class PremiumActivity : EveBaseActivity() {
                 val icon = android.widget.ImageView(this).apply {
                     layoutParams = android.widget.LinearLayout.LayoutParams(iconSize, iconSize)
                     setImageResource(R.drawable.ic_check_circle)
-                    setColorFilter(androidx.core.content.ContextCompat.getColor(this@PremiumActivity, R.color.eve_status_success))
+                    setColorFilter(androidx.core.content.ContextCompat.getColor(this@PremiumActivity, R.color.eve_text))
                 }
                 val text = android.widget.TextView(this).apply {
                     layoutParams = android.widget.LinearLayout.LayoutParams(0, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {

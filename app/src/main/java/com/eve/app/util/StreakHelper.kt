@@ -6,6 +6,6 @@ object StreakHelper {
     const val DEFAULT_DAILY_GOAL = 2
 
     fun formatStreakText(currentStreak: Int, todayCount: Int, goal: Int): String {
-        return "🔥 $currentStreak-day streak • Today: $todayCount/$goal tests"
+        return "$currentStreak-day streak • Today: $todayCount/$goal tests"
     }
 }

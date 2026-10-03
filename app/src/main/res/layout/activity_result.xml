@@ -94,7 +94,10 @@
         app:tabIndicatorAnimationMode="linear"
         app:tabIndicatorColor="@null"
         app:tabIndicatorGravity="stretch"
+        app:tabMaxWidth="0dp"
         app:tabMode="fixed"
+        app:tabPaddingStart="16dp"
+        app:tabPaddingEnd="16dp"
         app:tabRippleColor="@null"
         app:tabSelectedTextColor="@color/eve_tab_selected_text"
         app:tabTextAppearance="@style/TextAppearance.Eve.TabSegment"
@@ -115,11 +118,6 @@
             android:layout_height="wrap_content"
             android:text="Leaderboard" />
     </com.google.android.material.tabs.TabLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/eve_stroke" />
 
     <!-- Scrollable content area -->
     <androidx.core.widget.NestedScrollView

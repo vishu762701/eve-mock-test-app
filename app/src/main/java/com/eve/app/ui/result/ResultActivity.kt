@@ -718,10 +718,6 @@ class ResultActivity : EveBaseActivity() {
                         if (percentile != null) {
                             (binding.tvPercentile.parent as? View)?.visibility = View.VISIBLE
                             binding.tvPercentile.text = "${String.format(java.util.Locale.US, "%.1f", percentile)}%"
-                            if (percentile >= 50.0 || myRank == 1) {
-                                binding.tvPercentile.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.eve_status_success))
-                                binding.tvRank.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.eve_status_success))
-                            }
                         } else {
                             (binding.tvPercentile.parent as? View)?.visibility = View.GONE
                         }
