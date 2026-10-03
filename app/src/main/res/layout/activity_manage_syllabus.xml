@@ -11,7 +11,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_surface"
+        android:background="@color/eve_bg"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="16dp"
@@ -25,7 +25,7 @@
             android:contentDescription="Back"
             android:padding="8dp"
             android:src="@drawable/ic_back"
-            app:tint="?attr/colorOnSurface" />
+            app:tint="@color/eve_text" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -35,11 +35,10 @@
             android:orientation="vertical">
 
             <TextView
+                style="@style/TextAppearance.Eve.ScreenTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Manage Syllabus"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="18sp" />
+                android:text="Manage Syllabus" />
 
             <TextView
                 android:layout_width="wrap_content"

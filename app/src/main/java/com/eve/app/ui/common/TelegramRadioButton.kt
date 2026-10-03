@@ -52,12 +52,12 @@ class TelegramRadioButton @JvmOverloads constructor(
 
         // 24dp cards, surface with hairline; selected = right tile fill + 1.5dp right-border + filled green radio
         val cornerPx = 24f * density
+        val tokenColor = ContextCompat.getColor(context, R.color.eve_text)
         val isDark = ThemeSwitchAnimator.isDarkMode(context)
-        val rippleColor = if (isDark) {
-            Color.argb(38, 255, 255, 255) // ~15% white
-        } else {
-            Color.argb(31, 0, 0, 0) // ~12% dark
-        }
+        val rippleColor = androidx.core.graphics.ColorUtils.setAlphaComponent(
+            tokenColor,
+            if (isDark) 38 else 31
+        )
 
         val checkedBg = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
@@ -78,10 +78,11 @@ class TelegramRadioButton @JvmOverloads constructor(
             addState(intArrayOf(), uncheckedBg)
         }
 
+        val maskColor = ContextCompat.getColor(context, R.color.eve_surface)
         val maskDrawable = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadius = cornerPx
-            setColor(Color.WHITE)
+            setColor(maskColor)
         }
 
         background = RippleDrawable(ColorStateList.valueOf(rippleColor), contentStateList, maskDrawable)

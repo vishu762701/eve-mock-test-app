@@ -10,7 +10,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_surface"
+        android:background="@color/eve_bg"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="16dp"
@@ -27,13 +27,12 @@
             app:tint="@color/eve_text" />
 
         <TextView
+            style="@style/TextAppearance.Eve.ScreenTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:text="Manage Existing Exams"
-            android:textColor="@color/eve_text"
-            android:textSize="19sp" />
+            android:text="Manage Existing Exams" />
 
         <ImageButton
             android:id="@+id/btnRefresh"

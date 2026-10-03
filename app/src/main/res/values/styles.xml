@@ -196,4 +196,13 @@
         <item name="fontFamily">@font/poppins_medium</item>
         <item name="android:fontFamily">@font/poppins_medium</item>
     </style>
+
+    <!-- ScreenTitle: 20sp, Poppins semibold/bold, eve_text -->
+    <style name="TextAppearance.Eve.ScreenTitle">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="fontFamily">@font/poppins_semibold</item>
+        <item name="android:fontFamily">@font/poppins_semibold</item>
+        <item name="android:textColor">@color/eve_text</item>
+    </style>
 </resources>

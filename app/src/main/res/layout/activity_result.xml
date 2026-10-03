@@ -14,7 +14,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_surface"
+        android:background="@color/eve_bg"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="16dp"
@@ -40,13 +40,10 @@
 
             <TextView
                 android:id="@+id/tvResultTitle"
+                style="@style/TextAppearance.Eve.ScreenTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_bold"
-                android:text="Test Result"
-                android:textColor="@color/eve_text"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:text="Test Result" />
 
             <TextView
                 android:id="@+id/tvResultSubtitle"

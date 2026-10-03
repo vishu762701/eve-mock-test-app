@@ -60,7 +60,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_surface"
+        android:background="@color/eve_bg"
         android:paddingHorizontal="16dp"
         android:paddingVertical="6dp">
 

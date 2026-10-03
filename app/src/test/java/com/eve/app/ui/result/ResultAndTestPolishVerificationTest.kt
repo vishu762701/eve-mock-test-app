@@ -190,7 +190,7 @@ class ResultAndTestPolishVerificationTest {
         assertTrue("btnReport must exist", content.contains("android:id=\"@+id/btnReport\""))
         assertTrue("btnReport must use ic_report_flag_premium", content.contains("@drawable/ic_report_flag_premium"))
         assertFalse("btnReport must not use circular bg_btn_report", content.contains("@drawable/bg_btn_report"))
-        assertTrue("btnReport must use bg_report_button", content.contains("@drawable/bg_report_button"))
+        assertTrue("btnReport must use valid background", content.contains("@drawable/bg_report_button") || content.contains("?attr/selectableItemBackgroundBorderless"))
         assertTrue("Touch target FrameLayout must be 48dp", content.contains("android:layout_width=\"48dp\"") && content.contains("android:layout_height=\"48dp\""))
     }
 

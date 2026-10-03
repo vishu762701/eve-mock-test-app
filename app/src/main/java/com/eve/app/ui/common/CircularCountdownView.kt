@@ -28,22 +28,18 @@ class CircularCountdownView @JvmOverloads constructor(
     private val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = strokePx
-        color = Color.argb(60, 255, 255, 255)
     }
 
     private val progressPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = strokePx
         strokeCap = Paint.Cap.ROUND
-        color = Color.WHITE
     }
 
     private val oval = RectF()
     private var progress: Float = 1f // 1.0 = full circle, 0.0 = depleted
     private var animator: ValueAnimator? = null
-    private var iconDrawable: Drawable? = ContextCompat.getDrawable(context, R.drawable.ic_delete)?.mutate()?.apply {
-        setTint(Color.WHITE)
-    }
+    private var iconDrawable: Drawable? = ContextCompat.getDrawable(context, R.drawable.ic_delete)?.mutate()
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
@@ -57,6 +53,17 @@ class CircularCountdownView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+        val fgColor = ContextCompat.getColor(context, R.color.eve_bulletin_text)
+        val trackColor = Color.argb(
+            60,
+            Color.red(fgColor),
+            Color.green(fgColor),
+            Color.blue(fgColor)
+        )
+        trackPaint.color = trackColor
+        progressPaint.color = fgColor
+        iconDrawable?.setTint(fgColor)
+
         // Draw background ring track
         canvas.drawOval(oval, trackPaint)
 

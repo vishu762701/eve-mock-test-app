@@ -8,7 +8,7 @@
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
         <com.google.android.material.button.MaterialButton android:id="@+id/btnBack" style="@style/Widget.Eve.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="← Back" />
-        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Topic-wise Practice" android:textColor="?attr/colorOnSurface" android:textSize="20sp" android:textStyle="bold" />
+        <TextView style="@style/TextAppearance.Eve.ScreenTitle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Topic-wise Practice" />
     </LinearLayout>
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Select an exam, then start a focused practice set by topic. Each set contains up to 10 random questions." android:textColor="@color/eve_grey" android:textSize="14sp" />
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="Exam" android:textStyle="bold" />

@@ -10,7 +10,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:background="@color/eve_surface"
+        android:background="@color/eve_bg"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="16dp">
@@ -25,13 +25,12 @@
             app:tint="@color/eve_text" />
 
         <TextView
+            style="@style/TextAppearance.Eve.ScreenTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_weight="1"
-            android:text="Polls Management"
-            android:textColor="@color/eve_text"
-            android:textSize="18sp" />
+            android:text="Polls Management" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCreatePollDialog"

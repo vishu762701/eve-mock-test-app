@@ -14,15 +14,6 @@
         <item name="android:textColor">@color/eve_text</item>
     </style>
 
-    <!-- ScreenTitle: 22sp, Bold (top-bar titles, Home welcome) -->
-    <style name="TextAppearance.Eve.ScreenTitle">
-        <item name="android:textSize">22sp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="fontFamily">@font/poppins_bold</item>
-        <item name="android:fontFamily">@font/poppins_bold</item>
-        <item name="android:textColor">@color/eve_text</item>
-    </style>
-
     <!-- Heading: 20sp, Bold (section headings, dialog titles, result headings, exam name on detail screens) -->
     <style name="TextAppearance.Eve.Heading">
         <item name="android:textSize">20sp</item>
