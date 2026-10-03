@@ -114,10 +114,6 @@ class ExamAdapter(
 
         private fun showLogoMode() {
             isLottieMode = false
-            b.examIconContainer.strokeWidth = 0
-            b.examIconContainer.setCardBackgroundColor(
-                androidx.core.content.ContextCompat.getColor(b.root.context, android.R.color.transparent)
-            )
             b.ivExamImage.visibility = View.VISIBLE
             b.lottieExamIcon.visibility = View.GONE
             b.lottieExamIcon.cancelAnimation()
@@ -125,10 +121,6 @@ class ExamAdapter(
 
         private fun showLottieMode() {
             isLottieMode = true
-            b.examIconContainer.strokeWidth = 0
-            b.examIconContainer.setCardBackgroundColor(
-                androidx.core.content.ContextCompat.getColor(b.root.context, android.R.color.transparent)
-            )
             b.ivExamImage.visibility = View.GONE
             b.lottieExamIcon.visibility = View.VISIBLE
             val examId = currentExamId

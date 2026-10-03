@@ -125,6 +125,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingBottom="88dp"
         android:fillViewport="true">
 
         <FrameLayout
@@ -141,6 +143,14 @@
                 android:orientation="vertical"
                 android:padding="16dp"
                 android:visibility="gone">
+
+                <!-- Section Header for Statistics -->
+                <TextView
+                    style="@style/TextAppearance.Eve.Heading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:text="Statistics" />
 
                 <!-- Primary Hero Score Card -->
                 <com.google.android.material.card.MaterialCardView
@@ -199,7 +209,8 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:textColor="@color/eve_text_secondary"
-                            android:textSize="13sp" />
+                            android:textSize="13sp"
+                            android:visibility="gone" />
 
                         <View
                             android:layout_width="match_parent"
@@ -296,7 +307,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="2dp"
-                                    android:text="Skipped"
+                                    android:text="Unattempted"
                                     android:textColor="@color/eve_text_secondary"
                                     android:textSize="11sp" />
                             </LinearLayout>
@@ -332,12 +343,20 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
+                <!-- Section Header for Performance -->
+                <TextView
+                    style="@style/TextAppearance.Eve.Heading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="Performance" />
+
                 <!-- Supporting: Rank & Percentile Card -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardPerformanceStanding"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
                     app:cardBackgroundColor="@color/eve_surface"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
@@ -652,17 +671,14 @@
                 </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
 
-                <!-- Section Header for Analysis -->
+                <!-- Section Header for Analytics -->
                 <TextView
+                    style="@style/TextAppearance.Eve.Heading"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="22dp"
-                    android:layout_marginBottom="8dp"
-                    android:letterSpacing="0.04"
-                    android:text="ANALYSIS"
-                    android:textColor="@color/eve_text_secondary"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="Analytics" />
 
                 <!-- Merged Analysis Section -->
                 <LinearLayout
@@ -1366,22 +1382,27 @@
         </FrameLayout>
     </androidx.core.widget.NestedScrollView>
 
+    <!-- Fade above bottom bar -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="16dp"
+        android:background="@drawable/bg_fade_to_canvas" />
+
+    <!-- 1dp top hairline -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/eve_stroke" />
+
     <!-- Bottom Actions Container -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_surface"
-        android:elevation="4dp"
+        android:background="@color/eve_canvas"
         android:orientation="vertical"
-        android:paddingHorizontal="16dp"
+        android:paddingHorizontal="20dp"
         android:paddingTop="8dp"
         android:paddingBottom="12dp">
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginBottom="8dp"
-            android:background="@color/eve_stroke" />
 
         <!-- Action Cluster: Reattempt -->
         <LinearLayout
@@ -1395,7 +1416,8 @@
                 android:id="@+id/btnReattempt"
                 style="@style/Widget.Eve.Button.Primary"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginBottom="8dp"
                 android:minHeight="48dp"
                 android:text="Reattempt"
                 app:icon="@drawable/ic_refresh"
@@ -1406,10 +1428,9 @@
         <!-- Strong Final Action: Close -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnHome"
-            style="@style/Widget.Eve.Button.Neutral"
+            style="@style/Widget.Eve.Button.Soft"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_height="48dp"
             android:minHeight="48dp"
             android:text="Close" />
     </LinearLayout>

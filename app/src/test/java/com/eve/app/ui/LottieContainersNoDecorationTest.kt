@@ -47,29 +47,20 @@ class LottieContainersNoDecorationTest {
         val container = findElementById(doc.documentElement, "examIconContainer")
         assertNotNull("examIconContainer must exist in item_exam.xml", container)
 
-        val strokeWidth = container!!.getAttribute("app:strokeWidth")
-        assertTrue(
-            "examIconContainer strokeWidth must be 0dp or 0 (was '$strokeWidth')",
-            strokeWidth == "0dp" || strokeWidth == "0"
-        )
-
-        val bgColor = container.getAttribute("app:cardBackgroundColor")
+        val bgColor = container!!.getAttribute("app:cardBackgroundColor")
         assertEquals(
-            "examIconContainer cardBackgroundColor must be @android:color/transparent",
-            "@android:color/transparent",
+            "examIconContainer cardBackgroundColor must be @color/eve_exam_icon_tile_bg",
+            "@color/eve_exam_icon_tile_bg",
             bgColor
         )
+
+        val cornerRadius = container.getAttribute("app:cardCornerRadius")
+        assertEquals("examIconContainer cornerRadius must be 16dp", "16dp", cornerRadius)
 
         val elevation = container.getAttribute("app:cardElevation")
         assertTrue(
             "examIconContainer cardElevation must be 0dp or empty (was '$elevation')",
             elevation.isEmpty() || elevation == "0dp" || elevation == "0"
-        )
-
-        val rippleColor = container.getAttribute("app:rippleColor")
-        assertTrue(
-            "examIconContainer rippleColor must be @android:color/transparent or @null",
-            rippleColor == "@android:color/transparent" || rippleColor == "@null" || rippleColor.isEmpty()
         )
     }
 

@@ -172,9 +172,9 @@ class ResultAndTestPolishVerificationTest {
         assertTrue("item_exam.xml must exist", file.exists())
         val content = file.readText()
         assertTrue(
-            "examIconContainer must specify transparent background",
+            "examIconContainer must specify eve_exam_icon_tile_bg background",
             content.contains("android:id=\"@+id/examIconContainer\"") &&
-            content.contains("app:cardBackgroundColor=\"@android:color/transparent\"")
+            content.contains("app:cardBackgroundColor=\"@color/eve_exam_icon_tile_bg\"")
         )
     }
 

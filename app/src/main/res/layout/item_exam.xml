@@ -22,12 +22,12 @@
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/examIconContainer"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             app:cardBackgroundColor="@color/eve_exam_icon_tile_bg"
-            app:cardCornerRadius="@dimen/eve_radius_icon_container"
+            app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
             app:rippleColor="@android:color/transparent"
             app:strokeColor="@color/eve_exam_icon_tile_border"
@@ -40,14 +40,13 @@
                 android:background="@android:color/transparent"
                 android:contentDescription="Exam image"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_exam_placeholder"
-                app:shapeAppearanceOverlay="@style/ShapeRounded14" />
+                android:src="@drawable/ic_exam_placeholder" />
 
             <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/lottieExamIcon"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="4dp"
+                android:padding="6dp"
                 android:visibility="gone"
                 app:lottie_autoPlay="false"
                 app:lottie_loop="false"
