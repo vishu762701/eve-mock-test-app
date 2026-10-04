@@ -75,6 +75,7 @@ class ResultActivity : EveBaseActivity() {
 
     private var selectedCutoffCategory: String = "General"
     private var fromHistory = false
+    private var canReattempt = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -199,11 +200,9 @@ class ResultActivity : EveBaseActivity() {
             } else {
                 "Historical Attempt"
             }
-            binding.btnHome.text = "Close"
         }
 
-        val canReattempt = intent.getBooleanExtra(Constants.EXTRA_CAN_REATTEMPT, false)
-        binding.btnReattempt.visibility = if (canReattempt) View.VISIBLE else View.GONE
+        canReattempt = intent.getBooleanExtra(Constants.EXTRA_CAN_REATTEMPT, false)
         if (canReattempt) {
             binding.btnReattempt.setOnClickListener {
                 showReattemptDialog(currentExamId, if (currentExamName.isNotBlank()) currentExamName else "this test")
@@ -345,9 +344,7 @@ class ResultActivity : EveBaseActivity() {
         if (currentExamId.isBlank()) {
             binding.tvLeaderboardTabSubtitle.text = "Leaderboard is only available for scheduled and published mock tests."
         }
-        binding.layoutActionCluster.visibility = if (canReattempt) View.VISIBLE else View.GONE
-
-        binding.btnHome.setOnClickListener { close() }
+        updateBottomBarVisibility(binding.tabLayoutResult.selectedTabPosition)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -419,6 +416,8 @@ class ResultActivity : EveBaseActivity() {
                 binding.sectionOverview.visibility = if (pos == 1) View.VISIBLE else View.GONE
                 binding.sectionLeaderboard.visibility = if (pos == 2) View.VISIBLE else View.GONE
 
+                updateBottomBarVisibility(pos)
+
                 if (pos == 0) {
                     selectQuestion(selectedQuestionIndex)
                 }
@@ -427,6 +426,18 @@ class ResultActivity : EveBaseActivity() {
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
             override fun onTabReselected(tab: TabLayout.Tab?) {}
         })
+    }
+
+    private fun updateBottomBarVisibility(tabPosition: Int) {
+        val showBar = (tabPosition == 0 && canReattempt)
+        binding.layoutBottomBar.visibility = if (showBar) View.VISIBLE else View.GONE
+        val bottomPad = if (showBar) (16 * resources.displayMetrics.density).toInt() else 0
+        binding.scrollResultContent.setPadding(
+            binding.scrollResultContent.paddingLeft,
+            binding.scrollResultContent.paddingTop,
+            binding.scrollResultContent.paddingRight,
+            bottomPad
+        )
     }
 
     private fun setupAnalysisSection(
@@ -440,6 +451,7 @@ class ResultActivity : EveBaseActivity() {
         val attemptedPct = if (total > 0) (attempted * 100.0 / total) else 0.0
         binding.tvAnalysisAttempted.text = "${String.format(java.util.Locale.US, "%.1f", attemptedPct)}%"
         binding.tvAnalysisAccuracy.text = "${String.format(java.util.Locale.US, "%.1f", accuracy)}%"
+        binding.gaugeTopicAccuracy.setPercentage(accuracy.toFloat())
 
         val timedItems = allItems.filter { it.timeTakenSeconds > 0 }
         val avgSeconds = if (timedItems.isNotEmpty()) {
@@ -690,6 +702,8 @@ class ResultActivity : EveBaseActivity() {
             if (isCounted == 0) {
                 (binding.tvRank.parent as? View)?.visibility = View.GONE
                 binding.tvLeaderboardTabRank.text = "Not ranked"
+                binding.tvLeaderboardTabSubtitle.text = "This attempt is not counted on the official leaderboard."
+                binding.layoutLeaderboardChips.visibility = View.GONE
                 (binding.tvPercentile.parent as? View)?.visibility = View.GONE
                 binding.tvTopperAvg.text = "Topper: -- • Average: --"
                 val sStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format(java.util.Locale.US, "%.1f", currentScore)
@@ -705,14 +719,30 @@ class ResultActivity : EveBaseActivity() {
                         val totalParticipants = stats.participants
                         val myRank = stats.myRank
                         val percentile = stats.myPercentile
+                        val sStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format(java.util.Locale.US, "%.1f", currentScore)
 
                         if (myRank != null && totalParticipants > 0) {
                             (binding.tvRank.parent as? View)?.visibility = View.VISIBLE
                             binding.tvRank.text = "#$myRank / $totalParticipants"
-                            binding.tvLeaderboardTabRank.text = binding.tvRank.text
+                            binding.tvLeaderboardTabRank.text = "#$myRank"
+                            binding.tvLeaderboardTabSubtitle.text = if (totalParticipants == 1) {
+                                "You're the first on the board!"
+                            } else {
+                                "of $totalParticipants students"
+                            }
+                            binding.layoutLeaderboardChips.visibility = View.VISIBLE
+                            binding.tvLeaderboardScoreChip.text = "Score: $sStr"
+                            if (percentile != null) {
+                                binding.tvLeaderboardPercentileChip.visibility = View.VISIBLE
+                                binding.tvLeaderboardPercentileChip.text = "Percentile: ${String.format(java.util.Locale.US, "%.1f", percentile)}%"
+                            } else {
+                                binding.tvLeaderboardPercentileChip.visibility = View.GONE
+                            }
                         } else {
                             (binding.tvRank.parent as? View)?.visibility = View.GONE
                             binding.tvLeaderboardTabRank.text = "Not ranked"
+                            binding.tvLeaderboardTabSubtitle.text = "No rank data available yet"
+                            binding.layoutLeaderboardChips.visibility = View.GONE
                         }
 
                         if (percentile != null) {
@@ -728,7 +758,6 @@ class ResultActivity : EveBaseActivity() {
                             binding.tvTopperAvg.text = "Topper: $topperStr • Average: $avgStr"
                             binding.tvHistoryBestAvg.text = "Topper: $topperStr  •  Avg: $avgStr"
                         } else {
-                            val sStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format(java.util.Locale.US, "%.1f", currentScore)
                             binding.tvTopperAvg.text = "Topper: $sStr • Average: $sStr"
                             binding.tvHistoryBestAvg.text = "Score: $sStr"
                         }
@@ -740,6 +769,8 @@ class ResultActivity : EveBaseActivity() {
             // Fallback when stats are not available or call fails: hide rank row
             (binding.tvRank.parent as? View)?.visibility = View.GONE
             binding.tvLeaderboardTabRank.text = "Not ranked"
+            binding.tvLeaderboardTabSubtitle.text = "Leaderboard stats currently unavailable"
+            binding.layoutLeaderboardChips.visibility = View.GONE
             (binding.tvPercentile.parent as? View)?.visibility = View.GONE
             val sStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format(java.util.Locale.US, "%.1f", currentScore)
             binding.tvHistoryBestAvg.text = "Score: $sStr"

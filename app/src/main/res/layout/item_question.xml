@@ -95,20 +95,19 @@
         </FrameLayout>
     </LinearLayout>
 
-    <!-- 2. Question Region: 0dp weight=1, minHeight=96dp -->
+    <!-- 2. Question Region: wrap_content, max-height managed by QuestionFitHelper -->
     <FrameLayout
         android:id="@+id/questionContainer"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:minHeight="96dp"
-        android:layout_marginBottom="8dp">
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:layout_marginBottom="0dp">
 
         <ScrollView
             android:id="@+id/svQuestion"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fillViewport="true"
+            android:layout_height="wrap_content"
+            android:fillViewport="false"
             android:scrollbars="vertical"
             android:requiresFadingEdge="vertical"
             android:fadingEdgeLength="16dp">
@@ -136,11 +135,12 @@
             android:contentDescription="Scroll for more" />
     </FrameLayout>
 
-    <!-- 3. Options Block: wrap_content, pinned below question region -->
+    <!-- 3. Options Block: wrap_content, directly beneath question with 16dp gap -->
     <RadioGroup
         android:id="@+id/rgOptions"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp">
 
         <com.eve.app.ui.common.TelegramRadioButton
             android:id="@+id/rbA"

@@ -69,7 +69,9 @@ class QuestionAdapter(
                 svQuestion = b.svQuestion,
                 ivScrollHint = b.ivScrollHint,
                 options = optionsList,
-                questionText = questionText
+                questionText = questionText,
+                questionContainer = b.questionContainer,
+                rgOptions = b.rgOptions
             )
 
             // Cancel any in-flight star animation on recycled view and restore clean baseline

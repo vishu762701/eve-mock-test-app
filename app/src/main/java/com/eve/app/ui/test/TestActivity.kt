@@ -14,6 +14,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.eve.app.R
 import com.eve.app.data.model.AnswerItem
 import com.eve.app.data.model.Question
@@ -116,6 +118,18 @@ class TestActivity : EveBaseActivity() {
             binding.viewPager.setCurrentItem(pos, true)
         }
         binding.rvQuestionPalette.adapter = paletteAdapter
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.layoutBottomBar) { view, insets ->
+            val navBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            val baseBottomPadding = (12 * resources.displayMetrics.density).toInt()
+            view.setPadding(
+                view.paddingLeft,
+                view.paddingTop,
+                view.paddingRight,
+                baseBottomPadding + navBars.bottom
+            )
+            insets
+        }
 
         binding.btnPrev.setOnClickListener {
             val current = binding.viewPager.currentItem

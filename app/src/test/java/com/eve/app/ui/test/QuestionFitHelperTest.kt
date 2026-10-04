@@ -124,4 +124,25 @@ class QuestionFitHelperTest {
         )
         assertEquals(14f, chosen, 0.001f)
     }
+
+    @Test
+    fun testComputeMaxQuestionHeight_subtractsOverheadAndRespectsFloor() {
+        val density = 2f
+        // overhead = 84dp * 2 = 168px + optionsHeight (say 400px) = 568px
+        // available = 1000px - 568px = 432px
+        val computed = QuestionFitHelper.computeMaxQuestionHeight(
+            totalAvailableHeightPx = 1000,
+            optionsHeightPx = 400,
+            density = density
+        )
+        assertEquals(432, computed)
+
+        // Floor test: available = 600px - 568px = 32px (< floor 72 * 2 = 144px)
+        val floorComputed = QuestionFitHelper.computeMaxQuestionHeight(
+            totalAvailableHeightPx = 600,
+            optionsHeightPx = 400,
+            density = density
+        )
+        assertEquals(144, floorComputed)
+    }
 }

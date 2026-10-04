@@ -71,10 +71,15 @@
             android:id="@+id/btnLanguage"
             style="@style/Widget.Eve.Button.LilacPill"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minWidth="48dp"
+            android:layout_height="40dp"
             android:minHeight="40dp"
+            android:minWidth="0dp"
             android:paddingHorizontal="14dp"
+            android:paddingVertical="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:gravity="center"
+            android:fontFamily="@font/poppins_semibold"
             android:text="HI" />
     </LinearLayout>
 
@@ -90,11 +95,12 @@
         app:tabIndicator="@drawable/bg_tab_segmented_indicator"
         app:tabIndicatorAnimationMode="linear"
         app:tabIndicatorColor="@null"
+        app:tabIndicatorFullWidth="true"
         app:tabIndicatorGravity="stretch"
         app:tabMaxWidth="0dp"
         app:tabMode="fixed"
-        app:tabPaddingStart="16dp"
-        app:tabPaddingEnd="16dp"
+        app:tabPaddingStart="8dp"
+        app:tabPaddingEnd="8dp"
         app:tabRippleColor="@null"
         app:tabSelectedTextColor="@color/eve_tab_selected_text"
         app:tabTextAppearance="@style/TextAppearance.Eve.TabSegment"
@@ -103,17 +109,17 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Review" />
+            android:text="@string/review" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Overview" />
+            android:text="@string/overview" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Leaderboard" />
+            android:text="@string/leaderboard" />
     </com.google.android.material.tabs.TabLayout>
 
     <!-- Scrollable content area -->
@@ -123,7 +129,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:clipToPadding="false"
-        android:paddingBottom="88dp"
+        android:paddingBottom="0dp"
         android:fillViewport="true">
 
         <FrameLayout
@@ -141,18 +147,12 @@
                 android:padding="16dp"
                 android:visibility="gone">
 
-                <!-- Section Header for Statistics -->
-                <TextView
-                    style="@style/TextAppearance.Eve.Heading"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:text="Statistics" />
-
-                <!-- Primary Hero Score Card -->
+                <!-- Centered RESULT Hero Card -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardResultHero"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
                     app:cardBackgroundColor="@color/eve_surface"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
@@ -162,183 +162,206 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="20dp">
+                        android:paddingHorizontal="20dp"
+                        android:paddingVertical="24dp">
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
+                        <TextView
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:letterSpacing="0.04"
-                                android:text="TOTAL SCORE"
-                                android:textColor="@color/eve_text_secondary"
-                                android:textSize="12sp" />
-
-                            <TextView
-                                android:id="@+id/tvScorePercentage"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:background="@drawable/bg_stat_mini"
-                                android:paddingHorizontal="10dp"
-                                android:paddingVertical="3dp"
-                                android:text="--% Score"
-                                android:textColor="@color/eve_primary"
-                                android:textSize="12sp" />
-                        </LinearLayout>
+                            android:letterSpacing="0.06"
+                            android:text="TOTAL SCORE"
+                            android:textColor="@color/eve_text_secondary"
+                            android:textSize="12sp" />
 
                         <TextView
                             android:id="@+id/tvScore"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
+                            android:layout_marginTop="4dp"
                             android:textColor="?attr/colorOnSurface"
-                            android:textSize="38sp" />
+                            android:textSize="40sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvScorePercentage"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:background="@drawable/bg_stat_mini"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="4dp"
+                            android:text="--% Score"
+                            android:textColor="@color/eve_primary"
+                            android:textSize="13sp" />
 
                         <TextView
                             android:id="@+id/tvStats"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="8dp"
+                            android:gravity="center"
                             android:textColor="@color/eve_text_secondary"
-                            android:textSize="13sp"
+                            android:textSize="12sp"
                             android:visibility="gone" />
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_marginVertical="16dp"
-                            android:background="@color/eve_stroke" />
-
-                        <!-- Secondary Breakdown: Correct, Wrong, Unattempted, Accuracy as 4 tiles in one row -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:baselineAligned="false"
-                            android:orientation="horizontal">
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginEnd="6dp"
-                                android:background="@drawable/bg_tile_right"
-                                android:gravity="center"
-                                android:orientation="vertical"
-                                android:paddingHorizontal="4dp"
-                                android:paddingVertical="10dp">
-
-                                <TextView
-                                    android:id="@+id/tvCorrectCount"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="0"
-                                    android:textColor="@color/eve_tile_right_text"
-                                    android:textSize="18sp"
-                                    android:textStyle="bold" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:text="Right"
-                                    android:textColor="@color/eve_tile_right_text"
-                                    android:textSize="11sp" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginEnd="6dp"
-                                android:background="@drawable/bg_tile_wrong"
-                                android:gravity="center"
-                                android:orientation="vertical"
-                                android:paddingHorizontal="4dp"
-                                android:paddingVertical="10dp">
-
-                                <TextView
-                                    android:id="@+id/tvWrongCount"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="0"
-                                    android:textColor="@color/eve_tile_wrong_text"
-                                    android:textSize="18sp"
-                                    android:textStyle="bold" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:text="Wrong"
-                                    android:textColor="@color/eve_tile_wrong_text"
-                                    android:textSize="11sp" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginEnd="6dp"
-                                android:background="@drawable/bg_tile_surface2"
-                                android:gravity="center"
-                                android:orientation="vertical"
-                                android:paddingHorizontal="4dp"
-                                android:paddingVertical="10dp">
-
-                                <TextView
-                                    android:id="@+id/tvUnattemptedCount"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="0"
-                                    android:textColor="@color/eve_text"
-                                    android:textSize="18sp"
-                                    android:textStyle="bold" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:text="Unattempted"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="11sp" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:background="@drawable/bg_tile_medium"
-                                android:gravity="center"
-                                android:orientation="vertical"
-                                android:paddingHorizontal="4dp"
-                                android:paddingVertical="10dp">
-
-                                <TextView
-                                    android:id="@+id/tvAccuracy"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="--%"
-                                    android:textColor="@color/eve_tile_medium_text"
-                                    android:textSize="18sp"
-                                    android:textStyle="bold" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:text="Accuracy"
-                                    android:textColor="@color/eve_tile_medium_text"
-                                    android:textSize="11sp" />
-                            </LinearLayout>
-                        </LinearLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
+
+                <!-- Section Header for Statistics -->
+                <TextView
+                    style="@style/TextAppearance.Eve.Heading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:text="Statistics" />
+
+                <!-- Statistics 4-Tile Row: Exactly equal width & height, 8dp gaps, autosizing labels -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <!-- Tile 1: Right -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="76dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_tile_right"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="4dp"
+                        android:paddingVertical="8dp">
+
+                        <TextView
+                            android:id="@+id/tvCorrectCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textColor="@color/eve_tile_right_text"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:gravity="center"
+                            android:maxLines="1"
+                            app:autoSizeTextType="uniform"
+                            app:autoSizeMinTextSize="8sp"
+                            app:autoSizeMaxTextSize="12sp"
+                            app:autoSizeStepGranularity="1sp"
+                            android:text="Right"
+                            android:textColor="@color/eve_tile_right_text" />
+                    </LinearLayout>
+
+                    <!-- Tile 2: Wrong -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="76dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_tile_wrong"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="4dp"
+                        android:paddingVertical="8dp">
+
+                        <TextView
+                            android:id="@+id/tvWrongCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textColor="@color/eve_tile_wrong_text"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:gravity="center"
+                            android:maxLines="1"
+                            app:autoSizeTextType="uniform"
+                            app:autoSizeMinTextSize="8sp"
+                            app:autoSizeMaxTextSize="12sp"
+                            app:autoSizeStepGranularity="1sp"
+                            android:text="Wrong"
+                            android:textColor="@color/eve_tile_wrong_text" />
+                    </LinearLayout>
+
+                    <!-- Tile 3: Unattempted -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="76dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_tile_unattempted"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="4dp"
+                        android:paddingVertical="8dp">
+
+                        <TextView
+                            android:id="@+id/tvUnattemptedCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textColor="@color/eve_text"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:gravity="center"
+                            android:maxLines="1"
+                            app:autoSizeTextType="uniform"
+                            app:autoSizeMinTextSize="8sp"
+                            app:autoSizeMaxTextSize="12sp"
+                            app:autoSizeStepGranularity="1sp"
+                            android:text="Unattempted"
+                            android:textColor="@color/eve_text_secondary" />
+                    </LinearLayout>
+
+                    <!-- Tile 4: Accuracy -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="76dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_tile_medium"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="4dp"
+                        android:paddingVertical="8dp">
+
+                        <TextView
+                            android:id="@+id/tvAccuracy"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="--%"
+                            android:textColor="@color/eve_tile_medium_text"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:gravity="center"
+                            android:maxLines="1"
+                            app:autoSizeTextType="uniform"
+                            app:autoSizeMinTextSize="8sp"
+                            app:autoSizeMaxTextSize="12sp"
+                            app:autoSizeStepGranularity="1sp"
+                            android:text="Accuracy"
+                            android:textColor="@color/eve_tile_medium_text" />
+                    </LinearLayout>
+                </LinearLayout>
 
                 <!-- Section Header for Performance -->
                 <TextView
@@ -364,7 +387,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="18dp">
+                        android:padding="16dp">
 
                         <LinearLayout
                             android:id="@+id/headerPerformanceStanding"
@@ -406,71 +429,155 @@
                                 app:tint="@color/eve_text_secondary" />
                         </LinearLayout>
 
-                        <!-- Rank and Percentile side-by-side surface-2 tiles -->
+                        <!-- Rank & Percentile (Left) + Stacked Pill-Links (Right) -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="14dp"
+                            android:layout_marginTop="12dp"
                             android:baselineAligned="false"
                             android:orientation="horizontal">
 
-                            <!-- Overall Rank tile -->
+                            <!-- Left: Rank & Percentile tiles -->
                             <LinearLayout
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"
+                                android:layout_height="match_parent"
                                 android:layout_weight="1"
                                 android:layout_marginEnd="8dp"
-                                android:background="@drawable/bg_tile_surface2"
-                                android:orientation="vertical"
-                                android:padding="14dp">
+                                android:orientation="vertical">
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Overall Rank"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="12sp" />
+                                <!-- Overall Rank tile -->
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="0dp"
+                                    android:layout_weight="1"
+                                    android:layout_marginBottom="6dp"
+                                    android:background="@drawable/bg_tile_surface2"
+                                    android:gravity="center_vertical"
+                                    android:orientation="vertical"
+                                    android:paddingHorizontal="12dp"
+                                    android:paddingVertical="8dp">
 
-                                <TextView
-                                    android:id="@+id/tvRank"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="4dp"
-                                    android:text="-- / --"
-                                    android:textColor="@color/eve_text"
-                                    android:textSize="18sp"
-                                    android:textStyle="bold" />
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Overall Rank"
+                                        android:textColor="@color/eve_text_secondary"
+                                        android:textSize="11sp" />
+
+                                    <TextView
+                                        android:id="@+id/tvRank"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="2dp"
+                                        android:text="-- / --"
+                                        android:textColor="@color/eve_text"
+                                        android:textSize="16sp"
+                                        android:textStyle="bold" />
+                                </LinearLayout>
+
+                                <!-- Percentile Score tile -->
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="0dp"
+                                    android:layout_weight="1"
+                                    android:background="@drawable/bg_tile_surface2"
+                                    android:gravity="center_vertical"
+                                    android:orientation="vertical"
+                                    android:paddingHorizontal="12dp"
+                                    android:paddingVertical="8dp">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Percentile Score"
+                                        android:textColor="@color/eve_text_secondary"
+                                        android:textSize="11sp" />
+
+                                    <TextView
+                                        android:id="@+id/tvPercentile"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="2dp"
+                                        android:text="--%"
+                                        android:textColor="@color/eve_text"
+                                        android:textSize="16sp"
+                                        android:textStyle="bold" />
+                                </LinearLayout>
                             </LinearLayout>
 
-                            <!-- Percentile Score tile -->
+                            <!-- Right: Stacked Pill-Links -->
                             <LinearLayout
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"
+                                android:layout_height="match_parent"
                                 android:layout_weight="1"
-                                android:background="@drawable/bg_tile_surface2"
-                                android:orientation="vertical"
-                                android:padding="14dp">
+                                android:orientation="vertical">
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Percentile Score"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="12sp" />
+                                <LinearLayout
+                                    android:id="@+id/pillBatchPerformance"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="0dp"
+                                    android:layout_weight="1"
+                                    android:layout_marginBottom="6dp"
+                                    android:background="@drawable/bg_soft_pill"
+                                    android:gravity="center_vertical"
+                                    android:orientation="vertical"
+                                    android:paddingHorizontal="12dp"
+                                    android:paddingVertical="8dp">
 
-                                <TextView
-                                    android:id="@+id/tvPercentile"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="4dp"
-                                    android:text="--%"
-                                    android:textColor="@color/eve_text"
-                                    android:textSize="18sp"
-                                    android:textStyle="bold" />
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Batch Performance"
+                                        android:textColor="@color/eve_text"
+                                        android:textSize="11sp"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:id="@+id/tvTopperAvg"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="2dp"
+                                        android:ellipsize="end"
+                                        android:maxLines="1"
+                                        android:text="Topper: -- • Avg: --"
+                                        android:textColor="@color/eve_text_secondary"
+                                        android:textSize="11sp" />
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:id="@+id/pillHistoricalPerformance"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="0dp"
+                                    android:layout_weight="1"
+                                    android:background="@drawable/bg_soft_pill"
+                                    android:gravity="center_vertical"
+                                    android:orientation="vertical"
+                                    android:paddingHorizontal="12dp"
+                                    android:paddingVertical="8dp">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Historical Best &amp; Avg"
+                                        android:textColor="@color/eve_text"
+                                        android:textSize="11sp"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:id="@+id/tvHistoryBestAvg"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="2dp"
+                                        android:ellipsize="end"
+                                        android:maxLines="1"
+                                        android:text="-- / --"
+                                        android:textColor="@color/eve_text_secondary"
+                                        android:textSize="11sp" />
+                                </LinearLayout>
                             </LinearLayout>
                         </LinearLayout>
 
-                        <!-- Expanded Section: Batch Performance + Historical Best & Avg as soft pill rows -->
+                        <!-- Expanded Section: Detailed view -->
                         <LinearLayout
                             android:id="@+id/layoutPerformanceStandingExpanded"
                             android:layout_width="match_parent"
@@ -479,60 +586,13 @@
                             android:orientation="vertical"
                             android:visibility="gone">
 
-                            <!-- Batch Performance: Topper & Average Row -->
-                            <LinearLayout
+                            <TextView
+                                android:id="@+id/tvPerformanceDetailInfo"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:background="@drawable/bg_soft_pill"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal"
-                                android:paddingHorizontal="16dp"
-                                android:paddingVertical="12dp">
-
-                                <TextView
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:text="Batch Performance"
-                                    android:textColor="@color/eve_text"
-                                    android:textSize="13sp" />
-
-                                <TextView
-                                    android:id="@+id/tvTopperAvg"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Topper: -- • Average: --"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="12sp" />
-                            </LinearLayout>
-
-                            <!-- Best & Average Score Row -->
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
-                                android:background="@drawable/bg_soft_pill"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal"
-                                android:paddingHorizontal="16dp"
-                                android:paddingVertical="12dp">
-
-                                <TextView
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:text="Historical Best &amp; Avg"
-                                    android:textColor="@color/eve_text"
-                                    android:textSize="13sp" />
-
-                                <TextView
-                                    android:id="@+id/tvHistoryBestAvg"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="-- / --"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="12sp" />
-                            </LinearLayout>
+                                android:text="Rank is calculated against all students who completed this test. Percentile indicates the percentage of students who scored below you."
+                                android:textColor="@color/eve_text_secondary"
+                                android:textSize="12sp" />
                         </LinearLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -685,125 +745,160 @@
                     android:orientation="vertical"
                     android:visibility="visible">
 
-                    <!-- Summary Metrics Card -->
-                    <com.google.android.material.card.MaterialCardView
+                    <!-- Top Row: Semicircle Gauge Card + Performance Summary Card -->
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:cardBackgroundColor="@color/eve_surface"
-                        app:cardCornerRadius="@dimen/eve_radius_card"
-                        app:cardElevation="0dp"
-                        app:strokeColor="@color/eve_stroke"
-                        app:strokeWidth="1dp">
+                        android:baselineAligned="false"
+                        android:orientation="horizontal">
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
+                        <!-- Side Topic Accuracy Card with Semicircle Gauge -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cardGaugeAccuracy"
+                            android:layout_width="120dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginEnd="10dp"
+                            app:cardBackgroundColor="@color/eve_surface"
+                            app:cardCornerRadius="@dimen/eve_radius_card"
+                            app:cardElevation="0dp"
+                            app:strokeColor="@color/eve_stroke"
+                            app:strokeWidth="1dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:padding="12dp">
+
+                                <com.eve.app.ui.result.SemiCircleGaugeView
+                                    android:id="@+id/gaugeTopicAccuracy"
+                                    android:layout_width="96dp"
+                                    android:layout_height="64dp" />
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- Summary Metrics Card -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="18dp">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:letterSpacing="0.04"
-                                android:text="PERFORMANCE SUMMARY"
-                                android:textColor="@color/eve_text_secondary"
-                                android:textSize="12sp" />
+                            android:layout_weight="1"
+                            app:cardBackgroundColor="@color/eve_surface"
+                            app:cardCornerRadius="@dimen/eve_radius_card"
+                            app:cardElevation="0dp"
+                            app:strokeColor="@color/eve_stroke"
+                            app:strokeWidth="1dp">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="14dp"
-                                android:baselineAligned="false"
-                                android:orientation="horizontal">
+                                android:orientation="vertical"
+                                android:padding="14dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:letterSpacing="0.04"
+                                    android:text="PERFORMANCE SUMMARY"
+                                    android:textColor="@color/eve_text_secondary"
+                                    android:textSize="11sp" />
 
                                 <LinearLayout
-                                    android:layout_width="0dp"
+                                    android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:layout_marginEnd="6dp"
-                                    android:background="@drawable/bg_tile_surface2"
-                                    android:gravity="center"
-                                    android:orientation="vertical"
-                                    android:paddingHorizontal="4dp"
-                                    android:paddingVertical="12dp">
+                                    android:layout_marginTop="10dp"
+                                    android:baselineAligned="false"
+                                    android:orientation="horizontal">
 
-                                    <TextView
-                                        android:id="@+id/tvAnalysisAttempted"
-                                        android:layout_width="wrap_content"
+                                    <LinearLayout
+                                        android:layout_width="0dp"
                                         android:layout_height="wrap_content"
-                                        android:text="0%"
-                                        android:textColor="@color/eve_text"
-                                        android:textSize="18sp"
-                                        android:textStyle="bold" />
+                                        android:layout_weight="1"
+                                        android:layout_marginEnd="4dp"
+                                        android:background="@drawable/bg_tile_surface2"
+                                        android:gravity="center"
+                                        android:orientation="vertical"
+                                        android:paddingHorizontal="2dp"
+                                        android:paddingVertical="8dp">
 
-                                    <TextView
-                                        android:layout_width="wrap_content"
+                                        <TextView
+                                            android:id="@+id/tvAnalysisAttempted"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="0%"
+                                            android:textColor="@color/eve_text"
+                                            android:textSize="15sp"
+                                            android:textStyle="bold" />
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginTop="2dp"
+                                            android:text="Attempted"
+                                            android:textColor="@color/eve_text_secondary"
+                                            android:textSize="10sp" />
+                                    </LinearLayout>
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
                                         android:layout_height="wrap_content"
-                                        android:layout_marginTop="2dp"
-                                        android:text="Attempted"
-                                        android:textColor="@color/eve_text_secondary"
-                                        android:textSize="11sp" />
-                                </LinearLayout>
+                                        android:layout_weight="1"
+                                        android:layout_marginEnd="4dp"
+                                        android:background="@drawable/bg_tile_surface2"
+                                        android:gravity="center"
+                                        android:orientation="vertical"
+                                        android:paddingHorizontal="2dp"
+                                        android:paddingVertical="8dp">
 
-                                <LinearLayout
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:layout_marginEnd="6dp"
-                                    android:background="@drawable/bg_tile_surface2"
-                                    android:gravity="center"
-                                    android:orientation="vertical"
-                                    android:paddingHorizontal="4dp"
-                                    android:paddingVertical="12dp">
+                                        <TextView
+                                            android:id="@+id/tvAnalysisAccuracy"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="0%"
+                                            android:textColor="@color/eve_tile_right_text"
+                                            android:textSize="15sp"
+                                            android:textStyle="bold" />
 
-                                    <TextView
-                                        android:id="@+id/tvAnalysisAccuracy"
-                                        android:layout_width="wrap_content"
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginTop="2dp"
+                                            android:text="Accuracy"
+                                            android:textColor="@color/eve_text_secondary"
+                                            android:textSize="10sp" />
+                                    </LinearLayout>
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
                                         android:layout_height="wrap_content"
-                                        android:text="0%"
-                                        android:textColor="@color/eve_tile_right_text"
-                                        android:textSize="18sp"
-                                        android:textStyle="bold" />
+                                        android:layout_weight="1"
+                                        android:background="@drawable/bg_tile_surface2"
+                                        android:gravity="center"
+                                        android:orientation="vertical"
+                                        android:paddingHorizontal="2dp"
+                                        android:paddingVertical="8dp">
 
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="2dp"
-                                        android:text="Accuracy"
-                                        android:textColor="@color/eve_text_secondary"
-                                        android:textSize="11sp" />
-                                </LinearLayout>
+                                        <TextView
+                                            android:id="@+id/tvAnalysisAvgTime"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="0s"
+                                            android:textColor="@color/eve_text"
+                                            android:textSize="15sp"
+                                            android:textStyle="bold" />
 
-                                <LinearLayout
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:background="@drawable/bg_tile_surface2"
-                                    android:gravity="center"
-                                    android:orientation="vertical"
-                                    android:paddingHorizontal="4dp"
-                                    android:paddingVertical="12dp">
-
-                                    <TextView
-                                        android:id="@+id/tvAnalysisAvgTime"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="0s"
-                                        android:textColor="@color/eve_text"
-                                        android:textSize="18sp"
-                                        android:textStyle="bold" />
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="2dp"
-                                        android:text="Avg / Question"
-                                        android:textColor="@color/eve_text_secondary"
-                                        android:textSize="11sp" />
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginTop="2dp"
+                                            android:text="Avg / Q"
+                                            android:textColor="@color/eve_text_secondary"
+                                            android:textSize="10sp" />
+                                    </LinearLayout>
                                 </LinearLayout>
                             </LinearLayout>
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
+                        </com.google.android.material.card.MaterialCardView>
+                    </LinearLayout>
 
                     <!-- Question Pace Chart Card -->
                     <com.google.android.material.card.MaterialCardView
@@ -1296,7 +1391,9 @@
                 android:padding="16dp"
                 android:visibility="gone">
 
+                <!-- Hero Leaderboard Card -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardLeaderboardHero"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:cardBackgroundColor="@color/eve_surface"
@@ -1312,21 +1409,33 @@
                         android:orientation="vertical"
                         android:padding="24dp">
 
-                        <ImageView
-                            android:layout_width="56dp"
-                            android:layout_height="56dp"
-                            android:contentDescription="Leaderboard"
-                            android:src="@drawable/ic_trophy"
-                            app:tint="@color/eve_primary" />
+                        <!-- Circular Tinted Badge with Trophy -->
+                        <FrameLayout
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:background="@drawable/bg_circle_badge">
 
+                            <ImageView
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:layout_gravity="center"
+                                android:contentDescription="Leaderboard Trophy"
+                                android:src="@drawable/ic_trophy"
+                                app:tint="@color/eve_tile_medium_text" />
+                        </FrameLayout>
+
+                        <!-- Large Rank Display -->
                         <TextView
+                            android:id="@+id/tvLeaderboardTabRank"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:text="Test Leaderboard"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textSize="18sp" />
+                            android:layout_marginTop="16dp"
+                            android:text="-- / --"
+                            android:textColor="@color/eve_text"
+                            android:textSize="32sp"
+                            android:textStyle="bold" />
 
+                        <!-- Subtitle ("of N students" or "You're the first on the board!") -->
                         <TextView
                             android:id="@+id/tvLeaderboardTabSubtitle"
                             android:layout_width="wrap_content"
@@ -1335,39 +1444,50 @@
                             android:gravity="center"
                             android:text="See how you rank against all students who took this exam."
                             android:textColor="@color/eve_text_secondary"
-                            android:textSize="13sp" />
+                            android:textSize="14sp" />
 
+                        <!-- Small Chips for Score and Percentile -->
                         <LinearLayout
-                            android:layout_width="match_parent"
+                            android:id="@+id/layoutLeaderboardChips"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="16dp"
-                            android:background="@drawable/bg_stat_mini"
                             android:gravity="center"
-                            android:orientation="horizontal"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="10dp">
+                            android:orientation="horizontal">
 
                             <TextView
+                                android:id="@+id/tvLeaderboardScoreChip"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Your Standing: "
-                                android:textColor="@color/eve_text_secondary"
-                                android:textSize="13sp" />
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/bg_stat_mini"
+                                android:paddingHorizontal="12dp"
+                                android:paddingVertical="5dp"
+                                android:text="Score: --"
+                                android:textColor="@color/eve_text"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
 
                             <TextView
-                                android:id="@+id/tvLeaderboardTabRank"
+                                android:id="@+id/tvLeaderboardPercentileChip"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="-- / --"
-                                android:textColor="@color/eve_primary"
-                                android:textSize="14sp" />
+                                android:background="@drawable/bg_stat_mini"
+                                android:paddingHorizontal="12dp"
+                                android:paddingVertical="5dp"
+                                android:text="Percentile: --%"
+                                android:textColor="@color/eve_text"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
                         </LinearLayout>
 
+                        <!-- Full-width Primary pill: View Full Leaderboard -->
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnOpenLeaderboard"
+                            style="@style/Widget.Eve.Button.Primary"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="20dp"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="24dp"
                             android:minHeight="48dp"
                             android:text="View Full Leaderboard"
                             app:icon="@drawable/ic_trophy"
@@ -1379,57 +1499,46 @@
         </FrameLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Fade above bottom bar -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="16dp"
-        android:background="@drawable/bg_fade_to_canvas" />
-
-    <!-- 1dp top hairline -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/eve_stroke" />
-
-    <!-- Bottom Actions Container -->
+    <!-- Bottom Actions Container (Review tab only) -->
     <LinearLayout
+        android:id="@+id/layoutBottomBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_canvas"
         android:orientation="vertical"
-        android:paddingHorizontal="20dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="12dp">
+        android:visibility="gone">
 
-        <!-- Action Cluster: Reattempt -->
+        <!-- Fade above bottom bar -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="16dp"
+            android:background="@drawable/bg_fade_to_canvas" />
+
+        <!-- 1dp top hairline -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/eve_stroke" />
+
         <LinearLayout
-            android:id="@+id/layoutActionCluster"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/eve_canvas"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:paddingHorizontal="20dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="12dp">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnReattempt"
                 style="@style/Widget.Eve.Button.Primary"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:layout_marginBottom="8dp"
                 android:minHeight="48dp"
-                android:text="Reattempt"
+                android:text="@string/reattempt"
                 app:icon="@drawable/ic_refresh"
                 app:iconGravity="textStart"
                 app:iconPadding="8dp" />
         </LinearLayout>
-
-        <!-- Strong Final Action: Close -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnHome"
-            style="@style/Widget.Eve.Button.Soft"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:minHeight="48dp"
-            android:text="Close" />
     </LinearLayout>
 </LinearLayout>
 

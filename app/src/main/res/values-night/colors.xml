@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Eve Design System (Dark Theme) — MASTER_TASK_V3 Approved Tokens -->
-    <!-- Neutrals: canvas #101117, surface #1F2124, surface-2 (graphite) #24292A, border #2F3236, text #F5F5F7, text-secondary #9A9BA5, header-ink #101117 -->
+    <!-- Neutrals: canvas #101117, surface #1A1C24, surface-2 #232532, border #2E3040, text #F5F5F7, text-secondary #9A9BA5, header-ink #101117 -->
     <color name="eve_canvas">#101117</color>
-    <color name="eve_surface">#1F2124</color>
-    <color name="eve_surface_variant">#24292A</color>
-    <color name="eve_surface_2">#24292A</color>
-    <color name="eve_border">#2F3236</color>
-    <color name="eve_stroke">#2F3236</color>
+    <color name="eve_surface">#1A1C24</color>
+    <color name="eve_surface_variant">#232532</color>
+    <color name="eve_surface_2">#232532</color>
+    <color name="eve_border">#2E3040</color>
+    <color name="eve_stroke">#2E3040</color>
     <color name="eve_text">#F5F5F7</color>
     <color name="eve_text_secondary">#9A9BA5</color>
     <color name="eve_header_ink">#101117</color>
@@ -15,14 +15,14 @@
     <color name="eve_header_ink_secondary">#9A9BA5</color>
     <color name="eve_header_ink_icon">#FFFFFF</color>
 
-    <!-- Glass card fill #313338 with hairline #3A3D43 -->
-    <color name="eve_glass_card_fill">#313338</color>
-    <color name="eve_glass_card_hairline">#3A3D43</color>
+    <!-- Glass card fill #232532 with hairline #34374A -->
+    <color name="eve_glass_card_fill">#232532</color>
+    <color name="eve_glass_card_hairline">#34374A</color>
 
     <color name="eve_bg">#101117</color>
     <color name="eve_background">#101117</color>
-    <color name="eve_card_bg">#1F2124</color>
-    <color name="eve_highlight_bg">#24292A</color>
+    <color name="eve_card_bg">#1A1C24</color>
+    <color name="eve_highlight_bg">#232532</color>
 
     <!-- Inverting Core Tokens -->
     <color name="eve_primary">#F5F5F7</color>
@@ -101,9 +101,9 @@
     <color name="eve_button_text">#0B0B0D</color>
     <color name="eve_button_neutral_bg">#FFFFFF</color>
     <color name="eve_button_neutral_text">#0B0B0D</color>
-    <color name="eve_button_soft_bg">#24292A</color>
+    <color name="eve_button_soft_bg">#232532</color>
     <color name="eve_button_soft_text">#F5F5F7</color>
-    <color name="eve_button_outlined_stroke">#2F3236</color>
+    <color name="eve_button_outlined_stroke">#2E3040</color>
     <color name="eve_button_outlined_text">#F5F5F7</color>
 
     <!-- Test screen option selection: right tile fill + 1.5dp right border + green radio dot -->
@@ -116,7 +116,7 @@
     <color name="eve_exam_icon_tile_border">#3A3D43</color>
 
     <!-- Streak pill (dark: surface-2 fill) -->
-    <color name="eve_streak_pill_bg">#24292A</color>
+    <color name="eve_streak_pill_bg">#232532</color>
     <color name="eve_streak_pill_text">#F5F5F7</color>
 
     <!-- Report Button -->
@@ -129,7 +129,7 @@
     <color name="eve_premium">#FFD52E</color>
     <color name="eve_premium_text">#FFD52E</color>
     <color name="eve_premium_line">#FFD52E</color>
-    <color name="eve_premium_container">#24292A</color>
+    <color name="eve_premium_container">#232532</color>
     <color name="eve_chip_premium_stroke">#FFD52E</color>
     <color name="eve_on_premium">#0B0B0D</color>
 
@@ -161,28 +161,28 @@
     <!-- Login -->
     <color name="eve_login_button_bg">#FFFFFF</color>
     <color name="eve_login_button_stroke">#FFFFFF</color>
-    <color name="eve_login_glass_bg">#1F2124</color>
-    <color name="eve_login_glass_border">#2F3236</color>
-    <color name="eve_login_input_bg">#24292A</color>
-    <color name="eve_login_input_border">#2F3236</color>
+    <color name="eve_login_glass_bg">#1A1C24</color>
+    <color name="eve_login_glass_border">#2E3040</color>
+    <color name="eve_login_input_bg">#232532</color>
+    <color name="eve_login_input_border">#2E3040</color>
     <color name="eve_login_input_border_focused">#F5F5F7</color>
     <color name="eve_login_text">#FFFFFF</color>
     <color name="eve_login_text_secondary">#9A9BA5</color>
     <color name="eve_login_text_hint">#6B6B76</color>
-    <color name="eve_login_google_bg">#24292A</color>
-    <color name="eve_login_google_border">#2F3236</color>
+    <color name="eve_login_google_bg">#232532</color>
+    <color name="eve_login_google_border">#2E3040</color>
     <color name="eve_login_google_text">#FFFFFF</color>
 
     <!-- Drawer -->
-    <color name="eve_drawer_glass_bg">#1F2124</color>
-    <color name="eve_drawer_glass_base">#1F2124</color>
-    <color name="eve_drawer_glass_tint">#1F2124</color>
-    <color name="eve_drawer_glass_border">#2F3236</color>
+    <color name="eve_drawer_glass_bg">#1A1C24</color>
+    <color name="eve_drawer_glass_base">#1A1C24</color>
+    <color name="eve_drawer_glass_tint">#1A1C24</color>
+    <color name="eve_drawer_glass_border">#2E3040</color>
 
     <!-- Dropdown Menu -->
-    <color name="eve_menu_glass_bg">#1F2124</color>
-    <color name="eve_menu_glass_border">#2F3236</color>
-    <color name="eve_menu_glass_divider">#2F3236</color>
+    <color name="eve_menu_glass_bg">#1A1C24</color>
+    <color name="eve_menu_glass_border">#2E3040</color>
+    <color name="eve_menu_glass_divider">#2E3040</color>
 
     <!-- Star Gradients (retained for 3D OpenGL shaders) -->
     <color name="eve_premium_gradient_1">#55A5FF</color>

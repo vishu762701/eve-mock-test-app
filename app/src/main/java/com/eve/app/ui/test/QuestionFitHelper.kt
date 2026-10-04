@@ -109,6 +109,27 @@ object QuestionFitHelper {
     }
 
     /**
+     * Computes the maximum height the question container can expand to before
+     * options start being squeezed or pushed off the bottom.
+     *
+     * Item layout budget:
+     * - Top padding (12dp) + bottom padding (8dp) = 20dp
+     * - Meta row: 40dp + 8dp marginBottom = 48dp
+     * - Gap between question and options = 16dp
+     * Total overhead = 84dp + optionsHeightPx.
+     */
+    fun computeMaxQuestionHeight(
+        totalAvailableHeightPx: Int,
+        optionsHeightPx: Int,
+        density: Float
+    ): Int {
+        val overheadPx = (84f * density).toInt() + optionsHeightPx
+        val available = totalAvailableHeightPx - overheadPx
+        val minFloor = (72f * density).toInt()
+        return available.coerceAtLeast(minFloor)
+    }
+
+    /**
      * Fits question text and options to the available viewport.
      * Computes without flicker when dimensions are already known (e.g. ViewPager swipe).
      */
@@ -117,27 +138,46 @@ object QuestionFitHelper {
         svQuestion: ScrollView,
         ivScrollHint: View?,
         options: List<TelegramRadioButton>,
-        questionText: CharSequence
+        questionText: CharSequence,
+        questionContainer: View? = null,
+        rgOptions: View? = null
     ) {
         // Reset to baseline defaults on each bind / re-run
         tvQuestion.setTextSize(TypedValue.COMPLEX_UNIT_SP, MAX_QUESTION_SP)
         tvQuestion.setLineSpacing(0f, getLineSpacingMultiplier(MAX_QUESTION_SP))
         options.forEach { it.setTextSize(TypedValue.COMPLEX_UNIT_SP, MAX_OPTION_SP) }
 
-        val containerWidth = svQuestion.width.takeIf { it > 0 }
-            ?: (svQuestion.parent as? View)?.width?.takeIf { it > 0 }
-            ?: (svQuestion.resources.displayMetrics.widthPixels - (32 * svQuestion.resources.displayMetrics.density).toInt())
-
-        val containerHeight = svQuestion.height.takeIf { it > 0 }
-            ?: (svQuestion.parent as? View)?.height?.takeIf { it > 0 }
-            ?: 0
-
+        val density = svQuestion.resources.displayMetrics.density
         val scaledDensity = svQuestion.resources.displayMetrics.scaledDensity
 
-        if (containerHeight > 0 && containerWidth > 0 && questionText.isNotEmpty()) {
+        val containerWidth = svQuestion.width.takeIf { it > 0 }
+            ?: (svQuestion.parent as? View)?.width?.takeIf { it > 0 }
+            ?: (svQuestion.resources.displayMetrics.widthPixels - (32 * density).toInt())
+
+        val parentView = (questionContainer?.parent as? View) ?: (svQuestion.parent as? View)
+        val availableHeight = parentView?.height?.takeIf { it > 0 }
+            ?: svQuestion.height.takeIf { it > 0 }
+            ?: 0
+
+        val optionsHeight = if (rgOptions != null && rgOptions.height > 0) {
+            rgOptions.height
+        } else {
+            // Default estimate: 4 options @ ~48dp + 3 gaps @ 6dp = 210dp
+            (210f * density).toInt()
+        }
+
+        val maxAllowedHeight = if (questionContainer != null && availableHeight > 0) {
+            computeMaxQuestionHeight(availableHeight, optionsHeight, density)
+        } else if (availableHeight > 0) {
+            availableHeight
+        } else {
+            0
+        }
+
+        if (maxAllowedHeight > 0 && containerWidth > 0 && questionText.isNotEmpty()) {
             val chosenSp = pickQuestionTextSize(
                 candidates = CANDIDATE_QUESTION_SIZES,
-                maxHeightPx = containerHeight,
+                maxHeightPx = maxAllowedHeight,
                 measureHeight = { sp, mult ->
                     measureTextHeight(
                         text = questionText,
@@ -163,7 +203,18 @@ object QuestionFitHelper {
                 scaledDensity = scaledDensity
             )
 
-            val needsScroll = isScrollRequired(containerHeight, minSpHeight)
+            val needsScroll = isScrollRequired(maxAllowedHeight, minSpHeight)
+            if (questionContainer != null) {
+                if (needsScroll) {
+                    questionContainer.layoutParams.height = maxAllowedHeight
+                    svQuestion.layoutParams.height = android.view.ViewGroup.LayoutParams.MATCH_PARENT
+                } else {
+                    questionContainer.layoutParams.height = android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                    svQuestion.layoutParams.height = android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                }
+                questionContainer.requestLayout()
+            }
+
             if (ivScrollHint != null) {
                 ivScrollHint.visibility = if (needsScroll) View.VISIBLE else View.GONE
                 if (needsScroll) {
@@ -188,7 +239,9 @@ object QuestionFitHelper {
                         svQuestion,
                         ivScrollHint,
                         options,
-                        questionText
+                        questionText,
+                        questionContainer,
+                        rgOptions
                     )
                 }
             }
