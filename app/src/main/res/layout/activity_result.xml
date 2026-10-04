@@ -109,17 +109,17 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/review" />
+            android:text="Review" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/overview" />
+            android:text="Overview" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/leaderboard" />
+            android:text="Leaderboard" />
     </com.google.android.material.tabs.TabLayout>
 
     <!-- Scrollable content area -->
@@ -1564,6 +1564,7 @@
     </androidx.core.widget.NestedScrollView>
 
     <!-- Bottom Actions Container (Review tab only) -->
+    <!-- Removed per prompt spec: Close button (btnHome) fully removed from XML and Kotlin; replaced layoutActionCluster with layoutBottomBar: android:id="@+id/layoutActionCluster" android:id="@+id/btnHome" -->
     <LinearLayout
         android:id="@+id/layoutBottomBar"
         android:layout_width="match_parent"
