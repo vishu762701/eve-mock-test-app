@@ -237,11 +237,17 @@
 
                         <TextView
                             android:id="@+id/tvCorrectCount"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:maxLines="1"
+                            android:singleLine="true"
+                            app:autoSizeTextType="uniform"
+                            app:autoSizeMinTextSize="14sp"
+                            app:autoSizeMaxTextSize="20sp"
+                            app:autoSizeStepGranularity="1sp"
                             android:text="0"
                             android:textColor="@color/eve_tile_right_text"
-                            android:textSize="20sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -250,6 +256,7 @@
                             android:layout_marginTop="2dp"
                             android:gravity="center"
                             android:maxLines="1"
+                            android:singleLine="true"
                             app:autoSizeTextType="uniform"
                             app:autoSizeMinTextSize="8sp"
                             app:autoSizeMaxTextSize="12sp"
@@ -272,11 +279,17 @@
 
                         <TextView
                             android:id="@+id/tvWrongCount"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:maxLines="1"
+                            android:singleLine="true"
+                            app:autoSizeTextType="uniform"
+                            app:autoSizeMinTextSize="14sp"
+                            app:autoSizeMaxTextSize="20sp"
+                            app:autoSizeStepGranularity="1sp"
                             android:text="0"
                             android:textColor="@color/eve_tile_wrong_text"
-                            android:textSize="20sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -285,6 +298,7 @@
                             android:layout_marginTop="2dp"
                             android:gravity="center"
                             android:maxLines="1"
+                            android:singleLine="true"
                             app:autoSizeTextType="uniform"
                             app:autoSizeMinTextSize="8sp"
                             app:autoSizeMaxTextSize="12sp"
@@ -307,11 +321,17 @@
 
                         <TextView
                             android:id="@+id/tvUnattemptedCount"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:maxLines="1"
+                            android:singleLine="true"
+                            app:autoSizeTextType="uniform"
+                            app:autoSizeMinTextSize="14sp"
+                            app:autoSizeMaxTextSize="20sp"
+                            app:autoSizeStepGranularity="1sp"
                             android:text="0"
                             android:textColor="@color/eve_text"
-                            android:textSize="20sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -320,6 +340,7 @@
                             android:layout_marginTop="2dp"
                             android:gravity="center"
                             android:maxLines="1"
+                            android:singleLine="true"
                             app:autoSizeTextType="uniform"
                             app:autoSizeMinTextSize="8sp"
                             app:autoSizeMaxTextSize="12sp"
@@ -341,11 +362,17 @@
 
                         <TextView
                             android:id="@+id/tvAccuracy"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:maxLines="1"
+                            android:singleLine="true"
+                            app:autoSizeTextType="uniform"
+                            app:autoSizeMinTextSize="14sp"
+                            app:autoSizeMaxTextSize="20sp"
+                            app:autoSizeStepGranularity="1sp"
                             android:text="--%"
                             android:textColor="@color/eve_tile_medium_text"
-                            android:textSize="20sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -354,6 +381,7 @@
                             android:layout_marginTop="2dp"
                             android:gravity="center"
                             android:maxLines="1"
+                            android:singleLine="true"
                             app:autoSizeTextType="uniform"
                             app:autoSizeMinTextSize="8sp"
                             app:autoSizeMaxTextSize="12sp"
@@ -823,20 +851,32 @@
 
                                         <TextView
                                             android:id="@+id/tvAnalysisAttempted"
-                                            android:layout_width="wrap_content"
+                                            android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
+                                            android:gravity="center"
+                                            android:maxLines="1"
+                                            android:singleLine="true"
+                                            app:autoSizeTextType="uniform"
+                                            app:autoSizeMinTextSize="10sp"
+                                            app:autoSizeMaxTextSize="15sp"
+                                            app:autoSizeStepGranularity="1sp"
                                             android:text="0%"
                                             android:textColor="@color/eve_text"
-                                            android:textSize="15sp"
                                             android:textStyle="bold" />
 
                                         <TextView
-                                            android:layout_width="wrap_content"
+                                            android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
                                             android:layout_marginTop="2dp"
+                                            android:gravity="center"
+                                            android:maxLines="1"
+                                            android:singleLine="true"
+                                            app:autoSizeTextType="uniform"
+                                            app:autoSizeMinTextSize="8sp"
+                                            app:autoSizeMaxTextSize="10sp"
+                                            app:autoSizeStepGranularity="1sp"
                                             android:text="Attempted"
-                                            android:textColor="@color/eve_text_secondary"
-                                            android:textSize="10sp" />
+                                            android:textColor="@color/eve_text_secondary" />
                                     </LinearLayout>
 
                                     <LinearLayout
@@ -852,20 +892,32 @@
 
                                         <TextView
                                             android:id="@+id/tvAnalysisAccuracy"
-                                            android:layout_width="wrap_content"
+                                            android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
+                                            android:gravity="center"
+                                            android:maxLines="1"
+                                            android:singleLine="true"
+                                            app:autoSizeTextType="uniform"
+                                            app:autoSizeMinTextSize="10sp"
+                                            app:autoSizeMaxTextSize="15sp"
+                                            app:autoSizeStepGranularity="1sp"
                                             android:text="0%"
                                             android:textColor="@color/eve_tile_right_text"
-                                            android:textSize="15sp"
                                             android:textStyle="bold" />
 
                                         <TextView
-                                            android:layout_width="wrap_content"
+                                            android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
                                             android:layout_marginTop="2dp"
+                                            android:gravity="center"
+                                            android:maxLines="1"
+                                            android:singleLine="true"
+                                            app:autoSizeTextType="uniform"
+                                            app:autoSizeMinTextSize="8sp"
+                                            app:autoSizeMaxTextSize="10sp"
+                                            app:autoSizeStepGranularity="1sp"
                                             android:text="Accuracy"
-                                            android:textColor="@color/eve_text_secondary"
-                                            android:textSize="10sp" />
+                                            android:textColor="@color/eve_text_secondary" />
                                     </LinearLayout>
 
                                     <LinearLayout
@@ -880,20 +932,32 @@
 
                                         <TextView
                                             android:id="@+id/tvAnalysisAvgTime"
-                                            android:layout_width="wrap_content"
+                                            android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
+                                            android:gravity="center"
+                                            android:maxLines="1"
+                                            android:singleLine="true"
+                                            app:autoSizeTextType="uniform"
+                                            app:autoSizeMinTextSize="10sp"
+                                            app:autoSizeMaxTextSize="15sp"
+                                            app:autoSizeStepGranularity="1sp"
                                             android:text="0s"
                                             android:textColor="@color/eve_text"
-                                            android:textSize="15sp"
                                             android:textStyle="bold" />
 
                                         <TextView
-                                            android:layout_width="wrap_content"
+                                            android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
                                             android:layout_marginTop="2dp"
+                                            android:gravity="center"
+                                            android:maxLines="1"
+                                            android:singleLine="true"
+                                            app:autoSizeTextType="uniform"
+                                            app:autoSizeMinTextSize="8sp"
+                                            app:autoSizeMaxTextSize="10sp"
+                                            app:autoSizeStepGranularity="1sp"
                                             android:text="Avg / Q"
-                                            android:textColor="@color/eve_text_secondary"
-                                            android:textSize="10sp" />
+                                            android:textColor="@color/eve_text_secondary" />
                                     </LinearLayout>
                                 </LinearLayout>
                             </LinearLayout>

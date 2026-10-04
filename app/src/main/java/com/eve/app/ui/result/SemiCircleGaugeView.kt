@@ -73,8 +73,11 @@ class SemiCircleGaugeView @JvmOverloads constructor(
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         val pad = strokePx / 2f + 4f * density
-        val diameter = (w - pad * 2f).coerceAtLeast(10f)
-        arcRect.set(pad, pad, pad + diameter, pad + diameter)
+        val maxDiamW = (w - pad * 2f).coerceAtLeast(10f)
+        val maxDiamH = ((h - pad - 16f * density) * 2f).coerceAtLeast(10f)
+        val diameter = minOf(maxDiamW, maxDiamH)
+        val left = (w - diameter) / 2f
+        arcRect.set(left, pad, left + diameter, pad + diameter)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -93,7 +96,7 @@ class SemiCircleGaugeView @JvmOverloads constructor(
         // Center typography
         val cx = arcRect.centerX()
         val cy = arcRect.centerY()
-        canvas.drawText("${percentage.toInt()}%", cx, cy - (8f * density), textPaint)
-        canvas.drawText("ACCURACY", cx, cy + (6f * density), labelPaint)
+        canvas.drawText("${percentage.toInt()}%", cx, cy - (6f * density), textPaint)
+        canvas.drawText("ACCURACY", cx, cy + (10f * density), labelPaint)
     }
 }
