@@ -31,67 +31,67 @@
     <color name="eve_banner_text">#F5F5F7</color>
     <color name="eve_on_primary">#101117</color>
 
-    <!-- Semantic Tiles: right/answered = fill #293B27 / text #7FE3A5 / border #5FD08A -->
-    <color name="eve_tile_right_fill">#293B27</color>
-    <color name="eve_tile_right_text">#7FE3A5</color>
+    <!-- Semantic Tiles: right/answered = fill #223E1F / text #6DE69E / border #5FD08A -->
+    <color name="eve_tile_right_fill">#223E1F</color>
+    <color name="eve_tile_right_text">#6DE69E</color>
     <color name="eve_tile_right_border">#5FD08A</color>
-    <color name="eve_green">#7FE3A5</color>
-    <color name="eve_green_fill">#293B27</color>
-    <color name="eve_green_text">#7FE3A5</color>
-    <color name="eve_status_success">#7FE3A5</color>
-    <color name="success">#7FE3A5</color>
-    <color name="eve_status_success_container">#293B27</color>
-    <color name="eve_progress_green">#7FE3A5</color>
+    <color name="eve_green">#6DE69E</color>
+    <color name="eve_green_fill">#223E1F</color>
+    <color name="eve_green_text">#6DE69E</color>
+    <color name="eve_status_success">#6DE69E</color>
+    <color name="success">#6DE69E</color>
+    <color name="eve_status_success_container">#223E1F</color>
+    <color name="eve_progress_green">#6DE69E</color>
 
-    <!-- Semantic Tiles: wrong = fill #602625 / text #FF9A92 -->
-    <color name="eve_tile_wrong_fill">#602625</color>
-    <color name="eve_tile_wrong_text">#FF9A92</color>
-    <color name="eve_tile_wrong_border">#FF9A92</color>
-    <color name="eve_red">#FF9A92</color>
-    <color name="eve_red_fill">#602625</color>
-    <color name="eve_red_text">#FF9A92</color>
-    <color name="eve_status_error">#FF9A92</color>
-    <color name="error">#FF9A92</color>
-    <color name="eve_status_error_container">#602625</color>
-    <color name="eve_error_bg">#602625</color>
-    <color name="eve_error_text">#FF9A92</color>
+    <!-- Semantic Tiles: wrong = fill #64201E / text #FFA199 -->
+    <color name="eve_tile_wrong_fill">#64201E</color>
+    <color name="eve_tile_wrong_text">#FFA199</color>
+    <color name="eve_tile_wrong_border">#FFA199</color>
+    <color name="eve_red">#FFA199</color>
+    <color name="eve_red_fill">#64201E</color>
+    <color name="eve_red_text">#FFA199</color>
+    <color name="eve_status_error">#FFA199</color>
+    <color name="error">#FFA199</color>
+    <color name="eve_status_error_container">#64201E</color>
+    <color name="eve_error_bg">#64201E</color>
+    <color name="eve_error_text">#FFA199</color>
     <color name="eve_header_warning">#C62828</color>
-    <color name="eve_timer_warning">#FF9A92</color>
-    <color name="timer_warning">#FF9A92</color>
-    <color name="eve_login_error">#FF9A92</color>
+    <color name="eve_timer_warning">#FFA199</color>
+    <color name="timer_warning">#FFA199</color>
+    <color name="eve_login_error">#FFA199</color>
 
-    <!-- Semantic Tiles: medium (accuracy, marked for review) = fill #634416 / text #F2C26B -->
-    <color name="eve_tile_medium_fill">#634416</color>
-    <color name="eve_tile_medium_text">#F2C26B</color>
-    <color name="eve_tile_medium_border">#F2C26B</color>
-    <color name="eve_amber">#F2C26B</color>
-    <color name="eve_status_warning">#F2C26B</color>
-    <color name="warning">#F2C26B</color>
-    <color name="caution">#F2C26B</color>
-    <color name="eve_gold">#F2C26B</color>
-    <color name="eve_status_warning_container">#634416</color>
-    <color name="eve_status_warning_stroke">#F2C26B</color>
-    <color name="eve_offline_bg">#634416</color>
-    <color name="eve_offline_text">#F2C26B</color>
+    <!-- Semantic Tiles: medium (accuracy, marked for review) = fill #68410E / text #F7C564 -->
+    <color name="eve_tile_medium_fill">#68410E</color>
+    <color name="eve_tile_medium_text">#F7C564</color>
+    <color name="eve_tile_medium_border">#F7C564</color>
+    <color name="eve_amber">#F7C564</color>
+    <color name="eve_status_warning">#F7C564</color>
+    <color name="warning">#F7C564</color>
+    <color name="caution">#F7C564</color>
+    <color name="eve_gold">#F7C564</color>
+    <color name="eve_status_warning_container">#68410E</color>
+    <color name="eve_status_warning_stroke">#F7C564</color>
+    <color name="eve_offline_bg">#68410E</color>
+    <color name="eve_offline_text">#F7C564</color>
 
     <!-- Notification Dot (red) -->
-    <color name="eve_notification_dot">#FF9A92</color>
+    <color name="eve_notification_dot">#FFA199</color>
     <color name="eve_orange">#FF6A1F</color>
 
-    <!-- Selection Accents: Yellow #FFD52E with #0B0B0D content (both themes) -->
+    <!-- Selection Accents: Yellow #FFCA18 with #0B0B0D content (both themes) -->
     <!-- ONLY for selected filter chips, Premium crown/star, filled bookmark star -->
-    <color name="eve_chip_selected_bg">#FFD52E</color>
+    <color name="eve_chip_selected_bg">#FFCA18</color>
     <color name="eve_chip_selected_text">#0B0B0D</color>
-    <color name="eve_star_fill">#FFD52E</color>
+    <color name="eve_star_fill">#FFCA18</color>
     <color name="eve_star_stroke">@android:color/transparent</color>
     <color name="eve_star_outline_stroke">#9A9BA5</color>
-    <color name="eve_palette_marked_dot">#F2C26B</color>
-    <color name="eve_sparkle">#FFD52E</color>
+    <color name="eve_palette_marked_dot">#F7C564</color>
+    <color name="eve_sparkle">#FFCA18</color>
 
-    <!-- Selection Accents: Lilac for tab/segment selection and HI chip (dark pill #E0DAF8 with text #1B1830) -->
-    <color name="eve_tab_selected_bg">#E0DAF8</color>
+    <!-- Selection Accents: Lilac for tab/segment selection and HI chip (dark pill #D8CEF8 with text #1B1830) -->
+    <color name="eve_tab_selected_bg">#D8CEF8</color>
     <color name="eve_tab_selected_text">#1B1830</color>
-    <color name="eve_chip_hi_bg">#E0DAF8</color>
+    <color name="eve_chip_hi_bg">#D8CEF8</color>
     <color name="eve_chip_hi_text">#1B1830</color>
 
     <!-- Primary Buttons: Inverting pill, dark = white fill + #0B0B0D text -->
@@ -126,11 +126,11 @@
     <color name="eve_report_button_bg_pressed">#7A3534</color>
 
     <!-- Premium tokens (re-pointed by role; lime eliminated) -->
-    <color name="eve_premium">#FFD52E</color>
-    <color name="eve_premium_text">#FFD52E</color>
-    <color name="eve_premium_line">#FFD52E</color>
+    <color name="eve_premium">#FFCA18</color>
+    <color name="eve_premium_text">#FFCA18</color>
+    <color name="eve_premium_line">#FFCA18</color>
     <color name="eve_premium_container">#232532</color>
-    <color name="eve_chip_premium_stroke">#FFD52E</color>
+    <color name="eve_chip_premium_stroke">#FFCA18</color>
     <color name="eve_on_premium">#0B0B0D</color>
 
     <color name="eve_silver">#C7D0D9</color>
@@ -156,7 +156,7 @@
     <color name="eve_bulletin_bg">#EBF5F5F7</color>
     <color name="eve_bulletin_stroke">#26FFFFFF</color>
     <color name="eve_bulletin_text">#0B0B0D</color>
-    <color name="eve_bulletin_action">#FFD52E</color>
+    <color name="eve_bulletin_action">#FFCA18</color>
 
     <!-- Login -->
     <color name="eve_login_button_bg">#FFFFFF</color>
