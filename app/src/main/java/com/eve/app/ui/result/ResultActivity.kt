@@ -429,7 +429,8 @@ class ResultActivity : EveBaseActivity() {
     }
 
     private fun updateBottomBarVisibility(tabPosition: Int) {
-        val showBar = (tabPosition == 0 && canReattempt)
+        val pos = if (tabPosition >= 0) tabPosition else 0
+        val showBar = (pos == 0 && canReattempt)
         binding.layoutBottomBar.visibility = if (showBar) View.VISIBLE else View.GONE
         val bottomPad = if (showBar) (16 * resources.displayMetrics.density).toInt() else 0
         binding.scrollResultContent.setPadding(
