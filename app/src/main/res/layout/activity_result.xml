@@ -1460,7 +1460,7 @@
                     android:id="@+id/cardLeaderboardHero"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/eve_surface"
+                    app:cardBackgroundColor="@color/eve_premium_container"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
                     app:strokeColor="@color/eve_stroke"
@@ -1485,7 +1485,7 @@
                                 android:layout_gravity="center"
                                 android:contentDescription="Leaderboard Trophy"
                                 android:src="@drawable/ic_trophy"
-                                app:tint="@color/eve_tile_medium_text" />
+                                app:tint="@color/eve_gold" />
                         </FrameLayout>
 
                         <!-- Large Rank Display -->
