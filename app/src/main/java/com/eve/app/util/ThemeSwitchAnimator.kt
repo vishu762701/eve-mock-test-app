@@ -84,6 +84,8 @@ object ThemeSwitchAnimator {
     val isTransitioning: Boolean
         get() = inTransition
 
+    fun getActiveTransitionState(): TransitionState? = activeState
+
     fun isDarkMode(context: Context): Boolean {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         if (prefs.contains(KEY_DARK_MODE)) {
@@ -398,6 +400,7 @@ object ThemeSwitchAnimator {
         if (state.bitmap.isRecycled) return
 
         removeOverlays(activity)
+        SystemBarHelper.syncSystemBars(activity)
 
         // FIX 1: Ensure static icons at entry points remain INVISIBLE in the new activity during the reveal
         state.iconIdsToHide.forEach { id ->
@@ -578,9 +581,15 @@ object ThemeSwitchAnimator {
         sourceActivityRef = null
         targetActivityRef = null
 
+        val finalActivity = tgt ?: src
+
         val bmp = activeState?.bitmap
         activeState = null
         inTransition = false
+
+        if (finalActivity != null) {
+            SystemBarHelper.syncSystemBars(finalActivity)
+        }
 
         if (bmp != null && !bmp.isRecycled) {
             try {

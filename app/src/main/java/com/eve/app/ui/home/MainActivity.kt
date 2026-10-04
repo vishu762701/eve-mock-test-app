@@ -254,12 +254,20 @@ class MainActivity : EveBaseActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val isDark = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-        WindowInsetsControllerCompat(window, window.decorView).apply {
-            isAppearanceLightStatusBars = !isDark
-            isAppearanceLightNavigationBars = !isDark
-        }
+        com.eve.app.util.SystemBarHelper.syncSystemBars(this)
         applyFindTestPanelBackground()
+
+        // Task H: Immediately restore last-known valid streak state so theme recreation never flashes empty/GONE
+        val cachedStreak = com.eve.app.util.StreakHelper.getCachedStreak(this)
+        if (cachedStreak != null) {
+            binding.tvStreakSummary.text = com.eve.app.util.StreakHelper.formatStreakText(
+                cachedStreak.currentStreak,
+                cachedStreak.todayCount,
+                cachedStreak.goal
+            )
+            binding.layoutStreakPill.visibility = View.VISIBLE
+            binding.tvStreakSummary.visibility = View.VISIBLE
+        }
 
         Log.e("EVE_STARTUP", "stage: setupDrawer")
         setupDrawer(user)
@@ -394,15 +402,28 @@ class MainActivity : EveBaseActivity() {
                         lastStreakFetchTime = System.currentTimeMillis()
                         val prefs = getSharedPreferences(com.eve.app.util.StreakHelper.PREFS_NAME, Context.MODE_PRIVATE)
                         val goal = prefs.getInt(com.eve.app.util.StreakHelper.KEY_DAILY_GOAL, com.eve.app.util.StreakHelper.DEFAULT_DAILY_GOAL)
+                        com.eve.app.util.StreakHelper.saveStreak(
+                            this@MainActivity,
+                            res.data.currentStreak,
+                            res.data.todayCount,
+                            goal
+                        )
                         binding.tvStreakSummary.text = com.eve.app.util.StreakHelper.formatStreakText(
                             res.data.currentStreak,
                             res.data.todayCount,
                             goal
                         )
+                        binding.layoutStreakPill.visibility = View.VISIBLE
                         binding.tvStreakSummary.visibility = View.VISIBLE
                     }
-                } catch (_: Exception) {}
+                } catch (_: Exception) {
+                    // Graceful fallback: maintain existing cached state without hiding the streak
+                }
             }
+        }
+
+        if (::binding.isInitialized) {
+            binding.flameStreakAnimation.resumeAnimation()
         }
 
         if (::binding.isInitialized && binding.cardFloatingAirplane.visibility == View.VISIBLE) {
@@ -423,6 +444,7 @@ class MainActivity : EveBaseActivity() {
     override fun onPause() {
         super.onPause()
         if (::binding.isInitialized) {
+            binding.flameStreakAnimation.pauseAnimation()
             binding.lottieDrawerPremiumStar.setPaused(true)
         }
         if (::binding.isInitialized && binding.cardFloatingAirplane.visibility == View.VISIBLE) {
