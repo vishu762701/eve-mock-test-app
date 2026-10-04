@@ -49,6 +49,10 @@
             android:minWidth="48dp"
             android:minHeight="40dp"
             android:paddingHorizontal="14dp"
+            android:paddingVertical="6dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:gravity="center"
             android:text="HI" />
     </LinearLayout>
 
