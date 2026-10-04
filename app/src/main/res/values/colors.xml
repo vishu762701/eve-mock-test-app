@@ -138,7 +138,7 @@
     <color name="eve_bronze">#7A4B2A</color>
     <color name="eve_grey">#6B6B76</color>
     <color name="timer_normal">#0B0B0D</color>
-    <color name="eve_stat_mini_bg">#26FFFFFF</color>
+    <color name="eve_stat_mini_bg">#14000000</color>
 
     <!-- Status & Info -->
     <color name="eve_status_info">#1D5FB8</color>

@@ -111,9 +111,9 @@
     <color name="eve_option_selected_stroke">#5FD08A</color>
     <color name="eve_option_dot_selected">#7FE3A5</color>
 
-    <!-- Exam-card icon tile (dark: fill #2A2C31 with a 1dp #3A3D43 hairline) -->
-    <color name="eve_exam_icon_tile_bg">#2A2C31</color>
-    <color name="eve_exam_icon_tile_border">#3A3D43</color>
+    <!-- Exam-card icon tile (dark: fill #232532 with a 1dp #2E3040 hairline) -->
+    <color name="eve_exam_icon_tile_bg">#232532</color>
+    <color name="eve_exam_icon_tile_border">#2E3040</color>
 
     <!-- Streak pill (dark: surface-2 fill) -->
     <color name="eve_streak_pill_bg">#232532</color>
@@ -137,19 +137,19 @@
     <color name="eve_bronze">#E3A66D</color>
     <color name="eve_grey">#9A9BA5</color>
     <color name="timer_normal">#F5F5F7</color>
-    <color name="eve_stat_mini_bg">#18000000</color>
+    <color name="eve_stat_mini_bg">#24FFFFFF</color>
 
     <!-- Status & Info -->
     <color name="eve_status_info">#6CB6FF</color>
     <color name="eve_target_exam_check_blue">#6CB6FF</color>
-    <color name="eve_shimmer_base">#2F3236</color>
-    <color name="eve_shimmer_highlight">#3A3D43</color>
+    <color name="eve_shimmer_base">#232532</color>
+    <color name="eve_shimmer_highlight">#34374A</color>
     <color name="eve_white">#FFFFFF</color>
 
     <!-- Charts -->
     <color name="eve_chart_primary">#F5F5F7</color>
     <color name="eve_chart_fill">#22F5F5F7</color>
-    <color name="eve_chart_grid">#2F3236</color>
+    <color name="eve_chart_grid">#2E3040</color>
     <color name="eve_chart_label">#9A9BA5</color>
 
     <!-- Bulletin / Toasts -->
