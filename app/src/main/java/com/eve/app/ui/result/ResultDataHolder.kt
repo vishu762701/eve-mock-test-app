@@ -11,10 +11,22 @@ import com.eve.app.data.model.AnswerItem
 object ResultDataHolder {
 
     private var answers: List<AnswerItem>? = null
+    private var detailItems: List<AnswerItem>? = null
 
     @Synchronized
     fun setAnswers(items: List<AnswerItem>) {
         answers = items
+        detailItems = items
+    }
+
+    @Synchronized
+    fun setDetailItems(items: List<AnswerItem>) {
+        detailItems = items
+    }
+
+    @Synchronized
+    fun getDetailItems(): List<AnswerItem> {
+        return detailItems ?: emptyList()
     }
 
     @Synchronized
@@ -27,5 +39,6 @@ object ResultDataHolder {
     @Synchronized
     fun clear() {
         answers = null
+        detailItems = null
     }
 }

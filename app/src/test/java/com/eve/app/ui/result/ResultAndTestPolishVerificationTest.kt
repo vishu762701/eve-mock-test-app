@@ -219,9 +219,9 @@ class ResultAndTestPolishVerificationTest {
         val content = file.readText()
 
         assertTrue("scrollResultContent NestedScrollView must exist", content.contains("android:id=\"@+id/scrollResultContent\""))
-        assertTrue("layoutActionCluster must exist", content.contains("android:id=\"@+id/layoutActionCluster\""))
+        assertTrue("btnReattempt header pill must exist", content.contains("android:id=\"@+id/btnReattempt\""))
+        assertTrue("btnShare header pill must exist", content.contains("android:id=\"@+id/btnShare\""))
         assertFalse("chipIsolatedQuestion must not exist", content.contains("android:id=\"@+id/chipIsolatedQuestion\""))
-        assertTrue("btnHome close button must exist", content.contains("android:id=\"@+id/btnHome\""))
     }
 
     @Test
@@ -273,8 +273,14 @@ class ResultAndTestPolishVerificationTest {
         assertTrue("ivSheetCheckSt must exist", sheetContent.contains("android:id=\"@+id/ivSheetCheckSt\""))
         assertTrue("ivSheetCheckEws must exist", sheetContent.contains("android:id=\"@+id/ivSheetCheckEws\""))
 
-        // 3. Header Language Toggle
-        assertTrue("btnLanguage must exist", content.contains("android:id=\"@+id/btnLanguage\""))
+        // 3. Header Language Removal from Result, Preserved in Test
+        assertFalse("btnLanguage must not exist in Result header", content.contains("android:id=\"@+id/btnLanguage\""))
+        val testLayoutFile = File("src/main/res/layout/activity_test.xml").takeIf { it.exists() }
+            ?: File("app/src/main/res/layout/activity_test.xml").takeIf { it.exists() }
+            ?: File("eve-mock-test-app/app/src/main/res/layout/activity_test.xml")
+        assertTrue("activity_test.xml must exist", testLayoutFile != null && testLayoutFile.exists())
+        val testContent = testLayoutFile!!.readText()
+        assertTrue("btnLanguage must be preserved in Test screen", testContent.contains("android:id=\"@+id/btnLanguage\""))
     }
 
     @Test

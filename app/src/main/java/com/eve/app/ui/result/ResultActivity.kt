@@ -46,7 +46,6 @@ import kotlinx.coroutines.launch
 class ResultActivity : EveBaseActivity() {
 
     private val viewModel: ResultViewModel by viewModels()
-    private val expandedCardStates = mutableMapOf<String, Boolean>()
     private lateinit var allItems: List<AnswerItem>
     private lateinit var binding: ActivityResultBinding
 
@@ -79,13 +78,6 @@ class ResultActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        savedInstanceState?.let { bundle ->
-            listOf("card_perf_standing", "card_time_per_question", "card_slowest_questions", "card_topic_accuracy").forEach { key ->
-                if (bundle.containsKey(key)) {
-                    expandedCardStates[key] = bundle.getBoolean(key)
-                }
-            }
-        }
         SecurityHelper.applyScreenProtection(this)
         binding = ActivityResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -93,7 +85,7 @@ class ResultActivity : EveBaseActivity() {
         onBackPressedDispatcher.addCallback(this) {
             close()
         }
-        binding.btnBack?.setOnClickListener {
+        binding.btnBack.setOnClickListener {
             close()
         }
 
@@ -203,6 +195,7 @@ class ResultActivity : EveBaseActivity() {
         }
 
         canReattempt = intent.getBooleanExtra(Constants.EXTRA_CAN_REATTEMPT, false)
+        binding.btnReattempt.visibility = if (canReattempt) View.VISIBLE else View.GONE
         if (canReattempt) {
             binding.btnReattempt.setOnClickListener {
                 showReattemptDialog(currentExamId, if (currentExamName.isNotBlank()) currentExamName else "this test")
@@ -281,8 +274,6 @@ class ResultActivity : EveBaseActivity() {
             }
         )
 
-
-
         // Share Card Button
         binding.btnShare.setOnClickListener {
             val scoreStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format(java.util.Locale.US, "%.2f", currentScore)
@@ -301,17 +292,13 @@ class ResultActivity : EveBaseActivity() {
             )
         }
 
-        // Setup Answers RecyclerView (Section 3: Answer Review)
+        // Setup Answers RecyclerView (Section 1: Answer Review)
         binding.rvAnswers.layoutManager = LinearLayoutManager(this)
         binding.rvAnswers.adapter = adapter
         adapter.setHindi(LanguageManager.isHindi(this))
         adapter.setShowTimeInsight(!fromHistory)
 
-        LanguageManager.setupToggleButton(this, binding.btnLanguage) { hindi ->
-            adapter.setHindi(hindi)
-        }
-
-        // Setup Segmented 4-Tab Navigation (Review | Overview | Leaderboard | Analysis)
+        // Setup Segmented Navigation Tabs (Review | Overview | Leaderboard)
         setupTabLayout()
 
         // Setup Question Palette Navigation (Single Question Isolation)
@@ -320,16 +307,16 @@ class ResultActivity : EveBaseActivity() {
         // Setup Filter Chips (Right, Wrong, Unattempted)
         setupFilters(correct, wrong, unattempted)
 
-        // Setup Section 4: Analysis Tab
-        setupAnalysisSection(total, correct, wrong, unattempted, accuracy)
+        // Setup Overview Analytics
+        setupAnalysisSection(total, correct, wrong, accuracy)
 
-        // Setup Cutoff / Performance (Section 2)
+        // Setup Cutoff / Performance
         loadDepthStatsAndCutoffs(currentExamId)
 
-        // Setup Collapsible Cards on Overview Screen
-        setupExpandableCards()
+        // Setup Tappable Overview Detail Cards (Statistics, Performance, Analytics)
+        setupDetailCardClicks(total, correct, wrong, unattempted, accuracy)
 
-        // Bottom Actions
+        // Leaderboard Tab Actions
         binding.btnOpenLeaderboard.setOnClickListener {
             if (currentExamId.isNotBlank()) {
                 startActivity(
@@ -344,68 +331,6 @@ class ResultActivity : EveBaseActivity() {
         if (currentExamId.isBlank()) {
             binding.tvLeaderboardTabSubtitle.text = "Leaderboard is only available for scheduled and published mock tests."
         }
-        updateBottomBarVisibility(binding.tabLayoutResult.selectedTabPosition)
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        for ((key, value) in expandedCardStates) {
-            outState.putBoolean(key, value)
-        }
-    }
-
-    private fun setupExpandableCards() {
-        ExpandableCardHelper(
-            cardView = binding.cardPerformanceStanding,
-            headerView = binding.headerPerformanceStanding,
-            chevronView = binding.ivPerformanceStandingChevron,
-            hintView = binding.tvPerformanceStandingHint,
-            collapsedSummaryView = null,
-            expandedContentView = binding.layoutPerformanceStandingExpanded,
-            scrollView = binding.scrollResultContent,
-            cardTitle = "Performance Standing",
-            stateKey = "card_perf_standing",
-            stateStore = expandedCardStates
-        )
-
-        ExpandableCardHelper(
-            cardView = binding.cardTimePerQuestion,
-            headerView = binding.headerTimePerQuestion,
-            chevronView = binding.ivTimePerQuestionChevron,
-            hintView = binding.tvTimePerQuestionHint,
-            collapsedSummaryView = binding.tvTimePerQuestionCollapsed,
-            expandedContentView = binding.layoutTimePerQuestionExpanded,
-            scrollView = binding.scrollResultContent,
-            cardTitle = "Time Per Question",
-            stateKey = "card_time_per_question",
-            stateStore = expandedCardStates
-        )
-
-        ExpandableCardHelper(
-            cardView = binding.cardSlowestQuestions,
-            headerView = binding.headerSlowestQuestions,
-            chevronView = binding.ivSlowestChevron,
-            hintView = binding.tvSlowestHint,
-            collapsedSummaryView = binding.tvSlowestCollapsed,
-            expandedContentView = binding.layoutSlowestExpanded,
-            scrollView = binding.scrollResultContent,
-            cardTitle = "Slowest Questions",
-            stateKey = "card_slowest_questions",
-            stateStore = expandedCardStates
-        )
-
-        ExpandableCardHelper(
-            cardView = binding.cardTopicAccuracy,
-            headerView = binding.headerTopicAccuracy,
-            chevronView = binding.ivTopicChevron,
-            hintView = binding.tvTopicHint,
-            collapsedSummaryView = binding.tvTopicCollapsed,
-            expandedContentView = binding.layoutTopicExpanded,
-            scrollView = binding.scrollResultContent,
-            cardTitle = "Topic-wise Accuracy",
-            stateKey = "card_topic_accuracy",
-            stateStore = expandedCardStates
-        )
     }
 
     private fun setupTabLayout() {
@@ -413,10 +338,8 @@ class ResultActivity : EveBaseActivity() {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 val pos = tab?.position ?: 0
                 binding.sectionReview.visibility = if (pos == 0) View.VISIBLE else View.GONE
-                binding.sectionOverview.visibility = if (pos == 1) View.VISIBLE else View.GONE
-                binding.sectionLeaderboard.visibility = if (pos == 2) View.VISIBLE else View.GONE
-
-                updateBottomBarVisibility(pos)
+                binding.scrollResultContent.visibility = if (pos == 1) View.VISIBLE else View.GONE
+                binding.scrollLeaderboard.visibility = if (pos == 2) View.VISIBLE else View.GONE
 
                 if (pos == 0) {
                     selectQuestion(selectedQuestionIndex)
@@ -428,24 +351,10 @@ class ResultActivity : EveBaseActivity() {
         })
     }
 
-    private fun updateBottomBarVisibility(tabPosition: Int) {
-        val pos = if (tabPosition >= 0) tabPosition else 0
-        val showBar = (pos == 0 && canReattempt)
-        binding.layoutBottomBar.visibility = if (showBar) View.VISIBLE else View.GONE
-        val bottomPad = if (showBar) (16 * resources.displayMetrics.density).toInt() else 0
-        binding.scrollResultContent.setPadding(
-            binding.scrollResultContent.paddingLeft,
-            binding.scrollResultContent.paddingTop,
-            binding.scrollResultContent.paddingRight,
-            bottomPad
-        )
-    }
-
     private fun setupAnalysisSection(
         total: Int,
         correct: Int,
         wrong: Int,
-        unattempted: Int,
         accuracy: Double
     ) {
         val attempted = correct + wrong
@@ -461,130 +370,77 @@ class ResultActivity : EveBaseActivity() {
             0L
         }
         binding.tvAnalysisAvgTime.text = "${avgSeconds}s"
-        binding.tvTimePerQuestionCollapsed.text = "Average: ${avgSeconds}s / question"
+    }
 
-        // Pace chart
-        val barItems = allItems.mapIndexed { index, item ->
-            QuestionTimeChartView.BarItem(
-                questionNumber = index + 1,
-                timeSeconds = item.timeTakenSeconds,
-                isCorrect = item.isCorrect,
-                isAttempted = item.isAttempted
+    private fun setupDetailCardClicks(
+        total: Int,
+        correct: Int,
+        wrong: Int,
+        unattempted: Int,
+        accuracy: Double
+    ) {
+        val openStats = View.OnClickListener {
+            ResultDataHolder.setDetailItems(allItems)
+            ResultDetailActivity.launch(
+                context = this,
+                type = ResultDetailActivity.TYPE_STATISTICS,
+                examId = currentExamId,
+                examName = currentExamName,
+                score = currentScore,
+                total = total,
+                correct = correct,
+                wrong = wrong,
+                unattempted = unattempted,
+                accuracy = accuracy,
+                rank = binding.tvRank.text.toString(),
+                percentile = binding.tvPercentile.text.toString(),
+                topperAvg = binding.tvTopperAvg.text.toString()
             )
         }
-        binding.chartTimeView.setItems(barItems)
-        binding.chartTimeView.onBarSelected = { bar ->
-            val status = when {
-                bar.isCorrect -> "Correct"
-                bar.isAttempted -> "Wrong"
-                else -> "Skipped"
-            }
-            binding.tvChartDetail.text = "Question ${bar.questionNumber}: ${bar.timeSeconds}s • $status"
-        }
+        binding.headerOverviewStatistics.setOnClickListener(openStats)
+        binding.rowOverviewStatisticsTiles.setOnClickListener(openStats)
 
-        // 3 Slowest Questions
-        val slowest = allItems.filter { it.timeTakenSeconds > 0 }.sortedByDescending { it.timeTakenSeconds }.take(3)
-        if (slowest.isNotEmpty()) {
-            val firstSlow = slowest.first()
-            val firstStatus = when {
-                firstSlow.isCorrect -> "Correct"
-                firstSlow.isAttempted -> "Wrong"
-                else -> "Skipped"
-            }
-            val moreSuffix = if (slowest.size > 1) " (+${slowest.size - 1} more)" else ""
-            binding.tvSlowestCollapsed.text = "Q${firstSlow.number}: ${firstSlow.timeTakenSeconds}s • $firstStatus$moreSuffix"
-        } else {
-            binding.tvSlowestCollapsed.text = "No timed questions recorded."
+        val openPerf = View.OnClickListener {
+            ResultDataHolder.setDetailItems(allItems)
+            ResultDetailActivity.launch(
+                context = this,
+                type = ResultDetailActivity.TYPE_PERFORMANCE,
+                examId = currentExamId,
+                examName = currentExamName,
+                score = currentScore,
+                total = total,
+                correct = correct,
+                wrong = wrong,
+                unattempted = unattempted,
+                accuracy = accuracy,
+                rank = binding.tvRank.text.toString(),
+                percentile = binding.tvPercentile.text.toString(),
+                topperAvg = binding.tvTopperAvg.text.toString()
+            )
         }
-        binding.layoutSlowestList.removeAllViews()
-        if (slowest.isNotEmpty()) {
-            for (item in slowest) {
-                val tv = android.widget.TextView(this).apply {
-                    layoutParams = android.widget.LinearLayout.LayoutParams(
-                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
-                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
-                    ).apply {
-                        setMargins(0, 0, 0, (6 * resources.displayMetrics.density).toInt())
-                    }
-                    val status = when {
-                        item.isCorrect -> "Correct"
-                        item.isAttempted -> "Wrong"
-                        else -> "Skipped"
-                    }
-                    val statusColor = when {
-                        item.isCorrect -> ContextCompat.getColor(context, R.color.eve_status_success)
-                        item.isAttempted -> ContextCompat.getColor(context, R.color.eve_status_error)
-                        else -> ContextCompat.getColor(context, R.color.eve_text_secondary)
-                    }
-                    text = "Q${item.number}: ${item.timeTakenSeconds}s • $status"
-                    setTextColor(statusColor)
-                    textSize = 13f
-                    typeface = android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL)
-                }
-                binding.layoutSlowestList.addView(tv)
-            }
-        } else {
-            val emptyTv = android.widget.TextView(this).apply {
-                text = "No timed questions recorded."
-                setTextColor(ContextCompat.getColor(context, R.color.eve_text_secondary))
-                textSize = 13f
-            }
-            binding.layoutSlowestList.addView(emptyTv)
-        }
+        binding.headerOverviewPerformance.setOnClickListener(openPerf)
+        binding.cardPerformanceStanding.setOnClickListener(openPerf)
 
-        // Topic-wise accuracy list (weakest first)
-        val topicAccs = TopicAccuracyHelper.aggregate(allItems)
-        if (topicAccs.isNotEmpty()) {
-            val weakest = topicAccs.first()
-            binding.tvTopicCollapsed.text = "Weakest: ${weakest.topic} (${weakest.accuracy}%)"
-        } else {
-            binding.tvTopicCollapsed.text = "No topics tagged for these questions."
+        val openAnalytics = View.OnClickListener {
+            ResultDataHolder.setDetailItems(allItems)
+            ResultDetailActivity.launch(
+                context = this,
+                type = ResultDetailActivity.TYPE_ANALYTICS,
+                examId = currentExamId,
+                examName = currentExamName,
+                score = currentScore,
+                total = total,
+                correct = correct,
+                wrong = wrong,
+                unattempted = unattempted,
+                accuracy = accuracy,
+                rank = binding.tvRank.text.toString(),
+                percentile = binding.tvPercentile.text.toString(),
+                topperAvg = binding.tvTopperAvg.text.toString()
+            )
         }
-        binding.layoutTopicList.removeAllViews()
-        if (topicAccs.isNotEmpty()) {
-            for (ta in topicAccs) {
-                val tv = android.widget.TextView(this).apply {
-                    layoutParams = android.widget.LinearLayout.LayoutParams(
-                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
-                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
-                    ).apply {
-                        setMargins(0, 0, 0, (8 * resources.displayMetrics.density).toInt())
-                    }
-                    text = "${ta.topic}: ${ta.accuracy}% (${ta.correct}/${ta.total} correct)"
-                    setTextColor(
-                        if (ta.accuracy >= 70.0) ContextCompat.getColor(context, R.color.eve_status_success)
-                        else if (ta.accuracy >= 40.0) ContextCompat.getColor(context, R.color.eve_primary)
-                        else ContextCompat.getColor(context, R.color.eve_status_error)
-                    )
-                    textSize = 13f
-                }
-                binding.layoutTopicList.addView(tv)
-            }
-
-            val weakest = topicAccs.first()
-            if (weakest.accuracy < 100.0) {
-                binding.btnPracticeWeakest.visibility = View.VISIBLE
-                binding.btnPracticeWeakest.text = "Practice Weakest: ${weakest.topic}"
-                binding.btnPracticeWeakest.setOnClickListener {
-                    val practiceIntent = Intent(this, TestActivity::class.java).apply {
-                        putExtra(Constants.EXTRA_EXAM_ID, currentExamId)
-                        putExtra(Constants.EXTRA_EXAM_NAME, currentExamName)
-                        putExtra(Constants.EXTRA_TOPIC, weakest.topic)
-                    }
-                    startActivity(practiceIntent)
-                }
-            } else {
-                binding.btnPracticeWeakest.visibility = View.GONE
-            }
-        } else {
-            val tv = android.widget.TextView(this).apply {
-                text = "No topics tagged for these questions."
-                setTextColor(ContextCompat.getColor(context, R.color.eve_text_secondary))
-                textSize = 13f
-            }
-            binding.layoutTopicList.addView(tv)
-            binding.btnPracticeWeakest.visibility = View.GONE
-        }
+        binding.headerOverviewAnalytics.setOnClickListener(openAnalytics)
+        binding.cardOverviewAnalytics.setOnClickListener(openAnalytics)
     }
 
     private fun setupQuestionPalette() {
