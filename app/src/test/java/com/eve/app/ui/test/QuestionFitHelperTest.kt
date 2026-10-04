@@ -145,4 +145,31 @@ class QuestionFitHelperTest {
         )
         assertEquals(144, floorComputed)
     }
+
+    @Test
+    fun testMeasureTotalOptionsHeight_fourOptionsAccountForMinTouchTargetAndGaps() {
+        val density = 2f
+        val scaledDensity = 2f
+        // 4 options with empty/short text must at least equal 4 * 48dp * 2 = 384px + 3 gaps * 6dp * 2 = 36px => 420px
+        val minHeight = (48f * density).toInt()
+        val gap = (6f * density).toInt()
+        val expectedMin = 4 * minHeight + 3 * gap
+
+        val options = listOf("A. Option 1", "B. Option 2", "C. Option 3", "D. Option 4")
+        val paint = android.text.TextPaint()
+
+        val measured = QuestionFitHelper.measureTotalOptionsHeight(
+            optionsText = options,
+            basePaint = paint,
+            optionSp = 15f,
+            availableWidthPx = (360f * density).toInt(),
+            density = density,
+            scaledDensity = scaledDensity
+        )
+
+        assertTrue(
+            "Rendered options height ($measured) must be at least minimum touch target budget ($expectedMin)",
+            measured >= expectedMin
+        )
+    }
 }
