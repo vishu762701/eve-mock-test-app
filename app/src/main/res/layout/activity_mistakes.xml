@@ -47,20 +47,6 @@
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="12sp" />
         </LinearLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnLanguage"
-            style="@style/Widget.Eve.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minWidth="48dp"
-            android:minHeight="40dp"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="4dp"
-            android:text="HI"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="12sp"
-            app:strokeColor="@color/eve_stroke" />
     </LinearLayout>
 
     <View

@@ -86,10 +86,6 @@ class BookmarksActivity : EveBaseActivity() {
 
         binding.btnRetry.setOnClickListener { viewModel.load() }
 
-        LanguageManager.setupToggleButton(this, binding.btnLanguage) {
-            adapter.notifyDataSetChanged()
-        }
-
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { viewModel.state.collect { renderState(it) } }

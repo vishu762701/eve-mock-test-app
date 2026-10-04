@@ -76,16 +76,10 @@ object SystemBarHelper {
         val window = activity.window ?: return
         val decorView = window.decorView
 
-        val isTransition = ThemeSwitchAnimator.isTransitioning
         val activeState = ThemeSwitchAnimator.getActiveTransitionState()
 
-        // During a theme switch transition, match the visible overlay to prevent white-on-white
-        // or black-on-black icon appearance glitches
-        val isDarkAppearance = if (isTransition && activeState != null) {
-            !activeState.isDarkModeTarget
-        } else {
-            ThemeSwitchAnimator.isDarkMode(activity)
-        }
+        // Match the target appearance immediately so the status bar and notch never linger in the old theme
+        val isDarkAppearance = activeState?.isDarkModeTarget ?: ThemeSwitchAnimator.isDarkMode(activity)
 
         val controller = WindowInsetsControllerCompat(window, decorView)
         controller.isAppearanceLightStatusBars = !isDarkAppearance

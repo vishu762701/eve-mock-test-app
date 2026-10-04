@@ -52,10 +52,6 @@ class MistakesActivity : EveBaseActivity() {
         binding.rvMistakes.layoutManager = LinearLayoutManager(this)
         binding.rvMistakes.adapter = adapter
 
-        LanguageManager.setupToggleButton(this, binding.btnLanguage) {
-            adapter.notifyDataSetChanged()
-        }
-
         setupFilters()
 
         lifecycleScope.launch {

@@ -75,6 +75,25 @@
 
 - [x] **Task Group N & O — Accessibility, Verification & Final Report**
   - [x] 360dp width & 1.3x font scale static checks & measurement verification
-  - [x] Run `./gradlew testDebugUnitTest` (188/188 tests passed)
+  - [x] Run `./gradlew testDebugUnitTest` (191/191 tests passed)
   - [x] Run `./gradlew assembleDebug` (APK generated cleanly: `app-debug.apk`)
   - [x] Document verified and unverified items in final report
+
+## 3-Part Master Prompt Polish Pass
+
+- [x] **Part 1 — Result Screen Polish**
+  - [x] Result Overview: Natural vertical scrolling (`scrollResultContent` with `overScrollMode="ifContentScrolls"`, `clipToPadding="false"`, `paddingBottom="36dp"`, comfortable section margins)
+  - [x] Result Tabs: Noticeably easier to read, 14sp Poppins Semibold typography (`TextAppearance.Eve.TabSegment`), crisp contrast (`eve_tab_unselected_text`: #4B5563 light / #D1D5DB dark), equal tab widths, 360dp width and 1.3x font scale safe
+  - [x] Result Reattempt: Confident warm orange treatment (`Widget.Eve.Button.OrangePill`, `eve_reattempt_*` tokens), not neon; preserves dialog confirmation & attempt limits
+  - [x] Result Review Viewport: Non-page-scrolling in normal state, reduced top/palette/filter margins, compact `item_answer.xml` (14dp padding, 44dp View Solution) eliminating large unused vertical gaps
+
+- [x] **Part 2 — Test Screen Spacing, HI Removal & Top Theme-Switch Glitch**
+  - [x] Test Screen Spacing: 10dp gap between question and options; 2x2 bottom actions systematically equal (44dp height, 6dp vertical row spacing)
+  - [x] Language Toggle Removal: Completely removed `btnLanguage` (HI pill) and its listeners from all non-Settings screens (`activity_test.xml`, `activity_bookmarks.xml`, `activity_mistakes.xml`) while preserving global `LanguageManager` and Settings language toggle
+  - [x] Top Status-Bar/Notch Theme Glitch: Updated `SystemBarHelper.syncSystemBars()` to match target theme appearance immediately during transitions, eliminating delayed old-theme strip while keeping circular reveal animation 100% intact
+
+- [x] **Part 3 — Target Exams Sheet, Home Pills, Reattempt Consistency & Typography**
+  - [x] Target Exams Bottom Sheet: Mature personalization component with clear heading ("Which exams are you preparing for?"), descriptive subtitle, Poppins Medium dynamic exam chips, and equal-sized Skip / Continue buttons
+  - [x] Home Streak / Admin Pills: Equalized `layoutStreakPill` to `match_parent` width matching `btnAdmin` with centered alignment, keeping exact vertical thickness/height unchanged and flame animation unclipped
+  - [x] Reattempt Orange Consistency: Applied `Widget.Eve.Button.Orange` to `btnReattempt` in `bottom_sheet_completed_exam.xml` and `Widget.Eve.Button.OrangePill` in `activity_result.xml`
+  - [x] Global Typography & Color Contrast: Richer accents (~25% richer contrast/richness on lilac, yellow, orange), high-contrast neutrals, WCAG AA compliance, and 191/191 unit tests passing cleanly

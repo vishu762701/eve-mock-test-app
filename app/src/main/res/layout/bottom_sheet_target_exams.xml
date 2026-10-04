@@ -20,8 +20,9 @@
         android:id="@+id/tvSheetTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Select Your Target Exams"
-        android:textColor="?attr/colorOnSurface"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="Which exams are you preparing for?"
+        android:textColor="@color/eve_text"
         android:textSize="20sp" />
 
     <TextView
@@ -29,8 +30,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="Choose the exams you are preparing for to personalize your test feed."
-        android:textColor="?attr/colorOnSurfaceVariant"
+        android:fontFamily="@font/poppins_regular"
+        android:text="Select your target exams to personalize your test feed and recommendations."
+        android:textColor="@color/eve_text_secondary"
         android:textSize="14sp" />
 
     <com.google.android.material.chip.ChipGroup
@@ -49,22 +51,26 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSkip"
-            style="@style/Widget.Eve.OutlinedButton"
+            style="@style/Widget.Eve.Button.Outlined"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="6dp"
             android:layout_weight="1"
             android:minHeight="48dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
             android:text="Skip" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnContinue"
-            style="@style/Widget.Eve.Button"
+            style="@style/Widget.Eve.Button.Primary"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="6dp"
             android:layout_weight="1"
             android:minHeight="48dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
             android:text="Continue" />
     </LinearLayout>
 </LinearLayout>

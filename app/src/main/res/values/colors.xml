@@ -92,8 +92,14 @@
     <!-- Selection Accents: Lilac for tab/segment selection and HI chip (light pill #D8CEF8 with text #2B2550) -->
     <color name="eve_tab_selected_bg">#D8CEF8</color>
     <color name="eve_tab_selected_text">#2B2550</color>
+    <color name="eve_tab_unselected_text">#4B5563</color>
     <color name="eve_chip_hi_bg">#D8CEF8</color>
     <color name="eve_chip_hi_text">#2B2550</color>
+
+    <!-- Reattempt Orange Pill (confident, premium warm orange, not neon) -->
+    <color name="eve_reattempt_bg">#FFF1E8</color>
+    <color name="eve_reattempt_stroke">#FFD5BC</color>
+    <color name="eve_reattempt_text">#C84700</color>
 
     <!-- Primary Buttons: Inverting pill, light = #0B0B0D fill + white text -->
     <color name="eve_button_primary_bg">#0B0B0D</color>

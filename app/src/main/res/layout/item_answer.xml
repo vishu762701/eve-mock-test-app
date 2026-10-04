@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="0dp"
-    android:layout_marginVertical="6dp"
+    android:layout_marginVertical="4dp"
     app:cardBackgroundColor="@color/eve_surface"
     app:cardCornerRadius="@dimen/eve_radius_card"
     app:cardElevation="0dp"
@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="14dp">
 
         <!-- 1. Question Number + Status + Header Actions -->
         <LinearLayout
@@ -93,7 +93,7 @@
             style="@style/TextAppearance.Eve.QuestionText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="8dp"
             android:lineSpacingMultiplier="1.25"
             android:textColor="@color/eve_text"
             android:textSize="18sp" />
@@ -103,7 +103,7 @@
             android:id="@+id/layoutOptionsContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="8dp"
             android:orientation="vertical">
 
             <!-- Option A -->
@@ -111,11 +111,11 @@
                 android:id="@+id/layoutOptionA"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="6dp"
                 android:background="@drawable/bg_option_review_default"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="12dp">
+                android:padding="10dp">
 
                 <TextView
                     android:id="@+id/tvBadgeOptionA"
@@ -150,11 +150,11 @@
                 android:id="@+id/layoutOptionB"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="6dp"
                 android:background="@drawable/bg_option_review_default"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="12dp">
+                android:padding="10dp">
 
                 <TextView
                     android:id="@+id/tvBadgeOptionB"
@@ -189,11 +189,11 @@
                 android:id="@+id/layoutOptionC"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="6dp"
                 android:background="@drawable/bg_option_review_default"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="12dp">
+                android:padding="10dp">
 
                 <TextView
                     android:id="@+id/tvBadgeOptionC"
@@ -228,11 +228,11 @@
                 android:id="@+id/layoutOptionD"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="6dp"
                 android:background="@drawable/bg_option_review_default"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="12dp">
+                android:padding="10dp">
 
                 <TextView
                     android:id="@+id/tvBadgeOptionD"
@@ -268,8 +268,8 @@
             android:id="@+id/btnViewSolution"
             style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="16dp"
+            android:layout_height="44dp"
+            android:layout_marginTop="10dp"
             android:text="View Solution"
             android:textColor="?attr/colorOnSurface"
             app:cornerRadius="12dp"

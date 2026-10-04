@@ -273,14 +273,28 @@ class ResultAndTestPolishVerificationTest {
         assertTrue("ivSheetCheckSt must exist", sheetContent.contains("android:id=\"@+id/ivSheetCheckSt\""))
         assertTrue("ivSheetCheckEws must exist", sheetContent.contains("android:id=\"@+id/ivSheetCheckEws\""))
 
-        // 3. Header Language Removal from Result, Preserved in Test
+        // 3. Header Language Removal from Result, Test, Bookmarks, and Mistakes (only preserved in Settings)
         assertFalse("btnLanguage must not exist in Result header", content.contains("android:id=\"@+id/btnLanguage\""))
         val testLayoutFile = File("src/main/res/layout/activity_test.xml").takeIf { it.exists() }
             ?: File("app/src/main/res/layout/activity_test.xml").takeIf { it.exists() }
             ?: File("eve-mock-test-app/app/src/main/res/layout/activity_test.xml")
         assertTrue("activity_test.xml must exist", testLayoutFile != null && testLayoutFile.exists())
         val testContent = testLayoutFile!!.readText()
-        assertTrue("btnLanguage must be preserved in Test screen", testContent.contains("android:id=\"@+id/btnLanguage\""))
+        assertFalse("btnLanguage must be removed from Test screen", testContent.contains("android:id=\"@+id/btnLanguage\""))
+
+        val bookmarksFile = File("src/main/res/layout/activity_bookmarks.xml").takeIf { it.exists() }
+            ?: File("app/src/main/res/layout/activity_bookmarks.xml").takeIf { it.exists() }
+            ?: File("eve-mock-test-app/app/src/main/res/layout/activity_bookmarks.xml")
+        if (bookmarksFile != null && bookmarksFile.exists()) {
+            assertFalse("btnLanguage must be removed from Bookmarks screen", bookmarksFile.readText().contains("android:id=\"@+id/btnLanguage\""))
+        }
+
+        val mistakesFile = File("src/main/res/layout/activity_mistakes.xml").takeIf { it.exists() }
+            ?: File("app/src/main/res/layout/activity_mistakes.xml").takeIf { it.exists() }
+            ?: File("eve-mock-test-app/app/src/main/res/layout/activity_mistakes.xml")
+        if (mistakesFile != null && mistakesFile.exists()) {
+            assertFalse("btnLanguage must be removed from Mistakes screen", mistakesFile.readText().contains("android:id=\"@+id/btnLanguage\""))
+        }
     }
 
     @Test
@@ -382,5 +396,58 @@ class ResultAndTestPolishVerificationTest {
         assertTrue("Admin at 0: allowed", canUserAttempt(0, isAdmin = true))
         assertTrue("Admin at 3: allowed", canUserAttempt(3, isAdmin = true))
         assertTrue("Admin at 10: allowed", canUserAttempt(10, isAdmin = true))
+    }
+
+    @Test
+    fun testTargetExamsBottomSheetContentAndButtonSizing() {
+        val sheetFile = File("src/main/res/layout/bottom_sheet_target_exams.xml").takeIf { it.exists() }
+            ?: File("app/src/main/res/layout/bottom_sheet_target_exams.xml").takeIf { it.exists() }
+            ?: File("eve-mock-test-app/app/src/main/res/layout/bottom_sheet_target_exams.xml")
+        assertTrue("bottom_sheet_target_exams.xml must exist", sheetFile != null && sheetFile.exists())
+        val content = sheetFile!!.readText()
+
+        assertTrue("Sheet title must be user-oriented", content.contains("Which exams are you preparing for?"))
+        assertTrue("Sheet subtitle must explain personalization benefit", content.contains("Select your target exams to personalize your test feed and recommendations."))
+        assertTrue("btnSkip must have weight 1", content.contains("android:id=\"@+id/btnSkip\"") && content.contains("android:layout_weight=\"1\""))
+        assertTrue("btnContinue must have weight 1", content.contains("android:id=\"@+id/btnContinue\"") && content.contains("android:layout_weight=\"1\""))
+    }
+
+    @Test
+    fun testHomeStreakAndAdminPillWidthParity() {
+        val mainFile = File("src/main/res/layout/activity_main.xml").takeIf { it.exists() }
+            ?: File("app/src/main/res/layout/activity_main.xml").takeIf { it.exists() }
+            ?: File("eve-mock-test-app/app/src/main/res/layout/activity_main.xml")
+        assertTrue("activity_main.xml must exist", mainFile != null && mainFile.exists())
+        val content = mainFile!!.readText()
+
+        assertTrue("layoutStreakPill must exist", content.contains("android:id=\"@+id/layoutStreakPill\""))
+        assertTrue("btnAdmin must exist", content.contains("android:id=\"@+id/btnAdmin\""))
+
+        // Both pills must use match_parent to maintain identical width within Find Your Next Test card
+        val streakPillStart = content.indexOf("android:id=\"@+id/layoutStreakPill\"")
+        val streakChunk = content.substring(streakPillStart, content.indexOf(">", streakPillStart))
+        assertTrue("layoutStreakPill must have match_parent width", streakChunk.contains("android:layout_width=\"match_parent\""))
+
+        val adminStart = content.indexOf("android:id=\"@+id/btnAdmin\"")
+        val adminChunk = content.substring(adminStart, content.indexOf(">", adminStart))
+        assertTrue("btnAdmin must have match_parent width", adminChunk.contains("android:layout_width=\"match_parent\""))
+    }
+
+    @Test
+    fun testReattemptOrangeConsistency() {
+        val resultFile = File("src/main/res/layout/activity_result.xml").takeIf { it.exists() }
+            ?: File("app/src/main/res/layout/activity_result.xml").takeIf { it.exists() }
+            ?: File("eve-mock-test-app/app/src/main/res/layout/activity_result.xml")
+        assertTrue("activity_result.xml must exist", resultFile != null && resultFile.exists())
+        val resultContent = resultFile!!.readText()
+        assertTrue("btnReattempt in Result header must use OrangePill", resultContent.contains("style=\"@style/Widget.Eve.Button.OrangePill\""))
+
+        val completedSheetFile = File("src/main/res/layout/bottom_sheet_completed_exam.xml").takeIf { it.exists() }
+            ?: File("app/src/main/res/layout/bottom_sheet_completed_exam.xml").takeIf { it.exists() }
+            ?: File("eve-mock-test-app/app/src/main/res/layout/bottom_sheet_completed_exam.xml")
+        assertTrue("bottom_sheet_completed_exam.xml must exist", completedSheetFile != null && completedSheetFile.exists())
+        val completedContent = completedSheetFile!!.readText()
+        assertTrue("btnReattempt in completed exam sheet must use Orange style", completedContent.contains("style=\"@style/Widget.Eve.Button.Orange\""))
+        assertFalse("btnReattempt must not use error color", completedContent.contains("@color/error"))
     }
 }

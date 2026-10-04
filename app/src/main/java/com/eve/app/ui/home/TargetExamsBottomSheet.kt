@@ -48,6 +48,9 @@ object TargetExamsBottomSheet {
                 checkedIconTint = null
                 chipIconSize = resources.getDimension(com.eve.app.R.dimen.target_exam_chip_icon_size)
                 isCheckedIconVisible = true
+                typeface = androidx.core.content.res.ResourcesCompat.getFont(activity, com.eve.app.R.font.poppins_medium)
+                textSize = 14f
+                chipMinHeight = resources.displayMetrics.density * 38f
             }
             binding.chipGroupExams.addView(chip)
             chipMap[chip.id] = exam.id

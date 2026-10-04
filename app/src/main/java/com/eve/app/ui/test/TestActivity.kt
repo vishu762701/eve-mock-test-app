@@ -162,10 +162,6 @@ class TestActivity : EveBaseActivity() {
         }
         binding.btnRetry.setOnClickListener { viewModel.retry(examId, timeLimit, topic, pyqYear, pyqPaper, isAdminUser, examName, fromBookmark) }
 
-        LanguageManager.setupToggleButton(this, binding.btnLanguage) {
-            binding.viewPager.adapter?.notifyDataSetChanged()
-        }
-
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 currentQuestionPosition = position

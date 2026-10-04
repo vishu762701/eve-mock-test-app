@@ -43,15 +43,12 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnReattempt"
-        style="@style/Widget.Eve.OutlinedButton"
+        style="@style/Widget.Eve.Button.Orange"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:layout_marginTop="10dp"
         android:text="@string/reattempt"
-        android:textColor="@color/error"
-        app:strokeColor="@color/error"
         app:icon="@drawable/ic_refresh"
-        app:iconGravity="textStart"
-        app:iconTint="@color/error" />
+        app:iconGravity="textStart" />
 
 </LinearLayout>
