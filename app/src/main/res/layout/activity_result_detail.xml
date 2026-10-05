@@ -691,7 +691,7 @@
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnPracticeWeakest"
-                            style="@style/Widget.Eve.Button.Primary"
+                            style="@style/Widget.Eve.Button.OrangePill"
                             android:layout_width="match_parent"
                             android:layout_height="48dp"
                             android:layout_marginTop="16dp"

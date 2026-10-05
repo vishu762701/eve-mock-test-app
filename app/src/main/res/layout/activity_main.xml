@@ -126,14 +126,13 @@
 
                 <TextView
                     android:id="@+id/tvWelcome"
+                    style="@style/TextAppearance.Eve.M3.HeadlineLarge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
-                    android:fontFamily="@font/poppins_bold"
                     android:maxLines="2"
                     android:text="Hi, Student"
                     android:textColor="@color/eve_header_ink_text"
-                    android:textSize="22sp"
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
@@ -225,12 +224,11 @@
             android:padding="20dp">
 
             <TextView
+                style="@style/TextAppearance.Eve.M3.HeadlineMedium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_bold"
                 android:text="Find your next test"
                 android:textColor="@color/eve_text"
-                android:textSize="26sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -251,8 +249,8 @@
                 android:gravity="center"
                 android:orientation="horizontal"
                 android:paddingStart="12dp"
-                android:paddingEnd="14dp"
-                android:paddingVertical="6dp"
+                android:paddingEnd="@dimen/eve_space_16"
+                android:paddingVertical="@dimen/eve_space_8"
                 android:visibility="gone">
 
                 <com.eve.app.ui.common.FlameAnimationView

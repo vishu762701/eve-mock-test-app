@@ -81,21 +81,22 @@ object EmptyStateAnimationHelper {
     fun showEmptyState(
         lottieView: LottieAnimationView,
         hasPlayed: Boolean = false,
+        rawResId: Int = R.raw.search,
         onAnimationEnd: (() -> Unit)? = null
     ): Boolean {
         lottieView.setBackgroundResource(android.R.color.transparent)
         lottieView.repeatCount = 0
 
-        // If already actively playing search animation, let it finish cleanly without interruption
-        if (lottieView.isAnimating && lottieView.tag == R.raw.search) {
+        // If already actively playing target animation, let it finish cleanly without interruption
+        if (lottieView.isAnimating && lottieView.tag == rawResId) {
             return true
         }
 
         val currentTag = lottieView.tag
-        if (currentTag != R.raw.search) {
+        if (currentTag != rawResId) {
             lottieView.cancelAnimation()
-            lottieView.setAnimation(R.raw.search)
-            lottieView.tag = R.raw.search
+            lottieView.setAnimation(rawResId)
+            lottieView.tag = rawResId
         }
 
         val isDark = ThemeSwitchAnimator.isDarkMode(lottieView.context)

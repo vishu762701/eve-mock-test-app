@@ -96,8 +96,9 @@
             android:id="@+id/rvExams"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layoutAnimation="@anim/layout_enter"
             android:clipToPadding="false"
-            android:paddingVertical="6dp" />
+            android:paddingVertical="@dimen/eve_space_8" />
 
         <com.eve.app.ui.common.ShimmerSkeletonView
             android:id="@+id/shimmerSkeletonExams"

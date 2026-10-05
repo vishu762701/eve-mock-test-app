@@ -55,8 +55,9 @@
                 android:id="@+id/rvPolls"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layoutAnimation="@anim/layout_enter"
                 android:clipToPadding="false"
-                android:paddingVertical="8dp" />
+                android:paddingVertical="@dimen/eve_space_8" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <ProgressBar

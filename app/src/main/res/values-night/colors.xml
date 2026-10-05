@@ -88,12 +88,34 @@
     <color name="eve_palette_marked_dot">#F7C564</color>
     <color name="eve_sparkle">#FFCA18</color>
 
-    <!-- Selection Accents: Lilac for tab/segment selection and HI chip (dark pill #D8CEF8 with text #1B1830) -->
+    <!-- Selection Accents: Lilac for tab/segment selection and brand moments (dark pill #D8CEF8 with text #1B1830) -->
     <color name="eve_tab_selected_bg">#D8CEF8</color>
     <color name="eve_tab_selected_text">#1B1830</color>
     <color name="eve_tab_unselected_text">#D1D5DB</color>
     <color name="eve_chip_hi_bg">#D8CEF8</color>
     <color name="eve_chip_hi_text">#1B1830</color>
+
+    <!-- Signature Accent: Lilac Scale (Task B: Brand moments, selections, tints - Dark Mode) -->
+    <color name="eve_lilac_subtle">#1F1C2B</color>
+    <color name="eve_lilac_tint">#2A253D</color>
+    <color name="eve_lilac_fill">#3E355E</color>
+    <color name="eve_lilac_stroke">#574A82</color>
+    <color name="eve_lilac_text">#DDD7FA</color>
+    <color name="eve_lilac_pressed">#4C4173</color>
+
+    <!-- Curated Category Tile Palette (Task B: Visual scan & category differentiation - Dark Mode) -->
+    <color name="eve_category_tint_lilac_bg">#29233D</color>
+    <color name="eve_category_tint_lilac_fg">#DDD7FA</color>
+    <color name="eve_category_tint_green_bg">#1B2E1D</color>
+    <color name="eve_category_tint_green_fg">#8DEAB0</color>
+    <color name="eve_category_tint_amber_bg">#33240F</color>
+    <color name="eve_category_tint_amber_fg">#FAD386</color>
+    <color name="eve_category_tint_rose_bg">#361A19</color>
+    <color name="eve_category_tint_rose_fg">#FFADA6</color>
+    <color name="eve_category_tint_blue_bg">#182638</color>
+    <color name="eve_category_tint_blue_fg">#89C4FD</color>
+    <color name="eve_category_tint_teal_bg">#142E2C</color>
+    <color name="eve_category_tint_teal_fg">#7CE0D6</color>
 
     <!-- Reattempt Orange Pill (confident, premium warm orange, not neon) -->
     <color name="eve_reattempt_bg">#341B0D</color>

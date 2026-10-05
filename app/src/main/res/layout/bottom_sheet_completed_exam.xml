@@ -17,18 +17,22 @@
 
     <TextView
         android:id="@+id/tvCompletedTitle"
+        style="@style/TextAppearance.Eve.Heading"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/eve_text"
-        android:textSize="18sp" />
+        android:textColor="@color/eve_text" />
 
     <TextView
         android:id="@+id/tvCompletedScore"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textColor="@color/eve_text_secondary"
-        android:textSize="14sp" />
+        android:layout_marginTop="@dimen/eve_space_8"
+        android:background="@drawable/bg_tile_right"
+        android:fontFamily="@font/poppins_semibold"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="4dp"
+        android:textColor="@color/eve_tile_right_text"
+        android:textSize="13sp" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnViewResult"
@@ -46,7 +50,7 @@
         style="@style/Widget.Eve.Button.Orange"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="@dimen/eve_space_12"
         android:text="@string/reattempt"
         app:icon="@drawable/ic_refresh"
         app:iconGravity="textStart" />

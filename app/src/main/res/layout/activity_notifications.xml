@@ -72,26 +72,27 @@
                 android:layout_height="140dp"
                 android:background="@android:color/transparent"
                 app:lottie_autoPlay="false"
-                app:lottie_loop="false" />
+                app:lottie_loop="false"
+                app:lottie_rawRes="@raw/notification_bell" />
 
             <TextView
+                style="@style/TextAppearance.Eve.M3.HeadlineSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
+                android:layout_marginTop="@dimen/eve_space_16"
                 android:gravity="center"
                 android:text="No notifications yet"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="15sp"
+                android:textColor="@color/eve_text"
                 android:textStyle="bold" />
 
             <TextView
+                style="@style/TextAppearance.Eve.Body"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="6dp"
                 android:gravity="center"
                 android:text="New exams and updates will appear here"
-                android:textColor="@color/eve_grey"
-                android:textSize="12sp" />
+                android:textColor="@color/eve_text_secondary" />
         </LinearLayout>
     </FrameLayout>
 

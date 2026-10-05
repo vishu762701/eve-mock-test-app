@@ -110,6 +110,7 @@
                 android:id="@+id/rvAuditLogs"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layoutAnimation="@anim/layout_enter"
                 android:clipToPadding="false"
                 android:paddingBottom="16dp" />
 

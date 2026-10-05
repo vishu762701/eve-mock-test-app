@@ -53,8 +53,9 @@
             android:id="@+id/rvGeneratedTests"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layoutAnimation="@anim/layout_enter"
             android:clipToPadding="false"
-            android:paddingVertical="10dp" />
+            android:paddingVertical="@dimen/eve_space_8" />
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -83,21 +84,22 @@
                 app:lottie_rawRes="@raw/search" />
 
             <TextView
+                style="@style/TextAppearance.Eve.M3.HeadlineSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="@dimen/eve_space_16"
                 android:text="No generated tests yet"
                 android:textColor="@color/eve_text"
-                android:textSize="17sp" />
+                android:textStyle="bold" />
 
             <TextView
+                style="@style/TextAppearance.Eve.Body"
                 android:layout_width="260dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="@dimen/eve_space_8"
                 android:gravity="center"
                 android:text="Tests generated nightly by AI will appear here in Paused state for your review."
-                android:textColor="@color/eve_text_secondary"
-                android:textSize="13sp" />
+                android:textColor="@color/eve_text_secondary" />
         </LinearLayout>
     </FrameLayout>
 </LinearLayout>

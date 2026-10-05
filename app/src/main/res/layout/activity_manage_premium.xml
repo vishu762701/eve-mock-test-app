@@ -302,6 +302,7 @@
                 android:id="@+id/rvTransactions"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layoutAnimation="@anim/layout_enter"
                 android:clipToPadding="false"
                 android:padding="16dp" />
 
@@ -347,6 +348,7 @@
                     android:id="@+id/rvPremiumUsers"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layoutAnimation="@anim/layout_enter"
                     android:clipToPadding="false"
                     android:padding="16dp" />
 

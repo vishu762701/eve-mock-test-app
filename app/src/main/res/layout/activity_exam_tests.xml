@@ -60,19 +60,21 @@
             android:id="@+id/rvTests"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layoutAnimation="@anim/layout_enter"
             android:clipToPadding="false"
-            android:padding="16dp" />
+            android:padding="@dimen/eve_space_16" />
 
         <TextView
             android:id="@+id/tvEmpty"
+            style="@style/TextAppearance.Eve.M3.HeadlineSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
             android:padding="24dp"
             android:text="No tests available yet."
-            android:textColor="@color/eve_text_secondary"
-            android:textSize="14sp"
+            android:textColor="@color/eve_text"
+            android:textStyle="bold"
             android:visibility="gone" />
     </FrameLayout>
 </LinearLayout>

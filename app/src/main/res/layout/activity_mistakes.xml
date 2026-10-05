@@ -123,36 +123,37 @@
 
             <ImageView
                 android:id="@+id/ivEmpty"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
                 android:contentDescription="No mistakes"
-                android:src="@drawable/ic_check_circle"
-                app:tint="@color/eve_status_success" />
+                android:src="@drawable/illustration_empty_all_caught_up" />
 
             <TextView
                 android:id="@+id/tvEmptyTitle"
+                style="@style/TextAppearance.Eve.M3.HeadlineSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="20dp"
                 android:text="All Caught Up!"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="18sp" />
+                android:textColor="@color/eve_text"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvEmptySubtitle"
+                style="@style/TextAppearance.Eve.Body"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="8dp"
                 android:gravity="center"
                 android:text="No mistakes recorded. Questions you answer incorrectly or skip will automatically appear here."
-                android:textColor="@color/eve_text_secondary"
-                android:textSize="13sp" />
+                android:textColor="@color/eve_text_secondary" />
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvMistakes"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layoutAnimation="@anim/layout_enter"
             android:clipToPadding="false"
             android:paddingVertical="8dp" />
     </FrameLayout>

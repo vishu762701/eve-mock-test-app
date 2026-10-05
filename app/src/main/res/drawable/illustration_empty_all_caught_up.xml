@@ -1,0 +1,56 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+
+    <!-- Outer Glow / Soft Backdrop -->
+    <path
+        android:fillColor="@color/eve_tile_right_fill"
+        android:pathData="M60,60m-54,0a54,54 0,1 1,108 0a54,54 0,1 1,-108 0" />
+
+    <!-- Subtle Decorative Inner Ring -->
+    <path
+        android:strokeColor="@color/eve_tile_right_border"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M60,60m-46,0a46,46 0,1 1,92 0a46,46 0,1 1,-92 0" />
+
+    <!-- Radiant Celebration Sparkle / Star (Top-Right) -->
+    <path
+        android:fillColor="@color/eve_star_fill"
+        android:pathData="M92,28 L94,34 L100,36 L94,38 L92,44 L90,38 L84,36 L90,34 Z" />
+
+    <!-- Secondary Accent Star (Bottom-Left) -->
+    <path
+        android:fillColor="@color/eve_star_fill"
+        android:pathData="M26,82 L27.5,86.5 L32,88 L27.5,89.5 L26,94 L24.5,89.5 L20,88 L24.5,86.5 Z" />
+
+    <!-- Third Soft Lilac Sparkle (Top-Left) -->
+    <path
+        android:fillColor="@color/eve_lilac_stroke"
+        android:pathData="M32,32 L33,35 L36,36 L33,37 L32,40 L31,37 L28,36 L31,35 Z" />
+
+    <!-- Central Floating Shield / Badge Base -->
+    <path
+        android:fillColor="@color/eve_surface"
+        android:pathData="M60,26 C76,26 84,35 84,54 C84,74 60,94 60,94 C60,94 36,74 36,54 C36,35 44,26 60,26 Z" />
+
+    <!-- Shield Border Outline -->
+    <path
+        android:strokeColor="@color/eve_tile_right_border"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M60,26 C76,26 84,35 84,54 C84,74 60,94 60,94 C60,94 36,74 36,54 C36,35 44,26 60,26 Z" />
+
+    <!-- Bold Confident Checkmark -->
+    <path
+        android:strokeColor="@color/eve_tile_right_text"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M48,56 L56,64 L73,47" />
+
+</vector>

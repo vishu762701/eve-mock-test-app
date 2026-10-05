@@ -56,6 +56,7 @@ class NotificationsActivity : EveBaseActivity() {
             com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(
                 lottieView = binding.lottieEmpty,
                 hasPlayed = hasEmptyPlayed,
+                rawResId = com.eve.app.R.raw.notification_bell,
                 onAnimationEnd = {
                     hasEmptyPlayed = true
                 }

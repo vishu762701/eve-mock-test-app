@@ -51,6 +51,30 @@ object TargetExamsBottomSheet {
                 typeface = androidx.core.content.res.ResourcesCompat.getFont(activity, com.eve.app.R.font.poppins_medium)
                 textSize = 14f
                 chipMinHeight = resources.displayMetrics.density * 38f
+                chipBackgroundColor = android.content.res.ColorStateList(
+                    arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
+                    intArrayOf(
+                        androidx.core.content.ContextCompat.getColor(activity, com.eve.app.R.color.eve_lilac_subtle),
+                        androidx.core.content.ContextCompat.getColor(activity, com.eve.app.R.color.eve_surface_2)
+                    )
+                )
+                chipStrokeColor = android.content.res.ColorStateList(
+                    arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
+                    intArrayOf(
+                        androidx.core.content.ContextCompat.getColor(activity, com.eve.app.R.color.eve_lilac_stroke),
+                        androidx.core.content.ContextCompat.getColor(activity, com.eve.app.R.color.eve_border)
+                    )
+                )
+                chipStrokeWidth = resources.displayMetrics.density * 1f
+                setTextColor(
+                    android.content.res.ColorStateList(
+                        arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
+                        intArrayOf(
+                            androidx.core.content.ContextCompat.getColor(activity, com.eve.app.R.color.eve_lilac_text),
+                            androidx.core.content.ContextCompat.getColor(activity, com.eve.app.R.color.eve_text)
+                        )
+                    )
+                )
             }
             binding.chipGroupExams.addView(chip)
             chipMap[chip.id] = exam.id

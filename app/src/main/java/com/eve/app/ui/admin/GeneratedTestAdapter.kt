@@ -52,10 +52,13 @@ class GeneratedTestAdapter(
             }
 
             b.tvStatusBadge.text = if (isLive) "LIVE" else "PAUSED"
+            b.tvStatusBadge.setBackgroundResource(
+                if (isLive) R.drawable.bg_tile_right else R.drawable.bg_tile_medium
+            )
             b.tvStatusBadge.setTextColor(
                 ContextCompat.getColor(
                     itemView.context,
-                    if (isLive) R.color.eve_green else R.color.eve_text_secondary
+                    if (isLive) R.color.eve_tile_right_text else R.color.eve_tile_medium_text
                 )
             )
 

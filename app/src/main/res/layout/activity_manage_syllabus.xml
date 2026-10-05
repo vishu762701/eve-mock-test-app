@@ -283,6 +283,7 @@
                 android:id="@+id/rvSyllabuses"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layoutAnimation="@anim/layout_enter"
                 android:layout_marginTop="8dp"
                 android:nestedScrollingEnabled="false"
                 tools:listitem="@layout/item_admin_syllabus" />

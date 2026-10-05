@@ -19,20 +19,21 @@
 
     <TextView
         android:id="@+id/tvEmptyTitle"
-        style="@style/TextAppearance.Eve.Heading"
+        style="@style/TextAppearance.Eve.M3.HeadlineSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="@dimen/eve_space_16"
         android:gravity="center"
         android:text="No files found"
-        android:textColor="@color/eve_text" />
+        android:textColor="@color/eve_text"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tvEmptyMessage"
         style="@style/TextAppearance.Eve.Body"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="@dimen/eve_space_8"
         android:gravity="center"
         android:textColor="@color/eve_text_secondary"
         android:visibility="gone" />
