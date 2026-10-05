@@ -10,6 +10,9 @@ import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.graphics.drawable.StateListDrawable
 import android.util.AttributeSet
+import android.annotation.SuppressLint
+import android.view.HapticFeedbackConstants
+import android.view.MotionEvent
 import androidx.appcompat.widget.AppCompatRadioButton
 import androidx.core.content.ContextCompat
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
@@ -139,6 +142,24 @@ class TelegramRadioButton @JvmOverloads constructor(
             }
             start()
         }
+    }
+
+    private val fastOutSlow = FastOutSlowInInterpolator()
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                animate().scaleX(0.985f).scaleY(0.985f).setDuration(80).setInterpolator(fastOutSlow).start()
+                try {
+                    performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                } catch (_: Throwable) {}
+            }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                animate().scaleX(1.0f).scaleY(1.0f).setDuration(160).setInterpolator(fastOutSlow).start()
+            }
+        }
+        return super.onTouchEvent(event)
     }
 
     override fun onDraw(canvas: Canvas) {

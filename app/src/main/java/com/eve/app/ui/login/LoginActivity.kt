@@ -396,24 +396,52 @@ class LoginActivity : EveBaseActivity() {
         val activeColor = ContextCompat.getColor(this, R.color.eve_login_text)
         val inactiveColor = ContextCompat.getColor(this, R.color.eve_login_text_secondary)
 
+        try {
+            binding.root.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+        } catch (_: Throwable) {}
+
         if (isSignUpMode) {
             binding.tilName.visibility = View.VISIBLE
             originalSubmitText = "Join"
             binding.btnSubmit.text = originalSubmitText
             binding.btnToggleMode.text = "Already have an account? Sign In"
             binding.tvTabSignIn.setTextColor(inactiveColor)
-            binding.indicatorTabSignIn.visibility = View.INVISIBLE
             binding.tvTabJoin.setTextColor(activeColor)
-            binding.indicatorTabJoin.visibility = View.VISIBLE
+
+            // Smooth sliding indicator with spring overshoot & stretch
+            binding.indicatorTabSignIn.visibility = View.VISIBLE
+            binding.indicatorTabJoin.visibility = View.INVISIBLE
+            val distance = (binding.tabContainerJoin.left - binding.tabContainerSignIn.left).toFloat()
+            val targetX = if (distance > 0) distance else binding.tabContainerSignIn.width.toFloat()
+            binding.indicatorTabSignIn.animate()
+                .translationX(targetX)
+                .scaleX(1.04f)
+                .setDuration(220)
+                .setInterpolator(android.view.animation.OvershootInterpolator(0.7f))
+                .withEndAction {
+                    binding.indicatorTabSignIn.animate().scaleX(1.0f).setDuration(80).start()
+                }
+                .start()
         } else {
             binding.tilName.visibility = View.GONE
             originalSubmitText = "Sign In"
             binding.btnSubmit.text = originalSubmitText
             binding.btnToggleMode.text = "Don't have an account? Sign Up"
             binding.tvTabSignIn.setTextColor(activeColor)
-            binding.indicatorTabSignIn.visibility = View.VISIBLE
             binding.tvTabJoin.setTextColor(inactiveColor)
+
+            // Smooth sliding indicator back to 0
+            binding.indicatorTabSignIn.visibility = View.VISIBLE
             binding.indicatorTabJoin.visibility = View.INVISIBLE
+            binding.indicatorTabSignIn.animate()
+                .translationX(0f)
+                .scaleX(1.04f)
+                .setDuration(220)
+                .setInterpolator(android.view.animation.OvershootInterpolator(0.7f))
+                .withEndAction {
+                    binding.indicatorTabSignIn.animate().scaleX(1.0f).setDuration(80).start()
+                }
+                .start()
         }
     }
 

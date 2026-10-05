@@ -6,7 +6,7 @@
     <color name="eve_secondary_background">#1C1C1E</color>
     <color name="eve_tertiary_background">#2C2C2E</color>
     <color name="eve_canvas">#000000</color>
-    <color name="eve_surface">#121212</color>
+    <color name="eve_surface">#1C1C1E</color>
     <color name="eve_surface_variant">#1C1C1E</color>
     <color name="eve_surface_2">#1C1C1E</color>
     <color name="eve_border">#2C2C2E</color>

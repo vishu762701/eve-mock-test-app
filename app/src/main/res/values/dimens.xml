@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Apple iOS 26 Design System Geometry & Concentric Radii -->
-    <!-- Shapes: cards 18dp squircle, tiles 14dp, small tiles 10dp, bottom sheet top corners 28dp; buttons, tab controls, streak pills and filter chips full pills (999dp) -->
-    <dimen name="eve_radius_card">18dp</dimen>
-    <dimen name="eve_radius_tile">14dp</dimen>
-    <dimen name="eve_radius_tile_small">10dp</dimen>
+    <!-- Shapes: cards 24dp squircle, tiles 16dp, small tiles 12dp, bottom sheet top corners 28dp; buttons, tab controls, streak pills and filter chips full pills (999dp) -->
+    <dimen name="eve_radius_card">24dp</dimen>
+    <dimen name="eve_radius_tile">16dp</dimen>
+    <dimen name="eve_radius_tile_small">12dp</dimen>
     <dimen name="eve_radius_bottom_sheet">28dp</dimen>
     <dimen name="eve_radius_button">999dp</dimen>
     <dimen name="eve_radius_pill">999dp</dimen>
-    <dimen name="eve_radius_icon_container">12dp</dimen>
-    <dimen name="eve_radius_input">12dp</dimen>
+    <dimen name="eve_radius_icon_container">16dp</dimen>
+    <dimen name="eve_radius_input">14dp</dimen>
 
     <!-- Backward-compatible radius tokens -->
     <dimen name="eve_radius_sm">10dp</dimen>
