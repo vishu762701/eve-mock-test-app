@@ -6,13 +6,13 @@
     android:layout_height="wrap_content"
     android:clipToOutline="true"
     app:cardBackgroundColor="@android:color/transparent"
-    app:cardCornerRadius="@dimen/eve_radius_md"
-    app:cardElevation="8dp"
-    app:cardMaxElevation="10dp"
+    app:cardCornerRadius="@dimen/eve_radius_card"
+    app:cardElevation="4dp"
+    app:cardMaxElevation="6dp"
     app:cardPreventCornerOverlap="false"
     app:cardUseCompatPadding="false"
-    app:strokeColor="@color/eve_menu_glass_border"
-    app:strokeWidth="1dp">
+    app:strokeColor="@color/eve_separator"
+    app:strokeWidth="@dimen/eve_stroke_hairline">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -69,12 +69,12 @@
                 android:textSize="15sp" />
         </LinearLayout>
 
-        <!-- Subtle 1dp Frosted Glass Divider -->
+        <!-- Subtle Hairline Frosted Glass Divider -->
         <View
             android:id="@+id/menuDivider"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/eve_menu_glass_divider" />
+            android:layout_height="@dimen/eve_stroke_hairline"
+            android:background="@color/eve_separator" />
 
         <!-- Card 2: Main Menu Items (Preserves cardMenuItems ID) -->
         <LinearLayout

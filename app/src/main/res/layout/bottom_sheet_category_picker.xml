@@ -8,8 +8,8 @@
     android:padding="20dp">
 
     <View
-        android:layout_width="40dp"
-        android:layout_height="4dp"
+        android:layout_width="36dp"
+        android:layout_height="5dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="16dp"
         android:background="@drawable/bg_bottom_sheet_drag_handle" />
@@ -76,8 +76,8 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/eve_stroke" />
+        android:layout_height="@dimen/eve_stroke_hairline"
+        android:background="@color/eve_separator" />
 
     <!-- Row 2: OBC -->
     <LinearLayout
@@ -128,8 +128,8 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/eve_stroke" />
+        android:layout_height="@dimen/eve_stroke_hairline"
+        android:background="@color/eve_separator" />
 
     <!-- Row 3: SC -->
     <LinearLayout
@@ -180,8 +180,8 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/eve_stroke" />
+        android:layout_height="@dimen/eve_stroke_hairline"
+        android:background="@color/eve_separator" />
 
     <!-- Row 4: ST -->
     <LinearLayout
@@ -232,8 +232,8 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/eve_stroke" />
+        android:layout_height="@dimen/eve_stroke_hairline"
+        android:background="@color/eve_separator" />
 
     <!-- Row 5: EWS -->
     <LinearLayout

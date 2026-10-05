@@ -46,7 +46,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:fontFamily="@font/poppins_regular"
+                android:fontFamily="sans-serif"
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="13sp"
                 android:visibility="gone" />

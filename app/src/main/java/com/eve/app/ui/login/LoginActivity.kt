@@ -58,7 +58,7 @@ class LoginActivity : EveBaseActivity() {
     private var isSignUpMode = false
     private var isCheckingAuth = true
     private var originalSubmitText = "Sign In"
-    private var originalGoogleText = ""
+    private var originalGoogleText = "Continue with Google"
     private var lastAttemptedGoogle = false
 
     private val signInLauncher =
@@ -151,26 +151,32 @@ class LoginActivity : EveBaseActivity() {
             toggleMode()
         }
 
-        // Header Tabs & Close modal interactions
+        // Segmented control & Close modal interactions
         binding.tvTabSignIn.setOnClickListener {
+            if (isSignUpMode) toggleMode()
+        }
+        binding.tabContainerSignIn.setOnClickListener {
             if (isSignUpMode) toggleMode()
         }
         binding.tvTabJoin.setOnClickListener {
             if (!isSignUpMode) toggleMode()
         }
-        binding.btnCloseModal.setOnClickListener {
+        binding.tabContainerJoin.setOnClickListener {
+            if (!isSignUpMode) toggleMode()
+        }
+        setupButtonPressFeedback(binding.btnCloseModal) {
             finish()
         }
     }
 
     /**
-     * Real-time frosted-glass blur effect on the 340dp centered Sign In card.
+     * Real-time frosted-glass blur effect on the Apple Liquid Glass card.
      */
     private fun setupCardBlurView() {
         try {
             val radius = 20f
             val rootView = binding.root as ViewGroup
-            val cornerRadiusPx = 24 * resources.displayMetrics.density
+            val cornerRadiusPx = 28 * resources.displayMetrics.density
             binding.blurViewLogin.outlineProvider = object : android.view.ViewOutlineProvider() {
                 override fun getOutline(view: View, outline: android.graphics.Outline) {
                     outline.setRoundRect(0, 0, view.width, view.height, cornerRadiusPx)
@@ -570,7 +576,7 @@ class LoginActivity : EveBaseActivity() {
             binding.progressGoogle.animate().alpha(0f).setDuration(150).withEndAction {
                 binding.progressGoogle.visibility = View.GONE
                 binding.btnGoogle.setIconResource(R.drawable.ic_social_google)
-                binding.btnGoogle.text = ""
+                binding.btnGoogle.text = originalGoogleText
             }.start()
 
             binding.progressSubmit.animate().alpha(0f).setDuration(150).withEndAction {

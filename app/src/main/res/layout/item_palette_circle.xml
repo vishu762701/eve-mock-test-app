@@ -10,16 +10,17 @@
         android:id="@+id/cardCircle"
         android:layout_width="36dp"
         android:layout_height="36dp"
+        android:stateListAnimator="@animator/press_scale"
         app:cardCornerRadius="18dp"
         app:cardElevation="0dp"
-        app:strokeColor="@color/eve_border"
-        app:strokeWidth="1dp">
+        app:strokeColor="@color/eve_separator"
+        app:strokeWidth="@dimen/eve_stroke_hairline">
 
         <TextView
             android:id="@+id/tvCircleNumber"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fontFamily="@font/poppins_semibold"
+            android:fontFamily="sans-serif-medium"
             android:gravity="center"
             android:text="1"
             android:textColor="@color/eve_text"

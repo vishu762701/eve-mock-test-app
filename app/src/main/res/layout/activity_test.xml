@@ -38,15 +38,15 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
-            android:fontFamily="@font/poppins_semibold"
+            android:fontFamily="sans-serif-medium"
             android:textColor="?attr/colorOnSurface"
             android:textSize="16sp" />
     </LinearLayout>
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/eve_stroke" />
+        android:layout_height="@dimen/eve_stroke_hairline"
+        android:background="@color/eve_separator" />
 
     <!-- QUESTION PALETTE NAVIGATION -->
     <androidx.recyclerview.widget.RecyclerView
@@ -197,6 +197,7 @@
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="0dp"
                 android:textSize="15sp"
+                android:stateListAnimator="@animator/press_scale"
                 app:autoSizeTextType="uniform"
                 app:autoSizeMinTextSize="13sp"
                 app:autoSizeMaxTextSize="15sp"
@@ -222,6 +223,7 @@
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="0dp"
                 android:textSize="15sp"
+                android:stateListAnimator="@animator/press_scale"
                 app:autoSizeTextType="uniform"
                 app:autoSizeMinTextSize="13sp"
                 app:autoSizeMaxTextSize="15sp"
@@ -255,6 +257,7 @@
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="0dp"
                 android:textSize="15sp"
+                android:stateListAnimator="@animator/press_scale"
                 app:autoSizeTextType="uniform"
                 app:autoSizeMinTextSize="13sp"
                 app:autoSizeMaxTextSize="15sp"
@@ -280,6 +283,7 @@
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="0dp"
                 android:textSize="15sp"
+                android:stateListAnimator="@animator/press_scale"
                 app:autoSizeTextType="uniform"
                 app:autoSizeMinTextSize="13sp"
                 app:autoSizeMaxTextSize="15sp"

@@ -20,7 +20,7 @@
         android:id="@+id/tvSheetTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/poppins_semibold"
+        android:fontFamily="sans-serif-medium"
         android:text="Which exams are you preparing for?"
         android:textColor="@color/eve_text"
         android:textSize="20sp" />
@@ -30,7 +30,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:fontFamily="@font/poppins_regular"
+        android:fontFamily="sans-serif"
         android:text="Select your target exams to personalize your test feed and recommendations."
         android:textColor="@color/eve_text_secondary"
         android:textSize="14sp" />

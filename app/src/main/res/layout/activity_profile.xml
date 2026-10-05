@@ -23,6 +23,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:stateListAnimator="@animator/press_scale"
             android:contentDescription="Back"
             android:padding="12dp"
             android:src="@drawable/ic_back"
@@ -42,8 +43,8 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/eve_stroke" />
+        android:layout_height="@dimen/eve_stroke_hairline"
+        android:background="@color/eve_separator" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -85,6 +86,7 @@
                         android:layout_height="34dp"
                         android:layout_gravity="bottom|end"
                         android:background="@drawable/bg_circle_primary"
+                        android:stateListAnimator="@animator/press_scale"
                         android:contentDescription="Change photo"
                         android:elevation="2dp"
                         android:padding="7dp"
@@ -216,10 +218,10 @@
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="@dimen/eve_stroke_hairline"
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginTop="20dp"
-                android:background="@color/eve_stroke" />
+                android:background="@color/eve_separator" />
 
             <!-- Personal / Exam Info Section -->
             <LinearLayout
@@ -246,12 +248,12 @@
                     android:layout_marginTop="12dp"
                     android:hint="Full Name"
                     app:boxBackgroundColor="@color/eve_login_input_bg"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxCornerRadiusBottomEnd="@dimen/eve_radius_tile"
+                    app:boxCornerRadiusBottomStart="@dimen/eve_radius_tile"
+                    app:boxCornerRadiusTopEnd="@dimen/eve_radius_tile"
+                    app:boxCornerRadiusTopStart="@dimen/eve_radius_tile"
                     app:boxStrokeColor="@color/sl_glass_input_stroke"
-                    app:boxStrokeWidth="1dp"
+                    app:boxStrokeWidth="@dimen/eve_stroke_hairline"
                     app:boxStrokeWidthFocused="1dp">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -273,12 +275,12 @@
                     android:layout_marginTop="12dp"
                     android:hint="Date of Birth (DD/MM/YYYY)"
                     app:boxBackgroundColor="@color/eve_login_input_bg"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxCornerRadiusBottomEnd="@dimen/eve_radius_tile"
+                    app:boxCornerRadiusBottomStart="@dimen/eve_radius_tile"
+                    app:boxCornerRadiusTopEnd="@dimen/eve_radius_tile"
+                    app:boxCornerRadiusTopStart="@dimen/eve_radius_tile"
                     app:boxStrokeColor="@color/sl_glass_input_stroke"
-                    app:boxStrokeWidth="1dp"
+                    app:boxStrokeWidth="@dimen/eve_stroke_hairline"
                     app:boxStrokeWidthFocused="1dp"
                     app:endIconDrawable="@drawable/ic_calendar"
                     app:endIconMode="custom">
@@ -350,15 +352,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
+                    android:stateListAnimator="@animator/press_scale"
                     android:text="Save Profile" />
             </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="@dimen/eve_stroke_hairline"
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginTop="20dp"
-                android:background="@color/eve_stroke" />
+                android:background="@color/eve_separator" />
 
             <!-- Daily Practice Reminder -->
             <LinearLayout
@@ -392,6 +395,7 @@
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="8dp"
+                android:stateListAnimator="@animator/press_scale"
                 android:text="Edit About Content (Admin)"
                 android:visibility="gone" />
 
@@ -403,6 +407,7 @@
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="8dp"
+                android:stateListAnimator="@animator/press_scale"
                 android:text="About" />
 
         </LinearLayout>

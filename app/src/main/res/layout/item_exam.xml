@@ -13,8 +13,8 @@
     app:cardCornerRadius="@dimen/eve_radius_card"
     app:cardElevation="0dp"
     app:rippleColor="@color/eve_primary"
-    app:strokeColor="@color/eve_glass_card_hairline"
-    app:strokeWidth="1dp">
+    app:strokeColor="@color/eve_separator"
+    app:strokeWidth="@dimen/eve_stroke_hairline">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -83,7 +83,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:fontFamily="@font/poppins_bold"
+                android:fontFamily="sans-serif-medium"
                 android:maxLines="2"
                 android:textColor="@color/eve_text"
                 android:textSize="17sp"
@@ -94,7 +94,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:fontFamily="@font/poppins_regular"
+                android:fontFamily="sans-serif"
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="13sp" />
         </LinearLayout>

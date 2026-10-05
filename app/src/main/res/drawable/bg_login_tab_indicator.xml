@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="oval">
-    <solid android:color="@color/eve_fill_tertiary" />
+    android:shape="rectangle">
+    <solid android:color="@color/eve_tab_selected_bg" />
     <stroke
         android:width="@dimen/eve_stroke_hairline"
         android:color="@color/eve_separator" />
+    <corners android:radius="9dp" />
 </shape>

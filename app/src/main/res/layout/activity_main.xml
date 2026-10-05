@@ -46,6 +46,7 @@
                     android:contentDescription="Profile"
                     android:padding="8dp"
                     android:src="@drawable/ic_user_profile"
+                    android:stateListAnimator="@animator/press_scale"
                     app:shapeAppearanceOverlay="@style/ShapeCircle" />
 
                 <View
@@ -53,15 +54,16 @@
                     android:layout_height="1dp"
                     android:layout_weight="1" />
 
-                <!-- Search Icon (bare white icon) -->
+                <!-- Search Icon -->
                 <ImageButton
                     android:id="@+id/btnSearch"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:layout_marginEnd="4dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/bg_circle_translucent"
+                    android:stateListAnimator="@animator/press_scale"
                     android:contentDescription="Search exams"
-                    android:padding="9dp"
+                    android:padding="10dp"
                     android:src="@drawable/ic_search"
                     app:tint="@color/eve_header_ink_icon" />
 
@@ -69,7 +71,9 @@
                 <FrameLayout
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:layout_marginEnd="4dp">
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/bg_circle_translucent"
+                    android:stateListAnimator="@animator/press_scale">
 
                     <com.airbnb.lottie.LottieAnimationView
                         android:id="@+id/btnNotification"
@@ -79,7 +83,7 @@
                         android:clickable="true"
                         android:contentDescription="Notifications"
                         android:focusable="true"
-                        android:padding="4dp"
+                        android:padding="6dp"
                         app:lottie_autoPlay="false"
                         app:lottie_loop="false"
                         app:lottie_rawRes="@raw/notification_bell" />
@@ -89,20 +93,21 @@
                         android:layout_width="8dp"
                         android:layout_height="8dp"
                         android:layout_gravity="top|end"
-                        android:layout_marginTop="6dp"
-                        android:layout_marginEnd="6dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginEnd="5dp"
                         android:background="@drawable/bg_dot_red"
                         android:visibility="gone" />
                 </FrameLayout>
 
-                <!-- 3-Dot Overflow Menu Icon (bare white icon) -->
+                <!-- 3-Dot Overflow Menu Icon -->
                 <ImageButton
                     android:id="@+id/btnOverflow"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="@drawable/bg_circle_translucent"
+                    android:stateListAnimator="@animator/press_scale"
                     android:contentDescription="@string/home_menu"
-                    android:padding="9dp"
+                    android:padding="10dp"
                     android:src="@drawable/ic_more_vert"
                     app:tint="@color/eve_header_ink_icon" />
             </LinearLayout>
@@ -119,8 +124,9 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Eve"
+                    android:fontFamily="sans-serif-medium"
+                    android:letterSpacing="0.04"
+                    android:text="EVE"
                     android:textColor="@color/eve_header_ink_secondary"
                     android:textSize="12sp" />
 
@@ -153,9 +159,10 @@
                 android:id="@+id/btnSearchBack"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="@drawable/bg_circle_translucent"
+                android:stateListAnimator="@animator/press_scale"
                 android:contentDescription="Close search"
-                android:padding="9dp"
+                android:padding="10dp"
                 android:src="@drawable/ic_back"
                 app:tint="@color/eve_header_ink_icon" />
 
@@ -167,7 +174,7 @@
                 android:layout_marginEnd="6dp"
                 android:layout_weight="1"
                 android:background="@null"
-                android:fontFamily="@font/poppins_regular"
+                android:fontFamily="sans-serif"
                 android:hint="Search exams..."
                 android:imeOptions="actionSearch"
                 android:inputType="text"
@@ -180,9 +187,10 @@
                 android:id="@+id/btnClearSearch"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="@drawable/bg_circle_translucent"
+                android:stateListAnimator="@animator/press_scale"
                 android:contentDescription="Clear search"
-                android:padding="10dp"
+                android:padding="11dp"
                 android:src="@drawable/ic_close"
                 app:tint="@color/eve_header_ink_icon"
                 android:visibility="gone" />
@@ -235,7 +243,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:fontFamily="@font/poppins_regular"
+                android:fontFamily="sans-serif"
                 android:text="Choose an exam to begin practicing."
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="14sp" />
@@ -263,7 +271,7 @@
                     android:id="@+id/tvStreakSummary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_semibold"
+                    android:fontFamily="sans-serif-medium"
                     android:gravity="center_vertical"
                     android:textColor="@color/eve_text"
                     android:textSize="14sp"
@@ -291,8 +299,8 @@
             app:cardBackgroundColor="@color/eve_glass_card_fill"
             app:cardCornerRadius="@dimen/eve_radius_card"
             app:cardElevation="0dp"
-            app:strokeColor="@color/eve_glass_card_hairline"
-            app:strokeWidth="1dp">
+            app:strokeColor="@color/eve_separator"
+            app:strokeWidth="@dimen/eve_stroke_hairline">
 
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/vpHomeBanners"
@@ -507,6 +515,7 @@
                 android:padding="3dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_user_profile"
+                android:stateListAnimator="@animator/press_scale"
                 app:shapeAppearanceOverlay="@style/ShapeCircle" />
 
             <TextView
@@ -559,6 +568,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginHorizontal="8dp"
+                android:background="@drawable/bg_drawer_item_selector"
+                android:stateListAnimator="@animator/press_scale"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
@@ -588,6 +599,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginHorizontal="8dp"
+                android:background="@drawable/bg_drawer_item_selector"
+                android:stateListAnimator="@animator/press_scale"
                 android:clickable="true"
                 android:clipChildren="false"
                 android:clipToPadding="false"
@@ -634,6 +647,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginHorizontal="8dp"
+                android:background="@drawable/bg_drawer_item_selector"
+                android:stateListAnimator="@animator/press_scale"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
@@ -663,6 +678,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginHorizontal="8dp"
+                android:background="@drawable/bg_drawer_item_selector"
+                android:stateListAnimator="@animator/press_scale"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
@@ -692,6 +709,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginHorizontal="8dp"
+                android:background="@drawable/bg_drawer_item_selector"
+                android:stateListAnimator="@animator/press_scale"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
@@ -721,6 +740,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginHorizontal="8dp"
+                android:background="@drawable/bg_drawer_item_selector"
+                android:stateListAnimator="@animator/press_scale"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
@@ -750,6 +771,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginHorizontal="8dp"
+                android:background="@drawable/bg_drawer_item_selector"
+                android:stateListAnimator="@animator/press_scale"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"

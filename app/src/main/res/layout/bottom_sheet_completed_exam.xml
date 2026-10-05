@@ -3,17 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/eve_card_bg"
+    android:background="@drawable/bg_sheet_bottom"
     android:orientation="vertical"
     android:padding="20dp">
 
-    <!-- Handle drag indicator -->
+    <!-- Apple Grabber / Drag Handle -->
     <View
-        android:layout_width="40dp"
-        android:layout_height="4dp"
+        android:layout_width="36dp"
+        android:layout_height="5dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="16dp"
-        android:background="@color/eve_stroke" />
+        android:background="@drawable/bg_bottom_sheet_drag_handle" />
 
     <TextView
         android:id="@+id/tvCompletedTitle"
@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/eve_space_8"
         android:background="@drawable/bg_tile_right"
-        android:fontFamily="@font/poppins_semibold"
+        android:fontFamily="sans-serif-medium"
         android:paddingHorizontal="12dp"
         android:paddingVertical="4dp"
         android:textColor="@color/eve_tile_right_text"

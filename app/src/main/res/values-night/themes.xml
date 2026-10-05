@@ -33,7 +33,22 @@
         <item name="materialCardViewStyle">@style/Widget.Eve.Card</item>
         <item name="bottomSheetDialogTheme">@style/Theme.Eve.BottomSheetDialog</item>
         <item name="popupMenuStyle">@style/Widget.Eve.PopupMenu</item>
+        <item name="alertDialogTheme">@style/Theme.Eve.Dialog</item>
+        <item name="materialAlertDialogTheme">@style/Theme.Eve.Dialog</item>
         <item name="android:windowAnimationStyle">@style/Eve.WindowAnimation</item>
+    </style>
+
+    <style name="Theme.Eve.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="shapeAppearance">@style/ShapeAppearance.Eve.Dialog</item>
+        <item name="colorSurface">@color/eve_card_bg</item>
+        <item name="android:windowBackground">@drawable/bg_dialog_liquid_glass</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.Eve.Button</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.Eve.TextButton</item>
+    </style>
+
+    <style name="ShapeAppearance.Eve.Dialog" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/eve_radius_card</item>
     </style>
 
     <style name="Theme.Eve.BottomSheetDialog" parent="Theme.Material3.Dark.BottomSheetDialog">

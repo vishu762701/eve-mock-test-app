@@ -215,15 +215,15 @@ class AmbientBackgroundView @JvmOverloads constructor(
         if (isDark) {
             canvas.drawColor(Color.BLACK)
         } else {
-            canvas.drawColor(Color.parseColor("#EDF2F7"))
+            canvas.drawColor(Color.parseColor("#F2F2F7"))
         }
 
         val omega = (progress * 2.0 * Math.PI).toFloat()
 
-        // 2. BLOB 1 (Top-Right Area, partially overlapping modal top-right)
-        val cx1 = w * 0.82f + (cos(omega.toDouble()) * (w * 0.035f)).toFloat()
-        val cy1 = h * 0.18f + (sin(omega.toDouble()) * (h * 0.025f)).toFloat()
-        val baseR1 = (w * 0.30f).coerceAtLeast(100f)
+        // 2. AMBIENT AURA 1 (Top-Right Area, gentle breathing ambient light)
+        val cx1 = w * 0.80f + (cos(omega.toDouble()) * (w * 0.03f)).toFloat()
+        val cy1 = h * 0.20f + (sin(omega.toDouble()) * (h * 0.02f)).toFloat()
+        val baseR1 = (w * 0.32f).coerceAtLeast(100f)
 
         buildMorphingPath(
             cx = cx1,
@@ -237,21 +237,20 @@ class AmbientBackgroundView @JvmOverloads constructor(
             outY = blob1Y
         )
 
-        drawLiquidChromeBlob(
+        drawLiquidGlassAura(
             canvas = canvas,
             cx = cx1,
             cy = cy1,
             radius = baseR1,
             path = blob1Path,
-            highlightPath = highlight1Path,
             isTopRight = true,
             isDark = isDark
         )
 
-        // 3. BLOB 2 (Bottom-Left Area, partially overlapping modal bottom-left)
-        val cx2 = w * 0.16f + (sin((omega * 1.15f).toDouble()) * (w * 0.035f)).toFloat()
-        val cy2 = h * 0.82f + (cos((omega * 0.95f).toDouble()) * (h * 0.028f)).toFloat()
-        val baseR2 = (w * 0.33f).coerceAtLeast(110f)
+        // 3. AMBIENT AURA 2 (Bottom-Left Area, subtle counter-balancing ambient light)
+        val cx2 = w * 0.20f + (sin((omega * 1.15f).toDouble()) * (w * 0.03f)).toFloat()
+        val cy2 = h * 0.80f + (cos((omega * 0.95f).toDouble()) * (h * 0.025f)).toFloat()
+        val baseR2 = (w * 0.35f).coerceAtLeast(110f)
 
         buildMorphingPath(
             cx = cx2,
@@ -265,13 +264,12 @@ class AmbientBackgroundView @JvmOverloads constructor(
             outY = blob2Y
         )
 
-        drawLiquidChromeBlob(
+        drawLiquidGlassAura(
             canvas = canvas,
             cx = cx2,
             cy = cy2,
             radius = baseR2,
             path = blob2Path,
-            highlightPath = highlight2Path,
             isTopRight = false,
             isDark = isDark
         )
@@ -296,9 +294,9 @@ class AmbientBackgroundView @JvmOverloads constructor(
             val theta = i * step
             // Multi-frequency harmonic radius perturbation
             val morph = 1.0f +
-                0.16f * sin((2 * theta + omega * freqMul + phaseOffset).toDouble()).toFloat() +
-                0.12f * cos((3 * theta - omega * 1.4f * freqMul).toDouble()).toFloat() +
-                0.08f * sin((4 * theta + omega * 2.1f + phaseOffset * 0.5f).toDouble()).toFloat()
+                0.14f * sin((2 * theta + omega * freqMul + phaseOffset).toDouble()).toFloat() +
+                0.10f * cos((3 * theta - omega * 1.4f * freqMul).toDouble()).toFloat() +
+                0.06f * sin((4 * theta + omega * 2.1f + phaseOffset * 0.5f).toDouble()).toFloat()
 
             val r = baseR * morph
             outX[i] = cx + (r * cos(theta.toDouble())).toFloat()
@@ -306,7 +304,6 @@ class AmbientBackgroundView @JvmOverloads constructor(
         }
 
         outPath.rewind()
-        // Mid-point quadratic Bezier curve interpolation for silky-smooth fluid curvature
         val startMidX = (outX[0] + outX[nodeCount - 1]) / 2f
         val startMidY = (outY[0] + outY[nodeCount - 1]) / 2f
         outPath.moveTo(startMidX, startMidY)
@@ -321,107 +318,67 @@ class AmbientBackgroundView @JvmOverloads constructor(
     }
 
     /**
-     * Renders a single polished 3D liquid mercury chrome blob with glow, metallic reflections,
-     * depth shading, and high-gloss glints.
+     * Renders a soft, elegant Apple Liquid Glass ambient aura that gently diffuses
+     * beneath the frosted glass login card.
      */
-    private fun drawLiquidChromeBlob(
+    private fun drawLiquidGlassAura(
         canvas: Canvas,
         cx: Float,
         cy: Float,
         radius: Float,
         path: Path,
-        highlightPath: Path,
         isTopRight: Boolean,
         isDark: Boolean
     ) {
-        // Layer A: Outer Frosted Ambient Glow Halo
-        val glowRadius = radius * 2.2f
+        val glowRadius = radius * 2.4f
+        val colors = if (isDark) {
+            if (isTopRight) {
+                intArrayOf(
+                    Color.argb(38, 14, 116, 224),   // Soft iOS system blue aura
+                    Color.argb(18, 20, 40, 75),
+                    Color.argb(6, 10, 15, 30),
+                    Color.TRANSPARENT
+                )
+            } else {
+                intArrayOf(
+                    Color.argb(30, 110, 75, 185),   // Soft iOS deep purple/iris aura
+                    Color.argb(15, 25, 20, 45),
+                    Color.argb(5, 12, 10, 20),
+                    Color.TRANSPARENT
+                )
+            }
+        } else {
+            if (isTopRight) {
+                intArrayOf(
+                    Color.argb(45, 186, 218, 255),  // Soft Apple sky aura
+                    Color.argb(22, 215, 232, 252),
+                    Color.argb(8, 242, 242, 247),
+                    Color.TRANSPARENT
+                )
+            } else {
+                intArrayOf(
+                    Color.argb(38, 230, 218, 252),  // Soft Apple lilac/pearl aura
+                    Color.argb(18, 238, 232, 250),
+                    Color.argb(6, 242, 242, 247),
+                    Color.TRANSPARENT
+                )
+            }
+        }
+
         glowPaint.shader = RadialGradient(
             cx, cy, glowRadius,
-            if (isDark) glowColors else pearlGlowColors,
-            glowStops,
+            colors,
+            floatArrayOf(0.0f, 0.40f, 0.75f, 1.0f),
             Shader.TileMode.CLAMP
         )
         canvas.drawCircle(cx, cy, glowRadius, glowPaint)
 
-        // Layer B: 3D Polished Chrome Fluid Body (inclined metallic horizon gradient)
-        val angle = if (isTopRight) 0.785f else 2.356f // 45 deg or 135 deg light incident
-        val dx = (radius * 1.2f * cos(angle.toDouble())).toFloat()
-        val dy = (radius * 1.2f * sin(angle.toDouble())).toFloat()
-
-        chromeBodyPaint.shader = LinearGradient(
-            cx - dx, cy - dy,
-            cx + dx, cy + dy,
-            if (isDark) chromeColors else pearlColors,
-            chromeStops,
-            Shader.TileMode.CLAMP
-        )
-        canvas.drawPath(path, chromeBodyPaint)
-
-        // Layer C: Subtle Rim Light Edge Stroke
-        rimGlowPaint.color = if (isDark) Color.argb(90, 240, 248, 255) else Color.argb(140, 255, 255, 255)
-        canvas.drawPath(path, rimGlowPaint)
-
-        // Layer D: 3D Surface Depth Curvature Glow (Fresnel volume)
-        val hlOffsetX = if (isTopRight) -radius * 0.28f else radius * 0.25f
-        val hlOffsetY = -radius * 0.26f
-        val hlRadius = radius * 0.85f
-
-        specularGlintPaint.shader = RadialGradient(
-            cx + hlOffsetX, cy + hlOffsetY, hlRadius,
-            if (isDark) {
-                intArrayOf(
-                    Color.argb(190, 255, 255, 255), // High specular white
-                    Color.argb(70, 220, 235, 255),  // Soft spread bloom
-                    Color.TRANSPARENT
-                )
-            } else {
-                intArrayOf(
-                    Color.argb(230, 255, 255, 255),
-                    Color.argb(110, 255, 255, 255),
-                    Color.TRANSPARENT
-                )
-            },
-            floatArrayOf(0.0f, 0.40f, 1.0f),
-            Shader.TileMode.CLAMP
-        )
-
-        // Draw specular gleam inside the blob contour
-        canvas.save()
-        canvas.clipPath(path)
-        canvas.drawCircle(cx + hlOffsetX, cy + hlOffsetY, hlRadius, specularGlintPaint)
-
-        // Layer E: Molten Mercury Liquid Droplet Glint
-        highlightPath.rewind()
-        val glintX = cx + hlOffsetX * 1.15f
-        val glintY = cy + hlOffsetY * 1.15f
-        val glintW = radius * 0.35f
-        val glintH = radius * 0.18f
-
-        highlightPath.addOval(
-            glintX - glintW, glintY - glintH,
-            glintX + glintW, glintY + glintH,
-            Path.Direction.CW
-        )
-        specularGlintPaint.shader = RadialGradient(
-            glintX, glintY, glintW,
-            if (isDark) {
-                intArrayOf(
-                    Color.argb(230, 255, 255, 255),
-                    Color.argb(100, 255, 255, 255),
-                    Color.TRANSPARENT
-                )
-            } else {
-                intArrayOf(
-                    Color.argb(255, 255, 255, 255),
-                    Color.argb(140, 255, 255, 255),
-                    Color.TRANSPARENT
-                )
-            },
-            floatArrayOf(0.0f, 0.35f, 1.0f),
-            Shader.TileMode.CLAMP
-        )
-        canvas.drawPath(highlightPath, specularGlintPaint)
-        canvas.restore()
+        // Subtle fluid contour wash inside the organic path for gentle refraction
+        specularGlintPaint.color = if (isDark) {
+            if (isTopRight) Color.argb(16, 14, 116, 224) else Color.argb(14, 110, 75, 185)
+        } else {
+            if (isTopRight) Color.argb(20, 186, 218, 255) else Color.argb(18, 230, 218, 252)
+        }
+        canvas.drawPath(path, specularGlintPaint)
     }
 }

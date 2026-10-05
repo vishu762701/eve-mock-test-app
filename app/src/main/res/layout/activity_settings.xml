@@ -7,23 +7,24 @@
     android:background="@color/eve_bg"
     android:orientation="vertical">
 
-    <!-- Top Bar -->
+    <!-- Apple-style Top Navigation Bar -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/eve_bg"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="4dp"
+        android:paddingHorizontal="12dp"
         android:paddingVertical="8dp">
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_circle_translucent"
+            android:stateListAnimator="@animator/press_scale"
             android:contentDescription="Back"
-            android:padding="12dp"
+            android:padding="8dp"
             android:src="@drawable/ic_back"
             app:tint="@color/eve_text" />
 
@@ -32,357 +33,472 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:paddingStart="4dp"
-            android:text="Settings" />
+            android:fontFamily="sans-serif-bold"
+            android:paddingStart="12dp"
+            android:text="Settings"
+            android:textSize="20sp" />
     </LinearLayout>
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/eve_stroke" />
+        android:layout_height="@dimen/eve_stroke_hairline"
+        android:background="@color/eve_separator" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="32dp">
+            android:paddingBottom="40dp">
 
-            <!-- Section: Appearance -->
+            <!-- ========================================== -->
+            <!-- Section 1: APPEARANCE                      -->
+            <!-- ========================================== -->
             <TextView
                 style="@style/TextAppearance.Eve.Overline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="20dp"
-                android:paddingTop="20dp"
+                android:fontFamily="sans-serif-medium"
+                android:paddingHorizontal="24dp"
+                android:paddingTop="22dp"
                 android:paddingBottom="8dp"
-                android:text="APPEARANCE" />
+                android:text="APPEARANCE"
+                android:textColor="@color/eve_label_secondary"
+                android:textSize="13sp" />
 
-            <!-- Font Row -->
-            <LinearLayout
-                android:id="@+id/rowFont"
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="56dp"
-                android:background="@color/eve_surface"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="20dp"
-                android:paddingVertical="14dp">
+                android:layout_marginHorizontal="16dp"
+                app:cardBackgroundColor="@color/eve_card_bg"
+                app:cardCornerRadius="@dimen/eve_radius_tile"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/eve_separator"
+                app:strokeWidth="@dimen/eve_stroke_hairline">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:contentDescription="Font"
-                    android:src="@drawable/ic_font"
-                    app:tint="@color/eve_text" />
-
+                <!-- Font Row -->
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:id="@+id/rowFont"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:minHeight="54dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp">
 
-                    <TextView
-                        style="@style/TextAppearance.Eve.Body"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Font" />
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:background="@drawable/bg_circle_translucent"
+                        android:contentDescription="Font"
+                        android:padding="5dp"
+                        android:src="@drawable/ic_font"
+                        app:tint="@color/eve_system_blue" />
 
-                    <TextView
-                        android:id="@+id/tvFontValue"
-                        style="@style/TextAppearance.Eve.Caption"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Eve default" />
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/TextAppearance.Eve.Body"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif"
+                            android:text="Font"
+                            android:textSize="15sp" />
+
+                        <TextView
+                            android:id="@+id/tvFontValue"
+                            style="@style/TextAppearance.Eve.Caption"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif"
+                            android:text="Eve default"
+                            android:textColor="@color/eve_label_secondary"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="@color/eve_label_tertiary" />
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_chevron_right"
-                    app:tint="@color/eve_text_secondary" />
-            </LinearLayout>
-
-            <!-- Section: Preferences -->
+            <!-- ========================================== -->
+            <!-- Section 2: PREFERENCES                     -->
+            <!-- ========================================== -->
             <TextView
                 style="@style/TextAppearance.Eve.Overline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="20dp"
-                android:paddingTop="24dp"
+                android:fontFamily="sans-serif-medium"
+                android:paddingHorizontal="24dp"
+                android:paddingTop="26dp"
                 android:paddingBottom="8dp"
-                android:text="PREFERENCES" />
+                android:text="PREFERENCES"
+                android:textColor="@color/eve_label_secondary"
+                android:textSize="13sp" />
 
-            <!-- Daily Practice Reminder -->
-            <LinearLayout
-                android:id="@+id/rowReminder"
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="56dp"
-                android:background="@color/eve_surface"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="20dp"
-                android:paddingVertical="14dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:contentDescription="Reminder"
-                    android:src="@drawable/ic_bell"
-                    app:tint="@color/eve_text" />
+                android:layout_marginHorizontal="16dp"
+                app:cardBackgroundColor="@color/eve_card_bg"
+                app:cardCornerRadius="@dimen/eve_radius_tile"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/eve_separator"
+                app:strokeWidth="@dimen/eve_stroke_hairline">
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_weight="1"
                     android:orientation="vertical">
 
-                    <TextView
-                        style="@style/TextAppearance.Eve.Body"
-                        android:layout_width="wrap_content"
+                    <!-- Daily Practice Reminder -->
+                    <LinearLayout
+                        android:id="@+id/rowReminder"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Daily Practice Reminder" />
+                        android:minHeight="54dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="12dp">
 
-                    <TextView
-                        style="@style/TextAppearance.Eve.Caption"
-                        android:layout_width="wrap_content"
+                        <ImageView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:background="@drawable/bg_circle_translucent"
+                            android:contentDescription="Reminder"
+                            android:padding="5dp"
+                            android:src="@drawable/ic_bell"
+                            app:tint="@color/eve_system_orange" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="14dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                style="@style/TextAppearance.Eve.Body"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif"
+                                android:text="Daily Practice Reminder"
+                                android:textSize="15sp" />
+
+                            <TextView
+                                style="@style/TextAppearance.Eve.Caption"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif"
+                                android:text="Get notified every day to keep your streak"
+                                android:textColor="@color/eve_label_secondary"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switchReminder"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:thumbTint="@color/eve_white"
+                            app:trackTint="@color/eve_system_green" />
+                    </LinearLayout>
+
+                    <!-- Hairline Inset Divider -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/eve_stroke_hairline"
+                        android:layout_marginStart="58dp"
+                        android:background="@color/eve_separator" />
+
+                    <!-- Daily Goal Row -->
+                    <LinearLayout
+                        android:id="@+id/rowDailyGoal"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Get notified every day to keep your streak" />
+                        android:minHeight="54dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="12dp">
+
+                        <ImageView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:background="@drawable/bg_circle_translucent"
+                            android:contentDescription="Daily Goal"
+                            android:padding="5dp"
+                            android:src="@drawable/ic_trophy"
+                            app:tint="@color/eve_system_yellow" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="14dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                style="@style/TextAppearance.Eve.Body"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif"
+                                android:text="Daily Goal"
+                                android:textSize="15sp" />
+
+                            <TextView
+                                android:id="@+id/tvDailyGoalValue"
+                                style="@style/TextAppearance.Eve.Caption"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif"
+                                android:text="2 tests per day"
+                                android:textColor="@color/eve_label_secondary"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="@color/eve_label_tertiary" />
+                    </LinearLayout>
+
+                    <!-- Hairline Inset Divider -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/eve_stroke_hairline"
+                        android:layout_marginStart="58dp"
+                        android:background="@color/eve_separator" />
+
+                    <!-- My Exams Row -->
+                    <LinearLayout
+                        android:id="@+id/rowTargetExams"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="54dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="12dp">
+
+                        <ImageView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:background="@drawable/bg_circle_translucent"
+                            android:contentDescription="My Exams"
+                            android:padding="5dp"
+                            android:src="@drawable/ic_topic"
+                            app:tint="@color/eve_system_purple" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="14dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                style="@style/TextAppearance.Eve.Body"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif"
+                                android:text="My Exams"
+                                android:textSize="15sp" />
+
+                            <TextView
+                                style="@style/TextAppearance.Eve.Caption"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif"
+                                android:text="Choose exams for personalized feed"
+                                android:textColor="@color/eve_label_secondary"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="@color/eve_label_tertiary" />
+                    </LinearLayout>
+
+                    <!-- Hairline Inset Divider -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/eve_stroke_hairline"
+                        android:layout_marginStart="58dp"
+                        android:background="@color/eve_separator" />
+
+                    <!-- App Language Row -->
+                    <LinearLayout
+                        android:id="@+id/rowLanguage"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="54dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="12dp">
+
+                        <ImageView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:background="@drawable/bg_circle_translucent"
+                            android:contentDescription="App Language"
+                            android:padding="5dp"
+                            android:src="@drawable/ic_language"
+                            app:tint="@color/eve_system_blue" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="14dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                style="@style/TextAppearance.Eve.Body"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif"
+                                android:text="App Language"
+                                android:textSize="15sp" />
+
+                            <TextView
+                                android:id="@+id/tvLanguageValue"
+                                style="@style/TextAppearance.Eve.Caption"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif"
+                                android:text="System default"
+                                android:textColor="@color/eve_label_secondary"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="@color/eve_label_tertiary" />
+                    </LinearLayout>
+
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/switchReminder"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
-            <!-- Daily Goal Row -->
-            <LinearLayout
-                android:id="@+id/rowDailyGoal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="56dp"
-                android:layout_marginTop="1dp"
-                android:background="@color/eve_surface"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="20dp"
-                android:paddingVertical="14dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:contentDescription="Daily Goal"
-                    android:src="@drawable/ic_trophy"
-                    app:tint="@color/eve_text" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        style="@style/TextAppearance.Eve.Body"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Daily Goal" />
-
-                    <TextView
-                        android:id="@+id/tvDailyGoalValue"
-                        style="@style/TextAppearance.Eve.Caption"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="2 tests per day" />
-                </LinearLayout>
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_chevron_right"
-                    app:tint="@color/eve_text_secondary" />
-            </LinearLayout>
-
-            <!-- My Exams Row -->
-            <LinearLayout
-                android:id="@+id/rowTargetExams"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="56dp"
-                android:layout_marginTop="1dp"
-                android:background="@color/eve_surface"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="20dp"
-                android:paddingVertical="14dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:contentDescription="My Exams"
-                    android:src="@drawable/ic_topic"
-                    app:tint="@color/eve_text" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        style="@style/TextAppearance.Eve.Body"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="My Exams" />
-
-                    <TextView
-                        style="@style/TextAppearance.Eve.Caption"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Choose exams for personalized feed" />
-                </LinearLayout>
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_chevron_right"
-                    app:tint="@color/eve_text_secondary" />
-            </LinearLayout>
-
-            <!-- App Language Row -->
-            <LinearLayout
-                android:id="@+id/rowLanguage"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="56dp"
-                android:layout_marginTop="1dp"
-                android:background="@color/eve_surface"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="20dp"
-                android:paddingVertical="14dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:contentDescription="App Language"
-                    android:src="@drawable/ic_language"
-                    app:tint="@color/eve_text" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        style="@style/TextAppearance.Eve.Body"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="App Language" />
-
-                    <TextView
-                        android:id="@+id/tvLanguageValue"
-                        style="@style/TextAppearance.Eve.Caption"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="System default" />
-                </LinearLayout>
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_chevron_right"
-                    app:tint="@color/eve_text_secondary" />
-            </LinearLayout>
-
-            <!-- Section: Account -->
+            <!-- ========================================== -->
+            <!-- Section 3: ACCOUNT                         -->
+            <!-- ========================================== -->
             <TextView
                 style="@style/TextAppearance.Eve.Overline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="20dp"
+                android:fontFamily="sans-serif-medium"
+                android:paddingHorizontal="24dp"
                 android:paddingTop="28dp"
                 android:paddingBottom="8dp"
-                android:text="ACCOUNT" />
+                android:text="ACCOUNT"
+                android:textColor="@color/eve_label_secondary"
+                android:textSize="13sp" />
 
-            <!-- Delete Account Row -->
-            <LinearLayout
-                android:id="@+id/rowDeleteAccount"
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="56dp"
-                android:background="@color/eve_surface"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="20dp"
-                android:paddingVertical="14dp">
+                android:layout_marginHorizontal="16dp"
+                app:cardBackgroundColor="@color/eve_card_bg"
+                app:cardCornerRadius="@dimen/eve_radius_tile"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/eve_separator"
+                app:strokeWidth="@dimen/eve_stroke_hairline">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:contentDescription="Delete Account"
-                    android:src="@drawable/ic_delete"
-                    app:tint="@color/eve_red" />
-
+                <!-- Delete Account Row -->
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:id="@+id/rowDeleteAccount"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:minHeight="54dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp">
 
-                    <TextView
-                        style="@style/TextAppearance.Eve.Body"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Delete Account"
-                        android:textColor="@color/eve_red" />
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:background="@drawable/bg_circle_translucent"
+                        android:contentDescription="Delete Account"
+                        android:padding="5dp"
+                        android:src="@drawable/ic_delete"
+                        app:tint="@color/eve_system_red" />
 
-                    <TextView
-                        style="@style/TextAppearance.Eve.Caption"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Permanently delete account and all data" />
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/TextAppearance.Eve.Body"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif"
+                            android:text="Delete Account"
+                            android:textColor="@color/eve_system_red"
+                            android:textSize="15sp" />
+
+                        <TextView
+                            style="@style/TextAppearance.Eve.Caption"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif"
+                            android:text="Permanently delete account and all data"
+                            android:textColor="@color/eve_label_secondary"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:contentDescription="Go"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="@color/eve_label_tertiary" />
                 </LinearLayout>
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:contentDescription="Go"
-                    android:src="@drawable/ic_chevron_right"
-                    app:tint="@color/eve_text_secondary" />
-            </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
     </ScrollView>

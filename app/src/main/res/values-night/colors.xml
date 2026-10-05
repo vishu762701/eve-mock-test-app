@@ -36,9 +36,15 @@
     <color name="eve_system_purple">#DB34F2</color>
     <color name="eve_system_gray">#8E8E93</color>
 
-    <!-- Liquid Glass Floating Layer -->
+    <!-- Liquid Glass Floating Layer & Materials -->
     <color name="eve_glass_card_fill">#CC1C1C1E</color>
     <color name="eve_glass_card_hairline">#1AFFFFFF</color>
+    <color name="eve_material_ultra_thin">#261C1C1E</color>
+    <color name="eve_material_thin">#4D1C1C1E</color>
+    <color name="eve_material_regular">#801C1C1E</color>
+    <color name="eve_material_thick">#E61C1C1E</color>
+    <color name="eve_material_ultra_thick">#1C1C1E</color>
+    <color name="eve_material_chrome">#B32C2C2E</color>
 
     <color name="eve_bg">#000000</color>
     <color name="eve_background">#000000</color>
