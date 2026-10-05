@@ -998,8 +998,14 @@ class MainActivity : EveBaseActivity() {
 
     private fun applyFindTestPanelBackground() {
         val isNight = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        val radiusPx = resources.getDimension(R.dimen.eve_radius_card)
+        binding.panelFindTest.outlineProvider = object : ViewOutlineProvider() {
+            override fun getOutline(view: View, outline: Outline) {
+                outline.setRoundRect(0, 0, view.width, view.height, radiusPx)
+            }
+        }
+        binding.panelFindTest.clipToOutline = true
         if (!isNight) {
-            val radiusPx = resources.getDimension(R.dimen.eve_radius_card)
             val strokePx = resources.displayMetrics.density * 1f
             binding.panelFindTest.background = HomePanelWashDrawable(radiusPx, strokePx)
         } else {

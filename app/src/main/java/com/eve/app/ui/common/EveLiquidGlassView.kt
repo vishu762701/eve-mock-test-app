@@ -71,6 +71,13 @@ class EveLiquidGlassView @JvmOverloads constructor(
 
     init {
         setWillNotDraw(false)
+        if (attrs != null) {
+            val a = context.obtainStyledAttributes(attrs, R.styleable.EveLiquidGlassView)
+            cornerRadiusPx = a.getDimension(R.styleable.EveLiquidGlassView_eveCornerRadius, 24f * density)
+            hasHighlight = a.getBoolean(R.styleable.EveLiquidGlassView_eveHasHighlight, true)
+            isTactileEnabled = a.getBoolean(R.styleable.EveLiquidGlassView_eveTactile, true)
+            a.recycle()
+        }
         updateOutline()
     }
 

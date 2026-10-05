@@ -24,22 +24,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <!-- 2. Apple iOS 26 Liquid Glass Modal Card -->
-            <com.google.android.material.card.MaterialCardView
+            <!-- 2. Apple iOS 26 Liquid Glass Modal Surface -->
+            <com.eve.app.ui.common.EveLiquidGlassView
                 android:id="@+id/cardLogin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginHorizontal="24dp"
                 android:layout_marginVertical="32dp"
-                app:cardBackgroundColor="@android:color/transparent"
-                app:cardCornerRadius="28dp"
-                app:cardElevation="0dp"
-                app:cardMaxElevation="0dp"
-                app:cardPreventCornerOverlap="false"
-                app:cardUseCompatPadding="false"
-                app:strokeColor="@color/eve_separator"
-                app:strokeWidth="@dimen/eve_stroke_hairline">
+                app:eveCornerRadius="28dp"
+                app:eveHasHighlight="true"
+                app:eveTactile="false">
 
                 <!-- Real-time BlurView layer for authentic Liquid Glass frosted-glass effect -->
                 <eightbitlab.com.blurview.BlurView
@@ -194,29 +189,30 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="12dp"
-                            android:hint="Full Name"
                             android:textColorHint="@color/eve_login_text_hint"
                             android:visibility="gone"
                             app:boxBackgroundColor="@color/eve_login_input_bg"
-                            app:boxCornerRadiusBottomEnd="@dimen/eve_radius_tile"
-                            app:boxCornerRadiusBottomStart="@dimen/eve_radius_tile"
-                            app:boxCornerRadiusTopEnd="@dimen/eve_radius_tile"
-                            app:boxCornerRadiusTopStart="@dimen/eve_radius_tile"
+                            app:boxCornerRadiusBottomEnd="@dimen/eve_radius_input"
+                            app:boxCornerRadiusBottomStart="@dimen/eve_radius_input"
+                            app:boxCornerRadiusTopEnd="@dimen/eve_radius_input"
+                            app:boxCornerRadiusTopStart="@dimen/eve_radius_input"
                             app:boxStrokeColor="@color/sl_glass_input_stroke"
                             app:boxStrokeWidth="@dimen/eve_stroke_hairline"
                             app:boxStrokeWidthFocused="1dp"
-                            app:hintTextColor="@color/eve_login_text_secondary">
+                            app:hintEnabled="false">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etName"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif"
+                                android:hint="Full Name"
                                 android:inputType="textCapWords"
                                 android:maxLines="1"
                                 android:paddingHorizontal="16dp"
                                 android:paddingVertical="14dp"
                                 android:textColor="@color/eve_login_text"
+                                android:textColorHint="@color/eve_login_text_hint"
                                 android:textSize="15sp" />
                         </com.google.android.material.textfield.TextInputLayout>
 
@@ -239,10 +235,10 @@
                             android:layout_marginBottom="12dp"
                             android:textColorHint="@color/eve_login_text_hint"
                             app:boxBackgroundColor="@color/eve_login_input_bg"
-                            app:boxCornerRadiusBottomEnd="@dimen/eve_radius_tile"
-                            app:boxCornerRadiusBottomStart="@dimen/eve_radius_tile"
-                            app:boxCornerRadiusTopEnd="@dimen/eve_radius_tile"
-                            app:boxCornerRadiusTopStart="@dimen/eve_radius_tile"
+                            app:boxCornerRadiusBottomEnd="@dimen/eve_radius_input"
+                            app:boxCornerRadiusBottomStart="@dimen/eve_radius_input"
+                            app:boxCornerRadiusTopEnd="@dimen/eve_radius_input"
+                            app:boxCornerRadiusTopStart="@dimen/eve_radius_input"
                             app:boxStrokeColor="@color/sl_glass_input_stroke"
                             app:boxStrokeWidth="@dimen/eve_stroke_hairline"
                             app:boxStrokeWidthFocused="1dp"
@@ -281,10 +277,10 @@
                             android:layout_height="wrap_content"
                             android:textColorHint="@color/eve_login_text_hint"
                             app:boxBackgroundColor="@color/eve_login_input_bg"
-                            app:boxCornerRadiusBottomEnd="@dimen/eve_radius_tile"
-                            app:boxCornerRadiusBottomStart="@dimen/eve_radius_tile"
-                            app:boxCornerRadiusTopEnd="@dimen/eve_radius_tile"
-                            app:boxCornerRadiusTopStart="@dimen/eve_radius_tile"
+                            app:boxCornerRadiusBottomEnd="@dimen/eve_radius_input"
+                            app:boxCornerRadiusBottomStart="@dimen/eve_radius_input"
+                            app:boxCornerRadiusTopEnd="@dimen/eve_radius_input"
+                            app:boxCornerRadiusTopStart="@dimen/eve_radius_input"
                             app:boxStrokeColor="@color/sl_glass_input_stroke"
                             app:boxStrokeWidth="@dimen/eve_stroke_hairline"
                             app:boxStrokeWidthFocused="1dp"
@@ -437,7 +433,7 @@
 
                     </LinearLayout>
                 </androidx.core.widget.NestedScrollView>
-            </com.google.android.material.card.MaterialCardView>
+            </com.eve.app.ui.common.EveLiquidGlassView>
         </FrameLayout>
     </ScrollView>
 

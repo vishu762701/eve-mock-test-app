@@ -97,7 +97,7 @@
         </LinearLayout>
 
         <!-- Segmented Navigation: 3 Tabs (Review | Overview | Leaderboard) -->
-        <com.google.android.material.tabs.TabLayout
+        <com.eve.app.ui.common.EveGlassTabLayout
             android:id="@+id/tabLayoutResult"
             android:layout_width="match_parent"
             android:layout_height="44dp"
@@ -134,7 +134,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Leaderboard" />
-        </com.google.android.material.tabs.TabLayout>
+        </com.eve.app.ui.common.EveGlassTabLayout>
 
         <!-- Content Container -->
         <FrameLayout
@@ -167,16 +167,15 @@
                     android:paddingBottom="36dp">
 
                     <!-- Block 1: Centered RESULT Hero Card -->
-                    <com.google.android.material.card.MaterialCardView
+                    <!-- Block 1: Centered RESULT Hero Card (Apple Liquid Glass) -->
+                    <com.eve.app.ui.common.EveLiquidGlassView
                         android:id="@+id/cardResultHero"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        app:cardBackgroundColor="@color/eve_card_bg"
-                        app:cardCornerRadius="@dimen/eve_radius_card"
-                        app:cardElevation="0dp"
-                        app:strokeColor="@color/eve_separator"
-                        app:strokeWidth="@dimen/eve_stroke_hairline">
+                        app:eveCornerRadius="@dimen/eve_radius_card"
+                        app:eveHasHighlight="true"
+                        app:eveTactile="false">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -228,7 +227,7 @@
                                 android:textSize="12sp"
                                 android:visibility="gone" />
                         </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
+                    </com.eve.app.ui.common.EveLiquidGlassView>
 
                     <!-- Block 2: Statistics Summary (Header + 4-Tile Row) -->
                     <LinearLayout
