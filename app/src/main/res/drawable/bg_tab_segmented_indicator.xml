@@ -6,6 +6,9 @@
     android:insetRight="3dp">
     <shape android:shape="rectangle">
         <solid android:color="@color/eve_tab_selected_bg" />
+        <stroke
+            android:width="0.5dp"
+            android:color="@color/eve_fill_tertiary" />
         <corners android:radius="@dimen/eve_radius_pill" />
     </shape>
 </inset>

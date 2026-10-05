@@ -12,8 +12,8 @@
         <item name="android:windowBackground">@color/eve_bg</item><item name="android:statusBarColor">@color/eve_bg</item>
         <item name="android:navigationBarColor">@color/eve_bg</item><item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar">false</item>
-        <item name="android:fontFamily">@font/poppins</item>
-        <item name="fontFamily">@font/poppins</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
         <item name="textAppearanceDisplayLarge">@style/TextAppearance.Eve.M3.DisplayLarge</item>
         <item name="textAppearanceDisplayMedium">@style/TextAppearance.Eve.M3.DisplayMedium</item>
         <item name="textAppearanceDisplaySmall">@style/TextAppearance.Eve.M3.DisplaySmall</item>
@@ -31,7 +31,34 @@
         <item name="textAppearanceLabelSmall">@style/TextAppearance.Eve.M3.LabelSmall</item>
         <item name="materialButtonStyle">@style/Widget.Eve.Button</item>
         <item name="materialCardViewStyle">@style/Widget.Eve.Card</item>
+        <item name="bottomSheetDialogTheme">@style/Theme.Eve.BottomSheetDialog</item>
+        <item name="popupMenuStyle">@style/Widget.Eve.PopupMenu</item>
         <item name="android:windowAnimationStyle">@style/Eve.WindowAnimation</item>
+    </style>
+
+    <style name="Theme.Eve.BottomSheetDialog" parent="Theme.Material3.Dark.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.Eve.BottomSheet.Modal</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/eve_bg</item>
+    </style>
+
+    <style name="Widget.Eve.BottomSheet.Modal" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="backgroundTint">@color/eve_surface_variant</item>
+        <item name="shapeAppearance">@style/ShapeRoundedBottomSheet</item>
+    </style>
+
+    <style name="ShapeRoundedBottomSheet" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">@dimen/eve_radius_bottom_sheet</item>
+        <item name="cornerSizeTopRight">@dimen/eve_radius_bottom_sheet</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
+    <style name="Widget.Eve.PopupMenu" parent="Widget.Material3.PopupMenu">
+        <item name="android:popupBackground">@drawable/bg_popup_menu</item>
+        <item name="android:popupElevation">8dp</item>
     </style>
 
     <style name="ThemeOverlay.Eve.DeviceFont" parent="">

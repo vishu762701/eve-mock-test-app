@@ -301,12 +301,12 @@
                             android:layout_height="match_parent"
                             android:backgroundTint="@color/eve_login_button_bg"
                             android:text="Sign In"
-                            android:textColor="@color/eve_white"
+                            android:textColor="@color/eve_on_primary"
                             android:textSize="16sp"
                             android:textStyle="bold"
-                            app:cornerRadius="12dp"
+                            app:cornerRadius="@dimen/eve_radius_pill"
                             app:strokeColor="@color/eve_login_button_stroke"
-                            app:strokeWidth="1dp" />
+                            app:strokeWidth="0.5dp" />
 
                         <ProgressBar
                             android:id="@+id/progressSubmit"
@@ -314,7 +314,7 @@
                             android:layout_height="22dp"
                             android:layout_gravity="center"
                             android:indeterminate="true"
-                            android:indeterminateTint="@color/eve_white"
+                            android:indeterminateTint="@color/eve_on_primary"
                             android:visibility="gone" />
                     </FrameLayout>
 
@@ -331,7 +331,7 @@
                             android:layout_width="0dp"
                             android:layout_height="1dp"
                             android:layout_weight="1"
-                            android:background="@color/eve_menu_glass_divider" />
+                            android:background="@color/eve_separator" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -345,14 +345,14 @@
                             android:layout_width="0dp"
                             android:layout_height="1dp"
                             android:layout_weight="1"
-                            android:background="@color/eve_menu_glass_divider" />
+                            android:background="@color/eve_separator" />
                     </LinearLayout>
 
-                    <!-- 5. Social Login: Google Button (Icon-only, centered, matching reference design) -->
+                    <!-- 5. Social Login: Google Button (Apple-like secondary provider button) -->
                     <FrameLayout
                         android:id="@+id/layoutBtnGoogle"
                         android:layout_width="match_parent"
-                        android:layout_height="38dp"
+                        android:layout_height="42dp"
                         android:layout_marginTop="16dp"
                         android:layout_gravity="center_horizontal">
 
@@ -369,14 +369,14 @@
                             android:insetBottom="0dp"
                             android:minHeight="0dp"
                             android:text=""
-                            app:cornerRadius="12dp"
+                            app:cornerRadius="@dimen/eve_radius_pill"
                             app:icon="@drawable/ic_social_google"
                             app:iconGravity="textStart"
                             app:iconPadding="0dp"
-                            app:iconSize="24dp"
+                            app:iconSize="22dp"
                             app:iconTint="@null"
                             app:strokeColor="@color/eve_login_google_border"
-                            app:strokeWidth="1dp" />
+                            app:strokeWidth="0.5dp" />
 
                         <ProgressBar
                             android:id="@+id/progressGoogle"

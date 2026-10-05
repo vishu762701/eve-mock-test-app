@@ -1,33 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Phase 25: press par halka sa "squish" (scale down), chodte hi wapas normal — Telegram
-     ke bouncy buttons jaisa tactile feel. Widget.Eve.Button aur Widget.Eve.Card dono is
-     ek file ko share karte hain (styles.xml se), isliye poore app mein consistent hai. -->
+<!-- Apple iOS 26 tactile touch feedback: subtle 0.98 scale compression on press with smooth return -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="true">
         <set>
             <objectAnimator
-                android:duration="100"
+                android:duration="90"
                 android:propertyName="scaleX"
-                android:valueTo="0.97"
+                android:valueTo="0.98"
                 android:valueType="floatType" />
             <objectAnimator
-                android:duration="100"
+                android:duration="90"
                 android:propertyName="scaleY"
-                android:valueTo="0.97"
+                android:valueTo="0.98"
                 android:valueType="floatType" />
         </set>
     </item>
     <item>
         <set>
             <objectAnimator
-                android:duration="150"
+                android:duration="160"
                 android:propertyName="scaleX"
-                android:valueTo="1"
+                android:valueTo="1.0"
                 android:valueType="floatType" />
             <objectAnimator
-                android:duration="150"
+                android:duration="160"
                 android:propertyName="scaleY"
-                android:valueTo="1"
+                android:valueTo="1.0"
                 android:valueType="floatType" />
         </set>
     </item>

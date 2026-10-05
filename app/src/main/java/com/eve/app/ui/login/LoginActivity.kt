@@ -143,6 +143,9 @@ class LoginActivity : EveBaseActivity() {
             launchGoogleSignIn()
         }
 
+        // Apple-style input focus micro-interactions
+        setupInputFocusAnimations()
+
         // Toggle between Sign In and Sign Up mode
         binding.btnToggleMode.setOnClickListener {
             toggleMode()
@@ -355,9 +358,34 @@ class LoginActivity : EveBaseActivity() {
         }
     }
 
+    private fun setupInputFocusAnimations() {
+        val inputs = listOf(
+            binding.etName to binding.tilName,
+            binding.etEmail to binding.tilEmail,
+            binding.etPassword to binding.tilPassword
+        )
+        for ((editText, layout) in inputs) {
+            editText.setOnFocusChangeListener { _, hasFocus ->
+                layout.animate()
+                    .scaleX(if (hasFocus) 1.01f else 1.0f)
+                    .scaleY(if (hasFocus) 1.01f else 1.0f)
+                    .setDuration(160)
+                    .setInterpolator(FastOutSlowInInterpolator())
+                    .start()
+            }
+        }
+    }
+
     private fun toggleMode() {
         isSignUpMode = !isSignUpMode
         binding.tvError.visibility = View.GONE
+
+        // Apple-style smooth layout transition without jarring pop
+        val transition = androidx.transition.AutoTransition().apply {
+            duration = 200
+            interpolator = FastOutSlowInInterpolator()
+        }
+        androidx.transition.TransitionManager.beginDelayedTransition(binding.cardLogin, transition)
 
         val activeColor = ContextCompat.getColor(this, R.color.eve_login_text)
         val inactiveColor = ContextCompat.getColor(this, R.color.eve_login_text_secondary)

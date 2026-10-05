@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Eve Design System Geometry & Radii — MASTER_TASK_V3 Approved -->
-    <!-- Shapes: cards 28dp, tiles 24dp, small tiles 14dp, bottom sheet top corners 32dp; buttons, tab control, streak pill and filter chips full pills -->
-    <dimen name="eve_radius_card">28dp</dimen>
-    <dimen name="eve_radius_tile">20dp</dimen>
-    <dimen name="eve_radius_tile_small">14dp</dimen>
-    <dimen name="eve_radius_bottom_sheet">32dp</dimen>
+    <!-- Apple iOS 26 Design System Geometry & Concentric Radii -->
+    <!-- Shapes: cards 18dp squircle, tiles 14dp, small tiles 10dp, bottom sheet top corners 28dp; buttons, tab controls, streak pills and filter chips full pills (999dp) -->
+    <dimen name="eve_radius_card">18dp</dimen>
+    <dimen name="eve_radius_tile">14dp</dimen>
+    <dimen name="eve_radius_tile_small">10dp</dimen>
+    <dimen name="eve_radius_bottom_sheet">28dp</dimen>
     <dimen name="eve_radius_button">999dp</dimen>
     <dimen name="eve_radius_pill">999dp</dimen>
-    <dimen name="eve_radius_icon_container">14dp</dimen>
-    <dimen name="eve_radius_input">14dp</dimen>
+    <dimen name="eve_radius_icon_container">12dp</dimen>
+    <dimen name="eve_radius_input">12dp</dimen>
 
     <!-- Backward-compatible radius tokens -->
-    <dimen name="eve_radius_sm">14dp</dimen>
-    <dimen name="eve_radius_md">24dp</dimen>
-    <dimen name="eve_radius_lg">28dp</dimen>
+    <dimen name="eve_radius_sm">10dp</dimen>
+    <dimen name="eve_radius_md">14dp</dimen>
+    <dimen name="eve_radius_lg">18dp</dimen>
 
-    <!-- Depths & Elevations -->
-    <dimen name="eve_card_elevation_light">2dp</dimen>
+    <!-- Depths & Elevations (Apple iOS 26 restrained elevation: subtle 1-2dp in light, 0dp pure matte in dark) -->
+    <dimen name="eve_card_elevation_light">1.5dp</dimen>
     <dimen name="eve_card_elevation_dark">0dp</dimen>
-    <dimen name="eve_stroke_hairline">1dp</dimen>
+    <dimen name="eve_stroke_hairline">0.5dp</dimen>
 
     <!-- 4dp Spacing Grid -->
     <dimen name="eve_space_4">4dp</dimen>

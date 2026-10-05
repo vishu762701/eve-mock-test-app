@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Apple iOS 26 contextual popover / menu background: 16dp squircle with subtle border -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/eve_surface" />
+    <stroke
+        android:width="0.5dp"
+        android:color="@color/eve_separator" />
+    <corners android:radius="16dp" />
+</shape>

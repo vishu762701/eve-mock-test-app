@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Eve Shared Styles — MASTER_TASK_V3 Approved -->
+    <!-- Eve Shared Styles — Apple iOS 26 Visual Design System -->
     <!-- Buttons:
          Primary = inverting pill (light: black fill/white text, dark: white fill/black text)
          Neutral = inverting pill
          Outlined = 1dp border pill
          Soft = surface-2 fill without border pill
-         All 48dp min height (or 44dp compact), press scale 0.97, ripple clipped to shape. -->
+         All 48dp min height (or 44dp compact), tactile press scale 0.98. -->
 
     <style name="Widget.Eve.Button" parent="Widget.Material3.Button">
         <item name="android:minHeight">48dp</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">15sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="fontFamily">@font/poppins_semibold</item>
-        <item name="android:fontFamily">@font/poppins_semibold</item>
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
         <item name="backgroundTint">@color/eve_button_bg</item>
         <item name="android:textColor">@color/eve_button_text</item>
         <item name="cornerRadius">@dimen/eve_radius_button</item>
@@ -63,8 +63,8 @@
         <item name="cornerRadius">@dimen/eve_radius_pill</item>
         <item name="android:minHeight">36dp</item>
         <item name="android:textSize">12.5sp</item>
-        <item name="android:fontFamily">@font/poppins_semibold</item>
-        <item name="fontFamily">@font/poppins_semibold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
     </style>
@@ -78,8 +78,8 @@
         <item name="cornerRadius">@dimen/eve_radius_pill</item>
         <item name="android:minHeight">48dp</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:fontFamily">@font/poppins_semibold</item>
-        <item name="fontFamily">@font/poppins_semibold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
     </style>
@@ -89,8 +89,8 @@
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">15sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="fontFamily">@font/poppins_semibold</item>
-        <item name="android:fontFamily">@font/poppins_semibold</item>
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
         <item name="cornerRadius">@dimen/eve_radius_button</item>
         <item name="strokeWidth">1dp</item>
         <item name="strokeColor">@color/eve_stroke</item>
@@ -123,27 +123,27 @@
         <item name="android:minHeight">44dp</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">14sp</item>
-        <item name="fontFamily">@font/poppins_medium</item>
-        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
         <item name="cornerRadius">@dimen/eve_radius_button</item>
         <item name="android:textColor">@color/eve_text</item>
     </style>
 
-    <!-- Cards: 28dp radius, 1dp border, soft elevation in light, 0dp in dark -->
+    <!-- Cards: Apple 18dp squircle radius, 0.5dp subtle border, soft elevation in light, 0dp in dark -->
     <style name="Widget.Eve.Card" parent="Widget.Material3.CardView.Elevated">
         <item name="cardCornerRadius">@dimen/eve_radius_card</item>
         <item name="cardElevation">@dimen/eve_card_elevation_light</item>
-        <item name="strokeWidth">1dp</item>
+        <item name="strokeWidth">@dimen/eve_stroke_hairline</item>
         <item name="strokeColor">@color/eve_stroke</item>
         <item name="cardBackgroundColor">@color/eve_card_bg</item>
         <item name="android:stateListAnimator">@animator/press_scale</item>
     </style>
 
-    <!-- Tiles (semantic variants): 24dp radius -->
+    <!-- Tiles (semantic variants): Apple 14dp concentric radius -->
     <style name="Widget.Eve.Tile" parent="Widget.Material3.CardView.Elevated">
         <item name="cardCornerRadius">@dimen/eve_radius_tile</item>
         <item name="cardElevation">0dp</item>
-        <item name="strokeWidth">1dp</item>
+        <item name="strokeWidth">@dimen/eve_stroke_hairline</item>
         <item name="strokeColor">@color/eve_border</item>
         <item name="cardBackgroundColor">@color/eve_surface_2</item>
     </style>
@@ -166,8 +166,8 @@
     <style name="TextAppearance.Eve.TabSegment" parent="TextAppearance.Material3.LabelLarge">
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="fontFamily">@font/poppins_semibold</item>
-        <item name="android:fontFamily">@font/poppins_semibold</item>
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textAllCaps">false</item>
     </style>
 
@@ -183,21 +183,21 @@
         <item name="android:textColor">@color/eve_text</item>
         <item name="android:textSize">22sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="fontFamily">@font/poppins_bold</item>
-        <item name="android:fontFamily">@font/poppins_bold</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:fontFamily">sans-serif</item>
     </style>
     <style name="Eve.Text.Title" parent="Eve.Title" />
     <style name="Eve.Body" parent="">
         <item name="android:textColor">@color/eve_text</item>
         <item name="android:textSize">16sp</item>
-        <item name="fontFamily">@font/poppins_regular</item>
-        <item name="android:fontFamily">@font/poppins_regular</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:fontFamily">sans-serif</item>
     </style>
     <style name="Eve.Secondary" parent="">
         <item name="android:textColor">@color/eve_text_secondary</item>
         <item name="android:textSize">13sp</item>
-        <item name="fontFamily">@font/poppins_regular</item>
-        <item name="android:fontFamily">@font/poppins_regular</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:fontFamily">sans-serif</item>
     </style>
 
     <style name="Widget.Eve.CutoffChip" parent="Widget.Material3.Chip.Filter">
@@ -225,16 +225,16 @@
         <item name="checkedIconVisible">false</item>
         <item name="chipMinHeight">36dp</item>
         <item name="android:textSize">13sp</item>
-        <item name="fontFamily">@font/poppins_medium</item>
-        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
-    <!-- ScreenTitle: 20sp, Poppins semibold/bold, eve_text -->
+    <!-- ScreenTitle: 20sp, sans-serif-medium bold, eve_text -->
     <style name="TextAppearance.Eve.ScreenTitle">
         <item name="android:textSize">20sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="fontFamily">@font/poppins_semibold</item>
-        <item name="android:fontFamily">@font/poppins_semibold</item>
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textColor">@color/eve_text</item>
     </style>
 </resources>

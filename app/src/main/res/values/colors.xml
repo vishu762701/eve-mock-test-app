@@ -1,34 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Eve Design System (Light Theme) — MASTER_TASK_V3 Approved Tokens -->
-    <!-- Neutrals: canvas #FFFFFF, surface #FFFFFF, surface-2 (tiles/chips) #F4F5F7, border #E5E7EB, text #0B0B0D, text-secondary #6B6B76, header-ink #FFFFFF -->
-    <color name="eve_canvas">#FFFFFF</color>
+    <!-- Apple iOS 26 Semantic Design System (Light Theme) -->
+    <!-- Semantic Backgrounds & Surfaces -->
+    <color name="eve_system_background">#F2F2F7</color>
+    <color name="eve_secondary_background">#FFFFFF</color>
+    <color name="eve_tertiary_background">#E5E5EA</color>
+    <color name="eve_canvas">#F2F2F7</color>
     <color name="eve_surface">#FFFFFF</color>
-    <color name="eve_surface_variant">#F4F5F7</color>
-    <color name="eve_surface_2">#F4F5F7</color>
+    <color name="eve_surface_variant">#E5E5EA</color>
+    <color name="eve_surface_2">#E5E5EA</color>
+    <color name="eve_card_bg">#FFFFFF</color>
+    <color name="eve_bg">#F2F2F7</color>
+    <color name="eve_background">#F2F2F7</color>
+    <color name="eve_highlight_bg">#E5E5EA</color>
+
+    <!-- Semantic Labels -->
+    <color name="eve_label_primary">#000000</color>
+    <color name="eve_label_secondary">#6C6C70</color>
+    <color name="eve_label_tertiary">#8E8E93</color>
+    <color name="eve_text">#000000</color>
+    <color name="eve_text_secondary">#6C6C70</color>
+    <color name="eve_header_ink">#FFFFFF</color>
+    <color name="eve_header_ink_text">#000000</color>
+    <color name="eve_header_ink_secondary">#6C6C70</color>
+    <color name="eve_header_ink_icon">#000000</color>
+
+    <!-- Semantic Separators & Fills -->
+    <color name="eve_separator">#C6C6C8</color>
     <color name="eve_border">#E5E7EB</color>
     <color name="eve_stroke">#E5E7EB</color>
-    <color name="eve_text">#0B0B0D</color>
-    <color name="eve_text_secondary">#6B6B76</color>
-    <color name="eve_header_ink">#FFFFFF</color>
-    <color name="eve_header_ink_text">#0B0B0D</color>
-    <color name="eve_header_ink_secondary">#6B6B76</color>
-    <color name="eve_header_ink_icon">#0B0B0D</color>
+    <color name="eve_fill_primary">#33787880</color>
+    <color name="eve_fill_secondary">#29787880</color>
+    <color name="eve_fill_tertiary">#1F767680</color>
 
-    <!-- Glass card fill #F4F5F7 with hairline #E5E7EB -->
-    <color name="eve_glass_card_fill">#F4F5F7</color>
-    <color name="eve_glass_card_hairline">#E5E7EB</color>
+    <!-- Apple iOS 26 System Colors -->
+    <color name="eve_system_blue">#0088FF</color>
+    <color name="eve_system_green">#34C759</color>
+    <color name="eve_system_red">#FF383C</color>
+    <color name="eve_system_orange">#FF8D28</color>
+    <color name="eve_system_yellow">#FFCC00</color>
+    <color name="eve_system_purple">#CB30E0</color>
+    <color name="eve_system_gray">#8E8E93</color>
 
-    <color name="eve_bg">#FFFFFF</color>
-    <color name="eve_background">#FFFFFF</color>
-    <color name="eve_card_bg">#FFFFFF</color>
-    <color name="eve_highlight_bg">#F4F5F7</color>
+    <!-- Liquid Glass Floating Layer -->
+    <color name="eve_glass_card_fill">#E5FFFFFF</color>
+    <color name="eve_glass_card_hairline">#33000000</color>
 
     <!-- Inverting Core Tokens -->
-    <color name="eve_primary">#0B0B0D</color>
-    <color name="eve_primary_dark">#0B0B0D</color>
-    <color name="eve_accent">#0B0B0D</color>
-    <color name="eve_banner_text">#0B0B0D</color>
+    <color name="eve_primary">#000000</color>
+    <color name="eve_primary_dark">#000000</color>
+    <color name="eve_accent">#0088FF</color>
+    <color name="eve_banner_text">#000000</color>
     <color name="eve_on_primary">#FFFFFF</color>
 
     <!-- Semantic Tiles: right/answered = fill #BFEBAE / text #186634 / border #289953 -->
@@ -89,12 +111,12 @@
     <color name="eve_palette_marked_dot">#754800</color>
     <color name="eve_sparkle">#FFCA18</color>
 
-    <!-- Selection Accents: Lilac for tab/segment selection and brand moments (light pill #D8CEF8 with text #2B2550) -->
-    <color name="eve_tab_selected_bg">#D8CEF8</color>
-    <color name="eve_tab_selected_text">#2B2550</color>
-    <color name="eve_tab_unselected_text">#4B5563</color>
-    <color name="eve_chip_hi_bg">#D8CEF8</color>
-    <color name="eve_chip_hi_text">#2B2550</color>
+    <!-- Selection Accents: iOS 26 Segmented Control & Highlights -->
+    <color name="eve_tab_selected_bg">#FFFFFF</color>
+    <color name="eve_tab_selected_text">#000000</color>
+    <color name="eve_tab_unselected_text">#6C6C70</color>
+    <color name="eve_chip_hi_bg">#E3F0FC</color>
+    <color name="eve_chip_hi_text">#0062CC</color>
 
     <!-- Signature Accent: Lilac Scale (Task B: Brand moments, selections, tints) -->
     <color name="eve_lilac_subtle">#F4F0FD</color>
@@ -188,19 +210,19 @@
     <color name="eve_bulletin_action">#FFCA18</color>
 
     <!-- Login -->
-    <color name="eve_login_button_bg">#0B0B0D</color>
-    <color name="eve_login_button_stroke">#0B0B0D</color>
+    <color name="eve_login_button_bg">#000000</color>
+    <color name="eve_login_button_stroke">#000000</color>
     <color name="eve_login_glass_bg">#FFFFFF</color>
-    <color name="eve_login_glass_border">#E9E9EE</color>
-    <color name="eve_login_input_bg">#FFFFFF</color>
-    <color name="eve_login_input_border">#E9E9EE</color>
-    <color name="eve_login_input_border_focused">#0B0B0D</color>
-    <color name="eve_login_text">#0B0B0D</color>
-    <color name="eve_login_text_secondary">#6B6B76</color>
-    <color name="eve_login_text_hint">#9A9BA5</color>
+    <color name="eve_login_glass_border">#E5E5EA</color>
+    <color name="eve_login_input_bg">#F2F2F7</color>
+    <color name="eve_login_input_border">#E5E5EA</color>
+    <color name="eve_login_input_border_focused">#0088FF</color>
+    <color name="eve_login_text">#000000</color>
+    <color name="eve_login_text_secondary">#6C6C70</color>
+    <color name="eve_login_text_hint">#8E8E93</color>
     <color name="eve_login_google_bg">#FFFFFF</color>
-    <color name="eve_login_google_border">#E9E9EE</color>
-    <color name="eve_login_google_text">#0B0B0D</color>
+    <color name="eve_login_google_border">#C6C6C8</color>
+    <color name="eve_login_google_text">#000000</color>
 
     <!-- Drawer -->
     <color name="eve_drawer_glass_bg">#FFFFFF</color>
