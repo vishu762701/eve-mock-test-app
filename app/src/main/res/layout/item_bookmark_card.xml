@@ -86,9 +86,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/eve_space_12"
+            android:fontFamily="@font/poppins_regular"
             android:lineSpacingExtra="3dp"
             android:textColor="?attr/colorOnSurface"
-            android:textSize="15sp"
+            android:textSize="16sp"
             tools:text="What is the capital of France?" />
 
         <!-- Options Container -->
@@ -104,9 +105,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
+                android:fontFamily="@font/poppins_regular"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="6dp"
-                android:textSize="13sp"
+                android:textSize="15sp"
                 tools:text="A. Berlin" />
 
             <TextView
@@ -114,9 +116,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
+                android:fontFamily="@font/poppins_regular"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="6dp"
-                android:textSize="13sp"
+                android:textSize="15sp"
                 tools:text="B. Madrid" />
 
             <TextView
@@ -124,18 +127,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
+                android:fontFamily="@font/poppins_regular"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="6dp"
-                android:textSize="13sp"
+                android:textSize="15sp"
                 tools:text="C. Paris (Correct)" />
 
             <TextView
                 android:id="@+id/tvOptionD"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="6dp"
-                android:textSize="13sp"
+                android:textSize="15sp"
                 tools:text="D. Rome" />
         </LinearLayout>
 
@@ -147,8 +152,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:layout_marginStart="-8dp"
+            android:fontFamily="@font/poppins_medium"
             android:text="View Explanation"
-            android:textSize="12sp"
+            android:textSize="14sp"
             android:visibility="gone"
             tools:visibility="visible" />
 
@@ -159,10 +165,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:background="@drawable/bg_category_chip"
+            android:fontFamily="@font/poppins_regular"
             android:lineSpacingExtra="3dp"
             android:padding="10dp"
             android:textColor="@color/eve_text"
-            android:textSize="13sp"
+            android:textSize="15sp"
             android:visibility="gone"
             tools:text="Paris is the capital and most populous city of France."
             tools:visibility="visible" />
@@ -187,9 +194,10 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:fontFamily="@font/poppins_medium"
                 android:text="Tap to open in test"
                 android:textColor="@color/eve_primary"
-                android:textSize="12sp" />
+                android:textSize="13.5sp" />
 
             <ImageView
                 android:layout_width="16dp"

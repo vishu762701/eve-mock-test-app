@@ -24,11 +24,11 @@
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingHorizontal="10dp"
-            android:paddingVertical="4dp">
+            android:paddingVertical="5dp">
 
             <ImageView
-                android:layout_width="14dp"
-                android:layout_height="14dp"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
                 android:contentDescription="Timer"
                 android:src="@drawable/ic_timer"
                 app:tint="@color/eve_text_secondary" />
@@ -38,9 +38,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
+                android:fontFamily="@font/poppins_semibold"
                 android:text="0:00"
                 android:textColor="@color/eve_text_secondary"
-                android:textSize="13sp"
+                android:textSize="14sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -147,35 +148,39 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
+            android:fontFamily="@font/poppins_regular"
             android:paddingVertical="10dp"
             android:paddingEnd="12dp"
-            android:textSize="15sp" />
+            android:textSize="16sp" />
 
         <com.eve.app.ui.common.TelegramRadioButton
             android:id="@+id/rbB"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
+            android:fontFamily="@font/poppins_regular"
             android:paddingVertical="10dp"
             android:paddingEnd="12dp"
-            android:textSize="15sp" />
+            android:textSize="16sp" />
 
         <com.eve.app.ui.common.TelegramRadioButton
             android:id="@+id/rbC"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
+            android:fontFamily="@font/poppins_regular"
             android:paddingVertical="10dp"
             android:paddingEnd="12dp"
-            android:textSize="15sp" />
+            android:textSize="16sp" />
 
         <com.eve.app.ui.common.TelegramRadioButton
             android:id="@+id/rbD"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
+            android:fontFamily="@font/poppins_regular"
             android:paddingVertical="10dp"
             android:paddingEnd="12dp"
-            android:textSize="15sp" />
+            android:textSize="16sp" />
     </RadioGroup>
 </LinearLayout>

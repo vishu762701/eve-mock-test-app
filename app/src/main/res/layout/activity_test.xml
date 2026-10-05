@@ -38,8 +38,9 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
-            android:textColor="@color/eve_text_secondary"
-            android:textSize="14sp" />
+            android:fontFamily="@font/poppins_semibold"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="16sp" />
     </LinearLayout>
 
     <View
@@ -195,9 +196,10 @@
                 android:ellipsize="end"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="0dp"
+                android:textSize="15sp"
                 app:autoSizeTextType="uniform"
-                app:autoSizeMinTextSize="12sp"
-                app:autoSizeMaxTextSize="14sp"
+                app:autoSizeMinTextSize="13sp"
+                app:autoSizeMaxTextSize="15sp"
                 app:autoSizeStepGranularity="1sp"
                 android:text="Clear response" />
 
@@ -219,9 +221,10 @@
                 android:ellipsize="end"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="0dp"
+                android:textSize="15sp"
                 app:autoSizeTextType="uniform"
-                app:autoSizeMinTextSize="12sp"
-                app:autoSizeMaxTextSize="14sp"
+                app:autoSizeMinTextSize="13sp"
+                app:autoSizeMaxTextSize="15sp"
                 app:autoSizeStepGranularity="1sp"
                 android:text="Mark for review" />
         </LinearLayout>
@@ -251,9 +254,10 @@
                 android:ellipsize="end"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="0dp"
+                android:textSize="15sp"
                 app:autoSizeTextType="uniform"
-                app:autoSizeMinTextSize="12sp"
-                app:autoSizeMaxTextSize="14sp"
+                app:autoSizeMinTextSize="13sp"
+                app:autoSizeMaxTextSize="15sp"
                 app:autoSizeStepGranularity="1sp"
                 android:text="Previous" />
 
@@ -275,9 +279,10 @@
                 android:ellipsize="end"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="0dp"
+                android:textSize="15sp"
                 app:autoSizeTextType="uniform"
-                app:autoSizeMinTextSize="12sp"
-                app:autoSizeMaxTextSize="14sp"
+                app:autoSizeMinTextSize="13sp"
+                app:autoSizeMaxTextSize="15sp"
                 app:autoSizeStepGranularity="1sp"
                 android:text="Save and Next" />
         </LinearLayout>

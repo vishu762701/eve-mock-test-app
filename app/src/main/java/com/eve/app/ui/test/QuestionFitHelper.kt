@@ -15,11 +15,11 @@ object QuestionFitHelper {
 
     const val MAX_QUESTION_SP = 18f
     const val MIN_QUESTION_SP = 15f
-    const val MAX_OPTION_SP = 15f
+    const val MAX_OPTION_SP = 16f
     const val MIN_OPTION_SP = 14f
 
     val CANDIDATE_QUESTION_SIZES = listOf(18f, 17f, 16f, 15f)
-    val CANDIDATE_OPTION_SIZES = listOf(15f, 14f)
+    val CANDIDATE_OPTION_SIZES = listOf(16f, 15f, 14f)
 
     /**
      * Line spacing multiplier contract:

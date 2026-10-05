@@ -68,7 +68,7 @@ class TelegramRadioButton @JvmOverloads constructor(
         val uncheckedBg = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadius = cornerPx
-            setColor(ContextCompat.getColor(context, R.color.eve_surface))
+            setColor(ContextCompat.getColor(context, R.color.eve_card_bg))
             setStroke((1f * density).toInt(), ContextCompat.getColor(context, R.color.eve_border))
         }
 
@@ -77,7 +77,7 @@ class TelegramRadioButton @JvmOverloads constructor(
             addState(intArrayOf(), uncheckedBg)
         }
 
-        val maskColor = ContextCompat.getColor(context, R.color.eve_surface)
+        val maskColor = ContextCompat.getColor(context, R.color.eve_card_bg)
         val maskDrawable = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadius = cornerPx

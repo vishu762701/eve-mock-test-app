@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="8dp"
-    app:cardBackgroundColor="@color/eve_surface"
+    app:cardBackgroundColor="@color/eve_card_bg"
     app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
     app:strokeColor="@color/eve_stroke"
@@ -45,11 +45,12 @@
                 style="@style/Widget.Eve.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="36dp"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="2dp"
+                android:minHeight="40dp"
+                android:fontFamily="@font/poppins_medium"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"
                 android:text="Mark as learned"
-                android:textSize="13sp"
+                android:textSize="14sp"
                 app:strokeColor="@color/eve_stroke" />
         </LinearLayout>
 
@@ -59,8 +60,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
+            android:fontFamily="@font/poppins_regular"
             android:textColor="?attr/colorOnSurface"
-            android:textSize="15sp" />
+            android:textSize="16sp" />
 
         <!-- Your Answer Box (if answered) -->
         <LinearLayout
@@ -75,17 +77,19 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_semibold"
                 android:text="Your Answer:"
                 android:textColor="@color/eve_status_error"
-                android:textSize="13sp" />
+                android:textSize="13.5sp" />
 
             <TextView
                 android:id="@+id/tvYourAnswer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
+                android:fontFamily="@font/poppins_regular"
                 android:textColor="?attr/colorOnSurface"
-                android:textSize="13sp" />
+                android:textSize="15sp" />
         </LinearLayout>
 
         <!-- Correct Answer Box -->
@@ -101,17 +105,19 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_semibold"
                 android:text="Correct Answer:"
                 android:textColor="@color/eve_status_success"
-                android:textSize="13sp" />
+                android:textSize="13.5sp" />
 
             <TextView
                 android:id="@+id/tvCorrectAnswer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
+                android:fontFamily="@font/poppins_regular"
                 android:textColor="?attr/colorOnSurface"
-                android:textSize="13sp" />
+                android:textSize="15sp" />
         </LinearLayout>
 
         <!-- Explanation Section -->
@@ -126,17 +132,19 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_semibold"
                 android:text="Explanation:"
                 android:textColor="@color/eve_text_secondary"
-                android:textSize="13sp" />
+                android:textSize="13.5sp" />
 
             <TextView
                 android:id="@+id/tvExplanation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
+                android:fontFamily="@font/poppins_regular"
                 android:textColor="@color/eve_text_secondary"
-                android:textSize="13sp" />
+                android:textSize="15sp" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

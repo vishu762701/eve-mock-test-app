@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Eve Design System (Light Theme) — MASTER_TASK_V3 Approved Tokens -->
-    <!-- Neutrals: canvas #FFFFFF, surface #FFFFFF, surface-2 (tiles/chips) #F3F2FC, border #E9E9EE, text #0B0B0D, text-secondary #6B6B76, header-ink #101117 -->
+    <!-- Neutrals: canvas #FFFFFF, surface #FFFFFF, surface-2 (tiles/chips) #F4F5F7, border #E5E7EB, text #0B0B0D, text-secondary #6B6B76, header-ink #FFFFFF -->
     <color name="eve_canvas">#FFFFFF</color>
     <color name="eve_surface">#FFFFFF</color>
-    <color name="eve_surface_variant">#F3F2FC</color>
-    <color name="eve_surface_2">#F3F2FC</color>
-    <color name="eve_border">#E9E9EE</color>
-    <color name="eve_stroke">#E9E9EE</color>
+    <color name="eve_surface_variant">#F4F5F7</color>
+    <color name="eve_surface_2">#F4F5F7</color>
+    <color name="eve_border">#E5E7EB</color>
+    <color name="eve_stroke">#E5E7EB</color>
     <color name="eve_text">#0B0B0D</color>
     <color name="eve_text_secondary">#6B6B76</color>
     <color name="eve_header_ink">#FFFFFF</color>
@@ -15,14 +15,14 @@
     <color name="eve_header_ink_secondary">#6B6B76</color>
     <color name="eve_header_ink_icon">#0B0B0D</color>
 
-    <!-- Glass card fill #F3F5F9 with hairline #E3E5EA -->
-    <color name="eve_glass_card_fill">#F3F5F9</color>
-    <color name="eve_glass_card_hairline">#E3E5EA</color>
+    <!-- Glass card fill #F4F5F7 with hairline #E5E7EB -->
+    <color name="eve_glass_card_fill">#F4F5F7</color>
+    <color name="eve_glass_card_hairline">#E5E7EB</color>
 
     <color name="eve_bg">#FFFFFF</color>
     <color name="eve_background">#FFFFFF</color>
     <color name="eve_card_bg">#FFFFFF</color>
-    <color name="eve_highlight_bg">#F3F2FC</color>
+    <color name="eve_highlight_bg">#F4F5F7</color>
 
     <!-- Inverting Core Tokens -->
     <color name="eve_primary">#0B0B0D</color>
@@ -130,9 +130,9 @@
     <color name="eve_button_text">#FFFFFF</color>
     <color name="eve_button_neutral_bg">#0B0B0D</color>
     <color name="eve_button_neutral_text">#FFFFFF</color>
-    <color name="eve_button_soft_bg">#F3F2FC</color>
+    <color name="eve_button_soft_bg">#F4F5F7</color>
     <color name="eve_button_soft_text">#0B0B0D</color>
-    <color name="eve_button_outlined_stroke">#E9E9EE</color>
+    <color name="eve_button_outlined_stroke">#E5E7EB</color>
     <color name="eve_button_outlined_text">#0B0B0D</color>
 
     <!-- Test screen option selection: right tile fill + 1.5dp right border + green radio dot -->

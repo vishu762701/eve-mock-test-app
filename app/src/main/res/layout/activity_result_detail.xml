@@ -48,7 +48,7 @@
                 android:layout_marginTop="2dp"
                 android:fontFamily="@font/poppins_regular"
                 android:textColor="@color/eve_text_secondary"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
@@ -87,7 +87,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    app:cardBackgroundColor="@color/eve_surface"
+                    app:cardBackgroundColor="@color/eve_card_bg"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
                     app:strokeColor="@color/eve_stroke"
@@ -137,7 +137,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    app:cardBackgroundColor="@color/eve_surface"
+                    app:cardBackgroundColor="@color/eve_card_bg"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
                     app:strokeColor="@color/eve_stroke"
@@ -380,7 +380,7 @@
                             android:layout_marginTop="2dp"
                             android:text="Unattempted"
                             android:textColor="@color/eve_text_secondary"
-                            android:textSize="11sp" />
+                            android:textSize="12sp" />
                     </LinearLayout>
 
                     <!-- Accuracy -->
@@ -428,7 +428,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    app:cardBackgroundColor="@color/eve_surface"
+                    app:cardBackgroundColor="@color/eve_card_bg"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
                     app:strokeColor="@color/eve_stroke"
@@ -492,7 +492,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    app:cardBackgroundColor="@color/eve_surface"
+                    app:cardBackgroundColor="@color/eve_card_bg"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
                     app:strokeColor="@color/eve_stroke"
@@ -533,7 +533,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="Your Score"
                                     android:textColor="@color/eve_text_secondary"
-                                    android:textSize="11sp" />
+                                    android:textSize="12.5sp" />
 
                                 <TextView
                                     android:id="@+id/tvPerfYourScore"
@@ -562,7 +562,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="Batch Average"
                                     android:textColor="@color/eve_text_secondary"
-                                    android:textSize="11sp" />
+                                    android:textSize="12.5sp" />
 
                                 <TextView
                                     android:id="@+id/tvPerfAvgScore"
@@ -590,7 +590,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="Topper Score"
                                     android:textColor="@color/eve_text_secondary"
-                                    android:textSize="11sp" />
+                                    android:textSize="12.5sp" />
 
                                 <TextView
                                     android:id="@+id/tvPerfTopperScore"
@@ -610,7 +610,7 @@
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/eve_surface"
+                    app:cardBackgroundColor="@color/eve_card_bg"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
                     app:strokeColor="@color/eve_stroke"
@@ -656,7 +656,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    app:cardBackgroundColor="@color/eve_surface"
+                    app:cardBackgroundColor="@color/eve_card_bg"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
                     app:strokeColor="@color/eve_stroke"
@@ -707,7 +707,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    app:cardBackgroundColor="@color/eve_surface"
+                    app:cardBackgroundColor="@color/eve_card_bg"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
                     app:strokeColor="@color/eve_stroke"
@@ -733,7 +733,7 @@
                             android:layout_marginBottom="12dp"
                             android:text="Tap a bar to inspect time taken"
                             android:textColor="@color/eve_text_secondary"
-                            android:textSize="12sp" />
+                            android:textSize="13sp" />
 
                         <HorizontalScrollView
                             android:layout_width="match_parent"
@@ -753,7 +753,7 @@
                     android:id="@+id/cardSlowestQuestions"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/eve_surface"
+                    app:cardBackgroundColor="@color/eve_card_bg"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
                     app:strokeColor="@color/eve_stroke"

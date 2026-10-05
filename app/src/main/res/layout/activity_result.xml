@@ -52,7 +52,7 @@
                     android:layout_marginTop="2dp"
                     android:fontFamily="@font/poppins_regular"
                     android:textColor="@color/eve_text_secondary"
-                    android:textSize="12sp"
+                    android:textSize="13sp"
                     android:visibility="gone" />
             </LinearLayout>
 
@@ -83,7 +83,7 @@
                 android:gravity="center"
                 android:fontFamily="@font/poppins_semibold"
                 android:text="@string/reattempt"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 app:icon="@drawable/ic_refresh"
                 app:iconSize="14dp"
                 app:iconGravity="textStart"
@@ -168,7 +168,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        app:cardBackgroundColor="@color/eve_surface"
+                        app:cardBackgroundColor="@color/eve_card_bg"
                         app:cardCornerRadius="@dimen/eve_radius_card"
                         app:cardElevation="0dp"
                         app:strokeColor="@color/eve_stroke"
@@ -472,7 +472,7 @@
                         android:clickable="true"
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackground"
-                        app:cardBackgroundColor="@color/eve_surface"
+                        app:cardBackgroundColor="@color/eve_card_bg"
                         app:cardCornerRadius="@dimen/eve_radius_card"
                         app:cardElevation="0dp"
                         app:strokeColor="@color/eve_stroke"
@@ -508,7 +508,7 @@
                                         android:fontFamily="@font/poppins_medium"
                                         android:text="Overall Rank"
                                         android:textColor="@color/eve_text_secondary"
-                                        android:textSize="11sp" />
+                                        android:textSize="12.5sp" />
 
                                     <TextView
                                         android:id="@+id/tvRank"
@@ -535,7 +535,7 @@
                                         android:fontFamily="@font/poppins_medium"
                                         android:text="Percentile Score"
                                         android:textColor="@color/eve_text_secondary"
-                                        android:textSize="11sp" />
+                                        android:textSize="12.5sp" />
 
                                     <TextView
                                         android:id="@+id/tvPercentile"
@@ -573,7 +573,7 @@
                                         android:fontFamily="@font/poppins_semibold"
                                         android:text="Batch Performance"
                                         android:textColor="@color/eve_text"
-                                        android:textSize="11sp" />
+                                        android:textSize="12.5sp" />
 
                                     <TextView
                                         android:id="@+id/tvTopperAvg"
@@ -603,7 +603,7 @@
                                         android:fontFamily="@font/poppins_semibold"
                                         android:text="Historical Best &amp; Avg"
                                         android:textColor="@color/eve_text"
-                                        android:textSize="11sp" />
+                                        android:textSize="12.5sp" />
 
                                     <TextView
                                         android:id="@+id/tvHistoryBestAvg"
@@ -633,7 +633,7 @@
                             android:id="@+id/cardCutoffVerdict"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            app:cardBackgroundColor="@color/eve_surface"
+                            app:cardBackgroundColor="@color/eve_card_bg"
                             app:cardCornerRadius="@dimen/eve_radius_card"
                             app:cardElevation="0dp"
                             app:strokeColor="@color/eve_stroke"
@@ -694,7 +694,7 @@
                                         android:paddingVertical="4dp"
                                         android:text="Checking..."
                                         android:textColor="@color/eve_text_secondary"
-                                        android:textSize="11sp" />
+                                        android:textSize="12sp" />
                                 </LinearLayout>
 
                                 <View
@@ -720,7 +720,7 @@
                                             android:fontFamily="@font/poppins_medium"
                                             android:text="Required Cutoff"
                                             android:textColor="@color/eve_text_secondary"
-                                            android:textSize="11sp" />
+                                            android:textSize="12.5sp" />
 
                                         <TextView
                                             android:id="@+id/tvCutoffValue"
@@ -745,7 +745,7 @@
                                             android:fontFamily="@font/poppins_medium"
                                             android:text="Your Score"
                                             android:textColor="@color/eve_text_secondary"
-                                            android:textSize="11sp" />
+                                            android:textSize="12.5sp" />
 
                                         <TextView
                                             android:id="@+id/tvCutoffScore"
@@ -812,7 +812,7 @@
                         android:clickable="true"
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackground"
-                        app:cardBackgroundColor="@color/eve_surface"
+                        app:cardBackgroundColor="@color/eve_card_bg"
                         app:cardCornerRadius="@dimen/eve_radius_card"
                         app:cardElevation="0dp"
                         app:strokeColor="@color/eve_stroke"
@@ -869,7 +869,7 @@
                                         android:gravity="center"
                                         android:text="Attempted"
                                         android:textColor="@color/eve_text_secondary"
-                                        android:textSize="10sp" />
+                                        android:textSize="12sp" />
                                 </LinearLayout>
 
                                 <LinearLayout
@@ -900,7 +900,7 @@
                                         android:gravity="center"
                                         android:text="Accuracy"
                                         android:textColor="@color/eve_text_secondary"
-                                        android:textSize="10sp" />
+                                        android:textSize="12sp" />
                                 </LinearLayout>
 
                                 <LinearLayout
@@ -930,7 +930,7 @@
                                         android:gravity="center"
                                         android:text="Avg / Q"
                                         android:textColor="@color/eve_text_secondary"
-                                        android:textSize="10sp" />
+                                        android:textSize="12sp" />
                                 </LinearLayout>
                             </LinearLayout>
                         </LinearLayout>
@@ -973,7 +973,7 @@
                             android:fontFamily="@font/poppins_semibold"
                             android:text="Question Palette"
                             android:textColor="?attr/colorOnSurface"
-                            android:textSize="13sp" />
+                            android:textSize="14sp" />
 
                         <!-- Palette Legend -->
                         <LinearLayout
@@ -993,10 +993,10 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="4dp"
                                 android:layout_marginEnd="8dp"
-                                android:fontFamily="@font/poppins_regular"
+                                android:fontFamily="@font/poppins_medium"
                                 android:text="Right"
                                 android:textColor="@color/eve_text_secondary"
-                                android:textSize="11.5sp" />
+                                android:textSize="12.5sp" />
 
                             <!-- Wrong Dot -->
                             <View
@@ -1009,10 +1009,10 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="4dp"
                                 android:layout_marginEnd="8dp"
-                                android:fontFamily="@font/poppins_regular"
+                                android:fontFamily="@font/poppins_medium"
                                 android:text="Wrong"
                                 android:textColor="@color/eve_text_secondary"
-                                android:textSize="11.5sp" />
+                                android:textSize="12.5sp" />
 
                             <!-- Skipped Dot -->
                             <View
@@ -1024,10 +1024,10 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="4dp"
-                                android:fontFamily="@font/poppins_regular"
+                                android:fontFamily="@font/poppins_medium"
                                 android:text="Skipped"
                                 android:textColor="@color/eve_text_secondary"
-                                android:textSize="11.5sp" />
+                                android:textSize="12.5sp" />
                         </LinearLayout>
                     </LinearLayout>
 
