@@ -107,3 +107,16 @@
 - [x] `./gradlew testDebugUnitTest assembleDebug` passed (194 tests, no failures); backend `npm test` passed (68 tests); backend `npm run build` passed; all ten migrations applied in SQLite; `git diff --check` passed.
 - [x] GitHub Actions deployed the Worker, applied D1 migrations, and passed live production smoke tests for the pushed changes ([run 37424680290](https://github.com/vishu762701/eve-mock-test-app/actions/runs/37424680290)).
 - [ ] Emulator/device visual and functional checks remain pending. `adb` cannot start in this environment due to a missing linker symbol, and no emulator executable is available. Build/test success is not recorded as UI verification.
+
+## Home Banner Consolidation and Test Thin Material (2026-10-06)
+
+- [x] Replaced the separate Home Hero and banner card with one admin-managed, rounded Home Banner surface; retained multi-banner swipe/rotation inside that surface and removed the old dots/card presentation.
+- [x] Added optional banner URL/CTA label storage and validation through additive migration `0011_home_banner_links.sql`. Admin can preview/publish images, edit or clear links, reorder, and delete banners.
+- [x] Student Home uses the uploaded banner image and shows a CTA only when its valid URL and label are present.
+- [x] Applied Thin Material capsules only to Test answer options A–D and the four bottom Test actions. Selected answer accent is system green; the bottom action area has no extra visible background.
+- [x] Removed the superseded Home Hero editor/runtime code and proven-unused Home wash/dot resources. Older migration history remains untouched.
+- [x] `./gradlew testDebugUnitTest assembleDebug` passed with 195 tests and no failures; `git diff --check` passed.
+- [x] Backend `npm test` passed (71 tests); `npm run build` passed; all 11 migrations applied in order to in-memory SQLite with legacy banner rows readable and link metadata defaulting empty.
+- [x] GitHub [Build Eve APK](https://github.com/vishu762701/eve-mock-test-app/actions/runs/37439163538) passed. GitHub [Worker deploy/D1 migration/live smoke tests](https://github.com/vishu762701/eve-mock-test-app/actions/runs/37439163585) passed.
+- [ ] Android device visual and interaction checks remain pending: `adb` cannot start because its binary is missing `_ZNSt6__ndk113__hash_memoryEPKvm`, no emulator executable is available, and no `androidTest` source set exists.
+- `./gradlew lintDebug` was run and failed on two existing `NewApi` errors for `android:windowLightNavigationBar` in the unchanged theme files (minSdk 24; API requirement 27), with 1,560 warnings. These files were not changed as part of this task.

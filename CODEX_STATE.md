@@ -2,65 +2,70 @@
 
 ## Current Project State
 
-- Eve is a native Android app in the Gradle `:app` module, implemented in Kotlin with XML layouts/resources. It uses Firebase authentication and a Retrofit/OkHttp client for the Cloudflare Worker API. The root `backend/` is a TypeScript/Hono Worker with D1 migrations; `functions/` separately contains Firebase Cloud Functions.
-- The iOS-inspired visual refresh updates shared light/dark tokens, cards, controls, motion helpers, Login, and Home. Login retains the existing email sign-in/sign-up and Google authentication code paths.
-- Home's hero is hidden and empty without enabled content. Admins edit it through the existing content editor; published content is served by the Worker from the D1 `app_content` table.
-- Android attempt submission remains `HistoryRepository` → `EveApiService` `POST /api/attempts/submit` → `backend/src/routes/attempts.ts`. Firestore rules deny direct client creation of `attempts` documents.
+- Eve is a native Android app in the Gradle `:app` module, implemented in Kotlin with XML layouts/resources. Firebase provides authentication; the client calls the TypeScript/Hono Cloudflare Worker in `backend/`, which stores relational data in D1 and media in Supabase Storage. `functions/` contains separate Firebase Cloud Functions.
+- Home has one admin-managed banner surface in the former large hero location. Active banners rotate/swipe inside that surface; images are clipped to its rounded bounds. Each banner can have an optional HTTP(S) URL and CTA label.
+- Admin has one Home Banner manager for image preview/upload, link editing, reorder, and delete. The separate Home Hero editor and its runtime code have been removed.
+- The Test screen applies the Thin Material capsule treatment only to answer options A–D and its four bottom actions. Answer selection is green. Other app controls retain their existing styles.
+- Light app background tokens are pure `#FFFFFF`; dark background tokens are pure `#000000`.
+- Test submission remains server-side through `POST /api/attempts/submit`; authentication, scoring, answer persistence, and navigation code were not changed by the Home Banner/Test appearance task.
 
 ## Last Completed Task
 
-Implemented the requested full iOS-style redesign, rebuilt Login, and added the admin-managed Home hero. Implementation is in commit `eac464b` (`feat: rebuild iOS-style app experience`). Local build, unit, backend, and migration checks passed; device-level visual/functional checks remain outstanding because no usable emulator or device was available.
+Implemented the Home Banner consolidation and scoped Test pill redesign, including additive banner-link persistence, Admin management, student CTA behavior, and removal of obsolete Home Hero/banner presentation code. Implementation commit: `7e2afb1c56a6ac03d5f62bb0514bcb5ea0f09653` (`Redesign home banners and test pills`). The continuity update is a following documentation-only commit.
 
 ## Last Verified Changes
 
-- Added Home hero fields and an additive D1 migration, public redaction for disabled content, authenticated admin draft reads/writes, validation, and tests for the API paths.
-- Added the Home hero editor and app rendering with only the supported Practice, PYQ, and Browse Exams actions.
-- Rebuilt the Login screen while retaining the existing Firebase email and Google sign-in code paths, validation, loading/error handling, session bypass, analytics, and Crashlytics identification in source.
-- Updated shared light/dark resources, card and input shapes, category controls, and reduced-motion-aware touch/motion helpers.
-- Reviewed the source diff and confirmed the changed files are limited to the redesign, related tests, and Home hero backend/API work.
+- Added D1 migration `0011_home_banner_links.sql`; existing banner rows receive empty URL/label defaults and remain readable.
+- Added multipart banner upload with optional links, admin-only link update/clear, URL/label validation, and API coverage for legacy reads, authorization, upload, update/clear, reorder, and delete.
+- Replaced the old Home hero and separate banner card with the single rounded, material-backed Home Banner surface. The CTA is hidden unless its banner has a valid URL and label.
+- Added the Admin link URL/conditional label flow and image preview. Existing banner reorder/delete behavior remains available.
+- Added the Test-only blur pill helper and green answer selection. The bottom action area is transparent; exactly four Test action buttons use the scoped pill style.
+- Removed unused Home Hero runtime code and its proven-unused wash/dot resources. Historical migration `0010_home_hero_content.sql` remains intact; it is not edited retroactively.
+- Main branch CI built the debug APK successfully. The Worker workflow applied D1 migrations, deployed, and passed live production smoke tests for this implementation.
 
 ## Current In-Progress Task
 
-NONE
+NONE. Implementation and repository/CI checks are complete. Android device-side visual and interaction checks remain pending a usable Android runtime.
 
 ## What Remains
 
-- Run the requested visual and functional smoke checks on an Android emulator/device, including light/dark mode, Login success/failure and Google sign-in where credentials permit, Home with empty and published hero content, exam cards, Test, Result, Admin, and a dialog/sheet.
-- Reconcile `README.md` with the current architecture: it says there is no custom backend and describes attempt submission through a callable Cloud Function, while the Android app calls the Cloudflare Worker. The README also describes durable retries as future work; `HistoryRepository` currently retries in memory up to three times.
+- On a working emulator/device, verify Admin image selection/preview/publish/delete, conditional URL/label behavior, Home image/CTA visibility and link opening, answer selection/clear, all four Test actions, and both themes.
+- Reconcile the previously verified README architecture/retry notes: README still describes no custom backend and callable Cloud Function submission, while the app uses the Cloudflare Worker; it also describes durable retries as future work while `HistoryRepository` retries in memory.
 
 ## Known Issues / Blockers
 
-- No verified application defect was found during this task's checks.
-- Runtime UI verification is blocked in this environment: `adb devices` cannot start because its executable cannot link `_ZNSt6__ndk113__hash_memoryEPKvm`, and no emulator executable is available.
+- `adb devices` cannot start in this environment because the installed executable cannot link `_ZNSt6__ndk113__hash_memoryEPKvm`; no emulator executable or `app/src/androidTest` suite is available.
+- `./gradlew lintDebug` reports two `NewApi` errors for `android:windowLightNavigationBar` in the unchanged `values/themes.xml` and `values-night/themes.xml`; minSdk is 24 and that attribute requires API 27. The lint run also reports 1,560 warnings. These theme files were outside this task and were not changed.
 - The README architecture/retry discrepancies listed under What Remains are verified documentation inconsistencies.
 
 ## Verification Status
 
-- `./gradlew testDebugUnitTest assembleDebug`: passed; 194 tests, 0 failures, 0 errors. Android resource/XML processing and Kotlin compilation completed as part of the build.
-- Backend `npm test`: passed, 68 tests. `npm run build`: passed.
-- Applied all ten backend migrations in order to an in-memory SQLite database and confirmed the Home hero columns exist. Backend tests cover public empty/disabled reads, admin read/write authorization, sanitization, and invalid CTA input.
-- Static checks confirmed the existing email/Google auth and analytics/reporting source paths remain, stale old Login references and hardcoded Home hero copy are absent, and raw/assets containing Lottie content were not changed.
-- `git diff --check`: passed. Both light and dark resource variants were inspected.
-- GitHub Actions workflow `Deploy Eve Worker & Apply D1 Migrations` completed successfully for the pushed redesign; its D1 migration, Worker deployment, and live production smoke-test steps passed ([run 37424680290](https://github.com/vishu762701/eve-mock-test-app/actions/runs/37424680290)).
-- No emulator/device launch or screenshot review was possible. A green build and passing tests are not evidence of runtime Android UI correctness.
+- `./gradlew testDebugUnitTest assembleDebug`: passed; 195 tests, 0 failures/errors/skips. Android XML/resource processing, Kotlin compilation, and debug APK packaging completed.
+- Backend `npm test`: passed; 71 tests. `npm run build`: passed.
+- Applied all 11 backend migrations in order to an in-memory SQLite database and confirmed a pre-link banner reads back with empty `link_url` and `link_label` defaults.
+- Static checks confirmed the scoped Material pill style is used by exactly the four Test actions, no obsolete Home Hero runtime/resource references remain, and light/dark background tokens are white/black.
+- `git diff --check`: passed.
+- GitHub Actions [Build Eve APK](https://github.com/vishu762701/eve-mock-test-app/actions/runs/37439163538) and [Deploy Eve Worker & Apply D1 Migrations](https://github.com/vishu762701/eve-mock-test-app/actions/runs/37439163585) both completed successfully. The Worker run's D1 migration, deployment, and live production smoke-test steps passed.
+- Android UI behavior, image rendering, touch interactions, and light/dark screenshots were not verified on-device. Build/test success is not recorded as UI verification.
 
 ## Last Commit
 
-`eac464b` — `feat: rebuild iOS-style app experience` (implementation commit). This state/progress refresh is committed separately as a documentation-only follow-up.
+`7e2afb1c56a6ac03d5f62bb0514bcb5ea0f09653` — `Redesign home banners and test pills`. The immediately following commit records this continuity update.
 
 ## Next Recommended Action
 
-Run the pending emulator/device smoke checks when a working Android runtime is available. Until then, the local implementation and API checks are complete, with runtime UI behavior explicitly unverified.
+Run the pending Android device smoke checks when a working emulator/device is available.
 
 ## Important Project Decisions
 
-- The GitHub repository is the project's source of truth. Preserve existing app behavior when changing presentation.
-- Home hero content belongs in the existing Worker/D1 `app_content` store. Public reads redact disabled drafts; admin draft reads and writes require admin authorization. CTA actions are limited to `open_practice`, `open_pyq`, and `browse_exams`.
-- Keep both light and dark resource variants, use blue semantically, and respect the system reduced-motion setting.
-- Android attempt submission is server-side through the Worker endpoint; Firestore rules prohibit direct client creation of attempt records.
+- The GitHub repository is the project's single source of truth. Preserve existing auth, exam, test scoring, answer persistence, and navigation behavior when changing presentation.
+- Store banner URL and label alongside the image metadata in `home_banners`. Migration `0011` is additive and backward-compatible; keep older migration history unchanged.
+- Support multiple active banners inside the one Home surface. Do not restore a second banner card or old dot indicator UI.
+- Only render a banner CTA for a valid HTTP(S) URL with a usable stored label. Clearing the URL also clears the label and removes the CTA on the next Home banner fetch.
+- Keep the Test Thin Material treatment scoped to answer options and the four bottom actions. Selected answers use the existing system green semantic token; Admin answer editors retain their existing style.
+- Keep light app backgrounds `#FFFFFF` and dark app backgrounds `#000000`. Use the existing BlurView stack for matte translucent material; do not add glossy, gradient, or 3D effects.
 - Keep `Constants.ADMIN_EMAILS` synchronized with `isHardcodedAdmin()` in `firestore.rules`, as required by `GEMINI.md`.
 - Leave `functions/package-lock.json` untouched and untracked; it is ignored by `.gitignore`.
-- Existing Lottie assets and playback behavior were not changed by this redesign.
 
 ## Session Continuity Rules
 
