@@ -291,7 +291,9 @@ class MainActivity : EveBaseActivity() {
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
 
-        binding.ivProfile.setOnClickListener {
+        com.eve.app.util.EveBlurHelper.applyRenderEffect(binding.topBarContainer, 20f)
+
+        com.eve.app.util.EveTouchHelper.attachTactileFeedback(binding.ivProfile) {
             captureDrawerBlur()
             binding.drawerLayout.openDrawer(GravityCompat.START)
         }
@@ -761,24 +763,8 @@ class MainActivity : EveBaseActivity() {
             windowInsets
         }
 
-        binding.cardFloatingAirplane.setOnTouchListener { v, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    v.animate().scaleX(0.92f).scaleY(0.92f).setDuration(100).start()
-                }
-                MotionEvent.ACTION_UP -> {
-                    v.animate().scaleX(1f).scaleY(1f).setDuration(100).start()
-                    v.performClick()
-                }
-                MotionEvent.ACTION_CANCEL -> {
-                    v.animate().scaleX(1f).scaleY(1f).setDuration(100).start()
-                }
-            }
-            true
-        }
-
-        binding.cardFloatingAirplane.setOnClickListener {
-            val url = activeFloatingLinkUrl ?: return@setOnClickListener
+        com.eve.app.util.EveTouchHelper.attachTactileFeedback(binding.cardFloatingAirplane) {
+            val url = activeFloatingLinkUrl ?: return@attachTactileFeedback
             try {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                 startActivity(intent)
@@ -834,8 +820,8 @@ class MainActivity : EveBaseActivity() {
                     .scaleX(1f)
                     .scaleY(1f)
                     .alpha(1f)
-                    .setDuration(250)
-                    .setInterpolator(OvershootInterpolator(1.2f))
+                    .setDuration(com.eve.app.util.EveMotionHelper.DURATION_SPRING_MS)
+                    .setInterpolator(com.eve.app.util.EveMotionHelper.springInterpolator)
                     .start()
             }
             val animScale = Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
@@ -1015,6 +1001,7 @@ class MainActivity : EveBaseActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        com.eve.app.util.EveBlurHelper.clearRenderEffect(binding.topBarContainer)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             try {
                 binding.mainContentContainer.setRenderEffect(null)

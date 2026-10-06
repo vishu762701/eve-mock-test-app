@@ -1,27 +1,28 @@
 package com.eve.app.util
 
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import android.view.animation.PathInterpolator
 
 /**
- * Apple iOS 26 Tactile Touch Interaction Helper.
- * Provides immediate physical compression on touch-down (scale ~0.982) with subtle luminance/alpha shift
+ * Apple iOS Tactile Touch Interaction Helper (Section 2d).
+ * Provides physical compression on touch-down (scale 0.965f) with subtle opacity dip (0.88f)
  * and light haptic feedback, followed by smooth spring recovery on release.
- * Target timing: 80-120ms press-in, 150-220ms release.
+ * In addition to ripple/highlight for accessibility.
  */
 object EveTouchHelper {
 
-    private val fastOutSlow = FastOutSlowInInterpolator()
+    val standardInterpolator = PathInterpolator(0.4f, 0.0f, 0.2f, 1.0f)
+    const val DEFAULT_PRESS_SCALE = 0.965f
+    const val DEFAULT_PRESS_ALPHA = 0.88f
 
     @SuppressLint("ClickableViewAccessibility")
     fun attachTactileFeedback(
         view: View,
-        pressScale: Float = 0.982f,
+        pressScale: Float = DEFAULT_PRESS_SCALE,
+        pressAlpha: Float = DEFAULT_PRESS_ALPHA,
         enableHaptic: Boolean = true,
         onClick: (() -> Unit)? = null
     ) {
@@ -29,7 +30,7 @@ object EveTouchHelper {
         view.setOnTouchListener { v, event ->
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
-                    animateScale(v, pressScale, 90L)
+                    animatePress(v, pressScale, pressAlpha, 100L)
                     if (enableHaptic) {
                         try {
                             v.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
@@ -38,7 +39,7 @@ object EveTouchHelper {
                     false
                 }
                 MotionEvent.ACTION_UP -> {
-                    animateScale(v, 1.0f, 180L)
+                    animateRelease(v, 200L)
                     if (onClick != null) {
                         v.performClick()
                         onClick.invoke()
@@ -48,7 +49,7 @@ object EveTouchHelper {
                     }
                 }
                 MotionEvent.ACTION_CANCEL -> {
-                    animateScale(v, 1.0f, 180L)
+                    animateRelease(v, 200L)
                     false
                 }
                 else -> false
@@ -56,12 +57,23 @@ object EveTouchHelper {
         }
     }
 
-    private fun animateScale(view: View, targetScale: Float, durationMs: Long) {
+    private fun animatePress(view: View, targetScale: Float, targetAlpha: Float, durationMs: Long) {
         view.animate()
             .scaleX(targetScale)
             .scaleY(targetScale)
+            .alpha(targetAlpha)
             .setDuration(durationMs)
-            .setInterpolator(fastOutSlow)
+            .setInterpolator(standardInterpolator)
+            .start()
+    }
+
+    private fun animateRelease(view: View, durationMs: Long) {
+        view.animate()
+            .scaleX(1.0f)
+            .scaleY(1.0f)
+            .alpha(1.0f)
+            .setDuration(durationMs)
+            .setInterpolator(standardInterpolator)
             .start()
     }
 }

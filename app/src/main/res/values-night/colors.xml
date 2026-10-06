@@ -1,44 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Apple iOS 26 Semantic Design System (Dark Theme) -->
+    <!-- Apple iOS Liquid Glass Semantic Design System (Dark Theme) -->
     <!-- Semantic Backgrounds & Surfaces -->
     <color name="eve_system_background">#000000</color>
     <color name="eve_secondary_background">#1C1C1E</color>
     <color name="eve_tertiary_background">#2C2C2E</color>
     <color name="eve_canvas">#000000</color>
     <color name="eve_surface">#1C1C1E</color>
-    <color name="eve_surface_variant">#1C1C1E</color>
-    <color name="eve_surface_2">#1C1C1E</color>
-    <color name="eve_border">#2C2C2E</color>
-    <color name="eve_stroke">#2C2C2E</color>
-    <color name="eve_separator">#38383A</color>
+    <color name="eve_surface_variant">#2C2C2E</color>
+    <color name="eve_surface_2">#2C2C2E</color>
+    <color name="eve_card_bg">#1C1C1E</color>
+    <color name="eve_bg">#000000</color>
+    <color name="eve_background">#000000</color>
+    <color name="eve_highlight_bg">#2C2C2E</color>
+
+    <!-- Semantic Labels -->
+    <color name="eve_label_primary">#FFFFFF</color>
+    <color name="eve_label_secondary">#99EBEBF5</color>
+    <color name="eve_label_tertiary">#4DEBEBF5</color>
+    <color name="eve_text">#FFFFFF</color>
+    <color name="eve_text_secondary">#99EBEBF5</color>
+    <color name="eve_header_ink">#000000</color>
+    <color name="eve_header_ink_text">#FFFFFF</color>
+    <color name="eve_header_ink_secondary">#99EBEBF5</color>
+    <color name="eve_header_ink_icon">#FFFFFF</color>
+
+    <!-- Semantic Separators & Fills -->
+    <color name="eve_separator">#A6545458</color>
+    <color name="eve_border">#A6545458</color>
+    <color name="eve_stroke">#A6545458</color>
     <color name="eve_fill_primary">#5C787880</color>
     <color name="eve_fill_secondary">#52787880</color>
     <color name="eve_fill_tertiary">#3D767680</color>
 
-    <!-- Semantic Labels -->
-    <color name="eve_label_primary">#FFFFFF</color>
-    <color name="eve_label_secondary">#8E8E93</color>
-    <color name="eve_label_tertiary">#636366</color>
-    <color name="eve_text">#F5F5F7</color>
-    <color name="eve_text_secondary">#9A9BA5</color>
-    <color name="eve_header_ink">#000000</color>
-    <color name="eve_header_ink_text">#F5F5F7</color>
-    <color name="eve_header_ink_secondary">#9A9BA5</color>
-    <color name="eve_header_ink_icon">#FFFFFF</color>
-
-    <!-- Apple iOS 26 System Colors -->
-    <color name="eve_system_blue">#0091FF</color>
+    <!-- Apple System Colors -->
+    <color name="eve_system_blue">#0A84FF</color>
     <color name="eve_system_green">#30D158</color>
-    <color name="eve_system_red">#FF4245</color>
-    <color name="eve_system_orange">#FF9230</color>
-    <color name="eve_system_yellow">#FFD600</color>
-    <color name="eve_system_purple">#DB34F2</color>
+    <color name="eve_system_red">#FF453A</color>
+    <color name="eve_system_orange">#FF9F0A</color>
+    <color name="eve_system_yellow">#FFD60A</color>
+    <color name="eve_system_purple">#BF5AF2</color>
     <color name="eve_system_gray">#8E8E93</color>
 
     <!-- Liquid Glass Floating Layer & Materials -->
     <color name="eve_glass_card_fill">#CC1C1C1E</color>
-    <color name="eve_glass_card_hairline">#1AFFFFFF</color>
+    <color name="eve_glass_card_hairline">#A6545458</color>
     <color name="eve_material_ultra_thin">#261C1C1E</color>
     <color name="eve_material_thin">#4D1C1C1E</color>
     <color name="eve_material_regular">#801C1C1E</color>
@@ -46,83 +52,83 @@
     <color name="eve_material_ultra_thick">#1C1C1E</color>
     <color name="eve_material_chrome">#B32C2C2E</color>
 
-    <color name="eve_bg">#000000</color>
-    <color name="eve_background">#000000</color>
-    <color name="eve_card_bg">#1C1C1E</color>
-    <color name="eve_highlight_bg">#1C1C1E</color>
+    <!-- Core Interactive Tokens -->
+    <color name="eve_primary">#0A84FF</color>
+    <color name="eve_primary_dark">#0040DD</color>
+    <color name="eve_accent">#0A84FF</color>
+    <color name="eve_banner_text">#FFFFFF</color>
+    <color name="eve_on_primary">#FFFFFF</color>
 
-    <!-- Inverting Core Tokens -->
-    <color name="eve_primary">#F5F5F7</color>
-    <color name="eve_primary_dark">#242424</color>
-    <color name="eve_accent">#0091FF</color>
-    <color name="eve_banner_text">#F5F5F7</color>
-    <color name="eve_on_primary">#000000</color>
+    <!-- Semantic Status & Tiles (Apple Dark System Palette) -->
+    <!-- Success / Right -->
+    <color name="eve_status_success">#30D158</color>
+    <color name="success">#30D158</color>
+    <color name="eve_green">#30D158</color>
+    <color name="eve_green_text">#30D158</color>
+    <color name="eve_green_fill">#162E1D</color>
+    <color name="eve_tile_right_fill">#162E1D</color>
+    <color name="eve_tile_right_text">#30D158</color>
+    <color name="eve_tile_right_border">@android:color/transparent</color>
+    <color name="eve_status_success_container">#162E1D</color>
+    <color name="eve_progress_green">#30D158</color>
 
-    <!-- Semantic Tiles: right/answered = fill #223E1F / text #6DE69E / border #5FD08A -->
-    <color name="eve_tile_right_fill">#223E1F</color>
-    <color name="eve_tile_right_text">#6DE69E</color>
-    <color name="eve_tile_right_border">#5FD08A</color>
-    <color name="eve_green">#6DE69E</color>
-    <color name="eve_green_fill">#223E1F</color>
-    <color name="eve_green_text">#6DE69E</color>
-    <color name="eve_status_success">#6DE69E</color>
-    <color name="success">#6DE69E</color>
-    <color name="eve_status_success_container">#223E1F</color>
-    <color name="eve_progress_green">#6DE69E</color>
+    <!-- Error / Wrong -->
+    <color name="eve_status_error">#FF453A</color>
+    <color name="error">#FF453A</color>
+    <color name="eve_red">#FF453A</color>
+    <color name="eve_red_text">#FF453A</color>
+    <color name="eve_red_fill">#3A1A18</color>
+    <color name="eve_tile_wrong_fill">#3A1A18</color>
+    <color name="eve_tile_wrong_text">#FF453A</color>
+    <color name="eve_tile_wrong_border">@android:color/transparent</color>
+    <color name="eve_status_error_container">#3A1A18</color>
+    <color name="eve_error_bg">#3A1A18</color>
+    <color name="eve_error_text">#FF453A</color>
+    <color name="eve_header_warning">#FF453A</color>
+    <color name="eve_timer_warning">#FF453A</color>
+    <color name="timer_warning">#FF453A</color>
+    <color name="eve_login_error">#FF453A</color>
 
-    <!-- Semantic Tiles: wrong = fill #64201E / text #FFA199 -->
-    <color name="eve_tile_wrong_fill">#64201E</color>
-    <color name="eve_tile_wrong_text">#FFA199</color>
-    <color name="eve_tile_wrong_border">#FFA199</color>
-    <color name="eve_red">#FFA199</color>
-    <color name="eve_red_fill">#64201E</color>
-    <color name="eve_red_text">#FFA199</color>
-    <color name="eve_status_error">#FFA199</color>
-    <color name="error">#FFA199</color>
-    <color name="eve_status_error_container">#64201E</color>
-    <color name="eve_error_bg">#64201E</color>
-    <color name="eve_error_text">#FFA199</color>
-    <color name="eve_header_warning">#C62828</color>
-    <color name="eve_timer_warning">#FFA199</color>
-    <color name="timer_warning">#FFA199</color>
-    <color name="eve_login_error">#FFA199</color>
+    <!-- Warning / Medium -->
+    <color name="eve_status_warning">#FF9F0A</color>
+    <color name="warning">#FF9F0A</color>
+    <color name="caution">#FF9F0A</color>
+    <color name="eve_gold">#FF9F0A</color>
+    <color name="eve_amber">#FF9F0A</color>
+    <color name="eve_tile_medium_fill">#3A2810</color>
+    <color name="eve_tile_medium_text">#FF9F0A</color>
+    <color name="eve_tile_medium_border">@android:color/transparent</color>
+    <color name="eve_status_warning_container">#3A2810</color>
+    <color name="eve_status_warning_stroke">@android:color/transparent</color>
+    <color name="eve_offline_bg">#3A2810</color>
+    <color name="eve_offline_text">#FF9F0A</color>
 
-    <!-- Semantic Tiles: medium (accuracy, marked for review) = fill #68410E / text #F7C564 -->
-    <color name="eve_tile_medium_fill">#68410E</color>
-    <color name="eve_tile_medium_text">#F7C564</color>
-    <color name="eve_tile_medium_border">#F7C564</color>
-    <color name="eve_amber">#F7C564</color>
-    <color name="eve_status_warning">#F7C564</color>
-    <color name="warning">#F7C564</color>
-    <color name="caution">#F7C564</color>
-    <color name="eve_gold">#F7C564</color>
-    <color name="eve_status_warning_container">#68410E</color>
-    <color name="eve_status_warning_stroke">#F7C564</color>
-    <color name="eve_offline_bg">#68410E</color>
-    <color name="eve_offline_text">#F7C564</color>
+    <!-- Unattempted / Surface 2 Tile -->
+    <color name="eve_tile_unattempted_fill">#2C2C2E</color>
+    <color name="eve_tile_unattempted_text">#99EBEBF5</color>
+    <color name="eve_tile_unattempted_border">@android:color/transparent</color>
 
     <!-- Notification Dot (red) -->
-    <color name="eve_notification_dot">#FFA199</color>
-    <color name="eve_orange">#FF6A1F</color>
+    <color name="eve_notification_dot">#FF453A</color>
+    <color name="eve_orange">#FF9F0A</color>
 
-    <!-- Selection Accents: Yellow #FFCA18 with #0B0B0D content (both themes) -->
-    <!-- ONLY for selected filter chips, Premium crown/star, filled bookmark star -->
-    <color name="eve_chip_selected_bg">#FFCA18</color>
-    <color name="eve_chip_selected_text">#0B0B0D</color>
-    <color name="eve_star_fill">#FFCA18</color>
+    <!-- Selection Accents: Yellow for Premium / Stars -->
+    <color name="eve_chip_selected_bg">#0A84FF</color>
+    <color name="eve_chip_selected_text">#FFFFFF</color>
+    <color name="eve_star_fill">#FFD700</color>
     <color name="eve_star_stroke">@android:color/transparent</color>
-    <color name="eve_star_outline_stroke">#9A9BA5</color>
-    <color name="eve_palette_marked_dot">#F7C564</color>
-    <color name="eve_sparkle">#FFCA18</color>
+    <color name="eve_star_outline_stroke">#99EBEBF5</color>
+    <color name="eve_palette_marked_dot">#FF9F0A</color>
+    <color name="eve_sparkle">#FFD700</color>
 
-    <!-- Selection Accents: iOS 26 Segmented Control & Highlights (Dark Mode) -->
+    <!-- Segmented Control & Highlights -->
     <color name="eve_tab_selected_bg">#636366</color>
     <color name="eve_tab_selected_text">#FFFFFF</color>
     <color name="eve_tab_unselected_text">#8E8E93</color>
-    <color name="eve_chip_hi_bg">#D8CEF8</color>
-    <color name="eve_chip_hi_text">#1B1830</color>
+    <color name="eve_chip_hi_bg">#1F2B3E</color>
+    <color name="eve_chip_hi_text">#0A84FF</color>
 
-    <!-- Signature Accent: Lilac Scale (Task B: Brand moments, selections, tints - Dark Mode) -->
+    <!-- Signature Accent: Lilac Scale -->
     <color name="eve_lilac_subtle">#1F1C2B</color>
     <color name="eve_lilac_tint">#2A253D</color>
     <color name="eve_lilac_fill">#3E355E</color>
@@ -130,114 +136,114 @@
     <color name="eve_lilac_text">#DDD7FA</color>
     <color name="eve_lilac_pressed">#4C4173</color>
 
-    <!-- Curated Category Tile Palette (Task B: Visual scan & category differentiation - Dark Mode) -->
+    <!-- Category Tile Palettes -->
     <color name="eve_category_tint_lilac_bg">#29233D</color>
-    <color name="eve_category_tint_lilac_fg">#DDD7FA</color>
+    <color name="eve_category_tint_lilac_fg">#BF5AF2</color>
     <color name="eve_category_tint_green_bg">#1B2E1D</color>
-    <color name="eve_category_tint_green_fg">#8DEAB0</color>
+    <color name="eve_category_tint_green_fg">#30D158</color>
     <color name="eve_category_tint_amber_bg">#33240F</color>
-    <color name="eve_category_tint_amber_fg">#FAD386</color>
+    <color name="eve_category_tint_amber_fg">#FF9F0A</color>
     <color name="eve_category_tint_rose_bg">#361A19</color>
-    <color name="eve_category_tint_rose_fg">#FFADA6</color>
+    <color name="eve_category_tint_rose_fg">#FF453A</color>
     <color name="eve_category_tint_blue_bg">#182638</color>
-    <color name="eve_category_tint_blue_fg">#89C4FD</color>
+    <color name="eve_category_tint_blue_fg">#0A84FF</color>
     <color name="eve_category_tint_teal_bg">#142E2C</color>
-    <color name="eve_category_tint_teal_fg">#7CE0D6</color>
+    <color name="eve_category_tint_teal_fg">#64D2FF</color>
 
-    <!-- Reattempt Orange Pill (confident, premium warm orange, not neon) -->
-    <color name="eve_reattempt_bg">#341B0D</color>
-    <color name="eve_reattempt_stroke">#663012</color>
-    <color name="eve_reattempt_text">#FF9E66</color>
+    <!-- Reattempt Pill -->
+    <color name="eve_reattempt_bg">#0A84FF</color>
+    <color name="eve_reattempt_stroke">@android:color/transparent</color>
+    <color name="eve_reattempt_text">#FFFFFF</color>
 
-    <!-- Primary Buttons: Inverting pill, dark = white fill + #0B0B0D text -->
-    <color name="eve_button_primary_bg">#FFFFFF</color>
-    <color name="eve_button_primary_text">#0B0B0D</color>
-    <color name="eve_button_bg">#FFFFFF</color>
-    <color name="eve_button_text">#0B0B0D</color>
-    <color name="eve_button_neutral_bg">#FFFFFF</color>
-    <color name="eve_button_neutral_text">#0B0B0D</color>
-    <color name="eve_button_soft_bg">#1C1C1E</color>
-    <color name="eve_button_soft_text">#F5F5F7</color>
-    <color name="eve_button_outlined_stroke">#2C2C2E</color>
-    <color name="eve_button_outlined_text">#F5F5F7</color>
+    <!-- Buttons: Primary = systemBlue #0A84FF, Soft = surface 2 #2C2C2E -->
+    <color name="eve_button_primary_bg">#0A84FF</color>
+    <color name="eve_button_primary_text">#FFFFFF</color>
+    <color name="eve_button_bg">#0A84FF</color>
+    <color name="eve_button_text">#FFFFFF</color>
+    <color name="eve_button_neutral_bg">#0A84FF</color>
+    <color name="eve_button_neutral_text">#FFFFFF</color>
+    <color name="eve_button_soft_bg">#2C2C2E</color>
+    <color name="eve_button_soft_text">#FFFFFF</color>
+    <color name="eve_button_outlined_stroke">#A6545458</color>
+    <color name="eve_button_outlined_text">#0A84FF</color>
 
-    <!-- Test screen option selection: right tile fill + 1.5dp right border + green radio dot -->
-    <color name="eve_option_selected_bg">#293B27</color>
-    <color name="eve_option_selected_stroke">#5FD08A</color>
-    <color name="eve_option_dot_selected">#7FE3A5</color>
+    <!-- Test screen option selection -->
+    <color name="eve_option_selected_bg">#1F2B3E</color>
+    <color name="eve_option_selected_stroke">#0A84FF</color>
+    <color name="eve_option_dot_selected">#0A84FF</color>
 
-    <!-- Exam-card icon tile (dark: fill #1C1C1E with a 1dp #2C2C2E hairline) -->
+    <!-- Exam-card icon tile -->
     <color name="eve_exam_icon_tile_bg">#1C1C1E</color>
     <color name="eve_exam_icon_tile_border">#2C2C2E</color>
 
-    <!-- Streak pill (dark: surface-2 fill) -->
-    <color name="eve_streak_pill_bg">#1C1C1E</color>
-    <color name="eve_streak_pill_text">#F5F5F7</color>
+    <!-- Streak pill -->
+    <color name="eve_streak_pill_bg">#2C2C2E</color>
+    <color name="eve_streak_pill_text">#FFFFFF</color>
 
     <!-- Report Button -->
-    <color name="eve_report_red">#FF9A92</color>
-    <color name="eve_report_amber">#F2C26B</color>
-    <color name="eve_report_button_bg">#602625</color>
-    <color name="eve_report_button_bg_pressed">#7A3534</color>
+    <color name="eve_report_red">#FF453A</color>
+    <color name="eve_report_amber">#FF9F0A</color>
+    <color name="eve_report_button_bg">#3A1A18</color>
+    <color name="eve_report_button_bg_pressed">#4D2220</color>
 
-    <!-- Premium tokens (re-pointed by role; lime eliminated) -->
-    <color name="eve_premium">#FFCA18</color>
-    <color name="eve_premium_text">#FFCA18</color>
-    <color name="eve_premium_line">#FFCA18</color>
+    <!-- Premium tokens -->
+    <color name="eve_premium">#FFD700</color>
+    <color name="eve_premium_text">#FFD700</color>
+    <color name="eve_premium_line">#FFD700</color>
     <color name="eve_premium_container">#1C1C1E</color>
-    <color name="eve_chip_premium_stroke">#FFCA18</color>
-    <color name="eve_on_premium">#0B0B0D</color>
+    <color name="eve_chip_premium_stroke">#FFD700</color>
+    <color name="eve_on_premium">#000000</color>
 
-    <color name="eve_silver">#C7D0D9</color>
-    <color name="eve_bronze">#E3A66D</color>
-    <color name="eve_grey">#9A9BA5</color>
-    <color name="timer_normal">#F5F5F7</color>
-    <color name="eve_stat_mini_bg">#24FFFFFF</color>
+    <color name="eve_silver">#8E8E93</color>
+    <color name="eve_bronze">#A2845E</color>
+    <color name="eve_grey">#8E8E93</color>
+    <color name="timer_normal">#FFFFFF</color>
+    <color name="eve_stat_mini_bg">#2C2C2E</color>
 
     <!-- Status & Info -->
-    <color name="eve_status_info">#6CB6FF</color>
-    <color name="eve_target_exam_check_blue">#6CB6FF</color>
+    <color name="eve_status_info">#0A84FF</color>
+    <color name="eve_target_exam_check_blue">#0A84FF</color>
     <color name="eve_shimmer_base">#1C1C1E</color>
     <color name="eve_shimmer_highlight">#2C2C2E</color>
     <color name="eve_white">#FFFFFF</color>
 
     <!-- Charts -->
-    <color name="eve_chart_primary">#F5F5F7</color>
-    <color name="eve_chart_fill">#22F5F5F7</color>
+    <color name="eve_chart_primary">#0A84FF</color>
+    <color name="eve_chart_fill">#260A84FF</color>
     <color name="eve_chart_grid">#2C2C2E</color>
-    <color name="eve_chart_label">#9A9BA5</color>
+    <color name="eve_chart_label">#99EBEBF5</color>
 
     <!-- Bulletin / Toasts -->
-    <color name="eve_bulletin_bg">#EBF5F5F7</color>
-    <color name="eve_bulletin_stroke">#26FFFFFF</color>
-    <color name="eve_bulletin_text">#0B0B0D</color>
-    <color name="eve_bulletin_action">#FFCA18</color>
+    <color name="eve_bulletin_bg">#E61C1C1E</color>
+    <color name="eve_bulletin_stroke">#1AFFFFFF</color>
+    <color name="eve_bulletin_text">#FFFFFF</color>
+    <color name="eve_bulletin_action">#0A84FF</color>
 
     <!-- Login -->
-    <color name="eve_login_button_bg">#FFFFFF</color>
-    <color name="eve_login_button_stroke">#FFFFFF</color>
-    <color name="eve_login_glass_bg">#1C1C1E</color>
-    <color name="eve_login_glass_border">#2C2C2E</color>
-    <color name="eve_login_input_bg">#1C1C1E</color>
-    <color name="eve_login_input_border">#2C2C2E</color>
-    <color name="eve_login_input_border_focused">#0091FF</color>
+    <color name="eve_login_button_bg">#0A84FF</color>
+    <color name="eve_login_button_stroke">#0A84FF</color>
+    <color name="eve_login_glass_bg">#CC1C1C1E</color>
+    <color name="eve_login_glass_border">#A6545458</color>
+    <color name="eve_login_input_bg">#2C2C2E</color>
+    <color name="eve_login_input_border">@android:color/transparent</color>
+    <color name="eve_login_input_border_focused">#0A84FF</color>
     <color name="eve_login_text">#FFFFFF</color>
-    <color name="eve_login_text_secondary">#8E8E93</color>
-    <color name="eve_login_text_hint">#636366</color>
+    <color name="eve_login_text_secondary">#99EBEBF5</color>
+    <color name="eve_login_text_hint">#4DEBEBF5</color>
     <color name="eve_login_google_bg">#1C1C1E</color>
-    <color name="eve_login_google_border">#38383A</color>
+    <color name="eve_login_google_border">#A6545458</color>
     <color name="eve_login_google_text">#FFFFFF</color>
 
     <!-- Drawer -->
-    <color name="eve_drawer_glass_bg">#1C1C1E</color>
+    <color name="eve_drawer_glass_bg">#CC1C1C1E</color>
     <color name="eve_drawer_glass_base">#1C1C1E</color>
     <color name="eve_drawer_glass_tint">#1C1C1E</color>
-    <color name="eve_drawer_glass_border">#2C2C2E</color>
+    <color name="eve_drawer_glass_border">#A6545458</color>
 
     <!-- Dropdown Menu -->
-    <color name="eve_menu_glass_bg">#1C1C1E</color>
-    <color name="eve_menu_glass_border">#2C2C2E</color>
-    <color name="eve_menu_glass_divider">#2C2C2E</color>
+    <color name="eve_menu_glass_bg">#CC1C1C1E</color>
+    <color name="eve_menu_glass_border">#A6545458</color>
+    <color name="eve_menu_glass_divider">#A6545458</color>
 
     <!-- Star Gradients (retained for 3D OpenGL shaders) -->
     <color name="eve_premium_gradient_1">#55A5FF</color>

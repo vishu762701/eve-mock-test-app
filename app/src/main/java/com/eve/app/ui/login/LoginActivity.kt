@@ -174,7 +174,6 @@ class LoginActivity : EveBaseActivity() {
      */
     private fun setupCardBlurView() {
         try {
-            val radius = 20f
             val rootView = binding.root as ViewGroup
             val cornerRadiusPx = 28 * resources.displayMetrics.density
             binding.blurViewLogin.outlineProvider = object : android.view.ViewOutlineProvider() {
@@ -183,9 +182,7 @@ class LoginActivity : EveBaseActivity() {
                 }
             }
             binding.blurViewLogin.clipToOutline = true
-            binding.blurViewLogin.setupWith(rootView)
-                .setBlurRadius(radius)
-                .setBlurAutoUpdate(true)
+            com.eve.app.util.EveBlurHelper.setupBlurView(binding.blurViewLogin, rootView, radiusDp = 20f)
         } catch (t: Throwable) {
             android.util.Log.e("LoginActivity", "Failed to setup card BlurView", t)
         }
@@ -205,10 +202,7 @@ class LoginActivity : EveBaseActivity() {
     }
 
     /**
-     * Task C: Staggered Entrance Animation sequence.
-     * Total sequence completes within ~550ms.
-     * Logo -> Tagline -> Input Fields -> Buttons.
-     * Respects accessibility settings (skips if animations disabled).
+     * Staggered Entrance Animation sequence with Apple spring curve (Section 2d/3a).
      */
     private fun playStaggeredEntranceAnimation() {
         if (!areAnimationsEnabled()) {
@@ -225,9 +219,21 @@ class LoginActivity : EveBaseActivity() {
             return
         }
 
-        val interpolator = FastOutSlowInInterpolator()
+        val interpolator = com.eve.app.util.EveMotionHelper.standardInterpolator
         val density = resources.displayMetrics.density
         val translateY = 14f * density
+
+        // Card spring entrance
+        binding.cardLogin.scaleX = 0.94f
+        binding.cardLogin.scaleY = 0.94f
+        binding.cardLogin.alpha = 0f
+        binding.cardLogin.animate()
+            .scaleX(1.0f)
+            .scaleY(1.0f)
+            .alpha(1.0f)
+            .setDuration(com.eve.app.util.EveMotionHelper.DURATION_SPRING_MS)
+            .setInterpolator(com.eve.app.util.EveMotionHelper.springInterpolator)
+            .start()
 
         // 1. Logo: fade in + scale from 0.92 to 1.0 (starts at 0ms, duration 300ms)
         binding.tvLogo.alpha = 0f

@@ -3,7 +3,10 @@
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
-  <path
-      android:fillColor="@android:color/white"
-      android:pathData="M1,21h22L12,2 1,21zM13,18h-2v-2h2v2zM13,14h-2v-4h2v4z"/>
+    <path
+        android:pathData="M10.3,4.2 L3.2,16.5 C2.6,17.5 3.3,18.8 4.5,18.8 L19.5,18.8 C20.7,18.8 21.4,17.5 20.8,16.5 L13.7,4.2 C12.9,2.8 11.1,2.8 10.3,4.2 Z M12,8.5 L12,12.5 M12,15.5 L12.01,15.5"
+        android:strokeWidth="1.6"
+        android:strokeColor="@color/eve_status_warning"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
 </vector>

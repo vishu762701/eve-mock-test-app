@@ -5,7 +5,9 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.graphics.drawable.StateListDrawable
@@ -15,14 +17,15 @@ import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import androidx.appcompat.widget.AppCompatRadioButton
 import androidx.core.content.ContextCompat
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import com.eve.app.R
+import com.eve.app.util.EveMotionHelper
 import com.eve.app.util.ThemeSwitchAnimator
 
 /**
- * Telegram-style custom animated Radio Button (matching CheckBox2.java / RadioButton.java pattern).
- * Smoothly scales and fills the selection dot while animating the outer ring color over ~220ms with an ease-out curve.
- * Fully compatible with RadioGroup and CompoundButton.
+ * Apple iOS style custom animated Radio Button for Test Options (Section 2f / 3c).
+ * - 10dp rounded corners
+ * - Selected state uses Apple accent color + filled checkmark indicator
+ * - 0.965 scale tactile press feedback with standard Apple motion curve
  */
 class TelegramRadioButton @JvmOverloads constructor(
     context: Context,
@@ -32,8 +35,7 @@ class TelegramRadioButton @JvmOverloads constructor(
 
     private val density = resources.displayMetrics.density
     private val indicatorRadius = 10f * density
-    private val dotRadius = 5.5f * density
-    private val strokeWidthPx = 2f * density
+    private val strokeWidthPx = 1.6f * density
 
     private val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
@@ -44,6 +46,15 @@ class TelegramRadioButton @JvmOverloads constructor(
         style = Paint.Style.FILL
     }
 
+    private val checkPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeCap = Paint.Cap.ROUND
+        strokeJoin = Paint.Join.ROUND
+        strokeWidth = 1.8f * density
+        color = Color.WHITE
+    }
+
+    private val checkPath = Path()
     private val argbEvaluator = ArgbEvaluator()
     private var checkProgress = if (isChecked) 1f else 0f
     private var checkAnimator: ValueAnimator? = null
@@ -52,8 +63,8 @@ class TelegramRadioButton @JvmOverloads constructor(
         // Clear default Android radio graphic
         buttonDrawable = null
 
-        // 24dp cards, surface with hairline; selected = right tile fill + 1.5dp right-border + filled green radio
-        val cornerPx = 24f * density
+        // 10dp rounded cards per Section 2b / 3c
+        val cornerPx = 10f * density
         val tokenColor = ContextCompat.getColor(context, R.color.eve_text)
         val isDark = ThemeSwitchAnimator.isDarkMode(context)
         val rippleColor = androidx.core.graphics.ColorUtils.setAlphaComponent(
@@ -64,15 +75,15 @@ class TelegramRadioButton @JvmOverloads constructor(
         val checkedBg = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadius = cornerPx
-            setColor(ContextCompat.getColor(context, R.color.eve_tile_right_fill))
-            setStroke((1.5f * density).toInt(), ContextCompat.getColor(context, R.color.eve_tile_right_border))
+            setColor(ContextCompat.getColor(context, R.color.eve_option_selected_bg))
+            setStroke((1.5f * density).toInt(), ContextCompat.getColor(context, R.color.eve_option_selected_stroke))
         }
 
         val uncheckedBg = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadius = cornerPx
             setColor(ContextCompat.getColor(context, R.color.eve_card_bg))
-            setStroke((1f * density).toInt(), ContextCompat.getColor(context, R.color.eve_border))
+            setStroke((0.5f * density).toInt().coerceAtLeast(1), ContextCompat.getColor(context, R.color.eve_separator))
         }
 
         val contentStateList = StateListDrawable().apply {
@@ -98,24 +109,14 @@ class TelegramRadioButton @JvmOverloads constructor(
     }
 
     override fun setChecked(checked: Boolean) {
-        val changed = (checked != isChecked)
+        val wasChecked = isChecked
         super.setChecked(checked)
-        refreshDrawableState()
-        if (changed) {
+        if (wasChecked != checked) {
             animateCheckProgress(if (checked) 1f else 0f)
-        } else {
-            checkProgress = if (checked) 1f else 0f
-            invalidate()
         }
     }
 
     private fun animateCheckProgress(target: Float) {
-        if (!isAttachedToWindow || width == 0) {
-            checkProgress = target
-            invalidate()
-            return
-        }
-
         val animScale = try {
             android.provider.Settings.Global.getFloat(
                 context.contentResolver,
@@ -134,8 +135,8 @@ class TelegramRadioButton @JvmOverloads constructor(
 
         checkAnimator?.cancel()
         checkAnimator = ValueAnimator.ofFloat(checkProgress, target).apply {
-            duration = 220L
-            interpolator = FastOutSlowInInterpolator()
+            duration = 200L
+            interpolator = EveMotionHelper.standardInterpolator
             addUpdateListener { va ->
                 checkProgress = va.animatedValue as Float
                 invalidate()
@@ -144,41 +145,47 @@ class TelegramRadioButton @JvmOverloads constructor(
         }
     }
 
-    private val fastOutSlow = FastOutSlowInInterpolator()
-
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                animate().scaleX(0.985f).scaleY(0.985f).setDuration(80).setInterpolator(fastOutSlow).start()
+                animate().scaleX(0.965f).scaleY(0.965f).alpha(0.88f)
+                    .setDuration(90).setInterpolator(EveMotionHelper.standardInterpolator).start()
                 try {
                     performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
                 } catch (_: Throwable) {}
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                animate().scaleX(1.0f).scaleY(1.0f).setDuration(160).setInterpolator(fastOutSlow).start()
+                animate().scaleX(1.0f).scaleY(1.0f).alpha(1.0f)
+                    .setDuration(180).setInterpolator(EveMotionHelper.standardInterpolator).start()
             }
         }
         return super.onTouchEvent(event)
     }
 
     override fun onDraw(canvas: Canvas) {
-        val unselectedColor = ContextCompat.getColor(context, R.color.eve_text_secondary)
-        val selectedColor = ContextCompat.getColor(context, R.color.eve_option_dot_selected)
+        val unselectedColor = ContextCompat.getColor(context, R.color.eve_separator)
+        val selectedColor = ContextCompat.getColor(context, R.color.eve_accent)
 
         val currentRingColor = argbEvaluator.evaluate(checkProgress, unselectedColor, selectedColor) as Int
         ringPaint.color = currentRingColor
         dotPaint.color = selectedColor
 
-        val cx = 14f * density
+        val cx = 16f * density
         val cy = height / 2f
 
         // Draw outer ring
         canvas.drawCircle(cx, cy, indicatorRadius, ringPaint)
 
-        // Draw smoothly scaling inner dot
+        // Draw filled checkmark indicator on selection
         if (checkProgress > 0f) {
-            canvas.drawCircle(cx, cy, dotRadius * checkProgress, dotPaint)
+            canvas.drawCircle(cx, cy, indicatorRadius * checkProgress, dotPaint)
+
+            checkPath.reset()
+            checkPath.moveTo(cx - 4.5f * density, cy)
+            checkPath.lineTo(cx - 1.5f * density, cy + 3f * density)
+            checkPath.lineTo(cx + 4.5f * density, cy - 3f * density)
+            canvas.drawPath(checkPath, checkPaint)
         }
 
         super.onDraw(canvas)

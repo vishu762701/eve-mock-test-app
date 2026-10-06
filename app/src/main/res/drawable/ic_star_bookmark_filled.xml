@@ -4,9 +4,6 @@
     android:viewportWidth="24"
     android:viewportHeight="24">
     <path
-        android:pathData="M12,17.27L18.18,21l-1.64,-7.03L22,9.24l-7.19,-0.61L12,2 9.19,8.63 2,9.24l5.46,4.73L5.82,21z"
-        android:fillColor="@color/eve_premium"
-        android:strokeColor="@color/eve_premium_line"
-        android:strokeWidth="1.2"
-        android:strokeLineJoin="round" />
+        android:pathData="M8.5,3 C7.67,3 7,3.67 7,4.5 L7,20.5 L12,17 L17,20.5 L17,4.5 C17,3.67 16.33,3 15.5,3 Z"
+        android:fillColor="@color/eve_star_fill" />
 </vector>

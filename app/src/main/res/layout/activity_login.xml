@@ -331,7 +331,7 @@
                                 android:text="Sign In"
                                 android:textColor="@color/eve_white"
                                 android:textSize="16sp"
-                                app:cornerRadius="@dimen/eve_radius_pill"
+                                app:cornerRadius="@dimen/radius_sm"
                                 app:strokeColor="@android:color/transparent"
                                 app:strokeWidth="0dp" />
 
@@ -400,7 +400,7 @@
                                 android:text="Continue with Google"
                                 android:textColor="@color/eve_login_google_text"
                                 android:textSize="15sp"
-                                app:cornerRadius="@dimen/eve_radius_pill"
+                                app:cornerRadius="@dimen/radius_sm"
                                 app:icon="@drawable/ic_social_google"
                                 app:iconGravity="textStart"
                                 app:iconPadding="10dp"

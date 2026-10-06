@@ -56,14 +56,25 @@
         <item name="android:textColor">@color/eve_label_primary</item>
     </style>
 
-    <!-- Body: 16sp, Regular -->
+    <!-- Title: 22sp, Semibold / Bold -->
+    <style name="TextAppearance.Eve.Title" parent="TextAppearance.Eve">
+        <item name="android:textSize">22sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:textColor">@color/eve_label_primary</item>
+    </style>
+
+    <!-- Body: 17sp, Regular -->
     <style name="TextAppearance.Eve.Body" parent="TextAppearance.Eve">
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">17sp</item>
         <item name="android:textStyle">normal</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
         <item name="android:textColor">@color/eve_label_primary</item>
     </style>
+
+    <style name="TextAppearance.Eve.Subhead" parent="TextAppearance.Eve.Subheadline" />
 
     <!-- Callout: 16sp, Regular -->
     <style name="TextAppearance.Eve.Callout" parent="TextAppearance.Eve">
