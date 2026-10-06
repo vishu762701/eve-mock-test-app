@@ -50,7 +50,28 @@
                 android:text="Uploaded today"
                 android:textColor="@color/eve_text_secondary"
                 android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tvBannerLink"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/eve_text_secondary"
+                android:textSize="12sp"
+                android:visibility="gone" />
         </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnEditBannerLink"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="2dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Edit banner link"
+            android:src="@drawable/ic_link"
+            app:tint="@color/eve_text" />
 
         <!-- Up / Down Reorder buttons -->
         <ImageButton

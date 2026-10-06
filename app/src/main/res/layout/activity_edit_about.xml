@@ -70,10 +70,6 @@
             android:layout_height="wrap_content"
             android:text="Contact Us" />
 
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Home Hero" />
     </com.google.android.material.tabs.TabLayout>
 
     <ProgressBar
@@ -95,67 +91,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
-            <LinearLayout
-                android:id="@+id/layoutHomeHeroFields"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:background="@drawable/bg_panel_card"
-                android:orientation="vertical"
-                android:padding="16dp"
-                android:visibility="gone">
-
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/switchHomeHeroEnabled"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Publish on Home"
-                    android:textColor="@color/eve_text"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Disabled content is saved as a draft and stays hidden from students."
-                    android:textColor="@color/eve_text_secondary"
-                    android:textSize="13sp" />
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/tilHomeHeroCtaLabel"
-                    style="@style/Widget.Eve.TextInput.Filled"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:hint="Optional button label">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etHomeHeroCtaLabel"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="textCapSentences"
-                        android:maxLines="1"
-                        android:textColor="@color/eve_text"
-                        android:textSize="15sp" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="Button action"
-                    android:textColor="@color/eve_text_secondary"
-                    android:textSize="13sp" />
-
-                <Spinner
-                    android:id="@+id/spinnerHomeHeroCtaAction"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_edit_text_rounded"
-                    android:contentDescription="Home hero button action"
-                    android:paddingHorizontal="12dp" />
-            </LinearLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilTitle"

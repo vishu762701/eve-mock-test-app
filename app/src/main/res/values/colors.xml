@@ -2,16 +2,16 @@
 <resources>
     <!-- Apple iOS Liquid Glass Semantic Design System (Light Theme) -->
     <!-- Semantic Backgrounds & Surfaces -->
-    <color name="eve_system_background">#F2F2F7</color>
+    <color name="eve_system_background">#FFFFFF</color>
     <color name="eve_secondary_background">#FFFFFF</color>
     <color name="eve_tertiary_background">#FFFFFF</color>
-    <color name="eve_canvas">#F2F2F7</color>
+    <color name="eve_canvas">#FFFFFF</color>
     <color name="eve_surface">#FFFFFF</color>
     <color name="eve_surface_variant">#E5E5EA</color>
     <color name="eve_surface_2">#E5E5EA</color>
     <color name="eve_card_bg">#FFFFFF</color>
-    <color name="eve_bg">#F2F2F7</color>
-    <color name="eve_background">#F2F2F7</color>
+    <color name="eve_bg">#FFFFFF</color>
+    <color name="eve_background">#FFFFFF</color>
     <color name="eve_highlight_bg">#E5E5EA</color>
 
     <!-- Semantic Labels -->
@@ -174,6 +174,10 @@
     <color name="eve_option_selected_bg">#E5F1FF</color>
     <color name="eve_option_selected_stroke">#007AFF</color>
     <color name="eve_option_dot_selected">#007AFF</color>
+    <color name="eve_test_option_stroke">#1A3C3C43</color>
+    <color name="eve_test_option_selected_stroke">@color/eve_system_green</color>
+    <color name="eve_test_option_selected_overlay">#2634C759</color>
+    <color name="eve_home_banner_matte">#18FFFFFF</color>
 
     <!-- Exam-card icon tile -->
     <color name="eve_exam_icon_tile_bg">#E2E3E7</color>

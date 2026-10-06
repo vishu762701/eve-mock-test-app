@@ -34,6 +34,7 @@ import com.eve.app.util.Constants
 import com.eve.app.util.LanguageManager
 import com.eve.app.util.NetworkUtil
 import com.eve.app.util.SecurityHelper
+import com.eve.app.util.TestThinMaterialPillHelper
 import com.eve.app.util.UiState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -63,6 +64,17 @@ class TestActivity : EveBaseActivity() {
     private lateinit var paletteAdapter: QuestionPaletteAdapter
     private var currentQuestionPosition: Int = 0
 
+    private fun setupTestActionPills() {
+        listOf(
+            binding.blurBtnClear,
+            binding.blurBtnMarkReview,
+            binding.blurBtnPrev,
+            binding.blurBtnNext
+        ).forEach { surface ->
+            TestThinMaterialPillHelper.attach(surface, binding.root, this, drawStroke = true)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
@@ -70,6 +82,7 @@ class TestActivity : EveBaseActivity() {
         SecurityHelper.applyScreenProtection(this)
         binding = ActivityTestBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setupTestActionPills()
         binding.shimmerSkeletonTest.skeletonType = com.eve.app.ui.common.ShimmerSkeletonView.TYPE_QUESTION
 
         examId = intent.getStringExtra(Constants.EXTRA_EXAM_ID) ?: ""

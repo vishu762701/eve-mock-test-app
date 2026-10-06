@@ -220,25 +220,53 @@
             android:textStyle="bold"
             android:visibility="gone" />
 
-        <!-- Empty-by-default admin-managed Home hero surface -->
-        <LinearLayout
-            android:id="@+id/panelFindTest"
+        <!-- Single Home Banner surface; hidden when no active banners are published. -->
+        <FrameLayout
+            android:id="@+id/panelHomeBanner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/eve_home_banner_height"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="20dp"
-            android:background="@drawable/bg_panel_card"
-            android:orientation="vertical"
-            android:minHeight="116dp"
-            android:padding="20dp">
+            android:background="@android:color/transparent"
+            android:clipChildren="true"
+            android:clipToPadding="true"
+            android:visibility="gone">
 
-            <LinearLayout
-                android:id="@+id/layoutHomeHeroContent"
+            <eightbitlab.com.blurview.BlurView
+                android:id="@+id/blurHomeBannerMaterial"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent" />
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/vpHomeBanners"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:alpha="0.88"
+                android:overScrollMode="never" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/eve_home_banner_matte"
+                android:clickable="false"
+                android:focusable="false" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnHomeBannerCta"
+                style="@style/Widget.Eve.Button.Neutral"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="12dp"
+                android:contentDescription="Open Home banner link"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:minHeight="40dp"
+                android:paddingHorizontal="14dp"
+                android:textSize="14sp"
                 android:visibility="gone" />
-        </LinearLayout>
+        </FrameLayout>
 
         <LinearLayout
             android:id="@+id/layoutStreakPill"
@@ -279,36 +307,6 @@
             android:layout_marginHorizontal="20dp"
             android:layout_marginTop="12dp"
             android:text="Admin Dashboard"
-            android:visibility="gone" />
-
-        <!-- Task A: Home Banner Image Carousel (Horizontal Swipeable Strip) -->
-        <com.eve.app.ui.common.EveLiquidGlassView
-            android:id="@+id/cardHomeBanner"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="12dp"
-            android:visibility="gone"
-            app:eveCornerRadius="@dimen/eve_radius_card"
-            app:eveHasHighlight="true"
-            app:eveTactile="false">
-
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/vpHomeBanners"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:overScrollMode="never" />
-        </com.eve.app.ui.common.EveLiquidGlassView>
-
-        <!-- Dot Indicators for Banner Carousel -->
-        <LinearLayout
-            android:id="@+id/layoutBannerDots"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="6dp"
-            android:gravity="center"
-            android:orientation="horizontal"
             android:visibility="gone" />
 
         <HorizontalScrollView

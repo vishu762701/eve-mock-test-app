@@ -197,6 +197,8 @@ export interface HomeBannerRow {
   uploaded_at: number;
   uploaded_by: string;
   active: number;
+  link_url?: string | null;
+  link_label?: string | null;
 }
 
 export interface PollRow {
@@ -256,9 +258,6 @@ export interface AppContentRow {
   phone: string;
   website: string;
   address: string;
-  enabled: number;
-  cta_label: string;
-  cta_action: string;
 }
 
 export interface UserRow {

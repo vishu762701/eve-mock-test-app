@@ -50,6 +50,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.R
 import com.eve.app.data.model.Exam
+import com.eve.app.data.model.HomeBanner
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.FeedbackRepository
 import com.eve.app.databinding.ActivityMainBinding
@@ -83,6 +84,7 @@ import com.eve.app.util.SessionManager
 import com.eve.app.util.UiState
 import com.eve.app.util.VibrationHelper
 import com.eve.app.util.isHardcodedAdmin
+import com.eve.app.util.HomeBannerLinkValidator
 import com.google.android.material.chip.Chip
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessaging
@@ -119,6 +121,7 @@ class MainActivity : EveBaseActivity() {
     private var bannerAutoScrollJob: Job? = null
     private var currentBannerCount = 0
     private var isUserDraggingBanner = false
+    private var homeBanners: List<HomeBanner> = emptyList()
 
     private val floatingLinkRepo = com.eve.app.data.repository.FloatingLinkRepository()
     private var activeFloatingLinkUrl: String? = null
@@ -252,9 +255,9 @@ class MainActivity : EveBaseActivity() {
         Log.e("EVE_STARTUP", "stage: inflate")
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setupHomeBannerSurface()
 
         com.eve.app.util.SystemBarHelper.syncSystemBars(this)
-        applyFindTestPanelBackground()
 
         // Task H: Immediately restore last-known valid streak state so theme recreation never flashes empty/GONE
         val cachedStreak = com.eve.app.util.StreakHelper.getCachedStreak(this)
@@ -381,8 +384,6 @@ class MainActivity : EveBaseActivity() {
     override fun onResume() {
         super.onResume()
         if (!::binding.isInitialized) return
-        applyFindTestPanelBackground()
-        loadHomeHero()
         hasEmptyPlayed = false
         isExamNavigating = false
         checkAppConfigAndMaintenance()
@@ -842,7 +843,7 @@ class MainActivity : EveBaseActivity() {
         binding.vpHomeBanners.adapter = bannerAdapter
         binding.vpHomeBanners.registerOnPageChangeCallback(object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                updateBannerDots(position)
+                renderHomeBannerCta(position)
             }
             override fun onPageScrollStateChanged(state: Int) {
                 isUserDraggingBanner = (state == androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING)
@@ -854,60 +855,23 @@ class MainActivity : EveBaseActivity() {
         bannerObserverJob?.cancel()
         bannerObserverJob = lifecycleScope.launch(lifecycleExceptionHandler) {
             bannerRepo.observeBanners().collect { banners ->
+                homeBanners = banners
                 currentBannerCount = banners.size
                 if (banners.isEmpty()) {
-                    binding.cardHomeBanner.visibility = View.GONE
-                    binding.layoutBannerDots.visibility = View.GONE
+                    binding.panelHomeBanner.visibility = View.GONE
+                    binding.btnHomeBannerCta.visibility = View.GONE
+                    bannerAdapter.submitList(emptyList())
                     stopBannerAutoScroll()
                 } else {
-                    binding.cardHomeBanner.visibility = View.VISIBLE
+                    binding.panelHomeBanner.visibility = View.VISIBLE
                     bannerAdapter.submitList(banners)
-
-                    if (banners.size == 1) {
-                        binding.layoutBannerDots.visibility = View.GONE
-                        binding.vpHomeBanners.isUserInputEnabled = false
-                        stopBannerAutoScroll()
-                    } else {
-                        binding.layoutBannerDots.visibility = View.VISIBLE
-                        binding.vpHomeBanners.isUserInputEnabled = true
-                        setupBannerDots(banners.size, binding.vpHomeBanners.currentItem)
-                        startBannerAutoScroll(banners.size)
-                    }
+                    val currentPage = binding.vpHomeBanners.currentItem.coerceIn(0, banners.lastIndex)
+                    binding.vpHomeBanners.setCurrentItem(currentPage, false)
+                    binding.vpHomeBanners.isUserInputEnabled = banners.size > 1
+                    renderHomeBannerCta(currentPage)
+                    startBannerAutoScroll(banners.size)
                 }
             }
-        }
-    }
-
-    private fun setupBannerDots(count: Int, selectedIndex: Int) {
-        binding.layoutBannerDots.removeAllViews()
-        val density = resources.displayMetrics.density
-        val margin = (3 * density).toInt()
-        val h = (6 * density).toInt()
-        for (i in 0 until count) {
-            val isActive = (i == selectedIndex)
-            val w = if (isActive) (16 * density).toInt() else (6 * density).toInt()
-            val dot = View(this).apply {
-                layoutParams = android.widget.LinearLayout.LayoutParams(w, h).apply {
-                    setMargins(margin, 0, margin, 0)
-                }
-                setBackgroundResource(if (isActive) R.drawable.bg_banner_dot_active else R.drawable.bg_banner_dot_inactive)
-            }
-            binding.layoutBannerDots.addView(dot)
-        }
-    }
-
-    private fun updateBannerDots(selectedIndex: Int) {
-        val density = resources.displayMetrics.density
-        val margin = (3 * density).toInt()
-        val h = (6 * density).toInt()
-        for (i in 0 until binding.layoutBannerDots.childCount) {
-            val dot = binding.layoutBannerDots.getChildAt(i) ?: continue
-            val isActive = (i == selectedIndex)
-            val w = if (isActive) (16 * density).toInt() else (6 * density).toInt()
-            dot.layoutParams = android.widget.LinearLayout.LayoutParams(w, h).apply {
-                setMargins(margin, 0, margin, 0)
-            }
-            dot.setBackgroundResource(if (isActive) R.drawable.bg_banner_dot_active else R.drawable.bg_banner_dot_inactive)
         }
     }
 
@@ -981,68 +945,43 @@ class MainActivity : EveBaseActivity() {
         }
     }
 
-    private fun applyFindTestPanelBackground() {
-        binding.panelFindTest.setBackgroundResource(R.drawable.bg_panel_card)
+    private fun setupHomeBannerSurface() {
+        val radius = resources.getDimension(R.dimen.eve_radius_card)
+        binding.panelHomeBanner.outlineProvider = object : ViewOutlineProvider() {
+            override fun getOutline(view: View, outline: Outline) {
+                outline.setRoundRect(0, 0, view.width, view.height, radius)
+            }
+        }
+        binding.panelHomeBanner.clipToOutline = true
+        binding.blurHomeBannerMaterial.outlineProvider = binding.panelHomeBanner.outlineProvider
+        binding.blurHomeBannerMaterial.clipToOutline = true
+        com.eve.app.util.EveBlurHelper.setupBlurView(
+            binding.blurHomeBannerMaterial,
+            binding.root,
+            radiusDp = resources.getDimension(R.dimen.eve_thin_material_blur_radius) / resources.displayMetrics.density,
+            overlayColor = ContextCompat.getColor(this, R.color.eve_material_thin)
+        )
     }
 
-    private fun loadHomeHero() {
-        lifecycleScope.launch(lifecycleExceptionHandler) {
-            val content = com.eve.app.data.repository.AppContentRepository()
-                .getContent(com.eve.app.data.repository.AppContentRepository.TYPE_HOME_HERO)
-            val container = binding.layoutHomeHeroContent
-            if (!content.enabled || content.title.isBlank() || content.body.isBlank()) {
-                container.removeAllViews()
-                container.visibility = View.GONE
-                return@launch
-            }
+    private fun renderHomeBannerCta(position: Int) {
+        val banner = homeBanners.getOrNull(position)
+        val url = banner?.linkUrl?.trim().orEmpty()
+        val label = banner?.linkLabel?.trim().orEmpty()
+        if (banner == null || label.isBlank() || !HomeBannerLinkValidator.isValidUrl(url)) {
+            binding.btnHomeBannerCta.visibility = View.GONE
+            binding.btnHomeBannerCta.setOnClickListener(null)
+            return
+        }
 
-            container.removeAllViews()
-            val title = android.widget.TextView(this@MainActivity).apply {
-                setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_M3_HeadlineMedium)
-                text = content.title
-                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.eve_text))
-                setTypeface(typeface, android.graphics.Typeface.BOLD)
-                includeFontPadding = false
+        binding.btnHomeBannerCta.text = label
+        binding.btnHomeBannerCta.visibility = View.VISIBLE
+        binding.btnHomeBannerCta.setOnClickListener {
+            if (!HomeBannerLinkValidator.isValidUrl(url)) return@setOnClickListener
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+            } catch (_: android.content.ActivityNotFoundException) {
+                AppBulletin.showError(this, "No app is available to open this link.")
             }
-            container.addView(title)
-
-            val body = android.widget.TextView(this@MainActivity).apply {
-                text = content.body
-                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.eve_text_secondary))
-                textSize = 15f
-                setLineSpacing(resources.displayMetrics.density * 2f, 1f)
-                layoutParams = android.widget.LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                ).apply { topMargin = (6 * resources.displayMetrics.density).toInt() }
-            }
-            container.addView(body)
-
-            if (content.ctaLabel.isNotBlank() && content.ctaAction.isNotBlank()) {
-                val cta = com.google.android.material.button.MaterialButton(
-                    this@MainActivity,
-                    null,
-                    com.google.android.material.R.attr.materialButtonStyle
-                ).apply {
-                    text = content.ctaLabel
-                    setTextColor(ContextCompat.getColor(this@MainActivity, R.color.eve_white))
-                    backgroundTintList = ContextCompat.getColorStateList(this@MainActivity, R.color.eve_system_blue)
-                    cornerRadius = resources.getDimensionPixelSize(R.dimen.eve_radius_button)
-                    layoutParams = android.widget.LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                    ).apply { topMargin = (16 * resources.displayMetrics.density).toInt() }
-                    setOnClickListener {
-                        when (content.ctaAction) {
-                            "open_practice" -> startActivity(Intent(this@MainActivity, PracticeActivity::class.java))
-                            "open_pyq" -> startActivity(Intent(this@MainActivity, PyqActivity::class.java))
-                            "browse_exams" -> binding.rvExams.post { binding.rvExams.smoothScrollToPosition(0) }
-                        }
-                    }
-                }
-                container.addView(cta)
-            }
-            container.visibility = View.VISIBLE
         }
     }
 

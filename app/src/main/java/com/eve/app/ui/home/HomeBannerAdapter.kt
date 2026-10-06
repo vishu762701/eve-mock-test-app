@@ -7,12 +7,8 @@ import com.eve.app.data.model.HomeBanner
 import com.eve.app.databinding.ItemHomeBannerBinding
 import com.eve.app.util.ExamImageHelper
 
-/**
- * Task A: Adapter for the student-side horizontal swipeable banner carousel (ViewPager2).
- */
-class HomeBannerAdapter(
-    private val onClick: ((HomeBanner) -> Unit)? = null
-) : RecyclerView.Adapter<HomeBannerAdapter.BannerVH>() {
+/** Pages published banners inside the single Home banner surface. */
+class HomeBannerAdapter : RecyclerView.Adapter<HomeBannerAdapter.BannerVH>() {
 
     private var items: List<HomeBanner> = emptyList()
 
@@ -41,7 +37,7 @@ class HomeBannerAdapter(
     inner class BannerVH(private val b: ItemHomeBannerBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(banner: HomeBanner) {
             ExamImageHelper.loadBannerImage(b.ivBanner, banner.imageUrl)
-            b.root.setOnClickListener { onClick?.invoke(banner) }
+            b.root.setOnClickListener(null)
         }
     }
 }

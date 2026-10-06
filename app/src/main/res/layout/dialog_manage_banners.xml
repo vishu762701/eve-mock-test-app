@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true"
+    android:clipToPadding="false">
+
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -9,7 +15,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="📢 Home Banners"
+        android:text="Home Banner"
         android:textColor="@color/eve_text"
         android:textSize="18sp" />
 
@@ -17,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
-        android:text="Upload, reorder, or delete promotional banners shown on the student Home screen carousel."
+        android:text="Publish image banners, manage their optional links, and reorder or remove them from the Home surface."
         android:textColor="@color/eve_text_secondary"
         android:textSize="12sp" />
 
@@ -36,11 +42,11 @@
             android:text="Choose Banner Image (Max 5MB)"
             android:textSize="13sp" />
 
-        <!-- Live Preview Container (exact aspect ratio of Home banner card) -->
+        <!-- Preview uses the same centralized footprint as the Home banner. -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardPreviewBanner"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="@dimen/eve_home_banner_height"
             android:layout_marginTop="10dp"
             android:visibility="gone"
             app:cardBackgroundColor="@color/eve_card_bg"
@@ -57,6 +63,45 @@
                 android:contentDescription="Banner live preview"
                 android:scaleType="centerCrop" />
         </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilBannerLinkUrl"
+            style="@style/Widget.Eve.TextInput.Filled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="Optional link URL">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etBannerLinkUrl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textUri"
+                android:maxLength="2048"
+                android:maxLines="1"
+                android:textColor="@color/eve_text"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilBannerLinkLabel"
+            style="@style/Widget.Eve.TextInput.Filled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="CTA label"
+            android:visibility="gone">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etBannerLinkLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:maxLength="48"
+                android:maxLines="1"
+                android:textColor="@color/eve_text"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
             android:id="@+id/tvBannerUploadError"
@@ -87,7 +132,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Active Banners in Carousel"
+        android:text="Published banners in this Home surface"
         android:textColor="@color/eve_text"
         android:textSize="14sp" />
 
@@ -118,3 +163,4 @@
         android:layout_marginTop="12dp"
         android:text="Close" />
 </LinearLayout>
+</androidx.core.widget.NestedScrollView>

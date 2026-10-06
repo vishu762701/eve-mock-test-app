@@ -423,17 +423,47 @@ class ResultAndTestPolishVerificationTest {
         assertTrue("layoutStreakPill must exist", content.contains("android:id=\"@+id/layoutStreakPill\""))
         assertTrue("btnAdmin must exist", content.contains("android:id=\"@+id/btnAdmin\""))
 
-        // The streak remains a data-driven pill outside the admin-managed Home hero.
+        // The streak remains outside the single admin-managed Home Banner surface.
         val streakPillStart = content.indexOf("android:id=\"@+id/layoutStreakPill\"")
         val streakChunk = content.substring(streakPillStart, content.indexOf(">", streakPillStart))
         assertTrue("layoutStreakPill should size to its content", streakChunk.contains("android:layout_width=\"wrap_content\""))
 
-        val heroStart = content.indexOf("android:id=\"@+id/panelFindTest\"")
-        val heroEnd = content.indexOf("</LinearLayout>", heroStart)
+        val bannerStart = content.indexOf("android:id=\"@+id/panelHomeBanner\"")
+        val bannerEnd = content.indexOf("</FrameLayout>", bannerStart)
         val adminStart = content.indexOf("android:id=\"@+id/btnAdmin\"")
         val adminChunk = content.substring(adminStart, content.indexOf(">", adminStart))
-        assertTrue("Admin shortcut must live outside the Home hero", adminStart > heroEnd)
+        assertTrue("One large Home Banner surface must exist", bannerStart >= 0)
+        assertTrue("Separate legacy Home Banner card must not remain", !content.contains("@+id/cardHomeBanner"))
+        assertTrue("Admin shortcut must live outside the Home Banner", adminStart > bannerEnd)
         assertTrue("Admin shortcut remains full width", adminChunk.contains("android:layout_width=\"match_parent\""))
+    }
+
+    @Test
+    fun testOnlyTestOptionsAndActionsUseThinMaterialPills() {
+        val questionFile = File("src/main/res/layout/item_question.xml").takeIf { it.exists() }
+            ?: File("app/src/main/res/layout/item_question.xml")
+        val testFile = File("src/main/res/layout/activity_test.xml").takeIf { it.exists() }
+            ?: File("app/src/main/res/layout/activity_test.xml")
+        assertTrue("item_question.xml must exist", questionFile.exists())
+        assertTrue("activity_test.xml must exist", testFile.exists())
+        val question = questionFile.readText()
+        val test = testFile.readText()
+
+        listOf("blurOptionA", "blurOptionB", "blurOptionC", "blurOptionD").forEach {
+            assertTrue("Option Thin Material surface $it must exist", question.contains("@+id/$it"))
+        }
+        listOf("blurBtnClear", "blurBtnMarkReview", "blurBtnPrev", "blurBtnNext").forEach {
+            assertTrue("Action Thin Material surface $it must exist", test.contains("@+id/$it"))
+        }
+        assertEquals(
+            "Only the four requested Test actions should use the scoped pill style",
+            4,
+            Regex("style=\\\"@style/Widget.Eve.TestThinMaterialPill\\\"").findAll(test).count()
+        )
+        assertTrue("Test action area must not add a background card", test.contains("android:id=\"@+id/layoutBottomBar\""))
+        val bottomBar = test.substring(test.indexOf("android:id=\"@+id/layoutBottomBar\""))
+        assertTrue("Test action area background must be transparent", bottomBar.contains("android:background=\"@android:color/transparent\""))
+        assertFalse("Other app controls must not use the scoped test pill style", question.contains("Widget.Eve.TestThinMaterialPill"))
     }
 
     @Test

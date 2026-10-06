@@ -68,6 +68,16 @@ class TaskBToEVerificationTest {
     }
 
     @Test
+    fun testAppBackgroundRemainsPureWhiteAndBlack() {
+        val lightColors = File("src/main/res/values/colors.xml").readText()
+        val darkColors = File("src/main/res/values-night/colors.xml").readText()
+        assertTrue("Light app background must remain pure white", lightColors.contains("<color name=\"eve_bg\">#FFFFFF</color>"))
+        assertTrue("Light canvas must remain pure white", lightColors.contains("<color name=\"eve_canvas\">#FFFFFF</color>"))
+        assertTrue("Dark app background must remain pure black", darkColors.contains("<color name=\"eve_bg\">#000000</color>"))
+        assertTrue("Dark canvas must remain pure black", darkColors.contains("<color name=\"eve_canvas\">#000000</color>"))
+    }
+
+    @Test
     fun testLayoutsIncludeRequiredPolishUpgrades() {
         val mistakesLayout = File("src/main/res/layout/activity_mistakes.xml").readText()
         assertTrue("Mistakes layout should use illustration_empty_all_caught_up", mistakesLayout.contains("illustration_empty_all_caught_up"))
@@ -78,9 +88,9 @@ class TaskBToEVerificationTest {
 
         val mainLayout = File("src/main/res/layout/activity_main.xml").readText()
         assertTrue("Main layout greeting should use HeadlineLarge", mainLayout.contains("TextAppearance.Eve.M3.HeadlineLarge"))
-        assertTrue("Main layout should contain an admin-managed empty Home hero", mainLayout.contains("@+id/layoutHomeHeroContent"))
-        assertFalse("Home hero must not contain hardcoded fallback copy", mainLayout.contains("Find your next test"))
-        assertFalse("Home hero must not contain hardcoded fallback body", mainLayout.contains("Choose an exam to begin practicing."))
+        assertTrue("Main layout should contain the single Home Banner surface", mainLayout.contains("@+id/panelHomeBanner"))
+        assertFalse("Legacy Home Hero content container must be removed", mainLayout.contains("layoutHomeHeroContent"))
+        assertFalse("Legacy second banner card must be removed", mainLayout.contains("@+id/cardHomeBanner"))
 
         val resultLayout = File("src/main/res/layout/activity_result.xml").readText()
         assertTrue("Result layout should contain Statistics heading without 15sp override", resultLayout.contains("android:text=\"Statistics\""))

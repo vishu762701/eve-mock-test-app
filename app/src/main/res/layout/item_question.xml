@@ -138,17 +138,53 @@
     </FrameLayout>
 
     <!-- 3. Options Block: wrap_content, directly beneath question with 10dp gap -->
-    <RadioGroup
-        android:id="@+id/rgOptions"
+    <FrameLayout
+        android:id="@+id/optionsMaterialHost"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp">
+        android:layout_marginTop="10dp"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <eightbitlab.com.blurview.BlurView
+            android:id="@+id/blurOptionA"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:importantForAccessibility="no"
+            android:clickable="false" />
+
+        <eightbitlab.com.blurview.BlurView
+            android:id="@+id/blurOptionB"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:importantForAccessibility="no"
+            android:clickable="false" />
+
+        <eightbitlab.com.blurview.BlurView
+            android:id="@+id/blurOptionC"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:importantForAccessibility="no"
+            android:clickable="false" />
+
+        <eightbitlab.com.blurview.BlurView
+            android:id="@+id/blurOptionD"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:importantForAccessibility="no"
+            android:clickable="false" />
+
+        <RadioGroup
+            android:id="@+id/rgOptions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
         <com.eve.app.ui.common.TelegramRadioButton
             android:id="@+id/rbA"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
+            android:background="@android:color/transparent"
             android:fontFamily="sans-serif"
             android:paddingVertical="10dp"
             android:paddingEnd="12dp"
@@ -159,6 +195,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
+            android:background="@android:color/transparent"
             android:fontFamily="sans-serif"
             android:paddingVertical="10dp"
             android:paddingEnd="12dp"
@@ -169,6 +206,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
+            android:background="@android:color/transparent"
             android:fontFamily="sans-serif"
             android:paddingVertical="10dp"
             android:paddingEnd="12dp"
@@ -179,9 +217,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
+            android:background="@android:color/transparent"
             android:fontFamily="sans-serif"
             android:paddingVertical="10dp"
             android:paddingEnd="12dp"
             android:textSize="16sp" />
-    </RadioGroup>
+        </RadioGroup>
+    </FrameLayout>
 </LinearLayout>

@@ -8,6 +8,7 @@ import com.eve.app.data.remote.EveApiService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
 /**
@@ -36,7 +37,12 @@ class HomeBannerRepository(
         return (res.data ?: emptyList()).sortedBy { it.order }
     }
 
-    suspend fun uploadBanner(context: Context, uri: Uri, userEmail: String): Result<String> = runCatching {
+    suspend fun uploadBanner(
+        context: Context,
+        uri: Uri,
+        linkUrl: String,
+        linkLabel: String
+    ): Result<HomeBanner> = runCatching {
         val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
             ?: throw IllegalArgumentException("Cannot open image file.")
         if (bytes.size > 5 * 1024 * 1024) {
@@ -45,12 +51,26 @@ class HomeBannerRepository(
 
         val mimeType = context.contentResolver.getType(uri) ?: "image/jpeg"
         val reqBody = bytes.toRequestBody(mimeType.toMediaTypeOrNull())
-        val res = api.uploadBanner(contentType = mimeType, body = reqBody)
+        val fileName = if (mimeType.equals("image/png", ignoreCase = true)) "banner.png" else "banner.jpg"
+        val filePart = MultipartBody.Part.createFormData("file", fileName, reqBody)
+        val textType = "text/plain".toMediaTypeOrNull()
+        val res = api.uploadBanner(
+            file = filePart,
+            linkUrl = linkUrl.toRequestBody(textType),
+            linkLabel = linkLabel.toRequestBody(textType)
+        )
 
         if (!res.success || res.data == null) {
             throw IllegalStateException(res.error ?: "Failed to upload banner")
         }
-        res.data.id
+        res.data
+    }
+
+    suspend fun updateBannerLink(bannerId: String, linkUrl: String, linkLabel: String): Result<Unit> = runCatching {
+        val res = api.updateBannerLink(bannerId, mapOf("linkUrl" to linkUrl, "linkLabel" to linkLabel))
+        if (!res.success) {
+            throw IllegalStateException(res.error ?: "Failed to update banner link")
+        }
     }
 
     suspend fun deleteBanner(bannerId: String): Result<Unit> = runCatching {

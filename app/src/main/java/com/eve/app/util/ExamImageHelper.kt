@@ -130,16 +130,16 @@ object ExamImageHelper {
                 val bytes = Base64.decode(b64, Base64.DEFAULT)
                 val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                 if (bmp != null) {
-                    imageView.adjustViewBounds = true
-                    imageView.scaleType = ImageView.ScaleType.FIT_CENTER
+                    imageView.adjustViewBounds = false
+                    imageView.scaleType = ImageView.ScaleType.CENTER_CROP
                     imageView.setImageBitmap(bmp)
                     return
                 }
             } catch (_: Exception) { }
         }
 
-        imageView.adjustViewBounds = true
-        imageView.scaleType = ImageView.ScaleType.FIT_CENTER
+        imageView.adjustViewBounds = false
+        imageView.scaleType = ImageView.ScaleType.CENTER_CROP
         imageView.load(imageUrl) {
             crossfade(true)
         }

@@ -12,6 +12,8 @@ import android.widget.LinearLayout
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.text.InputType
+import android.text.Editable
+import android.text.TextWatcher
 import com.eve.app.data.repository.FloatingLinkRepository
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.AppUndoBar
@@ -46,6 +48,7 @@ import com.eve.app.data.repository.AuditLogRepository
 import com.eve.app.data.repository.ApiUsageRepository
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.util.QuestionImportHelper
+import com.eve.app.util.HomeBannerLinkValidator
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.functions.FirebaseFunctions
 import androidx.core.content.FileProvider
@@ -198,12 +201,6 @@ class AdminActivity : EveBaseActivity() {
         }
         binding.btnHomeBanner.setOnClickListener {
             showHomeBannerOptionsDialog()
-        }
-        binding.btnManageHomeHero.setOnClickListener {
-            startActivity(
-                Intent(this, EditAboutActivity::class.java)
-                    .putExtra(EditAboutActivity.EXTRA_INITIAL_TYPE, com.eve.app.data.repository.AppContentRepository.TYPE_HOME_HERO)
-            )
         }
         binding.btnFloatingLink.setOnClickListener {
             showFloatingLinkDialog()
@@ -729,6 +726,35 @@ class AdminActivity : EveBaseActivity() {
             .create()
 
         var pendingBannerUri: Uri? = null
+        var editingBannerId: String? = null
+
+        fun updateLinkLabelVisibility() {
+            val hasUrl = !dialogBinding.etBannerLinkUrl.text.isNullOrBlank()
+            dialogBinding.tilBannerLinkLabel.visibility = if (hasUrl) View.VISIBLE else View.GONE
+            if (!hasUrl) {
+                dialogBinding.etBannerLinkLabel.setText("")
+                dialogBinding.tilBannerLinkLabel.error = null
+            }
+        }
+
+        fun resetEditor() {
+            pendingBannerUri = null
+            editingBannerId = null
+            dialogBinding.ivPreviewBanner.setImageDrawable(null)
+            dialogBinding.cardPreviewBanner.visibility = View.GONE
+            dialogBinding.etBannerLinkUrl.setText("")
+            dialogBinding.etBannerLinkLabel.setText("")
+            dialogBinding.tvBannerUploadError.visibility = View.GONE
+            dialogBinding.btnSaveBanner.visibility = View.GONE
+            dialogBinding.btnSaveBanner.isEnabled = true
+            dialogBinding.btnSaveBanner.text = "Save & Publish Banner"
+        }
+
+        dialogBinding.etBannerLinkUrl.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = updateLinkLabelVisibility()
+            override fun afterTextChanged(s: Editable?) = Unit
+        })
 
         val bannerAdapter = AdminBannerAdapter(
             onMoveUp = { banner ->
@@ -751,6 +777,18 @@ class AdminActivity : EveBaseActivity() {
                     }
                 }
             },
+            onEditLink = { banner ->
+                pendingBannerUri = null
+                editingBannerId = banner.id
+                dialogBinding.cardPreviewBanner.visibility = View.GONE
+                dialogBinding.tvBannerUploadError.visibility = View.GONE
+                dialogBinding.etBannerLinkUrl.setText(banner.linkUrl)
+                dialogBinding.etBannerLinkLabel.setText(banner.linkLabel)
+                updateLinkLabelVisibility()
+                dialogBinding.btnSaveBanner.text = "Save Banner Link"
+                dialogBinding.btnSaveBanner.isEnabled = true
+                dialogBinding.btnSaveBanner.visibility = View.VISIBLE
+            },
             onDelete = { banner ->
                 confirmDeleteBanner(banner) {
                     refreshBannerList(dialogBinding)
@@ -764,11 +802,15 @@ class AdminActivity : EveBaseActivity() {
         }
 
         dialogBinding.btnPickBannerImage.setOnClickListener {
+            editingBannerId = null
+            dialogBinding.etBannerLinkUrl.setText("")
+            dialogBinding.etBannerLinkLabel.setText("")
+            dialogBinding.btnSaveBanner.text = "Save & Publish Banner"
             onBannerImageSelected = { uri ->
                 val sizeBytes = try {
-                    contentResolver.openInputStream(uri)?.use { it.available() } ?: 0
+                    contentResolver.openFileDescriptor(uri, "r")?.use { it.statSize } ?: -1L
                 } catch (e: Exception) {
-                    0
+                    -1L
                 }
 
                 if (sizeBytes > 5 * 1024 * 1024) {
@@ -790,24 +832,37 @@ class AdminActivity : EveBaseActivity() {
         }
 
         dialogBinding.btnSaveBanner.setOnClickListener {
-            val uri = pendingBannerUri ?: return@setOnClickListener
+            val linkUrl = dialogBinding.etBannerLinkUrl.text?.toString()?.trim().orEmpty()
+            val linkLabel = dialogBinding.etBannerLinkLabel.text?.toString()?.trim().orEmpty()
+            val validationError = HomeBannerLinkValidator.validate(linkUrl, linkLabel)
+            if (validationError != null) {
+                dialogBinding.tvBannerUploadError.text = validationError
+                dialogBinding.tvBannerUploadError.visibility = View.VISIBLE
+                return@setOnClickListener
+            }
+
+            val bannerId = editingBannerId
+            val uri = pendingBannerUri
+            if (bannerId == null && uri == null) return@setOnClickListener
             dialogBinding.btnSaveBanner.isEnabled = false
-            dialogBinding.btnSaveBanner.text = "Uploading..."
-            val email = FirebaseAuth.getInstance().currentUser?.email ?: "admin"
+            dialogBinding.btnSaveBanner.text = if (bannerId == null) "Uploading..." else "Saving..."
             lifecycleScope.launch {
-                val result = bannerRepo.uploadBanner(this@AdminActivity, uri, email)
+                val result = if (bannerId != null) {
+                    bannerRepo.updateBannerLink(bannerId, linkUrl, linkLabel)
+                } else {
+                    bannerRepo.uploadBanner(this@AdminActivity, uri!!, linkUrl, linkLabel).map { Unit }
+                }
                 if (result.isSuccess) {
-                    AppBulletin.showSuccess(this@AdminActivity, "Banner published successfully!")
-                    dialogBinding.cardPreviewBanner.visibility = View.GONE
-                    dialogBinding.btnSaveBanner.visibility = View.GONE
-                    dialogBinding.btnSaveBanner.isEnabled = true
-                    dialogBinding.btnSaveBanner.text = "Save & Publish Banner"
-                    pendingBannerUri = null
+                    AppBulletin.showSuccess(
+                        this@AdminActivity,
+                        if (bannerId == null) "Banner published successfully!" else "Banner link updated"
+                    )
+                    resetEditor()
                     refreshBannerList(dialogBinding)
                 } else {
                     dialogBinding.btnSaveBanner.isEnabled = true
-                    dialogBinding.btnSaveBanner.text = "Save & Publish Banner"
-                    dialogBinding.tvBannerUploadError.text = "Upload failed: ${result.exceptionOrNull()?.localizedMessage}"
+                    dialogBinding.btnSaveBanner.text = if (bannerId == null) "Save & Publish Banner" else "Save Banner Link"
+                    dialogBinding.tvBannerUploadError.text = "Save failed: ${result.exceptionOrNull()?.localizedMessage}"
                     dialogBinding.tvBannerUploadError.visibility = View.VISIBLE
                 }
             }

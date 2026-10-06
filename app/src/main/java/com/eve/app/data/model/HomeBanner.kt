@@ -1,10 +1,6 @@
 package com.eve.app.data.model
 
-/**
- * Task A: Model for promotional banners displayed on the student Home screen carousel
- * and managed in the Admin Dashboard.
- * Firestore collection: home_banners/{bannerId}
- */
+/** Banner image and optional CTA shown inside the single Home banner surface. */
 data class HomeBanner(
     val id: String = "",
     val imageUrl: String = "",
@@ -12,5 +8,7 @@ data class HomeBanner(
     val order: Int = 0,
     val uploadedAt: Long = 0L,
     val uploadedBy: String = "",
-    val active: Boolean = true
+    val active: Boolean = true,
+    val linkUrl: String = "",
+    val linkLabel: String = ""
 )

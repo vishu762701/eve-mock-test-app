@@ -1,6 +1,7 @@
 package com.eve.app.data.remote
 
 import com.eve.app.data.model.*
+import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.*
 
@@ -357,11 +358,19 @@ interface EveApiService {
     @GET("api/banners")
     suspend fun getBanners(): ApiResponse<List<HomeBanner>>
 
+    @Multipart
     @POST("api/banners")
     suspend fun uploadBanner(
-        @Header("Content-Type") contentType: String = "image/jpeg",
-        @Body body: RequestBody
+        @Part file: MultipartBody.Part,
+        @Part("linkUrl") linkUrl: RequestBody,
+        @Part("linkLabel") linkLabel: RequestBody
     ): ApiResponse<HomeBanner>
+
+    @PUT("api/banners/{id}/link")
+    suspend fun updateBannerLink(
+        @Path("id") id: String,
+        @Body body: Map<String, String>
+    ): ApiResponse<Map<String, String>>
 
     @DELETE("api/banners/{id}")
     suspend fun deleteBanner(@Path("id") id: String): ApiResponse<Unit>
@@ -423,9 +432,6 @@ interface EveApiService {
     // --- App Content ---
     @GET("api/app-content/{type}")
     suspend fun getAppContent(@Path("type") type: String): ApiResponse<AppContent>
-
-    @GET("api/app-content/home_hero/admin")
-    suspend fun getAdminHomeHero(): ApiResponse<AppContent>
 
     @PUT("api/app-content/{type}")
     suspend fun updateAppContent(@Path("type") type: String, @Body body: Map<String, @JvmSuppressWildcards Any>): ApiResponse<Unit>

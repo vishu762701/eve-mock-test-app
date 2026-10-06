@@ -1,6 +1,7 @@
 package com.eve.app.ui.admin
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.data.model.HomeBanner
@@ -11,12 +12,12 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * Task A: Adapter for the Admin Dashboard banner management list.
- * Supports Up/Down reordering and deletion with confirmation.
+ * Admin list for Home banners, including link editing, reorder, and delete actions.
  */
 class AdminBannerAdapter(
     private val onMoveUp: (HomeBanner) -> Unit,
     private val onMoveDown: (HomeBanner) -> Unit,
+    private val onEditLink: (HomeBanner) -> Unit,
     private val onDelete: (HomeBanner) -> Unit
 ) : RecyclerView.Adapter<AdminBannerAdapter.VH>() {
 
@@ -49,6 +50,11 @@ class AdminBannerAdapter(
                 "Active"
             }
             ExamImageHelper.loadBannerImage(b.ivBannerThumb, banner.imageUrl)
+            b.tvBannerLink.text = banner.linkLabel.takeIf { banner.linkUrl.isNotBlank() && it.isNotBlank() }
+                ?.let { "CTA: $it" }.orEmpty()
+            b.tvBannerLink.visibility = if (b.tvBannerLink.text.isNullOrBlank()) View.GONE else View.VISIBLE
+
+            b.btnEditBannerLink.setOnClickListener { onEditLink(banner) }
 
             b.btnMoveUp.isEnabled = position > 0
             b.btnMoveUp.alpha = if (position > 0) 1.0f else 0.35f
