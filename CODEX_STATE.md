@@ -2,21 +2,22 @@
 
 ## Current Project State
 
-- The Android project has one Gradle module, `:app`, with Kotlin sources under `app/src/main/java/com/eve/app` and XML layouts/resources. The application ID is `com.eve.app`.
-- The app includes Firebase integrations and a Retrofit/OkHttp client for a Cloudflare Worker API. The root `backend/` directory contains a TypeScript/Hono Worker, D1 migrations, and Supabase configuration. `functions/` separately contains Firebase Cloud Functions.
-- The current Android attempt-submission path is `HistoryRepository` → `EveApiService` `POST /api/attempts/submit` → `backend/src/routes/attempts.ts`. `firestore.rules` denies direct client creation of `attempts` documents. Do not infer that the similarly named callable in `functions/index.js` is the Android client's current path.
-- The latest application commit at setup was `f99cbe95f646bdbc40aaa278cc32540d885c94e4`, on `main`, tracking `origin/main`, with a clean working tree. This state record is being added as a separate documentation-only commit.
-- `MASTER_TASK_APPLE.md` says its Apple Liquid Glass redesign task is complete, and the latest application commit has the matching completion subject. The older `PROGRESS.md` checklist also marks its listed polish tasks complete. No clearly active task is recorded.
+- Eve is a native Android app in the Gradle `:app` module, implemented in Kotlin with XML layouts/resources. It uses Firebase authentication and a Retrofit/OkHttp client for the Cloudflare Worker API. The root `backend/` is a TypeScript/Hono Worker with D1 migrations; `functions/` separately contains Firebase Cloud Functions.
+- The iOS-inspired visual refresh updates shared light/dark tokens, cards, controls, motion helpers, Login, and Home. Login retains the existing email sign-in/sign-up and Google authentication code paths.
+- Home's hero is hidden and empty without enabled content. Admins edit it through the existing content editor; published content is served by the Worker from the D1 `app_content` table.
+- Android attempt submission remains `HistoryRepository` → `EveApiService` `POST /api/attempts/submit` → `backend/src/routes/attempts.ts`. Firestore rules deny direct client creation of `attempts` documents.
 
 ## Last Completed Task
 
-The latest meaningful completed work recorded by the repository is the Apple iOS Liquid Glass visual and motion redesign. `MASTER_TASK_APPLE.md` identifies the task as complete, and commit `f99cbe95f646bdbc40aaa278cc32540d885c94e4` is titled `feat(ui): complete Apple iOS Liquid Glass visual and motion redesign`.
+Implemented the requested full iOS-style redesign, rebuilt Login, and added the admin-managed Home hero. Implementation is in commit `eac464b` (`feat: rebuild iOS-style app experience`). Local build, unit, backend, and migration checks passed; device-level visual/functional checks remain outstanding because no usable emulator or device was available.
 
 ## Last Verified Changes
 
-- The latest commit changes 71 files, including light/dark color resources, dimensions and typography, transition animations, many vector icons, and the shared `EveBlurHelper`, `EveMotionHelper`, and `EveTouchHelper` utilities. It also updates `LoginActivity`, `MainActivity`, and `TelegramRadioButton`.
-- Current source confirms that the Android client submits attempts through the Worker API and that Firestore rules block direct client attempt creation.
-- These are repository and Git inspections. They do not establish that the latest visual redesign was functionally or visually verified on a device.
+- Added Home hero fields and an additive D1 migration, public redaction for disabled content, authenticated admin draft reads/writes, validation, and tests for the API paths.
+- Added the Home hero editor and app rendering with only the supported Practice, PYQ, and Browse Exams actions.
+- Rebuilt the Login screen while retaining the existing Firebase email and Google sign-in code paths, validation, loading/error handling, session bypass, analytics, and Crashlytics identification in source.
+- Updated shared light/dark resources, card and input shapes, category controls, and reduced-motion-aware touch/motion helpers.
+- Reviewed the source diff and confirmed the changed files are limited to the redesign, related tests, and Home hero backend/API work.
 
 ## Current In-Progress Task
 
@@ -24,39 +25,41 @@ NONE
 
 ## What Remains
 
-- No unfinished application task is clearly active in the task/progress records inspected.
-- Reconcile `README.md` with the current architecture: its introduction says there is no custom backend, while the repository contains and the app calls the Cloudflare Worker backend. Its Phase 23 description says attempt submissions use a callable Cloud Function; the current Android client instead calls the Worker endpoint.
-- `README.md` describes durable retries for failed offline submissions as a future improvement. The current `HistoryRepository` retries at most three times in an in-memory coroutine; there is no persistent retry queue in that repository.
+- Run the requested visual and functional smoke checks on an Android emulator/device, including light/dark mode, Login success/failure and Google sign-in where credentials permit, Home with empty and published hero content, exam cards, Test, Result, Admin, and a dialog/sheet.
+- Reconcile `README.md` with the current architecture: it says there is no custom backend and describes attempt submission through a callable Cloud Function, while the Android app calls the Cloudflare Worker. The README also describes durable retries as future work; `HistoryRepository` currently retries in memory up to three times.
 
 ## Known Issues / Blockers
 
-- `README.md` contains the architecture and attempt-submission discrepancies listed above.
-- `AUDIT_PROGRESS.md` is stale: it reports `beaba41` as current and says the branch is four commits ahead of `origin/main`; the inspected setup baseline was `f99cbe95f646bdbc40aaa278cc32540d885c94e4` with `main` tracking `origin/main` and a clean working tree.
-- The inspected records do not include per-item runtime or screenshot verification for the latest Apple Liquid Glass redesign. Its master task and commit mark it complete, but visual/functional verification for that redesign is not established here.
-- No external deployment status for Firebase or Cloudflare services can be determined from this checkout.
+- No verified application defect was found during this task's checks.
+- Runtime UI verification is blocked in this environment: `adb devices` cannot start because its executable cannot link `_ZNSt6__ndk113__hash_memoryEPKvm`, and no emulator executable is available.
+- The README architecture/retry discrepancies listed under What Remains are verified documentation inconsistencies.
 
 ## Verification Status
 
-- `PROGRESS.md` records 191/191 `testDebugUnitTest` tests and a successful `assembleDebug` for its earlier UI/UX polish work. These are historical project-record claims, not tests rerun for the latest redesign or this setup.
-- `AUDIT_PROGRESS.md` records build, test, lint, TypeScript, and release-build results for an older audit ending at `beaba41`; its commit/status information is stale relative to the inspected baseline.
-- The latest Apple redesign commit and changed files were inspected. No Gradle build, unit tests, backend tests, emulator run, device run, or screenshot review was performed for this continuity setup.
-- Only repository inspection and the Git diff checks for this new state document are verification for this setup.
+- `./gradlew testDebugUnitTest assembleDebug`: passed; 194 tests, 0 failures, 0 errors. Android resource/XML processing and Kotlin compilation completed as part of the build.
+- Backend `npm test`: passed, 68 tests. `npm run build`: passed.
+- Applied all ten backend migrations in order to an in-memory SQLite database and confirmed the Home hero columns exist. Backend tests cover public empty/disabled reads, admin read/write authorization, sanitization, and invalid CTA input.
+- Static checks confirmed the existing email/Google auth and analytics/reporting source paths remain, stale old Login references and hardcoded Home hero copy are absent, and raw/assets containing Lottie content were not changed.
+- `git diff --check`: passed. Both light and dark resource variants were inspected.
+- No emulator/device launch, screenshot review, or live production API/deployment verification was possible. A green build and passing tests are not evidence of runtime UI correctness.
 
 ## Last Commit
 
-Latest application/source baseline at state-file creation: `f99cbe95f646bdbc40aaa278cc32540d885c94e4` — `feat(ui): complete Apple iOS Liquid Glass visual and motion redesign`. The following continuity commit adds this record only; its resulting hash is reported in the setup completion message.
+`eac464b` — `feat: rebuild iOS-style app experience` (implementation commit). This state/progress refresh is committed separately as a documentation-only follow-up.
 
 ## Next Recommended Action
 
-The project is ready for the next user-requested task. A future documentation task can reconcile the README with the current backend and attempt-submission implementation.
+Run the pending emulator/device smoke checks when a working Android runtime is available. Until then, the local implementation and API checks are complete, with runtime UI behavior explicitly unverified.
 
 ## Important Project Decisions
 
-- Preserve the Android app's existing feature and business logic when doing visual-only work. The Apple redesign specifies retaining the day/night circular-reveal theme behavior and protected Lottie content/playback.
-- Keep semantic resource token names where practical and maintain both light and dark color resources. The current design uses the Apple Liquid Glass visual system documented in `MASTER_TASK_APPLE.md`.
-- The Worker API is part of the current application architecture. Attempt grading/submission is server-side through the Worker route used by the Android client; Firestore rules prohibit direct client creation of attempt records.
+- The GitHub repository is the project's source of truth. Preserve existing app behavior when changing presentation.
+- Home hero content belongs in the existing Worker/D1 `app_content` store. Public reads redact disabled drafts; admin draft reads and writes require admin authorization. CTA actions are limited to `open_practice`, `open_pyq`, and `browse_exams`.
+- Keep both light and dark resource variants, use blue semantically, and respect the system reduced-motion setting.
+- Android attempt submission is server-side through the Worker endpoint; Firestore rules prohibit direct client creation of attempt records.
 - Keep `Constants.ADMIN_EMAILS` synchronized with `isHardcodedAdmin()` in `firestore.rules`, as required by `GEMINI.md`.
 - Leave `functions/package-lock.json` untouched and untracked; it is ignored by `.gitignore`.
+- Existing Lottie assets and playback behavior were not changed by this redesign.
 
 ## Session Continuity Rules
 

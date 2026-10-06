@@ -97,3 +97,12 @@
   - [x] Home Streak / Admin Pills: Equalized `layoutStreakPill` to `match_parent` width matching `btnAdmin` with centered alignment, keeping exact vertical thickness/height unchanged and flame animation unclipped
   - [x] Reattempt Orange Consistency: Applied `Widget.Eve.Button.Orange` to `btnReattempt` in `bottom_sheet_completed_exam.xml` and `Widget.Eve.Button.OrangePill` in `activity_result.xml`
   - [x] Global Typography & Color Contrast: Richer accents (~25% richer contrast/richness on lilac, yellow, orange), high-contrast neutrals, WCAG AA compliance, and 191/191 unit tests passing cleanly
+
+## Full iOS Redesign and Admin-Managed Home Hero (2026-10-06)
+
+- [x] Rebuilt Login presentation while retaining existing email sign-in/sign-up, Google sign-in, validation, session, loading/error, and analytics/reporting code paths.
+- [x] Replaced the hardcoded Home hero with empty-by-default admin-managed content and supported CTA actions.
+- [x] Added protected Worker API draft/read-write behavior, D1 migration, validation, and API tests.
+- [x] Applied shared iOS-inspired visual tokens and controls across touched screens, including light and dark resources and reduced-motion-aware helpers.
+- [x] `./gradlew testDebugUnitTest assembleDebug` passed (194 tests, no failures); backend `npm test` passed (68 tests); backend `npm run build` passed; all ten migrations applied in SQLite; `git diff --check` passed.
+- [ ] Emulator/device visual and functional checks remain pending. `adb` cannot start in this environment due to a missing linker symbol, and no emulator executable is available. Build/test success is not recorded as UI verification.
