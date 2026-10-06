@@ -7,6 +7,6 @@
     android:layout_marginTop="14dp"
     android:layout_marginEnd="8dp"
     android:layout_marginBottom="4dp"
-    android:textColor="@color/eve_primary"
+    android:textColor="@color/eve_text_secondary"
     android:textSize="15sp"
     android:textStyle="bold" />

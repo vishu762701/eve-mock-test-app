@@ -70,7 +70,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        app:cardCornerRadius="@dimen/eve_radius_md"
+                        app:cardCornerRadius="@dimen/eve_radius_card"
                         app:cardElevation="0dp">
 
                         <LinearLayout
@@ -103,7 +103,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
                         android:layout_weight="1"
-                        app:cardCornerRadius="@dimen/eve_radius_md"
+                        app:cardCornerRadius="@dimen/eve_radius_card"
                         app:cardElevation="0dp">
 
                         <LinearLayout
@@ -137,7 +137,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    app:cardCornerRadius="@dimen/eve_radius_md"
+                    app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp">
 
                     <LinearLayout
@@ -178,7 +178,7 @@
                     android:layout_marginTop="16dp"
                     android:visibility="gone"
                     app:cardBackgroundColor="@color/eve_error_bg"
-                    app:cardCornerRadius="@dimen/eve_radius_md"
+                    app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp">
 
                     <LinearLayout

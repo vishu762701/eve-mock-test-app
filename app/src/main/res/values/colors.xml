@@ -32,6 +32,9 @@
     <color name="eve_fill_primary">#33787880</color>
     <color name="eve_fill_secondary">#29787880</color>
     <color name="eve_fill_tertiary">#1F767680</color>
+    <color name="eve_input_fill">#E5E5EA</color>
+    <color name="eve_input_stroke">#1A3C3C43</color>
+    <color name="eve_input_focus_stroke">#007AFF</color>
 
     <!-- Apple System Colors -->
     <color name="eve_system_blue">#007AFF</color>
@@ -158,10 +161,10 @@
     <!-- Buttons: Primary = systemBlue #007AFF, Soft = surface 2 #E5E5EA -->
     <color name="eve_button_primary_bg">#007AFF</color>
     <color name="eve_button_primary_text">#FFFFFF</color>
-    <color name="eve_button_bg">#007AFF</color>
-    <color name="eve_button_text">#FFFFFF</color>
-    <color name="eve_button_neutral_bg">#007AFF</color>
-    <color name="eve_button_neutral_text">#FFFFFF</color>
+    <color name="eve_button_bg">#E5E5EA</color>
+    <color name="eve_button_text">#000000</color>
+    <color name="eve_button_neutral_bg">#E5E5EA</color>
+    <color name="eve_button_neutral_text">#000000</color>
     <color name="eve_button_soft_bg">#E5E5EA</color>
     <color name="eve_button_soft_text">#000000</color>
     <color name="eve_button_outlined_stroke">#1A3C3C43</color>

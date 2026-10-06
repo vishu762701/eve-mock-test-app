@@ -57,7 +57,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/eve_card_bg"
-                app:cardCornerRadius="14dp"
+                app:cardCornerRadius="@dimen/eve_radius_card"
                 app:cardElevation="0dp"
                 app:strokeColor="@color/eve_stroke"
                 app:strokeWidth="1dp">
@@ -215,7 +215,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 app:cardBackgroundColor="@color/eve_card_bg"
-                app:cardCornerRadius="14dp"
+                app:cardCornerRadius="@dimen/eve_radius_card"
                 app:cardElevation="0dp"
                 app:strokeColor="@color/eve_stroke"
                 app:strokeWidth="1dp">

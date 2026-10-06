@@ -9,5 +9,8 @@ data class AppContent(
     val supportEmail: String = "",
     val phone: String = "",
     val website: String = "",
-    val address: String = ""
+    val address: String = "",
+    val enabled: Boolean = false,
+    val ctaLabel: String = "",
+    val ctaAction: String = ""
 )

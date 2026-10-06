@@ -24,7 +24,7 @@
     <dimen name="eve_radius_bottom_sheet">28dp</dimen>
 
     <!-- Full pills & circles: 999dp -->
-    <dimen name="eve_radius_button">999dp</dimen>
+    <dimen name="eve_radius_button">12dp</dimen>
     <dimen name="eve_radius_pill">999dp</dimen>
 
     <!-- Depths & Elevations (Apple iOS: restrained subtle elevation in light, 0dp pure matte in dark) -->

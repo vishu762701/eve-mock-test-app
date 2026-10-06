@@ -78,7 +78,7 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipAll"
-            style="@style/Widget.Material3.Chip.Filter"
+            style="@style/Widget.Eve.CategoryChip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
@@ -86,14 +86,14 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipWrong"
-            style="@style/Widget.Material3.Chip.Filter"
+            style="@style/Widget.Eve.CategoryChip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Wrong (0)" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipSkipped"
-            style="@style/Widget.Material3.Chip.Filter"
+            style="@style/Widget.Eve.CategoryChip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Skipped (0)" />

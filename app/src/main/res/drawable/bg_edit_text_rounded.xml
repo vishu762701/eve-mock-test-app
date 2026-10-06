@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <corners android:radius="12dp" />
-    <solid android:color="@color/eve_fill_tertiary" />
+    <solid android:color="@color/eve_input_fill" />
     <stroke android:width="@dimen/eve_stroke_hairline" android:color="@color/eve_separator" />
 </shape>

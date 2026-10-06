@@ -8,6 +8,47 @@ import { AppContentRow, AuthUser, Env } from "../types";
 
 export const appContentRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
+const HOME_HERO_ACTIONS = new Set(["open_practice", "open_pyq", "browse_exams"]);
+
+function serializeContent(row: AppContentRow | null, type: string, includeDraft: boolean) {
+  if (!row) {
+    return type === "home_hero"
+      ? { ...getDefaultContent(type), enabled: false, ctaLabel: "", ctaAction: "" }
+      : getDefaultContent(type);
+  }
+
+  const enabled = Boolean(row.enabled);
+  const visible = type !== "home_hero" || includeDraft || enabled;
+  return {
+    title: visible ? row.title : "",
+    body: visible ? row.body : "",
+    updatedAt: row.updated_at,
+    updatedBy: includeDraft ? row.updated_by : "",
+    supportEmail: row.support_email || "",
+    phone: row.phone || "",
+    website: row.website || "",
+    address: row.address || "",
+    ...(type === "home_hero"
+      ? {
+          enabled,
+          ctaLabel: visible ? row.cta_label || "" : "",
+          ctaAction: visible ? row.cta_action || "" : "",
+        }
+      : {}),
+  };
+}
+
+function sanitizeHomeText(value: unknown, field: string, maxLength: number): string | null {
+  if (typeof value !== "string") return null;
+  const plainText = value
+    .replace(/<[^>]*>/g, "")
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
+    .trim();
+  if (plainText.length > maxLength) return null;
+  if (field === "ctaLabel") return plainText.replace(/[\r\n\t]+/g, " ").trim();
+  return plainText;
+}
+
 function getDefaultContent(type: string) {
   switch (type) {
     case "privacy":
@@ -80,6 +121,17 @@ We may update these Terms periodically. Continued use of the app signifies accep
         website: "https://vishu762701.github.io/eve-mock-test-app",
         address: "India",
       };
+    case "home_hero":
+      return {
+        title: "",
+        body: "",
+        updatedAt: 0,
+        updatedBy: "",
+        supportEmail: "",
+        phone: "",
+        website: "",
+        address: "",
+      };
     default:
       return {
         title: "",
@@ -102,7 +154,16 @@ function normalizeContentType(type: string): string {
   return t;
 }
 
-// GET /api/app-content/:type - Get content
+// GET /api/app-content/home_hero/admin - Read a draft for the admin editor.
+appContentRoutes.get("/home_hero/admin", requireAdmin, async (c) => {
+  const row = await c.env.DB
+    .prepare("SELECT * FROM app_content WHERE id = ?")
+    .bind("home_hero")
+    .first<AppContentRow>();
+  return c.json({ success: true, data: serializeContent(row, "home_hero", true) });
+});
+
+// GET /api/app-content/:type - Public content reads. Disabled Home hero drafts are redacted.
 appContentRoutes.get("/:type", async (c) => {
   const rawType = (c.req.param("type") || "").toLowerCase();
   const type = normalizeContentType(rawType);
@@ -110,33 +171,64 @@ appContentRoutes.get("/:type", async (c) => {
 
   const row = await db.prepare("SELECT * FROM app_content WHERE id = ?").bind(type).first<AppContentRow>();
 
-  if (row) {
-    return c.json({
-      success: true,
-      data: {
-        title: row.title,
-        body: row.body,
-        updatedAt: row.updated_at,
-        updatedBy: row.updated_by,
-        supportEmail: row.support_email || "",
-        phone: row.phone || "",
-        website: row.website || "",
-        address: row.address || "",
-      },
-    });
-  }
-
-  return c.json({ success: true, data: getDefaultContent(type) });
+  return c.json({ success: true, data: serializeContent(row, type, false) });
 });
 
 // PUT /api/app-content/:type - Update content (Admin)
 appContentRoutes.put("/:type", requireAdmin, async (c) => {
   const rawType = (c.req.param("type") || "").toLowerCase();
   const type = normalizeContentType(rawType);
-  const body = await c.req.json().catch(() => ({}));
+  const parsedBody = await c.req.json().catch(() => ({}));
+  const body = parsedBody && typeof parsedBody === "object" && !Array.isArray(parsedBody)
+    ? parsedBody as Record<string, unknown>
+    : {};
   const user = c.get("user");
   const db = c.env.DB;
   const now = Date.now();
+
+  if (type === "home_hero") {
+    const enabled = body.enabled;
+    if (typeof enabled !== "boolean") {
+      return c.json({ success: false, error: "enabled must be a boolean" }, 400);
+    }
+
+    const title = sanitizeHomeText(body.title, "title", 80);
+    const textBody = sanitizeHomeText(body.body, "body", 600);
+    const ctaLabel = sanitizeHomeText(body.ctaLabel ?? "", "ctaLabel", 32);
+    const ctaAction = sanitizeHomeText(body.ctaAction ?? "", "ctaAction", 32);
+    if (title === null || textBody === null || ctaLabel === null || ctaAction === null) {
+      return c.json({ success: false, error: "Home hero fields are invalid or too long" }, 400);
+    }
+    if (enabled && (!title || !textBody)) {
+      return c.json({ success: false, error: "A published Home hero needs a title and body" }, 400);
+    }
+    if (Boolean(ctaLabel) !== Boolean(ctaAction)) {
+      return c.json({ success: false, error: "CTA label and action must be provided together" }, 400);
+    }
+    if (ctaAction && !HOME_HERO_ACTIONS.has(ctaAction)) {
+      return c.json({ success: false, error: "CTA action is not supported" }, 400);
+    }
+
+    await db
+      .prepare(
+        `INSERT INTO app_content (
+           id, title, body, updated_at, updated_by, support_email, phone, website, address,
+           enabled, cta_label, cta_action
+         ) VALUES (?, ?, ?, ?, ?, '', '', '', '', ?, ?, ?)
+         ON CONFLICT(id) DO UPDATE SET
+           title = excluded.title,
+           body = excluded.body,
+           updated_at = excluded.updated_at,
+           updated_by = excluded.updated_by,
+           enabled = excluded.enabled,
+           cta_label = excluded.cta_label,
+           cta_action = excluded.cta_action`
+      )
+      .bind("home_hero", title, textBody, now, user.email, enabled ? 1 : 0, ctaLabel, ctaAction)
+      .run();
+
+    return c.json({ success: true });
+  }
 
   const title = String(body.title || "").trim();
   const textBody = String(body.body || "").trim();

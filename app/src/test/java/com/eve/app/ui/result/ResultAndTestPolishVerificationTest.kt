@@ -423,14 +423,17 @@ class ResultAndTestPolishVerificationTest {
         assertTrue("layoutStreakPill must exist", content.contains("android:id=\"@+id/layoutStreakPill\""))
         assertTrue("btnAdmin must exist", content.contains("android:id=\"@+id/btnAdmin\""))
 
-        // Both pills must use match_parent to maintain identical width within Find Your Next Test card
+        // The streak remains a data-driven pill outside the admin-managed Home hero.
         val streakPillStart = content.indexOf("android:id=\"@+id/layoutStreakPill\"")
         val streakChunk = content.substring(streakPillStart, content.indexOf(">", streakPillStart))
-        assertTrue("layoutStreakPill must have match_parent width", streakChunk.contains("android:layout_width=\"match_parent\""))
+        assertTrue("layoutStreakPill should size to its content", streakChunk.contains("android:layout_width=\"wrap_content\""))
 
+        val heroStart = content.indexOf("android:id=\"@+id/panelFindTest\"")
+        val heroEnd = content.indexOf("</LinearLayout>", heroStart)
         val adminStart = content.indexOf("android:id=\"@+id/btnAdmin\"")
         val adminChunk = content.substring(adminStart, content.indexOf(">", adminStart))
-        assertTrue("btnAdmin must have match_parent width", adminChunk.contains("android:layout_width=\"match_parent\""))
+        assertTrue("Admin shortcut must live outside the Home hero", adminStart > heroEnd)
+        assertTrue("Admin shortcut remains full width", adminChunk.contains("android:layout_width=\"match_parent\""))
     }
 
     @Test

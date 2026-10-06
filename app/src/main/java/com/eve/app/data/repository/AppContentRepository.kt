@@ -11,6 +11,7 @@ class AppContentRepository {
         const val TYPE_PRIVACY = "privacy_policy"
         const val TYPE_TERMS = "terms_of_service"
         const val TYPE_CONTACT = "contact_us"
+        const val TYPE_HOME_HERO = "home_hero"
     }
 
     private fun normalizeType(type: String): String = when (type.lowercase()) {
@@ -24,10 +25,16 @@ class AppContentRepository {
         val norm = normalizeType(type)
         return try {
             val response = api.getAppContent(norm)
-            response.data ?: getDefaultContent(type)
+            if (response.success) response.data ?: getDefaultContent(type) else getDefaultContent(type)
         } catch (_: Exception) {
             getDefaultContent(type)
         }
+    }
+
+    suspend fun getAdminHomeHero(): AppContent {
+        val response = api.getAdminHomeHero()
+        check(response.success) { response.error ?: "Unable to load Home hero content" }
+        return response.data ?: AppContent()
     }
 
     suspend fun saveContent(type: String, content: AppContent) {
@@ -40,9 +47,13 @@ class AppContentRepository {
             "supportEmail" to content.supportEmail,
             "phone" to content.phone,
             "website" to content.website,
-            "address" to content.address
+            "address" to content.address,
+            "enabled" to content.enabled,
+            "ctaLabel" to content.ctaLabel,
+            "ctaAction" to content.ctaAction
         )
-        api.updateAppContent(norm, data)
+        val response = api.updateAppContent(norm, data)
+        check(response.success) { response.error ?: "Unable to save app content" }
     }
 
     fun getDefaultContent(type: String): AppContent = when (normalizeType(type)) {
@@ -105,6 +116,7 @@ We may update these Terms periodically. Continued use of the app signifies accep
             website = "https://vishu762701.github.io/eve-mock-test-app",
             address = "India"
         )
+        "home_hero" -> AppContent(enabled = false)
         else -> AppContent()
     }
 }

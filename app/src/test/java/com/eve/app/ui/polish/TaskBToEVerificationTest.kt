@@ -4,6 +4,7 @@ import com.eve.app.R
 import com.eve.app.util.ExamCategoryTintHelper
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
@@ -77,7 +78,9 @@ class TaskBToEVerificationTest {
 
         val mainLayout = File("src/main/res/layout/activity_main.xml").readText()
         assertTrue("Main layout greeting should use HeadlineLarge", mainLayout.contains("TextAppearance.Eve.M3.HeadlineLarge"))
-        assertTrue("Main layout panel should use HeadlineMedium", mainLayout.contains("TextAppearance.Eve.M3.HeadlineMedium"))
+        assertTrue("Main layout should contain an admin-managed empty Home hero", mainLayout.contains("@+id/layoutHomeHeroContent"))
+        assertFalse("Home hero must not contain hardcoded fallback copy", mainLayout.contains("Find your next test"))
+        assertFalse("Home hero must not contain hardcoded fallback body", mainLayout.contains("Choose an exam to begin practicing."))
 
         val resultLayout = File("src/main/res/layout/activity_result.xml").readText()
         assertTrue("Result layout should contain Statistics heading without 15sp override", resultLayout.contains("android:text=\"Statistics\""))

@@ -30,7 +30,6 @@ import android.view.ViewGroup
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.eve.app.ui.common.HomePanelWashDrawable
 import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.model.KeyPath
 import com.airbnb.lottie.value.SimpleLottieValueCallback
@@ -291,8 +290,6 @@ class MainActivity : EveBaseActivity() {
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
 
-        com.eve.app.util.EveBlurHelper.applyRenderEffect(binding.topBarContainer, 20f)
-
         com.eve.app.util.EveTouchHelper.attachTactileFeedback(binding.ivProfile) {
             captureDrawerBlur()
             binding.drawerLayout.openDrawer(GravityCompat.START)
@@ -383,7 +380,9 @@ class MainActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        if (!::binding.isInitialized) return
         applyFindTestPanelBackground()
+        loadHomeHero()
         hasEmptyPlayed = false
         isExamNavigating = false
         checkAppConfigAndMaintenance()
@@ -983,30 +982,72 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun applyFindTestPanelBackground() {
-        val isNight = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-        val radiusPx = resources.getDimension(R.dimen.eve_radius_card)
-        binding.panelFindTest.outlineProvider = object : ViewOutlineProvider() {
-            override fun getOutline(view: View, outline: Outline) {
-                outline.setRoundRect(0, 0, view.width, view.height, radiusPx)
+        binding.panelFindTest.setBackgroundResource(R.drawable.bg_panel_card)
+    }
+
+    private fun loadHomeHero() {
+        lifecycleScope.launch(lifecycleExceptionHandler) {
+            val content = com.eve.app.data.repository.AppContentRepository()
+                .getContent(com.eve.app.data.repository.AppContentRepository.TYPE_HOME_HERO)
+            val container = binding.layoutHomeHeroContent
+            if (!content.enabled || content.title.isBlank() || content.body.isBlank()) {
+                container.removeAllViews()
+                container.visibility = View.GONE
+                return@launch
             }
-        }
-        binding.panelFindTest.clipToOutline = true
-        if (!isNight) {
-            val strokePx = resources.displayMetrics.density * 1f
-            binding.panelFindTest.background = HomePanelWashDrawable(radiusPx, strokePx)
-        } else {
-            binding.panelFindTest.setBackgroundResource(R.drawable.bg_panel_card)
+
+            container.removeAllViews()
+            val title = android.widget.TextView(this@MainActivity).apply {
+                setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_M3_HeadlineMedium)
+                text = content.title
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.eve_text))
+                setTypeface(typeface, android.graphics.Typeface.BOLD)
+                includeFontPadding = false
+            }
+            container.addView(title)
+
+            val body = android.widget.TextView(this@MainActivity).apply {
+                text = content.body
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.eve_text_secondary))
+                textSize = 15f
+                setLineSpacing(resources.displayMetrics.density * 2f, 1f)
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                ).apply { topMargin = (6 * resources.displayMetrics.density).toInt() }
+            }
+            container.addView(body)
+
+            if (content.ctaLabel.isNotBlank() && content.ctaAction.isNotBlank()) {
+                val cta = com.google.android.material.button.MaterialButton(
+                    this@MainActivity,
+                    null,
+                    com.google.android.material.R.attr.materialButtonStyle
+                ).apply {
+                    text = content.ctaLabel
+                    setTextColor(ContextCompat.getColor(this@MainActivity, R.color.eve_white))
+                    backgroundTintList = ContextCompat.getColorStateList(this@MainActivity, R.color.eve_system_blue)
+                    cornerRadius = resources.getDimensionPixelSize(R.dimen.eve_radius_button)
+                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    ).apply { topMargin = (16 * resources.displayMetrics.density).toInt() }
+                    setOnClickListener {
+                        when (content.ctaAction) {
+                            "open_practice" -> startActivity(Intent(this@MainActivity, PracticeActivity::class.java))
+                            "open_pyq" -> startActivity(Intent(this@MainActivity, PyqActivity::class.java))
+                            "browse_exams" -> binding.rvExams.post { binding.rvExams.smoothScrollToPosition(0) }
+                        }
+                    }
+                }
+                container.addView(cta)
+            }
+            container.visibility = View.VISIBLE
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        com.eve.app.util.EveBlurHelper.clearRenderEffect(binding.topBarContainer)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            try {
-                binding.mainContentContainer.setRenderEffect(null)
-            } catch (_: Throwable) { }
-        }
         try {
             unregisterReceiver(foregroundNotificationReceiver)
         } catch (_: Exception) { }

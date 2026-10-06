@@ -30,6 +30,7 @@
         <item name="textAppearanceLabelMedium">@style/TextAppearance.Eve.M3.LabelMedium</item>
         <item name="textAppearanceLabelSmall">@style/TextAppearance.Eve.M3.LabelSmall</item>
         <item name="materialButtonStyle">@style/Widget.Eve.Button</item>
+        <item name="textInputStyle">@style/Widget.Eve.TextInput.Filled</item>
         <item name="materialCardViewStyle">@style/Widget.Eve.Card</item>
         <item name="bottomSheetDialogTheme">@style/Theme.Eve.BottomSheetDialog</item>
         <item name="popupMenuStyle">@style/Widget.Eve.PopupMenu</item>
@@ -48,7 +49,7 @@
 
     <style name="ShapeAppearance.Eve.Dialog" parent="">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">@dimen/eve_radius_card</item>
+        <item name="cornerSize">@dimen/eve_radius_xl</item>
     </style>
 
     <style name="Theme.Eve.BottomSheetDialog" parent="Theme.Material3.Dark.BottomSheetDialog">

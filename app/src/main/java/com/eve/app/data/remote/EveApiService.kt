@@ -424,6 +424,9 @@ interface EveApiService {
     @GET("api/app-content/{type}")
     suspend fun getAppContent(@Path("type") type: String): ApiResponse<AppContent>
 
+    @GET("api/app-content/home_hero/admin")
+    suspend fun getAdminHomeHero(): ApiResponse<AppContent>
+
     @PUT("api/app-content/{type}")
     suspend fun updateAppContent(@Path("type") type: String, @Body body: Map<String, @JvmSuppressWildcards Any>): ApiResponse<Unit>
 

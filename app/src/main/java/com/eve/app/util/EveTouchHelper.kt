@@ -27,10 +27,14 @@ object EveTouchHelper {
         onClick: (() -> Unit)? = null
     ) {
         view.isClickable = true
+        if (onClick != null) view.setOnClickListener { onClick.invoke() }
         view.setOnTouchListener { v, event ->
+            if (!v.isEnabled) return@setOnTouchListener false
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
-                    animatePress(v, pressScale, pressAlpha, 100L)
+                    if (EveMotionHelper.areAnimationsEnabled(v.context)) {
+                        animatePress(v, pressScale, pressAlpha, 100L)
+                    }
                     if (enableHaptic) {
                         try {
                             v.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
@@ -39,17 +43,11 @@ object EveTouchHelper {
                     false
                 }
                 MotionEvent.ACTION_UP -> {
-                    animateRelease(v, 200L)
-                    if (onClick != null) {
-                        v.performClick()
-                        onClick.invoke()
-                        true
-                    } else {
-                        false
-                    }
+                    if (EveMotionHelper.areAnimationsEnabled(v.context)) animateRelease(v, 200L)
+                    false
                 }
                 MotionEvent.ACTION_CANCEL -> {
-                    animateRelease(v, 200L)
+                    if (EveMotionHelper.areAnimationsEnabled(v.context)) animateRelease(v, 200L)
                     false
                 }
                 else -> false

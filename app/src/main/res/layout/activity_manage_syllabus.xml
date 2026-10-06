@@ -79,7 +79,7 @@
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="16dp"
                 app:cardBackgroundColor="@color/eve_surface"
-                app:cardCornerRadius="16dp"
+                app:cardCornerRadius="@dimen/eve_radius_card"
                 app:cardElevation="0dp"
                 app:strokeColor="@color/eve_stroke"
                 app:strokeWidth="1dp">
@@ -108,7 +108,7 @@
                     <!-- Step 1: Select Exam -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilSelectExam"
-                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        style="@style/Widget.Eve.TextInput.Filled.ExposedDropdownMenu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
@@ -226,7 +226,7 @@
             <!-- Search input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilSearch"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.Eve.TextInput.Filled"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"

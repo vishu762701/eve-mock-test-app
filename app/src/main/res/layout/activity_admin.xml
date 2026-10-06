@@ -109,7 +109,7 @@
                     android:layout_marginTop="4dp"
                     android:letterSpacing="0.08"
                     android:text="CONTENT MANAGEMENT"
-                    android:textColor="@color/eve_primary"
+                    android:textColor="@color/eve_text_secondary"
                     android:textSize="13sp" />
 
                 <com.google.android.material.button.MaterialButton
@@ -165,6 +165,20 @@
                     android:paddingVertical="12dp"
                     android:text="Home Banner Image"
                     app:icon="@drawable/ic_image"
+                    app:iconPadding="12dp"
+                    app:iconSize="20dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnManageHomeHero"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical|start"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp"
+                    android:text="Home Hero Content"
+                    app:icon="@drawable/ic_edit"
                     app:iconPadding="12dp"
                     app:iconSize="20dp" />
 
@@ -399,7 +413,7 @@
                     android:layout_height="wrap_content"
                     android:letterSpacing="0.08"
                     android:text="USER MANAGEMENT"
-                    android:textColor="@color/eve_primary"
+                    android:textColor="@color/eve_text_secondary"
                     android:textSize="13sp" />
 
                 <!-- Stats Card (Tappable -> Manage Users) -->
@@ -412,7 +426,7 @@
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
                     app:cardBackgroundColor="@color/eve_card_bg"
-                    app:cardCornerRadius="14dp"
+                    app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
                     app:strokeColor="@color/eve_stroke"
                     app:strokeWidth="1dp">
@@ -572,7 +586,7 @@
                     android:layout_marginTop="28dp"
                     android:letterSpacing="0.08"
                     android:text="COMMUNICATION"
-                    android:textColor="@color/eve_primary"
+                    android:textColor="@color/eve_text_secondary"
                     android:textSize="13sp" />
 
                 <com.google.android.material.button.MaterialButton
@@ -656,7 +670,7 @@
                     android:layout_marginTop="28dp"
                     android:letterSpacing="0.08"
                     android:text="ANALYTICS &amp; MONITORING"
-                    android:textColor="@color/eve_primary"
+                    android:textColor="@color/eve_text_secondary"
                     android:textSize="13sp" />
 
                 <com.google.android.material.button.MaterialButton
@@ -736,7 +750,7 @@
                     android:layout_marginTop="28dp"
                     android:letterSpacing="0.08"
                     android:text="APP VERSION &amp; BUILD STATUS"
-                    android:textColor="@color/eve_primary"
+                    android:textColor="@color/eve_text_secondary"
                     android:textSize="13sp" />
 
                 <com.google.android.material.card.MaterialCardView
@@ -744,7 +758,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     app:cardBackgroundColor="@color/eve_card_bg"
-                    app:cardCornerRadius="14dp"
+                    app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
                     app:strokeColor="@color/eve_stroke"
                     app:strokeWidth="1dp">
@@ -835,7 +849,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="1"
-                                    android:textColor="@color/eve_primary"
+                                    android:textColor="@color/eve_text"
                                     android:textSize="13sp" />
                             </LinearLayout>
                         </LinearLayout>
@@ -857,7 +871,7 @@
                     android:layout_marginTop="28dp"
                     android:letterSpacing="0.08"
                     android:text="SYSTEM MAINTENANCE"
-                    android:textColor="@color/eve_primary"
+                    android:textColor="@color/eve_text_secondary"
                     android:textSize="13sp" />
 
                 <com.google.android.material.card.MaterialCardView
@@ -866,7 +880,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="24dp"
                     app:cardBackgroundColor="@color/eve_card_bg"
-                    app:cardCornerRadius="14dp"
+                    app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
                     app:strokeColor="@color/eve_stroke"
                     app:strokeWidth="1dp">

@@ -9,7 +9,7 @@
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground"
     app:cardBackgroundColor="@color/eve_surface"
-    app:cardCornerRadius="@dimen/eve_radius_md"
+    app:cardCornerRadius="@dimen/eve_radius_card"
     app:cardElevation="0dp"
     app:rippleColor="@color/eve_primary"
     app:strokeColor="@color/eve_stroke"

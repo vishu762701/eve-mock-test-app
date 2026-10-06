@@ -13,6 +13,7 @@ import com.eve.app.data.model.AppContent
 import com.eve.app.data.repository.AppContentRepository
 import com.eve.app.databinding.ActivityEditAboutBinding
 import com.google.android.material.tabs.TabLayout
+import android.widget.ArrayAdapter
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -29,6 +30,17 @@ class EditAboutActivity : EveBaseActivity() {
         binding = ActivityEditAboutBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val ctaActions = listOf("No button", "Open Practice", "Open PYQ", "Browse Exams")
+        binding.spinnerHomeHeroCtaAction.adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_dropdown_item,
+            ctaActions
+        )
+        currentType = intent.getStringExtra(EXTRA_INITIAL_TYPE)
+            ?.takeIf { it == AppContentRepository.TYPE_HOME_HERO }
+            ?: AppContentRepository.TYPE_PRIVACY
+        binding.tabLayout.getTabAt(tabIndex(currentType))?.select()
+
         binding.btnBack.setOnClickListener { handleBack() }
         binding.btnSave.setOnClickListener { saveCurrent() }
 
@@ -44,6 +56,7 @@ class EditAboutActivity : EveBaseActivity() {
                     0 -> AppContentRepository.TYPE_PRIVACY
                     1 -> AppContentRepository.TYPE_TERMS
                     2 -> AppContentRepository.TYPE_CONTACT
+                    3 -> AppContentRepository.TYPE_HOME_HERO
                     else -> AppContentRepository.TYPE_PRIVACY
                 }
                 if (newType != currentType) {
@@ -59,13 +72,7 @@ class EditAboutActivity : EveBaseActivity() {
                             }
                             .setNeutralButton("Cancel") { _, _ ->
                                 // Re-select current tab
-                                val oldIdx = when (currentType) {
-                                    AppContentRepository.TYPE_PRIVACY -> 0
-                                    AppContentRepository.TYPE_TERMS -> 1
-                                    AppContentRepository.TYPE_CONTACT -> 2
-                                    else -> 0
-                                }
-                                binding.tabLayout.getTabAt(oldIdx)?.select()
+                                binding.tabLayout.getTabAt(tabIndex(currentType))?.select()
                             }
                             .show()
                     } else {
@@ -85,18 +92,41 @@ class EditAboutActivity : EveBaseActivity() {
         currentType = type
         binding.layoutContactFields.visibility =
             if (type == AppContentRepository.TYPE_CONTACT) View.VISIBLE else View.GONE
+        val isHomeHero = type == AppContentRepository.TYPE_HOME_HERO
+        binding.layoutHomeHeroFields.visibility = if (isHomeHero) View.VISIBLE else View.GONE
+        binding.tilTitle.hint = if (isHomeHero) "Headline" else "Page Title"
+        binding.tilBody.hint = if (isHomeHero) "Supporting text" else "Body Content"
+        binding.etBody.minLines = if (isHomeHero) 5 else 12
         loadContent(type)
     }
 
     private fun loadContent(type: String) {
+        binding.btnSave.isEnabled = false
         binding.progressBar.visibility = View.VISIBLE
         binding.scrollViewContent.visibility = View.INVISIBLE
         lifecycleScope.launch {
-            val content = repo.getContent(type)
-            initialContent = content
-            populateUi(content)
-            binding.progressBar.visibility = View.GONE
-            binding.scrollViewContent.visibility = View.VISIBLE
+            try {
+                val content = if (type == AppContentRepository.TYPE_HOME_HERO) {
+                    repo.getAdminHomeHero()
+                } else {
+                    repo.getContent(type)
+                }
+                initialContent = content
+                populateUi(content)
+                binding.btnSave.isEnabled = true
+                binding.progressBar.visibility = View.GONE
+                binding.scrollViewContent.visibility = View.VISIBLE
+            } catch (e: Exception) {
+                initialContent = AppContent()
+                populateUi(initialContent)
+                binding.btnSave.isEnabled = false
+                binding.progressBar.visibility = View.GONE
+                binding.scrollViewContent.visibility = View.VISIBLE
+                AppBulletin.showError(
+                    this@EditAboutActivity,
+                    "Couldn't load content: ${e.localizedMessage ?: "Unknown error"}"
+                )
+            }
         }
     }
 
@@ -107,6 +137,16 @@ class EditAboutActivity : EveBaseActivity() {
         binding.etPhone.setText(content.phone)
         binding.etWebsite.setText(content.website)
         binding.etAddress.setText(content.address)
+        binding.switchHomeHeroEnabled.isChecked = content.enabled
+        binding.etHomeHeroCtaLabel.setText(content.ctaLabel)
+        binding.spinnerHomeHeroCtaAction.setSelection(
+            when (content.ctaAction) {
+                "open_practice" -> 1
+                "open_pyq" -> 2
+                "browse_exams" -> 3
+                else -> 0
+            }
+        )
     }
 
     private fun getCurrentUiContent(): AppContent {
@@ -119,7 +159,15 @@ class EditAboutActivity : EveBaseActivity() {
             supportEmail = binding.etSupportEmail.text?.toString()?.trim().orEmpty(),
             phone = binding.etPhone.text?.toString()?.trim().orEmpty(),
             website = binding.etWebsite.text?.toString()?.trim().orEmpty(),
-            address = binding.etAddress.text?.toString()?.trim().orEmpty()
+            address = binding.etAddress.text?.toString()?.trim().orEmpty(),
+            enabled = binding.switchHomeHeroEnabled.isChecked,
+            ctaLabel = binding.etHomeHeroCtaLabel.text?.toString()?.trim().orEmpty(),
+            ctaAction = when (binding.spinnerHomeHeroCtaAction.selectedItemPosition) {
+                1 -> "open_practice"
+                2 -> "open_pyq"
+                3 -> "browse_exams"
+                else -> ""
+            }
         )
     }
 
@@ -130,23 +178,47 @@ class EditAboutActivity : EveBaseActivity() {
             current.supportEmail != initialContent.supportEmail ||
             current.phone != initialContent.phone ||
             current.website != initialContent.website ||
-            current.address != initialContent.address
+            current.address != initialContent.address ||
+            (currentType == AppContentRepository.TYPE_HOME_HERO &&
+                (current.enabled != initialContent.enabled ||
+                    current.ctaLabel != initialContent.ctaLabel ||
+                    current.ctaAction != initialContent.ctaAction))
     }
 
     private fun saveCurrent(onSuccess: (() -> Unit)? = null) {
         val current = getCurrentUiContent()
-        if (current.title.isEmpty()) {
+        val homeHero = currentType == AppContentRepository.TYPE_HOME_HERO
+        val required = !homeHero || current.enabled
+        if (required && current.title.isEmpty()) {
             binding.tilTitle.error = "Title cannot be empty"
             return
         } else {
             binding.tilTitle.error = null
         }
 
-        if (current.body.isEmpty()) {
+        if (required && current.body.isEmpty()) {
             binding.tilBody.error = "Body content cannot be empty"
             return
         } else {
             binding.tilBody.error = null
+        }
+
+        if (homeHero && current.title.length > 80) {
+            binding.tilTitle.error = "Use at most 80 characters"
+            return
+        }
+        if (homeHero && current.body.length > 600) {
+            binding.tilBody.error = "Use at most 600 characters"
+            return
+        }
+        binding.tilHomeHeroCtaLabel.error = null
+        if (homeHero && current.ctaLabel.length > 32) {
+            binding.tilHomeHeroCtaLabel.error = "Use at most 32 characters"
+            return
+        }
+        if (homeHero && current.ctaLabel.isNotEmpty() != current.ctaAction.isNotEmpty()) {
+            binding.tilHomeHeroCtaLabel.error = "Choose a button action for its label, or clear the label"
+            return
         }
 
         binding.btnSave.isEnabled = false
@@ -187,5 +259,16 @@ class EditAboutActivity : EveBaseActivity() {
         } else {
             finish()
         }
+    }
+
+    private fun tabIndex(type: String): Int = when (type) {
+        AppContentRepository.TYPE_TERMS -> 1
+        AppContentRepository.TYPE_CONTACT -> 2
+        AppContentRepository.TYPE_HOME_HERO -> 3
+        else -> 0
+    }
+
+    companion object {
+        const val EXTRA_INITIAL_TYPE = "initial_type"
     }
 }

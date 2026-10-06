@@ -1070,21 +1070,21 @@
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chipCorrect"
-                            style="@style/Widget.Material3.Chip.Filter"
+                            style="@style/Widget.Eve.CategoryChip"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Right" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chipWrong"
-                            style="@style/Widget.Material3.Chip.Filter"
+                            style="@style/Widget.Eve.CategoryChip"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Wrong" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chipNotAttempted"
-                            style="@style/Widget.Material3.Chip.Filter"
+                            style="@style/Widget.Eve.CategoryChip"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Unattempted" />

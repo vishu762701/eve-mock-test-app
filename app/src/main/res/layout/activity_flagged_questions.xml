@@ -73,7 +73,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipContentIssues"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/Widget.Eve.CategoryChip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
@@ -81,7 +81,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipTechnicalIssues"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/Widget.Eve.CategoryChip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Technical / Bug Reports" />

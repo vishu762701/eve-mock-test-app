@@ -53,7 +53,7 @@
         android:layout_marginTop="12dp"
         android:layout_marginBottom="8dp"
         app:cardBackgroundColor="@color/eve_card_bg"
-        app:cardCornerRadius="12dp"
+        app:cardCornerRadius="@dimen/eve_radius_card"
         app:cardElevation="0dp"
         app:strokeColor="@color/eve_stroke"
         app:strokeWidth="1dp">

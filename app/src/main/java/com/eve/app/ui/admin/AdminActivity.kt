@@ -199,6 +199,12 @@ class AdminActivity : EveBaseActivity() {
         binding.btnHomeBanner.setOnClickListener {
             showHomeBannerOptionsDialog()
         }
+        binding.btnManageHomeHero.setOnClickListener {
+            startActivity(
+                Intent(this, EditAboutActivity::class.java)
+                    .putExtra(EditAboutActivity.EXTRA_INITIAL_TYPE, com.eve.app.data.repository.AppContentRepository.TYPE_HOME_HERO)
+            )
+        }
         binding.btnFloatingLink.setOnClickListener {
             showFloatingLinkDialog()
         }

@@ -220,7 +220,7 @@
             android:textStyle="bold"
             android:visibility="gone" />
 
-        <!-- Panel: 24dp squircle, layered Apple surface -->
+        <!-- Empty-by-default admin-managed Home hero surface -->
         <LinearLayout
             android:id="@+id/panelFindTest"
             android:layout_width="match_parent"
@@ -229,76 +229,57 @@
             android:layout_marginTop="20dp"
             android:background="@drawable/bg_panel_card"
             android:orientation="vertical"
-            android:paddingHorizontal="22dp"
-            android:paddingVertical="20dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
-                android:fontFamily="sans-serif-bold"
-                android:letterSpacing="0.08"
-                android:text="DISCOVER"
-                android:textColor="@color/eve_system_blue"
-                android:textSize="11sp" />
-
-            <TextView
-                style="@style/TextAppearance.Eve.M3.HeadlineMedium"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Find your next test"
-                android:textColor="@color/eve_text"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:fontFamily="sans-serif"
-                android:lineSpacingExtra="2dp"
-                android:text="Choose an exam to begin practicing."
-                android:textColor="@color/eve_text_secondary"
-                android:textSize="14sp" />
+            android:minHeight="116dp"
+            android:padding="20dp">
 
             <LinearLayout
-                android:id="@+id/layoutStreakPill"
+                android:id="@+id/layoutHomeHeroContent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_streak_pill"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:paddingStart="12dp"
-                android:paddingEnd="@dimen/eve_space_16"
-                android:paddingVertical="@dimen/eve_space_8"
-                android:visibility="gone">
-
-                <com.eve.app.ui.common.FlameAnimationView
-                    android:id="@+id/flameStreakAnimation"
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:layout_marginEnd="6dp" />
-
-                <TextView
-                    android:id="@+id/tvStreakSummary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-medium"
-                    android:gravity="center_vertical"
-                    android:textColor="@color/eve_text"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnAdmin"
-                style="@style/Widget.Eve.Button.Primary"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Admin Dashboard"
+                android:orientation="vertical"
                 android:visibility="gone" />
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutStreakPill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_streak_pill"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingStart="12dp"
+            android:paddingEnd="@dimen/eve_space_16"
+            android:paddingVertical="@dimen/eve_space_8"
+            android:visibility="gone">
+
+            <com.eve.app.ui.common.FlameAnimationView
+                android:id="@+id/flameStreakAnimation"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="6dp" />
+
+            <TextView
+                android:id="@+id/tvStreakSummary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center_vertical"
+                android:textColor="@color/eve_text"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAdmin"
+            style="@style/Widget.Eve.Button.Neutral"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="12dp"
+            android:text="Admin Dashboard"
+            android:visibility="gone" />
 
         <!-- Task A: Home Banner Image Carousel (Horizontal Swipeable Strip) -->
         <com.eve.app.ui.common.EveLiquidGlassView

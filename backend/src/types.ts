@@ -256,6 +256,9 @@ export interface AppContentRow {
   phone: string;
   website: string;
   address: string;
+  enabled: number;
+  cta_label: string;
+  cta_action: string;
 }
 
 export interface UserRow {

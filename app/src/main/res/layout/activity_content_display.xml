@@ -89,7 +89,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     app:cardBackgroundColor="@color/eve_surface"
-                    app:cardCornerRadius="12dp"
+                    app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
                     app:strokeColor="@color/eve_border"
                     app:strokeWidth="1dp">
@@ -140,7 +140,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     app:cardBackgroundColor="@color/eve_surface"
-                    app:cardCornerRadius="12dp"
+                    app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
                     app:strokeColor="@color/eve_border"
                     app:strokeWidth="1dp">
@@ -191,7 +191,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     app:cardBackgroundColor="@color/eve_surface"
-                    app:cardCornerRadius="12dp"
+                    app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
                     app:strokeColor="@color/eve_border"
                     app:strokeWidth="1dp">
