@@ -105,4 +105,5 @@
 - [x] Added protected Worker API draft/read-write behavior, D1 migration, validation, and API tests.
 - [x] Applied shared iOS-inspired visual tokens and controls across touched screens, including light and dark resources and reduced-motion-aware helpers.
 - [x] `./gradlew testDebugUnitTest assembleDebug` passed (194 tests, no failures); backend `npm test` passed (68 tests); backend `npm run build` passed; all ten migrations applied in SQLite; `git diff --check` passed.
+- [x] GitHub Actions deployed the Worker, applied D1 migrations, and passed live production smoke tests for the pushed changes ([run 37424680290](https://github.com/vishu762701/eve-mock-test-app/actions/runs/37424680290)).
 - [ ] Emulator/device visual and functional checks remain pending. `adb` cannot start in this environment due to a missing linker symbol, and no emulator executable is available. Build/test success is not recorded as UI verification.

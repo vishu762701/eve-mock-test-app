@@ -41,7 +41,8 @@ NONE
 - Applied all ten backend migrations in order to an in-memory SQLite database and confirmed the Home hero columns exist. Backend tests cover public empty/disabled reads, admin read/write authorization, sanitization, and invalid CTA input.
 - Static checks confirmed the existing email/Google auth and analytics/reporting source paths remain, stale old Login references and hardcoded Home hero copy are absent, and raw/assets containing Lottie content were not changed.
 - `git diff --check`: passed. Both light and dark resource variants were inspected.
-- No emulator/device launch, screenshot review, or live production API/deployment verification was possible. A green build and passing tests are not evidence of runtime UI correctness.
+- GitHub Actions workflow `Deploy Eve Worker & Apply D1 Migrations` completed successfully for the pushed redesign; its D1 migration, Worker deployment, and live production smoke-test steps passed ([run 37424680290](https://github.com/vishu762701/eve-mock-test-app/actions/runs/37424680290)).
+- No emulator/device launch or screenshot review was possible. A green build and passing tests are not evidence of runtime Android UI correctness.
 
 ## Last Commit
 
