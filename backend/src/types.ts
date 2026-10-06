@@ -350,3 +350,36 @@ export interface AdminAuditLogRow {
   admin_email: string;
   timestamp: number;
 }
+
+export interface UiStudioPublishedRow {
+  id: string;
+  version: number;
+  config_json: string;
+  published_at: number;
+  published_by: string;
+  notes?: string | null;
+}
+
+export interface UiStudioDraftRow {
+  id: string;
+  config_json: string;
+  updated_at: number;
+  updated_by: string;
+}
+
+export interface UiStudioVersionRow {
+  version: number;
+  config_json: string;
+  created_at: number;
+  created_by: string;
+  notes?: string | null;
+}
+
+export interface UiStudioAuditLogRow {
+  id: string;
+  action: string;
+  performed_by: string;
+  version?: number | null;
+  details?: string | null;
+  timestamp: number;
+}

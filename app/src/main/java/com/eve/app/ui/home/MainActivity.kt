@@ -315,11 +315,11 @@ class MainActivity : EveBaseActivity() {
                         android.util.Log.e("ThemeClickDiag", "EXCEPTION in MainActivity onThemeToggle", t)
                     }
                 },
-                onHistory = { startActivity(Intent(this, HistoryActivity::class.java)) },
-                onBookmarks = { startActivity(Intent(this, BookmarksActivity::class.java)) },
-                onMistakes = { startActivity(Intent(this, com.eve.app.ui.mistakes.MistakesActivity::class.java)) },
-                onTopic = { startActivity(Intent(this, PracticeActivity::class.java)) },
-                onPyq = { startActivity(Intent(this, PyqActivity::class.java)) },
+                onHistory = { com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, HistoryActivity::class.java), anchor) },
+                onBookmarks = { com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, BookmarksActivity::class.java), anchor) },
+                onMistakes = { com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, com.eve.app.ui.mistakes.MistakesActivity::class.java), anchor) },
+                onTopic = { com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, PracticeActivity::class.java), anchor) },
+                onPyq = { com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, PyqActivity::class.java), anchor) },
                 onLogout = { logout() }
             ).show(anchor)
         }
@@ -377,7 +377,29 @@ class MainActivity : EveBaseActivity() {
                         binding.tvOfflineBanner.visibility = if (online) View.GONE else View.VISIBLE
                     }
                 }
+                launch {
+                    com.eve.app.data.repository.UiStudioRepository.getInstance().activeConfigFlow.collect { config ->
+                        applyUiStudioConfig(config)
+                    }
+                }
             }
+        }
+
+        lifecycleScope.launch(lifecycleExceptionHandler) {
+            com.eve.app.data.repository.UiStudioRepository.getInstance().fetchPublishedConfig()
+        }
+    }
+
+    private fun applyUiStudioConfig(config: com.eve.app.data.model.uistudio.UiStudioConfig) {
+        val homeConfig = config.screens["home"] ?: return
+        homeConfig.components["streak_pill"]?.let {
+            com.eve.app.util.UiStudioEngine.applyStreakPill(binding.layoutStreakPill, binding.tvStreakSummary, it)
+        }
+        homeConfig.components["hero_banner"]?.let {
+            com.eve.app.util.UiStudioEngine.applyToView(binding.panelHomeBanner, it)
+        }
+        homeConfig.components["find_test_panel"]?.let {
+            com.eve.app.util.UiStudioEngine.applyToView(binding.btnSearch, it)
         }
     }
 
@@ -940,7 +962,7 @@ class MainActivity : EveBaseActivity() {
             }
             binding.dotUnread.visibility = View.GONE
             binding.btnNotification.postDelayed({
-                startActivity(Intent(this, NotificationsActivity::class.java))
+                com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, NotificationsActivity::class.java), binding.btnNotification)
             }, 350)
         }
     }
@@ -1022,7 +1044,7 @@ class MainActivity : EveBaseActivity() {
     private fun showAdminButton() {
         binding.btnAdmin.visibility = View.VISIBLE
         binding.btnAdmin.setOnClickListener {
-            startActivity(Intent(this, AdminActivity::class.java))
+            com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, AdminActivity::class.java), binding.btnAdmin)
         }
         FirebaseAuth.getInstance().currentUser?.uid?.let { uid ->
             CrashlyticsHelper.identify(uid, isAdmin = true)
@@ -1219,7 +1241,7 @@ class MainActivity : EveBaseActivity() {
         binding.ivDrawerAvatar.foreground = RippleHelper.createPremiumRippleDrawable(this, cornerRadiusDp = -1f, isDark = isDark)
         binding.ivDrawerAvatar.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
-            startActivity(Intent(this, ProfileActivity::class.java))
+            com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, ProfileActivity::class.java), binding.ivDrawerAvatar)
         }
 
         val drawerRowRadiusDp = 12f
@@ -1238,36 +1260,38 @@ class MainActivity : EveBaseActivity() {
 
         binding.layoutDrawerProfile.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
-            startActivity(Intent(this, ProfileActivity::class.java))
+            com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, ProfileActivity::class.java), binding.layoutDrawerProfile)
         }
         binding.layoutDrawerPremium.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
-            startActivity(Intent(this, com.eve.app.ui.premium.PremiumActivity::class.java))
+            com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, com.eve.app.ui.premium.PremiumActivity::class.java), binding.layoutDrawerPremium)
         }
         binding.layoutDrawerPerformance.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
-            startActivity(Intent(this, PerformanceActivity::class.java))
+            com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, PerformanceActivity::class.java), binding.layoutDrawerPerformance)
         }
         binding.layoutDrawerLeaderboard.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
-            startActivity(
+            com.eve.app.util.EveNavigationHelper.navigate(
+                this,
                 Intent(this, LeaderboardActivity::class.java).apply {
                     putExtra(Constants.EXTRA_EXAM_ID, "overall")
                     putExtra(Constants.EXTRA_EXAM_NAME, "Overall Leaderboard")
-                }
+                },
+                binding.layoutDrawerLeaderboard
             )
         }
         binding.layoutDrawerSyllabus.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
-            startActivity(Intent(this, SyllabusActivity::class.java))
+            com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, SyllabusActivity::class.java), binding.layoutDrawerSyllabus)
         }
         binding.layoutDrawerAbout.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
-            startActivity(Intent(this, AboutActivity::class.java))
+            com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, AboutActivity::class.java), binding.layoutDrawerAbout)
         }
         binding.layoutDrawerSettings.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
-            startActivity(Intent(this, SettingsActivity::class.java))
+            com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, SettingsActivity::class.java), binding.layoutDrawerSettings)
         }
     }
 

@@ -242,13 +242,13 @@
     <color name="eve_login_google_text">#FFFFFF</color>
 
     <!-- Drawer -->
-    <color name="eve_drawer_glass_bg">#CC1C1C1E</color>
-    <color name="eve_drawer_glass_base">#1C1C1E</color>
-    <color name="eve_drawer_glass_tint">#1C1C1E</color>
+    <color name="eve_drawer_glass_bg">#731C1C1E</color>
+    <color name="eve_drawer_glass_base">@android:color/transparent</color>
+    <color name="eve_drawer_glass_tint">#731C1C1E</color>
     <color name="eve_drawer_glass_border">#A6545458</color>
 
     <!-- Dropdown Menu -->
-    <color name="eve_menu_glass_bg">#CC1C1C1E</color>
+    <color name="eve_menu_glass_bg">#731C1C1E</color>
     <color name="eve_menu_glass_border">#A6545458</color>
     <color name="eve_menu_glass_divider">#A6545458</color>
 

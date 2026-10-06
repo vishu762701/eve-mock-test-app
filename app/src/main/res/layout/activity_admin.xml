@@ -716,6 +716,20 @@
                     app:iconSize="20dp" />
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnUiStudio"
+                    style="@style/Widget.Eve.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical|start"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp"
+                    android:text="EVE UI Studio (App Builder)"
+                    app:icon="@drawable/ic_edit"
+                    app:iconPadding="12dp"
+                    app:iconSize="20dp" />
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAppConfig"
                     style="@style/Widget.Eve.OutlinedButton"
                     android:layout_width="match_parent"

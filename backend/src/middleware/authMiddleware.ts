@@ -20,7 +20,8 @@ export async function authMiddleware(c: Context<{ Bindings: Env; Variables: { us
     (path === "/api/premium/plan" && method === "GET") ||
     path === "/api/premium/webhook" ||
     (path.startsWith("/api/app-content/") && method === "GET") ||
-    (path === "/api/banners" && method === "GET")
+    (path === "/api/banners" && method === "GET") ||
+    (path === "/api/ui-studio/published" && method === "GET")
   ) {
     return next();
   }

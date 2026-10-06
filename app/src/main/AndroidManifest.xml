@@ -67,6 +67,7 @@
         <activity android:name=".ui.practice.PracticeActivity" android:exported="false" />
         <activity android:name=".ui.pyq.PyqActivity" android:exported="false" />
         <activity android:name=".ui.admin.AdminActivity" android:exported="false" />
+        <activity android:name=".ui.admin.uistudio.UiStudioActivity" android:exported="false" />
         <activity android:name=".ui.admin.AdminAnalyticsActivity" android:exported="false" />
         <activity android:name=".ui.admin.SendNotificationActivity" android:exported="false" />
         <activity

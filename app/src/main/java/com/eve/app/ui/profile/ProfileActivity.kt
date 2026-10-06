@@ -62,7 +62,7 @@ class ProfileActivity : EveBaseActivity() {
             return
         }
 
-        binding.btnBack.setOnClickListener { finish() }
+        binding.btnBack.setOnClickListener { com.eve.app.util.EveNavigationHelper.finishWithTransition(this) }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {

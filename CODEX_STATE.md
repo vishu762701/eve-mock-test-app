@@ -11,17 +11,23 @@
 
 ## Last Completed Task
 
-Implemented the Home Banner consolidation and scoped Test pill redesign, including additive banner-link persistence, Admin management, student CTA behavior, and removal of obsolete Home Hero/banner presentation code. Implementation commit: `7e2afb1c56a6ac03d5f62bb0514bcb5ea0f09653` (`Redesign home banners and test pills`). The continuity update is a following documentation-only commit.
+Implemented the foundation and first working version of EVE UI Studio (App Builder):
+- Schema-driven component customization engine (`UiStudioEngine`) targeting real Android views (Home, Test, Result screens) with safe fallbacks.
+- Backend D1 migration (`0012_ui_studio.sql`), public published config endpoint with ETag & 304 conditional support, and admin-authenticated draft, publish, version history, rollback, reset, and audit logging routes.
+- Android UI Studio data layer (`UiStudioRepository`, `UiStudioModels`), caching, and Retrofit endpoints.
+- Full Admin UI Studio interface (`UiStudioActivity`, `activity_ui_studio.xml`) featuring screen/component selector, grouped property controls (Appearance, Layout, Typography, Visibility, Content), live preview canvas, draft saving, validation, publish dialog with change notes, version rollback, and JSON export/import.
+- Unit tests: 203 Android unit tests passing (`UiStudioTest`), 79 backend tests passing (`ui_studio.test.cjs`), debug APK successfully built via `assembleDebug`.
 
 ## Last Verified Changes
 
-- Added D1 migration `0011_home_banner_links.sql`; existing banner rows receive empty URL/label defaults and remain readable.
-- Added multipart banner upload with optional links, admin-only link update/clear, URL/label validation, and API coverage for legacy reads, authorization, upload, update/clear, reorder, and delete.
-- Replaced the old Home hero and separate banner card with the single rounded, material-backed Home Banner surface. The CTA is hidden unless its banner has a valid URL and label.
-- Added the Admin link URL/conditional label flow and image preview. Existing banner reorder/delete behavior remains available.
-- Added the Test-only blur pill helper and green answer selection. The bottom action area is transparent; exactly four Test action buttons use the scoped pill style.
-- Removed unused Home Hero runtime code and its proven-unused wash/dot resources. Historical migration `0010_home_hero_content.sql` remains intact; it is not edited retroactively.
-- Main branch CI built the debug APK successfully. The Worker workflow applied D1 migrations, deployed, and passed live production smoke tests for this implementation.
+- Updated `eve_menu_glass_bg` to translucent `#59FFFFFF` (light) and `#731C1C1E` (dark) so the 3-dot popup renders subtle translucent material rather than an opaque white rectangle in light mode.
+- Updated `bg_drawer_glass.xml` to use transparent base with translucent tint overlays (`#59FFFFFF` light / `#731C1C1E` dark), allowing underlying blurred content to be perceptible in both themes.
+- Updated `EmptyStateAnimationHelper.kt` to map `notification_bell.json` color (`0x020B19`) to high-contrast neutral light (`0xE2E8F0`) in dark mode, fixing bell visibility against `#000000`.
+- Added `EveNavigationHelper.kt` supporting contextual scale-up navigation from source view bounds (Profile, Notifications, Syllabus, Admin, overflow actions) and coordinated reverse transitions.
+- Replaced generic horizontal slide animations (`slide_in_right`, `slide_out_right`, `slide_in_left`, `slide_out_left`) with iOS 26 fluid scale and fade transitions (`fluid_scale_enter`, `fluid_scale_fade_out`, `fluid_scale_fade_in`, `fluid_scale_exit`).
+- Removed obsolete, unreferenced slide animation resources.
+- Confirmed the locked Telegram-style Day/Light circular reveal theme toggle animation is 100% untouched.
+- Unit tests: 196 tests passing (including `MasterRedesignContinuationTest`). Debug APK compiles and packages cleanly. Backend tests (71/71) passing.
 
 ## Current In-Progress Task
 

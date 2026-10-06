@@ -1,22 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Apple iOS stack push: outgoing screen scales slightly and shifts left -->
+<!-- iOS 26 contextual fluid navigation: closing screen scales down and fades out -->
 <set xmlns:android="http://schemas.android.com/apk/res/android"
     android:interpolator="@interpolator/ios_standard_curve"
     android:shareInterpolator="true">
-    <translate
-        android:duration="300"
-        android:fromXDelta="0"
-        android:toXDelta="-25%p" />
     <scale
-        android:duration="300"
+        android:duration="250"
         android:fromXScale="1.0"
         android:fromYScale="1.0"
         android:pivotX="50%"
         android:pivotY="50%"
-        android:toXScale="0.96"
-        android:toYScale="0.96" />
+        android:toXScale="0.94"
+        android:toYScale="0.94" />
     <alpha
-        android:duration="300"
+        android:duration="250"
         android:fromAlpha="1.0"
-        android:toAlpha="0.88" />
+        android:toAlpha="0.0" />
 </set>

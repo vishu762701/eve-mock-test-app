@@ -83,6 +83,7 @@ class TestActivity : EveBaseActivity() {
         binding = ActivityTestBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setupTestActionPills()
+        applyUiStudioConfig()
         binding.shimmerSkeletonTest.skeletonType = com.eve.app.ui.common.ShimmerSkeletonView.TYPE_QUESTION
 
         examId = intent.getStringExtra(Constants.EXTRA_EXAM_ID) ?: ""
@@ -686,5 +687,16 @@ class TestActivity : EveBaseActivity() {
         }
         paletteAdapter.submit(items)
         binding.rvQuestionPalette.scrollToPosition(activePosition)
+    }
+
+    private fun applyUiStudioConfig() {
+        val studioConfig = com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig
+        val testConfig = studioConfig.screens["test"] ?: return
+        testConfig.components["timer_pill"]?.let {
+            com.eve.app.util.UiStudioEngine.applyToView(binding.tvTimer, it)
+        }
+        testConfig.components["action_buttons"]?.let {
+            com.eve.app.util.UiStudioEngine.applyToView(binding.layoutBottomBar, it)
+        }
     }
 }

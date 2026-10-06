@@ -27,7 +27,7 @@ class NotificationsActivity : EveBaseActivity() {
         binding = ActivityNotificationsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnBack.setOnClickListener { finish() }
+        binding.btnBack.setOnClickListener { com.eve.app.util.EveNavigationHelper.finishWithTransition(this) }
         binding.rvNotifications.layoutManager = LinearLayoutManager(this)
         binding.rvNotifications.adapter = adapter
 

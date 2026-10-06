@@ -81,6 +81,7 @@ class ResultActivity : EveBaseActivity() {
         SecurityHelper.applyScreenProtection(this)
         binding = ActivityResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applyUiStudioConfig()
 
         onBackPressedDispatcher.addCallback(this) {
             close()
@@ -877,6 +878,17 @@ class ResultActivity : EveBaseActivity() {
         super.onDestroy()
         if (isFinishing) {
             ResultDataHolder.clear()
+        }
+    }
+
+    private fun applyUiStudioConfig() {
+        val studioConfig = com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig
+        val resultConfig = studioConfig.screens["result"] ?: return
+        resultConfig.components["score_card"]?.let {
+            com.eve.app.util.UiStudioEngine.applyToView(binding.cardResultHero, it)
+        }
+        resultConfig.components["analytics_summary"]?.let {
+            com.eve.app.util.UiStudioEngine.applyToView(binding.rowOverviewStatisticsTiles, it)
         }
     }
 }

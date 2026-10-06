@@ -111,7 +111,7 @@ class SyllabusActivity : EveBaseActivity() {
     }
 
     private fun setupToolbar() {
-        binding.toolbar.setNavigationOnClickListener { finish() }
+        binding.toolbar.setNavigationOnClickListener { com.eve.app.util.EveNavigationHelper.finishWithTransition(this) }
         binding.swipeRefresh.setOnRefreshListener { loadExams() }
     }
 

@@ -245,6 +245,9 @@ class AdminActivity : EveBaseActivity() {
         binding.btnAppConfig.setOnClickListener {
             startActivity(Intent(this, AppConfigActivity::class.java))
         }
+        binding.btnUiStudio.setOnClickListener {
+            startActivity(Intent(this, com.eve.app.ui.admin.uistudio.UiStudioActivity::class.java))
+        }
 
         // System Maintenance & Version Status
         setupMaintenanceControls()

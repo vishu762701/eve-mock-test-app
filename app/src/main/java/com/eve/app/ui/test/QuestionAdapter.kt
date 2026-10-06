@@ -121,6 +121,17 @@ class QuestionAdapter(
             b.rbC.text = "C. ${q.displayOptionText("C", hindi)}"
             b.rbD.text = "D. ${q.displayOptionText("D", hindi)}"
 
+            val studioConfig = com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig
+            val testConfig = studioConfig.screens["test"]
+            if (testConfig != null) {
+                testConfig.components["question_card"]?.let {
+                    com.eve.app.util.UiStudioEngine.applyToView(b.questionContainer, it)
+                }
+                testConfig.components["question_text"]?.let {
+                    com.eve.app.util.UiStudioEngine.applyTypography(b.tvQuestion, it)
+                }
+            }
+
             // Reset scroll position and auto-fit question text and options to the viewport
             b.svQuestion.scrollTo(0, 0)
             val optionsList = listOf(b.rbA, b.rbB, b.rbC, b.rbD)

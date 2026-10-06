@@ -120,3 +120,27 @@
 - [x] GitHub [Build Eve APK](https://github.com/vishu762701/eve-mock-test-app/actions/runs/37439163538) passed. GitHub [Worker deploy/D1 migration/live smoke tests](https://github.com/vishu762701/eve-mock-test-app/actions/runs/37439163585) passed.
 - [ ] Android device visual and interaction checks remain pending: `adb` cannot start because its binary is missing `_ZNSt6__ndk113__hash_memoryEPKvm`, no emulator executable is available, and no `androidTest` source set exists.
 - `./gradlew lintDebug` was run and failed on two existing `NewApi` errors for `android:windowLightNavigationBar` in the unchanged theme files (minSdk 24; API requirement 27), with 1,560 warnings. These files were not changed as part of this task.
+
+## Master Redesign Polish — Overflow, Drawer, Notifications & Fluid Navigation (2026-10-06)
+
+- [x] **3-Dot Overflow Menu Material:** Resolved opaque white box in light mode by configuring `eve_menu_glass_bg` to subtle translucent light material (`#59FFFFFF`) and charcoal translucent material in dark mode (`#731C1C1E`).
+- [x] **Profile Drawer Material:** Replaced solid opaque drawer backgrounds with transparent base in `bg_drawer_glass.xml` and translucent tint overlays (`eve_drawer_glass_tint` / `eve_drawer_glass_bg` at `#59FFFFFF` light / `#731C1C1E` dark), allowing underlying blurred content to be perceptible in both themes.
+- [x] **Notifications Empty-State Bell Contrast:** Added high-contrast neutral light mapping (`0xE2E8F0`) for `notification_bell.json` (`0x020B19`) in dark mode via `EmptyStateAnimationHelper.kt` while preserving light mode and layout integrity.
+- [x] **iOS 26 Contextual Fluid Navigation:** Replaced generic horizontal Activity slide animations with coordinated fluid scale-and-fade window transitions (`fluid_scale_enter`, `fluid_scale_fade_out`, `fluid_scale_fade_in`, `fluid_scale_exit`). Built `EveNavigationHelper` for source-aware scale-up expansion from source element bounds (Profile, Notifications, Syllabus, Admin, overflow items) and natural reverse transitions.
+- [x] **Dead Code Cleanup:** Removed obsolete, unreferenced slide animation resources (`slide_in_left.xml`, `slide_in_right.xml`, `slide_out_left.xml`, `slide_out_right.xml`).
+- [x] **Protected Feature Intact:** Verified Telegram-style Day/Light circular reveal theme toggle animation is 100% untouched in `ThemeSwitchAnimator.kt`, `ThemeManager.kt`, and `TelegramMenuPopup.kt`.
+- [x] Build and tests verified: Gradle unit tests pass (196/196 tests), debug APK builds cleanly, backend tests pass (71/71).
+
+## EVE UI Studio / App Builder Foundation (2026-10-06)
+
+- [x] **Backend & D1 Migration:** Added `0012_ui_studio.sql` with tables for published config (`ui_studio_published`), drafts (`ui_studio_drafts`), historical snapshots (`ui_studio_versions`), and audit logging (`ui_studio_audit_log`).
+- [x] **Backend Routes & Authorization:** Built `backend/src/routes/uiStudio.ts` with public student read `/api/ui-studio/published` (with ETag & 304 conditional support) and admin-guarded draft saving, validation, publishing, historical versions, rollback, reset, and audit log endpoints. Mounted in `index.ts` and allowlisted in `authMiddleware.ts`.
+- [x] **Android Data Layer:** Added schema models in `UiStudioModels.kt`, Retrofit endpoints in `EveApiService.kt`, and `UiStudioRepository.kt` managing disk caching, background fetch, draft mutations, and resilient native fallbacks.
+- [x] **Runtime Application Engine:** Built `UiStudioEngine.kt` to safely parse colors, dimensions (dp/sp), margins, paddings, corner radius, stroke, elevation, opacity, typography, and visibility without crashing or blanking views.
+- [x] **Consumer Screen Wiring:** Connected `MainActivity` (Hero banner, Streak pill, Search panel), `TestActivity` (Timer pill, bottom action buttons), `QuestionAdapter` (Question card container, question text), and `ResultActivity` (Score hero card, analytics summary).
+- [x] **Admin Studio Interface:** Created `UiStudioActivity` and `activity_ui_studio.xml` with screen selector, component selector, grouped property controls, live interactive preview canvas, draft saving, validation, publish dialog with change notes, version rollback, and JSON export/import. Integrated with `AdminActivity` and declared in `AndroidManifest.xml`.
+- [x] **Verification & Test Coverage:**
+  - Android unit tests: 203/203 passed (`UiStudioTest.kt` verifying color parsing, default template, schema validation, JSON export/import, and null safety).
+  - Backend tests: 79/79 passed (`ui_studio.test.cjs` verifying validation, public empty fallback, authorization rejection, draft save/get, publishing, ETag 304, rollback, and reset).
+  - Debug APK built and packaged cleanly via `./gradlew assembleDebug`.
+  - `git diff --check` passed with 0 errors.

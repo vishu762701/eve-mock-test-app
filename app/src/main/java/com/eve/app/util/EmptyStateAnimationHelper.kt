@@ -44,6 +44,7 @@ object EmptyStateAnimationHelper {
                 0xFFFFFF -> 0xF8FAFC // Bright white stroke
                 0xEB0000 -> 0xFF6B6B // Vivid coral red X
                 0x6EE3FF -> 0x6EE3FF
+                0x020B19 -> 0xE2E8F0 // Notification bell high-contrast light outline on dark bg
                 else -> rgb
             }
         } else {
@@ -57,6 +58,7 @@ object EmptyStateAnimationHelper {
                 0x2B4559 -> 0x94A3B8 // Soft slate
                 0xEB0000 -> 0xFF6B6B // High-contrast red
                 0x6EE3FF -> 0x6EE3FF
+                0x020B19 -> 0xE2E8F0 // Notification bell high-contrast light fill on dark bg
                 else -> rgb
             }
         }
