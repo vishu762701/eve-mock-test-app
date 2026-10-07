@@ -29,6 +29,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class UiStudioActivity : EveBaseActivity() {
 
@@ -37,11 +40,15 @@ class UiStudioActivity : EveBaseActivity() {
 
     private var activeConfig: UiStudioConfig = repo.getDefaultTemplate()
     private var isUpdatingFields = false
+    private var hasUnsavedChanges = false
 
     private val supportedScreens = UiStudioRegistry.SUPPORTED_SCREENS
 
     private var currentScreenKey = "home"
     private var currentCompKey = "hero_banner"
+    private var currentActiveTab = "design"
+    private var currentViewMode = "split" // "split", "canvas", "inspector"
+    private var currentDeviceWidthMode = "normal" // "compact", "normal", "large"
 
     // Maps component ID to its corresponding View in the canvas
     private val canvasViewMap = mutableMapOf<String, View>()
@@ -70,6 +77,8 @@ class UiStudioActivity : EveBaseActivity() {
         setContentView(binding.root)
 
         setupToolbar()
+        setupViewModeButtons()
+        setupInspectorTabs()
         setupScreenSpinner()
         setupScreenTransitionSpinner()
         setupActionSpinners()
@@ -85,17 +94,183 @@ class UiStudioActivity : EveBaseActivity() {
 
     override fun onPause() {
         super.onPause()
-        // Save current working configuration to local cache to ensure 100% persistence
+        // Save current working configuration and session state to local cache for 100% persistence
         repo.saveDraftToLocalCache(activeConfig)
+        repo.saveSessionState(
+            UiStudioSessionState(
+                selectedScreenKey = currentScreenKey,
+                selectedComponentKey = currentCompKey,
+                selectedTab = currentActiveTab,
+                viewMode = currentViewMode,
+                deviceWidthMode = currentDeviceWidthMode,
+                timestamp = System.currentTimeMillis()
+            )
+        )
     }
 
     private fun setupToolbar() {
         binding.btnBack.setOnClickListener { finish() }
         binding.btnUndo.setOnClickListener { performUndo() }
         binding.btnRedo.setOnClickListener { performRedo() }
+        binding.btnCopyStyle.setOnClickListener { performCopyStyle() }
+        binding.btnPasteStyle.setOnClickListener { performPasteStyle() }
         binding.btnVersionHistory.setOnClickListener { showVersionHistoryDialog() }
         binding.btnExportImport.setOnClickListener { showExportImportDialog() }
         binding.btnResetMenu.setOnClickListener { showResetOptionsDialog() }
+    }
+
+    private fun setupViewModeButtons() {
+        binding.btnModeSplit.setOnClickListener { setViewMode("split") }
+        binding.btnModeCanvas.setOnClickListener { setViewMode("canvas") }
+        binding.btnModeInspector.setOnClickListener { setViewMode("inspector") }
+        binding.btnDeviceWidth.setOnClickListener { toggleDeviceWidth() }
+    }
+
+    private fun setViewMode(mode: String) {
+        currentViewMode = mode
+        val density = resources.displayMetrics.density
+
+        when (mode) {
+            "canvas" -> {
+                binding.layoutCanvasSection.visibility = View.VISIBLE
+                val lp = binding.layoutCanvasSection.layoutParams as LinearLayout.LayoutParams
+                lp.height = 0
+                lp.weight = 1.0f
+                binding.layoutCanvasSection.layoutParams = lp
+
+                binding.layoutInspectorSection.visibility = View.GONE
+            }
+            "inspector" -> {
+                binding.layoutCanvasSection.visibility = View.GONE
+                binding.layoutInspectorSection.visibility = View.VISIBLE
+                val lp = binding.layoutInspectorSection.layoutParams as LinearLayout.LayoutParams
+                lp.height = 0
+                lp.weight = 1.0f
+                binding.layoutInspectorSection.layoutParams = lp
+            }
+            else -> { // "split"
+                binding.layoutCanvasSection.visibility = View.VISIBLE
+                val lpCanvas = binding.layoutCanvasSection.layoutParams as LinearLayout.LayoutParams
+                lpCanvas.height = (230 * density).toInt()
+                lpCanvas.weight = 0.0f
+                binding.layoutCanvasSection.layoutParams = lpCanvas
+
+                binding.layoutInspectorSection.visibility = View.VISIBLE
+                val lpInsp = binding.layoutInspectorSection.layoutParams as LinearLayout.LayoutParams
+                lpInsp.height = 0
+                lpInsp.weight = 1.0f
+                binding.layoutInspectorSection.layoutParams = lpInsp
+            }
+        }
+        highlightActiveModeButton()
+    }
+
+    private fun highlightActiveModeButton() {
+        binding.btnModeSplit.alpha = if (currentViewMode == "split") 1.0f else 0.5f
+        binding.btnModeCanvas.alpha = if (currentViewMode == "canvas") 1.0f else 0.5f
+        binding.btnModeInspector.alpha = if (currentViewMode == "inspector") 1.0f else 0.5f
+    }
+
+    private fun toggleDeviceWidth() {
+        currentDeviceWidthMode = when (currentDeviceWidthMode) {
+            "compact" -> "normal"
+            "normal" -> "large"
+            else -> "compact"
+        }
+        applyDeviceWidthMode()
+    }
+
+    private fun applyDeviceWidthMode() {
+        val density = resources.displayMetrics.density
+        val targetWidth = when (currentDeviceWidthMode) {
+            "compact" -> (360 * density).toInt()
+            "normal" -> (400 * density).toInt()
+            else -> ViewGroup.LayoutParams.MATCH_PARENT
+        }
+        val label = when (currentDeviceWidthMode) {
+            "compact" -> "360dp"
+            "normal" -> "400dp"
+            else -> "Full"
+        }
+        binding.btnDeviceWidth.text = label
+
+        val lp = binding.canvasContainer.layoutParams
+        lp.width = targetWidth
+        binding.canvasContainer.layoutParams = lp
+    }
+
+    private fun setupInspectorTabs() {
+        val tabButtons = listOf(
+            binding.tabDesign to "design",
+            binding.tabLayout to "layout",
+            binding.tabColors to "colors",
+            binding.tabTypography to "typography",
+            binding.tabMaterial to "material",
+            binding.tabContent to "content",
+            binding.tabActions to "actions",
+            binding.tabAnimation to "animation",
+            binding.tabStates to "states",
+            binding.tabBranding to "branding",
+            binding.tabTree to "tree",
+            binding.tabAdvanced to "advanced"
+        )
+
+        tabButtons.forEach { (btn, tabKey) ->
+            btn.setOnClickListener {
+                selectInspectorTab(tabKey)
+            }
+        }
+        selectInspectorTab("design")
+    }
+
+    private fun selectInspectorTab(tabKey: String) {
+        currentActiveTab = tabKey
+
+        // Tab views mapping
+        val tabContainers = listOf(
+            "design" to binding.layoutTabDesign,
+            "layout" to binding.layoutTabLayout,
+            "colors" to binding.layoutTabColors,
+            "typography" to binding.layoutTabTypography,
+            "material" to binding.layoutTabMaterial,
+            "content" to binding.layoutTabContent,
+            "actions" to binding.layoutTabActions,
+            "animation" to binding.layoutTabAnimation,
+            "states" to binding.layoutTabStates,
+            "branding" to binding.layoutTabBranding,
+            "tree" to binding.layoutTabTree,
+            "advanced" to binding.layoutTabAdvanced
+        )
+
+        tabContainers.forEach { (key, layout) ->
+            layout.visibility = if (key == tabKey) View.VISIBLE else View.GONE
+        }
+
+        // Highlight active tab button
+        val tabButtons = listOf(
+            "design" to binding.tabDesign,
+            "layout" to binding.tabLayout,
+            "colors" to binding.tabColors,
+            "typography" to binding.tabTypography,
+            "material" to binding.tabMaterial,
+            "content" to binding.tabContent,
+            "actions" to binding.tabActions,
+            "animation" to binding.tabAnimation,
+            "states" to binding.tabStates,
+            "branding" to binding.tabBranding,
+            "tree" to binding.tabTree,
+            "advanced" to binding.tabAdvanced
+        )
+
+        tabButtons.forEach { (key, btn) ->
+            if (key == tabKey) {
+                btn.alpha = 1.0f
+                btn.strokeWidth = UiStudioEngine.dpToPx(this, 2)
+            } else {
+                btn.alpha = 0.55f
+                btn.strokeWidth = UiStudioEngine.dpToPx(this, 1)
+            }
+        }
     }
 
     private fun setupScreenSpinner() {
@@ -143,6 +318,7 @@ class UiStudioActivity : EveBaseActivity() {
                         }
                         activeConfig = activeConfig.copy(screens = updatedScreens)
                         repo.saveDraftToLocalCache(activeConfig)
+                        markUnsaved()
                     }
                 }
             }
@@ -216,7 +392,7 @@ class UiStudioActivity : EveBaseActivity() {
     private fun updateComponentDropdownAndTree() {
         val screen = activeConfig.screens[currentScreenKey] ?: return
         val filterQuery = binding.etSearchComponent.text?.toString()?.trim()?.lowercase() ?: ""
-        
+
         val components = screen.components.filter { (key, comp) ->
             if (filterQuery.isBlank()) true
             else key.lowercase().contains(filterQuery) || comp.name.lowercase().contains(filterQuery) || comp.type.lowercase().contains(filterQuery)
@@ -249,7 +425,6 @@ class UiStudioActivity : EveBaseActivity() {
     }
 
     private fun setupTreeActionButtons() {
-        // Search Filter
         binding.etSearchComponent.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
@@ -258,20 +433,12 @@ class UiStudioActivity : EveBaseActivity() {
             }
         })
 
-        // Add Component
         binding.btnAddElement.setOnClickListener { showAddComponentDialog() }
-
-        // Duplicate Component
         binding.btnDuplicateElement.setOnClickListener { duplicateCurrentComponent() }
-
-        // Delete Component
         binding.btnDeleteElement.setOnClickListener { deleteCurrentComponent() }
-
-        // Reorder Components
         binding.btnMoveUp.setOnClickListener { reorderComponent(isUp = true) }
         binding.btnMoveDown.setOnClickListener { reorderComponent(isUp = false) }
 
-        // Preview Animation
         binding.btnPreviewAnimation.setOnClickListener {
             val comp = getCurrentComponentConfig()
             val view = canvasViewMap[comp.id]
@@ -284,20 +451,42 @@ class UiStudioActivity : EveBaseActivity() {
     private fun loadDraftFromRepository() {
         lifecycleScope.launch {
             binding.tvStudioStatus.text = "Loading saved configuration..."
+            binding.tvPersistentStatus.text = "LOADING DRAFT..."
+
             val result = repo.getDraft()
             result.onSuccess { draft ->
                 activeConfig = if (draft.screens.isNotEmpty()) draft else repo.getDefaultTemplate()
-                binding.tvStudioStatus.text = if (activeConfig.version > 0) "Draft v${activeConfig.version}" else "Unpublished Draft"
-                
-                // Select first screen
-                val screenKeys = activeConfig.screens.keys.toList()
-                if (screenKeys.isNotEmpty()) {
-                    currentScreenKey = screenKeys[0]
+                updateStudioStatusBadges()
+
+                // Check and restore editor session state
+                val session = repo.loadSessionState()
+                if (session != null && activeConfig.screens.containsKey(session.selectedScreenKey)) {
+                    currentScreenKey = session.selectedScreenKey
                     val screenIndex = supportedScreens.indexOfFirst { it.id == currentScreenKey }
                     if (screenIndex >= 0) binding.spScreenSelector.setSelection(screenIndex)
-                    currentCompKey = activeConfig.screens[currentScreenKey]?.components?.keys?.firstOrNull() ?: ""
+
+                    val screen = activeConfig.screens[currentScreenKey]
+                    currentCompKey = if (screen?.components?.containsKey(session.selectedComponentKey) == true) {
+                        session.selectedComponentKey
+                    } else {
+                        screen?.components?.keys?.firstOrNull() ?: ""
+                    }
+                    currentActiveTab = session.selectedTab
+                    currentViewMode = session.viewMode
+                    currentDeviceWidthMode = session.deviceWidthMode
+                } else {
+                    val screenKeys = activeConfig.screens.keys.toList()
+                    if (screenKeys.isNotEmpty()) {
+                        currentScreenKey = screenKeys[0]
+                        val screenIndex = supportedScreens.indexOfFirst { it.id == currentScreenKey }
+                        if (screenIndex >= 0) binding.spScreenSelector.setSelection(screenIndex)
+                        currentCompKey = activeConfig.screens[currentScreenKey]?.components?.keys?.firstOrNull() ?: ""
+                    }
                 }
 
+                setViewMode(currentViewMode)
+                applyDeviceWidthMode()
+                selectInspectorTab(currentActiveTab)
                 updateScreenTransitionSelection()
                 updateComponentDropdownAndTree()
                 renderRealScreenCanvas()
@@ -305,6 +494,7 @@ class UiStudioActivity : EveBaseActivity() {
                 updateUndoRedoButtonState()
             }.onFailure {
                 activeConfig = repo.loadCachedDraft() ?: repo.loadCachedConfig() ?: repo.getDefaultTemplate()
+                binding.tvPersistentStatus.text = "OFFLINE LOCAL DRAFT"
                 binding.tvStudioStatus.text = "Working Offline Draft"
                 updateScreenTransitionSelection()
                 updateComponentDropdownAndTree()
@@ -315,6 +505,49 @@ class UiStudioActivity : EveBaseActivity() {
         }
     }
 
+    private fun updateStudioStatusBadges() {
+        if (activeConfig.status == "published" && activeConfig.version > 0) {
+            binding.tvPersistentStatus.text = "★ LIVE v${activeConfig.version} (VERIFIED)"
+            binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this, R.color.eve_green))
+            binding.tvStudioStatus.text = "Published v${activeConfig.version} • Live on all devices"
+        } else if (hasUnsavedChanges) {
+            binding.tvPersistentStatus.text = "● UNSAVED CHANGES"
+            binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this, R.color.eve_system_yellow))
+            binding.tvStudioStatus.text = "Working Draft (Unsaved)"
+        } else {
+            val vStr = if (activeConfig.version > 0) "v${activeConfig.version}" else "v1"
+            binding.tvPersistentStatus.text = "DRAFT $vStr • SAVED"
+            binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this, R.color.eve_primary))
+            binding.tvStudioStatus.text = "Draft saved locally"
+        }
+    }
+
+    private fun markUnsaved() {
+        hasUnsavedChanges = true
+        binding.tvPersistentStatus.text = "● UNSAVED CHANGES"
+        binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this, R.color.eve_system_yellow))
+    }
+
+    private fun performCopyStyle() {
+        val comp = getCurrentComponentConfig()
+        repo.copyStyle(comp)
+        AppBulletin.showSuccess(this, "Style copied from '${comp.name}'")
+    }
+
+    private fun performPasteStyle() {
+        if (!repo.hasCopiedStyle()) {
+            AppBulletin.show(this, "No style copied yet. Select a component and tap Copy Style first.")
+            return
+        }
+        val comp = getCurrentComponentConfig()
+        pushUndoState()
+        updateCurrentComponentConfig { current ->
+            repo.pasteStyle(current)
+        }
+        populateFieldsForCurrentComponent()
+        AppBulletin.showSuccess(this, "Style pasted onto '${comp.name}'")
+    }
+
     private fun pushUndoState() {
         if (undoStack.size >= maxHistorySize) {
             undoStack.removeFirst()
@@ -322,6 +555,14 @@ class UiStudioActivity : EveBaseActivity() {
         undoStack.addLast(activeConfig)
         redoStack.clear()
         updateUndoRedoButtonState()
+    }
+
+    private fun recordFieldEditUndo() {
+        val now = System.currentTimeMillis()
+        if (now - lastUndoPushTime > 2000L) {
+            pushUndoState()
+            lastUndoPushTime = now
+        }
     }
 
     private fun updateUndoRedoButtonState() {
@@ -353,26 +594,7 @@ class UiStudioActivity : EveBaseActivity() {
         AppBulletin.show(this, "Redo applied")
     }
 
-    private fun recordFieldEditUndo() {
-        val now = System.currentTimeMillis()
-        if (now - lastUndoPushTime > 1500L) {
-            pushUndoState()
-            lastUndoPushTime = now
-        }
-    }
-
     private fun refreshEntireStudioUi() {
-        if (!activeConfig.screens.containsKey(currentScreenKey)) {
-            currentScreenKey = activeConfig.screens.keys.firstOrNull() ?: "home"
-        }
-        val screenIndex = supportedScreens.indexOfFirst { it.id == currentScreenKey }
-        if (screenIndex >= 0 && binding.spScreenSelector.selectedItemPosition != screenIndex) {
-            binding.spScreenSelector.setSelection(screenIndex)
-        }
-        val screen = activeConfig.screens[currentScreenKey]
-        if (screen != null && !screen.components.containsKey(currentCompKey)) {
-            currentCompKey = screen.components.keys.firstOrNull() ?: ""
-        }
         updateScreenTransitionSelection()
         updateComponentDropdownAndTree()
         renderRealScreenCanvas()
@@ -381,20 +603,18 @@ class UiStudioActivity : EveBaseActivity() {
 
     private fun setupAdvancedMode() {
         binding.btnToggleAdvanced.setOnClickListener {
-            val isCurrentlyVisible = binding.layoutAdvancedContent.visibility == View.VISIBLE
-            if (isCurrentlyVisible) {
-                binding.layoutAdvancedContent.visibility = View.GONE
-                binding.btnToggleAdvanced.text = "Show JSON"
-            } else {
-                binding.layoutAdvancedContent.visibility = View.VISIBLE
-                binding.btnToggleAdvanced.text = "Hide JSON"
-                refreshAdvancedRawJson()
-            }
+            val isVis = binding.layoutAdvancedContent.visibility == View.VISIBLE
+            binding.layoutAdvancedContent.visibility = if (isVis) View.GONE else View.VISIBLE
+            if (!isVis) refreshAdvancedRawJson()
         }
 
         binding.btnApplyRawJson.setOnClickListener {
             applyAdvancedRawJson()
         }
+
+        binding.btnResetToDefault.setOnClickListener { resetCurrentComponentToDefault() }
+        binding.btnResetToScreen.setOnClickListener { resetComponentToScreenDefaults() }
+        binding.btnResetToGlobal.setOnClickListener { resetComponentToGlobalDefaults() }
     }
 
     private fun refreshAdvancedRawJson() {
@@ -431,6 +651,7 @@ class UiStudioActivity : EveBaseActivity() {
             activeConfig = activeConfig.copy(screens = updatedScreens)
             currentCompKey = parsedComp.id
             repo.saveDraftToLocalCache(activeConfig)
+            markUnsaved()
 
             updateComponentDropdownAndTree()
             renderRealScreenCanvas()
@@ -461,8 +682,8 @@ class UiStudioActivity : EveBaseActivity() {
         }
         activeConfig = activeConfig.copy(screens = updatedScreens)
 
-        // Save immediately to local persistent cache
         repo.saveDraftToLocalCache(activeConfig)
+        markUnsaved()
 
         // Live update the view on the canvas
         val view = canvasViewMap[updatedComp.id]
@@ -471,10 +692,6 @@ class UiStudioActivity : EveBaseActivity() {
         }
     }
 
-    /**
-     * Taps or selects a component: highlights it visually on the canvas,
-     * updates the component spinner, and populates the inspector fields.
-     */
     private fun selectComponent(compKey: String) {
         currentCompKey = compKey
         val screen = activeConfig.screens[currentScreenKey] ?: return
@@ -507,9 +724,6 @@ class UiStudioActivity : EveBaseActivity() {
         refreshAdvancedRawJson()
     }
 
-    /**
-     * Renders the REAL corresponding EVE screen structure dynamically on the visual canvas.
-     */
     private fun renderRealScreenCanvas() {
         binding.canvasScreenContent.removeAllViews()
         canvasViewMap.clear()
@@ -518,7 +732,6 @@ class UiStudioActivity : EveBaseActivity() {
         val screen = activeConfig.screens[currentScreenKey] ?: ScreenConfig(id = currentScreenKey)
         val density = resources.displayMetrics.density
 
-        // Create and populate actual visual representations for the selected screen
         screen.components.forEach { (compKey, comp) ->
             val compCard = MaterialCardView(this).apply {
                 layoutParams = LinearLayout.LayoutParams(
@@ -571,7 +784,6 @@ class UiStudioActivity : EveBaseActivity() {
 
             compCard.addView(innerLayout)
 
-            // Tap-to-select visual handler
             compCard.setOnClickListener {
                 selectComponent(compKey)
             }
@@ -580,7 +792,6 @@ class UiStudioActivity : EveBaseActivity() {
             binding.canvasScreenContent.addView(compCard)
         }
 
-        // Highlight initial selected component
         if (currentCompKey.isNotBlank()) {
             selectComponent(currentCompKey)
         }
@@ -590,9 +801,9 @@ class UiStudioActivity : EveBaseActivity() {
         isUpdatingFields = true
         val comp = getCurrentComponentConfig()
 
-        binding.tvInspectorHeader.text = "4. INSPECTOR: ${comp.name} [${comp.id}]"
+        binding.tvInspectorHeader.text = "INSPECTOR: ${comp.name} [${comp.id}]"
 
-        // Appearance
+        // Design / Appearance
         binding.etBackgroundColor.setText(comp.appearance.backgroundColor ?: "")
         binding.etCornerRadius.setText(comp.appearance.cornerRadius?.toString() ?: "")
         binding.etStrokeWidth.setText(comp.appearance.strokeWidth?.toString() ?: "")
@@ -606,14 +817,15 @@ class UiStudioActivity : EveBaseActivity() {
             setColor(swatchColor)
         }
 
-        // Material / Glass Controls (Visible Blur Slider)
+        // Material / Blur
         val blurVal = (comp.material.blurRadius ?: 0).coerceIn(0, 35)
         binding.sliderBlurRadius.value = blurVal.toFloat()
-        binding.tvBlurLabel.text = "Blur: $blurVal px"
+        binding.tvBlurLabel.text = "Glass Blur Radius: $blurVal px"
+        binding.switchBlurEnabled.isChecked = blurVal > 0
 
         val matOpacity = (comp.material.materialOpacity ?: 1.0f).coerceIn(0.0f, 1.0f)
         binding.sliderMaterialOpacity.value = matOpacity
-        binding.tvMaterialOpacityLabel.text = "Material Opacity: ${(matOpacity * 100).toInt()}%"
+        binding.tvMaterialOpacityLabel.text = "Material Surface Opacity: ${(matOpacity * 100).toInt()}%"
 
         binding.etTintColor.setText(comp.material.tintColor ?: "")
         binding.etTintOpacity.setText(comp.material.tintOpacity?.toString() ?: "")
@@ -668,6 +880,19 @@ class UiStudioActivity : EveBaseActivity() {
         binding.etAnimDuration.setText(comp.animation.durationMs.toString())
         binding.etAnimDelay.setText(comp.animation.delayMs.toString())
 
+        // States
+        binding.etStatePressedBg.setText(comp.states.pressedBackgroundColor ?: "")
+        binding.etStateSelectedBg.setText(comp.states.selectedBackgroundColor ?: "")
+        binding.etStateDisabledBg.setText(comp.states.disabledBackgroundColor ?: "")
+        binding.etStateSelectedText.setText(comp.states.selectedTextColor ?: "")
+
+        // Branding
+        binding.etBrandDisplayName.setText(activeConfig.branding.appDisplayName)
+        binding.etBrandShortName.setText(activeConfig.branding.shortName)
+        binding.etBrandLogoUrl.setText(activeConfig.branding.logoUrl ?: "")
+        binding.etBrandColorHex.setText(activeConfig.branding.brandColor)
+        binding.etBrandGlobalBgHex.setText(activeConfig.branding.globalBackgroundColor)
+
         isUpdatingFields = false
     }
 
@@ -707,10 +932,21 @@ class UiStudioActivity : EveBaseActivity() {
         }
 
         // Material Blur Sliders
+        binding.switchBlurEnabled.setOnCheckedChangeListener { _, isChecked ->
+            if (!isUpdatingFields) {
+                val newRadius = if (isChecked) 18 else 0
+                binding.sliderBlurRadius.value = newRadius.toFloat()
+                binding.tvBlurLabel.text = "Glass Blur Radius: $newRadius px"
+                updateCurrentComponentConfig { comp ->
+                    comp.copy(material = comp.material.copy(blurRadius = newRadius))
+                }
+            }
+        }
         binding.sliderBlurRadius.addOnChangeListener { _, value, fromUser ->
             if (fromUser && !isUpdatingFields) {
                 val intVal = value.toInt()
-                binding.tvBlurLabel.text = "Blur: $intVal px"
+                binding.tvBlurLabel.text = "Glass Blur Radius: $intVal px"
+                binding.switchBlurEnabled.isChecked = intVal > 0
                 updateCurrentComponentConfig { comp ->
                     comp.copy(material = comp.material.copy(blurRadius = intVal))
                 }
@@ -718,7 +954,7 @@ class UiStudioActivity : EveBaseActivity() {
         }
         binding.sliderMaterialOpacity.addOnChangeListener { _, value, fromUser ->
             if (fromUser && !isUpdatingFields) {
-                binding.tvMaterialOpacityLabel.text = "Material Opacity: ${(value * 100).toInt()}%"
+                binding.tvMaterialOpacityLabel.text = "Material Surface Opacity: ${(value * 100).toInt()}%"
                 updateCurrentComponentConfig { comp ->
                     comp.copy(material = comp.material.copy(materialOpacity = value))
                 }
@@ -750,7 +986,6 @@ class UiStudioActivity : EveBaseActivity() {
         addSimpleWatcher(binding.etMarginEnd) { v ->
             updateCurrentComponentConfig { comp -> comp.copy(layout = comp.layout.copy(marginEnd = v.toIntOrNull())) }
         }
-
         addSimpleWatcher(binding.etPaddingTop) { v ->
             updateCurrentComponentConfig { comp -> comp.copy(layout = comp.layout.copy(paddingTop = v.toIntOrNull())) }
         }
@@ -814,6 +1049,55 @@ class UiStudioActivity : EveBaseActivity() {
         addSimpleWatcher(binding.etAnimDelay) { d ->
             updateCurrentComponentConfig { comp -> comp.copy(animation = comp.animation.copy(delayMs = d.toLongOrNull() ?: 0L)) }
         }
+
+        // States
+        addSimpleWatcher(binding.etStatePressedBg) { hex ->
+            updateCurrentComponentConfig { comp ->
+                comp.copy(states = comp.states.copy(pressedBackgroundColor = if (hex.isBlank()) null else hex))
+            }
+        }
+        addSimpleWatcher(binding.etStateSelectedBg) { hex ->
+            updateCurrentComponentConfig { comp ->
+                comp.copy(states = comp.states.copy(selectedBackgroundColor = if (hex.isBlank()) null else hex))
+            }
+        }
+        addSimpleWatcher(binding.etStateDisabledBg) { hex ->
+            updateCurrentComponentConfig { comp ->
+                comp.copy(states = comp.states.copy(disabledBackgroundColor = if (hex.isBlank()) null else hex))
+            }
+        }
+        addSimpleWatcher(binding.etStateSelectedText) { hex ->
+            updateCurrentComponentConfig { comp ->
+                comp.copy(states = comp.states.copy(selectedTextColor = if (hex.isBlank()) null else hex))
+            }
+        }
+
+        // Branding
+        addSimpleWatcher(binding.etBrandDisplayName) { name ->
+            activeConfig = activeConfig.copy(branding = activeConfig.branding.copy(appDisplayName = name))
+            repo.saveDraftToLocalCache(activeConfig)
+            markUnsaved()
+        }
+        addSimpleWatcher(binding.etBrandShortName) { shortName ->
+            activeConfig = activeConfig.copy(branding = activeConfig.branding.copy(shortName = shortName))
+            repo.saveDraftToLocalCache(activeConfig)
+            markUnsaved()
+        }
+        addSimpleWatcher(binding.etBrandLogoUrl) { url ->
+            activeConfig = activeConfig.copy(branding = activeConfig.branding.copy(logoUrl = if (url.isBlank()) null else url))
+            repo.saveDraftToLocalCache(activeConfig)
+            markUnsaved()
+        }
+        addSimpleWatcher(binding.etBrandColorHex) { hex ->
+            activeConfig = activeConfig.copy(branding = activeConfig.branding.copy(brandColor = hex))
+            repo.saveDraftToLocalCache(activeConfig)
+            markUnsaved()
+        }
+        addSimpleWatcher(binding.etBrandGlobalBgHex) { hex ->
+            activeConfig = activeConfig.copy(branding = activeConfig.branding.copy(globalBackgroundColor = hex))
+            repo.saveDraftToLocalCache(activeConfig)
+            markUnsaved()
+        }
     }
 
     private fun showAddComponentDialog() {
@@ -856,6 +1140,7 @@ class UiStudioActivity : EveBaseActivity() {
 
                 activeConfig = activeConfig.copy(screens = updatedScreens)
                 repo.saveDraftToLocalCache(activeConfig)
+                markUnsaved()
 
                 currentCompKey = uniqueId
                 updateComponentDropdownAndTree()
@@ -886,6 +1171,7 @@ class UiStudioActivity : EveBaseActivity() {
 
         activeConfig = activeConfig.copy(screens = updatedScreens)
         repo.saveDraftToLocalCache(activeConfig)
+        markUnsaved()
 
         currentCompKey = newId
         updateComponentDropdownAndTree()
@@ -918,6 +1204,7 @@ class UiStudioActivity : EveBaseActivity() {
 
                 activeConfig = activeConfig.copy(screens = updatedScreens)
                 repo.saveDraftToLocalCache(activeConfig)
+                markUnsaved()
 
                 currentCompKey = updatedComponents.keys.firstOrNull() ?: ""
                 updateComponentDropdownAndTree()
@@ -953,6 +1240,7 @@ class UiStudioActivity : EveBaseActivity() {
 
         activeConfig = activeConfig.copy(screens = updatedScreens)
         repo.saveDraftToLocalCache(activeConfig)
+        markUnsaved()
 
         updateComponentDropdownAndTree()
         renderRealScreenCanvas()
@@ -974,13 +1262,31 @@ class UiStudioActivity : EveBaseActivity() {
 
         lifecycleScope.launch {
             binding.btnSaveDraft.isEnabled = false
-            val result = repo.saveDraft(activeConfig)
+            binding.tvPersistentStatus.text = "SAVING DRAFT..."
+            val result = repo.saveDraftDetailed(activeConfig)
             binding.btnSaveDraft.isEnabled = true
-            result.onSuccess {
-                binding.tvStudioStatus.text = "Draft Saved Successfully"
-                AppBulletin.showSuccess(this@UiStudioActivity, "Draft saved and persisted successfully")
-            }.onFailure { e ->
-                AppBulletin.showError(this@UiStudioActivity, "Failed to save draft: ${e.localizedMessage}")
+
+            when (result) {
+                is SaveDraftResult.ServerSuccess -> {
+                    hasUnsavedChanges = false
+                    activeConfig = result.config
+                    binding.tvPersistentStatus.text = "✓ DRAFT SAVED (SYNCED)"
+                    binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this@UiStudioActivity, R.color.eve_green))
+                    binding.tvStudioStatus.text = "Draft saved & synced with server"
+                    AppBulletin.showSuccess(this@UiStudioActivity, "Draft saved and synced to server successfully")
+                }
+                is SaveDraftResult.LocalOfflineSuccess -> {
+                    hasUnsavedChanges = false
+                    binding.tvPersistentStatus.text = "LOCAL DRAFT SAVED • OFFLINE"
+                    binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this@UiStudioActivity, R.color.eve_primary))
+                    binding.tvStudioStatus.text = "Local draft saved (Server sync failed)"
+                    AppBulletin.show(this@UiStudioActivity, "Local draft saved. Server sync offline: ${result.error}")
+                }
+                is SaveDraftResult.Failure -> {
+                    binding.tvPersistentStatus.text = "SAVE FAILED"
+                    binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this@UiStudioActivity, R.color.eve_red))
+                    AppBulletin.showError(this@UiStudioActivity, "Failed to save draft: ${result.error}")
+                }
             }
         }
     }
@@ -988,8 +1294,12 @@ class UiStudioActivity : EveBaseActivity() {
     private fun validateCurrentDraft() {
         val validation = repo.validateConfig(activeConfig)
         if (validation.first) {
+            binding.tvPersistentStatus.text = "VALIDATION PASSED"
+            binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this, R.color.eve_green))
             AppBulletin.showSuccess(this, "Validation passed: 100% compliant schema")
         } else {
+            binding.tvPersistentStatus.text = "VALIDATION ISSUES (${validation.second.size})"
+            binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this, R.color.eve_red))
             MaterialAlertDialogBuilder(this)
                 .setTitle("Validation Issues")
                 .setMessage(validation.second.joinToString("\n• ", prefix = "• "))
@@ -1012,7 +1322,7 @@ class UiStudioActivity : EveBaseActivity() {
 
         MaterialAlertDialogBuilder(this)
             .setTitle("Publish Live Configuration")
-            .setMessage("This will push your changes live to all student devices.")
+            .setMessage("This will push your changes live to all student devices after verifying the live snapshot.")
             .setView(input)
             .setPositiveButton("Publish Live") { _, _ ->
                 val notes = input.text.toString().trim()
@@ -1025,14 +1335,30 @@ class UiStudioActivity : EveBaseActivity() {
     private fun executePublish(notes: String) {
         lifecycleScope.launch {
             binding.btnPublish.isEnabled = false
-            val result = repo.publish(notes, activeConfig)
+            binding.tvPersistentStatus.text = "PUBLISHING LIVE..."
+            val result = repo.publishVerified(notes, activeConfig)
             binding.btnPublish.isEnabled = true
-            result.onSuccess { version ->
-                activeConfig = activeConfig.copy(version = version, status = "published")
-                binding.tvStudioStatus.text = "Published v$version"
-                AppBulletin.showSuccess(this@UiStudioActivity, "Published v$version successfully to all devices!")
-            }.onFailure { e ->
-                AppBulletin.showError(this@UiStudioActivity, "Publish failed: ${e.localizedMessage}")
+
+            when (result) {
+                is PublishResult.VerifiedSuccess -> {
+                    hasUnsavedChanges = false
+                    activeConfig = result.config
+                    val timeStr = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(result.publishedAt))
+                    binding.tvPersistentStatus.text = "★ LIVE v${result.version} (VERIFIED)"
+                    binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this@UiStudioActivity, R.color.eve_green))
+                    binding.tvStudioStatus.text = "Published at $timeStr • Verified active on all devices"
+                    AppBulletin.showSuccess(this@UiStudioActivity, "Live v${result.version} published and verified successfully!")
+                }
+                is PublishResult.VerificationFailed -> {
+                    binding.tvPersistentStatus.text = "PUBLISH VERIFICATION FAILED"
+                    binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this@UiStudioActivity, R.color.eve_system_yellow))
+                    AppBulletin.showError(this@UiStudioActivity, "Verification failed: ${result.reason}")
+                }
+                is PublishResult.NetworkFailure -> {
+                    binding.tvPersistentStatus.text = "PUBLISH FAILED"
+                    binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this@UiStudioActivity, R.color.eve_red))
+                    AppBulletin.showError(this@UiStudioActivity, "Publish failed: ${result.error}")
+                }
             }
         }
     }
@@ -1040,6 +1366,8 @@ class UiStudioActivity : EveBaseActivity() {
     private fun showResetOptionsDialog() {
         val options = arrayOf(
             "Reset Selected Component to Native Default",
+            "Reset Component to Screen Defaults",
+            "Reset Component to Global Design System",
             "Reset Current Screen to Native Default",
             "Reset Working Draft to Published Config",
             "Emergency Factory Reset (All Screens)"
@@ -1050,9 +1378,11 @@ class UiStudioActivity : EveBaseActivity() {
             .setItems(options) { _, which ->
                 when (which) {
                     0 -> resetCurrentComponentToDefault()
-                    1 -> resetCurrentScreenToDefault()
-                    2 -> resetDraftToPublished()
-                    3 -> emergencyFactoryReset()
+                    1 -> resetComponentToScreenDefaults()
+                    2 -> resetComponentToGlobalDefaults()
+                    3 -> resetCurrentScreenToDefault()
+                    4 -> resetDraftToPublished()
+                    5 -> emergencyFactoryReset()
                 }
             }
             .setNegativeButton("Cancel", null)
@@ -1072,6 +1402,35 @@ class UiStudioActivity : EveBaseActivity() {
         }
     }
 
+    private fun resetComponentToScreenDefaults() {
+        val screen = activeConfig.screens[currentScreenKey] ?: return
+        pushUndoState()
+        updateCurrentComponentConfig { comp ->
+            comp.copy(appearance = comp.appearance.copy(backgroundColor = screen.backgroundColor))
+        }
+        populateFieldsForCurrentComponent()
+        AppBulletin.showSuccess(this, "Reset component colors to screen baseline")
+    }
+
+    private fun resetComponentToGlobalDefaults() {
+        val ds = activeConfig.designSystem
+        pushUndoState()
+        updateCurrentComponentConfig { comp ->
+            comp.copy(
+                appearance = comp.appearance.copy(
+                    backgroundColor = ds.surfaceBackground,
+                    cornerRadius = ds.radiusScale,
+                    strokeColor = ds.borderColor,
+                    opacity = ds.defaultOpacity
+                ),
+                material = comp.material.copy(blurRadius = ds.defaultBlurRadius),
+                typography = comp.typography.copy(textColor = ds.textPrimary)
+            )
+        }
+        populateFieldsForCurrentComponent()
+        AppBulletin.showSuccess(this, "Reset component to Global Design System tokens")
+    }
+
     private fun resetCurrentScreenToDefault() {
         val defaultTemplate = repo.getDefaultTemplate()
         val defaultScreen = defaultTemplate.screens[currentScreenKey]
@@ -1080,6 +1439,7 @@ class UiStudioActivity : EveBaseActivity() {
             val updatedScreens = activeConfig.screens.toMutableMap().apply { put(currentScreenKey, defaultScreen) }
             activeConfig = activeConfig.copy(screens = updatedScreens)
             repo.saveDraftToLocalCache(activeConfig)
+            markUnsaved()
             updateComponentDropdownAndTree()
             renderRealScreenCanvas()
             populateFieldsForCurrentComponent()
@@ -1094,6 +1454,8 @@ class UiStudioActivity : EveBaseActivity() {
                 pushUndoState()
                 activeConfig = published
                 repo.saveDraftToLocalCache(activeConfig)
+                hasUnsavedChanges = false
+                updateStudioStatusBadges()
                 updateComponentDropdownAndTree()
                 renderRealScreenCanvas()
                 populateFieldsForCurrentComponent()
@@ -1112,6 +1474,8 @@ class UiStudioActivity : EveBaseActivity() {
                 pushUndoState()
                 activeConfig = repo.getDefaultTemplate()
                 repo.saveDraftToLocalCache(activeConfig)
+                hasUnsavedChanges = false
+                updateStudioStatusBadges()
                 updateComponentDropdownAndTree()
                 renderRealScreenCanvas()
                 populateFieldsForCurrentComponent()
@@ -1202,6 +1566,7 @@ class UiStudioActivity : EveBaseActivity() {
                 result.onSuccess { importedConfig ->
                     activeConfig = importedConfig
                     repo.saveDraftToLocalCache(activeConfig)
+                    markUnsaved()
                     updateComponentDropdownAndTree()
                     renderRealScreenCanvas()
                     populateFieldsForCurrentComponent()

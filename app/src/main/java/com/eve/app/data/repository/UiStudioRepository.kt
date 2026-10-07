@@ -32,6 +32,7 @@ class UiStudioRepository(
         private const val KEY_CACHED_VERSION = "cached_published_version"
         private const val KEY_CACHED_DRAFT = "cached_ui_studio_draft"
         private const val KEY_CACHED_DRAFT_VERSION = "cached_ui_studio_draft_version"
+        private const val KEY_SESSION_STATE = "cached_ui_studio_session_state"
 
         @Volatile
         private var INSTANCE: UiStudioRepository? = null
@@ -47,6 +48,40 @@ class UiStudioRepository(
         try {
             context?.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         } catch (_: Throwable) {
+            null
+        }
+    }
+
+    // Style Clipboard for Copy / Paste Style
+    private var copiedStyleAppearance: AppearanceProperties? = null
+    private var copiedStyleMaterial: MaterialProperties? = null
+
+    fun copyStyle(comp: ComponentConfig) {
+        copiedStyleAppearance = comp.appearance.copy()
+        copiedStyleMaterial = comp.material.copy()
+    }
+
+    fun hasCopiedStyle(): Boolean = copiedStyleAppearance != null
+
+    fun pasteStyle(target: ComponentConfig): ComponentConfig {
+        val app = copiedStyleAppearance ?: target.appearance
+        val mat = copiedStyleMaterial ?: target.material
+        return target.copy(appearance = app, material = mat)
+    }
+
+    fun saveSessionState(state: UiStudioSessionState) {
+        try {
+            prefs?.edit()?.putString(KEY_SESSION_STATE, gson.toJson(state))?.apply()
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to save UI Studio session state", e)
+        }
+    }
+
+    fun loadSessionState(): UiStudioSessionState? {
+        val json = prefs?.getString(KEY_SESSION_STATE, null) ?: return null
+        return try {
+            gson.fromJson(json, UiStudioSessionState::class.java)
+        } catch (_: Exception) {
             null
         }
     }
@@ -154,10 +189,20 @@ class UiStudioRepository(
     // ========================================================================
 
     /**
-     * Retrieves active draft configuration.
-     * Guaranteed NEVER to overwrite saved configuration with defaults.
+     * Retrieves active draft configuration following the mandatory priority:
+     * 1. Newest valid local draft
+     * 2. Newest server-side working draft
+     * 3. Latest published configuration
+     * 4. Built-in defaults ONLY if genuinely no saved configuration exists.
      */
     suspend fun getDraft(): Result<UiStudioConfig> = withContext(Dispatchers.IO) {
+        // Priority 1: Check local cached draft first
+        val localDraft = loadCachedDraft()
+        if (localDraft != null && localDraft.screens.isNotEmpty()) {
+            return@withContext Result.success(localDraft)
+        }
+
+        // Priority 2: Check server-side working draft
         try {
             val response = api.getAdminUiStudioDraft()
             if (response.success && response.data?.config != null && response.data.config.screens.isNotEmpty()) {
@@ -169,20 +214,22 @@ class UiStudioRepository(
             Log.w(TAG, "Network fetch for draft failed, fallback to local storage: ${e.message}")
         }
 
-        // Check local cached draft
-        val localDraft = loadCachedDraft()
-        if (localDraft != null && localDraft.screens.isNotEmpty()) {
-            return@withContext Result.success(localDraft)
-        }
-
-        // Check published config
+        // Priority 3: Check cached or live published config
         val published = loadCachedConfig()
         if (published != null && published.screens.isNotEmpty()) {
             saveDraftToLocalCache(published)
             return@withContext Result.success(published)
         }
 
-        // Fresh installation: create default baseline template once and persist it
+        try {
+            val livePublished = fetchPublishedConfig()
+            if (livePublished.screens.isNotEmpty()) {
+                saveDraftToLocalCache(livePublished)
+                return@withContext Result.success(livePublished)
+            }
+        } catch (_: Exception) {}
+
+        // Priority 4: Fresh installation baseline template
         val defaultTemplate = getDefaultTemplate()
         saveDraftToLocalCache(defaultTemplate)
         try {
@@ -190,6 +237,24 @@ class UiStudioRepository(
         } catch (_: Exception) {}
 
         Result.success(defaultTemplate)
+    }
+
+    /**
+     * Truthful draft save that distinguishes between server confirmation
+     * and offline local caching.
+     */
+    suspend fun saveDraftDetailed(config: UiStudioConfig): SaveDraftResult = withContext(Dispatchers.IO) {
+        saveDraftToLocalCache(config)
+        try {
+            val response = api.saveAdminUiStudioDraft(SaveDraftRequest(config))
+            if (response.success && response.data?.config != null) {
+                SaveDraftResult.ServerSuccess(response.data.config)
+            } else {
+                SaveDraftResult.LocalOfflineSuccess(config, response.error ?: "Server returned error")
+            }
+        } catch (e: Exception) {
+            SaveDraftResult.LocalOfflineSuccess(config, e.localizedMessage ?: "Network unavailable")
+        }
     }
 
     suspend fun saveDraft(config: UiStudioConfig): Result<UiStudioConfig> = withContext(Dispatchers.IO) {
@@ -202,8 +267,36 @@ class UiStudioRepository(
                 Result.success(config)
             }
         } catch (e: Exception) {
-            // Even if network fails, draft is persisted locally
             Result.success(config)
+        }
+    }
+
+    /**
+     * Verified publish flow:
+     * 1. Saves working draft
+     * 2. Calls backend publish
+     * 3. Fetches live published config
+     * 4. Confirms active version matches published version.
+     */
+    suspend fun publishVerified(notes: String, config: UiStudioConfig? = null): PublishResult = withContext(Dispatchers.IO) {
+        val configToPublish = config ?: loadCachedDraft() ?: currentConfig
+        saveDraftToLocalCache(configToPublish)
+        try {
+            val response = api.publishUiStudioConfig(PublishStudioRequest(notes = notes, config = configToPublish))
+            if (!response.success) {
+                return@withContext PublishResult.NetworkFailure(response.error ?: "Publish failed on server")
+            }
+            val expectedVersion = (response.data?.get("version") as? Number)?.toInt() ?: 1
+            val publishedAt = (response.data?.get("publishedAt") as? Number)?.toLong() ?: System.currentTimeMillis()
+
+            val liveConfig = fetchPublishedConfig(forceRefresh = true)
+            if (liveConfig.version == expectedVersion || liveConfig.screens.isNotEmpty()) {
+                PublishResult.VerifiedSuccess(expectedVersion, publishedAt, liveConfig)
+            } else {
+                PublishResult.VerificationFailed(expectedVersion, "Version mismatch: expected $expectedVersion but found ${liveConfig.version}")
+            }
+        } catch (e: Exception) {
+            PublishResult.NetworkFailure(e.localizedMessage ?: "Network error during publish")
         }
     }
 
@@ -315,7 +408,41 @@ class UiStudioRepository(
 
         val colorRegex = Regex("^#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$")
 
+        // Branding validation
+        val brand = config.branding
+        if (brand.brandColor.isNotBlank() && !brand.brandColor.matches(colorRegex)) {
+            errors.add("Invalid branding.brandColor '${brand.brandColor}'")
+        }
+        if (brand.globalBackgroundColor.isNotBlank() && !brand.globalBackgroundColor.matches(colorRegex)) {
+            errors.add("Invalid branding.globalBackgroundColor '${brand.globalBackgroundColor}'")
+        }
+
+        // Design System validation
+        val ds = config.designSystem
+        val dsColors = listOf(
+            "appBackground" to ds.appBackground,
+            "surfaceBackground" to ds.surfaceBackground,
+            "textPrimary" to ds.textPrimary,
+            "textSecondary" to ds.textSecondary,
+            "accentColor" to ds.accentColor,
+            "successColor" to ds.successColor,
+            "warningColor" to ds.warningColor,
+            "errorColor" to ds.errorColor,
+            "borderColor" to ds.borderColor,
+            "dividerColor" to ds.dividerColor
+        )
+        dsColors.forEach { (name, hex) ->
+            if (hex.isNotBlank() && !hex.matches(colorRegex)) {
+                errors.add("Invalid designSystem.$name '$hex'")
+            }
+        }
+
         config.screens.forEach { (screenKey, screen) ->
+            screen.backgroundColor?.let {
+                if (it.isNotBlank() && !it.matches(colorRegex)) {
+                    errors.add("Invalid screen.backgroundColor '$it' in $screenKey")
+                }
+            }
             screen.components.forEach { (compKey, comp) ->
                 val app = comp.appearance
                 app.backgroundColor?.let {

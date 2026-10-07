@@ -11,25 +11,25 @@
 
 ### Last Completed Task
 
-Rebuilt EVE UI Studio into a full visual App Builder / UI Editor system:
-- Dedicated top-level Admin Dashboard tab item for UI Studio in `activity_admin.xml` and `AdminActivity.kt`.
-- Comprehensive screen registry ([UiStudioRegistry.kt](file:///data/data/com.termux/files/home/eve-mock-test-app/app/src/main/java/com/eve/app/uistudio/UiStudioRegistry.kt)) covering 8 application screens and 16 component primitives.
-- Interactive canvas with tap-to-select element highlighting and instant inspector synchronization.
-- Component tree hierarchy with search filter, add, duplicate, delete with core component protection, and reorder.
-- Full property inspector with appearance, layout (width/height dimensions), visible material glass blur slider (0-35px), material opacity, tint, typography, content, actions, animations, and screen transition presets.
-- 30-step Undo/Redo configuration snapshot history stack.
-- Advanced Mode raw JSON editor with syntax validation and live application.
-- Persistence bug fix via local persistent draft caching (`KEY_CACHED_DRAFT`) ensuring zero loss of draft configurations on reopen or recreation.
-- Runtime application engine ([UiStudioEngine.kt](file:///data/data/com.termux/files/home/eve-mock-test-app/app/src/main/java/com/eve/app/util/UiStudioEngine.kt)) applying dimensions, blur tints, typography, and entrance animations safely without touching core exam business logic or theme toggles.
+Hardcore Bug-Fix + Complete Product Rebuild of EVE UI Studio / Visual App Builder:
+- Fixed critical Studio reset bug: enforced strict 4-tier restore hierarchy (Local draft -> Server draft -> Published config -> Defaults only if none).
+- Session state persistence (`UiStudioSessionState`): remembers selected screen, component, inspector tab, view mode, and device width on reopen.
+- Truthful draft persistence (`SaveDraftResult`): distinguishes between server-synced draft and offline local draft without fake success toasts.
+- Verified atomic publish (`PublishResult`): validates schema, publishes immutable snapshot, refetches active live config, and verifies version matching before badging `LIVE vXX (VERIFIED)`.
+- Workspace split redesign: pinned real screen canvas with live tap-to-select, 12 categorized inspector tabs (Design, Layout, Colors, Typography, Material/Blur, Content, Actions, Animation, States, Branding, Tree, Advanced), and view mode toggles (`Split`, `Canvas Focus`, `Inspector Focus`, and `360dp / 400dp / Full` viewport widths).
+- Style Clipboard: Copy Style and Paste Style transferring visual tokens safely without copying stable IDs or actions.
+- Property Reset Hierarchy: Reset to Default, Reset to Screen, and Reset to Global Design System.
+- Canonical model enhancements: added `branding`, `designSystem`, `revision`, and `states` to `UiStudioConfig` and synchronized backend validation.
+- Animation test trigger: interactive play test button for configured entrance animations.
+- 100% protection maintained for Telegram-style circular reveal theme toggle, test scoring, and exam auth.
 
 ## Last Verified Changes
 
-- Dedicated top-level tab in `AdminActivity` and `activity_admin.xml` functioning cleanly with tab index management.
-- Backend validator in `uiStudio.ts` enforcing blur radius (0-50), material opacity, tint, and animation parameters.
-- All 79 backend tests passing (`npm test`).
-- All 207 Android unit tests passing (`./gradlew testDebugUnitTest`).
-- Clean debug APK build via `./gradlew assembleDebug`.
-- Verified Telegram circular reveal theme animation and core test scoring logic remain 100% untouched.
+- Android unit tests: passed (211 unit tests completed, 0 failures via `./gradlew testDebugUnitTest`).
+- Android APK build: passed (clean APK packaging via `./gradlew assembleDebug`).
+- Backend unit tests: passed (79/79 tests passing via `npm test`).
+- Backend typecheck: passed (`npm run build` tsc --noEmit).
+- Git diff hygiene: verified zero whitespace or formatting errors (`git diff --check`).
 
 ## Current In-Progress Task
 
@@ -45,14 +45,15 @@ NONE. Implementation, verification, and test execution are complete.
 
 ## Verification Status
 
-- `./gradlew testDebugUnitTest`: passed (207 tests completed, 0 failures).
+- `./gradlew testDebugUnitTest`: passed (211 tests completed, 0 failures).
 - `./gradlew assembleDebug`: passed (clean APK packaging).
 - Backend `npm test`: passed (79/79 tests passing).
+- Backend `npm run build`: passed (clean TypeScript compilation).
 - Configuration persistence, validation, and JSON export/import verified via unit tests.
 
 ## Last Commit
 
-`11451e9` — `feat(ui-studio): implement EVE UI Studio foundation and master redesign polish`. The immediately following commit records this continuity update.
+`46a09c2` — `feat(ui-studio): rebuild EVE UI Studio as full visual App Builder with canvas, tree, blur, undo/redo, and persistence`.
 
 ## Next Recommended Action
 

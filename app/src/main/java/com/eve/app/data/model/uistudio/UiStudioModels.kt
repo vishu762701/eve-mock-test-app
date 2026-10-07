@@ -12,6 +12,8 @@ data class UiStudioConfig(
     val configVersion: Int = 1,
     @SerializedName("version")
     val version: Int = 0,
+    @SerializedName("revision")
+    val revision: String = "",
     @SerializedName("publishedAt")
     val publishedAt: Long = 0L,
     @SerializedName("publishedBy")
@@ -24,8 +26,60 @@ data class UiStudioConfig(
     val notes: String = "",
     @SerializedName("status")
     val status: String = "draft",
+    @SerializedName("branding")
+    val branding: BrandingConfig = BrandingConfig(),
+    @SerializedName("designSystem")
+    val designSystem: DesignSystemConfig = DesignSystemConfig(),
     @SerializedName("screens")
     val screens: Map<String, ScreenConfig> = emptyMap()
+)
+
+data class BrandingConfig(
+    @SerializedName("appDisplayName")
+    val appDisplayName: String = "EVE Exam Prep",
+    @SerializedName("shortName")
+    val shortName: String = "EVE",
+    @SerializedName("logoUrl")
+    val logoUrl: String? = null,
+    @SerializedName("showLogo")
+    val showLogo: Boolean = true,
+    @SerializedName("logoSize")
+    val logoSize: Int = 32,
+    @SerializedName("brandColor")
+    val brandColor: String = "#007AFF",
+    @SerializedName("globalBackgroundColor")
+    val globalBackgroundColor: String = "#000000"
+)
+
+data class DesignSystemConfig(
+    @SerializedName("appBackground")
+    val appBackground: String = "#000000",
+    @SerializedName("surfaceBackground")
+    val surfaceBackground: String = "#1E293B",
+    @SerializedName("textPrimary")
+    val textPrimary: String = "#FFFFFF",
+    @SerializedName("textSecondary")
+    val textSecondary: String = "#94A3B8",
+    @SerializedName("accentColor")
+    val accentColor: String = "#007AFF",
+    @SerializedName("successColor")
+    val successColor: String = "#34C759",
+    @SerializedName("warningColor")
+    val warningColor: String = "#FF9500",
+    @SerializedName("errorColor")
+    val errorColor: String = "#FF3B30",
+    @SerializedName("borderColor")
+    val borderColor: String = "#334155",
+    @SerializedName("dividerColor")
+    val dividerColor: String = "#1E293B",
+    @SerializedName("radiusScale")
+    val radiusScale: Int = 14,
+    @SerializedName("spacingScale")
+    val spacingScale: Int = 16,
+    @SerializedName("defaultOpacity")
+    val defaultOpacity: Float = 1.0f,
+    @SerializedName("defaultBlurRadius")
+    val defaultBlurRadius: Int = 0
 )
 
 data class ScreenConfig(
@@ -37,8 +91,18 @@ data class ScreenConfig(
     val description: String = "",
     @SerializedName("backgroundColor")
     val backgroundColor: String? = null,
+    @SerializedName("backgroundOpacity")
+    val backgroundOpacity: Float? = null,
+    @SerializedName("backgroundImageUrl")
+    val backgroundImageUrl: String? = null,
+    @SerializedName("padding")
+    val padding: Int? = null,
+    @SerializedName("spacing")
+    val spacing: Int? = null,
     @SerializedName("transition")
     val transition: String = "contextual",
+    @SerializedName("animation")
+    val animation: AnimationProperties = AnimationProperties(),
     @SerializedName("components")
     val components: Map<String, ComponentConfig> = emptyMap()
 )
@@ -74,6 +138,8 @@ data class ComponentConfig(
     val actions: ActionProperties = ActionProperties(),
     @SerializedName("animation")
     val animation: AnimationProperties = AnimationProperties(),
+    @SerializedName("states")
+    val states: StateProperties = StateProperties(),
     @SerializedName("children")
     val children: List<String> = emptyList()
 )
@@ -249,3 +315,41 @@ data class ResetStudioRequest(
     @SerializedName("target")
     val target: String = "draft"
 )
+
+data class StateProperties(
+    @SerializedName("pressedBackgroundColor")
+    val pressedBackgroundColor: String? = null,
+    @SerializedName("selectedBackgroundColor")
+    val selectedBackgroundColor: String? = null,
+    @SerializedName("disabledBackgroundColor")
+    val disabledBackgroundColor: String? = null,
+    @SerializedName("selectedTextColor")
+    val selectedTextColor: String? = null
+)
+
+data class UiStudioSessionState(
+    @SerializedName("selectedScreenKey")
+    val selectedScreenKey: String = "home",
+    @SerializedName("selectedComponentKey")
+    val selectedComponentKey: String = "hero_banner",
+    @SerializedName("selectedTab")
+    val selectedTab: String = "design",
+    @SerializedName("viewMode")
+    val viewMode: String = "split",
+    @SerializedName("deviceWidthMode")
+    val deviceWidthMode: String = "normal",
+    @SerializedName("timestamp")
+    val timestamp: Long = System.currentTimeMillis()
+)
+
+sealed class SaveDraftResult {
+    data class ServerSuccess(val config: UiStudioConfig) : SaveDraftResult()
+    data class LocalOfflineSuccess(val config: UiStudioConfig, val error: String) : SaveDraftResult()
+    data class Failure(val error: String) : SaveDraftResult()
+}
+
+sealed class PublishResult {
+    data class VerifiedSuccess(val version: Int, val publishedAt: Long, val config: UiStudioConfig) : PublishResult()
+    data class VerificationFailed(val version: Int, val reason: String) : PublishResult()
+    data class NetworkFailure(val error: String) : PublishResult()
+}

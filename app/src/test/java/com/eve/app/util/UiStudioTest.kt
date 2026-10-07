@@ -321,4 +321,112 @@ class UiStudioTest {
         val imported = repo.importFromJson(json).getOrThrow()
         assertEquals("fade_scale", imported.screens["test"]?.transition)
     }
+
+    @Test
+    fun testBrandingAndDesignSystemValidation() {
+        val validConfig = UiStudioConfig(
+            revision = "rev-101",
+            branding = BrandingConfig(
+                appDisplayName = "EVE Super App",
+                brandColor = "#007AFF",
+                globalBackgroundColor = "#000000"
+            ),
+            designSystem = DesignSystemConfig(
+                appBackground = "#000000",
+                surfaceBackground = "#1E293B",
+                textPrimary = "#FFFFFF",
+                accentColor = "#007AFF"
+            ),
+            screens = mapOf(
+                "home" to ScreenConfig(
+                    id = "home",
+                    backgroundColor = "#000000"
+                )
+            )
+        )
+        val valResult = repo.validateConfig(validConfig)
+        assertTrue("Valid branding and designSystem should pass validation: ${valResult.second}", valResult.first)
+
+        // Invalid branding brandColor
+        val invalidBrand = validConfig.copy(
+            branding = validConfig.branding.copy(brandColor = "not-a-color")
+        )
+        val valResult2 = repo.validateConfig(invalidBrand)
+        assertFalse("Invalid brandColor should fail", valResult2.first)
+        assertTrue(valResult2.second.any { it.contains("brandColor") })
+
+        // Invalid design system accentColor
+        val invalidDs = validConfig.copy(
+            designSystem = validConfig.designSystem.copy(accentColor = "#XYZ123")
+        )
+        val valResult3 = repo.validateConfig(invalidDs)
+        assertFalse("Invalid accentColor should fail", valResult3.first)
+        assertTrue(valResult3.second.any { it.contains("accentColor") })
+    }
+
+    @Test
+    fun testStyleClipboardCopyAndPaste() {
+        val sourceComp = ComponentConfig(
+            id = "source_card",
+            name = "Source Card",
+            appearance = AppearanceProperties(
+                backgroundColor = "#0F172A",
+                cornerRadius = 22,
+                strokeColor = "#38BDF8",
+                strokeWidth = 2,
+                elevation = 4,
+                opacity = 0.9f
+            ),
+            material = MaterialProperties(
+                blurRadius = 18,
+                materialOpacity = 0.85f,
+                tintColor = "#0F172A",
+                tintOpacity = 0.6f
+            )
+        )
+
+        repo.copyStyle(sourceComp)
+        assertTrue(repo.hasCopiedStyle())
+
+        val targetComp = ComponentConfig(
+            id = "target_btn",
+            name = "Target Button",
+            appearance = AppearanceProperties(
+                backgroundColor = "#FFFFFF",
+                cornerRadius = 8
+            )
+        )
+
+        val pasted = repo.pasteStyle(targetComp)
+        // Verified: target ID and name are preserved, appearance and material are copied!
+        assertEquals("target_btn", pasted.id)
+        assertEquals("Target Button", pasted.name)
+        assertEquals("#0F172A", pasted.appearance.backgroundColor)
+        assertEquals(22, pasted.appearance.cornerRadius)
+        assertEquals("#38BDF8", pasted.appearance.strokeColor)
+        assertEquals(18, pasted.material.blurRadius)
+    }
+
+    @Test
+    fun testSessionStateSerialization() {
+        val session = UiStudioSessionState(
+            selectedScreenKey = "result",
+            selectedComponentKey = "score_card",
+            selectedTab = "material",
+            viewMode = "split",
+            deviceWidthMode = "compact"
+        )
+        val gson = com.google.gson.Gson()
+        val json = gson.toJson(session)
+        assertNotNull(json)
+        assertTrue(json.contains("score_card"))
+        assertTrue(json.contains("material"))
+
+        val restored = gson.fromJson(json, UiStudioSessionState::class.java)
+        assertEquals("result", restored.selectedScreenKey)
+        assertEquals("score_card", restored.selectedComponentKey)
+        assertEquals("material", restored.selectedTab)
+        assertEquals("split", restored.viewMode)
+        assertEquals("compact", restored.deviceWidthMode)
+    }
 }

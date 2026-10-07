@@ -28,6 +28,30 @@ export function validateUiStudioConfig(config: any): { valid: boolean; errors: s
     return { valid: false, errors: ["Configuration must be an object"] };
   }
 
+  // Validate Branding
+  if (config.branding && typeof config.branding === "object") {
+    if (config.branding.brandColor && !COLOR_HEX_REGEX.test(config.branding.brandColor)) {
+      errors.push(`Invalid brandColor '${config.branding.brandColor}' in branding`);
+    }
+    if (config.branding.globalBackgroundColor && !COLOR_HEX_REGEX.test(config.branding.globalBackgroundColor)) {
+      errors.push(`Invalid globalBackgroundColor '${config.branding.globalBackgroundColor}' in branding`);
+    }
+  }
+
+  // Validate Design System
+  if (config.designSystem && typeof config.designSystem === "object") {
+    const ds = config.designSystem;
+    const colorFields = [
+      "appBackground", "surfaceBackground", "textPrimary", "textSecondary",
+      "accentColor", "successColor", "warningColor", "errorColor", "borderColor", "dividerColor"
+    ];
+    for (const f of colorFields) {
+      if (ds[f] && !COLOR_HEX_REGEX.test(ds[f])) {
+        errors.push(`Invalid ${f} '${ds[f]}' in designSystem`);
+      }
+    }
+  }
+
   const screens = config.screens;
   if (screens !== undefined) {
     if (typeof screens !== "object" || screens === null) {
@@ -39,6 +63,10 @@ export function validateUiStudioConfig(config: any): { valid: boolean; errors: s
       if (!screen || typeof screen !== "object") {
         errors.push(`Screen '${screenKey}' must be an object`);
         continue;
+      }
+
+      if (screen.backgroundColor && !COLOR_HEX_REGEX.test(screen.backgroundColor)) {
+        errors.push(`Invalid backgroundColor '${screen.backgroundColor}' in screen '${screenKey}'`);
       }
 
       const components = screen.components;
