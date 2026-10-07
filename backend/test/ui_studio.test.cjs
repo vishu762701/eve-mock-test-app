@@ -172,6 +172,30 @@ test("validateUiStudioConfig enforces valid colors and dimensions", () => {
   const invalidOpacity = JSON.parse(JSON.stringify(validConfig));
   invalidOpacity.screens.home.components.hero_banner.appearance.opacity = 1.5;
   assert.equal(validateUiStudioConfig(invalidOpacity).valid, false);
+
+  // Valid Material / Blur controls
+  const withMaterial = JSON.parse(JSON.stringify(validConfig));
+  withMaterial.screens.home.components.hero_banner.material = {
+    blurRadius: 20,
+    materialOpacity: 0.85,
+    tintColor: "#1C1C1E",
+    tintOpacity: 0.5,
+  };
+  assert.equal(validateUiStudioConfig(withMaterial).valid, true);
+
+  // Invalid Blur Radius (> 50)
+  const invalidBlur = JSON.parse(JSON.stringify(withMaterial));
+  invalidBlur.screens.home.components.hero_banner.material.blurRadius = 99;
+  assert.equal(validateUiStudioConfig(invalidBlur).valid, false);
+
+  // Valid Animation
+  const withAnim = JSON.parse(JSON.stringify(validConfig));
+  withAnim.screens.home.components.hero_banner.animation = {
+    enabled: true,
+    durationMs: 350,
+    delayMs: 50,
+  };
+  assert.equal(validateUiStudioConfig(withAnim).valid, true);
 });
 
 // 2. Public read fallback when no config exists

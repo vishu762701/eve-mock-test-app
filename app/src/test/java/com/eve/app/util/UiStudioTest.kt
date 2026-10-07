@@ -2,6 +2,7 @@ package com.eve.app.util
 
 import com.eve.app.data.model.uistudio.*
 import com.eve.app.data.repository.UiStudioRepository
+import com.eve.app.uistudio.UiStudioRegistry
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -41,9 +42,16 @@ class UiStudioTest {
     fun testDefaultTemplateValidation() {
         val template = repo.getDefaultTemplate()
         assertNotNull(template)
+
+        // Check that all registered real application screens exist in the template
         assertTrue(template.screens.containsKey("home"))
         assertTrue(template.screens.containsKey("test"))
         assertTrue(template.screens.containsKey("result"))
+        assertTrue(template.screens.containsKey("profile"))
+        assertTrue(template.screens.containsKey("notifications"))
+        assertTrue(template.screens.containsKey("syllabus"))
+        assertTrue(template.screens.containsKey("login"))
+        assertTrue(template.screens.containsKey("admin"))
 
         // Check key components exist
         val homeComponents = template.screens["home"]?.components.orEmpty()
@@ -131,6 +139,38 @@ class UiStudioTest {
         val res4 = repo.validateConfig(invalidRadiusConfig)
         assertFalse("Radius > 120 should fail validation", res4.first)
         assertTrue(res4.second.any { it.contains("cornerRadius") })
+
+        // 5. Out-of-bounds blur radius
+        val invalidBlurConfig = base.copy(
+            screens = mapOf(
+                "home" to ScreenConfig(
+                    components = mapOf(
+                        "hero_banner" to ComponentConfig(
+                            material = MaterialProperties(blurRadius = 99)
+                        )
+                    )
+                )
+            )
+        )
+        val res5 = repo.validateConfig(invalidBlurConfig)
+        assertFalse("Blur radius > 50 should fail validation", res5.first)
+        assertTrue(res5.second.any { it.contains("blurRadius") })
+
+        // 6. Valid Material and Animation config
+        val validMaterialConfig = base.copy(
+            screens = mapOf(
+                "home" to ScreenConfig(
+                    components = mapOf(
+                        "hero_banner" to ComponentConfig(
+                            material = MaterialProperties(blurRadius = 20, materialOpacity = 0.85f, tintColor = "#1E293B", tintOpacity = 0.7f),
+                            animation = AnimationProperties(enabled = true, durationMs = 350L, delayMs = 50L)
+                        )
+                    )
+                )
+            )
+        )
+        val res6 = repo.validateConfig(validMaterialConfig)
+        assertTrue("Valid material & animation should pass: ${res6.second}", res6.first)
     }
 
     @Test
@@ -148,6 +188,7 @@ class UiStudioTest {
                             visible = true,
                             layout = LayoutProperties(marginTop = 14, paddingStart = 20),
                             appearance = AppearanceProperties(backgroundColor = "#0F172A", cornerRadius = 24),
+                            material = MaterialProperties(blurRadius = 15, materialOpacity = 0.9f),
                             typography = TypographyProperties(textColor = "#FFFFFF", textSize = 20, textStyle = "bold")
                         )
                     )
@@ -172,10 +213,23 @@ class UiStudioTest {
         assertNotNull(hero)
         assertEquals("#0F172A", hero?.appearance?.backgroundColor)
         assertEquals(24, hero?.appearance?.cornerRadius)
+        assertEquals(15, hero?.material?.blurRadius)
         assertEquals(14, hero?.layout?.marginTop)
         assertEquals(20, hero?.layout?.paddingStart)
         assertEquals("#FFFFFF", hero?.typography?.textColor)
         assertEquals(20, hero?.typography?.textSize)
+    }
+
+    @Test
+    fun testRegistryComponentsAndScreens() {
+        assertTrue(UiStudioRegistry.SUPPORTED_SCREENS.isNotEmpty())
+        assertTrue(UiStudioRegistry.COMPONENT_TYPES.isNotEmpty())
+
+        val buttonComp = UiStudioRegistry.createDefaultComponent("btn_test", "button", "Test Button")
+        assertEquals("button", buttonComp.type)
+        assertEquals("btn_test", buttonComp.id)
+        assertEquals("Test Button", buttonComp.name)
+        assertNotNull(buttonComp.appearance.backgroundColor)
     }
 
     @Test
@@ -185,5 +239,86 @@ class UiStudioTest {
         UiStudioEngine.applyTypography(null, null)
         UiStudioEngine.applyHeroBanner(null, null, null, null)
         UiStudioEngine.applyStreakPill(null, null, null)
+        UiStudioEngine.playEntranceAnimation(null, null)
+    }
+
+    @Test
+    fun testScreenTransitionsAndAdvancedRawJson() {
+        val json = """
+            {
+              "id": "banner_custom",
+              "type": "banner",
+              "name": "Custom Live Banner",
+              "visible": true,
+              "enabled": true,
+              "order": 1,
+              "isProtected": false,
+              "layout": {
+                "width": "match_parent",
+                "height": "wrap_content",
+                "marginTop": 12,
+                "marginBottom": 8
+              },
+              "appearance": {
+                "backgroundColor": "#000000",
+                "cornerRadius": 16,
+                "strokeColor": "#334155",
+                "strokeWidth": 1
+              },
+              "material": {
+                "blurRadius": 25,
+                "materialOpacity": 0.8,
+                "tintColor": "#007AFF",
+                "tintOpacity": 0.5
+              },
+              "animation": {
+                "enabled": true,
+                "type": "fade_scale",
+                "durationMs": 300,
+                "delayMs": 50,
+                "interpolator": "overshoot"
+              },
+              "actions": {
+                "actionType": "open_screen",
+                "actionTarget": "test"
+              }
+            }
+        """.trimIndent()
+
+        val gson = com.google.gson.GsonBuilder().setPrettyPrinting().create()
+        val comp = gson.fromJson(json, ComponentConfig::class.java)
+
+        assertEquals("banner_custom", comp.id)
+        assertEquals("banner", comp.type)
+        assertEquals("Custom Live Banner", comp.name)
+        assertEquals("match_parent", comp.layout.width)
+        assertEquals("wrap_content", comp.layout.height)
+        assertEquals(25, comp.material.blurRadius)
+        assertEquals(0.8f, comp.material.materialOpacity)
+        assertEquals("fade_scale", comp.animation.type)
+        assertEquals("open_screen", comp.actions.actionType)
+        assertEquals("test", comp.actions.actionTarget)
+
+        // Verify re-serialization
+        val reserialized = gson.toJson(comp)
+        assertTrue(reserialized.contains("banner_custom"))
+        assertTrue(reserialized.contains("fade_scale"))
+    }
+
+    @Test
+    fun testScreenConfigTransitions() {
+        val screenWithTransition = ScreenConfig(
+            id = "test",
+            name = "Test Screen",
+            transition = "fade_scale"
+        )
+        assertEquals("fade_scale", screenWithTransition.transition)
+
+        val fullConfig = UiStudioConfig(
+            screens = mapOf("test" to screenWithTransition)
+        )
+        val json = repo.exportToJson(fullConfig)
+        val imported = repo.importFromJson(json).getOrThrow()
+        assertEquals("fade_scale", imported.screens["test"]?.transition)
     }
 }

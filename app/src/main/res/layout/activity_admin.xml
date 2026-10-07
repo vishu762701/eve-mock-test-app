@@ -45,7 +45,7 @@
             android:visibility="gone" />
     </LinearLayout>
 
-    <!-- Tabs: 1. Create Exam, 2. Manage Questions, 3. Admins -->
+    <!-- Tabs: 1. Create Exam, 2. Manage Questions, 3. Admins, 4. UI Studio -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayoutAdmin"
         android:layout_width="match_parent"
@@ -53,7 +53,7 @@
         android:background="@color/eve_bg"
         app:tabIndicatorColor="@color/eve_system_blue"
         app:tabIndicatorHeight="2dp"
-        app:tabMode="fixed"
+        app:tabMode="scrollable"
         app:tabGravity="fill"
         app:tabSelectedTextColor="@color/eve_text"
         app:tabTextAppearance="@style/TextAppearance.Eve.Button"
@@ -73,6 +73,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Admins" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="UI Studio" />
     </com.google.android.material.tabs.TabLayout>
 
     <View
@@ -712,20 +717,6 @@
                     android:paddingVertical="12dp"
                     android:text="Export All Exam Data (JSON)"
                     app:icon="@drawable/ic_download"
-                    app:iconPadding="12dp"
-                    app:iconSize="20dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnUiStudio"
-                    style="@style/Widget.Eve.Button"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical|start"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="12dp"
-                    android:text="EVE UI Studio (App Builder)"
-                    app:icon="@drawable/ic_edit"
                     app:iconPadding="12dp"
                     app:iconSize="20dp" />
 

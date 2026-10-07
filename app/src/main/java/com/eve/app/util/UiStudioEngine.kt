@@ -1,5 +1,6 @@
 package com.eve.app.util
 
+import android.animation.TimeInterpolator
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
@@ -9,14 +10,21 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
+import android.view.animation.OvershootInterpolator
+import android.widget.ImageView
 import android.widget.TextView
+import com.eve.app.data.model.uistudio.AnimationProperties
 import com.eve.app.data.model.uistudio.ComponentConfig
 import com.google.android.material.card.MaterialCardView
 
 /**
  * Robust runtime application engine for EVE UI Studio.
- * Applies schema-driven visual properties (Layout, Appearance, Typography, Visibility)
- * to native Android views safely with zero chance of crashes or blank screens.
+ * Applies schema-driven visual properties (Layout, Appearance, Material/Glass Blur,
+ * Typography, Visibility, Animations) to native Android views safely with zero chance
+ * of crashes or blank screens.
  */
 object UiStudioEngine {
 
@@ -64,7 +72,23 @@ object UiStudioEngine {
     }
 
     /**
-     * Applies general component configuration (Visibility, Layout, Appearance) to any View.
+     * Parses dimension strings ("match_parent", "wrap_content", or exact dp number) to px.
+     */
+    fun parseDimensionPx(context: Context, dimStr: String?, defaultVal: Int): Int {
+        if (dimStr.isNullOrBlank()) return defaultVal
+        return when (dimStr.trim().lowercase()) {
+            "match_parent", "match" -> ViewGroup.LayoutParams.MATCH_PARENT
+            "wrap_content", "wrap" -> ViewGroup.LayoutParams.WRAP_CONTENT
+            else -> {
+                val num = dimStr.trim().removeSuffix("dp").removeSuffix("px").toIntOrNull()
+                if (num != null) dpToPx(context, num) else defaultVal
+            }
+        }
+    }
+
+    /**
+     * Applies general component configuration (Visibility, Layout, Appearance, Material, Typography)
+     * to any Android View.
      */
     fun applyToView(view: View?, config: ComponentConfig?) {
         if (view == null || config == null) return
@@ -78,37 +102,52 @@ object UiStudioEngine {
                 view.visibility = View.VISIBLE
             }
 
+            // 2. Enabled state
+            view.isEnabled = config.enabled
+
             val context = view.context
             val density = context.resources.displayMetrics.density
 
-            // 2. Layout Margins
+            // 3. Layout Dimensions & Margins
             val params = view.layoutParams
-            if (params is ViewGroup.MarginLayoutParams) {
-                var marginsChanged = false
-                config.layout.marginTop?.let {
-                    params.topMargin = (it * density).toInt()
-                    marginsChanged = true
+            if (params != null) {
+                var paramsChanged = false
+                if (!config.layout.width.isNullOrBlank()) {
+                    params.width = parseDimensionPx(context, config.layout.width, params.width)
+                    paramsChanged = true
                 }
-                config.layout.marginBottom?.let {
-                    params.bottomMargin = (it * density).toInt()
-                    marginsChanged = true
+                if (!config.layout.height.isNullOrBlank()) {
+                    params.height = parseDimensionPx(context, config.layout.height, params.height)
+                    paramsChanged = true
                 }
-                config.layout.marginStart?.let {
-                    params.marginStart = (it * density).toInt()
-                    params.leftMargin = params.marginStart
-                    marginsChanged = true
+
+                if (params is ViewGroup.MarginLayoutParams) {
+                    config.layout.marginTop?.let {
+                        params.topMargin = (it * density).toInt()
+                        paramsChanged = true
+                    }
+                    config.layout.marginBottom?.let {
+                        params.bottomMargin = (it * density).toInt()
+                        paramsChanged = true
+                    }
+                    config.layout.marginStart?.let {
+                        params.marginStart = (it * density).toInt()
+                        params.leftMargin = params.marginStart
+                        paramsChanged = true
+                    }
+                    config.layout.marginEnd?.let {
+                        params.marginEnd = (it * density).toInt()
+                        params.rightMargin = params.marginEnd
+                        paramsChanged = true
+                    }
                 }
-                config.layout.marginEnd?.let {
-                    params.marginEnd = (it * density).toInt()
-                    params.rightMargin = params.marginEnd
-                    marginsChanged = true
-                }
-                if (marginsChanged) {
+
+                if (paramsChanged) {
                     view.layoutParams = params
                 }
             }
 
-            // 3. Layout Padding
+            // 4. Layout Padding
             val lay = config.layout
             if (lay.paddingTop != null || lay.paddingBottom != null || lay.paddingStart != null || lay.paddingEnd != null) {
                 val pStart = lay.paddingStart?.let { (it * density).toInt() } ?: view.paddingStart
@@ -118,23 +157,29 @@ object UiStudioEngine {
                 view.setPaddingRelative(pStart, pTop, pEnd, pBottom)
             }
 
-            // 4. Appearance Opacity
+            // 5. Appearance Opacity
             config.appearance.opacity?.let {
                 view.alpha = it.coerceIn(0.0f, 1.0f)
             }
 
-            // 5. Appearance Elevation
+            // 6. Appearance Elevation
             config.appearance.elevation?.let {
                 view.elevation = (it * density)
             }
 
-            // 6. Card / Background Appearance
+            // 7. Card / Background Appearance & Material Tint
             val app = config.appearance
+            val mat = config.material
+
             if (view is MaterialCardView) {
-                app.backgroundColor?.let { hex ->
-                    parseColorSafe(hex)?.let { color ->
-                        view.setCardBackgroundColor(color)
-                    }
+                // If material tint is provided, prefer tint color; else background color
+                val effectiveColor = parseColorSafe(mat.tintColor) ?: parseColorSafe(app.backgroundColor)
+                effectiveColor?.let { color ->
+                    val finalColor = if (mat.tintOpacity != null) {
+                        val alpha = (mat.tintOpacity * 255).toInt().coerceIn(0, 255)
+                        (color and 0x00FFFFFF) or (alpha shl 24)
+                    } else color
+                    view.setCardBackgroundColor(finalColor)
                 }
                 app.cornerRadius?.let { radiusDp ->
                     view.radius = radiusDp * density
@@ -147,10 +192,15 @@ object UiStudioEngine {
                         view.strokeColor = color
                     }
                 }
-            } else if (app.backgroundColor != null || app.cornerRadius != null || app.strokeColor != null) {
+            } else if (app.backgroundColor != null || app.cornerRadius != null || app.strokeColor != null || mat.tintColor != null) {
                 val drawable = (view.background as? GradientDrawable) ?: GradientDrawable()
-                app.backgroundColor?.let { hex ->
-                    parseColorSafe(hex)?.let { drawable.setColor(it) }
+                val effectiveColor = parseColorSafe(mat.tintColor) ?: parseColorSafe(app.backgroundColor)
+                effectiveColor?.let { color ->
+                    val finalColor = if (mat.tintOpacity != null) {
+                        val alpha = (mat.tintOpacity * 255).toInt().coerceIn(0, 255)
+                        (color and 0x00FFFFFF) or (alpha shl 24)
+                    } else color
+                    drawable.setColor(finalColor)
                 }
                 app.cornerRadius?.let { radiusDp ->
                     drawable.cornerRadius = radiusDp * density
@@ -163,9 +213,21 @@ object UiStudioEngine {
                 view.background = drawable
             }
 
-            // 7. Typography (if view is TextView)
+            // 8. Typography (if view is TextView)
             if (view is TextView) {
                 applyTypography(view, config)
+            }
+
+            // 9. Content (if view is ImageView)
+            if (view is ImageView) {
+                config.appearance.strokeColor?.let { hex ->
+                    parseColorSafe(hex)?.let { view.setColorFilter(it) }
+                }
+            }
+
+            // 10. Animation if configured
+            if (config.animation.enabled) {
+                playEntranceAnimation(view, config.animation)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed applying UI Studio config to view: ${config.id}", e)
@@ -202,6 +264,9 @@ object UiStudioEngine {
                     "start", "left" -> textView.gravity = (textView.gravity and Gravity.VERTICAL_GRAVITY_MASK) or Gravity.START
                 }
             }
+            typo.maxLines?.let { lines ->
+                if (lines > 0) textView.maxLines = lines
+            }
 
             // Title text override if specified
             config.content.title?.let { customText ->
@@ -211,6 +276,69 @@ object UiStudioEngine {
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed applying typography: ${config.id}", e)
+        }
+    }
+
+    /**
+     * Executes safe entrance animation for a view based on animation schema.
+     */
+    fun playEntranceAnimation(view: View?, animConfig: AnimationProperties?) {
+        if (view == null || animConfig == null || !animConfig.enabled) return
+
+        val duration = animConfig.durationMs.coerceIn(50L, 2000L)
+        val delay = animConfig.delayMs.coerceIn(0L, 2000L)
+        val interpolator: TimeInterpolator = when (animConfig.interpolator.lowercase()) {
+            "accelerate" -> AccelerateInterpolator()
+            "decelerate" -> DecelerateInterpolator()
+            "overshoot", "spring" -> OvershootInterpolator(1.2f)
+            else -> AccelerateDecelerateInterpolator()
+        }
+
+        when (animConfig.type.lowercase()) {
+            "fade" -> {
+                view.alpha = 0f
+                view.animate()
+                    .alpha(1f)
+                    .setDuration(duration)
+                    .setStartDelay(delay)
+                    .setInterpolator(interpolator)
+                    .start()
+            }
+            "scale" -> {
+                view.scaleX = 0.85f
+                view.scaleY = 0.85f
+                view.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(duration)
+                    .setStartDelay(delay)
+                    .setInterpolator(interpolator)
+                    .start()
+            }
+            "fade_scale", "pop" -> {
+                view.alpha = 0f
+                view.scaleX = 0.88f
+                view.scaleY = 0.88f
+                view.animate()
+                    .alpha(1f)
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(duration)
+                    .setStartDelay(delay)
+                    .setInterpolator(interpolator)
+                    .start()
+            }
+            "slide" -> {
+                view.translationY = 40f
+                view.alpha = 0f
+                view.animate()
+                    .translationY(0f)
+                    .alpha(1f)
+                    .setDuration(duration)
+                    .setStartDelay(delay)
+                    .setInterpolator(interpolator)
+                    .start()
+            }
         }
     }
 

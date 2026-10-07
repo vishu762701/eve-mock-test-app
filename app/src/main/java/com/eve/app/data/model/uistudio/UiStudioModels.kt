@@ -6,14 +6,24 @@ import com.google.gson.annotations.SerializedName
  * Root configuration schema for EVE UI Studio.
  */
 data class UiStudioConfig(
+    @SerializedName("schemaVersion")
+    val schemaVersion: Int = 1,
+    @SerializedName("configVersion")
+    val configVersion: Int = 1,
     @SerializedName("version")
     val version: Int = 0,
     @SerializedName("publishedAt")
     val publishedAt: Long = 0L,
     @SerializedName("publishedBy")
     val publishedBy: String = "",
+    @SerializedName("updatedAt")
+    val updatedAt: Long = 0L,
+    @SerializedName("updatedBy")
+    val updatedBy: String = "",
     @SerializedName("notes")
     val notes: String = "",
+    @SerializedName("status")
+    val status: String = "draft",
     @SerializedName("screens")
     val screens: Map<String, ScreenConfig> = emptyMap()
 )
@@ -23,6 +33,12 @@ data class ScreenConfig(
     val id: String = "",
     @SerializedName("name")
     val name: String = "",
+    @SerializedName("description")
+    val description: String = "",
+    @SerializedName("backgroundColor")
+    val backgroundColor: String? = null,
+    @SerializedName("transition")
+    val transition: String = "contextual",
     @SerializedName("components")
     val components: Map<String, ComponentConfig> = emptyMap()
 )
@@ -30,23 +46,43 @@ data class ScreenConfig(
 data class ComponentConfig(
     @SerializedName("id")
     val id: String = "",
+    @SerializedName("type")
+    val type: String = "card",
     @SerializedName("name")
     val name: String = "",
-    @SerializedName("visible")
-    val visible: Boolean = true,
+    @SerializedName("parentId")
+    val parentId: String? = null,
     @SerializedName("order")
     val order: Int = 0,
+    @SerializedName("visible")
+    val visible: Boolean = true,
+    @SerializedName("enabled")
+    val enabled: Boolean = true,
+    @SerializedName("isProtected")
+    val isProtected: Boolean = false,
     @SerializedName("layout")
     val layout: LayoutProperties = LayoutProperties(),
     @SerializedName("appearance")
     val appearance: AppearanceProperties = AppearanceProperties(),
+    @SerializedName("material")
+    val material: MaterialProperties = MaterialProperties(),
     @SerializedName("typography")
     val typography: TypographyProperties = TypographyProperties(),
     @SerializedName("content")
-    val content: ContentProperties = ContentProperties()
+    val content: ContentProperties = ContentProperties(),
+    @SerializedName("actions")
+    val actions: ActionProperties = ActionProperties(),
+    @SerializedName("animation")
+    val animation: AnimationProperties = AnimationProperties(),
+    @SerializedName("children")
+    val children: List<String> = emptyList()
 )
 
 data class LayoutProperties(
+    @SerializedName("width")
+    val width: String? = null,
+    @SerializedName("height")
+    val height: String? = null,
     @SerializedName("marginTop")
     val marginTop: Int? = null,
     @SerializedName("marginBottom")
@@ -62,7 +98,9 @@ data class LayoutProperties(
     @SerializedName("paddingStart")
     val paddingStart: Int? = null,
     @SerializedName("paddingEnd")
-    val paddingEnd: Int? = null
+    val paddingEnd: Int? = null,
+    @SerializedName("gravity")
+    val gravity: String? = null
 )
 
 data class AppearanceProperties(
@@ -80,6 +118,17 @@ data class AppearanceProperties(
     val elevation: Int? = null
 )
 
+data class MaterialProperties(
+    @SerializedName("blurRadius")
+    val blurRadius: Int? = null,
+    @SerializedName("materialOpacity")
+    val materialOpacity: Float? = null,
+    @SerializedName("tintColor")
+    val tintColor: String? = null,
+    @SerializedName("tintOpacity")
+    val tintOpacity: Float? = null
+)
+
 data class TypographyProperties(
     @SerializedName("textColor")
     val textColor: String? = null,
@@ -88,14 +137,42 @@ data class TypographyProperties(
     @SerializedName("textStyle")
     val textStyle: String? = null,
     @SerializedName("textAlign")
-    val textAlign: String? = null
+    val textAlign: String? = null,
+    @SerializedName("maxLines")
+    val maxLines: Int? = null
 )
 
 data class ContentProperties(
     @SerializedName("title")
     val title: String? = null,
     @SerializedName("subtitle")
-    val subtitle: String? = null
+    val subtitle: String? = null,
+    @SerializedName("hint")
+    val hint: String? = null,
+    @SerializedName("imageSource")
+    val imageSource: String? = null,
+    @SerializedName("icon")
+    val icon: String? = null
+)
+
+data class ActionProperties(
+    @SerializedName("actionType")
+    val actionType: String = "none",
+    @SerializedName("actionTarget")
+    val actionTarget: String? = null
+)
+
+data class AnimationProperties(
+    @SerializedName("enabled")
+    val enabled: Boolean = false,
+    @SerializedName("type")
+    val type: String = "fade_scale",
+    @SerializedName("durationMs")
+    val durationMs: Long = 300L,
+    @SerializedName("delayMs")
+    val delayMs: Long = 0L,
+    @SerializedName("interpolator")
+    val interpolator: String = "standard"
 )
 
 // Response & Request DTOs

@@ -77,6 +77,37 @@ export function validateUiStudioConfig(config: any): { valid: boolean; errors: s
             }
           }
 
+          // Check Material / Glass (including Blur control)
+          if (comp.material && typeof comp.material === "object") {
+            const mat = comp.material;
+            if (mat.blurRadius !== undefined && (typeof mat.blurRadius !== "number" || mat.blurRadius < 0 || mat.blurRadius > 50)) {
+              errors.push(`Invalid blurRadius in ${screenKey}.${compKey} (must be 0-50)`);
+            }
+            if (mat.materialOpacity !== undefined && (typeof mat.materialOpacity !== "number" || mat.materialOpacity < 0 || mat.materialOpacity > 1)) {
+              errors.push(`Invalid materialOpacity in ${screenKey}.${compKey} (must be 0.0 to 1.0)`);
+            }
+            if (mat.tintColor && !COLOR_HEX_REGEX.test(mat.tintColor)) {
+              errors.push(`Invalid tintColor '${mat.tintColor}' in ${screenKey}.${compKey}`);
+            }
+            if (mat.tintOpacity !== undefined && (typeof mat.tintOpacity !== "number" || mat.tintOpacity < 0 || mat.tintOpacity > 1)) {
+              errors.push(`Invalid tintOpacity in ${screenKey}.${compKey} (must be 0.0 to 1.0)`);
+            }
+          }
+
+          // Check Animation
+          if (comp.animation && typeof comp.animation === "object") {
+            const anim = comp.animation;
+            if (anim.enabled !== undefined && typeof anim.enabled !== "boolean") {
+              errors.push(`Invalid animation.enabled in ${screenKey}.${compKey} (must be boolean)`);
+            }
+            if (anim.durationMs !== undefined && (typeof anim.durationMs !== "number" || anim.durationMs < 0 || anim.durationMs > 10000)) {
+              errors.push(`Invalid animation.durationMs in ${screenKey}.${compKey} (must be 0-10000 ms)`);
+            }
+            if (anim.delayMs !== undefined && (typeof anim.delayMs !== "number" || anim.delayMs < 0 || anim.delayMs > 10000)) {
+              errors.push(`Invalid animation.delayMs in ${screenKey}.${compKey} (must be 0-10000 ms)`);
+            }
+          }
+
           // Check Layout
           if (comp.layout && typeof comp.layout === "object") {
             const lay = comp.layout;

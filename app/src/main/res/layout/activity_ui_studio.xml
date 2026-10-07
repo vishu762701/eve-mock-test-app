@@ -50,6 +50,26 @@
         </LinearLayout>
 
         <ImageButton
+            android:id="@+id/btnUndo"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Undo"
+            android:padding="9dp"
+            android:src="@drawable/ic_undo"
+            app:tint="?attr/colorOnSurface" />
+
+        <ImageButton
+            android:id="@+id/btnRedo"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Redo"
+            android:padding="9dp"
+            android:src="@drawable/ic_redo"
+            app:tint="?attr/colorOnSurface" />
+
+        <ImageButton
             android:id="@+id/btnVersionHistory"
             android:layout_width="40dp"
             android:layout_height="40dp"
@@ -70,11 +90,11 @@
             app:tint="?attr/colorOnSurface" />
 
         <ImageButton
-            android:id="@+id/btnResetDefaults"
+            android:id="@+id/btnResetMenu"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Reset to Native Defaults"
+            android:contentDescription="Reset Options"
             android:padding="9dp"
             android:src="@drawable/ic_refresh"
             app:tint="@color/eve_red" />
@@ -87,6 +107,7 @@
 
     <!-- Main Scrollable Studio Workspace -->
     <ScrollView
+        android:id="@+id/scrollStudioWorkspace"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -98,7 +119,7 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- 1. Screen & Component Selectors -->
+            <!-- 1. Screen Selector Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -114,46 +135,57 @@
                     android:orientation="vertical"
                     android:padding="14dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:letterSpacing="0.06"
-                        android:text="TARGET COMPONENT"
-                        android:textColor="@color/eve_primary"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Select Screen"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="13sp" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:letterSpacing="0.06"
+                            android:text="1. SCREEN SELECTOR"
+                            android:textColor="@color/eve_primary"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvActiveScreenBadge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_circle_translucent"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="3dp"
+                            android:text="Home"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="11sp" />
+                    </LinearLayout>
 
                     <Spinner
                         android:id="@+id/spScreenSelector"
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
-                        android:layout_marginTop="4dp" />
+                        android:layout_marginTop="8dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Select Component"
+                        android:layout_marginTop="10dp"
+                        android:text="Screen Transition Preset"
                         android:textColor="?attr/colorOnSurface"
-                        android:textSize="13sp" />
+                        android:textSize="12sp" />
 
                     <Spinner
-                        android:id="@+id/spComponentSelector"
+                        android:id="@+id/spScreenTransition"
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
                         android:layout_marginTop="4dp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 2. Interactive Live Preview Canvas -->
+            <!-- 2. Interactive Live Screen Canvas (Tap-to-Select) -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -181,75 +213,44 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:letterSpacing="0.06"
-                            android:text="LIVE PREVIEW CANVAS"
+                            android:text="2. REAL SCREEN CANVAS (TAP TO SELECT)"
                             android:textColor="@color/eve_primary"
                             android:textSize="11sp"
                             android:textStyle="bold" />
 
                         <TextView
-                            android:id="@+id/tvPreviewTag"
+                            android:id="@+id/tvSelectedTag"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:background="@drawable/bg_circle_translucent"
                             android:paddingHorizontal="8dp"
                             android:paddingVertical="3dp"
-                            android:text="Draft Render"
+                            android:text="Tap any item"
                             android:textColor="@color/eve_text_secondary"
                             android:textSize="11sp" />
                     </LinearLayout>
 
-                    <!-- Preview Frame -->
+                    <!-- Dynamic Canvas Frame where the real selected screen UI is rendered -->
                     <FrameLayout
-                        android:id="@+id/previewContainer"
+                        android:id="@+id/canvasContainer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:background="@drawable/bg_preview_canvas"
-                        android:minHeight="110dp"
-                        android:padding="16dp">
+                        android:minHeight="220dp"
+                        android:padding="12dp">
 
-                        <com.google.android.material.card.MaterialCardView
-                            android:id="@+id/previewCard"
+                        <!-- Screen views will be dynamically populated/configured here -->
+                        <LinearLayout
+                            android:id="@+id/canvasScreenContent"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            app:cardBackgroundColor="#1E293B"
-                            app:cardCornerRadius="16dp"
-                            app:cardElevation="2dp"
-                            app:strokeColor="#334155"
-                            app:strokeWidth="1dp">
-
-                            <LinearLayout
-                                android:id="@+id/previewCardContent"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:padding="16dp">
-
-                                <TextView
-                                    android:id="@+id/previewTitle"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Preview Component"
-                                    android:textColor="#FFFFFF"
-                                    android:textSize="18sp"
-                                    android:textStyle="bold" />
-
-                                <TextView
-                                    android:id="@+id/previewSubtitle"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="4dp"
-                                    android:text="Adjust controls below to see instant styling changes"
-                                    android:textColor="#94A3B8"
-                                    android:textSize="13sp" />
-                            </LinearLayout>
-                        </com.google.android.material.card.MaterialCardView>
+                            android:orientation="vertical" />
                     </FrameLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 3. Appearance Controls -->
+            <!-- 3. Component Tree & Management Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -266,16 +267,178 @@
                     android:orientation="vertical"
                     android:padding="14dp">
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:letterSpacing="0.06"
+                            android:text="3. COMPONENT TREE &amp; ACTIONS"
+                            android:textColor="@color/eve_primary"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvTreeCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="5 components"
+                            android:textColor="@color/eve_text_secondary"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+
+                    <!-- Search Filter Input -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:hint="Search component by name, ID or type">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etSearchComponent"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text"
+                            android:textSize="13sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Component Dropdown Selector -->
+                    <Spinner
+                        android:id="@+id/spComponentSelector"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="8dp" />
+
+                    <!-- Component Actions Toolbar: Add, Duplicate, Reorder, Delete -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnAddElement"
+                            style="@style/Widget.Eve.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_marginEnd="4dp"
+                            android:layout_weight="1"
+                            android:paddingHorizontal="4dp"
+                            android:text="+ Add"
+                            android:textSize="12sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnDuplicateElement"
+                            style="@style/Widget.Eve.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_marginHorizontal="4dp"
+                            android:layout_weight="1"
+                            android:paddingHorizontal="4dp"
+                            android:text="Duplicate"
+                            android:textSize="12sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnMoveUp"
+                            style="@style/Widget.Eve.OutlinedButton"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_marginHorizontal="2dp"
+                            android:insetLeft="0dp"
+                            android:insetRight="0dp"
+                            android:padding="0dp"
+                            android:text="▲"
+                            android:textSize="12sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnMoveDown"
+                            style="@style/Widget.Eve.OutlinedButton"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_marginHorizontal="2dp"
+                            android:insetLeft="0dp"
+                            android:insetRight="0dp"
+                            android:padding="0dp"
+                            android:text="▼"
+                            android:textSize="12sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnDeleteElement"
+                            style="@style/Widget.Eve.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_marginStart="4dp"
+                            android:layout_weight="1"
+                            android:paddingHorizontal="4dp"
+                            android:text="Delete"
+                            android:textColor="@color/eve_red"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 4. Selected Component Header & Inspector Title -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvInspectorHeader"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:letterSpacing="0.06"
+                    android:text="4. PROPERTY INSPECTOR"
+                    android:textColor="@color/eve_primary"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvProtectedBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_circle_translucent"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
+                    android:text="Editable"
+                    android:textColor="@color/eve_green"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <!-- 5. Appearance & Colors -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:cardBackgroundColor="@color/eve_card_bg"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/eve_stroke"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:letterSpacing="0.06"
-                        android:text="APPEARANCE &amp; COLORS"
-                        android:textColor="@color/eve_primary"
-                        android:textSize="11sp"
+                        android:text="APPEARANCE &amp; SHAPE"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="12sp"
                         android:textStyle="bold" />
 
-                    <!-- Background Color Hex -->
+                    <!-- Background Color Hex with Swatch & Presets -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -294,7 +457,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
                             android:layout_weight="1"
-                            android:hint="Background Color (#RRGGBB / #AARRGGBB)">
+                            android:hint="Background Color (#Hex)">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etBackgroundColor"
@@ -304,6 +467,64 @@
                                 android:textSize="14sp" />
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
+
+                    <!-- Color Preset Chips -->
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:scrollbars="none">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnColorDark"
+                                style="@style/Widget.Eve.OutlinedButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:layout_marginEnd="6dp"
+                                android:text="Dark #000"
+                                android:textSize="11sp" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnColorWhite"
+                                style="@style/Widget.Eve.OutlinedButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:layout_marginEnd="6dp"
+                                android:text="White #FFF"
+                                android:textSize="11sp" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnColorSlate"
+                                style="@style/Widget.Eve.OutlinedButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:layout_marginEnd="6dp"
+                                android:text="Slate"
+                                android:textSize="11sp" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnColorBlue"
+                                style="@style/Widget.Eve.OutlinedButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:layout_marginEnd="6dp"
+                                android:text="System Blue"
+                                android:textSize="11sp" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnColorAmber"
+                                style="@style/Widget.Eve.OutlinedButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="Amber"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+                    </HorizontalScrollView>
 
                     <!-- Corner Radius & Stroke Width -->
                     <LinearLayout
@@ -381,12 +602,12 @@
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 
-                    <!-- Opacity -->
+                    <!-- Component Opacity -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:hint="Opacity (0.0 to 1.0)">
+                        android:hint="Component Opacity (0.0 to 1.0)">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etOpacity"
@@ -398,7 +619,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 4. Layout & Spacing Controls -->
+            <!-- 6. Material / Glass Controls (Visible Blur Slider & Tint) -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -418,17 +639,171 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:letterSpacing="0.06"
-                        android:text="LAYOUT &amp; SPACING"
-                        android:textColor="@color/eve_primary"
-                        android:textSize="11sp"
+                        android:text="MATERIAL &amp; GLASS (BLUR CONTROLS)"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="12sp"
                         android:textStyle="bold" />
+
+                    <!-- Blur Radius Slider & Value -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tvBlurLabel"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Blur: 0 px"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="13sp" />
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/sliderBlurRadius"
+                            android:layout_width="180dp"
+                            android:layout_height="wrap_content"
+                            android:value="0"
+                            android:valueFrom="0"
+                            android:valueTo="35"
+                            android:stepSize="1" />
+                    </LinearLayout>
+
+                    <!-- Material Opacity Slider -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tvMaterialOpacityLabel"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Material Opacity: 100%"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="13sp" />
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/sliderMaterialOpacity"
+                            android:layout_width="180dp"
+                            android:layout_height="wrap_content"
+                            android:value="1.0"
+                            android:valueFrom="0.0"
+                            android:valueTo="1.0"
+                            android:stepSize="0.05" />
+                    </LinearLayout>
+
+                    <!-- Tint Color & Tint Opacity -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="6dp"
+                            android:layout_weight="1"
+                            android:hint="Tint Color (#Hex)">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etTintColor"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textNoSuggestions"
+                                android:textSize="14sp" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:layout_weight="1"
+                            android:hint="Tint Opacity (0-1.0)">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etTintOpacity"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="numberDecimal"
+                                android:textSize="14sp" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 7. Layout & Dimensions -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/eve_card_bg"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/eve_stroke"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="LAYOUT &amp; SPACING"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <!-- Width & Height -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="6dp"
+                            android:layout_weight="1"
+                            android:hint="Width (match/wrap/dp)">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etLayoutWidth"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="13sp" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:layout_weight="1"
+                            android:hint="Height (match/wrap/dp)">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etLayoutHeight"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="13sp" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
 
                     <!-- Margins -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="10dp"
                         android:text="Margins (dp)"
                         android:textColor="?attr/colorOnSurface"
                         android:textSize="12sp" />
@@ -457,8 +832,7 @@
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:layout_marginEnd="4dp"
+                            android:layout_marginHorizontal="2dp"
                             android:layout_weight="1"
                             android:hint="Bottom">
 
@@ -473,8 +847,7 @@
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:layout_marginEnd="4dp"
+                            android:layout_marginHorizontal="2dp"
                             android:layout_weight="1"
                             android:hint="Start">
 
@@ -506,7 +879,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="10dp"
                         android:text="Padding (dp)"
                         android:textColor="?attr/colorOnSurface"
                         android:textSize="12sp" />
@@ -535,8 +908,7 @@
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:layout_marginEnd="4dp"
+                            android:layout_marginHorizontal="2dp"
                             android:layout_weight="1"
                             android:hint="Bottom">
 
@@ -551,8 +923,7 @@
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:layout_marginEnd="4dp"
+                            android:layout_marginHorizontal="2dp"
                             android:layout_weight="1"
                             android:hint="Start">
 
@@ -582,7 +953,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 5. Typography Controls -->
+            <!-- 8. Typography -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -602,10 +973,9 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:letterSpacing="0.06"
                         android:text="TYPOGRAPHY &amp; TEXT"
-                        android:textColor="@color/eve_primary"
-                        android:textSize="11sp"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="12sp"
                         android:textStyle="bold" />
 
                     <LinearLayout
@@ -684,7 +1054,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 6. Visibility & Content Override -->
+            <!-- 9. Content & Visibility -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -704,10 +1074,9 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:letterSpacing="0.06"
-                        android:text="VISIBILITY &amp; CONTENT"
-                        android:textColor="@color/eve_primary"
-                        android:textSize="11sp"
+                        android:text="CONTENT &amp; VISIBILITY"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="12sp"
                         android:textStyle="bold" />
 
                     <LinearLayout
@@ -732,11 +1101,33 @@
                             android:checked="true" />
                     </LinearLayout>
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Component Enabled"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="14sp" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switchEnabled"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="true" />
+                    </LinearLayout>
+
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:hint="Custom Title / Text Override">
+                        android:hint="Title / Primary Text">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etContentTitle"
@@ -745,12 +1136,270 @@
                             android:inputType="text"
                             android:textSize="14sp" />
                     </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:hint="Subtitle / Description">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etContentSubtitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:hint="Hint Text">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etContentHint"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 10. Actions & Navigation -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/eve_card_bg"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/eve_stroke"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ACTIONS &amp; ROUTING"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Action Type"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="13sp" />
+
+                    <Spinner
+                        android:id="@+id/spActionType"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="4dp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:hint="Action Target (Screen ID or URL)">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etActionTarget"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textUri"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 11. Component Animations -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/eve_card_bg"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/eve_stroke"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="ANIMATION ENGINE"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switchAnimationEnabled"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Preset Type"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="13sp" />
+
+                    <Spinner
+                        android:id="@+id/spAnimationType"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="4dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="6dp"
+                            android:layout_weight="1"
+                            android:hint="Duration (ms)">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etAnimDuration"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="number"
+                                android:textSize="14sp" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:layout_weight="1"
+                            android:hint="Delay (ms)">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etAnimDelay"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="number"
+                                android:textSize="14sp" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnPreviewAnimation"
+                        style="@style/Widget.Eve.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="8dp"
+                        android:text="▶ Test Animation"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 12. Advanced Mode (Component Raw JSON) -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/eve_card_bg"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/eve_stroke"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="ADVANCED (COMPONENT JSON)"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnToggleAdvanced"
+                            style="@style/Widget.Eve.OutlinedButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:text="Show JSON"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layoutAdvancedContent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Component JSON Schema">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etComponentRawJson"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textMultiLine"
+                                android:minLines="5"
+                                android:textSize="12sp" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnApplyRawJson"
+                            style="@style/Widget.Eve.OutlinedButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:layout_marginTop="8dp"
+                            android:text="Apply Component JSON"
+                            android:textSize="12sp" />
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="24dp" />
+                android:layout_height="32dp" />
         </LinearLayout>
     </ScrollView>
 

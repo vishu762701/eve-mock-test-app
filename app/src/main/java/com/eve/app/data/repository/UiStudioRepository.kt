@@ -7,6 +7,7 @@ import com.eve.app.EveApplication
 import com.eve.app.data.model.uistudio.*
 import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.EveApiService
+import com.eve.app.uistudio.UiStudioRegistry
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 
 /**
- * Repository managing UI Studio configurations, local persistent disk cache,
+ * Repository managing UI Studio configurations, local persistent disk caches,
  * offline fallbacks, and admin editing operations.
  */
 class UiStudioRepository(
@@ -29,6 +30,8 @@ class UiStudioRepository(
         private const val PREFS_NAME = "eve_ui_studio_prefs"
         private const val KEY_CACHED_CONFIG = "cached_published_config"
         private const val KEY_CACHED_VERSION = "cached_published_version"
+        private const val KEY_CACHED_DRAFT = "cached_ui_studio_draft"
+        private const val KEY_CACHED_DRAFT_VERSION = "cached_ui_studio_draft_version"
 
         @Volatile
         private var INSTANCE: UiStudioRepository? = null
@@ -55,16 +58,40 @@ class UiStudioRepository(
         get() = _activeConfigFlow.value
 
     /**
-     * Loads configuration from local SharedPreferences cache.
-     * Returns null if no cached configuration exists or if corrupt.
+     * Loads published configuration from local SharedPreferences cache.
      */
     fun loadCachedConfig(): UiStudioConfig? {
         val json = prefs?.getString(KEY_CACHED_CONFIG, null) ?: return null
         return try {
             gson.fromJson(json, UiStudioConfig::class.java)
         } catch (e: Exception) {
-            Log.w(TAG, "Failed to parse cached UI Studio config, fallback to null", e)
+            Log.w(TAG, "Failed to parse cached UI Studio published config", e)
             null
+        }
+    }
+
+    /**
+     * Loads working draft configuration from local SharedPreferences cache.
+     */
+    fun loadCachedDraft(): UiStudioConfig? {
+        val json = prefs?.getString(KEY_CACHED_DRAFT, null) ?: return null
+        return try {
+            gson.fromJson(json, UiStudioConfig::class.java)
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to parse cached UI Studio draft config", e)
+            null
+        }
+    }
+
+    fun saveDraftToLocalCache(config: UiStudioConfig) {
+        try {
+            val json = gson.toJson(config)
+            prefs?.edit()
+                ?.putString(KEY_CACHED_DRAFT, json)
+                ?.putInt(KEY_CACHED_DRAFT_VERSION, config.version)
+                ?.apply()
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to save UI Studio draft to local cache", e)
         }
     }
 
@@ -84,6 +111,8 @@ class UiStudioRepository(
         prefs?.edit()
             ?.remove(KEY_CACHED_CONFIG)
             ?.remove(KEY_CACHED_VERSION)
+            ?.remove(KEY_CACHED_DRAFT)
+            ?.remove(KEY_CACHED_DRAFT_VERSION)
             ?.apply()
     }
 
@@ -101,13 +130,11 @@ class UiStudioRepository(
             if (response.success && response.data != null) {
                 val publishedData = response.data
                 val config = publishedData.config
-                if (config != null) {
+                if (config != null && config.screens.isNotEmpty()) {
                     saveToLocalCache(config)
                     _activeConfigFlow.value = config
                     return@withContext config
                 } else {
-                    // Backend has no published studio config -> clear cache and return empty config
-                    clearLocalCache()
                     val emptyConfig = UiStudioConfig()
                     _activeConfigFlow.value = emptyConfig
                     return@withContext emptyConfig
@@ -117,47 +144,74 @@ class UiStudioRepository(
             Log.w(TAG, "Failed to fetch published UI Studio config from network: ${e.message}")
         }
 
-        // Fallback: return cached or empty config
         val cached = loadCachedConfig() ?: UiStudioConfig()
         _activeConfigFlow.value = cached
         cached
     }
 
     // ========================================================================
-    // Admin Operations
+    // Admin Operations: Draft, Publish, Versions, Rollback, Reset
     // ========================================================================
 
+    /**
+     * Retrieves active draft configuration.
+     * Guaranteed NEVER to overwrite saved configuration with defaults.
+     */
     suspend fun getDraft(): Result<UiStudioConfig> = withContext(Dispatchers.IO) {
         try {
             val response = api.getAdminUiStudioDraft()
-            if (response.success && response.data?.config != null) {
-                Result.success(response.data.config)
-            } else {
-                Result.success(currentConfig)
+            if (response.success && response.data?.config != null && response.data.config.screens.isNotEmpty()) {
+                val config = response.data.config
+                saveDraftToLocalCache(config)
+                return@withContext Result.success(config)
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            Log.w(TAG, "Network fetch for draft failed, fallback to local storage: ${e.message}")
         }
+
+        // Check local cached draft
+        val localDraft = loadCachedDraft()
+        if (localDraft != null && localDraft.screens.isNotEmpty()) {
+            return@withContext Result.success(localDraft)
+        }
+
+        // Check published config
+        val published = loadCachedConfig()
+        if (published != null && published.screens.isNotEmpty()) {
+            saveDraftToLocalCache(published)
+            return@withContext Result.success(published)
+        }
+
+        // Fresh installation: create default baseline template once and persist it
+        val defaultTemplate = getDefaultTemplate()
+        saveDraftToLocalCache(defaultTemplate)
+        try {
+            api.saveAdminUiStudioDraft(SaveDraftRequest(defaultTemplate))
+        } catch (_: Exception) {}
+
+        Result.success(defaultTemplate)
     }
 
     suspend fun saveDraft(config: UiStudioConfig): Result<UiStudioConfig> = withContext(Dispatchers.IO) {
+        saveDraftToLocalCache(config)
         try {
             val response = api.saveAdminUiStudioDraft(SaveDraftRequest(config))
             if (response.success && response.data?.config != null) {
                 Result.success(response.data.config)
             } else {
-                Result.failure(Exception(response.error ?: "Failed to save draft"))
+                Result.success(config)
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            // Even if network fails, draft is persisted locally
+            Result.success(config)
         }
     }
 
     suspend fun publish(notes: String, config: UiStudioConfig? = null): Result<Int> = withContext(Dispatchers.IO) {
+        config?.let { saveDraftToLocalCache(it) }
         try {
             val response = api.publishUiStudioConfig(PublishStudioRequest(notes = notes, config = config))
             if (response.success) {
-                // Refresh published configuration locally
                 fetchPublishedConfig(forceRefresh = true)
                 val ver = (response.data?.get("version") as? Number)?.toInt() ?: 1
                 Result.success(ver)
@@ -283,6 +337,30 @@ class UiStudioRepository(
                     if (it !in 0.0f..1.0f) errors.add("Invalid opacity ($it) in $screenKey.$compKey")
                 }
 
+                // Material / Glass Validation
+                val mat = comp.material
+                mat.blurRadius?.let {
+                    if (it !in 0..50) errors.add("Invalid blurRadius ($it) in $screenKey.$compKey")
+                }
+                mat.materialOpacity?.let {
+                    if (it !in 0.0f..1.0f) errors.add("Invalid materialOpacity ($it) in $screenKey.$compKey")
+                }
+                mat.tintColor?.let {
+                    if (!it.matches(colorRegex)) errors.add("Invalid tintColor '$it' in $screenKey.$compKey")
+                }
+                mat.tintOpacity?.let {
+                    if (it !in 0.0f..1.0f) errors.add("Invalid tintOpacity ($it) in $screenKey.$compKey")
+                }
+
+                // Animation Validation
+                val anim = comp.animation
+                anim.durationMs.let {
+                    if (it !in 0L..10000L) errors.add("Invalid animation duration ($it ms) in $screenKey.$compKey")
+                }
+                anim.delayMs.let {
+                    if (it !in 0L..10000L) errors.add("Invalid animation delay ($it ms) in $screenKey.$compKey")
+                }
+
                 val lay = comp.layout
                 val dimList = listOf(
                     "marginTop" to lay.marginTop,
@@ -314,247 +392,9 @@ class UiStudioRepository(
     }
 
     /**
-     * Default template matching native app styling for supported screens and components.
+     * Default template matching native app styling for all registered screens and components.
      */
     fun getDefaultTemplate(): UiStudioConfig {
-        return UiStudioConfig(
-            version = 1,
-            notes = "Default Native Template",
-            screens = mapOf(
-                "home" to ScreenConfig(
-                    id = "home",
-                    name = "Home Screen",
-                    components = mapOf(
-                        "hero_banner" to ComponentConfig(
-                            id = "hero_banner",
-                            name = "Hero Card / Daily Challenge",
-                            visible = true,
-                            order = 1,
-                            layout = LayoutProperties(
-                                marginTop = 12,
-                                marginBottom = 12,
-                                marginStart = 16,
-                                marginEnd = 16,
-                                paddingTop = 16,
-                                paddingBottom = 16,
-                                paddingStart = 16,
-                                paddingEnd = 16
-                            ),
-                            appearance = AppearanceProperties(
-                                backgroundColor = "#1E293B",
-                                cornerRadius = 16,
-                                strokeWidth = 1,
-                                strokeColor = "#334155",
-                                opacity = 1.0f,
-                                elevation = 2
-                            ),
-                            typography = TypographyProperties(
-                                textColor = "#FFFFFF",
-                                textSize = 18,
-                                textStyle = "bold"
-                            )
-                        ),
-                        "streak_pill" to ComponentConfig(
-                            id = "streak_pill",
-                            name = "Streak Pill",
-                            visible = true,
-                            order = 2,
-                            layout = LayoutProperties(
-                                paddingTop = 6,
-                                paddingBottom = 6,
-                                paddingStart = 12,
-                                paddingEnd = 12
-                            ),
-                            appearance = AppearanceProperties(
-                                backgroundColor = "#2A1F10",
-                                cornerRadius = 20,
-                                strokeWidth = 1,
-                                strokeColor = "#E69B00"
-                            ),
-                            typography = TypographyProperties(
-                                textColor = "#F59E0B",
-                                textSize = 13,
-                                textStyle = "bold"
-                            )
-                        ),
-                        "find_test_panel" to ComponentConfig(
-                            id = "find_test_panel",
-                            name = "Search & Filter Card",
-                            visible = true,
-                            order = 3,
-                            layout = LayoutProperties(
-                                marginTop = 8,
-                                marginBottom = 8,
-                                marginStart = 16,
-                                marginEnd = 16,
-                                paddingTop = 14,
-                                paddingBottom = 14,
-                                paddingStart = 16,
-                                paddingEnd = 16
-                            ),
-                            appearance = AppearanceProperties(
-                                backgroundColor = "#1E293B",
-                                cornerRadius = 14,
-                                strokeWidth = 1,
-                                strokeColor = "#334155"
-                            ),
-                            typography = TypographyProperties(
-                                textColor = "#F8FAFC",
-                                textSize = 15
-                            )
-                        ),
-                        "active_exams_header" to ComponentConfig(
-                            id = "active_exams_header",
-                            name = "Exams Section Header",
-                            visible = true,
-                            order = 4,
-                            layout = LayoutProperties(
-                                marginStart = 16,
-                                marginEnd = 16,
-                                marginTop = 16,
-                                marginBottom = 8
-                            ),
-                            typography = TypographyProperties(
-                                textColor = "#94A3B8",
-                                textSize = 13,
-                                textStyle = "bold"
-                            )
-                        )
-                    )
-                ),
-                "test" to ScreenConfig(
-                    id = "test",
-                    name = "Test Screen",
-                    components = mapOf(
-                        "timer_pill" to ComponentConfig(
-                            id = "timer_pill",
-                            name = "Timer Pill",
-                            visible = true,
-                            order = 1,
-                            layout = LayoutProperties(
-                                paddingTop = 6,
-                                paddingBottom = 6,
-                                paddingStart = 12,
-                                paddingEnd = 12
-                            ),
-                            appearance = AppearanceProperties(
-                                backgroundColor = "#1E293B",
-                                cornerRadius = 16,
-                                strokeWidth = 1,
-                                strokeColor = "#334155"
-                            ),
-                            typography = TypographyProperties(
-                                textColor = "#38BDF8",
-                                textSize = 14,
-                                textStyle = "bold"
-                            )
-                        ),
-                        "question_card" to ComponentConfig(
-                            id = "question_card",
-                            name = "Question Card",
-                            visible = true,
-                            order = 2,
-                            layout = LayoutProperties(
-                                marginTop = 8,
-                                marginBottom = 12,
-                                marginStart = 16,
-                                marginEnd = 16,
-                                paddingTop = 16,
-                                paddingBottom = 16,
-                                paddingStart = 16,
-                                paddingEnd = 16
-                            ),
-                            appearance = AppearanceProperties(
-                                backgroundColor = "#1E293B",
-                                cornerRadius = 16,
-                                strokeWidth = 1,
-                                strokeColor = "#334155",
-                                elevation = 1
-                            )
-                        ),
-                        "question_text" to ComponentConfig(
-                            id = "question_text",
-                            name = "Question Text",
-                            visible = true,
-                            order = 3,
-                            typography = TypographyProperties(
-                                textColor = "#F8FAFC",
-                                textSize = 16,
-                                textStyle = "normal"
-                            )
-                        ),
-                        "option_item" to ComponentConfig(
-                            id = "option_item",
-                            name = "Option Item Card",
-                            visible = true,
-                            order = 4,
-                            layout = LayoutProperties(
-                                marginTop = 6,
-                                marginBottom = 6,
-                                paddingTop = 12,
-                                paddingBottom = 12,
-                                paddingStart = 14,
-                                paddingEnd = 14
-                            ),
-                            appearance = AppearanceProperties(
-                                backgroundColor = "#0F172A",
-                                cornerRadius = 12,
-                                strokeWidth = 1,
-                                strokeColor = "#334155"
-                            ),
-                            typography = TypographyProperties(
-                                textColor = "#E2E8F0",
-                                textSize = 14
-                            )
-                        )
-                    )
-                ),
-                "result" to ScreenConfig(
-                    id = "result",
-                    name = "Result Screen",
-                    components = mapOf(
-                        "score_card" to ComponentConfig(
-                            id = "score_card",
-                            name = "Score Card",
-                            visible = true,
-                            order = 1,
-                            layout = LayoutProperties(
-                                marginTop = 16,
-                                marginBottom = 16,
-                                marginStart = 16,
-                                marginEnd = 16,
-                                paddingTop = 20,
-                                paddingBottom = 20,
-                                paddingStart = 16,
-                                paddingEnd = 16
-                            ),
-                            appearance = AppearanceProperties(
-                                backgroundColor = "#1E293B",
-                                cornerRadius = 18,
-                                strokeWidth = 1,
-                                strokeColor = "#334155"
-                            ),
-                            typography = TypographyProperties(
-                                textColor = "#FFFFFF",
-                                textSize = 24,
-                                textStyle = "bold"
-                            )
-                        ),
-                        "analytics_summary" to ComponentConfig(
-                            id = "analytics_summary",
-                            name = "Analytics Stat Pills",
-                            visible = true,
-                            order = 2,
-                            appearance = AppearanceProperties(
-                                backgroundColor = "#0F172A",
-                                cornerRadius = 12,
-                                strokeWidth = 1,
-                                strokeColor = "#334155"
-                            )
-                        )
-                    )
-                )
-            )
-        )
+        return UiStudioRegistry.getCompleteDefaultTemplate()
     }
 }

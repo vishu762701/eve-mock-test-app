@@ -152,10 +152,17 @@ class AdminActivity : EveBaseActivity() {
                         binding.scrollTabManageQuestions.visibility = View.GONE
                         binding.scrollTabAdmins.visibility = View.VISIBLE
                     }
+                    3 -> {
+                        startActivity(Intent(this@AdminActivity, com.eve.app.ui.admin.uistudio.UiStudioActivity::class.java))
+                    }
                 }
             }
             override fun onTabUnselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {}
-            override fun onTabReselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {}
+            override fun onTabReselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {
+                if (tab?.position == 3) {
+                    startActivity(Intent(this@AdminActivity, com.eve.app.ui.admin.uistudio.UiStudioActivity::class.java))
+                }
+            }
         })
 
         binding.rvQuestions.layoutManager = LinearLayoutManager(this)
@@ -244,9 +251,6 @@ class AdminActivity : EveBaseActivity() {
         }
         binding.btnAppConfig.setOnClickListener {
             startActivity(Intent(this, AppConfigActivity::class.java))
-        }
-        binding.btnUiStudio.setOnClickListener {
-            startActivity(Intent(this, com.eve.app.ui.admin.uistudio.UiStudioActivity::class.java))
         }
 
         // System Maintenance & Version Status
@@ -1261,6 +1265,9 @@ class AdminActivity : EveBaseActivity() {
     override fun onResume() {
         super.onResume()
         hasEmptyPlayed = false
+        if (binding.tabLayoutAdmin.selectedTabPosition == 3) {
+            binding.tabLayoutAdmin.getTabAt(0)?.select()
+        }
         loadAppConfigAndMaintenance()
     }
 

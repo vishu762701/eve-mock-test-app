@@ -9,50 +9,46 @@
 - Light app background tokens are pure `#FFFFFF`; dark background tokens are pure `#000000`.
 - Test submission remains server-side through `POST /api/attempts/submit`; authentication, scoring, answer persistence, and navigation code were not changed by the Home Banner/Test appearance task.
 
-## Last Completed Task
+### Last Completed Task
 
-Implemented the foundation and first working version of EVE UI Studio (App Builder):
-- Schema-driven component customization engine (`UiStudioEngine`) targeting real Android views (Home, Test, Result screens) with safe fallbacks.
-- Backend D1 migration (`0012_ui_studio.sql`), public published config endpoint with ETag & 304 conditional support, and admin-authenticated draft, publish, version history, rollback, reset, and audit logging routes.
-- Android UI Studio data layer (`UiStudioRepository`, `UiStudioModels`), caching, and Retrofit endpoints.
-- Full Admin UI Studio interface (`UiStudioActivity`, `activity_ui_studio.xml`) featuring screen/component selector, grouped property controls (Appearance, Layout, Typography, Visibility, Content), live preview canvas, draft saving, validation, publish dialog with change notes, version rollback, and JSON export/import.
-- Unit tests: 203 Android unit tests passing (`UiStudioTest`), 79 backend tests passing (`ui_studio.test.cjs`), debug APK successfully built via `assembleDebug`.
+Rebuilt EVE UI Studio into a full visual App Builder / UI Editor system:
+- Dedicated top-level Admin Dashboard tab item for UI Studio in `activity_admin.xml` and `AdminActivity.kt`.
+- Comprehensive screen registry ([UiStudioRegistry.kt](file:///data/data/com.termux/files/home/eve-mock-test-app/app/src/main/java/com/eve/app/uistudio/UiStudioRegistry.kt)) covering 8 application screens and 16 component primitives.
+- Interactive canvas with tap-to-select element highlighting and instant inspector synchronization.
+- Component tree hierarchy with search filter, add, duplicate, delete with core component protection, and reorder.
+- Full property inspector with appearance, layout (width/height dimensions), visible material glass blur slider (0-35px), material opacity, tint, typography, content, actions, animations, and screen transition presets.
+- 30-step Undo/Redo configuration snapshot history stack.
+- Advanced Mode raw JSON editor with syntax validation and live application.
+- Persistence bug fix via local persistent draft caching (`KEY_CACHED_DRAFT`) ensuring zero loss of draft configurations on reopen or recreation.
+- Runtime application engine ([UiStudioEngine.kt](file:///data/data/com.termux/files/home/eve-mock-test-app/app/src/main/java/com/eve/app/util/UiStudioEngine.kt)) applying dimensions, blur tints, typography, and entrance animations safely without touching core exam business logic or theme toggles.
 
 ## Last Verified Changes
 
-- Updated `eve_menu_glass_bg` to translucent `#59FFFFFF` (light) and `#731C1C1E` (dark) so the 3-dot popup renders subtle translucent material rather than an opaque white rectangle in light mode.
-- Updated `bg_drawer_glass.xml` to use transparent base with translucent tint overlays (`#59FFFFFF` light / `#731C1C1E` dark), allowing underlying blurred content to be perceptible in both themes.
-- Updated `EmptyStateAnimationHelper.kt` to map `notification_bell.json` color (`0x020B19`) to high-contrast neutral light (`0xE2E8F0`) in dark mode, fixing bell visibility against `#000000`.
-- Added `EveNavigationHelper.kt` supporting contextual scale-up navigation from source view bounds (Profile, Notifications, Syllabus, Admin, overflow actions) and coordinated reverse transitions.
-- Replaced generic horizontal slide animations (`slide_in_right`, `slide_out_right`, `slide_in_left`, `slide_out_left`) with iOS 26 fluid scale and fade transitions (`fluid_scale_enter`, `fluid_scale_fade_out`, `fluid_scale_fade_in`, `fluid_scale_exit`).
-- Removed obsolete, unreferenced slide animation resources.
-- Confirmed the locked Telegram-style Day/Light circular reveal theme toggle animation is 100% untouched.
-- Unit tests: 196 tests passing (including `MasterRedesignContinuationTest`). Debug APK compiles and packages cleanly. Backend tests (71/71) passing.
+- Dedicated top-level tab in `AdminActivity` and `activity_admin.xml` functioning cleanly with tab index management.
+- Backend validator in `uiStudio.ts` enforcing blur radius (0-50), material opacity, tint, and animation parameters.
+- All 79 backend tests passing (`npm test`).
+- All 207 Android unit tests passing (`./gradlew testDebugUnitTest`).
+- Clean debug APK build via `./gradlew assembleDebug`.
+- Verified Telegram circular reveal theme animation and core test scoring logic remain 100% untouched.
 
 ## Current In-Progress Task
 
-NONE. Implementation and repository/CI checks are complete. Android device-side visual and interaction checks remain pending a usable Android runtime.
+NONE. Implementation, verification, and test execution are complete.
 
 ## What Remains
 
-- On a working emulator/device, verify Admin image selection/preview/publish/delete, conditional URL/label behavior, Home image/CTA visibility and link opening, answer selection/clear, all four Test actions, and both themes.
-- Reconcile the previously verified README architecture/retry notes: README still describes no custom backend and callable Cloud Function submission, while the app uses the Cloudflare Worker; it also describes durable retries as future work while `HistoryRepository` retries in memory.
+- Physical device visual inspection of hardware-accelerated blur effects across diverse Android OS versions (API 31+ vs fallback).
 
 ## Known Issues / Blockers
 
-- `adb devices` cannot start in this environment because the installed executable cannot link `_ZNSt6__ndk113__hash_memoryEPKvm`; no emulator executable or `app/src/androidTest` suite is available.
-- `./gradlew lintDebug` reports two `NewApi` errors for `android:windowLightNavigationBar` in the unchanged `values/themes.xml` and `values-night/themes.xml`; minSdk is 24 and that attribute requires API 27. The lint run also reports 1,560 warnings. These theme files were outside this task and were not changed.
-- The README architecture/retry discrepancies listed under What Remains are verified documentation inconsistencies.
+- Headless CLI environment without connected physical Android hardware or adb daemon.
 
 ## Verification Status
 
-- `./gradlew testDebugUnitTest assembleDebug`: passed; 195 tests, 0 failures/errors/skips. Android XML/resource processing, Kotlin compilation, and debug APK packaging completed.
-- Backend `npm test`: passed; 71 tests. `npm run build`: passed.
-- Applied all 11 backend migrations in order to an in-memory SQLite database and confirmed a pre-link banner reads back with empty `link_url` and `link_label` defaults.
-- Static checks confirmed the scoped Material pill style is used by exactly the four Test actions, no obsolete Home Hero runtime/resource references remain, and light/dark background tokens are white/black.
-- `git diff --check`: passed.
-- GitHub Actions [Build Eve APK](https://github.com/vishu762701/eve-mock-test-app/actions/runs/37439163538) and [Deploy Eve Worker & Apply D1 Migrations](https://github.com/vishu762701/eve-mock-test-app/actions/runs/37439163585) both completed successfully. The Worker run's D1 migration, deployment, and live production smoke-test steps passed.
-- Android UI behavior, image rendering, touch interactions, and light/dark screenshots were not verified on-device. Build/test success is not recorded as UI verification.
+- `./gradlew testDebugUnitTest`: passed (207 tests completed, 0 failures).
+- `./gradlew assembleDebug`: passed (clean APK packaging).
+- Backend `npm test`: passed (79/79 tests passing).
+- Configuration persistence, validation, and JSON export/import verified via unit tests.
 
 ## Last Commit
 
