@@ -71,6 +71,7 @@ class UiStudioActivity : EveBaseActivity() {
 
     // Canvas interaction & zoom state
     private var isInteractMode = false
+    private var selectedAnswerOptionIndex = 1
     private var zoomIndex = 0
     private val zoomLevels = listOf(1.0f, 0.85f, 1.25f)
     private val zoomLabels = listOf("FIT", "85%", "125%")
@@ -148,13 +149,7 @@ class UiStudioActivity : EveBaseActivity() {
         }
 
         binding.btnZoomFit.setOnClickListener {
-            zoomIndex = 0
-            val scale = zoomLevels[zoomIndex]
-            binding.btnZoomFit.text = zoomLabels[zoomIndex]
-            binding.canvasScreenContent.pivotX = 0f
-            binding.canvasScreenContent.pivotY = 0f
-            binding.canvasScreenContent.scaleX = scale
-            binding.canvasScreenContent.scaleY = scale
+            fitCanvasToViewport()
         }
 
         binding.btnZoomIn.setOnClickListener {
@@ -188,6 +183,21 @@ class UiStudioActivity : EveBaseActivity() {
         }
     }
 
+    private fun fitCanvasToViewport() {
+        val viewportHeight = binding.scrollCanvasDevice.height.toFloat()
+        val contentHeight = binding.canvasScreenContent.height.toFloat()
+        val scale = if (viewportHeight > 0 && contentHeight > 0 && contentHeight > viewportHeight) {
+            (viewportHeight / contentHeight).coerceIn(0.4f, 1.0f)
+        } else {
+            1.0f
+        }
+        binding.canvasScreenContent.pivotX = 0f
+        binding.canvasScreenContent.pivotY = 0f
+        binding.canvasScreenContent.scaleX = scale
+        binding.canvasScreenContent.scaleY = scale
+        binding.btnZoomFit.text = if (scale >= 0.99f) "100%" else "${(scale * 100).toInt()}%"
+    }
+
     private fun setViewMode(mode: String) {
         currentViewMode = mode
         val density = resources.displayMetrics.density
@@ -213,8 +223,8 @@ class UiStudioActivity : EveBaseActivity() {
             else -> { // "split"
                 binding.layoutCanvasSection.visibility = View.VISIBLE
                 val lpCanvas = binding.layoutCanvasSection.layoutParams as LinearLayout.LayoutParams
-                lpCanvas.height = (230 * density).toInt()
-                lpCanvas.weight = 0.0f
+                lpCanvas.height = 0
+                lpCanvas.weight = 1.0f
                 binding.layoutCanvasSection.layoutParams = lpCanvas
 
                 binding.layoutInspectorSection.visibility = View.VISIBLE
@@ -222,6 +232,7 @@ class UiStudioActivity : EveBaseActivity() {
                 lpInsp.height = 0
                 lpInsp.weight = 1.0f
                 binding.layoutInspectorSection.layoutParams = lpInsp
+                binding.canvasScreenContent.post { fitCanvasToViewport() }
             }
         }
         highlightActiveModeButton()
@@ -914,6 +925,7 @@ class UiStudioActivity : EveBaseActivity() {
         if (currentCompKey.isNotBlank()) {
             selectComponent(currentCompKey)
         }
+        binding.canvasScreenContent.post { fitCanvasToViewport() }
     }
 
     private fun updatePreviewChildViews(view: View, comp: ComponentConfig) {
@@ -952,13 +964,55 @@ class UiStudioActivity : EveBaseActivity() {
             comp.type == "banner" || compKey == "hero_banner" -> {
                 buildBannerPreview(compKey, comp)
             }
-            comp.type == "badge" || compKey == "streak_pill" -> {
+            comp.type == "badge" || compKey == "streak_pill" || compKey == "syllabus_selector" -> {
                 buildBadgePreview(compKey, comp)
             }
-            comp.type == "button" -> {
+            comp.type == "button" || compKey in listOf("btn_login", "login_google", "btn_logout", "result_bottom_bar") -> {
                 buildButtonPreview(compKey, comp)
             }
-            comp.type == "text" -> {
+            compKey == "option_item" -> {
+                buildOptionItemPreview(compKey, comp)
+            }
+            compKey == "featured_exam_card" -> {
+                buildExamCardPreview(compKey, comp)
+            }
+            compKey == "home_bottom_nav" -> {
+                buildBottomNavPreview(compKey, comp)
+            }
+            compKey == "score_card" -> {
+                buildScoreHeroPreview(compKey, comp)
+            }
+            compKey == "result_tabs" -> {
+                buildTabsPreview(compKey, comp)
+            }
+            compKey in listOf("analytics_summary", "profile_stats") -> {
+                buildStatGridPreview(compKey, comp)
+            }
+            compKey == "result_insight" -> {
+                buildInsightPreview(compKey, comp)
+            }
+            compKey == "profile_header" -> {
+                buildProfileHeaderPreview(compKey, comp)
+            }
+            compKey == "profile_rows" -> {
+                buildProfileRowsPreview(compKey, comp)
+            }
+            compKey in listOf("notification_card", "notification_card_2") -> {
+                buildNotificationItemPreview(compKey, comp)
+            }
+            compKey == "syllabus_card" -> {
+                buildSyllabusCardPreview(compKey, comp)
+            }
+            compKey == "login_inputs" -> {
+                buildLoginInputsPreview(compKey, comp)
+            }
+            compKey == "admin_modules" -> {
+                buildAdminModulesPreview(compKey, comp)
+            }
+            compKey == "admin_health" -> {
+                buildAdminHealthPreview(compKey, comp)
+            }
+            comp.type == "text" || compKey == "syllabus_header" -> {
                 buildTextPreview(compKey, comp)
             }
             comp.type == "divider" -> {
@@ -972,9 +1026,6 @@ class UiStudioActivity : EveBaseActivity() {
             }
             comp.type == "toggle" -> {
                 buildTogglePreview(compKey, comp)
-            }
-            compKey == "option_item" -> {
-                buildOptionItemPreview(compKey, comp)
             }
             else -> {
                 buildCardPreview(compKey, comp)
@@ -1196,7 +1247,475 @@ class UiStudioActivity : EveBaseActivity() {
     }
 
     private fun buildOptionItemPreview(compKey: String, comp: ComponentConfig): View {
-        val optionLayout = LinearLayout(this).apply {
+        val rootLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
+
+        val optionsData = listOf(
+            "A" to (comp.content.title?.takeIf { it.isNotBlank() } ?: "Article 21: Protection of Life & Personal Liberty"),
+            "B" to "Article 32: Right to Constitutional Remedies",
+            "C" to "Article 14: Equality before Law and Equal Protection",
+            "D" to "Article 19: Protection of Six Fundamental Freedoms"
+        )
+
+        optionsData.forEachIndexed { index, (letter, text) ->
+            val isSelected = (index == selectedAnswerOptionIndex)
+            val optionRow = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                    topMargin = UiStudioEngine.dpToPx(context, 4)
+                    bottomMargin = UiStudioEngine.dpToPx(context, 4)
+                }
+                setPadding(
+                    UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 14),
+                    UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 12),
+                    UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 14),
+                    UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 12)
+                )
+
+                val corner = (comp.appearance.cornerRadius ?: 12) * resources.displayMetrics.density
+                val bg = GradientDrawable().apply {
+                    cornerRadius = corner
+                    if (isSelected) {
+                        setColor(Color.parseColor("#14532D"))
+                        setStroke(UiStudioEngine.dpToPx(context, 2), Color.parseColor("#16A34A"))
+                    } else {
+                        setColor(UiStudioEngine.parseColorSafe(comp.appearance.backgroundColor) ?: Color.parseColor("#0F172A"))
+                        setStroke(UiStudioEngine.dpToPx(context, comp.appearance.strokeWidth ?: 1), UiStudioEngine.parseColorSafe(comp.appearance.strokeColor) ?: Color.parseColor("#334155"))
+                    }
+                }
+                background = bg
+            }
+
+            val circle = TextView(this).apply {
+                this.text = letter
+                gravity = Gravity.CENTER
+                textSize = 12f
+                setTypeface(null, Typeface.BOLD)
+                val cSize = UiStudioEngine.dpToPx(context, 26)
+                layoutParams = LinearLayout.LayoutParams(cSize, cSize).apply {
+                    marginEnd = UiStudioEngine.dpToPx(context, 10)
+                }
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.OVAL
+                    setColor(if (isSelected) Color.parseColor("#16A34A") else Color.parseColor("#334155"))
+                }
+                setTextColor(Color.WHITE)
+            }
+            optionRow.addView(circle)
+
+            val tv = TextView(this).apply {
+                this.text = text
+                if (index == 0) tag = "title"
+                setTextColor(if (isSelected) Color.WHITE else (UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.parseColor("#E2E8F0")))
+                textSize = (comp.typography.textSize ?: 14).toFloat()
+                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+            }
+            optionRow.addView(tv)
+
+            if (isSelected) {
+                val checkmark = TextView(this).apply {
+                    this.text = "✓"
+                    setTextColor(Color.parseColor("#22C55E"))
+                    textSize = 14f
+                    setTypeface(null, Typeface.BOLD)
+                    setPadding(UiStudioEngine.dpToPx(context, 6), 0, 0, 0)
+                }
+                optionRow.addView(checkmark)
+            }
+
+            optionRow.setOnClickListener {
+                if (isInteractMode) {
+                    selectedAnswerOptionIndex = index
+                    renderRealScreenCanvas()
+                    AppBulletin.show(this@UiStudioActivity, "Selected Option $letter in Interact Mode")
+                } else {
+                    selectComponent(compKey)
+                }
+            }
+
+            rootLayout.addView(optionRow)
+        }
+
+        return rootLayout
+    }
+
+    private fun buildExamCardPreview(compKey: String, comp: ComponentConfig): View {
+        val cardLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(
+                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 16),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 16),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 16),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 16)
+            )
+        }
+        val topRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                bottomMargin = UiStudioEngine.dpToPx(context, 8)
+            }
+        }
+        val liveBadge = TextView(this).apply {
+            text = "● LIVE TEST"
+            textSize = 10f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.parseColor("#22C55E"))
+            setPadding(UiStudioEngine.dpToPx(context, 8), UiStudioEngine.dpToPx(context, 3), UiStudioEngine.dpToPx(context, 8), UiStudioEngine.dpToPx(context, 3))
+            background = GradientDrawable().apply {
+                cornerRadius = 6 * resources.displayMetrics.density
+                setColor(Color.parseColor("#14532D"))
+            }
+        }
+        topRow.addView(liveBadge)
+        val space = View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(0, 1, 1f)
+        }
+        topRow.addView(space)
+        val timeBadge = TextView(this).apply {
+            text = "180 Mins • 200 Marks"
+            textSize = 11f
+            setTextColor(Color.parseColor("#94A3B8"))
+        }
+        topRow.addView(timeBadge)
+        cardLayout.addView(topRow)
+
+        val titleTv = TextView(this).apply {
+            tag = "title"
+            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "RPSC RAS Prelims Full Mock 04"
+            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.WHITE)
+            textSize = (comp.typography.textSize ?: 16).toFloat()
+            setTypeface(null, if (comp.typography.textStyle == "bold") Typeface.BOLD else Typeface.NORMAL)
+        }
+        cardLayout.addView(titleTv)
+
+        val subTv = TextView(this).apply {
+            tag = "subtitle"
+            text = comp.content.subtitle ?: "150 Questions • Negative Marking: 1/3"
+            setTextColor(Color.parseColor("#94A3B8"))
+            textSize = 12f
+            setPadding(0, UiStudioEngine.dpToPx(context, 4), 0, UiStudioEngine.dpToPx(context, 10))
+        }
+        cardLayout.addView(subTv)
+
+        val startBtn = TextView(this).apply {
+            text = "Start Test Now →"
+            gravity = Gravity.CENTER
+            textSize = 13f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.WHITE)
+            setPadding(0, UiStudioEngine.dpToPx(context, 10), 0, UiStudioEngine.dpToPx(context, 10))
+            background = GradientDrawable().apply {
+                cornerRadius = 10 * resources.displayMetrics.density
+                setColor(Color.parseColor("#007AFF"))
+            }
+        }
+        cardLayout.addView(startBtn)
+        return cardLayout
+    }
+
+    private fun buildBottomNavPreview(compKey: String, comp: ComponentConfig): View {
+        val navLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(
+                UiStudioEngine.dpToPx(context, 8),
+                UiStudioEngine.dpToPx(context, 8),
+                UiStudioEngine.dpToPx(context, 8),
+                UiStudioEngine.dpToPx(context, 8)
+            )
+        }
+        val items = listOf(
+            Triple("🏠", "Home", true),
+            Triple("📝", "Tests", false),
+            Triple("📚", "Syllabus", false),
+            Triple("👤", "Profile", false)
+        )
+        items.forEach { (icon, label, isSelected) ->
+            val itemLayout = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                gravity = Gravity.CENTER
+                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+            }
+            val iconTv = TextView(this).apply {
+                text = icon
+                textSize = 16f
+                gravity = Gravity.CENTER
+            }
+            itemLayout.addView(iconTv)
+            val labelTv = TextView(this).apply {
+                text = label
+                textSize = 10f
+                setTypeface(null, if (isSelected) Typeface.BOLD else Typeface.NORMAL)
+                setTextColor(if (isSelected) Color.parseColor("#38BDF8") else Color.parseColor("#64748B"))
+                gravity = Gravity.CENTER
+            }
+            itemLayout.addView(labelTv)
+            navLayout.addView(itemLayout)
+        }
+        return navLayout
+    }
+
+    private fun buildScoreHeroPreview(compKey: String, comp: ComponentConfig): View {
+        val heroLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            setPadding(
+                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 16),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 20),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 16),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 20)
+            )
+        }
+        val scoreCircle = TextView(this).apply {
+            text = "85"
+            textSize = 34f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.parseColor("#38BDF8"))
+            gravity = Gravity.CENTER
+        }
+        heroLayout.addView(scoreCircle)
+
+        val titleTv = TextView(this).apply {
+            tag = "title"
+            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "Your Score: 85 / 100"
+            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.WHITE)
+            textSize = (comp.typography.textSize ?: 16).toFloat()
+            setTypeface(null, Typeface.BOLD)
+            setPadding(0, UiStudioEngine.dpToPx(context, 4), 0, 0)
+        }
+        heroLayout.addView(titleTv)
+
+        val rankPill = TextView(this).apply {
+            text = "Rank #14 • Percentile: 98.2%"
+            textSize = 12f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.parseColor("#22C55E"))
+            setPadding(UiStudioEngine.dpToPx(context, 10), UiStudioEngine.dpToPx(context, 4), UiStudioEngine.dpToPx(context, 10), UiStudioEngine.dpToPx(context, 4))
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                topMargin = UiStudioEngine.dpToPx(context, 8)
+            }
+            background = GradientDrawable().apply {
+                cornerRadius = 12 * resources.displayMetrics.density
+                setColor(Color.parseColor("#14532D"))
+            }
+        }
+        heroLayout.addView(rankPill)
+        return heroLayout
+    }
+
+    private fun buildTabsPreview(compKey: String, comp: ComponentConfig): View {
+        val tabsLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(
+                UiStudioEngine.dpToPx(context, 4),
+                UiStudioEngine.dpToPx(context, 4),
+                UiStudioEngine.dpToPx(context, 4),
+                UiStudioEngine.dpToPx(context, 4)
+            )
+        }
+        val tabs = listOf("Overview" to true, "Review" to false, "Leaderboard" to false)
+        tabs.forEach { (title, isSelected) ->
+            val tabTv = TextView(this).apply {
+                text = title
+                gravity = Gravity.CENTER
+                textSize = 12f
+                setTypeface(null, if (isSelected) Typeface.BOLD else Typeface.NORMAL)
+                setTextColor(if (isSelected) Color.WHITE else Color.parseColor("#94A3B8"))
+                layoutParams = LinearLayout.LayoutParams(0, UiStudioEngine.dpToPx(context, 34), 1f)
+                if (isSelected) {
+                    background = GradientDrawable().apply {
+                        cornerRadius = 17 * resources.displayMetrics.density
+                        setColor(Color.parseColor("#007AFF"))
+                    }
+                }
+            }
+            tabsLayout.addView(tabTv)
+        }
+        return tabsLayout
+    }
+
+    private fun buildStatGridPreview(compKey: String, comp: ComponentConfig): View {
+        val statsLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(
+                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 12),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 10),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 12),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 10)
+            )
+        }
+        val stats = listOf(
+            Triple("Accuracy", "82%", "#22C55E"),
+            Triple("Attempted", "92/100", "#38BDF8"),
+            Triple("Avg Speed", "48s/Q", "#F59E0B")
+        )
+        stats.forEach { (label, value, col) ->
+            val colLayout = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                gravity = Gravity.CENTER
+                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+            }
+            val valTv = TextView(this).apply {
+                text = value
+                textSize = 15f
+                setTypeface(null, Typeface.BOLD)
+                setTextColor(Color.parseColor(col))
+            }
+            colLayout.addView(valTv)
+            val lblTv = TextView(this).apply {
+                text = label
+                textSize = 10f
+                setTextColor(Color.parseColor("#94A3B8"))
+            }
+            colLayout.addView(lblTv)
+            statsLayout.addView(colLayout)
+        }
+        return statsLayout
+    }
+
+    private fun buildInsightPreview(compKey: String, comp: ComponentConfig): View {
+        val insightLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(
+                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 16),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 14),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 16),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 14)
+            )
+        }
+        val titleTv = TextView(this).apply {
+            tag = "title"
+            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "Cutoff Cleared: Qualified for Mains"
+            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.parseColor("#22C55E"))
+            textSize = (comp.typography.textSize ?: 14).toFloat()
+            setTypeface(null, Typeface.BOLD)
+        }
+        insightLayout.addView(titleTv)
+
+        val subTv = TextView(this).apply {
+            tag = "subtitle"
+            text = comp.content.subtitle ?: "Your estimated cutoff is 72.8 • You scored 85.0"
+            setTextColor(Color.parseColor("#94A3B8"))
+            textSize = 12f
+            setPadding(0, UiStudioEngine.dpToPx(context, 4), 0, 0)
+        }
+        insightLayout.addView(subTv)
+        return insightLayout
+    }
+
+    private fun buildProfileHeaderPreview(compKey: String, comp: ComponentConfig): View {
+        val headerLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(
+                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 16),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 14),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 16),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 14)
+            )
+        }
+        val avatar = TextView(this).apply {
+            text = "VS"
+            gravity = Gravity.CENTER
+            textSize = 15f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.WHITE)
+            val aSize = UiStudioEngine.dpToPx(context, 44)
+            layoutParams = LinearLayout.LayoutParams(aSize, aSize).apply {
+                marginEnd = UiStudioEngine.dpToPx(context, 14)
+            }
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(Color.parseColor("#007AFF"))
+            }
+        }
+        headerLayout.addView(avatar)
+
+        val infoCol = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+        }
+        val nameTv = TextView(this).apply {
+            tag = "title"
+            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "Vikram Sharma"
+            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.WHITE)
+            textSize = (comp.typography.textSize ?: 18).toFloat()
+            setTypeface(null, Typeface.BOLD)
+        }
+        infoCol.addView(nameTv)
+        val idTv = TextView(this).apply {
+            tag = "subtitle"
+            text = comp.content.subtitle ?: "ID: EV-849201 • Premium Member"
+            setTextColor(Color.parseColor("#94A3B8"))
+            textSize = 12f
+        }
+        infoCol.addView(idTv)
+        headerLayout.addView(infoCol)
+        return headerLayout
+    }
+
+    private fun buildProfileRowsPreview(compKey: String, comp: ComponentConfig): View {
+        val rowsLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(
+                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 14),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 10),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 14),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 10)
+            )
+        }
+        val menuItems = listOf(
+            Pair("📊", "Test Performance & Rank Analytics"),
+            Pair("🔖", "Bookmarks & Mistake Notebook"),
+            Pair("⚙️", "Settings, Theme & Notifications")
+        )
+        menuItems.forEachIndexed { i, (icon, label) ->
+            if (i > 0) {
+                val div = View(this).apply {
+                    layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, UiStudioEngine.dpToPx(context, 1)).apply {
+                        topMargin = UiStudioEngine.dpToPx(context, 8)
+                        bottomMargin = UiStudioEngine.dpToPx(context, 8)
+                    }
+                    setBackgroundColor(Color.parseColor("#334155"))
+                }
+                rowsLayout.addView(div)
+            }
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(0, UiStudioEngine.dpToPx(context, 4), 0, UiStudioEngine.dpToPx(context, 4))
+            }
+            val ic = TextView(this).apply {
+                text = icon
+                textSize = 14f
+                setPadding(0, 0, UiStudioEngine.dpToPx(context, 10), 0)
+            }
+            row.addView(ic)
+            val lbl = TextView(this).apply {
+                text = label
+                textSize = 13f
+                setTextColor(Color.parseColor("#E2E8F0"))
+                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+            }
+            row.addView(lbl)
+            val chev = TextView(this).apply {
+                text = "›"
+                textSize = 16f
+                setTextColor(Color.parseColor("#64748B"))
+            }
+            row.addView(chev)
+            rowsLayout.addView(row)
+        }
+        return rowsLayout
+    }
+
+    private fun buildNotificationItemPreview(compKey: String, comp: ComponentConfig): View {
+        val notifLayout = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
             setPadding(
@@ -1206,31 +1725,239 @@ class UiStudioActivity : EveBaseActivity() {
                 UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 12)
             )
         }
-        val circleA = TextView(this).apply {
-            text = "A"
-            gravity = Gravity.CENTER
-            textSize = 12f
+        val bell = TextView(this).apply {
+            text = "🔔"
+            textSize = 16f
+            setPadding(0, 0, UiStudioEngine.dpToPx(context, 10), 0)
+        }
+        notifLayout.addView(bell)
+
+        val col = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+        }
+        val titleTv = TextView(this).apply {
+            tag = "title"
+            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "Exam Update Notification"
+            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.WHITE)
+            textSize = (comp.typography.textSize ?: 14).toFloat()
+            setTypeface(null, if (comp.typography.textStyle == "bold") Typeface.BOLD else Typeface.NORMAL)
+        }
+        col.addView(titleTv)
+        val subTv = TextView(this).apply {
+            tag = "subtitle"
+            text = comp.content.subtitle ?: "2 hours ago"
+            setTextColor(Color.parseColor("#94A3B8"))
+            textSize = 11f
+        }
+        col.addView(subTv)
+        notifLayout.addView(col)
+        return notifLayout
+    }
+
+    private fun buildSyllabusCardPreview(compKey: String, comp: ComponentConfig): View {
+        val card = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(
+                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 16),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 14),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 16),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 14)
+            )
+        }
+        val titleTv = TextView(this).apply {
+            tag = "title"
+            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "General Science & Technology"
+            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.WHITE)
+            textSize = (comp.typography.textSize ?: 15).toFloat()
             setTypeface(null, Typeface.BOLD)
-            setTextColor(Color.WHITE)
-            val cSize = UiStudioEngine.dpToPx(context, 26)
-            layoutParams = LinearLayout.LayoutParams(cSize, cSize).apply {
+        }
+        card.addView(titleTv)
+
+        val subTv = TextView(this).apply {
+            tag = "subtitle"
+            text = comp.content.subtitle ?: "85% syllabus covered • 12 Topics"
+            setTextColor(Color.parseColor("#94A3B8"))
+            textSize = 12f
+            setPadding(0, UiStudioEngine.dpToPx(context, 4), 0, UiStudioEngine.dpToPx(context, 8))
+        }
+        card.addView(subTv)
+
+        val progressTrack = LinearLayout(this).apply {
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, UiStudioEngine.dpToPx(context, 6))
+            background = GradientDrawable().apply {
+                cornerRadius = 3 * resources.displayMetrics.density
+                setColor(Color.parseColor("#334155"))
+            }
+        }
+        val progressFill = View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 0.85f)
+            background = GradientDrawable().apply {
+                cornerRadius = 3 * resources.displayMetrics.density
+                setColor(Color.parseColor("#007AFF"))
+            }
+        }
+        progressTrack.addView(progressFill)
+        val space = View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 0.15f)
+        }
+        progressTrack.addView(space)
+        card.addView(progressTrack)
+        return card
+    }
+
+    private fun buildLoginInputsPreview(compKey: String, comp: ComponentConfig): View {
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(
+                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 16),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 16),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 16),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 16)
+            )
+        }
+        val headerTv = TextView(this).apply {
+            tag = "title"
+            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "Sign In to Account"
+            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.WHITE)
+            textSize = (comp.typography.textSize ?: 15).toFloat()
+            setTypeface(null, Typeface.BOLD)
+            setPadding(0, 0, 0, UiStudioEngine.dpToPx(context, 10))
+        }
+        container.addView(headerTv)
+
+        fun createField(placeholder: String, value: String): View {
+            return LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                    bottomMargin = UiStudioEngine.dpToPx(context, 8)
+                }
+                val label = TextView(this@UiStudioActivity).apply {
+                    text = placeholder
+                    textSize = 11f
+                    setTextColor(Color.parseColor("#94A3B8"))
+                }
+                addView(label)
+                val box = TextView(this@UiStudioActivity).apply {
+                    text = value
+                    textSize = 13f
+                    setTextColor(Color.WHITE)
+                    setPadding(UiStudioEngine.dpToPx(context, 10), UiStudioEngine.dpToPx(context, 8), UiStudioEngine.dpToPx(context, 10), UiStudioEngine.dpToPx(context, 8))
+                    background = GradientDrawable().apply {
+                        cornerRadius = 8 * resources.displayMetrics.density
+                        setColor(Color.parseColor("#0F172A"))
+                        setStroke(UiStudioEngine.dpToPx(context, 1), Color.parseColor("#334155"))
+                    }
+                }
+                addView(box)
+            }
+        }
+        container.addView(createField("Email Address", "student@example.com"))
+        container.addView(createField("Password", "••••••••••••"))
+        return container
+    }
+
+    private fun buildAdminModulesPreview(compKey: String, comp: ComponentConfig): View {
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(
+                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 16),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 14),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 16),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 14)
+            )
+        }
+        val title = TextView(this).apply {
+            tag = "title"
+            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "Operations Center"
+            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.WHITE)
+            textSize = (comp.typography.textSize ?: 15).toFloat()
+            setTypeface(null, Typeface.BOLD)
+            setPadding(0, 0, 0, UiStudioEngine.dpToPx(context, 8))
+        }
+        root.addView(title)
+
+        val row1 = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                bottomMargin = UiStudioEngine.dpToPx(context, 6)
+            }
+        }
+        val row2 = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
+        fun createTile(icon: String, name: String): View {
+            return LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                gravity = Gravity.CENTER
+                layoutParams = LinearLayout.LayoutParams(0, UiStudioEngine.dpToPx(context, 54), 1f).apply {
+                    marginStart = UiStudioEngine.dpToPx(context, 4)
+                    marginEnd = UiStudioEngine.dpToPx(context, 4)
+                }
+                background = GradientDrawable().apply {
+                    cornerRadius = 10 * resources.displayMetrics.density
+                    setColor(Color.parseColor("#0F172A"))
+                    setStroke(UiStudioEngine.dpToPx(context, 1), Color.parseColor("#334155"))
+                }
+                val ic = TextView(this@UiStudioActivity).apply { text = icon; textSize = 16f }
+                addView(ic)
+                val nm = TextView(this@UiStudioActivity).apply { text = name; textSize = 10f; setTextColor(Color.parseColor("#94A3B8")) }
+                addView(nm)
+            }
+        }
+        row1.addView(createTile("📝", "Tests"))
+        row1.addView(createTile("🎨", "UI Studio"))
+        row2.addView(createTile("📢", "Bulletins"))
+        row2.addView(createTile("👥", "Users"))
+        root.addView(row1)
+        root.addView(row2)
+        return root
+    }
+
+    private fun buildAdminHealthPreview(compKey: String, comp: ComponentConfig): View {
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(
+                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 14),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 12),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 14),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 12)
+            )
+        }
+        val dot = View(this).apply {
+            val dSize = UiStudioEngine.dpToPx(context, 10)
+            layoutParams = LinearLayout.LayoutParams(dSize, dSize).apply {
                 marginEnd = UiStudioEngine.dpToPx(context, 10)
             }
             background = GradientDrawable().apply {
                 shape = GradientDrawable.OVAL
-                setColor(Color.parseColor("#334155"))
+                setColor(Color.parseColor("#22C55E"))
             }
         }
-        optionLayout.addView(circleA)
-
-        val optionTv = TextView(this).apply {
-            tag = "title"
-            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "Option A: Example answer choice"
-            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.parseColor("#E2E8F0"))
-            textSize = (comp.typography.textSize ?: 14).toFloat()
+        root.addView(dot)
+        val col = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
         }
-        optionLayout.addView(optionTv)
-        return optionLayout
+        val title = TextView(this).apply {
+            tag = "title"
+            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "Cloudflare D1: Healthy (11 Migrations)"
+            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.parseColor("#22C55E"))
+            textSize = (comp.typography.textSize ?: 13).toFloat()
+            setTypeface(null, Typeface.BOLD)
+        }
+        col.addView(title)
+        val sub = TextView(this).apply {
+            tag = "subtitle"
+            text = comp.content.subtitle ?: "Active Edge Workers Online • 42ms"
+            setTextColor(Color.parseColor("#94A3B8"))
+            textSize = 11f
+        }
+        col.addView(sub)
+        root.addView(col)
+        return root
     }
 
     private fun buildInputPreview(compKey: String, comp: ComponentConfig): View {

@@ -437,4 +437,134 @@ object UiStudioEngine {
             applyToView(opt, config)
         }
     }
+
+    // --- Formal Typed Component Adapters ---
+
+    object TextAdapter {
+        fun apply(textView: TextView?, config: ComponentConfig?) {
+            if (textView == null || config == null) return
+            applyToView(textView, config)
+            applyTypography(textView, config)
+        }
+    }
+
+    object ButtonAdapter {
+        fun apply(view: View?, config: ComponentConfig?) {
+            if (view == null || config == null) return
+            applyToView(view, config)
+            if (view is TextView) {
+                applyTypography(view, config)
+            }
+        }
+    }
+
+    object TimerAdapter {
+        fun apply(hostView: View?, timerView: com.eve.app.ui.common.CircularTimerView?, config: ComponentConfig?) {
+            applyTimerHost(hostView, timerView, config)
+        }
+    }
+
+    object QuestionOptionAdapter {
+        fun apply(options: List<View>, config: ComponentConfig?, selectedIndex: Int = -1) {
+            if (config == null) return
+            for ((idx, opt) in options.withIndex()) {
+                applyToView(opt, config)
+                if (idx == selectedIndex) {
+                    val selBg = parseColorSafe(config.states.selectedBackgroundColor)
+                        ?: parseColorSafe("#16A34A") // EVE semantic green
+                    opt.background = GradientDrawable().apply {
+                        cornerRadius = dpToPx(opt.context, config.appearance.cornerRadius ?: 12).toFloat()
+                        setColor(selBg ?: Color.parseColor("#16A34A"))
+                        val strokeW = config.appearance.strokeWidth ?: 1
+                        val strokeC = parseColorSafe(config.appearance.strokeColor) ?: Color.TRANSPARENT
+                        setStroke(dpToPx(opt.context, strokeW), strokeC)
+                    }
+                    if (opt is TextView) {
+                        config.states.selectedTextColor?.let { col ->
+                            parseColorSafe(col)?.let { opt.setTextColor(it) }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    object TestActionAdapter {
+        fun apply(pills: List<View>, config: ComponentConfig?) {
+            if (config == null) return
+            for (pill in pills) {
+                applyToView(pill, config)
+            }
+        }
+    }
+
+    object ResultStatAdapter {
+        fun apply(tile: View?, labelView: TextView? = null, valueView: TextView? = null, config: ComponentConfig?) {
+            if (tile == null || config == null) return
+            applyToView(tile, config)
+            labelView?.let { applyTypography(it, config) }
+            valueView?.let { applyTypography(it, config) }
+        }
+    }
+
+    object NavigationAdapter {
+        fun apply(navView: View?, config: ComponentConfig?) {
+            if (navView == null || config == null) return
+            applyToView(navView, config)
+        }
+    }
+
+    object MaterialSurfaceAdapter {
+        fun apply(view: View?, config: ComponentConfig?) {
+            if (view == null || config == null) return
+            applyToView(view, config)
+        }
+    }
+
+    object ImageAdapter {
+        fun apply(imageView: ImageView?, config: ComponentConfig?) {
+            if (imageView == null || config == null) return
+            applyToView(imageView, config)
+            config.appearance.strokeColor?.let { hex ->
+                parseColorSafe(hex)?.let { imageView.setColorFilter(it) }
+            }
+        }
+    }
+
+    object IconAdapter {
+        fun apply(iconView: ImageView?, config: ComponentConfig?) {
+            if (iconView == null || config == null) return
+            applyToView(iconView, config)
+            config.appearance.strokeColor?.let { hex ->
+                parseColorSafe(hex)?.let { iconView.setColorFilter(it) }
+            }
+        }
+    }
+
+    object SwitchAdapter {
+        fun apply(switchView: View?, config: ComponentConfig?) {
+            if (switchView == null || config == null) return
+            applyToView(switchView, config)
+        }
+    }
+
+    object SliderAdapter {
+        fun apply(sliderView: View?, config: ComponentConfig?) {
+            if (sliderView == null || config == null) return
+            applyToView(sliderView, config)
+        }
+    }
+
+    object RowAdapter {
+        fun apply(rowView: View?, titleView: TextView? = null, subtitleView: TextView? = null, config: ComponentConfig?) {
+            if (rowView == null || config == null) return
+            applyToView(rowView, config)
+            titleView?.let { applyTypography(it, config) }
+            subtitleView?.let {
+                if (!config.content.subtitle.isNullOrBlank()) {
+                    it.text = config.content.subtitle
+                }
+            }
+        }
+    }
 }

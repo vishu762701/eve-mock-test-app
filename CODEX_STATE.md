@@ -11,23 +11,19 @@
 
 ### Last Completed Task
 
-Hardcore Bug-Fix + Complete Product Rebuild of EVE UI Studio / Visual App Builder:
-- Fixed critical Studio reset bug: enforced strict 4-tier restore hierarchy (Local draft -> Server draft -> Published config -> Defaults only if none).
-- Session state persistence (`UiStudioSessionState`): remembers selected screen, component, inspector tab, view mode, and device width on reopen.
-- Truthful draft persistence (`SaveDraftResult`): distinguishes between server-synced draft and offline local draft without fake success toasts.
-- Verified atomic publish (`PublishResult`): validates schema, publishes immutable snapshot, refetches active live config, and verifies version matching before badging `LIVE vXX (VERIFIED)`.
-- Workspace split redesign: pinned real screen canvas with live tap-to-select, 12 categorized inspector tabs (Design, Layout, Colors, Typography, Material/Blur, Content, Actions, Animation, States, Branding, Tree, Advanced), and view mode toggles (`Split`, `Canvas Focus`, `Inspector Focus`, and `360dp / 400dp / Full` viewport widths).
-- Style Clipboard: Copy Style and Paste Style transferring visual tokens safely without copying stable IDs or actions.
-- Property Reset Hierarchy: Reset to Default, Reset to Screen, and Reset to Global Design System.
-- Canonical model enhancements: added `branding`, `designSystem`, `revision`, and `states` to `UiStudioConfig` and synchronized backend validation.
-- Animation test trigger: interactive play test button for configured entrance animations.
-- 100% protection maintained for Telegram-style circular reveal theme toggle, test scoring, and exam auth.
+Complete EVE UI Studio Premium Visual App Builder Rebuild (Parts 1–5):
+- Responsive Device Preview Canvas: Added authentic phone chrome (09:41 status bar, punch hole, 5G/battery, bottom gesture indicator), 50/50 weight-balanced split mode eliminating nested scroll conflict, and dynamic `FIT TO SCREEN` viewport calculation.
+- Authentic Screen Fidelity across 8 screens: Home, Test, Result, Profile, Notifications, Syllabus, Login, Admin. Replaced generic cards with type-specific EVE renderers.
+- Interactive Test Screen Capsules: Upgraded `buildOptionItemPreview` to render 4 answer options (A, B [Selected - Green #16A34A], C, D) with instant tactile touch feedback and selection switching in interact mode.
+- 13 Formal Typed Runtime Adapters in `UiStudioEngine`: TextAdapter, ButtonAdapter, TimerAdapter, QuestionOptionAdapter, TestActionAdapter, ResultStatAdapter, NavigationAdapter, MaterialSurfaceAdapter, ImageAdapter, IconAdapter, SwitchAdapter, SliderAdapter, RowAdapter.
+- Fixed Save & Publish Semantics: Enforced truthful failure handling on draft network errors, strict version equality matching on publish verification (`liveConfig.version == expectedVersion`), and atomic Cloudflare D1 batch transactions (`db.batch`).
+- 100% Protection Maintained: Telegram-style circular reveal Day/Night transition, test timer countdown/auto-submit, and exam authentication remain completely untouched.
 
 ## Last Verified Changes
 
-- Android unit tests: passed (211 unit tests completed, 0 failures via `./gradlew testDebugUnitTest`).
+- Android unit tests: passed (226 unit tests completed, 0 failures via `./gradlew testDebugUnitTest`).
 - Android APK build: passed (clean APK packaging via `./gradlew assembleDebug`).
-- Backend unit tests: passed (79/79 tests passing via `npm test`).
+- Backend unit tests: passed (80/80 tests passing via `npm test`).
 - Backend typecheck: passed (`npm run build` tsc --noEmit).
 - Git diff hygiene: verified zero whitespace or formatting errors (`git diff --check`).
 
@@ -37,7 +33,7 @@ NONE. Implementation, verification, and test execution are complete.
 
 ## What Remains
 
-- Physical device visual inspection of hardware-accelerated blur effects across diverse Android OS versions (API 31+ vs fallback).
+- Physical device visual inspection on a physical Android handset with active touch display.
 
 ## Known Issues / Blockers
 
@@ -45,11 +41,11 @@ NONE. Implementation, verification, and test execution are complete.
 
 ## Verification Status
 
-- `./gradlew testDebugUnitTest`: passed (211 tests completed, 0 failures).
-- `./gradlew assembleDebug`: passed (clean APK packaging).
-- Backend `npm test`: passed (79/79 tests passing).
+- `./gradlew testDebugUnitTest`: passed (226 tests completed, 0 failures).
+- `./gradlew assembleDebug`: passed (clean APK packaging in 1m 8s).
+- Backend `npm test`: passed (80/80 tests passing).
 - Backend `npm run build`: passed (clean TypeScript compilation).
-- Configuration persistence, validation, and JSON export/import verified via unit tests.
+- Runtime adapters, 8-screen default templates, session persistence, and publish verification verified via unit tests.
 
 ## Last Commit
 

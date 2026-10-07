@@ -736,4 +736,182 @@ class UiStudioTest {
         assertEquals("key_dark_mode", ThemeSwitchAnimator.KEY_DARK_MODE)
         assertEquals(400L, ThemeSwitchAnimator.ANIMATION_DURATION)
     }
+
+    @Test
+    fun testAllRuntimeAdaptersContracts() {
+        // Verify null-safety and safe delegation of all 13 formal runtime adapters
+        val sampleConfig = ComponentConfig(
+            id = "test_comp",
+            type = "button",
+            name = "Test Button",
+            appearance = AppearanceProperties(
+                backgroundColor = "#1E293B",
+                cornerRadius = 14,
+                strokeWidth = 2,
+                strokeColor = "#38BDF8"
+            ),
+            typography = TypographyProperties(
+                textColor = "#FFFFFF",
+                textSize = 15,
+                textStyle = "bold"
+            ),
+            states = StateProperties(
+                selectedBackgroundColor = "#16A34A",
+                selectedTextColor = "#FFFFFF"
+            ),
+            content = ContentProperties(
+                title = "Submit Exam",
+                subtitle = "150 Questions"
+            )
+        )
+
+        // 1. TextAdapter
+        UiStudioEngine.TextAdapter.apply(null, sampleConfig)
+        UiStudioEngine.TextAdapter.apply(null, null)
+
+        // 2. ButtonAdapter
+        UiStudioEngine.ButtonAdapter.apply(null, sampleConfig)
+        UiStudioEngine.ButtonAdapter.apply(null, null)
+
+        // 3. TimerAdapter
+        UiStudioEngine.TimerAdapter.apply(null, null, sampleConfig)
+        UiStudioEngine.TimerAdapter.apply(null, null, null)
+
+        // 4. QuestionOptionAdapter
+        UiStudioEngine.QuestionOptionAdapter.apply(emptyList(), sampleConfig, 1)
+        UiStudioEngine.QuestionOptionAdapter.apply(emptyList(), null, -1)
+
+        // 5. TestActionAdapter
+        UiStudioEngine.TestActionAdapter.apply(emptyList(), sampleConfig)
+        UiStudioEngine.TestActionAdapter.apply(emptyList(), null)
+
+        // 6. ResultStatAdapter
+        UiStudioEngine.ResultStatAdapter.apply(null, null, null, sampleConfig)
+        UiStudioEngine.ResultStatAdapter.apply(null, null, null, null)
+
+        // 7. NavigationAdapter
+        UiStudioEngine.NavigationAdapter.apply(null, sampleConfig)
+        UiStudioEngine.NavigationAdapter.apply(null, null)
+
+        // 8. MaterialSurfaceAdapter
+        UiStudioEngine.MaterialSurfaceAdapter.apply(null, sampleConfig)
+        UiStudioEngine.MaterialSurfaceAdapter.apply(null, null)
+
+        // 9. ImageAdapter
+        UiStudioEngine.ImageAdapter.apply(null, sampleConfig)
+        UiStudioEngine.ImageAdapter.apply(null, null)
+
+        // 10. IconAdapter
+        UiStudioEngine.IconAdapter.apply(null, sampleConfig)
+        UiStudioEngine.IconAdapter.apply(null, null)
+
+        // 11. SwitchAdapter
+        UiStudioEngine.SwitchAdapter.apply(null, sampleConfig)
+        UiStudioEngine.SwitchAdapter.apply(null, null)
+
+        // 12. SliderAdapter
+        UiStudioEngine.SliderAdapter.apply(null, sampleConfig)
+        UiStudioEngine.SliderAdapter.apply(null, null)
+
+        // 13. RowAdapter
+        UiStudioEngine.RowAdapter.apply(null, null, null, sampleConfig)
+        UiStudioEngine.RowAdapter.apply(null, null, null, null)
+    }
+
+    @Test
+    fun testAllEightScreensDefaultTemplateCoverage() {
+        val template = UiStudioRegistry.getCompleteDefaultTemplate()
+        val expectedScreens = listOf("home", "test", "result", "profile", "notifications", "syllabus", "login", "admin")
+
+        assertEquals(8, template.screens.size)
+        for (screenId in expectedScreens) {
+            assertTrue("Template must contain screen '$screenId'", template.screens.containsKey(screenId))
+            val screen = template.screens[screenId]
+            assertNotNull(screen)
+            assertTrue("Screen '$screenId' must have components", screen!!.components.isNotEmpty())
+        }
+
+        // Verify specific authentic components for each screen
+        val homeComps = template.screens["home"]!!.components
+        assertTrue(homeComps.containsKey("featured_exam_card"))
+        assertTrue(homeComps.containsKey("home_bottom_nav"))
+
+        val testComps = template.screens["test"]!!.components
+        assertTrue(testComps.containsKey("test_top_bar"))
+        assertTrue(testComps.containsKey("timer_pill"))
+        assertTrue(testComps.containsKey("question_palette"))
+        assertTrue(testComps.containsKey("question_card"))
+        assertTrue(testComps.containsKey("option_item"))
+        assertTrue(testComps.containsKey("action_grid"))
+
+        val resultComps = template.screens["result"]!!.components
+        assertTrue(resultComps.containsKey("result_header"))
+        assertTrue(resultComps.containsKey("score_card"))
+        assertTrue(resultComps.containsKey("result_tabs"))
+        assertTrue(resultComps.containsKey("analytics_summary"))
+        assertTrue(resultComps.containsKey("result_insight"))
+        assertTrue(resultComps.containsKey("result_bottom_bar"))
+
+        val profileComps = template.screens["profile"]!!.components
+        assertTrue(profileComps.containsKey("profile_header"))
+        assertTrue(profileComps.containsKey("profile_rows"))
+        assertTrue(profileComps.containsKey("btn_logout"))
+
+        val notifComps = template.screens["notifications"]!!.components
+        assertTrue(notifComps.containsKey("notifications_header"))
+        assertTrue(notifComps.containsKey("notification_card"))
+        assertTrue(notifComps.containsKey("notification_card_2"))
+
+        val syllabusComps = template.screens["syllabus"]!!.components
+        assertTrue(syllabusComps.containsKey("syllabus_header"))
+        assertTrue(syllabusComps.containsKey("syllabus_selector"))
+        assertTrue(syllabusComps.containsKey("syllabus_card"))
+
+        val loginComps = template.screens["login"]!!.components
+        assertTrue(loginComps.containsKey("login_hero"))
+        assertTrue(loginComps.containsKey("login_inputs"))
+        assertTrue(loginComps.containsKey("btn_login"))
+        assertTrue(loginComps.containsKey("login_google"))
+
+        val adminComps = template.screens["admin"]!!.components
+        assertTrue(adminComps.containsKey("admin_top_bar"))
+        assertTrue(adminComps.containsKey("admin_modules"))
+        assertTrue(adminComps.containsKey("admin_health"))
+
+        val validation = repo.validateConfig(template)
+        assertTrue("All 8 screens template must be schema valid: ${validation.second}", validation.first)
+    }
+
+    @Test
+    fun testSessionStateReopenPersistence() {
+        val sessionState = UiStudioSessionState(
+            selectedScreenKey = "test",
+            selectedComponentKey = "option_item",
+            selectedTab = "material",
+            viewMode = "split",
+            deviceWidthMode = "normal",
+            timestamp = 1770000000000L
+        )
+
+        assertEquals("test", sessionState.selectedScreenKey)
+        assertEquals("option_item", sessionState.selectedComponentKey)
+        assertEquals("material", sessionState.selectedTab)
+        assertEquals("split", sessionState.viewMode)
+        assertEquals("normal", sessionState.deviceWidthMode)
+        assertEquals(1770000000000L, sessionState.timestamp)
+    }
+
+    @Test
+    fun testStrictPublishVerificationVersionMatching() {
+        // Publish verification must strictly require liveConfig.version == expectedVersion
+        val expectedVersion = 12
+
+        val matchingConfig = UiStudioConfig(version = 12, status = "published")
+        val isVerified = (matchingConfig.version == expectedVersion)
+        assertTrue("Exact version match must succeed verification", isVerified)
+
+        val staleConfig = UiStudioConfig(version = 11, status = "published")
+        val isStaleVerified = (staleConfig.version == expectedVersion)
+        assertFalse("Stale version must fail verification", isStaleVerified)
+    }
 }

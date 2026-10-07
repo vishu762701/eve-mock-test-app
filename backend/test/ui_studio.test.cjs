@@ -22,6 +22,14 @@ class MockUiStudioD1 {
   auditLog = [];
   adminAuditLog = [];
 
+  async batch(stmts) {
+    const results = [];
+    for (const stmt of stmts) {
+      results.push(await stmt.run());
+    }
+    return results;
+  }
+
   prepare(sql) {
     const stmt = {
       values: [],

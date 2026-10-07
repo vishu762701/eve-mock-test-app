@@ -403,15 +403,14 @@ adminUiStudioRoutes.post("/publish", async (c) => {
   const jsonStr = JSON.stringify(configToPublish);
 
   // 1. Snapshot into immutable versions table
-  await db
+  const insertVersionStmt = db
     .prepare(
       "INSERT INTO ui_studio_versions (version, config_json, created_at, created_by, notes) VALUES (?, ?, ?, ?, ?)"
     )
-    .bind(nextVersion, jsonStr, now, email, notes)
-    .run();
+    .bind(nextVersion, jsonStr, now, email, notes);
 
   // 2. Update active published table
-  await db
+  const upsertPublishedStmt = db
     .prepare(
       `INSERT INTO ui_studio_published (id, version, config_json, published_at, published_by, notes)
        VALUES ('active', ?, ?, ?, ?, ?)
@@ -422,20 +421,18 @@ adminUiStudioRoutes.post("/publish", async (c) => {
          published_by = excluded.published_by,
          notes = excluded.notes`
     )
-    .bind(nextVersion, jsonStr, now, email, notes)
-    .run();
+    .bind(nextVersion, jsonStr, now, email, notes);
 
   // 3. UI Studio audit log
   const auditId = `audit-${now}-${Math.random().toString(36).substring(2, 7)}`;
-  await db
+  const studioAuditStmt = db
     .prepare(
       "INSERT INTO ui_studio_audit_log (id, action, performed_by, version, details, timestamp) VALUES (?, ?, ?, ?, ?, ?)"
     )
-    .bind(auditId, "published", email, nextVersion, notes || `Published v${nextVersion}`, now)
-    .run();
+    .bind(auditId, "published", email, nextVersion, notes || `Published v${nextVersion}`, now);
 
   // 4. Main Admin Audit log
-  await db
+  const adminAuditStmt = db
     .prepare(
       "INSERT INTO admin_audit_log (id, action_type, description, admin_email, timestamp) VALUES (?, ?, ?, ?, ?)"
     )
@@ -445,8 +442,16 @@ adminUiStudioRoutes.post("/publish", async (c) => {
       `Published EVE UI Studio v${nextVersion}${notes ? `: ${notes}` : ""}`,
       email,
       now
-    )
-    .run();
+    );
+
+  if (typeof (db as any).batch === "function") {
+    await (db as any).batch([insertVersionStmt, upsertPublishedStmt, studioAuditStmt, adminAuditStmt]);
+  } else {
+    await insertVersionStmt.run();
+    await upsertPublishedStmt.run();
+    await studioAuditStmt.run();
+    await adminAuditStmt.run();
+  }
 
   return c.json({
     success: true,
@@ -503,7 +508,7 @@ adminUiStudioRoutes.post("/restore/:versionId", async (c) => {
   const email = user.email || "admin";
 
   if (target === "draft") {
-    await db
+    const upsertDraftStmt = db
       .prepare(
         `INSERT INTO ui_studio_drafts (id, config_json, updated_at, updated_by)
          VALUES ('draft', ?, ?, ?)
@@ -512,16 +517,21 @@ adminUiStudioRoutes.post("/restore/:versionId", async (c) => {
            updated_at = excluded.updated_at,
            updated_by = excluded.updated_by`
       )
-      .bind(verRow.config_json, now, email)
-      .run();
+      .bind(verRow.config_json, now, email);
 
     const auditId = `audit-${now}-${Math.random().toString(36).substring(2, 7)}`;
-    await db
+    const auditStmt = db
       .prepare(
         "INSERT INTO ui_studio_audit_log (id, action, performed_by, version, details, timestamp) VALUES (?, ?, ?, ?, ?, ?)"
       )
-      .bind(auditId, "restored", email, versionId, `Restored v${versionId} to draft`, now)
-      .run();
+      .bind(auditId, "restored", email, versionId, `Restored v${versionId} to draft`, now);
+
+    if (typeof (db as any).batch === "function") {
+      await (db as any).batch([upsertDraftStmt, auditStmt]);
+    } else {
+      await upsertDraftStmt.run();
+      await auditStmt.run();
+    }
 
     return c.json({
       success: true,
@@ -540,14 +550,13 @@ adminUiStudioRoutes.post("/restore/:versionId", async (c) => {
     const jsonStr = JSON.stringify(restoredConfig);
     const restoreNotes = `Restored from v${versionId}`;
 
-    await db
+    const insertVerStmt = db
       .prepare(
         "INSERT INTO ui_studio_versions (version, config_json, created_at, created_by, notes) VALUES (?, ?, ?, ?, ?)"
       )
-      .bind(nextVersion, jsonStr, now, email, restoreNotes)
-      .run();
+      .bind(nextVersion, jsonStr, now, email, restoreNotes);
 
-    await db
+    const upsertPubStmt = db
       .prepare(
         `INSERT INTO ui_studio_published (id, version, config_json, published_at, published_by, notes)
          VALUES ('active', ?, ?, ?, ?, ?)
@@ -558,16 +567,22 @@ adminUiStudioRoutes.post("/restore/:versionId", async (c) => {
            published_by = excluded.published_by,
            notes = excluded.notes`
       )
-      .bind(nextVersion, jsonStr, now, email, restoreNotes)
-      .run();
+      .bind(nextVersion, jsonStr, now, email, restoreNotes);
 
     const auditId = `audit-${now}-${Math.random().toString(36).substring(2, 7)}`;
-    await db
+    const auditStmt = db
       .prepare(
         "INSERT INTO ui_studio_audit_log (id, action, performed_by, version, details, timestamp) VALUES (?, ?, ?, ?, ?, ?)"
       )
-      .bind(auditId, "restored", email, nextVersion, `Restored v${versionId} as v${nextVersion}`, now)
-      .run();
+      .bind(auditId, "restored", email, nextVersion, `Restored v${versionId} as v${nextVersion}`, now);
+
+    if (typeof (db as any).batch === "function") {
+      await (db as any).batch([insertVerStmt, upsertPubStmt, auditStmt]);
+    } else {
+      await insertVerStmt.run();
+      await upsertPubStmt.run();
+      await auditStmt.run();
+    }
 
     return c.json({
       success: true,

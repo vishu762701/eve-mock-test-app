@@ -479,6 +479,26 @@ object UiStudioRegistry {
                     layout = LayoutProperties(marginStart = 16, marginEnd = 16, marginTop = 16, marginBottom = 8),
                     typography = TypographyProperties(textColor = "#94A3B8", textSize = 13, textStyle = "bold"),
                     content = ContentProperties(title = "AVAILABLE EXAM SERIES")
+                ),
+                "featured_exam_card" to ComponentConfig(
+                    id = "featured_exam_card",
+                    type = "card",
+                    name = "Featured Exam Card",
+                    isProtected = false,
+                    order = 6,
+                    layout = LayoutProperties(marginStart = 16, marginEnd = 16, marginTop = 8, marginBottom = 8, paddingTop = 14, paddingBottom = 14, paddingStart = 16, paddingEnd = 16),
+                    appearance = AppearanceProperties(backgroundColor = "#1E293B", cornerRadius = 16, strokeWidth = 1, strokeColor = "#334155"),
+                    typography = TypographyProperties(textColor = "#FFFFFF", textSize = 16, textStyle = "bold"),
+                    content = ContentProperties(title = "RPSC RAS Prelims Full Mock 2026", subtitle = "150 Questions • 200 Marks • 180 Mins")
+                ),
+                "home_bottom_nav" to ComponentConfig(
+                    id = "home_bottom_nav",
+                    type = "container",
+                    name = "Bottom Navigation Bar",
+                    isProtected = true,
+                    order = 7,
+                    layout = LayoutProperties(height = "56", marginTop = 8),
+                    appearance = AppearanceProperties(backgroundColor = "#0F172A", strokeWidth = 1, strokeColor = "#1E293B")
                 )
             )
         )
@@ -489,24 +509,43 @@ object UiStudioRegistry {
             description = "Active examination session",
             backgroundColor = "#000000",
             components = linkedMapOf(
+                "test_top_bar" to ComponentConfig(
+                    id = "test_top_bar",
+                    type = "container",
+                    name = "Test Header Bar",
+                    isProtected = true,
+                    order = 1,
+                    layout = LayoutProperties(height = "48", marginStart = 16, marginEnd = 16),
+                    appearance = AppearanceProperties(backgroundColor = "#000000"),
+                    typography = TypographyProperties(textColor = "#FFFFFF", textSize = 15, textStyle = "bold"),
+                    content = ContentProperties(title = "Paper 1 - General Studies")
+                ),
                 "timer_pill" to ComponentConfig(
                     id = "timer_pill",
                     type = "timer",
                     name = "Timer Pill",
                     isProtected = true,
-                    order = 1,
+                    order = 2,
                     layout = LayoutProperties(paddingTop = 6, paddingBottom = 6, paddingStart = 14, paddingEnd = 14),
                     appearance = AppearanceProperties(backgroundColor = "#1E293B", cornerRadius = 16, strokeWidth = 1, strokeColor = "#334155"),
                     material = MaterialProperties(blurRadius = 12, materialOpacity = 0.9f),
                     typography = TypographyProperties(textColor = "#38BDF8", textSize = 14, textStyle = "bold"),
                     content = ContentProperties(title = "45:00")
                 ),
+                "question_palette" to ComponentConfig(
+                    id = "question_palette",
+                    type = "row",
+                    name = "Question Number Strip",
+                    isProtected = false,
+                    order = 3,
+                    layout = LayoutProperties(marginStart = 16, marginEnd = 16, marginTop = 4, marginBottom = 8)
+                ),
                 "question_card" to ComponentConfig(
                     id = "question_card",
                     type = "card",
                     name = "Question Card",
                     isProtected = true,
-                    order = 2,
+                    order = 4,
                     layout = LayoutProperties(marginTop = 8, marginBottom = 12, marginStart = 16, marginEnd = 16, paddingTop = 16, paddingBottom = 16, paddingStart = 16, paddingEnd = 16),
                     appearance = AppearanceProperties(backgroundColor = "#1E293B", cornerRadius = 16, strokeWidth = 1, strokeColor = "#334155", elevation = 1),
                     material = MaterialProperties(blurRadius = 8, materialOpacity = 0.95f),
@@ -518,7 +557,7 @@ object UiStudioRegistry {
                     type = "card",
                     name = "Answer Option Capsule",
                     isProtected = true,
-                    order = 3,
+                    order = 5,
                     layout = LayoutProperties(marginTop = 6, marginBottom = 6, marginStart = 16, marginEnd = 16, paddingTop = 12, paddingBottom = 12, paddingStart = 14, paddingEnd = 14),
                     appearance = AppearanceProperties(backgroundColor = "#0F172A", cornerRadius = 12, strokeWidth = 1, strokeColor = "#334155"),
                     typography = TypographyProperties(textColor = "#E2E8F0", textSize = 14),
@@ -529,7 +568,7 @@ object UiStudioRegistry {
                     type = "action_grid",
                     name = "2x2 Action Button Grid",
                     isProtected = true,
-                    order = 4,
+                    order = 6,
                     layout = LayoutProperties(marginStart = 16, marginEnd = 16, marginTop = 12, marginBottom = 12),
                     appearance = AppearanceProperties(cornerRadius = 14)
                 )
@@ -562,15 +601,46 @@ object UiStudioRegistry {
                     typography = TypographyProperties(textColor = "#FFFFFF", textSize = 24, textStyle = "bold"),
                     content = ContentProperties(title = "Your Score: 85/100")
                 ),
+                "result_tabs" to ComponentConfig(
+                    id = "result_tabs",
+                    type = "container",
+                    name = "Segmented Tabs (Overview/Review/Leaderboard)",
+                    isProtected = true,
+                    order = 3,
+                    layout = LayoutProperties(height = "44", marginStart = 16, marginEnd = 16, marginTop = 8, marginBottom = 8),
+                    appearance = AppearanceProperties(backgroundColor = "#1E293B", cornerRadius = 22, strokeWidth = 1, strokeColor = "#334155")
+                ),
                 "analytics_summary" to ComponentConfig(
                     id = "analytics_summary",
                     type = "card",
                     name = "Analytics Stat Pills",
                     isProtected = true,
-                    order = 3,
+                    order = 4,
                     layout = LayoutProperties(marginTop = 8, marginBottom = 8, marginStart = 16, marginEnd = 16, paddingTop = 12, paddingBottom = 12, paddingStart = 12, paddingEnd = 12),
                     appearance = AppearanceProperties(backgroundColor = "#0F172A", cornerRadius = 12, strokeWidth = 1, strokeColor = "#334155"),
                     typography = TypographyProperties(textColor = "#38BDF8", textSize = 13, textStyle = "bold")
+                ),
+                "result_insight" to ComponentConfig(
+                    id = "result_insight",
+                    type = "card",
+                    name = "Cutoff & Insight Card",
+                    isProtected = false,
+                    order = 5,
+                    layout = LayoutProperties(marginStart = 16, marginEnd = 16, marginTop = 8, marginBottom = 12, paddingTop = 14, paddingBottom = 14, paddingStart = 16, paddingEnd = 16),
+                    appearance = AppearanceProperties(backgroundColor = "#1E293B", cornerRadius = 14, strokeWidth = 1, strokeColor = "#334155"),
+                    typography = TypographyProperties(textColor = "#34C759", textSize = 14, textStyle = "bold"),
+                    content = ContentProperties(title = "Cutoff Cleared: Qualified for Mains")
+                ),
+                "result_bottom_bar" to ComponentConfig(
+                    id = "result_bottom_bar",
+                    type = "button",
+                    name = "Bottom Action Pill",
+                    isProtected = true,
+                    order = 6,
+                    layout = LayoutProperties(height = "48", marginStart = 16, marginEnd = 16, marginTop = 8, marginBottom = 16, paddingTop = 12, paddingBottom = 12),
+                    appearance = AppearanceProperties(backgroundColor = "#007AFF", cornerRadius = 24),
+                    typography = TypographyProperties(textColor = "#FFFFFF", textSize = 15, textStyle = "bold", textAlign = "center"),
+                    content = ContentProperties(title = "Review All Questions")
                 )
             )
         )
@@ -581,12 +651,23 @@ object UiStudioRegistry {
             description = "Student profile and account settings",
             backgroundColor = "#000000",
             components = linkedMapOf(
+                "profile_header" to ComponentConfig(
+                    id = "profile_header",
+                    type = "container",
+                    name = "Student Profile Header",
+                    isProtected = true,
+                    order = 1,
+                    layout = LayoutProperties(marginStart = 16, marginEnd = 16, marginTop = 12, marginBottom = 8),
+                    appearance = AppearanceProperties(backgroundColor = "#000000"),
+                    typography = TypographyProperties(textColor = "#FFFFFF", textSize = 18, textStyle = "bold"),
+                    content = ContentProperties(title = "Vikram Sharma", subtitle = "ID: EV-849201")
+                ),
                 "profile_card" to ComponentConfig(
                     id = "profile_card",
                     type = "card",
                     name = "Profile Summary Card",
                     isProtected = true,
-                    order = 1,
+                    order = 2,
                     layout = LayoutProperties(marginTop = 16, marginBottom = 12, marginStart = 16, marginEnd = 16, paddingTop = 16, paddingBottom = 16, paddingStart = 16, paddingEnd = 16),
                     appearance = AppearanceProperties(backgroundColor = "#1E293B", cornerRadius = 16, strokeWidth = 1, strokeColor = "#334155"),
                     material = MaterialProperties(blurRadius = 12, materialOpacity = 0.9f),
@@ -598,8 +679,30 @@ object UiStudioRegistry {
                     type = "row",
                     name = "Stats Row",
                     isProtected = false,
-                    order = 2,
+                    order = 3,
                     layout = LayoutProperties(marginStart = 16, marginEnd = 16, marginTop = 8, marginBottom = 8)
+                ),
+                "profile_rows" to ComponentConfig(
+                    id = "profile_rows",
+                    type = "card",
+                    name = "Account Menu Sections",
+                    isProtected = false,
+                    order = 4,
+                    layout = LayoutProperties(marginStart = 16, marginEnd = 16, marginTop = 8, marginBottom = 12, paddingTop = 12, paddingBottom = 12, paddingStart = 14, paddingEnd = 14),
+                    appearance = AppearanceProperties(backgroundColor = "#1E293B", cornerRadius = 16, strokeWidth = 1, strokeColor = "#334155"),
+                    typography = TypographyProperties(textColor = "#F8FAFC", textSize = 14),
+                    content = ContentProperties(title = "Preferences & Vault", subtitle = "Bookmarks • Mistakes • Dark Theme")
+                ),
+                "btn_logout" to ComponentConfig(
+                    id = "btn_logout",
+                    type = "button",
+                    name = "Sign Out Button",
+                    isProtected = true,
+                    order = 5,
+                    layout = LayoutProperties(height = "46", marginStart = 16, marginEnd = 16, marginTop = 8, marginBottom = 16, paddingTop = 12, paddingBottom = 12),
+                    appearance = AppearanceProperties(backgroundColor = "#2A1215", cornerRadius = 23, strokeWidth = 1, strokeColor = "#FF3B30"),
+                    typography = TypographyProperties(textColor = "#FF453A", textSize = 14, textStyle = "bold", textAlign = "center"),
+                    content = ContentProperties(title = "Sign Out")
                 )
             )
         )
@@ -610,17 +713,39 @@ object UiStudioRegistry {
             description = "Bulletins and announcement feed",
             backgroundColor = "#000000",
             components = linkedMapOf(
+                "notifications_header" to ComponentConfig(
+                    id = "notifications_header",
+                    type = "container",
+                    name = "Notifications Header",
+                    isProtected = true,
+                    order = 1,
+                    layout = LayoutProperties(marginStart = 16, marginEnd = 16, marginTop = 12, marginBottom = 8),
+                    typography = TypographyProperties(textColor = "#FFFFFF", textSize = 20, textStyle = "bold"),
+                    content = ContentProperties(title = "Notifications", subtitle = "Mark All Read")
+                ),
                 "notification_card" to ComponentConfig(
                     id = "notification_card",
                     type = "card",
                     name = "Notification Feed Item",
                     isProtected = false,
-                    order = 1,
+                    order = 2,
                     layout = LayoutProperties(marginTop = 6, marginBottom = 6, marginStart = 16, marginEnd = 16, paddingTop = 14, paddingBottom = 14, paddingStart = 16, paddingEnd = 16),
                     appearance = AppearanceProperties(backgroundColor = "#1E293B", cornerRadius = 14, strokeWidth = 1, strokeColor = "#334155"),
                     material = MaterialProperties(blurRadius = 8, materialOpacity = 0.9f),
                     typography = TypographyProperties(textColor = "#FFFFFF", textSize = 15, textStyle = "bold"),
                     content = ContentProperties(title = "Exam Update Notification")
+                ),
+                "notification_card_2" to ComponentConfig(
+                    id = "notification_card_2",
+                    type = "card",
+                    name = "Series Update Bulletin",
+                    isProtected = false,
+                    order = 3,
+                    layout = LayoutProperties(marginTop = 6, marginBottom = 6, marginStart = 16, marginEnd = 16, paddingTop = 14, paddingBottom = 14, paddingStart = 16, paddingEnd = 16),
+                    appearance = AppearanceProperties(backgroundColor = "#1E293B", cornerRadius = 14, strokeWidth = 1, strokeColor = "#334155"),
+                    material = MaterialProperties(blurRadius = 8, materialOpacity = 0.9f),
+                    typography = TypographyProperties(textColor = "#FFFFFF", textSize = 15, textStyle = "bold"),
+                    content = ContentProperties(title = "New test series added for Current Affairs", subtitle = "2 hours ago")
                 )
             )
         )
@@ -640,6 +765,28 @@ object UiStudioRegistry {
                     layout = LayoutProperties(marginStart = 16, marginEnd = 16, marginTop = 12, marginBottom = 6),
                     typography = TypographyProperties(textColor = "#38BDF8", textSize = 16, textStyle = "bold"),
                     content = ContentProperties(title = "Topic Breakdown")
+                ),
+                "syllabus_selector" to ComponentConfig(
+                    id = "syllabus_selector",
+                    type = "badge",
+                    name = "Exam Selector Pill",
+                    isProtected = false,
+                    order = 2,
+                    layout = LayoutProperties(marginStart = 16, marginTop = 4, marginBottom = 8, paddingTop = 6, paddingBottom = 6, paddingStart = 12, paddingEnd = 12),
+                    appearance = AppearanceProperties(backgroundColor = "#1E293B", cornerRadius = 16, strokeWidth = 1, strokeColor = "#38BDF8"),
+                    typography = TypographyProperties(textColor = "#38BDF8", textSize = 12, textStyle = "bold"),
+                    content = ContentProperties(title = "RPSC RAS 2026")
+                ),
+                "syllabus_card" to ComponentConfig(
+                    id = "syllabus_card",
+                    type = "card",
+                    name = "Subject Progress Card",
+                    isProtected = false,
+                    order = 3,
+                    layout = LayoutProperties(marginTop = 8, marginBottom = 8, marginStart = 16, marginEnd = 16, paddingTop = 14, paddingBottom = 14, paddingStart = 16, paddingEnd = 16),
+                    appearance = AppearanceProperties(backgroundColor = "#1E293B", cornerRadius = 16, strokeWidth = 1, strokeColor = "#334155"),
+                    typography = TypographyProperties(textColor = "#FFFFFF", textSize = 15, textStyle = "bold"),
+                    content = ContentProperties(title = "General Science & Technology", subtitle = "85% syllabus covered • 12 Topics")
                 )
             )
         )
@@ -661,16 +808,38 @@ object UiStudioRegistry {
                     typography = TypographyProperties(textColor = "#FFFFFF", textSize = 22, textStyle = "bold"),
                     content = ContentProperties(title = "Welcome to EVE")
                 ),
+                "login_inputs" to ComponentConfig(
+                    id = "login_inputs",
+                    type = "card",
+                    name = "Credentials Card (Email & Password)",
+                    isProtected = false,
+                    order = 2,
+                    layout = LayoutProperties(marginTop = 8, marginBottom = 12, marginStart = 16, marginEnd = 16, paddingTop = 16, paddingBottom = 16, paddingStart = 16, paddingEnd = 16),
+                    appearance = AppearanceProperties(backgroundColor = "#1E293B", cornerRadius = 16, strokeWidth = 1, strokeColor = "#334155"),
+                    typography = TypographyProperties(textColor = "#FFFFFF", textSize = 14),
+                    content = ContentProperties(title = "Account Details", subtitle = "student@example.com")
+                ),
                 "btn_login" to ComponentConfig(
                     id = "btn_login",
                     type = "button",
                     name = "Sign In Action Button",
                     isProtected = true,
-                    order = 2,
+                    order = 3,
                     layout = LayoutProperties(height = "50", marginTop = 12, marginStart = 16, marginEnd = 16, paddingTop = 14, paddingBottom = 14),
                     appearance = AppearanceProperties(backgroundColor = "#007AFF", cornerRadius = 14),
                     typography = TypographyProperties(textColor = "#FFFFFF", textSize = 16, textStyle = "bold", textAlign = "center"),
                     content = ContentProperties(title = "Sign In")
+                ),
+                "login_google" to ComponentConfig(
+                    id = "login_google",
+                    type = "button",
+                    name = "Google Sign In Button",
+                    isProtected = false,
+                    order = 4,
+                    layout = LayoutProperties(height = "48", marginTop = 8, marginStart = 16, marginEnd = 16, paddingTop = 12, paddingBottom = 12),
+                    appearance = AppearanceProperties(backgroundColor = "#1E293B", cornerRadius = 14, strokeWidth = 1, strokeColor = "#334155"),
+                    typography = TypographyProperties(textColor = "#FFFFFF", textSize = 15, textStyle = "bold", textAlign = "center"),
+                    content = ContentProperties(title = "Continue with Google")
                 )
             )
         )
@@ -688,6 +857,28 @@ object UiStudioRegistry {
                     isProtected = true,
                     order = 1,
                     layout = LayoutProperties(marginStart = 16, marginEnd = 16, marginTop = 12, marginBottom = 8)
+                ),
+                "admin_modules" to ComponentConfig(
+                    id = "admin_modules",
+                    type = "card",
+                    name = "Administration Modules Grid",
+                    isProtected = false,
+                    order = 2,
+                    layout = LayoutProperties(marginTop = 12, marginBottom = 12, marginStart = 16, marginEnd = 16, paddingTop = 16, paddingBottom = 16, paddingStart = 16, paddingEnd = 16),
+                    appearance = AppearanceProperties(backgroundColor = "#1E293B", cornerRadius = 16, strokeWidth = 1, strokeColor = "#334155"),
+                    typography = TypographyProperties(textColor = "#FFFFFF", textSize = 16, textStyle = "bold"),
+                    content = ContentProperties(title = "Operations Center", subtitle = "Manage Tests • Banners • UI Studio • Users")
+                ),
+                "admin_health" to ComponentConfig(
+                    id = "admin_health",
+                    type = "card",
+                    name = "Telemetry & System Status",
+                    isProtected = false,
+                    order = 3,
+                    layout = LayoutProperties(marginTop = 8, marginBottom = 16, marginStart = 16, marginEnd = 16, paddingTop = 14, paddingBottom = 14, paddingStart = 16, paddingEnd = 16),
+                    appearance = AppearanceProperties(backgroundColor = "#0F172A", cornerRadius = 14, strokeWidth = 1, strokeColor = "#334155"),
+                    typography = TypographyProperties(textColor = "#34C759", textSize = 13, textStyle = "bold"),
+                    content = ContentProperties(title = "Cloudflare D1: Healthy (11 Migrations)", subtitle = "Active Test Workers Online")
                 )
             )
         )

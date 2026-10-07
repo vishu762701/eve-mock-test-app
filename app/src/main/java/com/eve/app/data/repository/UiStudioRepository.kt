@@ -288,10 +288,10 @@ class UiStudioRepository(
             if (response.success && response.data?.config != null) {
                 Result.success(response.data.config)
             } else {
-                Result.success(config)
+                Result.failure(Exception(response.error ?: response.message ?: "Failed to save draft to server"))
             }
         } catch (e: Exception) {
-            Result.success(config)
+            Result.failure(e)
         }
     }
 
@@ -314,7 +314,7 @@ class UiStudioRepository(
             val publishedAt = (response.data?.get("publishedAt") as? Number)?.toLong() ?: System.currentTimeMillis()
 
             val liveConfig = fetchPublishedConfig(forceRefresh = true)
-            if (liveConfig.version == expectedVersion || liveConfig.screens.isNotEmpty()) {
+            if (liveConfig.version == expectedVersion) {
                 PublishResult.VerifiedSuccess(expectedVersion, publishedAt, liveConfig)
             } else {
                 PublishResult.VerificationFailed(expectedVersion, "Version mismatch: expected $expectedVersion but found ${liveConfig.version}")

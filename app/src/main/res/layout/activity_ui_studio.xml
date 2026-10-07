@@ -223,10 +223,11 @@
         <LinearLayout
             android:id="@+id/layoutCanvasSection"
             android:layout_width="match_parent"
-            android:layout_height="230dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:background="@color/eve_bg"
             android:orientation="vertical"
-            android:padding="8dp">
+            android:padding="6dp">
 
             <!-- Screen Selector Header -->
             <LinearLayout
@@ -263,11 +264,12 @@
 
             <!-- Real Screen Canvas Card -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardDeviceFrame"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="4dp"
                 app:cardBackgroundColor="@color/eve_card_bg"
-                app:cardCornerRadius="12dp"
+                app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
                 app:strokeColor="@color/eve_stroke"
                 app:strokeWidth="1dp">
@@ -276,20 +278,22 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
-                    android:padding="6dp">
+                    android:padding="4dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="4dp"
+                        android:paddingVertical="2dp">
 
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:letterSpacing="0.04"
-                            android:text="DEVICE PREVIEW"
+                            android:text="DEVICE CANVAS"
                             android:textColor="@color/eve_primary"
                             android:textSize="10sp"
                             android:textStyle="bold" />
@@ -377,9 +381,10 @@
                     </LinearLayout>
 
                     <ScrollView
+                        android:id="@+id/scrollCanvasDevice"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="2dp"
                         android:fillViewport="true">
 
                         <FrameLayout
@@ -387,14 +392,77 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:background="@drawable/bg_preview_canvas"
-                            android:minHeight="140dp"
-                            android:padding="8dp">
+                            android:minHeight="180dp"
+                            android:padding="4dp">
 
                             <LinearLayout
-                                android:id="@+id/canvasScreenContent"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:orientation="vertical" />
+                                android:orientation="vertical">
+
+                                <!-- Realistic Phone Status Bar Chrome -->
+                                <LinearLayout
+                                    android:id="@+id/deviceStatusBarChrome"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="20dp"
+                                    android:background="#0A0F1D"
+                                    android:gravity="center_vertical"
+                                    android:orientation="horizontal"
+                                    android:paddingHorizontal="10dp">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="09:41"
+                                        android:textColor="#FFFFFF"
+                                        android:textSize="10sp"
+                                        android:textStyle="bold" />
+
+                                    <View
+                                        android:layout_width="0dp"
+                                        android:layout_height="1dp"
+                                        android:layout_weight="1" />
+
+                                    <!-- Camera Punch-Hole Mock -->
+                                    <View
+                                        android:layout_width="8dp"
+                                        android:layout_height="8dp"
+                                        android:background="@drawable/bg_circle_translucent" />
+
+                                    <View
+                                        android:layout_width="0dp"
+                                        android:layout_height="1dp"
+                                        android:layout_weight="1" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="5G • 98%"
+                                        android:textColor="#94A3B8"
+                                        android:textSize="9sp" />
+                                </LinearLayout>
+
+                                <!-- Actual EVE Screen Canvas Content -->
+                                <LinearLayout
+                                    android:id="@+id/canvasScreenContent"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical" />
+
+                                <!-- Realistic Phone Home Navigation Indicator Chrome -->
+                                <FrameLayout
+                                    android:id="@+id/deviceHomeIndicatorChrome"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="14dp"
+                                    android:background="#0A0F1D">
+
+                                    <View
+                                        android:layout_width="72dp"
+                                        android:layout_height="3dp"
+                                        android:layout_gravity="center"
+                                        android:background="#44FFFFFF" />
+                                </FrameLayout>
+                            </LinearLayout>
                         </FrameLayout>
                     </ScrollView>
                 </LinearLayout>
