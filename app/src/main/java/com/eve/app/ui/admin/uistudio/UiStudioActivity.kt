@@ -69,6 +69,12 @@ class UiStudioActivity : EveBaseActivity() {
         "none" to "None (Instant)"
     )
 
+    // Canvas interaction & zoom state
+    private var isInteractMode = false
+    private var zoomIndex = 0
+    private val zoomLevels = listOf(1.0f, 0.85f, 1.25f)
+    private val zoomLabels = listOf("FIT", "85%", "125%")
+
     private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,6 +84,7 @@ class UiStudioActivity : EveBaseActivity() {
 
         setupToolbar()
         setupViewModeButtons()
+        setupCanvasControls()
         setupInspectorTabs()
         setupScreenSpinner()
         setupScreenTransitionSpinner()
@@ -124,6 +131,61 @@ class UiStudioActivity : EveBaseActivity() {
         binding.btnModeCanvas.setOnClickListener { setViewMode("canvas") }
         binding.btnModeInspector.setOnClickListener { setViewMode("inspector") }
         binding.btnDeviceWidth.setOnClickListener { toggleDeviceWidth() }
+    }
+
+    private fun setupCanvasControls() {
+        binding.btnInteractionMode.setOnClickListener {
+            isInteractMode = !isInteractMode
+            if (isInteractMode) {
+                binding.btnInteractionMode.text = "INTERACT"
+                binding.btnInteractionMode.setTextColor(ContextCompat.getColor(this, R.color.eve_green))
+                AppBulletin.show(this, "Interact Mode: Tap items to interact")
+            } else {
+                binding.btnInteractionMode.text = "EDIT MODE"
+                binding.btnInteractionMode.setTextColor(ContextCompat.getColor(this, R.color.eve_primary))
+                AppBulletin.show(this, "Edit Mode: Tap items to inspect")
+            }
+        }
+
+        binding.btnZoomFit.setOnClickListener {
+            zoomIndex = 0
+            val scale = zoomLevels[zoomIndex]
+            binding.btnZoomFit.text = zoomLabels[zoomIndex]
+            binding.canvasScreenContent.pivotX = 0f
+            binding.canvasScreenContent.pivotY = 0f
+            binding.canvasScreenContent.scaleX = scale
+            binding.canvasScreenContent.scaleY = scale
+        }
+
+        binding.btnZoomIn.setOnClickListener {
+            val cur = binding.canvasScreenContent.scaleX
+            val next = (cur + 0.15f).coerceAtMost(2.0f)
+            binding.canvasScreenContent.pivotX = 0f
+            binding.canvasScreenContent.pivotY = 0f
+            binding.canvasScreenContent.scaleX = next
+            binding.canvasScreenContent.scaleY = next
+            binding.btnZoomFit.text = "${(next * 100).toInt()}%"
+        }
+
+        binding.btnZoomOut.setOnClickListener {
+            val cur = binding.canvasScreenContent.scaleX
+            val next = (cur - 0.15f).coerceAtLeast(0.5f)
+            binding.canvasScreenContent.pivotX = 0f
+            binding.canvasScreenContent.pivotY = 0f
+            binding.canvasScreenContent.scaleX = next
+            binding.canvasScreenContent.scaleY = next
+            binding.btnZoomFit.text = "${(next * 100).toInt()}%"
+        }
+
+        binding.btnFocus.setOnClickListener {
+            if (currentViewMode == "canvas") {
+                setViewMode("split")
+                binding.btnFocus.text = "FOCUS"
+            } else {
+                setViewMode("canvas")
+                binding.btnFocus.text = "SPLIT"
+            }
+        }
     }
 
     private fun setViewMode(mode: String) {
@@ -429,6 +491,8 @@ class UiStudioActivity : EveBaseActivity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
+                val query = s?.toString()?.trim()?.lowercase().orEmpty()
+                handleUniversalStudioSearch(query)
                 updateComponentDropdownAndTree()
             }
         })
@@ -446,6 +510,98 @@ class UiStudioActivity : EveBaseActivity() {
                 UiStudioEngine.playEntranceAnimation(view, comp.animation.copy(enabled = true))
             }
         }
+    }
+
+    private fun handleUniversalStudioSearch(query: String) {
+        if (query.isBlank()) return
+        when {
+            query.contains("blur") || query.contains("glass") || query.contains("material") -> selectInspectorTab("material")
+            query.contains("radius") || query.contains("corner") || query.contains("shape") -> selectInspectorTab("design")
+            query.contains("color") || query.contains("background") || query.contains("hex") || query.contains("tint") -> selectInspectorTab("colors")
+            query.contains("anim") || query.contains("motion") -> selectInspectorTab("animation")
+            query.contains("text") || query.contains("typo") || query.contains("font") -> selectInspectorTab("typography")
+            query.contains("layout") || query.contains("margin") || query.contains("padding") -> selectInspectorTab("layout")
+            query.contains("action") || query.contains("nav") -> selectInspectorTab("actions")
+            query.contains("state") || query.contains("press") -> selectInspectorTab("states")
+            query.contains("brand") || query.contains("logo") -> selectInspectorTab("branding")
+        }
+    }
+
+    private val emojiCategories = linkedMapOf(
+        "Smileys" to listOf("😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣", "😊", "😇", "🙂", "😉", "😍", "🥰", "😘", "😋", "😜", "🤪", "😎", "🤩", "🥳", "😏", "🥺", "😭", "😤", "🤯", "😳", "😱", "🤗", "🤔", "🤫", "😴"),
+        "People" to listOf("👋", "✋", "👌", "✌️", "🤞", "🤟", "🤘", "🤙", "👈", "👉", "👆", "👇", "👍", "👎", "👏", "🙌", "👐", "🤲", "🤝", "🙏", "💪", "🧠", "👀", "👁️", "🧑‍🎓", "👨‍🏫", "👩‍💻", "🦸", "🥷"),
+        "Animals" to listOf("🐶", "🐱", "🐭", "🐰", "🦊", "🐻", "🐼", "🐨", "🐯", "🦁", "🐮", "🐷", "🐸", "🐵", "🐔", "🐧", "🐦", "🦆", "🦅", "🦉", "🦄", "🐝", "🦋", "🐙", "🐬", "🐳", "🦈", "🐘", "🦒"),
+        "Food" to listOf("🍏", "🍎", "🍐", "🍊", "🍋", "🍌", "🍉", "🍇", "🍓", "🍒", "🍑", "🍍", "🥥", "🥝", "🍅", "🥑", "🥦", "🌽", "🥕", "🥐", "🍞", "🧀", "🍳", "🥞", "🍔", "🍟", "🍕", "🥗", "🍣", "🍦", "🎂", "☕"),
+        "Travel" to listOf("🚗", "🚕", "🚙", "🚌", "🏎️", "🚓", "🚑", "🚒", "🚲", "🛵", "🏍️", "🚨", "✈️", "🚀", "🛸", "🚁", "⛵", "🚢", "⚓", "🚦", "🏖️", "🏝️", "⛰️", "🏕️", "🏠", "🏢", "🏛️", "🏫", "🎡", "🗽"),
+        "Activities" to listOf("⚽", "🏀", "🏈", "⚾", "🎾", "🏐", "🏉", "🏓", "🏸", "🥊", "🛹", "🎯", "🎮", "🎲", "🧩", "♟️", "🎨", "🎬", "🎤", "🎧", "🎼", "🎹", "🎸", "🏆", "🥇", "🥈", "🥉", "🏅", "🎖️", "🎟️"),
+        "Objects" to listOf("📱", "💻", "⌨️", "🖥️", "📷", "🎥", "📺", "📻", "⏱️", "⏰", "⏳", "🔋", "💡", "🔦", "💸", "💵", "💰", "💳", "💎", "⚖️", "🔧", "🔨", "🛡️", "💊", "🧬", "🧪", "📦", "📚", "📖", "✏️", "🔍", "🔒"),
+        "Symbols" to listOf("❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "💯", "💢", "💬", "💭", "✨", "⭐", "🌟", "⚡", "🔥", "💧", "🌈", "🎉", "🎊", "🚩", "✓", "✕", "⚠️", "⛔", "🟢", "🔴", "🔵", "🟡", "🟣"),
+        "Flags" to listOf("🇮🇳", "🇺🇸", "🇬🇧", "🇨🇦", "🇦🇺", "🇩🇪", "🇫🇷", "🇯🇵", "🇰🇷", "🇧🇷", "🇷🇺", "🇨🇳", "🇿🇦", "🏁", "🚩", "🎌", "🏴", "🏳️")
+    )
+
+    private fun showEmojiPickerDialog() {
+        val dialogView = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(UiStudioEngine.dpToPx(context, 16), UiStudioEngine.dpToPx(context, 12), UiStudioEngine.dpToPx(context, 16), UiStudioEngine.dpToPx(context, 12))
+        }
+
+        val categorySpinner = Spinner(this).apply {
+            adapter = ArrayAdapter(this@UiStudioActivity, android.R.layout.simple_spinner_dropdown_item, emojiCategories.keys.toList())
+        }
+        dialogView.addView(categorySpinner)
+
+        val emojiScrollView = ScrollView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, UiStudioEngine.dpToPx(context, 260)).apply {
+                topMargin = UiStudioEngine.dpToPx(context, 8)
+            }
+        }
+        val emojiGridLayout = GridLayout(this).apply {
+            columnCount = 6
+            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
+        emojiScrollView.addView(emojiGridLayout)
+        dialogView.addView(emojiScrollView)
+
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setTitle("Select Emoji")
+            .setView(dialogView)
+            .setNegativeButton("Cancel", null)
+            .create()
+
+        fun loadCategory(category: String) {
+            emojiGridLayout.removeAllViews()
+            val emojis = emojiCategories[category].orEmpty()
+            for (emoji in emojis) {
+                val tv = TextView(this).apply {
+                    text = emoji
+                    textSize = 22f
+                    gravity = Gravity.CENTER
+                    val cellSize = UiStudioEngine.dpToPx(context, 44)
+                    layoutParams = GridLayout.LayoutParams().apply {
+                        width = cellSize
+                        height = cellSize
+                    }
+                    background = ContextCompat.getDrawable(context, R.drawable.bg_circle_translucent)
+                    setOnClickListener {
+                        val currentText = binding.etContentTitle.text?.toString() ?: ""
+                        binding.etContentTitle.setText(if (currentText.isBlank()) emoji else "$currentText $emoji")
+                        dialog.dismiss()
+                    }
+                }
+                emojiGridLayout.addView(tv)
+            }
+        }
+
+        categorySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val cat = emojiCategories.keys.toList()[position]
+                loadCategory(cat)
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        loadCategory(emojiCategories.keys.first())
+        dialog.show()
     }
 
     private fun loadDraftFromRepository() {
@@ -689,6 +845,20 @@ class UiStudioActivity : EveBaseActivity() {
         val view = canvasViewMap[updatedComp.id]
         if (view != null) {
             UiStudioEngine.applyToView(view, updatedComp)
+            updatePreviewChildViews(view, updatedComp)
+            if (currentlySelectedView == view) {
+                val highlightBorder = GradientDrawable().apply {
+                    setColor(Color.TRANSPARENT)
+                    setStroke(UiStudioEngine.dpToPx(this@UiStudioActivity, 2), Color.parseColor("#007AFF"))
+                    cornerRadius = UiStudioEngine.dpToPx(this@UiStudioActivity, updatedComp.appearance.cornerRadius ?: 12).toFloat()
+                }
+                view.foreground = highlightBorder
+            }
+        }
+        val swatchColor = UiStudioEngine.parseColorSafe(updatedComp.appearance.backgroundColor) ?: Color.DKGRAY
+        binding.swatchBgColor.background = GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setColor(swatchColor)
         }
     }
 
@@ -730,66 +900,15 @@ class UiStudioActivity : EveBaseActivity() {
         currentlySelectedView = null
 
         val screen = activeConfig.screens[currentScreenKey] ?: ScreenConfig(id = currentScreenKey)
-        val density = resources.displayMetrics.density
+        val screenBgColor = UiStudioEngine.parseColorSafe(screen.backgroundColor)
+            ?: UiStudioEngine.parseColorSafe(activeConfig.designSystem.appBackground)
+            ?: Color.BLACK
+        binding.canvasContainer.setBackgroundColor(screenBgColor)
 
         screen.components.forEach { (compKey, comp) ->
-            val compCard = MaterialCardView(this).apply {
-                layoutParams = LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    setMargins(
-                        UiStudioEngine.dpToPx(context, comp.layout.marginStart ?: 12),
-                        UiStudioEngine.dpToPx(context, comp.layout.marginTop ?: 6),
-                        UiStudioEngine.dpToPx(context, comp.layout.marginEnd ?: 12),
-                        UiStudioEngine.dpToPx(context, comp.layout.marginBottom ?: 6)
-                    )
-                }
-                radius = (comp.appearance.cornerRadius ?: 14) * density
-                strokeWidth = (comp.appearance.strokeWidth ?: 1) * density.toInt()
-                strokeColor = UiStudioEngine.parseColorSafe(comp.appearance.strokeColor) ?: Color.parseColor("#334155")
-                setCardBackgroundColor(UiStudioEngine.parseColorSafe(comp.appearance.backgroundColor) ?: Color.parseColor("#1E293B"))
-                elevation = (comp.appearance.elevation ?: 1) * density
-                isClickable = true
-                isFocusable = true
-            }
-
-            val innerLayout = LinearLayout(this).apply {
-                orientation = LinearLayout.VERTICAL
-                setPadding(
-                    UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 14),
-                    UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 14),
-                    UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 14),
-                    UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 14)
-                )
-            }
-
-            val titleView = TextView(this).apply {
-                text = comp.content.title?.takeIf { it.isNotBlank() } ?: comp.name
-                setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.WHITE)
-                textSize = (comp.typography.textSize ?: 15).toFloat()
-                setTypeface(null, if (comp.typography.textStyle == "bold") Typeface.BOLD else Typeface.NORMAL)
-            }
-            innerLayout.addView(titleView)
-
-            if (!comp.content.subtitle.isNullOrBlank() || comp.type in listOf("banner", "card")) {
-                val subView = TextView(this).apply {
-                    text = comp.content.subtitle ?: "Type: ${comp.type} • ID: $compKey"
-                    setTextColor(Color.parseColor("#94A3B8"))
-                    textSize = 12f
-                    setPadding(0, (4 * density).toInt(), 0, 0)
-                }
-                innerLayout.addView(subView)
-            }
-
-            compCard.addView(innerLayout)
-
-            compCard.setOnClickListener {
-                selectComponent(compKey)
-            }
-
-            canvasViewMap[compKey] = compCard
-            binding.canvasScreenContent.addView(compCard)
+            val previewView = createRealPreviewForComponent(compKey, comp)
+            canvasViewMap[compKey] = previewView
+            binding.canvasScreenContent.addView(previewView)
         }
 
         if (currentCompKey.isNotBlank()) {
@@ -797,11 +916,452 @@ class UiStudioActivity : EveBaseActivity() {
         }
     }
 
+    private fun updatePreviewChildViews(view: View, comp: ComponentConfig) {
+        val titleView = view.findViewWithTag<TextView>("title") ?: (view as? TextView)
+        titleView?.let {
+            if (!comp.content.title.isNullOrBlank()) {
+                it.text = comp.content.title
+            }
+            UiStudioEngine.applyTypography(it, comp)
+        }
+
+        val subView = view.findViewWithTag<TextView>("subtitle")
+        subView?.let {
+            if (!comp.content.subtitle.isNullOrBlank()) {
+                it.text = comp.content.subtitle
+            }
+        }
+
+        val timerView = view.findViewWithTag<TextView>("timer_text")
+        timerView?.let {
+            if (!comp.content.title.isNullOrBlank()) {
+                it.text = comp.content.title
+            }
+            UiStudioEngine.applyTypography(it, comp)
+        }
+    }
+
+    private fun createRealPreviewForComponent(compKey: String, comp: ComponentConfig): View {
+        val view: View = when {
+            comp.type == "timer" || compKey == "timer_pill" -> {
+                buildTimerPreview(compKey, comp)
+            }
+            comp.type == "action_grid" || compKey == "action_grid" || compKey == "bottom_actions" -> {
+                buildActionGridPreview(compKey, comp)
+            }
+            comp.type == "banner" || compKey == "hero_banner" -> {
+                buildBannerPreview(compKey, comp)
+            }
+            comp.type == "badge" || compKey == "streak_pill" -> {
+                buildBadgePreview(compKey, comp)
+            }
+            comp.type == "button" -> {
+                buildButtonPreview(compKey, comp)
+            }
+            comp.type == "text" -> {
+                buildTextPreview(compKey, comp)
+            }
+            comp.type == "divider" -> {
+                buildDividerPreview(compKey, comp)
+            }
+            comp.type == "spacer" -> {
+                buildSpacerPreview(compKey, comp)
+            }
+            comp.type == "input" || compKey == "search_bar" -> {
+                buildInputPreview(compKey, comp)
+            }
+            comp.type == "toggle" -> {
+                buildTogglePreview(compKey, comp)
+            }
+            compKey == "option_item" -> {
+                buildOptionItemPreview(compKey, comp)
+            }
+            else -> {
+                buildCardPreview(compKey, comp)
+            }
+        }
+
+        UiStudioEngine.applyToView(view, comp)
+
+        view.setOnClickListener {
+            if (isInteractMode) {
+                view.animate()
+                    .scaleX(0.96f)
+                    .scaleY(0.96f)
+                    .setDuration(70)
+                    .withEndAction {
+                        view.animate().scaleX(1.0f).scaleY(1.0f).setDuration(120).start()
+                    }
+                    .start()
+                AppBulletin.show(this, "Tapped ${comp.name} in Interact Mode")
+            } else {
+                selectComponent(compKey)
+            }
+        }
+
+        return view
+    }
+
+    private fun buildTimerPreview(compKey: String, comp: ComponentConfig): View {
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            setPadding(
+                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 14),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 8),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 14),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 8)
+            )
+        }
+        val ringIndicator = View(this).apply {
+            val ringSize = UiStudioEngine.dpToPx(context, 16)
+            layoutParams = LinearLayout.LayoutParams(ringSize, ringSize).apply {
+                marginEnd = UiStudioEngine.dpToPx(context, 8)
+            }
+            val strokeCol = UiStudioEngine.parseColorSafe(comp.appearance.strokeColor) ?: Color.parseColor("#38BDF8")
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(Color.TRANSPARENT)
+                setStroke(UiStudioEngine.dpToPx(context, 2), strokeCol)
+            }
+        }
+        container.addView(ringIndicator)
+
+        val timerTv = TextView(this).apply {
+            tag = "timer_text"
+            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "45:00"
+            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.parseColor("#38BDF8"))
+            textSize = (comp.typography.textSize ?: 14).toFloat()
+            setTypeface(null, if (comp.typography.textStyle == "bold") Typeface.BOLD else Typeface.NORMAL)
+        }
+        container.addView(timerTv)
+        return container
+    }
+
+    private fun buildActionGridPreview(compKey: String, comp: ComponentConfig): View {
+        val gridLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
+        val row1 = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                bottomMargin = UiStudioEngine.dpToPx(context, 6)
+            }
+        }
+        val row2 = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
+
+        fun createPill(title: String, isPrimary: Boolean): View {
+            return TextView(this).apply {
+                text = title
+                gravity = Gravity.CENTER
+                layoutParams = LinearLayout.LayoutParams(0, UiStudioEngine.dpToPx(context, 38), 1f).apply {
+                    marginEnd = UiStudioEngine.dpToPx(context, 4)
+                    marginStart = UiStudioEngine.dpToPx(context, 4)
+                }
+                val bg = GradientDrawable().apply {
+                    cornerRadius = (comp.appearance.cornerRadius ?: 12) * resources.displayMetrics.density
+                    setColor(if (isPrimary) Color.parseColor("#007AFF") else (UiStudioEngine.parseColorSafe(comp.appearance.backgroundColor) ?: Color.parseColor("#1E293B")))
+                    setStroke(UiStudioEngine.dpToPx(context, comp.appearance.strokeWidth ?: 1), UiStudioEngine.parseColorSafe(comp.appearance.strokeColor) ?: Color.parseColor("#334155"))
+                }
+                background = bg
+                setTextColor(if (isPrimary) Color.WHITE else (UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.parseColor("#94A3B8")))
+                textSize = 12f
+                setTypeface(null, Typeface.BOLD)
+            }
+        }
+        row1.addView(createPill("CLEAR", false))
+        row1.addView(createPill("MARK REVIEW", false))
+        row2.addView(createPill("PREVIOUS", false))
+        row2.addView(createPill("SAVE & NEXT", true))
+        gridLayout.addView(row1)
+        gridLayout.addView(row2)
+        return gridLayout
+    }
+
+    private fun buildBannerPreview(compKey: String, comp: ComponentConfig): View {
+        val bannerLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(
+                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 16),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 16),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 16),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 16)
+            )
+        }
+        val tagPill = TextView(this).apply {
+            text = "FEATURED CHALLENGE"
+            textSize = 10f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.parseColor("#38BDF8"))
+            setPadding(UiStudioEngine.dpToPx(context, 6), UiStudioEngine.dpToPx(context, 2), UiStudioEngine.dpToPx(context, 6), UiStudioEngine.dpToPx(context, 2))
+            background = GradientDrawable().apply {
+                cornerRadius = 8 * resources.displayMetrics.density
+                setColor(Color.parseColor("#1E3A5F"))
+            }
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                bottomMargin = UiStudioEngine.dpToPx(context, 8)
+            }
+        }
+        bannerLayout.addView(tagPill)
+
+        val titleTv = TextView(this).apply {
+            tag = "title"
+            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "EVE Daily Challenge"
+            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.WHITE)
+            textSize = (comp.typography.textSize ?: 18).toFloat()
+            setTypeface(null, if (comp.typography.textStyle == "bold") Typeface.BOLD else Typeface.NORMAL)
+        }
+        bannerLayout.addView(titleTv)
+
+        val subTv = TextView(this).apply {
+            tag = "subtitle"
+            text = comp.content.subtitle ?: "Test your skills with today's featured exam series"
+            setTextColor(Color.parseColor("#94A3B8"))
+            textSize = 12f
+            setPadding(0, UiStudioEngine.dpToPx(context, 4), 0, 0)
+        }
+        bannerLayout.addView(subTv)
+        return bannerLayout
+    }
+
+    private fun buildBadgePreview(compKey: String, comp: ComponentConfig): View {
+        val badgeLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(
+                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 12),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 6),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 12),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 6)
+            )
+        }
+        val iconTv = TextView(this).apply {
+            text = "🔥"
+            textSize = 13f
+            setPadding(0, 0, UiStudioEngine.dpToPx(context, 6), 0)
+        }
+        badgeLayout.addView(iconTv)
+
+        val titleTv = TextView(this).apply {
+            tag = "title"
+            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "7 Day Streak"
+            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.parseColor("#F59E0B"))
+            textSize = (comp.typography.textSize ?: 13).toFloat()
+            setTypeface(null, if (comp.typography.textStyle == "bold") Typeface.BOLD else Typeface.NORMAL)
+        }
+        badgeLayout.addView(titleTv)
+        return badgeLayout
+    }
+
+    private fun buildButtonPreview(compKey: String, comp: ComponentConfig): View {
+        val btnLayout = FrameLayout(this).apply {
+            setPadding(
+                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 16),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 12),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 16),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 12)
+            )
+        }
+        val btnTv = TextView(this).apply {
+            tag = "title"
+            text = comp.content.title?.takeIf { it.isNotBlank() } ?: comp.name
+            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.WHITE)
+            textSize = (comp.typography.textSize ?: 15).toFloat()
+            setTypeface(null, if (comp.typography.textStyle == "bold") Typeface.BOLD else Typeface.NORMAL)
+            gravity = Gravity.CENTER
+            layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
+        btnLayout.addView(btnTv)
+        return btnLayout
+    }
+
+    private fun buildTextPreview(compKey: String, comp: ComponentConfig): View {
+        return TextView(this).apply {
+            tag = "title"
+            text = comp.content.title?.takeIf { it.isNotBlank() } ?: comp.name
+            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.parseColor("#94A3B8"))
+            textSize = (comp.typography.textSize ?: 14).toFloat()
+            setTypeface(null, if (comp.typography.textStyle == "bold") Typeface.BOLD else Typeface.NORMAL)
+            setPadding(
+                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 4),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 4),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 4),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 4)
+            )
+        }
+    }
+
+    private fun buildOptionItemPreview(compKey: String, comp: ComponentConfig): View {
+        val optionLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(
+                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 14),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 12),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 14),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 12)
+            )
+        }
+        val circleA = TextView(this).apply {
+            text = "A"
+            gravity = Gravity.CENTER
+            textSize = 12f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.WHITE)
+            val cSize = UiStudioEngine.dpToPx(context, 26)
+            layoutParams = LinearLayout.LayoutParams(cSize, cSize).apply {
+                marginEnd = UiStudioEngine.dpToPx(context, 10)
+            }
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(Color.parseColor("#334155"))
+            }
+        }
+        optionLayout.addView(circleA)
+
+        val optionTv = TextView(this).apply {
+            tag = "title"
+            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "Option A: Example answer choice"
+            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.parseColor("#E2E8F0"))
+            textSize = (comp.typography.textSize ?: 14).toFloat()
+        }
+        optionLayout.addView(optionTv)
+        return optionLayout
+    }
+
+    private fun buildInputPreview(compKey: String, comp: ComponentConfig): View {
+        val inputLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(
+                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 14),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 10),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 14),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 10)
+            )
+        }
+        val searchIcon = TextView(this).apply {
+            text = "🔍"
+            textSize = 13f
+            setPadding(0, 0, UiStudioEngine.dpToPx(context, 8), 0)
+        }
+        inputLayout.addView(searchIcon)
+
+        val inputTv = TextView(this).apply {
+            tag = "title"
+            text = comp.content.hint?.takeIf { it.isNotBlank() } ?: comp.content.title?.takeIf { it.isNotBlank() } ?: "Search..."
+            setTextColor(Color.parseColor("#64748B"))
+            textSize = (comp.typography.textSize ?: 14).toFloat()
+        }
+        inputLayout.addView(inputTv)
+        return inputLayout
+    }
+
+    private fun buildDividerPreview(compKey: String, comp: ComponentConfig): View {
+        return View(this).apply {
+            val strokeCol = UiStudioEngine.parseColorSafe(comp.appearance.strokeColor) ?: Color.parseColor("#334155")
+            setBackgroundColor(strokeCol)
+            val hPx = UiStudioEngine.parseDimensionPx(context, comp.layout.height, UiStudioEngine.dpToPx(context, 1))
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, hPx).apply {
+                setMargins(
+                    UiStudioEngine.dpToPx(context, comp.layout.marginStart ?: 16),
+                    UiStudioEngine.dpToPx(context, comp.layout.marginTop ?: 8),
+                    UiStudioEngine.dpToPx(context, comp.layout.marginEnd ?: 16),
+                    UiStudioEngine.dpToPx(context, comp.layout.marginBottom ?: 8)
+                )
+            }
+        }
+    }
+
+    private fun buildSpacerPreview(compKey: String, comp: ComponentConfig): View {
+        return View(this).apply {
+            val hPx = UiStudioEngine.parseDimensionPx(context, comp.layout.height, UiStudioEngine.dpToPx(context, 16))
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, hPx)
+        }
+    }
+
+    private fun buildTogglePreview(compKey: String, comp: ComponentConfig): View {
+        val toggleLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(
+                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 14),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 10),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 14),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 10)
+            )
+        }
+        val toggleLabel = TextView(this).apply {
+            tag = "title"
+            text = comp.content.title?.takeIf { it.isNotBlank() } ?: comp.name
+            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.WHITE)
+            textSize = (comp.typography.textSize ?: 14).toFloat()
+            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+        }
+        toggleLayout.addView(toggleLabel)
+        val sw = Switch(this).apply {
+            isChecked = comp.enabled
+            isClickable = false
+        }
+        toggleLayout.addView(sw)
+        return toggleLayout
+    }
+
+    private fun buildCardPreview(compKey: String, comp: ComponentConfig): View {
+        val cardLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(
+                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 14),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 14),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 14),
+                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 14)
+            )
+        }
+        val titleTv = TextView(this).apply {
+            tag = "title"
+            text = comp.content.title?.takeIf { it.isNotBlank() } ?: comp.name
+            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.WHITE)
+            textSize = (comp.typography.textSize ?: 15).toFloat()
+            setTypeface(null, if (comp.typography.textStyle == "bold") Typeface.BOLD else Typeface.NORMAL)
+        }
+        cardLayout.addView(titleTv)
+
+        if (!comp.content.subtitle.isNullOrBlank() || comp.type in listOf("banner", "card")) {
+            val subTv = TextView(this).apply {
+                tag = "subtitle"
+                text = comp.content.subtitle ?: "Type: ${comp.type} • ID: $compKey"
+                setTextColor(Color.parseColor("#94A3B8"))
+                textSize = 12f
+                setPadding(0, UiStudioEngine.dpToPx(context, 4), 0, 0)
+            }
+            cardLayout.addView(subTv)
+        }
+        return cardLayout
+    }
+
     private fun populateFieldsForCurrentComponent() {
         isUpdatingFields = true
         val comp = getCurrentComponentConfig()
 
         binding.tvInspectorHeader.text = "INSPECTOR: ${comp.name} [${comp.id}]"
+
+        // Screen Background
+        val screen = activeConfig.screens[currentScreenKey]
+        val screenBgHex = screen?.backgroundColor ?: ""
+        if (binding.etScreenBackgroundColor.text.toString() != screenBgHex) {
+            binding.etScreenBackgroundColor.setText(screenBgHex)
+        }
+        val screenBgColor = UiStudioEngine.parseColorSafe(screenBgHex)
+            ?: UiStudioEngine.parseColorSafe(activeConfig.designSystem.appBackground)
+            ?: Color.BLACK
+        binding.swatchScreenBgColor.background = GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setColor(screenBgColor)
+        }
 
         // Design / Appearance
         binding.etBackgroundColor.setText(comp.appearance.backgroundColor ?: "")
@@ -907,6 +1467,30 @@ class UiStudioActivity : EveBaseActivity() {
                     }
                 }
             })
+        }
+
+        // Screen Background
+        addSimpleWatcher(binding.etScreenBackgroundColor) { hex ->
+            val screen = activeConfig.screens[currentScreenKey] ?: return@addSimpleWatcher
+            val newBg = if (hex.isBlank()) null else hex
+            if (screen.backgroundColor != newBg) {
+                recordFieldEditUndo()
+                val updatedScreen = screen.copy(backgroundColor = newBg)
+                val updatedScreens = activeConfig.screens.toMutableMap().apply {
+                    put(currentScreenKey, updatedScreen)
+                }
+                activeConfig = activeConfig.copy(screens = updatedScreens)
+                val parsed = UiStudioEngine.parseColorSafe(newBg)
+                    ?: UiStudioEngine.parseColorSafe(activeConfig.designSystem.appBackground)
+                    ?: Color.BLACK
+                binding.swatchScreenBgColor.background = GradientDrawable().apply {
+                    shape = GradientDrawable.OVAL
+                    setColor(parsed)
+                }
+                binding.canvasContainer.setBackgroundColor(parsed)
+                repo.saveDraftToLocalCache(activeConfig)
+                markUnsaved()
+            }
         }
 
         // Appearance
@@ -1023,6 +1607,9 @@ class UiStudioActivity : EveBaseActivity() {
             if (!isUpdatingFields) {
                 updateCurrentComponentConfig { comp -> comp.copy(enabled = isChecked) }
             }
+        }
+        binding.btnOpenEmojiPicker.setOnClickListener {
+            showEmojiPickerDialog()
         }
         addSimpleWatcher(binding.etContentTitle) { t ->
             updateCurrentComponentConfig { comp -> comp.copy(content = comp.content.copy(title = if (t.isBlank()) null else t)) }
@@ -1275,6 +1862,11 @@ class UiStudioActivity : EveBaseActivity() {
                     binding.tvStudioStatus.text = "Draft saved & synced with server"
                     AppBulletin.showSuccess(this@UiStudioActivity, "Draft saved and synced to server successfully")
                 }
+                is SaveDraftResult.Conflict -> {
+                    binding.tvPersistentStatus.text = "NEWER DRAFT EXISTS (CONFLICT)"
+                    binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this@UiStudioActivity, R.color.eve_system_yellow))
+                    showConcurrencyConflictDialog(result.serverDraft, result.message)
+                }
                 is SaveDraftResult.LocalOfflineSuccess -> {
                     hasUnsavedChanges = false
                     binding.tvPersistentStatus.text = "LOCAL DRAFT SAVED • OFFLINE"
@@ -1286,6 +1878,52 @@ class UiStudioActivity : EveBaseActivity() {
                     binding.tvPersistentStatus.text = "SAVE FAILED"
                     binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this@UiStudioActivity, R.color.eve_red))
                     AppBulletin.showError(this@UiStudioActivity, "Failed to save draft: ${result.error}")
+                }
+            }
+        }
+    }
+
+    private fun showConcurrencyConflictDialog(serverDraft: UiStudioConfig?, message: String) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Newer Draft Exists on Server")
+            .setMessage("$message\n\nA collaborator or another session updated this draft. Would you like to reload the latest draft from the server or overwrite it with your local changes?")
+            .setPositiveButton("Reload Latest") { _, _ ->
+                if (serverDraft != null) {
+                    activeConfig = serverDraft
+                    repo.saveDraftToLocalCache(serverDraft)
+                    hasUnsavedChanges = false
+                    updateStudioStatusBadges()
+                    updateComponentDropdownAndTree()
+                    renderRealScreenCanvas()
+                    populateFieldsForCurrentComponent()
+                    AppBulletin.showSuccess(this, "Loaded latest server draft")
+                } else {
+                    loadDraftFromRepository()
+                }
+            }
+            .setNegativeButton("Keep Local Draft (Overwrite)") { _, _ ->
+                forceSaveDraft()
+            }
+            .setNeutralButton("Cancel", null)
+            .show()
+    }
+
+    private fun forceSaveDraft() {
+        lifecycleScope.launch {
+            binding.btnSaveDraft.isEnabled = false
+            binding.tvPersistentStatus.text = "FORCE SAVING DRAFT..."
+            val result = repo.saveDraftDetailed(activeConfig, force = true)
+            binding.btnSaveDraft.isEnabled = true
+            when (result) {
+                is SaveDraftResult.ServerSuccess -> {
+                    hasUnsavedChanges = false
+                    activeConfig = result.config
+                    binding.tvPersistentStatus.text = "✓ DRAFT SAVED (OVERWRITTEN)"
+                    binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this@UiStudioActivity, R.color.eve_green))
+                    AppBulletin.showSuccess(this@UiStudioActivity, "Draft force-saved successfully")
+                }
+                else -> {
+                    AppBulletin.showError(this@UiStudioActivity, "Failed to force save draft")
                 }
             }
         }

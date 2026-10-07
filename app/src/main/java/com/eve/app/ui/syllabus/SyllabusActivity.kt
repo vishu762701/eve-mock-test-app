@@ -96,6 +96,13 @@ class SyllabusActivity : EveBaseActivity() {
             filter,
             ContextCompat.RECEIVER_EXPORTED
         )
+        applyUiStudioConfig()
+    }
+
+    private fun applyUiStudioConfig() {
+        val studioConfig = com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig
+        val syllabusConfig = studioConfig.screens["syllabus"] ?: return
+        com.eve.app.util.UiStudioEngine.applyScreenBackground(binding.root, syllabusConfig.backgroundColor, studioConfig.designSystem)
     }
 
     override fun onResume() {

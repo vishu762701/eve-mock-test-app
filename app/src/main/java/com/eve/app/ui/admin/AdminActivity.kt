@@ -128,7 +128,14 @@ class AdminActivity : EveBaseActivity() {
             }
             binding.progressBarAdmin.visibility = View.GONE
             setupUi()
+            applyUiStudioConfig()
         }
+    }
+
+    private fun applyUiStudioConfig() {
+        val studioConfig = com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig
+        val adminConfig = studioConfig.screens["admin"] ?: return
+        com.eve.app.util.UiStudioEngine.applyScreenBackground(binding.root, adminConfig.backgroundColor, studioConfig.designSystem)
     }
 
     private fun setupUi() {

@@ -159,6 +159,14 @@ class ProfileActivity : EveBaseActivity() {
         binding.switchReminder.setOnCheckedChangeListener { _, isChecked ->
             ReminderScheduler.setEnabled(this, isChecked)
         }
+
+        applyUiStudioConfig()
+    }
+
+    private fun applyUiStudioConfig() {
+        val studioConfig = com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig
+        val profileConfig = studioConfig.screens["profile"] ?: return
+        com.eve.app.util.UiStudioEngine.applyScreenBackground(binding.root, profileConfig.backgroundColor, studioConfig.designSystem)
     }
 
     private fun setupDobPicker() {

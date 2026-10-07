@@ -429,4 +429,311 @@ class UiStudioTest {
         assertEquals("split", restored.viewMode)
         assertEquals("compact", restored.deviceWidthMode)
     }
+
+    @Test
+    fun testComponentRegistryDescriptorsAndAttributes() {
+        val types = com.eve.app.uistudio.UiStudioRegistry.COMPONENT_TYPES
+        assertEquals(16, types.size)
+
+        for (desc in types) {
+            assertTrue("Type ID must not be blank", desc.type.isNotBlank())
+            assertTrue("Display name must not be blank", desc.displayName.isNotBlank())
+            assertTrue("Category must not be blank", desc.category.isNotBlank())
+            assertTrue("Icon res must not be blank", desc.iconRes.isNotBlank())
+            assertTrue("Supported properties must not be empty", desc.supportedProperties.isNotEmpty())
+            assertTrue("Supported states must not be empty", desc.supportedStates.isNotEmpty())
+            assertTrue("Supported actions must not be empty", desc.supportedActions.isNotEmpty())
+            assertTrue("Supported animations must not be empty", desc.supportedAnimations.isNotEmpty())
+            assertTrue("Preview behavior must not be blank", desc.previewBehavior.isNotBlank())
+            assertTrue("Runtime behavior must not be blank", desc.runtimeBehavior.isNotBlank())
+        }
+
+        // Test specific known primitives
+        val card = com.eve.app.uistudio.UiStudioRegistry.getComponentType("card")
+        assertNotNull(card)
+        assertTrue(card!!.isContainer)
+        assertTrue(card.allowsChildren)
+        assertEquals("Surface", card.category)
+
+        val button = com.eve.app.uistudio.UiStudioRegistry.getComponentType("button")
+        assertNotNull(button)
+        assertFalse(button!!.isContainer)
+        assertFalse(button.allowsChildren)
+        assertEquals("Action", button.category)
+        assertTrue(button.supportedActions.contains("navigate"))
+
+        val spacer = com.eve.app.uistudio.UiStudioRegistry.getComponentType("spacer")
+        assertNotNull(spacer)
+        assertFalse(spacer!!.allowsChildren)
+    }
+
+    @Test
+    fun testComponentRegistryHierarchyAndPropertyConstraints() {
+        // Containers should allow children
+        assertTrue(com.eve.app.uistudio.UiStudioRegistry.isChildAllowed("container", "button"))
+        assertTrue(com.eve.app.uistudio.UiStudioRegistry.isChildAllowed("card", "text"))
+
+        // Non-containers should disallow children
+        assertFalse(com.eve.app.uistudio.UiStudioRegistry.isChildAllowed("spacer", "text"))
+        assertFalse(com.eve.app.uistudio.UiStudioRegistry.isChildAllowed("divider", "button"))
+        assertFalse(com.eve.app.uistudio.UiStudioRegistry.isChildAllowed("timer", "card"))
+
+        // Specific parent constraints
+        assertTrue(com.eve.app.uistudio.UiStudioRegistry.isChildAllowed("banner", "card"))
+        assertFalse(com.eve.app.uistudio.UiStudioRegistry.isChildAllowed("banner", "timer"))
+
+        // Property support checks
+        assertTrue(com.eve.app.uistudio.UiStudioRegistry.isPropertySupported("card", "material"))
+        assertFalse(com.eve.app.uistudio.UiStudioRegistry.isPropertySupported("spacer", "typography"))
+    }
+
+    @Test
+    fun testScreenRegistryDescriptors() {
+        val screens = com.eve.app.uistudio.UiStudioRegistry.SUPPORTED_SCREENS
+        assertEquals(8, screens.size)
+
+        for (screen in screens) {
+            assertTrue("Screen ID must not be blank", screen.id.isNotBlank())
+            assertTrue("Display name must not be blank", screen.displayName.isNotBlank())
+            assertTrue("Runtime activity must not be blank", screen.runtimeActivity.isNotBlank())
+            assertTrue("Editable root ID must not be blank", screen.editableRootId.isNotBlank())
+            assertTrue("Supported properties must not be empty", screen.supportedProperties.isNotEmpty())
+        }
+
+        val home = com.eve.app.uistudio.UiStudioRegistry.getScreen("home")
+        assertNotNull(home)
+        assertEquals("MainActivity", home!!.runtimeActivity)
+        assertEquals("root_home_container", home.editableRootId)
+    }
+
+    @Test
+    fun testComponentLifecycleOperations() {
+        val baseConfig = repo.getDefaultTemplate()
+        val homeScreen = baseConfig.screens["home"] ?: error("Missing home screen")
+
+        // 1. Add component
+        val newComp = UiStudioRegistry.createDefaultComponent("custom_badge_1", "badge", "New Badge")
+        val withAdded = homeScreen.components.toMutableMap().apply {
+            put(newComp.id, newComp)
+        }
+        assertTrue(withAdded.containsKey("custom_badge_1"))
+        assertEquals("badge", withAdded["custom_badge_1"]?.type)
+
+        // 2. Duplicate component with unique ID
+        val duplicated = withAdded["custom_badge_1"]!!.copy(
+            id = "custom_badge_1_copy_${System.currentTimeMillis()}",
+            name = "New Badge Copy"
+        )
+        assertNotEquals(withAdded["custom_badge_1"]!!.id, duplicated.id)
+        assertTrue(duplicated.id.startsWith("custom_badge_1_copy_"))
+        withAdded[duplicated.id] = duplicated
+        assertTrue(withAdded.containsKey(duplicated.id))
+
+        // 3. Visibility toggle
+        val toggled = duplicated.copy(visible = false)
+        assertFalse(toggled.visible)
+        withAdded[duplicated.id] = toggled
+
+        // 4. Reorder persists
+        val orderedComps = withAdded.values.sortedBy { it.order }.toMutableList()
+        val firstComp = orderedComps.first()
+        val lastComp = orderedComps.last()
+        val updatedFirst = firstComp.copy(order = lastComp.order + 10)
+        withAdded[firstComp.id] = updatedFirst
+        val reSorted = withAdded.values.sortedBy { it.order }
+        assertEquals(firstComp.id, reSorted.last().id)
+
+        // 5. Delete component
+        withAdded.remove(duplicated.id)
+        assertFalse(withAdded.containsKey(duplicated.id))
+    }
+
+    @Test
+    fun testEmojiContentPersistence() {
+        val emojis = "🚀 Practice & Master Exam 💯🔥 🇮🇳"
+        val subtitleWithEmoji = "Level Up Your Prep ⚡"
+
+        val config = UiStudioConfig(
+            version = 1,
+            screens = mapOf(
+                "home" to ScreenConfig(
+                    id = "home",
+                    components = mapOf(
+                        "hero_banner" to ComponentConfig(
+                            id = "hero_banner",
+                            content = ContentProperties(
+                                title = emojis,
+                                subtitle = subtitleWithEmoji
+                            )
+                        )
+                    )
+                )
+            )
+        )
+
+        val json = repo.exportToJson(config)
+        assertTrue(json.contains("🚀"))
+        assertTrue(json.contains("💯"))
+        assertTrue(json.contains("🇮🇳"))
+
+        val imported = repo.importFromJson(json).getOrThrow()
+        val comp = imported.screens["home"]?.components?.get("hero_banner")
+        assertNotNull(comp)
+        assertEquals(emojis, comp?.content?.title)
+        assertEquals(subtitleWithEmoji, comp?.content?.subtitle)
+    }
+
+    @Test
+    fun testConcurrencyConflictModel() {
+        val serverDraft = UiStudioConfig(
+            version = 2,
+            revision = "rev-server-draft-456",
+            notes = "Server newer draft"
+        )
+        val conflictResult = SaveDraftResult.Conflict(
+            serverDraft = serverDraft,
+            message = "A newer draft exists on the server."
+        )
+
+        assertEquals("A newer draft exists on the server.", conflictResult.message)
+        assertNotNull(conflictResult.serverDraft)
+        assertEquals("rev-server-draft-456", conflictResult.serverDraft?.revision)
+        assertEquals(2, conflictResult.serverDraft?.version)
+    }
+
+    @Test
+    fun testScreenBackgroundFallbackHierarchy() {
+        // Hierarchy: Screen background override > DesignSystem appBackground > Global Default (#000000)
+        val defaultColor = 0xFF000000.toInt()
+
+        // 1. When screen has explicit background
+        val screenColorHex = "#1E293B"
+        val parsedScreenColor = UiStudioEngine.parseColorSafe(screenColorHex, defaultColor)
+        assertEquals(0xFF1E293B.toInt(), parsedScreenColor)
+
+        // 2. When screen is null, designSystem fallback
+        val dsColorHex = "#0F172A"
+        val parsedDsColor = UiStudioEngine.parseColorSafe(null) ?: UiStudioEngine.parseColorSafe(dsColorHex, defaultColor)
+        assertEquals(0xFF0F172A.toInt(), parsedDsColor)
+
+        // 3. When both are null/empty, fallback to default
+        val parsedFallback = UiStudioEngine.parseColorSafe(null) ?: UiStudioEngine.parseColorSafe("", defaultColor)
+        assertEquals(defaultColor, parsedFallback)
+    }
+
+    @Test
+    fun testTimerHostAndCircularTimerContract() {
+        val defaultTemplate = repo.getDefaultTemplate()
+        val testScreen = defaultTemplate.screens["test"]
+        assertNotNull(testScreen)
+
+        val timerPill = testScreen?.components?.get("timer_pill")
+        assertNotNull(timerPill)
+        assertEquals("timer", timerPill?.type)
+        assertEquals(true, timerPill?.visible)
+        assertNotNull(timerPill?.appearance?.cornerRadius)
+        assertNotNull(timerPill?.appearance?.backgroundColor)
+
+        // Verify stroke and colors parse cleanly
+        val ringColor = UiStudioEngine.parseColorSafe(timerPill?.appearance?.strokeColor, 0xFF007AFF.toInt())
+        val textColor = UiStudioEngine.parseColorSafe(timerPill?.typography?.textColor, 0xFFFFFFFF.toInt())
+        assertNotNull(ringColor)
+        assertNotNull(textColor)
+    }
+
+    @Test
+    fun testQuestionOptionStylingContract() {
+        val defaultTemplate = repo.getDefaultTemplate()
+        val testScreen = defaultTemplate.screens["test"]
+        val optionItem = testScreen?.components?.get("option_item")
+        assertNotNull(optionItem)
+        assertEquals("option_item", optionItem?.id)
+        assertEquals("Answer Option Capsule", optionItem?.name)
+
+        // Option item supports appearance, states (selected, pressed, disabled)
+        val customOption = optionItem!!.copy(
+            states = StateProperties(
+                selectedBackgroundColor = "#007AFF",
+                pressedBackgroundColor = "#1E293B",
+                disabledBackgroundColor = "#334155"
+            )
+        )
+        val selectedBg = customOption.states.selectedBackgroundColor
+        assertNotNull(selectedBg)
+        val parsedSelectedBg = UiStudioEngine.parseColorSafe(selectedBg)
+        assertNotNull(parsedSelectedBg)
+        assertEquals(0xFF007AFF.toInt(), parsedSelectedBg)
+
+        // Check corner radius
+        val radius = optionItem.appearance.cornerRadius ?: 12
+        assertTrue(radius in 0..120)
+    }
+
+    @Test
+    fun testTestActionPillsContract() {
+        val defaultTemplate = repo.getDefaultTemplate()
+        val testScreen = defaultTemplate.screens["test"]
+        val actionGrid = testScreen?.components?.get("action_grid")
+        assertNotNull(actionGrid)
+        assertEquals("action_grid", actionGrid?.type)
+        assertTrue(actionGrid?.visible == true)
+    }
+
+    @Test
+    fun testAnimationPropertiesAndPlaybackSafety() {
+        val anim = AnimationProperties(
+            enabled = true,
+            type = "fade_scale",
+            durationMs = 400L,
+            delayMs = 100L,
+            interpolator = "overshoot"
+        )
+        assertEquals("fade_scale", anim.type)
+        assertEquals(400L, anim.durationMs)
+        assertEquals(100L, anim.delayMs)
+        assertEquals("overshoot", anim.interpolator)
+
+        // Safe playback with null view
+        UiStudioEngine.playEntranceAnimation(null, anim)
+    }
+
+    @Test
+    fun testUniversalSearchRouting() {
+        fun resolveInspectorTabForQuery(query: String): String? {
+            val q = query.trim().lowercase()
+            return when {
+                q.contains("blur") || q.contains("glass") || q.contains("material") -> "material"
+                q.contains("radius") || q.contains("corner") || q.contains("shape") -> "design"
+                q.contains("color") || q.contains("background") || q.contains("hex") || q.contains("tint") -> "colors"
+                q.contains("anim") || q.contains("motion") -> "animation"
+                q.contains("text") || q.contains("typo") || q.contains("font") -> "typography"
+                q.contains("layout") || q.contains("margin") || q.contains("padding") -> "layout"
+                q.contains("action") || q.contains("nav") -> "actions"
+                q.contains("state") || q.contains("press") -> "states"
+                q.contains("brand") || q.contains("logo") -> "branding"
+                else -> null
+            }
+        }
+
+        assertEquals("material", resolveInspectorTabForQuery("blur radius"))
+        assertEquals("material", resolveInspectorTabForQuery("frosted glass"))
+        assertEquals("design", resolveInspectorTabForQuery("corner radius"))
+        assertEquals("colors", resolveInspectorTabForQuery("background color"))
+        assertEquals("animation", resolveInspectorTabForQuery("fade anim"))
+        assertEquals("typography", resolveInspectorTabForQuery("font size"))
+        assertEquals("layout", resolveInspectorTabForQuery("padding bottom"))
+        assertEquals("actions", resolveInspectorTabForQuery("action target"))
+        assertEquals("states", resolveInspectorTabForQuery("pressed state"))
+        assertEquals("branding", resolveInspectorTabForQuery("brand logo"))
+        assertNull(resolveInspectorTabForQuery("something unknown"))
+    }
+
+    @Test
+    fun testProtectedThemeAnimationIntegrity() {
+        // Assert Telegram Day/Night circular reveal constants and state are preserved and intact
+        assertEquals("ThemeSwitchAnimator", ThemeSwitchAnimator.TAG)
+        assertEquals("eve_prefs", ThemeSwitchAnimator.PREFS)
+        assertEquals("key_dark_mode", ThemeSwitchAnimator.KEY_DARK_MODE)
+        assertEquals(400L, ThemeSwitchAnimator.ANIMATION_DURATION)
+    }
 }

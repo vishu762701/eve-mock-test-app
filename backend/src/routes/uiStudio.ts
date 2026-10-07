@@ -289,14 +289,43 @@ adminUiStudioRoutes.put("/draft", async (c) => {
   const db = c.env.DB;
   const body = await c.req.json().catch(() => ({}));
   const config = body.config;
+  const baseRevision = body.baseRevision;
+  const force = body.force === true;
 
   const validation = validateUiStudioConfig(config);
   if (!validation.valid) {
     return c.json({ success: false, error: "Validation failed", details: validation.errors }, 400);
   }
 
+  // Optimistic Concurrency Check (Section 73)
+  if (baseRevision && !force) {
+    const existing = await db
+      .prepare("SELECT config_json, updated_at, updated_by FROM ui_studio_drafts WHERE id = 'draft'")
+      .first<UiStudioDraftRow>();
+
+    if (existing && existing.config_json) {
+      try {
+        const parsed = JSON.parse(existing.config_json);
+        if (parsed.revision && parsed.revision !== baseRevision) {
+          return c.json({
+            success: false,
+            error: "NEWER_DRAFT_EXISTS",
+            message: "A newer draft exists on the server. Please reload or confirm overwrite.",
+            currentRevision: parsed.revision,
+            serverDraft: parsed,
+            updatedAt: existing.updated_at,
+            updatedBy: existing.updated_by
+          }, 409);
+        }
+      } catch (_) {}
+    }
+  }
+
   const now = Date.now();
   const email = user.email || "admin";
+  const newRevision = `rev-${now}-${Math.random().toString(36).substring(2, 8)}`;
+  config.revision = newRevision;
+  config.updatedAt = now;
   const jsonStr = JSON.stringify(config);
 
   await db
@@ -324,6 +353,7 @@ adminUiStudioRoutes.put("/draft", async (c) => {
     success: true,
     data: {
       config,
+      revision: newRevision,
       updatedAt: now,
       updatedBy: email,
     },

@@ -884,11 +884,22 @@ class ResultActivity : EveBaseActivity() {
     private fun applyUiStudioConfig() {
         val studioConfig = com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig
         val resultConfig = studioConfig.screens["result"] ?: return
+
+        // 1. Screen background with Design System fallback
+        com.eve.app.util.UiStudioEngine.applyScreenBackground(binding.root, resultConfig.backgroundColor, studioConfig.designSystem)
+
+        // 2. Score hero card & analytics tiles
         resultConfig.components["score_card"]?.let {
             com.eve.app.util.UiStudioEngine.applyToView(binding.cardResultHero, it)
         }
         resultConfig.components["analytics_summary"]?.let {
             com.eve.app.util.UiStudioEngine.applyToView(binding.rowOverviewStatisticsTiles, it)
+        }
+        resultConfig.components["btn_reattempt"]?.let {
+            com.eve.app.util.UiStudioEngine.applyToView(binding.btnReattempt, it)
+        }
+        resultConfig.components["btn_share"]?.let {
+            com.eve.app.util.UiStudioEngine.applyToView(binding.btnShare, it)
         }
     }
 }

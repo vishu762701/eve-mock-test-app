@@ -120,6 +120,16 @@ class LoginActivity : EveBaseActivity() {
             }
         }
         playEntranceAnimation()
+        applyUiStudioConfig()
+    }
+
+    private fun applyUiStudioConfig() {
+        val studioConfig = com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig
+        val loginConfig = studioConfig.screens["login"] ?: return
+        com.eve.app.util.UiStudioEngine.applyScreenBackground(binding.root, loginConfig.backgroundColor, studioConfig.designSystem)
+        loginConfig.components["login_hero"]?.let {
+            com.eve.app.util.UiStudioEngine.applyToView(binding.cardLogin, it)
+        }
     }
 
     private fun playEntranceAnimation() {

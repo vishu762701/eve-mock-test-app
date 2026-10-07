@@ -28,12 +28,16 @@ class CircularTimerView @JvmOverloads constructor(
 
     private val density = resources.displayMetrics.density
     private val strokePx = 2.5f * density
+    private var normalColorOverride: Int? = null
+    private var warningColorOverride: Int? = null
+    private var trackColorOverride: Int? = null
+    private var textColorOverride: Int? = null
 
     private val normalColor: Int
-        get() = ContextCompat.getColor(context, R.color.eve_text)
+        get() = normalColorOverride ?: ContextCompat.getColor(context, R.color.eve_text)
 
     private val warningColor: Int
-        get() = ContextCompat.getColor(context, R.color.eve_timer_warning)
+        get() = warningColorOverride ?: ContextCompat.getColor(context, R.color.eve_timer_warning)
 
     private val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
@@ -170,12 +174,26 @@ class CircularTimerView @JvmOverloads constructor(
         invalidate()
     }
 
+    fun setTimerColors(
+        normalColorHex: String?,
+        warningColorHex: String?,
+        trackColorHex: String?,
+        textColorHex: String?
+    ) {
+        normalColorHex?.let { com.eve.app.util.UiStudioEngine.parseColorSafe(it)?.let { c -> normalColorOverride = c } }
+        warningColorHex?.let { com.eve.app.util.UiStudioEngine.parseColorSafe(it)?.let { c -> warningColorOverride = c } }
+        trackColorHex?.let { com.eve.app.util.UiStudioEngine.parseColorSafe(it)?.let { c -> trackColorOverride = c } }
+        textColorHex?.let { com.eve.app.util.UiStudioEngine.parseColorSafe(it)?.let { c -> textColorOverride = c } }
+        updateThemeColors()
+    }
+
     fun updateThemeColors() {
-        trackPaint.color = ContextCompat.getColor(context, R.color.eve_border)
+        val tc = trackColorOverride ?: ContextCompat.getColor(context, R.color.eve_border)
+        trackPaint.color = tc
+        val nc = textColorOverride ?: normalColor
         if (colorAnimator == null && currentColor != warningColor) {
-            val nc = normalColor
             currentColor = nc
-            progressPaint.color = nc
+            progressPaint.color = normalColor
             textPaint.color = nc
         }
         invalidate()

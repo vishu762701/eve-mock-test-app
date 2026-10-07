@@ -258,6 +258,51 @@ test("admin can save and retrieve draft configuration", async () => {
   assert.equal(getData.data.source, "draft");
 });
 
+// 4b. Optimistic concurrency check (Section 73)
+test("optimistic concurrency detects conflict on revision mismatch and permits force overwrite", async () => {
+  const db = new MockUiStudioD1();
+  const { app, env } = createApp(db, { isAdmin: true });
+
+  const initialConfig = {
+    screens: {
+      home: { components: {} }
+    }
+  };
+
+  // 1. Initial save
+  const put1 = await request(app, env, "/api/admin/ui-studio/draft", "PUT", { config: initialConfig });
+  assert.equal(put1.status, 200);
+
+  // Get revision
+  const draftRes = await request(app, env, "/api/admin/ui-studio/draft");
+  const draftData = await draftRes.json();
+  const currentRevision = draftData.data.config.revision;
+  assert.ok(currentRevision);
+
+  // 2. Conflict attempt with outdated revision
+  const conflictingConfig = {
+    screens: {
+      home: { components: {} }
+    }
+  };
+  const putConflict = await request(app, env, "/api/admin/ui-studio/draft", "PUT", {
+    config: conflictingConfig,
+    baseRevision: "rev-outdated-12345"
+  });
+  assert.equal(putConflict.status, 409);
+  const conflictData = await putConflict.json();
+  assert.equal(conflictData.error, "NEWER_DRAFT_EXISTS");
+  assert.equal(conflictData.currentRevision, currentRevision);
+
+  // 3. Force overwrite bypasses conflict
+  const putForce = await request(app, env, "/api/admin/ui-studio/draft", "PUT", {
+    config: conflictingConfig,
+    baseRevision: "rev-outdated-12345",
+    force: true
+  });
+  assert.equal(putForce.status, 200);
+});
+
 // 5. Validation failure in draft PUT
 test("admin cannot save invalid draft config with malformed properties", async () => {
   const db = new MockUiStudioD1();

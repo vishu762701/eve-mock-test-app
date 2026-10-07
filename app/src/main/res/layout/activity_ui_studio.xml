@@ -289,15 +289,85 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:letterSpacing="0.04"
-                            android:text="CANVAS (TAP TO SELECT)"
+                            android:text="DEVICE PREVIEW"
                             android:textColor="@color/eve_primary"
                             android:textSize="10sp"
                             android:textStyle="bold" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnInteractionMode"
+                            style="@style/Widget.Eve.OutlinedButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="24dp"
+                            android:insetLeft="0dp"
+                            android:insetRight="0dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:paddingHorizontal="6dp"
+                            android:text="EDIT MODE"
+                            android:textSize="9sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnZoomFit"
+                            style="@style/Widget.Eve.OutlinedButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="24dp"
+                            android:layout_marginStart="4dp"
+                            android:insetLeft="0dp"
+                            android:insetRight="0dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:paddingHorizontal="6dp"
+                            android:text="FIT"
+                            android:textSize="9sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnZoomIn"
+                            style="@style/Widget.Eve.OutlinedButton"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginStart="3dp"
+                            android:insetLeft="0dp"
+                            android:insetRight="0dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:padding="0dp"
+                            android:text="+"
+                            android:textSize="11sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnZoomOut"
+                            style="@style/Widget.Eve.OutlinedButton"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginStart="3dp"
+                            android:insetLeft="0dp"
+                            android:insetRight="0dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:padding="0dp"
+                            android:text="-"
+                            android:textSize="11sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnFocus"
+                            style="@style/Widget.Eve.OutlinedButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="24dp"
+                            android:layout_marginStart="3dp"
+                            android:insetLeft="0dp"
+                            android:insetRight="0dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:paddingHorizontal="5dp"
+                            android:text="FOCUS"
+                            android:textSize="9sp" />
 
                         <TextView
                             android:id="@+id/tvSelectedTag"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
                             android:background="@drawable/bg_circle_translucent"
                             android:paddingHorizontal="6dp"
                             android:paddingVertical="2dp"
@@ -855,6 +925,36 @@
                         android:orientation="vertical"
                         android:visibility="gone">
 
+                        <!-- Screen Background Control (Section 61 / Section 85) -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <View
+                                android:id="@+id/swatchScreenBgColor"
+                                android:layout_width="28dp"
+                                android:layout_height="28dp"
+                                android:background="@drawable/bg_circle_translucent" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:layout_weight="1"
+                                android:hint="Screen Background (#Hex)">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etScreenBackgroundColor"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="textNoSuggestions"
+                                    android:textSize="13sp" />
+                            </com.google.android.material.textfield.TextInputLayout>
+                        </LinearLayout>
+
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -1186,6 +1286,20 @@
                                 android:inputType="text"
                                 android:textSize="13sp" />
                         </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnOpenEmojiPicker"
+                            style="@style/Widget.Eve.OutlinedButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="28dp"
+                            android:layout_marginTop="4dp"
+                            android:insetLeft="0dp"
+                            android:insetRight="0dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:paddingHorizontal="10dp"
+                            android:text="Insert Emoji 😀"
+                            android:textSize="11sp" />
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"

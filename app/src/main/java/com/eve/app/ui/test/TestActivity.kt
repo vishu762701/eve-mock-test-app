@@ -692,11 +692,25 @@ class TestActivity : EveBaseActivity() {
     private fun applyUiStudioConfig() {
         val studioConfig = com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig
         val testConfig = studioConfig.screens["test"] ?: return
+
+        // 1. Screen background with Design System fallback
+        com.eve.app.util.UiStudioEngine.applyScreenBackground(binding.root, testConfig.backgroundColor, studioConfig.designSystem)
+
+        // 2. Visible timer host capsule and CircularTimerView (fixes root cause #2 and #5)
         testConfig.components["timer_pill"]?.let {
-            com.eve.app.util.UiStudioEngine.applyToView(binding.tvTimer, it)
+            com.eve.app.util.UiStudioEngine.applyTimerHost(binding.timerCapsuleHost, binding.circularTimerView, it)
         }
+
+        // 3. Test action buttons and individual action pills
         testConfig.components["action_buttons"]?.let {
             com.eve.app.util.UiStudioEngine.applyToView(binding.layoutBottomBar, it)
+            com.eve.app.util.UiStudioEngine.applyTestActionPills(
+                binding.btnClear,
+                binding.btnMarkReview,
+                binding.btnPrev,
+                binding.btnNext,
+                it
+            )
         }
     }
 }

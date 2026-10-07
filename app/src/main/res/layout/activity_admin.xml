@@ -54,7 +54,8 @@
         app:tabIndicatorColor="@color/eve_system_blue"
         app:tabIndicatorHeight="2dp"
         app:tabMode="scrollable"
-        app:tabGravity="fill"
+        app:tabGravity="start"
+        app:tabMinWidth="80dp"
         app:tabSelectedTextColor="@color/eve_text"
         app:tabTextAppearance="@style/TextAppearance.Eve.Button"
         app:tabTextColor="@color/eve_text_secondary">

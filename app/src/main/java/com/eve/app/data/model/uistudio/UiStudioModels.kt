@@ -258,6 +258,10 @@ data class UiStudioPublishedResponse(
 data class UiStudioDraftResponse(
     @SerializedName("config")
     val config: UiStudioConfig? = null,
+    @SerializedName("revision")
+    val revision: String? = null,
+    @SerializedName("serverDraft")
+    val serverDraft: UiStudioConfig? = null,
     @SerializedName("updatedAt")
     val updatedAt: Long = 0L,
     @SerializedName("updatedBy")
@@ -294,7 +298,11 @@ data class UiStudioAuditItem(
 
 data class SaveDraftRequest(
     @SerializedName("config")
-    val config: UiStudioConfig
+    val config: UiStudioConfig,
+    @SerializedName("baseRevision")
+    val baseRevision: String? = null,
+    @SerializedName("force")
+    val force: Boolean = false
 )
 
 data class PublishStudioRequest(
@@ -345,6 +353,7 @@ data class UiStudioSessionState(
 sealed class SaveDraftResult {
     data class ServerSuccess(val config: UiStudioConfig) : SaveDraftResult()
     data class LocalOfflineSuccess(val config: UiStudioConfig, val error: String) : SaveDraftResult()
+    data class Conflict(val serverDraft: UiStudioConfig?, val message: String) : SaveDraftResult()
     data class Failure(val error: String) : SaveDraftResult()
 }
 

@@ -43,6 +43,13 @@ class NotificationsActivity : EveBaseActivity() {
         listenToNotifications()
 
         NotificationStore.markAllRead(this)
+        applyUiStudioConfig()
+    }
+
+    private fun applyUiStudioConfig() {
+        val studioConfig = com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig
+        val notifConfig = studioConfig.screens["notifications"] ?: return
+        com.eve.app.util.UiStudioEngine.applyScreenBackground(binding.root, notifConfig.backgroundColor, studioConfig.designSystem)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

@@ -371,4 +371,70 @@ object UiStudioEngine {
             applyTypography(textView, config)
         }
     }
+
+    /**
+     * High-level binder for Screen Background Color.
+     * Precedence: Screen background > Global Design System appBackground.
+     */
+    fun applyScreenBackground(
+        view: View?,
+        screenBgHex: String?,
+        designSystem: com.eve.app.data.model.uistudio.DesignSystemConfig? = null
+    ) {
+        if (view == null) return
+        val color = parseColorSafe(screenBgHex)
+            ?: parseColorSafe(designSystem?.appBackground)
+            ?: return
+        view.setBackgroundColor(color)
+    }
+
+    /**
+     * High-level binder for the visible Test Timer capsule host and CircularTimerView.
+     */
+    fun applyTimerHost(
+        hostView: View?,
+        timerView: com.eve.app.ui.common.CircularTimerView?,
+        config: ComponentConfig?
+    ) {
+        if (config == null) return
+        hostView?.let { applyToView(it, config) }
+        timerView?.let {
+            it.setTimerColors(
+                normalColorHex = config.appearance.strokeColor ?: config.typography.textColor,
+                warningColorHex = config.states.disabledBackgroundColor,
+                trackColorHex = config.appearance.strokeColor,
+                textColorHex = config.typography.textColor
+            )
+        }
+    }
+
+    /**
+     * High-level binder for Test Action Pills (Clear, Mark Review, Prev, Next).
+     */
+    fun applyTestActionPills(
+        btnClear: View?,
+        btnMarkReview: View?,
+        btnPrev: View?,
+        btnNext: View?,
+        config: ComponentConfig?
+    ) {
+        if (config == null) return
+        btnClear?.let { applyToView(it, config) }
+        btnMarkReview?.let { applyToView(it, config) }
+        btnPrev?.let { applyToView(it, config) }
+        btnNext?.let { applyToView(it, config) }
+    }
+
+    /**
+     * High-level binder for Question Options (A, B, C, D).
+     */
+    fun applyQuestionOptions(
+        options: List<View>,
+        config: ComponentConfig?
+    ) {
+        if (config == null) return
+        for (opt in options) {
+            applyToView(opt, config)
+        }
+    }
 }

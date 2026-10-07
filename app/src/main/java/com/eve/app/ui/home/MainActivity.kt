@@ -392,6 +392,12 @@ class MainActivity : EveBaseActivity() {
 
     private fun applyUiStudioConfig(config: com.eve.app.data.model.uistudio.UiStudioConfig) {
         val homeConfig = config.screens["home"] ?: return
+
+        // 1. Screen background with Design System fallback
+        com.eve.app.util.UiStudioEngine.applyScreenBackground(binding.root, homeConfig.backgroundColor, config.designSystem)
+        com.eve.app.util.UiStudioEngine.applyScreenBackground(binding.mainContentContainer, homeConfig.backgroundColor, config.designSystem)
+
+        // 2. Home screen components
         homeConfig.components["streak_pill"]?.let {
             com.eve.app.util.UiStudioEngine.applyStreakPill(binding.layoutStreakPill, binding.tvStreakSummary, it)
         }

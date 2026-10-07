@@ -15,11 +15,19 @@
         android:paddingHorizontal="16dp"
         android:paddingVertical="10dp">
 
-        <!-- Telegram-style circular countdown timer -->
-        <com.eve.app.ui.common.CircularTimerView
-            android:id="@+id/circularTimerView"
-            android:layout_width="44dp"
-            android:layout_height="44dp" />
+        <!-- Telegram-style circular countdown timer with visible editable host capsule -->
+        <FrameLayout
+            android:id="@+id/timerCapsuleHost"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="2dp">
+
+            <com.eve.app.ui.common.CircularTimerView
+                android:id="@+id/circularTimerView"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_gravity="center" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/tvTimer"

@@ -130,6 +130,9 @@ class QuestionAdapter(
                 testConfig.components["question_text"]?.let {
                     com.eve.app.util.UiStudioEngine.applyTypography(b.tvQuestion, it)
                 }
+                testConfig.components["option_item"]?.let {
+                    com.eve.app.util.UiStudioEngine.applyQuestionOptions(listOf(b.rbA, b.rbB, b.rbC, b.rbD), it)
+                }
             }
 
             // Reset scroll position and auto-fit question text and options to the viewport

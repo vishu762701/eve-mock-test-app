@@ -240,17 +240,41 @@ class UiStudioRepository(
     }
 
     /**
-     * Truthful draft save that distinguishes between server confirmation
-     * and offline local caching.
+     * Truthful draft save that distinguishes between server confirmation,
+     * offline local caching, and optimistic concurrency conflicts.
      */
-    suspend fun saveDraftDetailed(config: UiStudioConfig): SaveDraftResult = withContext(Dispatchers.IO) {
+    suspend fun saveDraftDetailed(config: UiStudioConfig, force: Boolean = false): SaveDraftResult = withContext(Dispatchers.IO) {
         saveDraftToLocalCache(config)
         try {
-            val response = api.saveAdminUiStudioDraft(SaveDraftRequest(config))
+            val response = api.saveAdminUiStudioDraft(
+                SaveDraftRequest(
+                    config = config,
+                    baseRevision = config.revision,
+                    force = force
+                )
+            )
             if (response.success && response.data?.config != null) {
-                SaveDraftResult.ServerSuccess(response.data.config)
+                val savedConfig = response.data.config.copy(
+                    revision = response.data.revision ?: response.data.config.revision
+                )
+                saveDraftToLocalCache(savedConfig)
+                SaveDraftResult.ServerSuccess(savedConfig)
+            } else if (response.error == "NEWER_DRAFT_EXISTS") {
+                SaveDraftResult.Conflict(
+                    serverDraft = response.data?.serverDraft,
+                    message = response.message ?: "A newer draft exists on the server."
+                )
             } else {
                 SaveDraftResult.LocalOfflineSuccess(config, response.error ?: "Server returned error")
+            }
+        } catch (e: retrofit2.HttpException) {
+            if (e.code() == 409) {
+                SaveDraftResult.Conflict(
+                    serverDraft = null,
+                    message = "A newer draft exists on the server (409 Conflict)."
+                )
+            } else {
+                SaveDraftResult.LocalOfflineSuccess(config, e.localizedMessage ?: "Network error ${e.code()}")
             }
         } catch (e: Exception) {
             SaveDraftResult.LocalOfflineSuccess(config, e.localizedMessage ?: "Network unavailable")
@@ -260,7 +284,7 @@ class UiStudioRepository(
     suspend fun saveDraft(config: UiStudioConfig): Result<UiStudioConfig> = withContext(Dispatchers.IO) {
         saveDraftToLocalCache(config)
         try {
-            val response = api.saveAdminUiStudioDraft(SaveDraftRequest(config))
+            val response = api.saveAdminUiStudioDraft(SaveDraftRequest(config = config, baseRevision = config.revision))
             if (response.success && response.data?.config != null) {
                 Result.success(response.data.config)
             } else {

@@ -13,7 +13,11 @@ object UiStudioRegistry {
         val id: String,
         val displayName: String,
         val description: String,
-        val defaultBackgroundColor: String
+        val defaultBackgroundColor: String,
+        val runtimeActivity: String = "MainActivity",
+        val editableRootId: String = "root_container",
+        val supportedProperties: List<String> = listOf("backgroundColor", "opacity", "padding"),
+        val supportedComponents: List<String> = listOf("*")
     )
 
     data class ComponentTypeDescriptor(
@@ -21,40 +25,309 @@ object UiStudioRegistry {
         val displayName: String,
         val iconRes: String,
         val allowsChildren: Boolean,
-        val isContainer: Boolean
+        val isContainer: Boolean,
+        val category: String = "General",
+        val allowedParents: List<String> = listOf("*"),
+        val allowedChildren: List<String> = emptyList(),
+        val supportedProperties: List<String> = listOf("layout", "appearance"),
+        val supportedStates: List<String> = listOf("default"),
+        val supportedActions: List<String> = listOf("none"),
+        val supportedAnimations: List<String> = listOf("none"),
+        val previewBehavior: String = "render_standard",
+        val runtimeBehavior: String = "apply_standard"
     )
 
     // Registered real application screens
     val SUPPORTED_SCREENS = listOf(
-        ScreenDescriptor("home", "Home Screen", "Main student dashboard, banners, search, and exam listings", "#000000"),
-        ScreenDescriptor("test", "Test Screen", "Exam examination interface, timer, questions, and action grid", "#000000"),
-        ScreenDescriptor("result", "Result Screen", "Score analytics, dashboard summaries, and review actions", "#000000"),
-        ScreenDescriptor("profile", "Profile Screen", "Student account overview, statistics, and preferences", "#000000"),
-        ScreenDescriptor("notifications", "Notifications Screen", "Notification bulletins and announcement history", "#000000"),
-        ScreenDescriptor("syllabus", "Syllabus Screen", "Exam syllabi, topic hierarchy, and syllabus explorer", "#000000"),
-        ScreenDescriptor("login", "Login Screen", "Authentication screen, email/password, and Google sign-in", "#000000"),
-        ScreenDescriptor("admin", "Admin Dashboard", "Management tabs, exam creation, and administrative tools", "#000000")
+        ScreenDescriptor("home", "Home Screen", "Main student dashboard, banners, search, and exam listings", "#000000", "MainActivity", "root_home_container", listOf("backgroundColor", "opacity", "padding"), listOf("*")),
+        ScreenDescriptor("test", "Test Screen", "Exam examination interface, timer, questions, and action grid", "#000000", "TestActivity", "root_test_container", listOf("backgroundColor", "opacity"), listOf("timer", "card", "text", "button", "action_grid")),
+        ScreenDescriptor("result", "Result Screen", "Score analytics, dashboard summaries, and review actions", "#000000", "ResultActivity", "root_result_container", listOf("backgroundColor", "opacity"), listOf("*")),
+        ScreenDescriptor("profile", "Profile Screen", "Student account overview, statistics, and preferences", "#000000", "ProfileActivity", "root_profile_container", listOf("backgroundColor", "opacity"), listOf("*")),
+        ScreenDescriptor("notifications", "Notifications Screen", "Notification bulletins and announcement history", "#000000", "NotificationActivity", "root_notification_container", listOf("backgroundColor"), listOf("*")),
+        ScreenDescriptor("syllabus", "Syllabus Screen", "Exam syllabi, topic hierarchy, and syllabus explorer", "#000000", "SyllabusActivity", "root_syllabus_container", listOf("backgroundColor"), listOf("*")),
+        ScreenDescriptor("login", "Login Screen", "Authentication screen, email/password, and Google sign-in", "#000000", "LoginActivity", "root_login_container", listOf("backgroundColor"), listOf("*")),
+        ScreenDescriptor("admin", "Admin Dashboard", "Management tabs, exam creation, and administrative tools", "#000000", "AdminActivity", "root_admin_container", listOf("backgroundColor"), listOf("*"))
     )
 
     // Registered UI component primitives
     val COMPONENT_TYPES = listOf(
-        ComponentTypeDescriptor("card", "Material / Glass Card", "ic_card", true, true),
-        ComponentTypeDescriptor("surface", "Translucent Surface", "ic_surface", true, true),
-        ComponentTypeDescriptor("text", "Text / Header", "ic_text", false, false),
-        ComponentTypeDescriptor("button", "Action Button", "ic_button", false, false),
-        ComponentTypeDescriptor("badge", "Pill / Badge", "ic_badge", false, false),
-        ComponentTypeDescriptor("image", "Image Element", "ic_image", false, false),
-        ComponentTypeDescriptor("container", "Container / Box", "ic_container", true, true),
-        ComponentTypeDescriptor("row", "Horizontal Row", "ic_row", true, true),
-        ComponentTypeDescriptor("column", "Vertical Column", "ic_column", true, true),
-        ComponentTypeDescriptor("spacer", "Layout Spacer", "ic_spacer", false, false),
-        ComponentTypeDescriptor("divider", "Separator Line", "ic_divider", false, false),
-        ComponentTypeDescriptor("input", "Text Input Field", "ic_input", false, false),
-        ComponentTypeDescriptor("toggle", "Switch / Toggle", "ic_toggle", false, false),
-        ComponentTypeDescriptor("banner", "Home Banner Surface", "ic_banner", true, true),
-        ComponentTypeDescriptor("timer", "Timer Pill Capsule", "ic_timer", false, false),
-        ComponentTypeDescriptor("action_grid", "2x2 Action Grid", "ic_grid", true, true)
+        ComponentTypeDescriptor(
+            type = "card",
+            displayName = "Material / Glass Card",
+            iconRes = "ic_card",
+            allowsChildren = true,
+            isContainer = true,
+            category = "Surface",
+            allowedParents = listOf("*"),
+            allowedChildren = listOf("*"),
+            supportedProperties = listOf("layout", "appearance", "material", "typography", "actions", "animation", "states"),
+            supportedStates = listOf("default", "pressed", "disabled"),
+            supportedActions = listOf("navigate", "open_url", "none"),
+            supportedAnimations = listOf("fade_in", "slide_up", "scale_up", "none"),
+            previewBehavior = "render_card",
+            runtimeBehavior = "apply_card_material"
+        ),
+        ComponentTypeDescriptor(
+            type = "surface",
+            displayName = "Translucent Surface",
+            iconRes = "ic_surface",
+            allowsChildren = true,
+            isContainer = true,
+            category = "Surface",
+            allowedParents = listOf("*"),
+            allowedChildren = listOf("*"),
+            supportedProperties = listOf("layout", "appearance", "material", "actions", "animation"),
+            supportedStates = listOf("default"),
+            supportedActions = listOf("none"),
+            supportedAnimations = listOf("fade_in", "slide_up", "none"),
+            previewBehavior = "render_surface",
+            runtimeBehavior = "apply_surface_translucent"
+        ),
+        ComponentTypeDescriptor(
+            type = "text",
+            displayName = "Text / Header",
+            iconRes = "ic_text",
+            allowsChildren = false,
+            isContainer = false,
+            category = "Content",
+            allowedParents = listOf("*"),
+            allowedChildren = emptyList(),
+            supportedProperties = listOf("layout", "typography", "content", "animation"),
+            supportedStates = listOf("default"),
+            supportedActions = listOf("none"),
+            supportedAnimations = listOf("fade_in", "slide_up", "none"),
+            previewBehavior = "render_text",
+            runtimeBehavior = "apply_text_view"
+        ),
+        ComponentTypeDescriptor(
+            type = "button",
+            displayName = "Action Button",
+            iconRes = "ic_button",
+            allowsChildren = false,
+            isContainer = false,
+            category = "Action",
+            allowedParents = listOf("*"),
+            allowedChildren = emptyList(),
+            supportedProperties = listOf("layout", "appearance", "typography", "content", "actions", "animation", "states"),
+            supportedStates = listOf("default", "pressed", "disabled"),
+            supportedActions = listOf("navigate", "open_url", "custom", "none"),
+            supportedAnimations = listOf("scale_up", "fade_in", "none"),
+            previewBehavior = "render_button",
+            runtimeBehavior = "apply_material_button"
+        ),
+        ComponentTypeDescriptor(
+            type = "badge",
+            displayName = "Pill / Badge",
+            iconRes = "ic_badge",
+            allowsChildren = false,
+            isContainer = false,
+            category = "Display",
+            allowedParents = listOf("*"),
+            allowedChildren = emptyList(),
+            supportedProperties = listOf("layout", "appearance", "typography", "content"),
+            supportedStates = listOf("default"),
+            supportedActions = listOf("none"),
+            supportedAnimations = listOf("fade_in", "none"),
+            previewBehavior = "render_badge",
+            runtimeBehavior = "apply_badge_capsule"
+        ),
+        ComponentTypeDescriptor(
+            type = "image",
+            displayName = "Image Element",
+            iconRes = "ic_image",
+            allowsChildren = false,
+            isContainer = false,
+            category = "Media",
+            allowedParents = listOf("*"),
+            allowedChildren = emptyList(),
+            supportedProperties = listOf("layout", "appearance", "content", "actions", "animation"),
+            supportedStates = listOf("default"),
+            supportedActions = listOf("navigate", "open_url", "none"),
+            supportedAnimations = listOf("fade_in", "scale_up", "none"),
+            previewBehavior = "render_image",
+            runtimeBehavior = "apply_image_view"
+        ),
+        ComponentTypeDescriptor(
+            type = "container",
+            displayName = "Container / Box",
+            iconRes = "ic_container",
+            allowsChildren = true,
+            isContainer = true,
+            category = "Layout",
+            allowedParents = listOf("*"),
+            allowedChildren = listOf("*"),
+            supportedProperties = listOf("layout", "appearance", "animation"),
+            supportedStates = listOf("default"),
+            supportedActions = listOf("none"),
+            supportedAnimations = listOf("fade_in", "none"),
+            previewBehavior = "render_container",
+            runtimeBehavior = "apply_view_group"
+        ),
+        ComponentTypeDescriptor(
+            type = "row",
+            displayName = "Horizontal Row",
+            iconRes = "ic_row",
+            allowsChildren = true,
+            isContainer = true,
+            category = "Layout",
+            allowedParents = listOf("*"),
+            allowedChildren = listOf("*"),
+            supportedProperties = listOf("layout", "appearance"),
+            supportedStates = listOf("default"),
+            supportedActions = listOf("none"),
+            supportedAnimations = listOf("none"),
+            previewBehavior = "render_linear_horizontal",
+            runtimeBehavior = "apply_linear_horizontal"
+        ),
+        ComponentTypeDescriptor(
+            type = "column",
+            displayName = "Vertical Column",
+            iconRes = "ic_column",
+            allowsChildren = true,
+            isContainer = true,
+            category = "Layout",
+            allowedParents = listOf("*"),
+            allowedChildren = listOf("*"),
+            supportedProperties = listOf("layout", "appearance"),
+            supportedStates = listOf("default"),
+            supportedActions = listOf("none"),
+            supportedAnimations = listOf("none"),
+            previewBehavior = "render_linear_vertical",
+            runtimeBehavior = "apply_linear_vertical"
+        ),
+        ComponentTypeDescriptor(
+            type = "spacer",
+            displayName = "Layout Spacer",
+            iconRes = "ic_spacer",
+            allowsChildren = false,
+            isContainer = false,
+            category = "Layout",
+            allowedParents = listOf("*"),
+            allowedChildren = emptyList(),
+            supportedProperties = listOf("layout"),
+            supportedStates = listOf("default"),
+            supportedActions = listOf("none"),
+            supportedAnimations = listOf("none"),
+            previewBehavior = "render_space",
+            runtimeBehavior = "apply_space_view"
+        ),
+        ComponentTypeDescriptor(
+            type = "divider",
+            displayName = "Separator Line",
+            iconRes = "ic_divider",
+            allowsChildren = false,
+            isContainer = false,
+            category = "Layout",
+            allowedParents = listOf("*"),
+            allowedChildren = emptyList(),
+            supportedProperties = listOf("layout", "appearance"),
+            supportedStates = listOf("default"),
+            supportedActions = listOf("none"),
+            supportedAnimations = listOf("none"),
+            previewBehavior = "render_divider",
+            runtimeBehavior = "apply_divider_view"
+        ),
+        ComponentTypeDescriptor(
+            type = "input",
+            displayName = "Text Input Field",
+            iconRes = "ic_input",
+            allowsChildren = false,
+            isContainer = false,
+            category = "Form",
+            allowedParents = listOf("*"),
+            allowedChildren = emptyList(),
+            supportedProperties = listOf("layout", "appearance", "typography", "content", "states"),
+            supportedStates = listOf("default", "focused", "disabled"),
+            supportedActions = listOf("none"),
+            supportedAnimations = listOf("fade_in", "none"),
+            previewBehavior = "render_input",
+            runtimeBehavior = "apply_edit_text"
+        ),
+        ComponentTypeDescriptor(
+            type = "toggle",
+            displayName = "Switch / Toggle",
+            iconRes = "ic_toggle",
+            allowsChildren = false,
+            isContainer = false,
+            category = "Form",
+            allowedParents = listOf("*"),
+            allowedChildren = emptyList(),
+            supportedProperties = listOf("layout", "appearance", "content", "actions", "states"),
+            supportedStates = listOf("default", "pressed", "disabled"),
+            supportedActions = listOf("custom", "none"),
+            supportedAnimations = listOf("none"),
+            previewBehavior = "render_switch",
+            runtimeBehavior = "apply_switch_material"
+        ),
+        ComponentTypeDescriptor(
+            type = "banner",
+            displayName = "Home Banner Surface",
+            iconRes = "ic_banner",
+            allowsChildren = true,
+            isContainer = true,
+            category = "Feature",
+            allowedParents = listOf("home"),
+            allowedChildren = listOf("card", "text", "button", "image"),
+            supportedProperties = listOf("layout", "appearance", "content", "actions", "animation"),
+            supportedStates = listOf("default", "pressed"),
+            supportedActions = listOf("navigate", "open_url", "none"),
+            supportedAnimations = listOf("fade_in", "slide_up", "none"),
+            previewBehavior = "render_banner_surface",
+            runtimeBehavior = "apply_banner_viewpager"
+        ),
+        ComponentTypeDescriptor(
+            type = "timer",
+            displayName = "Timer Pill Capsule",
+            iconRes = "ic_timer",
+            allowsChildren = false,
+            isContainer = false,
+            category = "Widget",
+            allowedParents = listOf("test"),
+            allowedChildren = emptyList(),
+            supportedProperties = listOf("layout", "appearance", "typography", "animation"),
+            supportedStates = listOf("default", "warning"),
+            supportedActions = listOf("none"),
+            supportedAnimations = listOf("fade_in", "scale_up", "none"),
+            previewBehavior = "render_timer_capsule",
+            runtimeBehavior = "apply_exam_timer"
+        ),
+        ComponentTypeDescriptor(
+            type = "action_grid",
+            displayName = "2x2 Action Grid",
+            iconRes = "ic_grid",
+            allowsChildren = true,
+            isContainer = true,
+            category = "Layout",
+            allowedParents = listOf("test", "home"),
+            allowedChildren = listOf("button", "card"),
+            supportedProperties = listOf("layout", "appearance"),
+            supportedStates = listOf("default"),
+            supportedActions = listOf("none"),
+            supportedAnimations = listOf("fade_in", "none"),
+            previewBehavior = "render_grid_2x2",
+            runtimeBehavior = "apply_action_grid"
+        )
     )
+
+    fun getComponentType(type: String): ComponentTypeDescriptor? {
+        return COMPONENT_TYPES.find { it.type == type }
+    }
+
+    fun getScreen(id: String): ScreenDescriptor? {
+        return SUPPORTED_SCREENS.find { it.id == id }
+    }
+
+    fun isChildAllowed(parentType: String, childType: String): Boolean {
+        val parent = getComponentType(parentType) ?: return false
+        if (!parent.allowsChildren) return false
+        if (parent.allowedChildren.contains("*")) return true
+        return parent.allowedChildren.contains(childType)
+    }
+
+    fun isPropertySupported(type: String, propertyCategory: String): Boolean {
+        val comp = getComponentType(type) ?: return true
+        return comp.supportedProperties.contains(propertyCategory)
+    }
 
     /**
      * Creates a new ComponentConfig with safe defaults for a given component primitive.
