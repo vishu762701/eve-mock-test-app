@@ -26,7 +26,10 @@ class QuestionAdapter(
     private val onReport: (Question) -> Unit,
     private val getQuestionTime: (Int) -> Long,
     private val isMarked: (Int) -> Boolean = { false },
-    private val onToggleMark: (Int) -> Unit = {}
+    private val onToggleMark: (Int) -> Unit = {},
+    private val studioConfig: () -> com.eve.app.data.model.uistudio.UiStudioConfig = {
+        com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig
+    }
 ) : RecyclerView.Adapter<QuestionAdapter.VH>() {
 
     companion object {
@@ -121,19 +124,7 @@ class QuestionAdapter(
             b.rbC.text = "C. ${q.displayOptionText("C", hindi)}"
             b.rbD.text = "D. ${q.displayOptionText("D", hindi)}"
 
-            val studioConfig = com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig
-            val testConfig = studioConfig.screens["test"]
-            if (testConfig != null) {
-                testConfig.components["question_card"]?.let {
-                    com.eve.app.util.UiStudioEngine.applyToView(b.questionContainer, it)
-                }
-                testConfig.components["question_text"]?.let {
-                    com.eve.app.util.UiStudioEngine.applyTypography(b.tvQuestion, it)
-                }
-                testConfig.components["option_item"]?.let {
-                    com.eve.app.util.UiStudioEngine.applyQuestionOptions(listOf(b.rbA, b.rbB, b.rbC, b.rbD), it)
-                }
-            }
+            com.eve.app.uistudio.StudioRenderer.apply(b.root, "test", studioConfig(), force = true)
 
             // Reset scroll position and auto-fit question text and options to the viewport
             b.svQuestion.scrollTo(0, 0)

@@ -15,83 +15,32 @@ require.extensions[".ts"] = (module, filename) => {
 const { Hono } = require("hono");
 const { publicUiStudioRoutes, adminUiStudioRoutes, validateUiStudioConfig } = require("../src/routes/uiStudio");
 
+// Execute the actual SQL, including conditional writes and transaction rollback.
+const { DatabaseSync } = require('node:sqlite');
 class MockUiStudioD1 {
-  published = [];
-  drafts = [];
-  versions = [];
-  auditLog = [];
-  adminAuditLog = [];
-
-  async batch(stmts) {
-    const results = [];
-    for (const stmt of stmts) {
-      results.push(await stmt.run());
-    }
-    return results;
+  constructor() {
+    this.db = new DatabaseSync(':memory:');
+    this.db.exec(fs.readFileSync(require('node:path').join(__dirname, '../migrations/0012_ui_studio.sql'), 'utf8'));
+    this.db.exec('CREATE TABLE admin_audit_log (id TEXT PRIMARY KEY, action_type TEXT, description TEXT, admin_email TEXT, timestamp INTEGER)');
   }
-
+  get published() { return this.db.prepare('SELECT * FROM ui_studio_published').all(); }
+  get drafts() { return this.db.prepare('SELECT * FROM ui_studio_drafts').all(); }
+  get versions() { return this.db.prepare('SELECT * FROM ui_studio_versions').all(); }
+  get auditLog() { return this.db.prepare('SELECT * FROM ui_studio_audit_log').all(); }
+  get adminAuditLog() { return this.db.prepare('SELECT * FROM admin_audit_log').all(); }
+  async batch(stmts) {
+    this.db.exec('BEGIN');
+    try { const results = stmts.map(s => s.execute()); this.db.exec('COMMIT'); return results; }
+    catch(e) { this.db.exec('ROLLBACK'); throw e; }
+  }
   prepare(sql) {
-    const stmt = {
-      values: [],
-      bind: (...args) => {
-        stmt.values = args;
-        return stmt;
-      },
-      first: async () => {
-        if (sql.includes("FROM ui_studio_published WHERE id = 'active'")) {
-          return this.published.find((r) => r.id === "active") || null;
-        }
-        if (sql.includes("FROM ui_studio_drafts WHERE id = 'draft'")) {
-          return this.drafts.find((r) => r.id === "draft") || null;
-        }
-        if (sql.includes("SELECT MAX(version) as max_v FROM ui_studio_versions")) {
-          const max = this.versions.length ? Math.max(...this.versions.map((v) => v.version)) : 0;
-          return { max_v: max };
-        }
-        if (sql.includes("FROM ui_studio_versions WHERE version = ?")) {
-          const [v] = stmt.values;
-          return this.versions.find((item) => item.version === v) || null;
-        }
-        return null;
-      },
-      all: async () => {
-        if (sql.includes("FROM ui_studio_versions")) {
-          return { results: [...this.versions].sort((a, b) => b.version - a.version) };
-        }
-        if (sql.includes("FROM ui_studio_audit_log")) {
-          return { results: [...this.auditLog].sort((a, b) => b.timestamp - a.timestamp) };
-        }
-        return { results: [] };
-      },
-      run: async () => {
-        if (sql.includes("INSERT INTO ui_studio_drafts")) {
-          const [config_json, updated_at, updated_by] = stmt.values;
-          const idx = this.drafts.findIndex((d) => d.id === "draft");
-          const row = { id: "draft", config_json, updated_at, updated_by };
-          if (idx >= 0) this.drafts[idx] = row;
-          else this.drafts.push(row);
-        } else if (sql.includes("INSERT INTO ui_studio_versions")) {
-          const [version, config_json, created_at, created_by, notes] = stmt.values;
-          this.versions.push({ version, config_json, created_at, created_by, notes });
-        } else if (sql.includes("INSERT INTO ui_studio_published")) {
-          const [version, config_json, published_at, published_by, notes] = stmt.values;
-          const idx = this.published.findIndex((p) => p.id === "active");
-          const row = { id: "active", version, config_json, published_at, published_by, notes };
-          if (idx >= 0) this.published[idx] = row;
-          else this.published.push(row);
-        } else if (sql.includes("INSERT INTO ui_studio_audit_log")) {
-          const [id, action, performed_by, version, details, timestamp] = stmt.values;
-          this.auditLog.push({ id, action, performed_by, version, details, timestamp });
-        } else if (sql.includes("INSERT INTO admin_audit_log")) {
-          const [id, action_type, description, admin_email, timestamp] = stmt.values;
-          this.adminAuditLog.push({ id, action_type, description, admin_email, timestamp });
-        } else if (sql.includes("DELETE FROM ui_studio_drafts")) {
-          this.drafts = this.drafts.filter((d) => d.id !== "draft");
-        } else if (sql.includes("DELETE FROM ui_studio_published")) {
-          this.published = this.published.filter((p) => p.id !== "active");
-        }
-        return { success: true };
-      },
+    const query=this.db.prepare(sql); let values=[];
+    const stmt={
+      bind: (...args) => { values=args;return stmt; },
+      first: async () => query.get(...values) || null,
+      all: async () => ({ results: query.all(...values) }),
+      execute: () => ({ success:true,meta:{ changes:Number(query.run(...values).changes) } }),
+      run: async () => stmt.execute()
     };
     return stmt;
   }
@@ -133,6 +82,16 @@ async function request(app, env, url, method = "GET", body = null, headers = {})
     },
     env
   );
+}
+
+async function saveAndPublish(app, env, body) {
+  const remote = await (await request(app,env,'/api/admin/ui-studio/draft')).json();
+  const saved = await request(app,env,'/api/admin/ui-studio/draft','PUT',{config:body.config,baseRevision:remote.data.config.revision});
+  assert.equal(saved.status,200);
+  const config=(await saved.json()).data.config;
+  const published=await request(app,env,'/api/admin/ui-studio/publish','POST',{...body,config});
+  assert.equal(published.status,200);
+  return published;
 }
 
 // 1. Validator Unit Tests
@@ -267,7 +226,7 @@ test("admin can save and retrieve draft configuration", async () => {
 });
 
 // 4b. Optimistic concurrency check (Section 73)
-test("optimistic concurrency detects conflict on revision mismatch and permits force overwrite", async () => {
+test("optimistic concurrency detects conflict and rejects a force overwrite bypass", async () => {
   const db = new MockUiStudioD1();
   const { app, env } = createApp(db, { isAdmin: true });
 
@@ -300,7 +259,7 @@ test("optimistic concurrency detects conflict on revision mismatch and permits f
   assert.equal(putConflict.status, 409);
   const conflictData = await putConflict.json();
   assert.equal(conflictData.error, "NEWER_DRAFT_EXISTS");
-  assert.equal(conflictData.currentRevision, currentRevision);
+  assert.equal(conflictData.data.serverDraft.revision, currentRevision);
 
   // 3. Force overwrite bypasses conflict
   const putForce = await request(app, env, "/api/admin/ui-studio/draft", "PUT", {
@@ -308,7 +267,7 @@ test("optimistic concurrency detects conflict on revision mismatch and permits f
     baseRevision: "rev-outdated-12345",
     force: true
   });
-  assert.equal(putForce.status, 200);
+  assert.equal(putForce.status, 409);
 });
 
 // 5. Validation failure in draft PUT
@@ -392,13 +351,13 @@ test("admin can view version history and restore previous version", async () => 
   const { app, env } = createApp(db, { isAdmin: true });
 
   // Publish v1
-  await request(app, env, "/api/admin/ui-studio/publish", "POST", {
+  await saveAndPublish(app, env, {
     config: { screens: { home: { components: { card: { appearance: { cornerRadius: 8 } } } } } },
     notes: "v1 config",
   });
 
   // Publish v2
-  await request(app, env, "/api/admin/ui-studio/publish", "POST", {
+  await saveAndPublish(app, env, {
     config: { screens: { home: { components: { card: { appearance: { cornerRadius: 24 } } } } } },
     notes: "v2 config",
   });
@@ -412,7 +371,7 @@ test("admin can view version history and restore previous version", async () => 
   assert.equal(historyData.data[1].version, 1);
 
   // Restore v1 to draft
-  const restoreRes = await request(app, env, "/api/admin/ui-studio/restore/1", "POST", { target: "draft" });
+  const restoreRes = await request(app, env, "/api/admin/ui-studio/restore/1", "POST", { target: "draft", baseRevision: JSON.parse(db.drafts[0].config_json).revision });
   assert.equal(restoreRes.status, 200);
 
   // Verify draft now has cornerRadius: 8
@@ -426,13 +385,13 @@ test("admin can reset configuration back to native defaults", async () => {
   const db = new MockUiStudioD1();
   const { app, env } = createApp(db, { isAdmin: true });
 
-  await request(app, env, "/api/admin/ui-studio/publish", "POST", {
+  await saveAndPublish(app, env, {
     config: { screens: { home: {} } },
     notes: "v1",
   });
   assert.equal(db.published.length, 1);
 
-  const resetRes = await request(app, env, "/api/admin/ui-studio/reset", "POST", { target: "all" });
+  const resetRes = await request(app, env, "/api/admin/ui-studio/reset", "POST", { target: "all", baseRevision: JSON.parse(db.drafts[0].config_json).revision, publishedVersion: db.published[0].version });
   assert.equal(resetRes.status, 200);
   assert.equal(db.published.length, 0);
 
@@ -441,4 +400,62 @@ test("admin can reset configuration back to native defaults", async () => {
   const pubData = await pubRes.json();
   assert.equal(pubData.data.config, null);
   assert.equal(pubData.data.version, 0);
+});
+
+test('actions, protected elements, invalid parentage and cycles are rejected server-side', () => {
+  const validate = c => validateUiStudioConfig({screens:{home:{components:c}}}).valid;
+  assert.equal(validate({native_btnNext:{visible:false,isProtected:false}}),false);
+  assert.equal(validate({native_btnNext:{enabled:false}}),false);
+  assert.equal(validate({custom_x:{type:"card",layout:{height:"999999999"}}}),false);
+  assert.equal(validate({native_btnNext:{appearance:{opacity:0}}}),false);
+  assert.equal(validate({custom_x:{type:'button',actions:{actionType:'open_url',actionTarget:'javascript:alert(1)'}}}),false);
+  assert.equal(validate({custom_x:{type:'button',actions:{actionType:'navigate',actionTarget:'submit'}}}),false);
+  assert.equal(validate({custom_a:{type:'card',parentId:'custom_b'},custom_b:{type:'card',parentId:'custom_a'}}),false);
+  assert.equal(validate({custom_x:{type:'text',parentId:'missing'}}),false);
+  assert.equal(validate({custom_x:{type:'button',actions:{actionType:'open_url',actionTarget:'https://example.com/path'}}}),true);
+});
+
+test('two admins cannot overwrite newer fields; draft stays isolated until verified publication',async()=>{
+  const db=new MockUiStudioD1();const {app,env}=createApp(db,{isAdmin:true});
+  const initial={screens:{home:{components:{custom_glass:{id:'custom_glass',type:'card',material:{blurRadius:12,materialOpacity:0.65,tintColor:'#007AFF',tintOpacity:0.2}},custom_label:{id:'custom_label',type:'text',parentId:'custom_glass',content:{title:'Keep foreground sharp'}}}}}};
+  const save=await request(app,env,'/api/admin/ui-studio/draft','PUT',{config:initial});
+  const first=(await save.json()).data.config;
+  assert.equal((await (await request(app,env,'/api/ui-studio/published')).json()).data.config,null);
+  const edited=structuredClone(first);edited.screens.home.components.custom_glass.material.blurRadius=20;
+  const second=await request(app,env,'/api/admin/ui-studio/draft','PUT',{config:edited,baseRevision:first.revision});
+  const saved=(await second.json()).data.config;
+  assert.equal((await request(app,env,'/api/admin/ui-studio/draft','PUT',{config:first,baseRevision:first.revision,force:true})).status,409);
+  assert.equal((await request(app,env,'/api/admin/ui-studio/publish','POST',{config:first})).status,409);
+  assert.equal((await request(app,env,'/api/admin/ui-studio/publish','POST',{config:saved})).status,200);
+  const fresh=(await (await request(app,env,'/api/ui-studio/published')).json()).data.config;
+  assert.deepEqual(fresh.screens,saved.screens);assert.equal(fresh.revision,saved.revision);
+  const student=createApp(db,{isAdmin:false});
+  assert.equal((await request(student.app,env,'/api/admin/ui-studio/publish','POST',{config:saved})).status,403);
+});
+
+test('simultaneous saves use an atomic SQL compare-and-swap',async()=>{
+  const db=new MockUiStudioD1();const {app,env}=createApp(db,{isAdmin:true});
+  const first=(await (await request(app,env,'/api/admin/ui-studio/draft','PUT',{config:{screens:{}}})).json()).data.config;
+  const responses=await Promise.all(['#000000','#FFFFFF'].map(backgroundColor=>request(app,env,'/api/admin/ui-studio/draft','PUT',{baseRevision:first.revision,config:{...first,screens:{home:{backgroundColor,components:{}}}}})));
+  assert.deepEqual(responses.map(r=>r.status).sort(),[200,409]);
+});
+
+test('stale restore and reset cannot replace newer admin work or publication', async () => {
+  const db = new MockUiStudioD1();
+  const {app,env} = createApp(db,{isAdmin:true});
+  await saveAndPublish(app,env,{config:{screens:{home:{}}}});
+  const original = JSON.parse(db.drafts[0].config_json);
+  const saved = await request(app,env,'/api/admin/ui-studio/draft','PUT',{config:{screens:{profile:{}}},baseRevision:original.revision});
+  assert.equal(saved.status,200);
+  const newer = db.drafts[0].config_json;
+  assert.equal((await request(app,env,'/api/admin/ui-studio/restore/1','POST',{target:'draft',baseRevision:original.revision})).status,409);
+  assert.equal((await request(app,env,'/api/admin/ui-studio/reset','POST',{target:'all',baseRevision:original.revision,publishedVersion:1})).status,409);
+  assert.equal(db.drafts[0].config_json,newer);
+  assert.equal(db.published.length,1);
+  assert.equal((await request(app,env,'/api/admin/ui-studio/reset','POST',{target:'published',publishedVersion:0})).status,409);
+  const revision = JSON.parse(newer).revision;
+  assert.equal((await request(app,env,'/api/admin/ui-studio/restore/1','POST',{target:'publish',baseRevision:revision,publishedVersion:0})).status,409);
+  assert.equal((await request(app,env,'/api/admin/ui-studio/restore/1','POST',{target:'publish',baseRevision:revision,publishedVersion:1})).status,200);
+  assert.equal(db.published[0].version,2);
+  assert.equal(JSON.parse(db.published[0].config_json).status,'published');
 });

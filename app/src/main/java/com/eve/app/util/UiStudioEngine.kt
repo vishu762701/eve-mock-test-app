@@ -94,16 +94,9 @@ object UiStudioEngine {
         if (view == null || config == null) return
 
         try {
-            // 1. Visibility
-            if (!config.visible) {
-                view.visibility = View.GONE
-                return
-            } else {
-                view.visibility = View.VISIBLE
-            }
-
-            // 2. Enabled state
-            view.isEnabled = config.enabled
+            com.eve.app.uistudio.StudioBaseline.restore(view)
+            com.eve.app.uistudio.StudioBaseline.visibility(view, !config.visible && !config.isProtected)
+            if (com.eve.app.uistudio.StudioPolicy.isDynamic(config.id)) view.isEnabled = config.enabled
 
             val context = view.context
             val density = context.resources.displayMetrics.density
@@ -170,13 +163,15 @@ object UiStudioEngine {
             // 7. Card / Background Appearance & Material Tint
             val app = config.appearance
             val mat = config.material
+            // Native button tint must not mask an explicitly chosen fill. Baseline restores it on reset.
+            if(app.backgroundColor != null || mat.tintColor != null)view.backgroundTintList=null
 
             if (view is MaterialCardView) {
                 // If material tint is provided, prefer tint color; else background color
-                val effectiveColor = parseColorSafe(mat.tintColor) ?: parseColorSafe(app.backgroundColor)
+                val effectiveColor = parseColorSafe(mat.tintColor) ?: parseColorSafe(app.backgroundColor) ?: view.cardBackgroundColor.defaultColor
                 effectiveColor?.let { color ->
-                    val finalColor = if (mat.tintOpacity != null) {
-                        val alpha = (mat.tintOpacity * 255).toInt().coerceIn(0, 255)
+                    val finalColor = if (mat.tintOpacity != null || mat.materialOpacity != null) {
+                        val alpha = ((mat.tintOpacity ?: 1f) * (mat.materialOpacity ?: 1f) * 255).toInt().coerceIn(0, 255)
                         (color and 0x00FFFFFF) or (alpha shl 24)
                     } else color
                     view.setCardBackgroundColor(finalColor)
@@ -192,12 +187,17 @@ object UiStudioEngine {
                         view.strokeColor = color
                     }
                 }
-            } else if (app.backgroundColor != null || app.cornerRadius != null || app.strokeColor != null || mat.tintColor != null) {
+            } else if (app.backgroundColor != null || app.cornerRadius != null || app.strokeColor != null || app.strokeWidth != null || mat.tintColor != null || mat.materialOpacity != null || mat.tintOpacity != null) {
                 val drawable = (view.background as? GradientDrawable) ?: GradientDrawable()
                 val effectiveColor = parseColorSafe(mat.tintColor) ?: parseColorSafe(app.backgroundColor)
+                    ?: (view.background as? android.graphics.drawable.ColorDrawable)?.color
+                    ?: (view.background as? GradientDrawable)?.color?.defaultColor
+                    ?: (view.background as? com.google.android.material.shape.MaterialShapeDrawable)?.fillColor?.defaultColor
+                    ?: view.backgroundTintList?.defaultColor
+                    ?: if(mat.materialOpacity != null || mat.tintOpacity != null) Color.WHITE else null
                 effectiveColor?.let { color ->
-                    val finalColor = if (mat.tintOpacity != null) {
-                        val alpha = (mat.tintOpacity * 255).toInt().coerceIn(0, 255)
+                    val finalColor = if (mat.tintOpacity != null || mat.materialOpacity != null) {
+                        val alpha = ((mat.tintOpacity ?: 1f) * (mat.materialOpacity ?: 1f) * 255).toInt().coerceIn(0, 255)
                         (color and 0x00FFFFFF) or (alpha shl 24)
                     } else color
                     drawable.setColor(finalColor)
@@ -210,6 +210,7 @@ object UiStudioEngine {
                 if (strokeWidthPx > 0 && strokeColorVal != Color.TRANSPARENT) {
                     drawable.setStroke(strokeWidthPx, strokeColorVal)
                 }
+                view.backgroundTintList=null
                 view.background = drawable
             }
 
@@ -225,12 +226,36 @@ object UiStudioEngine {
                 }
             }
 
+            com.eve.app.uistudio.StudioMaterial.apply(view, config)
+            applyStates(view, config)
             // 10. Animation if configured
             if (config.animation.enabled) {
                 playEntranceAnimation(view, config.animation)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed applying UI Studio config to view: ${config.id}", e)
+        }
+    }
+
+    private fun applyStates(view: View, config: ComponentConfig) {
+        val states = config.states
+        if (states == com.eve.app.data.model.uistudio.StateProperties()) return
+        val drawable = android.graphics.drawable.StateListDrawable()
+        fun add(state: IntArray, hex: String?) {
+            val color = parseColorSafe(hex) ?: return
+            drawable.addState(state, GradientDrawable().apply {
+                setColor(color)
+                cornerRadius = dpToPx(view.context, config.appearance.cornerRadius ?: 0).toFloat()
+            })
+        }
+        add(intArrayOf(-android.R.attr.state_enabled), states.disabledBackgroundColor)
+        add(intArrayOf(android.R.attr.state_pressed), states.pressedBackgroundColor)
+        add(intArrayOf(android.R.attr.state_selected), states.selectedBackgroundColor)
+        add(intArrayOf(android.R.attr.state_checked), states.selectedBackgroundColor)
+        drawable.addState(intArrayOf(), view.background ?: android.graphics.drawable.ColorDrawable(Color.TRANSPARENT))
+        view.background = drawable
+        if (view is TextView) parseColorSafe(states.selectedTextColor)?.let {
+            view.setTextColor(android.content.res.ColorStateList(arrayOf(intArrayOf(android.R.attr.state_selected), intArrayOf(android.R.attr.state_checked), intArrayOf()), intArrayOf(it, it, view.currentTextColor)))
         }
     }
 
@@ -247,6 +272,9 @@ object UiStudioEngine {
             }
             typo.textSize?.let { sizeSp ->
                 textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, sizeSp.toFloat())
+            }
+            typo.fontFamily?.takeIf { it in listOf("sans-serif", "serif", "monospace") }?.let {
+                textView.typeface = Typeface.create(it, textView.typeface?.style ?: Typeface.NORMAL)
             }
             typo.textStyle?.let { styleStr ->
                 val style = when (styleStr.lowercase()) {
@@ -269,7 +297,7 @@ object UiStudioEngine {
             }
 
             // Title text override if specified
-            config.content.title?.let { customText ->
+            config.content.title?.takeIf { com.eve.app.uistudio.StudioPolicy.isDynamic(config.id) }?.let { customText ->
                 if (customText.isNotBlank()) {
                     textView.text = customText
                 }
@@ -282,9 +310,19 @@ object UiStudioEngine {
     /**
      * Executes safe entrance animation for a view based on animation schema.
      */
+    private val motionOrigins=java.util.WeakHashMap<View,FloatArray>()
+    fun cancelMotion(view: View) {
+        view.animate().cancel()
+        motionOrigins.remove(view)?.let { view.scaleX=it[0];view.scaleY=it[1];view.translationX=it[2];view.translationY=it[3] }
+    }
     fun playEntranceAnimation(view: View?, animConfig: AnimationProperties?) {
         if (view == null || animConfig == null || !animConfig.enabled) return
 
+        if (android.provider.Settings.Global.getFloat(view.context.contentResolver, android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f) return
+        cancelMotion(view)
+        val targetAlpha = view.alpha
+        val targetScaleX=view.scaleX;val targetScaleY=view.scaleY;val targetY=view.translationY
+        motionOrigins[view]=floatArrayOf(targetScaleX,targetScaleY,view.translationX,targetY)
         val duration = animConfig.durationMs.coerceIn(50L, 2000L)
         val delay = animConfig.delayMs.coerceIn(0L, 2000L)
         val interpolator: TimeInterpolator = when (animConfig.interpolator.lowercase()) {
@@ -298,18 +336,18 @@ object UiStudioEngine {
             "fade" -> {
                 view.alpha = 0f
                 view.animate()
-                    .alpha(1f)
+                    .alpha(targetAlpha)
                     .setDuration(duration)
                     .setStartDelay(delay)
                     .setInterpolator(interpolator)
                     .start()
             }
             "scale" -> {
-                view.scaleX = 0.85f
-                view.scaleY = 0.85f
+                view.scaleX = targetScaleX * 0.85f
+                view.scaleY = targetScaleY * 0.85f
                 view.animate()
-                    .scaleX(1f)
-                    .scaleY(1f)
+                    .scaleX(targetScaleX)
+                    .scaleY(targetScaleY)
                     .setDuration(duration)
                     .setStartDelay(delay)
                     .setInterpolator(interpolator)
@@ -317,23 +355,23 @@ object UiStudioEngine {
             }
             "fade_scale", "pop" -> {
                 view.alpha = 0f
-                view.scaleX = 0.88f
-                view.scaleY = 0.88f
+                view.scaleX = targetScaleX * 0.88f
+                view.scaleY = targetScaleY * 0.88f
                 view.animate()
-                    .alpha(1f)
-                    .scaleX(1f)
-                    .scaleY(1f)
+                    .alpha(targetAlpha)
+                    .scaleX(targetScaleX)
+                    .scaleY(targetScaleY)
                     .setDuration(duration)
                     .setStartDelay(delay)
                     .setInterpolator(interpolator)
                     .start()
             }
             "slide" -> {
-                view.translationY = 40f
+                view.translationY = targetY + 40f
                 view.alpha = 0f
                 view.animate()
-                    .translationY(0f)
-                    .alpha(1f)
+                    .translationY(targetY)
+                    .alpha(targetAlpha)
                     .setDuration(duration)
                     .setStartDelay(delay)
                     .setInterpolator(interpolator)

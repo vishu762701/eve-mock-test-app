@@ -1,2946 +1,434 @@
 package com.eve.app.ui.admin.uistudio
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.graphics.Color
-import android.graphics.Typeface
-import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.view.Gravity
+import android.text.InputType
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
+import androidx.core.view.children
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
-import com.eve.app.R
 import com.eve.app.data.model.uistudio.*
 import com.eve.app.data.repository.UiStudioRepository
-import com.eve.app.databinding.ActivityUiStudioBinding
 import com.eve.app.ui.common.EveBaseActivity
-import com.eve.app.uistudio.UiStudioRegistry
-import com.eve.app.util.AppBulletin
+import com.eve.app.uistudio.*
 import com.eve.app.util.UiStudioEngine
-import com.google.android.material.card.MaterialCardView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.UUID
 
+/** Tool-first editor. Drafts are only ever passed to the sandbox renderer. */
 class UiStudioActivity : EveBaseActivity() {
-
-    private lateinit var binding: ActivityUiStudioBinding
-    private val repo = UiStudioRepository.getInstance()
-
-    private var activeConfig: UiStudioConfig = repo.getDefaultTemplate()
-    private var isUpdatingFields = false
-    private var hasUnsavedChanges = false
-
-    private val supportedScreens = UiStudioRegistry.SUPPORTED_SCREENS
-
-    private var currentScreenKey = "home"
-    private var currentCompKey = "hero_banner"
-    private var currentActiveTab = "design"
-    private var currentViewMode = "split" // "split", "canvas", "inspector"
-    private var currentDeviceWidthMode = "normal" // "compact", "normal", "large"
-
-    // Maps component ID to its corresponding View in the canvas
-    private val canvasViewMap = mutableMapOf<String, View>()
-    private var currentlySelectedView: View? = null
-
-    // Undo / Redo stacks
-    private val undoStack = ArrayDeque<UiStudioConfig>()
-    private val redoStack = ArrayDeque<UiStudioConfig>()
-    private val maxHistorySize = 30
-    private var lastUndoPushTime: Long = 0L
-
-    // Screen transition presets
-    private val transitionOptions = listOf(
-        "contextual" to "Contextual (Default)",
-        "fade" to "Fade",
-        "fade_scale" to "Fade + Scale",
-        "scale" to "Scale",
-        "none" to "None (Instant)"
-    )
-
-    // Canvas interaction & zoom state
-    private var isInteractMode = false
-    private var selectedAnswerOptionIndex = 1
-    private var zoomIndex = 0
-    private val zoomLevels = listOf(1.0f, 0.85f, 1.25f)
-    private val zoomLabels = listOf("FIT", "85%", "125%")
-
-    private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
+    private val repo by lazy { UiStudioRepository.getInstance() }
+    private var config=UiStudioConfig()
+    private var screen="home"
+    private var selected=""
+    private var selectedInstance: View?=null
+    private var tool=0
+    private var loading=true
+    private var menu=true
+    private var previewMode=false
+    private var scale=1f
+    private var content: View?=null
+    private var elements=emptyList<StudioRenderer.Element>()
+    private lateinit var page: LinearLayout
+    private lateinit var status: TextView
+    private lateinit var selection: TextView
+    private lateinit var preview: StudioPreview
+    private var sheet: BottomSheetDialog?=null
+    private var busy=false
+    private var fieldJob: Job?=null
+    private var pendingField: (() -> Unit)?=null
+    private fun flushFields() { fieldJob?.cancel();pendingField?.invoke();pendingField=null }
+    private val undo=ArrayDeque<UiStudioConfig>()
+    private val redo=ArrayDeque<UiStudioConfig>()
+    private val tools=listOf("Blur & Glass","Colors & Backgrounds","Text & Fonts","Size, Spacing & Position","Corners, Borders & Shadows","Icons, Images & Content","Add, Remove & Arrange","Buttons & Actions","Animations & Transitions","Component States","Branding & Theme","Presets & Restore")
+    private val prefs by lazy { getSharedPreferences("studio_editor_history",MODE_PRIVATE) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityUiStudioBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        setupToolbar()
-        setupViewModeButtons()
-        setupCanvasControls()
-        setupInspectorTabs()
-        setupScreenSpinner()
-        setupScreenTransitionSpinner()
-        setupActionSpinners()
-        setupColorPresetButtons()
-        setupFieldListeners()
-        setupTreeActionButtons()
-        setupAdvancedMode()
-        setupBottomActions()
-        updateUndoRedoButtonState()
-
-        loadDraftFromRepository()
+        repo.loadSessionState()?.let { screen=it.selectedScreenKey;selected=it.selectedComponentKey;tool=(it.selectedTab.toIntOrNull() ?: 0).coerceIn(tools.indices);previewMode=it.viewMode=="preview" }
+        if(StudioScreens.all.none{it.key==screen})screen="home"
+        scale=prefs.getFloat("scale",1f).coerceIn(.5f,2f)
+        restoreHistory()
+        showMenu()
+        lifecycleScope.launch {
+            repo.getDraft().onSuccess { config=it }.onFailure { config=repo.loadCachedDraft() ?: UiStudioConfig() }
+            loading=false
+            if(savedInstanceState?.getBoolean("workspace") == true)showWorkspace()
+            status.text="Recoverable local draft · not published"
+        }
     }
-
-    override fun onPause() {
-        super.onPause()
-        // Save current working configuration and session state to local cache for 100% persistence
-        repo.saveDraftToLocalCache(activeConfig)
-        repo.saveSessionState(
-            UiStudioSessionState(
-                selectedScreenKey = currentScreenKey,
-                selectedComponentKey = currentCompKey,
-                selectedTab = currentActiveTab,
-                viewMode = currentViewMode,
-                deviceWidthMode = currentDeviceWidthMode,
-                timestamp = System.currentTimeMillis()
-            )
-        )
+    override fun onSaveInstanceState(outState: Bundle) {
+        flushFields();persist();outState.putBoolean("workspace",!menu);super.onSaveInstanceState(outState)
     }
-
-    private fun setupToolbar() {
-        binding.btnBack.setOnClickListener { finish() }
-        binding.btnUndo.setOnClickListener { performUndo() }
-        binding.btnRedo.setOnClickListener { performRedo() }
-        binding.btnCopyStyle.setOnClickListener { performCopyStyle() }
-        binding.btnPasteStyle.setOnClickListener { performPasteStyle() }
-        binding.btnVersionHistory.setOnClickListener { showVersionHistoryDialog() }
-        binding.btnExportImport.setOnClickListener { showExportImportDialog() }
-        binding.btnResetMenu.setOnClickListener { showResetOptionsDialog() }
+    override fun onPause() { flushFields();persist(); super.onPause() }
+    private fun persist() {
+        if (loading) return
+        repo.saveDraftToLocalCache(config)
+        repo.saveSessionState(UiStudioSessionState(selectedScreenKey=screen,selectedComponentKey=selected,selectedTab=tool.toString(),viewMode=if(previewMode)"preview" else "edit"))
+        prefs.edit().putFloat("scale",scale).putString("undo",Gson().toJson(undo.toList())).putString("redo",Gson().toJson(redo.toList())).apply()
     }
-
-    private fun setupViewModeButtons() {
-        binding.btnModeSplit.setOnClickListener { setViewMode("split") }
-        binding.btnModeCanvas.setOnClickListener { setViewMode("canvas") }
-        binding.btnModeInspector.setOnClickListener { setViewMode("inspector") }
-        binding.btnDeviceWidth.setOnClickListener { toggleDeviceWidth() }
+    private fun restoreHistory() {
+        runCatching { Gson().fromJson(prefs.getString("undo","[]"),Array<UiStudioConfig>::class.java).takeLast(30).forEach { undo.addLast(it) } }
+        runCatching { Gson().fromJson(prefs.getString("redo","[]"),Array<UiStudioConfig>::class.java).takeLast(30).forEach { redo.addLast(it) } }
     }
-
-    private fun setupCanvasControls() {
-        binding.btnInteractionMode.setOnClickListener {
-            isInteractMode = !isInteractMode
-            if (isInteractMode) {
-                binding.btnInteractionMode.text = "INTERACT"
-                binding.btnInteractionMode.setTextColor(ContextCompat.getColor(this, R.color.eve_green))
-                AppBulletin.show(this, "Interact Mode: Tap items to interact")
-            } else {
-                binding.btnInteractionMode.text = "EDIT MODE"
-                binding.btnInteractionMode.setTextColor(ContextCompat.getColor(this, R.color.eve_primary))
-                AppBulletin.show(this, "Edit Mode: Tap items to inspect")
+    private fun dp(v: Int)=UiStudioEngine.dpToPx(this,v)
+    private fun column()=LinearLayout(this).apply { orientation=LinearLayout.VERTICAL;setPadding(dp(12),dp(4),dp(12),dp(8)) }
+    private fun label(parent: LinearLayout,text: String): TextView=TextView(this).apply { this.text=text;textSize=15f;setPadding(0,dp(6),0,dp(6));parent.addView(this) }
+    private fun button(parent: LinearLayout,text: String,click: ()->Unit): Button=Button(this).apply { this.text=text;isAllCaps=false;minHeight=dp(48);setOnClickListener { click() };parent.addView(this,LinearLayout.LayoutParams(-1,-2)) }
+    private fun row(parent: LinearLayout,buttons: List<Pair<String,()->Unit>>) {
+        val r=LinearLayout(this);parent.addView(r)
+        buttons.forEach { (text,action)->Button(this).apply { this.text=text;isAllCaps=false;minHeight=dp(48);setOnClickListener { action() };r.addView(this,LinearLayout.LayoutParams(0,-2,1f)) } }
+    }
+    private fun initPage(title: String) {
+        page=column();setContentView(page)
+        label(page,title).textSize=24f
+        status=label(page,if(loading) "Loading draft…" else "Local draft · preview only")
+    }
+    private fun showMenu() {
+        flushFields();menu=true;sheet?.dismiss();initPage("UI Studio")
+        label(page,"Choose a tool, then select an item on the screen. Changes stay in your draft until you publish.")
+        val list=column();page.addView(ScrollView(this).apply { addView(list) },LinearLayout.LayoutParams(-1,0,1f))
+        tools.forEachIndexed { index,title -> button(list,title) { if(!loading) { tool=index;showWorkspace() } } }
+        row(page,listOf("Back" to { finish() },"Advanced" to { advanced() }))
+    }
+    private fun showWorkspace() {
+        flushFields();menu=false;initPage(tools[tool]);
+        row(page,listOf("Tools" to { showMenu() },"Controls" to { controls() },"Elements" to { elementList() }))
+        val spinner=Spinner(this)
+        val screens=StudioScreens.all
+        spinner.adapter=ArrayAdapter(this,android.R.layout.simple_spinner_dropdown_item,screens.map { it.label })
+        spinner.setSelection(screens.indexOfFirst { it.key==screen }.coerceAtLeast(0),false)
+        page.addView(spinner)
+        spinner.onItemSelectedListener=object: AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(p: AdapterView<*>?) {}
+            override fun onItemSelected(p: AdapterView<*>?,v: View?,position: Int,id: Long) {
+                if(screen!=screens[position].key) { flushFields();screen=screens[position].key;selected="";renderScreen() }
             }
         }
-
-        binding.btnZoomFit.setOnClickListener {
-            fitCanvasToViewport()
+        selection=label(page,"Select an item · scope: selected item")
+        preview=StudioPreview(this).apply {
+            editing=!previewMode
+            candidates={ elements }
+            onSelect={ view -> selectedInstance=view;this@UiStudioActivity.selected=elements.firstOrNull { it.view===view }?.id ?: "";select();persist() }
         }
-
-        binding.btnZoomIn.setOnClickListener {
-            val cur = binding.canvasScreenContent.scaleX
-            val next = (cur + 0.15f).coerceAtMost(2.0f)
-            binding.canvasScreenContent.pivotX = 0f
-            binding.canvasScreenContent.pivotY = 0f
-            binding.canvasScreenContent.scaleX = next
-            binding.canvasScreenContent.scaleY = next
-            binding.btnZoomFit.text = "${(next * 100).toInt()}%"
-        }
-
-        binding.btnZoomOut.setOnClickListener {
-            val cur = binding.canvasScreenContent.scaleX
-            val next = (cur - 0.15f).coerceAtLeast(0.5f)
-            binding.canvasScreenContent.pivotX = 0f
-            binding.canvasScreenContent.pivotY = 0f
-            binding.canvasScreenContent.scaleX = next
-            binding.canvasScreenContent.scaleY = next
-            binding.btnZoomFit.text = "${(next * 100).toInt()}%"
-        }
-
-        binding.btnFocus.setOnClickListener {
-            if (currentViewMode == "canvas") {
-                setViewMode("split")
-                binding.btnFocus.text = "FOCUS"
-            } else {
-                setViewMode("canvas")
-                binding.btnFocus.text = "SPLIT"
-            }
-        }
+        val scroll=ScrollView(this).apply { isFillViewport=false;addView(HorizontalScrollView(this@UiStudioActivity).apply { addView(preview,ViewGroup.LayoutParams(-2,-2)) }) }
+        page.addView(scroll,LinearLayout.LayoutParams(-1,0,1f))
+        row(page,listOf("−" to { zoom(-.15f) },"Fit" to { scale=(resources.displayMetrics.widthPixels.toFloat()/dp(384)).coerceAtMost(1f);resizePreview() },"+" to { zoom(.15f) },"Edit / Preview" to { previewMode=!previewMode;preview.editing=!previewMode;preview.invalidate();status.text=if(previewMode) "Sandbox preview · no real submissions or account actions" else "Edit mode · tap to select" }))
+        row(page,listOf("Undo" to { undo() },"Redo" to { redo() }))
+        row(page,listOf("Save draft" to { save() },"Publish" to { publish() }))
+        renderScreen()
     }
-
-    private fun fitCanvasToViewport() {
-        val viewportHeight = binding.scrollCanvasDevice.height.toFloat()
-        val contentHeight = binding.canvasScreenContent.height.toFloat()
-        val scale = if (viewportHeight > 0 && contentHeight > 0 && contentHeight > viewportHeight) {
-            (viewportHeight / contentHeight).coerceIn(0.4f, 1.0f)
-        } else {
-            1.0f
+    private fun renderScreen() {
+        val descriptor=StudioScreens.all.firstOrNull { it.key==screen } ?: return
+        selectedInstance=null;preview.removeAllViews()
+        content=layoutInflater.inflate(descriptor.layout,preview,false)
+        preview.addView(content,FrameLayout.LayoutParams(dp(360),dp(700)))
+        StudioFixtures.bind(content!!,screen,{config}) { destination ->
+            if(previewMode) { screen=destination;selected="";showWorkspace() }
         }
-        binding.canvasScreenContent.pivotX = 0f
-        binding.canvasScreenContent.pivotY = 0f
-        binding.canvasScreenContent.scaleX = scale
-        binding.canvasScreenContent.scaleY = scale
-        binding.btnZoomFit.text = if (scale >= 0.99f) "100%" else "${(scale * 100).toInt()}%"
+        content!!.viewTreeObserver.addOnGlobalLayoutListener { if(content?.isAttachedToWindow==true) applyPreview() }
+        applyPreview();resizePreview();persist()
     }
-
-    private fun setViewMode(mode: String) {
-        currentViewMode = mode
-        val density = resources.displayMetrics.density
-
-        when (mode) {
-            "canvas" -> {
-                binding.layoutCanvasSection.visibility = View.VISIBLE
-                val lp = binding.layoutCanvasSection.layoutParams as LinearLayout.LayoutParams
-                lp.height = 0
-                lp.weight = 1.0f
-                binding.layoutCanvasSection.layoutParams = lp
-
-                binding.layoutInspectorSection.visibility = View.GONE
-            }
-            "inspector" -> {
-                binding.layoutCanvasSection.visibility = View.GONE
-                binding.layoutInspectorSection.visibility = View.VISIBLE
-                val lp = binding.layoutInspectorSection.layoutParams as LinearLayout.LayoutParams
-                lp.height = 0
-                lp.weight = 1.0f
-                binding.layoutInspectorSection.layoutParams = lp
-            }
-            else -> { // "split"
-                binding.layoutCanvasSection.visibility = View.VISIBLE
-                val lpCanvas = binding.layoutCanvasSection.layoutParams as LinearLayout.LayoutParams
-                lpCanvas.height = 0
-                lpCanvas.weight = 1.0f
-                binding.layoutCanvasSection.layoutParams = lpCanvas
-
-                binding.layoutInspectorSection.visibility = View.VISIBLE
-                val lpInsp = binding.layoutInspectorSection.layoutParams as LinearLayout.LayoutParams
-                lpInsp.height = 0
-                lpInsp.weight = 1.0f
-                binding.layoutInspectorSection.layoutParams = lpInsp
-                binding.canvasScreenContent.post { fitCanvasToViewport() }
-            }
-        }
-        highlightActiveModeButton()
-    }
-
-    private fun highlightActiveModeButton() {
-        binding.btnModeSplit.alpha = if (currentViewMode == "split") 1.0f else 0.5f
-        binding.btnModeCanvas.alpha = if (currentViewMode == "canvas") 1.0f else 0.5f
-        binding.btnModeInspector.alpha = if (currentViewMode == "inspector") 1.0f else 0.5f
-    }
-
-    private fun toggleDeviceWidth() {
-        currentDeviceWidthMode = when (currentDeviceWidthMode) {
-            "compact" -> "normal"
-            "normal" -> "large"
-            else -> "compact"
-        }
-        applyDeviceWidthMode()
-    }
-
-    private fun applyDeviceWidthMode() {
-        val density = resources.displayMetrics.density
-        val targetWidth = when (currentDeviceWidthMode) {
-            "compact" -> (360 * density).toInt()
-            "normal" -> (400 * density).toInt()
-            else -> ViewGroup.LayoutParams.MATCH_PARENT
-        }
-        val label = when (currentDeviceWidthMode) {
-            "compact" -> "360dp"
-            "normal" -> "400dp"
-            else -> "Full"
-        }
-        binding.btnDeviceWidth.text = label
-
-        val lp = binding.canvasContainer.layoutParams
-        lp.width = targetWidth
-        binding.canvasContainer.layoutParams = lp
-    }
-
-    private fun setupInspectorTabs() {
-        val tabButtons = listOf(
-            binding.tabDesign to "design",
-            binding.tabLayout to "layout",
-            binding.tabColors to "colors",
-            binding.tabTypography to "typography",
-            binding.tabMaterial to "material",
-            binding.tabContent to "content",
-            binding.tabActions to "actions",
-            binding.tabAnimation to "animation",
-            binding.tabStates to "states",
-            binding.tabBranding to "branding",
-            binding.tabTree to "tree",
-            binding.tabAdvanced to "advanced"
-        )
-
-        tabButtons.forEach { (btn, tabKey) ->
-            btn.setOnClickListener {
-                selectInspectorTab(tabKey)
-            }
-        }
-        selectInspectorTab("design")
-    }
-
-    private fun selectInspectorTab(tabKey: String) {
-        currentActiveTab = tabKey
-
-        // Tab views mapping
-        val tabContainers = listOf(
-            "design" to binding.layoutTabDesign,
-            "layout" to binding.layoutTabLayout,
-            "colors" to binding.layoutTabColors,
-            "typography" to binding.layoutTabTypography,
-            "material" to binding.layoutTabMaterial,
-            "content" to binding.layoutTabContent,
-            "actions" to binding.layoutTabActions,
-            "animation" to binding.layoutTabAnimation,
-            "states" to binding.layoutTabStates,
-            "branding" to binding.layoutTabBranding,
-            "tree" to binding.layoutTabTree,
-            "advanced" to binding.layoutTabAdvanced
-        )
-
-        tabContainers.forEach { (key, layout) ->
-            layout.visibility = if (key == tabKey) View.VISIBLE else View.GONE
-        }
-
-        // Highlight active tab button
-        val tabButtons = listOf(
-            "design" to binding.tabDesign,
-            "layout" to binding.tabLayout,
-            "colors" to binding.tabColors,
-            "typography" to binding.tabTypography,
-            "material" to binding.tabMaterial,
-            "content" to binding.tabContent,
-            "actions" to binding.tabActions,
-            "animation" to binding.tabAnimation,
-            "states" to binding.tabStates,
-            "branding" to binding.tabBranding,
-            "tree" to binding.tabTree,
-            "advanced" to binding.tabAdvanced
-        )
-
-        tabButtons.forEach { (key, btn) ->
-            if (key == tabKey) {
-                btn.alpha = 1.0f
-                btn.strokeWidth = UiStudioEngine.dpToPx(this, 2)
-            } else {
-                btn.alpha = 0.55f
-                btn.strokeWidth = UiStudioEngine.dpToPx(this, 1)
-            }
-        }
-    }
-
-    private fun setupScreenSpinner() {
-        val screenNames = supportedScreens.map { it.displayName }
-        val screenAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, screenNames).apply {
-            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        }
-        binding.spScreenSelector.adapter = screenAdapter
-
-        binding.spScreenSelector.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val newScreenKey = supportedScreens[position].id
-                if (newScreenKey != currentScreenKey) {
-                    currentScreenKey = newScreenKey
-                    binding.tvActiveScreenBadge.text = supportedScreens[position].displayName
-                    val screen = activeConfig.screens[currentScreenKey]
-                    val firstCompKey = screen?.components?.keys?.firstOrNull() ?: ""
-                    currentCompKey = firstCompKey
-                    updateScreenTransitionSelection()
-                    updateComponentDropdownAndTree()
-                    renderRealScreenCanvas()
-                    populateFieldsForCurrentComponent()
-                }
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
-    }
-
-    private fun setupScreenTransitionSpinner() {
-        val transitionLabels = transitionOptions.map { it.second }
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, transitionLabels).apply {
-            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        }
-        binding.spScreenTransition.adapter = adapter
-        binding.spScreenTransition.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                if (!isUpdatingFields) {
-                    val selectedTransition = transitionOptions[position].first
-                    val screen = activeConfig.screens[currentScreenKey] ?: return
-                    if (screen.transition != selectedTransition) {
-                        pushUndoState()
-                        val updatedScreen = screen.copy(transition = selectedTransition)
-                        val updatedScreens = activeConfig.screens.toMutableMap().apply {
-                            put(currentScreenKey, updatedScreen)
-                        }
-                        activeConfig = activeConfig.copy(screens = updatedScreens)
-                        repo.saveDraftToLocalCache(activeConfig)
-                        markUnsaved()
-                    }
-                }
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
-    }
-
-    private fun updateScreenTransitionSelection() {
-        val screen = activeConfig.screens[currentScreenKey]
-        val currentTransition = screen?.transition ?: "contextual"
-        val index = transitionOptions.indexOfFirst { it.first.equals(currentTransition, ignoreCase = true) }
-        val targetIdx = if (index >= 0) index else 0
-        if (binding.spScreenTransition.selectedItemPosition != targetIdx) {
-            binding.spScreenTransition.setSelection(targetIdx)
-        }
-    }
-
-    private fun setupActionSpinners() {
-        // Action Types
-        val actionTypes = listOf("none" to "None (Passive)", "open_screen" to "Open App Screen", "go_back" to "Go Back", "open_url" to "Open Web URL")
-        val actionAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, actionTypes.map { it.second }).apply {
-            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        }
-        binding.spActionType.adapter = actionAdapter
-        binding.spActionType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                if (!isUpdatingFields) {
-                    val selectedType = actionTypes[position].first
-                    updateCurrentComponentConfig { comp ->
-                        comp.copy(actions = comp.actions.copy(actionType = selectedType))
-                    }
-                }
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
-
-        // Animation Types
-        val animTypes = listOf("none" to "None", "fade" to "Fade In", "scale" to "Scale In", "fade_scale" to "Fade + Scale", "slide" to "Slide Up", "pop" to "Spring Pop")
-        val animAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, animTypes.map { it.second }).apply {
-            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        }
-        binding.spAnimationType.adapter = animAdapter
-        binding.spAnimationType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                if (!isUpdatingFields) {
-                    val selectedType = animTypes[position].first
-                    updateCurrentComponentConfig { comp ->
-                        comp.copy(animation = comp.animation.copy(type = selectedType))
-                    }
-                }
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
-
-        // Component dropdown listener
-        binding.spComponentSelector.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val screen = activeConfig.screens[currentScreenKey] ?: return
-                val keys = screen.components.keys.toList()
-                if (position in keys.indices) {
-                    val selectedKey = keys[position]
-                    if (selectedKey != currentCompKey) {
-                        selectComponent(selectedKey)
-                    }
-                }
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
-    }
-
-    private fun updateComponentDropdownAndTree() {
-        val screen = activeConfig.screens[currentScreenKey] ?: return
-        val filterQuery = binding.etSearchComponent.text?.toString()?.trim()?.lowercase() ?: ""
-
-        val components = screen.components.filter { (key, comp) ->
-            if (filterQuery.isBlank()) true
-            else key.lowercase().contains(filterQuery) || comp.name.lowercase().contains(filterQuery) || comp.type.lowercase().contains(filterQuery)
-        }
-
-        val compLabels = components.map { (key, comp) ->
-            val protTag = if (comp.isProtected) " [Protected]" else ""
-            "${comp.name} ($key)$protTag"
-        }
-
-        val compAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, compLabels).apply {
-            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        }
-        binding.spComponentSelector.adapter = compAdapter
-
-        val selectedIndex = components.keys.indexOf(currentCompKey)
-        if (selectedIndex >= 0) {
-            binding.spComponentSelector.setSelection(selectedIndex)
-        }
-
-        binding.tvTreeCount.text = "${screen.components.size} components"
-    }
-
-    private fun setupColorPresetButtons() {
-        binding.btnColorDark.setOnClickListener { binding.etBackgroundColor.setText("#000000") }
-        binding.btnColorWhite.setOnClickListener { binding.etBackgroundColor.setText("#FFFFFF") }
-        binding.btnColorSlate.setOnClickListener { binding.etBackgroundColor.setText("#1E293B") }
-        binding.btnColorBlue.setOnClickListener { binding.etBackgroundColor.setText("#007AFF") }
-        binding.btnColorAmber.setOnClickListener { binding.etBackgroundColor.setText("#F59E0B") }
-    }
-
-    private fun setupTreeActionButtons() {
-        binding.etSearchComponent.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                val query = s?.toString()?.trim()?.lowercase().orEmpty()
-                handleUniversalStudioSearch(query)
-                updateComponentDropdownAndTree()
-            }
+    private fun applyPreview() {
+        val root=content ?: return
+        elements=StudioRenderer.apply(root,screen,config,sandbox = { a ->
+            if(a.actionType=="navigate" && a.actionTarget in StudioPolicy.destinations) {
+                screen=a.actionTarget!!;selected="";showWorkspace()
+            } else if(a.actionType=="open_url") AlertDialog.Builder(this).setTitle("Sandbox link").setMessage("Would open ${a.actionTarget}. No external app was opened.").setPositiveButton("Close",null).show()
         })
-
-        binding.btnAddElement.setOnClickListener { showAddComponentDialog() }
-        binding.btnDuplicateElement.setOnClickListener { duplicateCurrentComponent() }
-        binding.btnDeleteElement.setOnClickListener { deleteCurrentComponent() }
-        binding.btnMoveUp.setOnClickListener { reorderComponent(isUp = true) }
-        binding.btnMoveDown.setOnClickListener { reorderComponent(isUp = false) }
-
-        binding.btnPreviewAnimation.setOnClickListener {
-            val comp = getCurrentComponentConfig()
-            val view = canvasViewMap[comp.id]
-            if (view != null) {
-                UiStudioEngine.playEntranceAnimation(view, comp.animation.copy(enabled = true))
-            }
+        select()
+    }
+    private fun zoom(delta: Float) { scale=(scale+delta).coerceIn(.5f,2f);resizePreview() }
+    private fun resizePreview() {
+        content?.apply { UiStudioEngine.cancelMotion(this);pivotX=0f;pivotY=0f;scaleX=scale;scaleY=scale }
+        preview.layoutParams=FrameLayout.LayoutParams((dp(360)*scale).toInt(),(dp(700)*scale).toInt())
+    }
+    private fun select() {
+        val e=elements.firstOrNull { it.id==selected && it.view===selectedInstance } ?: elements.firstOrNull { it.id==selected }
+        preview.selected=e?.view
+        val label=if(e==null) "No item selected · tap preview or Elements" else "${e.parent?.removePrefix("native_")?.plus(" › ") ?: ""}${e.label}\nScope: selected item${if(e.repeated) " template (all rows)" else ""}"
+        if(selection.text.toString()!=label)selection.text=label
+        preview.invalidate()
+    }
+    private fun elementList() {
+        val unique=elements.distinctBy { it.id }
+        val names=unique.map { "${it.label}${if(it.view.visibility!=View.VISIBLE) " · hidden" else ""}" }
+        AlertDialog.Builder(this).setTitle("Elements · nested / hidden / repeated").setItems(names.toTypedArray()) { _,i -> selectedInstance=unique[i].view;selected=unique[i].id;select();controls() }.setNeutralButton("Deselect") { _,_->selected="";select() }.show()
+    }
+    private fun current(): ComponentConfig = elements.firstOrNull { it.id==selected }?.let { StudioRenderer.configuration(it,config.screens[screen]?.components.orEmpty()) ?: StudioRenderer.defaults(it) } ?: ComponentConfig(id=selected)
+    private fun checkpoint() { if(undo.size==30)undo.removeFirst();undo.addLast(config);redo.clear() }
+    private fun change(next: UiStudioConfig,history: Boolean=true) {
+        if(next==config)return
+        if(history)checkpoint()
+        config=next.copy(status="draft");if(history)persist() else repo.saveDraftToLocalCache(config);applyPreview();status.text="Unsaved server changes · recoverable locally"
+    }
+    private fun edit(history: Boolean=true,block: (ComponentConfig)->ComponentConfig) {
+        if(selected.isBlank())return
+        val s=config.screens[screen] ?: ScreenConfig(id=screen)
+        change(config.copy(screens=config.screens+(screen to s.copy(components=s.components+(selected to block(current()))))),history)
+    }
+    private fun undo() { flushFields();if(undo.isEmpty())return;redo.addLast(config);config=undo.removeLast().copy(revision=config.revision);persist();applyPreview();status.text="Undo · local draft" }
+    private fun redo() { flushFields();if(redo.isEmpty())return;undo.addLast(config);config=redo.removeLast().copy(revision=config.revision);persist();applyPreview();status.text="Redo · local draft" }
+    private fun controls() {
+        flushFields();sheet?.dismiss()
+        val dialog=BottomSheetDialog(this);sheet=dialog
+        val box=column();label(box,tools[tool]).textSize=22f
+        label(box,"Scope: ${if(tool==10) "selected screen" else "selected item"}")
+        if(selected.isBlank() && tool !in listOf(6,10,11)) {
+            label(box,"Select an item from the preview or Elements first.")
+        } else buildControls(box)
+        button(box,"Done") { dialog.dismiss() }
+        dialog.setContentView(ScrollView(this).apply { addView(box) });dialog.show();dialog.behavior.peekHeight=dp(240)
+    }
+    private fun textField(box: LinearLayout,title: String,value: String?,apply: (String?)->Unit) {
+        label(box,title)
+        val input=EditText(this).apply { setText(value.orEmpty());if(title.startsWith("Height"))inputType=InputType.TYPE_CLASS_NUMBER;isSingleLine=true;minHeight=dp(48);contentDescription=title }
+        box.addView(input)
+        val screenAtEdit=screen;val itemAtEdit=selected
+        var job: Job?=null
+        input.doAfterTextChanged { editable ->
+            val valueNow=editable?.toString()?.trim()?.ifEmpty { null }
+            if(fieldJob !== job) { fieldJob?.cancel();pendingField?.invoke();pendingField=null }
+            job?.cancel()
+            pendingField={ if(screen==screenAtEdit && selected==itemAtEdit)apply(valueNow) }
+            job=lifecycleScope.launch { delay(400);pendingField?.invoke();pendingField=null }
+            fieldJob=job
         }
     }
-
-    private fun handleUniversalStudioSearch(query: String) {
-        if (query.isBlank()) return
-        when {
-            query.contains("blur") || query.contains("glass") || query.contains("material") -> selectInspectorTab("material")
-            query.contains("radius") || query.contains("corner") || query.contains("shape") -> selectInspectorTab("design")
-            query.contains("color") || query.contains("background") || query.contains("hex") || query.contains("tint") -> selectInspectorTab("colors")
-            query.contains("anim") || query.contains("motion") -> selectInspectorTab("animation")
-            query.contains("text") || query.contains("typo") || query.contains("font") -> selectInspectorTab("typography")
-            query.contains("layout") || query.contains("margin") || query.contains("padding") -> selectInspectorTab("layout")
-            query.contains("action") || query.contains("nav") -> selectInspectorTab("actions")
-            query.contains("state") || query.contains("press") -> selectInspectorTab("states")
-            query.contains("brand") || query.contains("logo") -> selectInspectorTab("branding")
+    private fun color(box: LinearLayout,title: String,value: String?,apply: (String?)->Unit) {
+        textField(box,"$title · HEX (blank resets)",value) { hex ->
+            if(hex==null || UiStudioEngine.parseColorSafe(hex)!=null)apply(hex) else status.text="Invalid HEX color · change not applied"
+        }
+        val palette=LinearLayout(this);box.addView(palette)
+        listOf("#FFFFFF","#000000","#007AFF","#34C759","#FF9500","#AF52DE").forEach { hex ->
+            Button(this).apply { setBackgroundColor(Color.parseColor(hex));contentDescription="$title $hex";setOnClickListener { apply(hex) };palette.addView(this,LinearLayout.LayoutParams(0,dp(48),1f)) }
         }
     }
-
-    private val emojiCategories = linkedMapOf(
-        "Smileys" to listOf("😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣", "😊", "😇", "🙂", "😉", "😍", "🥰", "😘", "😋", "😜", "🤪", "😎", "🤩", "🥳", "😏", "🥺", "😭", "😤", "🤯", "😳", "😱", "🤗", "🤔", "🤫", "😴"),
-        "People" to listOf("👋", "✋", "👌", "✌️", "🤞", "🤟", "🤘", "🤙", "👈", "👉", "👆", "👇", "👍", "👎", "👏", "🙌", "👐", "🤲", "🤝", "🙏", "💪", "🧠", "👀", "👁️", "🧑‍🎓", "👨‍🏫", "👩‍💻", "🦸", "🥷"),
-        "Animals" to listOf("🐶", "🐱", "🐭", "🐰", "🦊", "🐻", "🐼", "🐨", "🐯", "🦁", "🐮", "🐷", "🐸", "🐵", "🐔", "🐧", "🐦", "🦆", "🦅", "🦉", "🦄", "🐝", "🦋", "🐙", "🐬", "🐳", "🦈", "🐘", "🦒"),
-        "Food" to listOf("🍏", "🍎", "🍐", "🍊", "🍋", "🍌", "🍉", "🍇", "🍓", "🍒", "🍑", "🍍", "🥥", "🥝", "🍅", "🥑", "🥦", "🌽", "🥕", "🥐", "🍞", "🧀", "🍳", "🥞", "🍔", "🍟", "🍕", "🥗", "🍣", "🍦", "🎂", "☕"),
-        "Travel" to listOf("🚗", "🚕", "🚙", "🚌", "🏎️", "🚓", "🚑", "🚒", "🚲", "🛵", "🏍️", "🚨", "✈️", "🚀", "🛸", "🚁", "⛵", "🚢", "⚓", "🚦", "🏖️", "🏝️", "⛰️", "🏕️", "🏠", "🏢", "🏛️", "🏫", "🎡", "🗽"),
-        "Activities" to listOf("⚽", "🏀", "🏈", "⚾", "🎾", "🏐", "🏉", "🏓", "🏸", "🥊", "🛹", "🎯", "🎮", "🎲", "🧩", "♟️", "🎨", "🎬", "🎤", "🎧", "🎼", "🎹", "🎸", "🏆", "🥇", "🥈", "🥉", "🏅", "🎖️", "🎟️"),
-        "Objects" to listOf("📱", "💻", "⌨️", "🖥️", "📷", "🎥", "📺", "📻", "⏱️", "⏰", "⏳", "🔋", "💡", "🔦", "💸", "💵", "💰", "💳", "💎", "⚖️", "🔧", "🔨", "🛡️", "💊", "🧬", "🧪", "📦", "📚", "📖", "✏️", "🔍", "🔒"),
-        "Symbols" to listOf("❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "💯", "💢", "💬", "💭", "✨", "⭐", "🌟", "⚡", "🔥", "💧", "🌈", "🎉", "🎊", "🚩", "✓", "✕", "⚠️", "⛔", "🟢", "🔴", "🔵", "🟡", "🟣"),
-        "Flags" to listOf("🇮🇳", "🇺🇸", "🇬🇧", "🇨🇦", "🇦🇺", "🇩🇪", "🇫🇷", "🇯🇵", "🇰🇷", "🇧🇷", "🇷🇺", "🇨🇳", "🇿🇦", "🏁", "🚩", "🎌", "🏴", "🏳️")
-    )
-
-    private fun showEmojiPickerDialog() {
-        val dialogView = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(UiStudioEngine.dpToPx(context, 16), UiStudioEngine.dpToPx(context, 12), UiStudioEngine.dpToPx(context, 16), UiStudioEngine.dpToPx(context, 12))
-        }
-
-        val categorySpinner = Spinner(this).apply {
-            adapter = ArrayAdapter(this@UiStudioActivity, android.R.layout.simple_spinner_dropdown_item, emojiCategories.keys.toList())
-        }
-        dialogView.addView(categorySpinner)
-
-        val emojiScrollView = ScrollView(this).apply {
-            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, UiStudioEngine.dpToPx(context, 260)).apply {
-                topMargin = UiStudioEngine.dpToPx(context, 8)
-            }
-        }
-        val emojiGridLayout = GridLayout(this).apply {
-            columnCount = 6
-            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        }
-        emojiScrollView.addView(emojiGridLayout)
-        dialogView.addView(emojiScrollView)
-
-        val dialog = MaterialAlertDialogBuilder(this)
-            .setTitle("Select Emoji")
-            .setView(dialogView)
-            .setNegativeButton("Cancel", null)
-            .create()
-
-        fun loadCategory(category: String) {
-            emojiGridLayout.removeAllViews()
-            val emojis = emojiCategories[category].orEmpty()
-            for (emoji in emojis) {
-                val tv = TextView(this).apply {
-                    text = emoji
-                    textSize = 22f
-                    gravity = Gravity.CENTER
-                    val cellSize = UiStudioEngine.dpToPx(context, 44)
-                    layoutParams = GridLayout.LayoutParams().apply {
-                        width = cellSize
-                        height = cellSize
-                    }
-                    background = ContextCompat.getDrawable(context, R.drawable.bg_circle_translucent)
-                    setOnClickListener {
-                        val currentText = binding.etContentTitle.text?.toString() ?: ""
-                        binding.etContentTitle.setText(if (currentText.isBlank()) emoji else "$currentText $emoji")
-                        dialog.dismiss()
-                    }
+    private fun slider(box: LinearLayout,title: String,value: Int,min: Int,max: Int,apply: (Int,Boolean)->Unit) {
+        val caption=label(box,"$title: $value")
+        val seek=SeekBar(this).apply { this.max=max-min;progress=value.coerceIn(min,max)-min;contentDescription=title;minimumHeight=dp(48) }
+        box.addView(seek)
+        seek.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+            private var dragging=false
+            override fun onStartTrackingTouch(s: SeekBar?) { checkpoint();dragging=true }
+            override fun onStopTrackingTouch(s: SeekBar?) { dragging=false;persist() }
+            override fun onProgressChanged(s: SeekBar?,p: Int,user: Boolean) { if(user) { caption.text="$title: ${p+min}";apply(p+min,!dragging) } }
+        })
+    }
+    private fun toggle(box: LinearLayout,title: String,value: Boolean,apply: (Boolean)->Unit) {
+        box.addView(androidx.appcompat.widget.SwitchCompat(this).apply { text=title;isChecked=value;minHeight=dp(48);setOnCheckedChangeListener { _,checked->apply(checked) } })
+    }
+    private fun choice(box: LinearLayout,title: String,values: List<String>,apply: (String)->Unit) {
+        button(box,title) { AlertDialog.Builder(this).setTitle(title).setItems(values.toTypedArray()) { _,i->apply(values[i]) }.show() }
+    }
+    private fun buildControls(box: LinearLayout) {
+        val c=current();val e=elements.firstOrNull { it.id==selected };val dynamic=StudioPolicy.isDynamic(selected)
+        when(tool) {
+            0 -> {
+                val supported=StudioMaterial.supported(e?.view)
+                label(box,if(supported) "Android backdrop blur · foreground stays sharp. Uses BlurView on API 24+. No refraction or morphing. Check text contrast; clear surfaces need a suitable backdrop." else "This native layout cannot host backdrop blur safely. Select a card/frame surface or insert a card. Tint here is a flat fill approximation.")
+                if(supported) slider(box,"Backdrop blur radius",c.material.blurRadius ?: 0,0,25) { v,h->edit(h){it.copy(material=it.material.copy(blurRadius=v))} }
+                slider(box,"Material opacity %",((c.material.materialOpacity ?: 1f)*100).toInt(),0,100) { v,h->edit(h){it.copy(material=it.material.copy(materialOpacity=v/100f))} }
+                color(box,"Tint",c.material.tintColor) { v->edit{it.copy(material=it.material.copy(tintColor=v))} }
+                slider(box,"Tint opacity %",((c.material.tintOpacity ?: .2f)*100).toInt(),0,100) { v,h->edit(h){it.copy(material=it.material.copy(tintOpacity=v/100f))} }
+                if(supported) choice(box,"Material preset",listOf("Clear","Tinted","Frosted","Opaque accessibility")) { name ->
+                    val neutral=if((resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK)==android.content.res.Configuration.UI_MODE_NIGHT_YES)"#000000" else "#FFFFFF"
+                    edit { it.copy(material=when(name) { "Clear"->MaterialProperties(6,1f,neutral,.08f);"Tinted"->MaterialProperties(12,1f,"#007AFF",.25f);"Frosted"->MaterialProperties(20,1f,neutral,.6f);else->MaterialProperties(0,1f,neutral,1f) }) };controls()
                 }
-                emojiGridLayout.addView(tv)
+                button(box,"Reset material") { edit { it.copy(material=MaterialProperties()) };controls() }
+            }
+            1 -> {
+                color(box,"Item background",c.appearance.backgroundColor) { v->edit{it.copy(appearance=it.appearance.copy(backgroundColor=v))} }
+                slider(box,"Whole item opacity %",((c.appearance.opacity ?: 1f)*100).toInt(),if(dynamic)0 else 30,100) { v,h->edit(h){it.copy(appearance=it.appearance.copy(opacity=v/100f))} }
+                button(box,"Reset colors") { edit { it.copy(appearance=it.appearance.copy(backgroundColor=null,opacity=null)) };controls() }
+            }
+            2 -> {
+                if(e?.view !is TextView)label(box,"Choose a child text element to edit typography.") else {
+                    color(box,"Text color",c.typography.textColor){v->edit{it.copy(typography=it.typography.copy(textColor=v))}}
+                    slider(box,"Text size (sp)",c.typography.textSize ?: 16,10,48){v,h->edit(h){it.copy(typography=it.typography.copy(textSize=v))}}
+                    choice(box,"Font family",listOf("sans-serif","serif","monospace")){v->edit{it.copy(typography=it.typography.copy(fontFamily=v))}}
+                    choice(box,"Font style",listOf("normal","bold","italic","bold_italic")){v->edit{it.copy(typography=it.typography.copy(textStyle=v))}}
+                    choice(box,"Text alignment",listOf("start","center","end")){v->edit{it.copy(typography=it.typography.copy(textAlign=v))}}
+                    button(box,"Reset text styling"){edit{it.copy(typography=TypographyProperties())};controls()}
+                }
+            }
+            3 -> {
+                label(box,"Native position is constrained by the production layout. Inserted items can be arranged in their container.")
+                slider(box,"Top spacing (dp)",c.layout.marginTop ?: 0,0,64){v,h->edit(h){it.copy(layout=it.layout.copy(marginTop=v))}}
+                slider(box,"Bottom spacing (dp)",c.layout.marginBottom ?: 0,0,64){v,h->edit(h){it.copy(layout=it.layout.copy(marginBottom=v))}}
+                slider(box,"Inner padding (dp)",c.layout.paddingTop ?: 0,0,48){v,h->edit(h){it.copy(layout=it.layout.copy(paddingTop=v,paddingBottom=v,paddingStart=v,paddingEnd=v))}}
+                if(dynamic) textField(box,"Height (48–600 dp, blank = natural)",c.layout.height){v->if(v==null || v.toIntOrNull() in 48..600)edit{it.copy(layout=it.layout.copy(height=v))}}
+                button(box,"Reset layout"){edit{it.copy(layout=LayoutProperties())};controls()}
+            }
+            4 -> {
+                slider(box,"Corner radius (dp)",c.appearance.cornerRadius ?: 0,0,60){v,h->edit(h){it.copy(appearance=it.appearance.copy(cornerRadius=v))}}
+                slider(box,"Border width (dp)",c.appearance.strokeWidth ?: 0,0,8){v,h->edit(h){it.copy(appearance=it.appearance.copy(strokeWidth=v))}}
+                color(box,"Border / subtle edge highlight",c.appearance.strokeColor){v->edit{it.copy(appearance=it.appearance.copy(strokeColor=v))}}
+                slider(box,"Elevation (dp)",c.appearance.elevation ?: 0,0,24){v,h->edit(h){it.copy(appearance=it.appearance.copy(elevation=v))}}
+                button(box,"Reset shape"){edit{it.copy(appearance=it.appearance.copy(cornerRadius=null,strokeWidth=null,strokeColor=null,elevation=null))};controls()}
+            }
+            5 -> {
+                if(!dynamic && selected in setOf("native_tvLogo","native_tvAppName")) textField(box,"Static app label",c.content.title){v->edit{it.copy(content=it.content.copy(title=v))}}
+                else if(!dynamic)label(box,"Native content is owned by its data binding. Scores, exam titles, questions and timers are never replaced by preview fixtures. Insert a text/image element for static content.")
+                else when(c.type) {
+                    "image"->textField(box,"Image HTTP(S) URL",c.content.imageSource){v->if(v==null || StudioPolicy.safeUrl(v))edit{it.copy(content=it.content.copy(imageSource=v))}else status.text="Invalid image URL"}
+                    "icon"->choice(box,"Icon",listOf("star","info","mail")){v->edit{it.copy(content=it.content.copy(icon=v))}}
+                    "text","button"->textField(box,"Static label",c.content.title){v->edit{it.copy(content=it.content.copy(title=v))}}
+                    else->label(box,"Select or add a child text/image element.")
+                }
+            }
+            6 -> arrange(box,dynamic)
+            7 -> {
+                if(!dynamic)label(box,"Native navigation, login and exam actions are protected. Preview uses local representative interactions only.") else {
+                    choice(box,"Action: ${c.actions.actionType}",listOf("none","navigate","open_url")){v->edit{it.copy(actions=ActionProperties(v,if(v=="navigate")"home" else null))};controls()}
+                    if(c.actions.actionType=="navigate")choice(box,"Destination: ${c.actions.actionTarget}",StudioPolicy.destinations.toList()){v->edit{it.copy(actions=it.actions.copy(actionTarget=v))};controls()}
+                    if(c.actions.actionType=="open_url")textField(box,"HTTP(S) destination",c.actions.actionTarget){v->if(StudioPolicy.safeUrl(v))edit{it.copy(actions=it.actions.copy(actionTarget=v))}}
+                }
+            }
+            8 -> {
+                label(box,"Item entrance only; optical morphing and refraction are unsupported. Screen entrance is a separate explicit scope.")
+                toggle(box,"Selected screen entrance",config.screens[screen]?.animation?.enabled ?: false){v->val s=config.screens[screen] ?: ScreenConfig(id=screen);change(config.copy(screens=config.screens+(screen to s.copy(animation=s.animation.copy(enabled=v)))))}
+                toggle(box,"Entrance motion (respects system animation scale)",c.animation.enabled){v->edit{it.copy(animation=it.animation.copy(enabled=v))}}
+                choice(box,"Motion: ${c.animation.type}",listOf("fade","scale","fade_scale","slide")){v->edit{it.copy(animation=it.animation.copy(type=v))}}
+                slider(box,"Duration (ms)",c.animation.durationMs.toInt(),50,2000){v,h->edit(h){it.copy(animation=it.animation.copy(durationMs=v.toLong()))}}
+                button(box,"Replay selected entrance"){e?.view?.let { UiStudioEngine.playEntranceAnimation(it,current().animation) }}
+                button(box,"Reset motion"){edit{it.copy(animation=AnimationProperties())};controls()}
+            }
+            9 -> {
+                color(box,"Pressed background",c.states.pressedBackgroundColor){v->edit{it.copy(states=it.states.copy(pressedBackgroundColor=v))}}
+                color(box,"Selected background",c.states.selectedBackgroundColor){v->edit{it.copy(states=it.states.copy(selectedBackgroundColor=v))}}
+                color(box,"Disabled background",c.states.disabledBackgroundColor){v->edit{it.copy(states=it.states.copy(disabledBackgroundColor=v))}}
+                color(box,"Selected text",c.states.selectedTextColor){v->edit{it.copy(states=it.states.copy(selectedTextColor=v))}}
+                button(box,"Preview selected state"){e?.view?.isSelected=!(e?.view?.isSelected ?: false)}
+                if(dynamic)toggle(box,"Enabled",c.enabled){v->edit{it.copy(enabled=v)}}
+                button(box,"Reset state styling"){edit{it.copy(states=StateProperties())};controls()}
+            }
+            10 -> {
+                label(box,"Default scope: selected screen. Global changes require explicit opt-in. Launcher name/icon remain Android package metadata.")
+                color(box,"${screen.replace('_',' ')} background",config.screens[screen]?.backgroundColor){v->val s=config.screens[screen] ?: ScreenConfig(id=screen);change(config.copy(screens=config.screens+(screen to s.copy(backgroundColor=v))))}
+                toggle(box,"Apply global branding labels (Login / About)",config.branding.enabled){v->change(config.copy(branding=config.branding.copy(enabled=v)));controls()}
+                if(config.branding.enabled) {
+                    textField(box,"Global display name",config.branding.appDisplayName){v->change(config.copy(branding=config.branding.copy(appDisplayName=v ?: "EVE Exam Prep")))}
+                    textField(box,"Global short name",config.branding.shortName){v->change(config.copy(branding=config.branding.copy(shortName=v ?: "EVE")))}
+                    color(box,"Global brand label color",config.branding.brandColor){v->change(config.copy(branding=config.branding.copy(brandColor=v ?: "#007AFF")))}
+                }
+                toggle(box,"Apply global background and text palette",config.designSystem.enabled){v->change(config.copy(designSystem=config.designSystem.copy(enabled=v)));controls()}
+                if(config.designSystem.enabled) {
+                    color(box,"Global app background",config.designSystem.appBackground){v->change(config.copy(designSystem=config.designSystem.copy(appBackground=v ?: "#000000")))}
+                    color(box,"Global text color",config.designSystem.textPrimary){v->change(config.copy(designSystem=config.designSystem.copy(textPrimary=v ?: "#FFFFFF")))}
+                    label(box,"Global palette is explicit and fixed across light/dark themes. Item text and screen colors take precedence.")
+                }
+                button(box,"Restore device theme and native branding") { change(config.copy(branding=config.branding.copy(enabled=false),designSystem=config.designSystem.copy(enabled=false)));controls() }
+            }
+            11 -> {
+                button(box,"Reset selected item to native baseline") { if(selected.isNotBlank()){val s=config.screens[screen] ?: return@button;change(config.copy(screens=config.screens+(screen to s.copy(components=s.components-run { val ids=StudioRenderer.keysFor(selected).toMutableSet();repeat(s.components.size){s.components.values.filter{it.parentId in ids}.forEach{ids+=it.id}};ids }))))};controls() }
+                button(box,"Reset selected screen") { confirm("Restore native styling for $screen? Inserted items on this screen will be removed from the draft.") { change(config.copy(screens=config.screens-screen));controls() } }
+                button(box,"Discard draft edits to last published") { confirm("Replace this draft with the cached published configuration? Undo remains available.") { change(repo.currentConfig.copy(revision=config.revision));controls() } }
+                button(box,"Version history / restore") { versions() }
+                label(box,"Glass presets are in Blur & Glass and affect only the selected material. Resets remain drafts until published.")
             }
         }
-
-        categorySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val cat = emojiCategories.keys.toList()[position]
-                loadCategory(cat)
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
-
-        loadCategory(emojiCategories.keys.first())
-        dialog.show()
     }
-
-    private fun loadDraftFromRepository() {
+    private fun arrange(box: LinearLayout,dynamic: Boolean) {
+        label(box,"Native controls and their ancestors keep their app-owned structure, visibility and actions. Inserted components use a scrollable region capped at one third of device height to preserve native content. Use Preview mode to scroll inside it.")
+        button(box,"Add component") {
+            if(content?.let { StudioRenderer.canInsert(it) }!=true){status.text="This screen has no safe insertion container";return@button}
+            choiceDialog("Add to screen's content container",StudioPolicy.dynamicTypes){type->
+                val id="custom_"+UUID.randomUUID().toString().replace("-","")
+                val s=config.screens[screen] ?: ScreenConfig(id=screen)
+                val c=ComponentConfig(id=id,name="New $type",type=type,order=(s.components.values.maxOfOrNull{it.order} ?: 0)+1,layout=LayoutProperties(height=if(type=="spacer")"16" else if(type=="divider")"1" else if(type in listOf("image","icon"))"96" else if(type in listOf("card","banner"))"120" else null,paddingTop=8,paddingBottom=8),content=ContentProperties(title=if(type in listOf("text","button"))"New $type" else null),appearance=AppearanceProperties(backgroundColor=if(type=="divider")"#808080" else if(type in listOf("card","banner"))if((resources.configuration.uiMode and 0x30)==0x20)"#1C1C1E" else "#F2F2F7" else null,cornerRadius=if(type in listOf("card","banner"))16 else null))
+                selected=id;change(config.copy(screens=config.screens+(screen to s.copy(components=s.components+(id to c)))));controls()
+            }
+        }
+        if(!dynamic)return
+        val c=current()
+        toggle(box,"Visible",c.visible){v->edit{it.copy(visible=v)}}
+        button(box,"Duplicate") {
+            val s=config.screens[screen] ?: return@button
+            val subtree=mutableSetOf(c.id)
+            repeat(s.components.size) { s.components.values.filter { it.parentId in subtree }.forEach { subtree+=it.id } }
+            val ids=subtree.associateWith { "custom_"+UUID.randomUUID().toString().replace("-","") }
+            val copies=subtree.associate { old -> val item=s.components.getValue(old);val id=ids.getValue(old);id to item.copy(id=id,name=item.name+" copy",parentId=ids[item.parentId] ?: item.parentId,order=item.order+1) }
+            selected=ids.getValue(c.id);change(config.copy(screens=config.screens+(screen to s.copy(components=s.components+copies))));controls()
+        }
+        row(box,listOf("Move up" to { reorder(-1) },"Move down" to { reorder(1) }))
+        button(box,"Choose parent") {
+            val s=config.screens[screen] ?: return@button
+            val parents=listOf("Screen container")+s.components.values.filter{it.id!=selected && StudioPolicy.isDynamic(it.id) && it.type in listOf("card","banner")}.map{it.id}
+            choiceDialog("Parent",parents){value->
+                val candidate=c.copy(parentId=value.takeIf{it!="Screen container"})
+                val next=config.copy(screens=config.screens+(screen to s.copy(components=s.components+(selected to candidate))))
+                val errors=StudioPolicy.validate(next)
+                if(errors.isEmpty())change(next)else status.text=errors.first()
+            }
+        }
+        button(box,"Remove item and inserted children") {
+            val s=config.screens[screen] ?: return@button
+            val remove=mutableSetOf(selected)
+            repeat(s.components.size){s.components.values.filter{it.parentId in remove}.forEach{remove+=it.id}}
+            change(config.copy(screens=config.screens+(screen to s.copy(components=s.components-remove))));selected="";controls()
+        }
+    }
+    private fun reorder(delta: Int) {
+        val s=config.screens[screen] ?: return
+        val c=current();val siblings=s.components.values.filter{StudioPolicy.isDynamic(it.id)&&it.parentId==c.parentId}.sortedWith(compareBy({it.order},{it.id})).toMutableList()
+        val i=siblings.indexOfFirst{it.id==selected};val j=i+delta
+        if(i<0 || j !in siblings.indices)return
+        java.util.Collections.swap(siblings,i,j)
+        change(config.copy(screens=config.screens+(screen to s.copy(components=s.components+siblings.mapIndexed{index,item->item.id to item.copy(order=index)}.toMap()))))
+    }
+    private fun choiceDialog(title: String,values: List<String>,action: (String)->Unit) { AlertDialog.Builder(this).setTitle(title).setItems(values.toTypedArray()){_,i->action(values[i])}.show() }
+    private fun confirm(message: String,action: ()->Unit) { AlertDialog.Builder(this).setMessage(message).setPositiveButton("Continue"){_,_->action()}.setNegativeButton("Cancel",null).show() }
+    private fun save() {
+        flushFields();if(busy)return
+        val errors=repo.validateConfig(config).second
+        if(errors.isNotEmpty()){status.text=errors.joinToString("\n");return}
+        busy=true;val snapshot=config
         lifecycleScope.launch {
-            binding.tvStudioStatus.text = "Loading saved configuration..."
-            binding.tvPersistentStatus.text = "LOADING DRAFT..."
-
-            val result = repo.getDraft()
-            result.onSuccess { draft ->
-                activeConfig = if (draft.screens.isNotEmpty()) draft else repo.getDefaultTemplate()
-                updateStudioStatusBadges()
-
-                // Check and restore editor session state
-                val session = repo.loadSessionState()
-                if (session != null && activeConfig.screens.containsKey(session.selectedScreenKey)) {
-                    currentScreenKey = session.selectedScreenKey
-                    val screenIndex = supportedScreens.indexOfFirst { it.id == currentScreenKey }
-                    if (screenIndex >= 0) binding.spScreenSelector.setSelection(screenIndex)
-
-                    val screen = activeConfig.screens[currentScreenKey]
-                    currentCompKey = if (screen?.components?.containsKey(session.selectedComponentKey) == true) {
-                        session.selectedComponentKey
-                    } else {
-                        screen?.components?.keys?.firstOrNull() ?: ""
-                    }
-                    currentActiveTab = session.selectedTab
-                    currentViewMode = session.viewMode
-                    currentDeviceWidthMode = session.deviceWidthMode
-                } else {
-                    val screenKeys = activeConfig.screens.keys.toList()
-                    if (screenKeys.isNotEmpty()) {
-                        currentScreenKey = screenKeys[0]
-                        val screenIndex = supportedScreens.indexOfFirst { it.id == currentScreenKey }
-                        if (screenIndex >= 0) binding.spScreenSelector.setSelection(screenIndex)
-                        currentCompKey = activeConfig.screens[currentScreenKey]?.components?.keys?.firstOrNull() ?: ""
-                    }
+            when(val result=repo.saveDraftDetailed(snapshot)) {
+                is SaveDraftResult.ServerSuccess -> { if(config==snapshot)config=result.config else config=config.copy(revision=result.config.revision);persist();status.text=if(config.screens==snapshot.screens)"Saved on server · not published" else "Server saved earlier edit · newer edits local" }
+                is SaveDraftResult.LocalOfflineSuccess -> status.text="Saved locally/offline · ${result.error}"
+                is SaveDraftResult.Conflict -> { status.text="Conflict · local work kept";conflict(result.serverDraft) }
+                is SaveDraftResult.Failure -> status.text="Save rejected · local draft retained: ${result.error}"
+            }
+            busy=false
+        }
+    }
+    private fun conflict(server: UiStudioConfig?) {
+        AlertDialog.Builder(this).setTitle("Newer server draft").setMessage("Your draft is kept locally. Export it from Advanced before loading the server copy. Overwrite is disabled.").setPositiveButton("Keep local",null).setNeutralButton("Load server") { _,_-> lifecycleScope.launch { val remote=server ?: repo.getServerDraft().getOrNull();if(remote!=null) { change(remote);status.text="Loaded server draft · previous local edits remain in Undo" } } }.show()
+    }
+    private fun publish() {
+        flushFields();if(busy)return
+        confirm("Publish this draft to students? The server revision and fresh readback must match.") {
+            val errors=repo.validateConfig(config).second
+            if(errors.isNotEmpty()){status.text=errors.joinToString("\n");return@confirm}
+            busy=true;val snapshot=config
+            lifecycleScope.launch {
+                when(val result=repo.publishVerified("UI Studio editor",snapshot)) {
+                    is PublishResult.VerifiedSuccess -> { if(config==snapshot)config=result.config else config=config.copy(revision=result.config.revision);persist();status.text="Published v${result.version} · fields verified by fresh readback" }
+                    is PublishResult.VerificationFailed -> status.text="Publish readback failed · ${result.reason}"
+                    is PublishResult.NetworkFailure -> status.text="Publish failed · ${result.error}"
                 }
-
-                setViewMode(currentViewMode)
-                applyDeviceWidthMode()
-                selectInspectorTab(currentActiveTab)
-                updateScreenTransitionSelection()
-                updateComponentDropdownAndTree()
-                renderRealScreenCanvas()
-                populateFieldsForCurrentComponent()
-                updateUndoRedoButtonState()
-            }.onFailure {
-                activeConfig = repo.loadCachedDraft() ?: repo.loadCachedConfig() ?: repo.getDefaultTemplate()
-                binding.tvPersistentStatus.text = "OFFLINE LOCAL DRAFT"
-                binding.tvStudioStatus.text = "Working Offline Draft"
-                updateScreenTransitionSelection()
-                updateComponentDropdownAndTree()
-                renderRealScreenCanvas()
-                populateFieldsForCurrentComponent()
-                updateUndoRedoButtonState()
-            }
-        }
-    }
-
-    private fun updateStudioStatusBadges() {
-        if (activeConfig.status == "published" && activeConfig.version > 0) {
-            binding.tvPersistentStatus.text = "★ LIVE v${activeConfig.version} (VERIFIED)"
-            binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this, R.color.eve_green))
-            binding.tvStudioStatus.text = "Published v${activeConfig.version} • Live on all devices"
-        } else if (hasUnsavedChanges) {
-            binding.tvPersistentStatus.text = "● UNSAVED CHANGES"
-            binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this, R.color.eve_system_yellow))
-            binding.tvStudioStatus.text = "Working Draft (Unsaved)"
-        } else {
-            val vStr = if (activeConfig.version > 0) "v${activeConfig.version}" else "v1"
-            binding.tvPersistentStatus.text = "DRAFT $vStr • SAVED"
-            binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this, R.color.eve_primary))
-            binding.tvStudioStatus.text = "Draft saved locally"
-        }
-    }
-
-    private fun markUnsaved() {
-        hasUnsavedChanges = true
-        binding.tvPersistentStatus.text = "● UNSAVED CHANGES"
-        binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this, R.color.eve_system_yellow))
-    }
-
-    private fun performCopyStyle() {
-        val comp = getCurrentComponentConfig()
-        repo.copyStyle(comp)
-        AppBulletin.showSuccess(this, "Style copied from '${comp.name}'")
-    }
-
-    private fun performPasteStyle() {
-        if (!repo.hasCopiedStyle()) {
-            AppBulletin.show(this, "No style copied yet. Select a component and tap Copy Style first.")
-            return
-        }
-        val comp = getCurrentComponentConfig()
-        pushUndoState()
-        updateCurrentComponentConfig { current ->
-            repo.pasteStyle(current)
-        }
-        populateFieldsForCurrentComponent()
-        AppBulletin.showSuccess(this, "Style pasted onto '${comp.name}'")
-    }
-
-    private fun pushUndoState() {
-        if (undoStack.size >= maxHistorySize) {
-            undoStack.removeFirst()
-        }
-        undoStack.addLast(activeConfig)
-        redoStack.clear()
-        updateUndoRedoButtonState()
-    }
-
-    private fun recordFieldEditUndo() {
-        val now = System.currentTimeMillis()
-        if (now - lastUndoPushTime > 2000L) {
-            pushUndoState()
-            lastUndoPushTime = now
-        }
-    }
-
-    private fun updateUndoRedoButtonState() {
-        val canUndo = undoStack.isNotEmpty()
-        val canRedo = redoStack.isNotEmpty()
-        binding.btnUndo.isEnabled = canUndo
-        binding.btnUndo.alpha = if (canUndo) 1.0f else 0.4f
-        binding.btnRedo.isEnabled = canRedo
-        binding.btnRedo.alpha = if (canRedo) 1.0f else 0.4f
-    }
-
-    private fun performUndo() {
-        if (undoStack.isEmpty()) return
-        redoStack.addLast(activeConfig)
-        activeConfig = undoStack.removeLast()
-        repo.saveDraftToLocalCache(activeConfig)
-        updateUndoRedoButtonState()
-        refreshEntireStudioUi()
-        AppBulletin.show(this, "Undo applied")
-    }
-
-    private fun performRedo() {
-        if (redoStack.isEmpty()) return
-        undoStack.addLast(activeConfig)
-        activeConfig = redoStack.removeLast()
-        repo.saveDraftToLocalCache(activeConfig)
-        updateUndoRedoButtonState()
-        refreshEntireStudioUi()
-        AppBulletin.show(this, "Redo applied")
-    }
-
-    private fun refreshEntireStudioUi() {
-        updateScreenTransitionSelection()
-        updateComponentDropdownAndTree()
-        renderRealScreenCanvas()
-        populateFieldsForCurrentComponent()
-    }
-
-    private fun setupAdvancedMode() {
-        binding.btnToggleAdvanced.setOnClickListener {
-            val isVis = binding.layoutAdvancedContent.visibility == View.VISIBLE
-            binding.layoutAdvancedContent.visibility = if (isVis) View.GONE else View.VISIBLE
-            if (!isVis) refreshAdvancedRawJson()
-        }
-
-        binding.btnApplyRawJson.setOnClickListener {
-            applyAdvancedRawJson()
-        }
-
-        binding.btnResetToDefault.setOnClickListener { resetCurrentComponentToDefault() }
-        binding.btnResetToScreen.setOnClickListener { resetComponentToScreenDefaults() }
-        binding.btnResetToGlobal.setOnClickListener { resetComponentToGlobalDefaults() }
-    }
-
-    private fun refreshAdvancedRawJson() {
-        if (binding.layoutAdvancedContent.visibility == View.VISIBLE) {
-            val comp = getCurrentComponentConfig()
-            binding.etComponentRawJson.setText(gson.toJson(comp))
-        }
-    }
-
-    private fun applyAdvancedRawJson() {
-        val rawJson = binding.etComponentRawJson.text?.toString()?.trim()
-        if (rawJson.isNullOrBlank()) {
-            AppBulletin.showError(this, "JSON cannot be empty")
-            return
-        }
-
-        try {
-            val parsedComp = gson.fromJson(rawJson, ComponentConfig::class.java)
-            if (parsedComp == null || parsedComp.id.isBlank()) {
-                AppBulletin.showError(this, "Invalid Component JSON: id is required")
-                return
-            }
-
-            pushUndoState()
-
-            val screen = activeConfig.screens[currentScreenKey] ?: ScreenConfig(id = currentScreenKey)
-            val updatedComponents = screen.components.toMutableMap().apply {
-                put(parsedComp.id, parsedComp)
-            }
-            val updatedScreen = screen.copy(components = updatedComponents)
-            val updatedScreens = activeConfig.screens.toMutableMap().apply {
-                put(currentScreenKey, updatedScreen)
-            }
-            activeConfig = activeConfig.copy(screens = updatedScreens)
-            currentCompKey = parsedComp.id
-            repo.saveDraftToLocalCache(activeConfig)
-            markUnsaved()
-
-            updateComponentDropdownAndTree()
-            renderRealScreenCanvas()
-            selectComponent(parsedComp.id)
-            AppBulletin.showSuccess(this, "Component JSON applied successfully")
-        } catch (e: Exception) {
-            AppBulletin.showError(this, "JSON parse error: ${e.message}")
-        }
-    }
-
-    private fun getCurrentComponentConfig(): ComponentConfig {
-        val screen = activeConfig.screens[currentScreenKey] ?: ScreenConfig(id = currentScreenKey)
-        return screen.components[currentCompKey] ?: ComponentConfig(id = currentCompKey)
-    }
-
-    private fun updateCurrentComponentConfig(mutator: (ComponentConfig) -> ComponentConfig) {
-        recordFieldEditUndo()
-        val currentComp = getCurrentComponentConfig()
-        val updatedComp = mutator(currentComp)
-
-        val screen = activeConfig.screens[currentScreenKey] ?: ScreenConfig(id = currentScreenKey)
-        val updatedComponents = screen.components.toMutableMap().apply {
-            put(currentCompKey, updatedComp)
-        }
-        val updatedScreen = screen.copy(components = updatedComponents)
-        val updatedScreens = activeConfig.screens.toMutableMap().apply {
-            put(currentScreenKey, updatedScreen)
-        }
-        activeConfig = activeConfig.copy(screens = updatedScreens)
-
-        repo.saveDraftToLocalCache(activeConfig)
-        markUnsaved()
-
-        // Live update the view on the canvas
-        val view = canvasViewMap[updatedComp.id]
-        if (view != null) {
-            UiStudioEngine.applyToView(view, updatedComp)
-            updatePreviewChildViews(view, updatedComp)
-            if (currentlySelectedView == view) {
-                val highlightBorder = GradientDrawable().apply {
-                    setColor(Color.TRANSPARENT)
-                    setStroke(UiStudioEngine.dpToPx(this@UiStudioActivity, 2), Color.parseColor("#007AFF"))
-                    cornerRadius = UiStudioEngine.dpToPx(this@UiStudioActivity, updatedComp.appearance.cornerRadius ?: 12).toFloat()
-                }
-                view.foreground = highlightBorder
-            }
-        }
-        val swatchColor = UiStudioEngine.parseColorSafe(updatedComp.appearance.backgroundColor) ?: Color.DKGRAY
-        binding.swatchBgColor.background = GradientDrawable().apply {
-            shape = GradientDrawable.OVAL
-            setColor(swatchColor)
-        }
-    }
-
-    private fun selectComponent(compKey: String) {
-        currentCompKey = compKey
-        val screen = activeConfig.screens[currentScreenKey] ?: return
-        val comp = screen.components[compKey] ?: return
-
-        // Update visual selection border on canvas
-        currentlySelectedView?.foreground = null
-        val targetView = canvasViewMap[compKey]
-        if (targetView != null) {
-            val highlightBorder = GradientDrawable().apply {
-                setColor(Color.TRANSPARENT)
-                setStroke(UiStudioEngine.dpToPx(this@UiStudioActivity, 2), Color.parseColor("#007AFF"))
-                cornerRadius = UiStudioEngine.dpToPx(this@UiStudioActivity, comp.appearance.cornerRadius ?: 12).toFloat()
-            }
-            targetView.foreground = highlightBorder
-            currentlySelectedView = targetView
-        }
-
-        binding.tvSelectedTag.text = "Selected: ${comp.name}"
-        binding.tvProtectedBadge.text = if (comp.isProtected) "Protected Core" else "Editable Component"
-        binding.tvProtectedBadge.setTextColor(if (comp.isProtected) ContextCompat.getColor(this, R.color.eve_system_yellow) else ContextCompat.getColor(this, R.color.eve_green))
-
-        val keys = screen.components.keys.toList()
-        val idx = keys.indexOf(compKey)
-        if (idx >= 0 && idx != binding.spComponentSelector.selectedItemPosition) {
-            binding.spComponentSelector.setSelection(idx)
-        }
-
-        populateFieldsForCurrentComponent()
-        refreshAdvancedRawJson()
-    }
-
-    private fun renderRealScreenCanvas() {
-        binding.canvasScreenContent.removeAllViews()
-        canvasViewMap.clear()
-        currentlySelectedView = null
-
-        val screen = activeConfig.screens[currentScreenKey] ?: ScreenConfig(id = currentScreenKey)
-        val screenBgColor = UiStudioEngine.parseColorSafe(screen.backgroundColor)
-            ?: UiStudioEngine.parseColorSafe(activeConfig.designSystem.appBackground)
-            ?: Color.BLACK
-        binding.canvasContainer.setBackgroundColor(screenBgColor)
-
-        screen.components.forEach { (compKey, comp) ->
-            val previewView = createRealPreviewForComponent(compKey, comp)
-            canvasViewMap[compKey] = previewView
-            binding.canvasScreenContent.addView(previewView)
-        }
-
-        if (currentCompKey.isNotBlank()) {
-            selectComponent(currentCompKey)
-        }
-        binding.canvasScreenContent.post { fitCanvasToViewport() }
-    }
-
-    private fun updatePreviewChildViews(view: View, comp: ComponentConfig) {
-        val titleView = view.findViewWithTag<TextView>("title") ?: (view as? TextView)
-        titleView?.let {
-            if (!comp.content.title.isNullOrBlank()) {
-                it.text = comp.content.title
-            }
-            UiStudioEngine.applyTypography(it, comp)
-        }
-
-        val subView = view.findViewWithTag<TextView>("subtitle")
-        subView?.let {
-            if (!comp.content.subtitle.isNullOrBlank()) {
-                it.text = comp.content.subtitle
-            }
-        }
-
-        val timerView = view.findViewWithTag<TextView>("timer_text")
-        timerView?.let {
-            if (!comp.content.title.isNullOrBlank()) {
-                it.text = comp.content.title
-            }
-            UiStudioEngine.applyTypography(it, comp)
-        }
-    }
-
-    private fun createRealPreviewForComponent(compKey: String, comp: ComponentConfig): View {
-        val view: View = when {
-            comp.type == "timer" || compKey == "timer_pill" -> {
-                buildTimerPreview(compKey, comp)
-            }
-            comp.type == "action_grid" || compKey == "action_grid" || compKey == "bottom_actions" -> {
-                buildActionGridPreview(compKey, comp)
-            }
-            comp.type == "banner" || compKey == "hero_banner" -> {
-                buildBannerPreview(compKey, comp)
-            }
-            comp.type == "badge" || compKey == "streak_pill" || compKey == "syllabus_selector" -> {
-                buildBadgePreview(compKey, comp)
-            }
-            comp.type == "button" || compKey in listOf("btn_login", "login_google", "btn_logout", "result_bottom_bar") -> {
-                buildButtonPreview(compKey, comp)
-            }
-            compKey == "option_item" -> {
-                buildOptionItemPreview(compKey, comp)
-            }
-            compKey == "featured_exam_card" -> {
-                buildExamCardPreview(compKey, comp)
-            }
-            compKey == "home_bottom_nav" -> {
-                buildBottomNavPreview(compKey, comp)
-            }
-            compKey == "score_card" -> {
-                buildScoreHeroPreview(compKey, comp)
-            }
-            compKey == "result_tabs" -> {
-                buildTabsPreview(compKey, comp)
-            }
-            compKey in listOf("analytics_summary", "profile_stats") -> {
-                buildStatGridPreview(compKey, comp)
-            }
-            compKey == "result_insight" -> {
-                buildInsightPreview(compKey, comp)
-            }
-            compKey == "profile_header" -> {
-                buildProfileHeaderPreview(compKey, comp)
-            }
-            compKey == "profile_rows" -> {
-                buildProfileRowsPreview(compKey, comp)
-            }
-            compKey in listOf("notification_card", "notification_card_2") -> {
-                buildNotificationItemPreview(compKey, comp)
-            }
-            compKey == "syllabus_card" -> {
-                buildSyllabusCardPreview(compKey, comp)
-            }
-            compKey == "login_inputs" -> {
-                buildLoginInputsPreview(compKey, comp)
-            }
-            compKey == "admin_modules" -> {
-                buildAdminModulesPreview(compKey, comp)
-            }
-            compKey == "admin_health" -> {
-                buildAdminHealthPreview(compKey, comp)
-            }
-            comp.type == "text" || compKey == "syllabus_header" -> {
-                buildTextPreview(compKey, comp)
-            }
-            comp.type == "divider" -> {
-                buildDividerPreview(compKey, comp)
-            }
-            comp.type == "spacer" -> {
-                buildSpacerPreview(compKey, comp)
-            }
-            comp.type == "input" || compKey == "search_bar" -> {
-                buildInputPreview(compKey, comp)
-            }
-            comp.type == "toggle" -> {
-                buildTogglePreview(compKey, comp)
-            }
-            else -> {
-                buildCardPreview(compKey, comp)
-            }
-        }
-
-        UiStudioEngine.applyToView(view, comp)
-
-        view.setOnClickListener {
-            if (isInteractMode) {
-                view.animate()
-                    .scaleX(0.96f)
-                    .scaleY(0.96f)
-                    .setDuration(70)
-                    .withEndAction {
-                        view.animate().scaleX(1.0f).scaleY(1.0f).setDuration(120).start()
-                    }
-                    .start()
-                AppBulletin.show(this, "Tapped ${comp.name} in Interact Mode")
-            } else {
-                selectComponent(compKey)
-            }
-        }
-
-        return view
-    }
-
-    private fun buildTimerPreview(compKey: String, comp: ComponentConfig): View {
-        val container = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER
-            setPadding(
-                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 14),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 8),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 14),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 8)
-            )
-        }
-        val ringIndicator = View(this).apply {
-            val ringSize = UiStudioEngine.dpToPx(context, 16)
-            layoutParams = LinearLayout.LayoutParams(ringSize, ringSize).apply {
-                marginEnd = UiStudioEngine.dpToPx(context, 8)
-            }
-            val strokeCol = UiStudioEngine.parseColorSafe(comp.appearance.strokeColor) ?: Color.parseColor("#38BDF8")
-            background = GradientDrawable().apply {
-                shape = GradientDrawable.OVAL
-                setColor(Color.TRANSPARENT)
-                setStroke(UiStudioEngine.dpToPx(context, 2), strokeCol)
-            }
-        }
-        container.addView(ringIndicator)
-
-        val timerTv = TextView(this).apply {
-            tag = "timer_text"
-            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "45:00"
-            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.parseColor("#38BDF8"))
-            textSize = (comp.typography.textSize ?: 14).toFloat()
-            setTypeface(null, if (comp.typography.textStyle == "bold") Typeface.BOLD else Typeface.NORMAL)
-        }
-        container.addView(timerTv)
-        return container
-    }
-
-    private fun buildActionGridPreview(compKey: String, comp: ComponentConfig): View {
-        val gridLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        }
-        val row1 = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
-                bottomMargin = UiStudioEngine.dpToPx(context, 6)
-            }
-        }
-        val row2 = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        }
-
-        fun createPill(title: String, isPrimary: Boolean): View {
-            return TextView(this).apply {
-                text = title
-                gravity = Gravity.CENTER
-                layoutParams = LinearLayout.LayoutParams(0, UiStudioEngine.dpToPx(context, 38), 1f).apply {
-                    marginEnd = UiStudioEngine.dpToPx(context, 4)
-                    marginStart = UiStudioEngine.dpToPx(context, 4)
-                }
-                val bg = GradientDrawable().apply {
-                    cornerRadius = (comp.appearance.cornerRadius ?: 12) * resources.displayMetrics.density
-                    setColor(if (isPrimary) Color.parseColor("#007AFF") else (UiStudioEngine.parseColorSafe(comp.appearance.backgroundColor) ?: Color.parseColor("#1E293B")))
-                    setStroke(UiStudioEngine.dpToPx(context, comp.appearance.strokeWidth ?: 1), UiStudioEngine.parseColorSafe(comp.appearance.strokeColor) ?: Color.parseColor("#334155"))
-                }
-                background = bg
-                setTextColor(if (isPrimary) Color.WHITE else (UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.parseColor("#94A3B8")))
-                textSize = 12f
-                setTypeface(null, Typeface.BOLD)
-            }
-        }
-        row1.addView(createPill("CLEAR", false))
-        row1.addView(createPill("MARK REVIEW", false))
-        row2.addView(createPill("PREVIOUS", false))
-        row2.addView(createPill("SAVE & NEXT", true))
-        gridLayout.addView(row1)
-        gridLayout.addView(row2)
-        return gridLayout
-    }
-
-    private fun buildBannerPreview(compKey: String, comp: ComponentConfig): View {
-        val bannerLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(
-                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 16),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 16),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 16),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 16)
-            )
-        }
-        val tagPill = TextView(this).apply {
-            text = "FEATURED CHALLENGE"
-            textSize = 10f
-            setTypeface(null, Typeface.BOLD)
-            setTextColor(Color.parseColor("#38BDF8"))
-            setPadding(UiStudioEngine.dpToPx(context, 6), UiStudioEngine.dpToPx(context, 2), UiStudioEngine.dpToPx(context, 6), UiStudioEngine.dpToPx(context, 2))
-            background = GradientDrawable().apply {
-                cornerRadius = 8 * resources.displayMetrics.density
-                setColor(Color.parseColor("#1E3A5F"))
-            }
-            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
-                bottomMargin = UiStudioEngine.dpToPx(context, 8)
-            }
-        }
-        bannerLayout.addView(tagPill)
-
-        val titleTv = TextView(this).apply {
-            tag = "title"
-            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "EVE Daily Challenge"
-            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.WHITE)
-            textSize = (comp.typography.textSize ?: 18).toFloat()
-            setTypeface(null, if (comp.typography.textStyle == "bold") Typeface.BOLD else Typeface.NORMAL)
-        }
-        bannerLayout.addView(titleTv)
-
-        val subTv = TextView(this).apply {
-            tag = "subtitle"
-            text = comp.content.subtitle ?: "Test your skills with today's featured exam series"
-            setTextColor(Color.parseColor("#94A3B8"))
-            textSize = 12f
-            setPadding(0, UiStudioEngine.dpToPx(context, 4), 0, 0)
-        }
-        bannerLayout.addView(subTv)
-        return bannerLayout
-    }
-
-    private fun buildBadgePreview(compKey: String, comp: ComponentConfig): View {
-        val badgeLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(
-                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 12),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 6),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 12),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 6)
-            )
-        }
-        val iconTv = TextView(this).apply {
-            text = "🔥"
-            textSize = 13f
-            setPadding(0, 0, UiStudioEngine.dpToPx(context, 6), 0)
-        }
-        badgeLayout.addView(iconTv)
-
-        val titleTv = TextView(this).apply {
-            tag = "title"
-            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "7 Day Streak"
-            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.parseColor("#F59E0B"))
-            textSize = (comp.typography.textSize ?: 13).toFloat()
-            setTypeface(null, if (comp.typography.textStyle == "bold") Typeface.BOLD else Typeface.NORMAL)
-        }
-        badgeLayout.addView(titleTv)
-        return badgeLayout
-    }
-
-    private fun buildButtonPreview(compKey: String, comp: ComponentConfig): View {
-        val btnLayout = FrameLayout(this).apply {
-            setPadding(
-                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 16),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 12),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 16),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 12)
-            )
-        }
-        val btnTv = TextView(this).apply {
-            tag = "title"
-            text = comp.content.title?.takeIf { it.isNotBlank() } ?: comp.name
-            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.WHITE)
-            textSize = (comp.typography.textSize ?: 15).toFloat()
-            setTypeface(null, if (comp.typography.textStyle == "bold") Typeface.BOLD else Typeface.NORMAL)
-            gravity = Gravity.CENTER
-            layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        }
-        btnLayout.addView(btnTv)
-        return btnLayout
-    }
-
-    private fun buildTextPreview(compKey: String, comp: ComponentConfig): View {
-        return TextView(this).apply {
-            tag = "title"
-            text = comp.content.title?.takeIf { it.isNotBlank() } ?: comp.name
-            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.parseColor("#94A3B8"))
-            textSize = (comp.typography.textSize ?: 14).toFloat()
-            setTypeface(null, if (comp.typography.textStyle == "bold") Typeface.BOLD else Typeface.NORMAL)
-            setPadding(
-                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 4),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 4),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 4),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 4)
-            )
-        }
-    }
-
-    private fun buildOptionItemPreview(compKey: String, comp: ComponentConfig): View {
-        val rootLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        }
-
-        val optionsData = listOf(
-            "A" to (comp.content.title?.takeIf { it.isNotBlank() } ?: "Article 21: Protection of Life & Personal Liberty"),
-            "B" to "Article 32: Right to Constitutional Remedies",
-            "C" to "Article 14: Equality before Law and Equal Protection",
-            "D" to "Article 19: Protection of Six Fundamental Freedoms"
-        )
-
-        optionsData.forEachIndexed { index, (letter, text) ->
-            val isSelected = (index == selectedAnswerOptionIndex)
-            val optionRow = LinearLayout(this).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER_VERTICAL
-                layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
-                    topMargin = UiStudioEngine.dpToPx(context, 4)
-                    bottomMargin = UiStudioEngine.dpToPx(context, 4)
-                }
-                setPadding(
-                    UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 14),
-                    UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 12),
-                    UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 14),
-                    UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 12)
-                )
-
-                val corner = (comp.appearance.cornerRadius ?: 12) * resources.displayMetrics.density
-                val bg = GradientDrawable().apply {
-                    cornerRadius = corner
-                    if (isSelected) {
-                        setColor(Color.parseColor("#14532D"))
-                        setStroke(UiStudioEngine.dpToPx(context, 2), Color.parseColor("#16A34A"))
-                    } else {
-                        setColor(UiStudioEngine.parseColorSafe(comp.appearance.backgroundColor) ?: Color.parseColor("#0F172A"))
-                        setStroke(UiStudioEngine.dpToPx(context, comp.appearance.strokeWidth ?: 1), UiStudioEngine.parseColorSafe(comp.appearance.strokeColor) ?: Color.parseColor("#334155"))
-                    }
-                }
-                background = bg
-            }
-
-            val circle = TextView(this).apply {
-                this.text = letter
-                gravity = Gravity.CENTER
-                textSize = 12f
-                setTypeface(null, Typeface.BOLD)
-                val cSize = UiStudioEngine.dpToPx(context, 26)
-                layoutParams = LinearLayout.LayoutParams(cSize, cSize).apply {
-                    marginEnd = UiStudioEngine.dpToPx(context, 10)
-                }
-                background = GradientDrawable().apply {
-                    shape = GradientDrawable.OVAL
-                    setColor(if (isSelected) Color.parseColor("#16A34A") else Color.parseColor("#334155"))
-                }
-                setTextColor(Color.WHITE)
-            }
-            optionRow.addView(circle)
-
-            val tv = TextView(this).apply {
-                this.text = text
-                if (index == 0) tag = "title"
-                setTextColor(if (isSelected) Color.WHITE else (UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.parseColor("#E2E8F0")))
-                textSize = (comp.typography.textSize ?: 14).toFloat()
-                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-            }
-            optionRow.addView(tv)
-
-            if (isSelected) {
-                val checkmark = TextView(this).apply {
-                    this.text = "✓"
-                    setTextColor(Color.parseColor("#22C55E"))
-                    textSize = 14f
-                    setTypeface(null, Typeface.BOLD)
-                    setPadding(UiStudioEngine.dpToPx(context, 6), 0, 0, 0)
-                }
-                optionRow.addView(checkmark)
-            }
-
-            optionRow.setOnClickListener {
-                if (isInteractMode) {
-                    selectedAnswerOptionIndex = index
-                    renderRealScreenCanvas()
-                    AppBulletin.show(this@UiStudioActivity, "Selected Option $letter in Interact Mode")
-                } else {
-                    selectComponent(compKey)
-                }
-            }
-
-            rootLayout.addView(optionRow)
-        }
-
-        return rootLayout
-    }
-
-    private fun buildExamCardPreview(compKey: String, comp: ComponentConfig): View {
-        val cardLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(
-                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 16),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 16),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 16),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 16)
-            )
-        }
-        val topRow = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
-                bottomMargin = UiStudioEngine.dpToPx(context, 8)
-            }
-        }
-        val liveBadge = TextView(this).apply {
-            text = "● LIVE TEST"
-            textSize = 10f
-            setTypeface(null, Typeface.BOLD)
-            setTextColor(Color.parseColor("#22C55E"))
-            setPadding(UiStudioEngine.dpToPx(context, 8), UiStudioEngine.dpToPx(context, 3), UiStudioEngine.dpToPx(context, 8), UiStudioEngine.dpToPx(context, 3))
-            background = GradientDrawable().apply {
-                cornerRadius = 6 * resources.displayMetrics.density
-                setColor(Color.parseColor("#14532D"))
-            }
-        }
-        topRow.addView(liveBadge)
-        val space = View(this).apply {
-            layoutParams = LinearLayout.LayoutParams(0, 1, 1f)
-        }
-        topRow.addView(space)
-        val timeBadge = TextView(this).apply {
-            text = "180 Mins • 200 Marks"
-            textSize = 11f
-            setTextColor(Color.parseColor("#94A3B8"))
-        }
-        topRow.addView(timeBadge)
-        cardLayout.addView(topRow)
-
-        val titleTv = TextView(this).apply {
-            tag = "title"
-            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "RPSC RAS Prelims Full Mock 04"
-            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.WHITE)
-            textSize = (comp.typography.textSize ?: 16).toFloat()
-            setTypeface(null, if (comp.typography.textStyle == "bold") Typeface.BOLD else Typeface.NORMAL)
-        }
-        cardLayout.addView(titleTv)
-
-        val subTv = TextView(this).apply {
-            tag = "subtitle"
-            text = comp.content.subtitle ?: "150 Questions • Negative Marking: 1/3"
-            setTextColor(Color.parseColor("#94A3B8"))
-            textSize = 12f
-            setPadding(0, UiStudioEngine.dpToPx(context, 4), 0, UiStudioEngine.dpToPx(context, 10))
-        }
-        cardLayout.addView(subTv)
-
-        val startBtn = TextView(this).apply {
-            text = "Start Test Now →"
-            gravity = Gravity.CENTER
-            textSize = 13f
-            setTypeface(null, Typeface.BOLD)
-            setTextColor(Color.WHITE)
-            setPadding(0, UiStudioEngine.dpToPx(context, 10), 0, UiStudioEngine.dpToPx(context, 10))
-            background = GradientDrawable().apply {
-                cornerRadius = 10 * resources.displayMetrics.density
-                setColor(Color.parseColor("#007AFF"))
-            }
-        }
-        cardLayout.addView(startBtn)
-        return cardLayout
-    }
-
-    private fun buildBottomNavPreview(compKey: String, comp: ComponentConfig): View {
-        val navLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(
-                UiStudioEngine.dpToPx(context, 8),
-                UiStudioEngine.dpToPx(context, 8),
-                UiStudioEngine.dpToPx(context, 8),
-                UiStudioEngine.dpToPx(context, 8)
-            )
-        }
-        val items = listOf(
-            Triple("🏠", "Home", true),
-            Triple("📝", "Tests", false),
-            Triple("📚", "Syllabus", false),
-            Triple("👤", "Profile", false)
-        )
-        items.forEach { (icon, label, isSelected) ->
-            val itemLayout = LinearLayout(this).apply {
-                orientation = LinearLayout.VERTICAL
-                gravity = Gravity.CENTER
-                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-            }
-            val iconTv = TextView(this).apply {
-                text = icon
-                textSize = 16f
-                gravity = Gravity.CENTER
-            }
-            itemLayout.addView(iconTv)
-            val labelTv = TextView(this).apply {
-                text = label
-                textSize = 10f
-                setTypeface(null, if (isSelected) Typeface.BOLD else Typeface.NORMAL)
-                setTextColor(if (isSelected) Color.parseColor("#38BDF8") else Color.parseColor("#64748B"))
-                gravity = Gravity.CENTER
-            }
-            itemLayout.addView(labelTv)
-            navLayout.addView(itemLayout)
-        }
-        return navLayout
-    }
-
-    private fun buildScoreHeroPreview(compKey: String, comp: ComponentConfig): View {
-        val heroLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
-            setPadding(
-                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 16),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 20),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 16),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 20)
-            )
-        }
-        val scoreCircle = TextView(this).apply {
-            text = "85"
-            textSize = 34f
-            setTypeface(null, Typeface.BOLD)
-            setTextColor(Color.parseColor("#38BDF8"))
-            gravity = Gravity.CENTER
-        }
-        heroLayout.addView(scoreCircle)
-
-        val titleTv = TextView(this).apply {
-            tag = "title"
-            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "Your Score: 85 / 100"
-            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.WHITE)
-            textSize = (comp.typography.textSize ?: 16).toFloat()
-            setTypeface(null, Typeface.BOLD)
-            setPadding(0, UiStudioEngine.dpToPx(context, 4), 0, 0)
-        }
-        heroLayout.addView(titleTv)
-
-        val rankPill = TextView(this).apply {
-            text = "Rank #14 • Percentile: 98.2%"
-            textSize = 12f
-            setTypeface(null, Typeface.BOLD)
-            setTextColor(Color.parseColor("#22C55E"))
-            setPadding(UiStudioEngine.dpToPx(context, 10), UiStudioEngine.dpToPx(context, 4), UiStudioEngine.dpToPx(context, 10), UiStudioEngine.dpToPx(context, 4))
-            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
-                topMargin = UiStudioEngine.dpToPx(context, 8)
-            }
-            background = GradientDrawable().apply {
-                cornerRadius = 12 * resources.displayMetrics.density
-                setColor(Color.parseColor("#14532D"))
-            }
-        }
-        heroLayout.addView(rankPill)
-        return heroLayout
-    }
-
-    private fun buildTabsPreview(compKey: String, comp: ComponentConfig): View {
-        val tabsLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(
-                UiStudioEngine.dpToPx(context, 4),
-                UiStudioEngine.dpToPx(context, 4),
-                UiStudioEngine.dpToPx(context, 4),
-                UiStudioEngine.dpToPx(context, 4)
-            )
-        }
-        val tabs = listOf("Overview" to true, "Review" to false, "Leaderboard" to false)
-        tabs.forEach { (title, isSelected) ->
-            val tabTv = TextView(this).apply {
-                text = title
-                gravity = Gravity.CENTER
-                textSize = 12f
-                setTypeface(null, if (isSelected) Typeface.BOLD else Typeface.NORMAL)
-                setTextColor(if (isSelected) Color.WHITE else Color.parseColor("#94A3B8"))
-                layoutParams = LinearLayout.LayoutParams(0, UiStudioEngine.dpToPx(context, 34), 1f)
-                if (isSelected) {
-                    background = GradientDrawable().apply {
-                        cornerRadius = 17 * resources.displayMetrics.density
-                        setColor(Color.parseColor("#007AFF"))
-                    }
-                }
-            }
-            tabsLayout.addView(tabTv)
-        }
-        return tabsLayout
-    }
-
-    private fun buildStatGridPreview(compKey: String, comp: ComponentConfig): View {
-        val statsLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            setPadding(
-                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 12),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 10),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 12),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 10)
-            )
-        }
-        val stats = listOf(
-            Triple("Accuracy", "82%", "#22C55E"),
-            Triple("Attempted", "92/100", "#38BDF8"),
-            Triple("Avg Speed", "48s/Q", "#F59E0B")
-        )
-        stats.forEach { (label, value, col) ->
-            val colLayout = LinearLayout(this).apply {
-                orientation = LinearLayout.VERTICAL
-                gravity = Gravity.CENTER
-                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-            }
-            val valTv = TextView(this).apply {
-                text = value
-                textSize = 15f
-                setTypeface(null, Typeface.BOLD)
-                setTextColor(Color.parseColor(col))
-            }
-            colLayout.addView(valTv)
-            val lblTv = TextView(this).apply {
-                text = label
-                textSize = 10f
-                setTextColor(Color.parseColor("#94A3B8"))
-            }
-            colLayout.addView(lblTv)
-            statsLayout.addView(colLayout)
-        }
-        return statsLayout
-    }
-
-    private fun buildInsightPreview(compKey: String, comp: ComponentConfig): View {
-        val insightLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(
-                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 16),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 14),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 16),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 14)
-            )
-        }
-        val titleTv = TextView(this).apply {
-            tag = "title"
-            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "Cutoff Cleared: Qualified for Mains"
-            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.parseColor("#22C55E"))
-            textSize = (comp.typography.textSize ?: 14).toFloat()
-            setTypeface(null, Typeface.BOLD)
-        }
-        insightLayout.addView(titleTv)
-
-        val subTv = TextView(this).apply {
-            tag = "subtitle"
-            text = comp.content.subtitle ?: "Your estimated cutoff is 72.8 • You scored 85.0"
-            setTextColor(Color.parseColor("#94A3B8"))
-            textSize = 12f
-            setPadding(0, UiStudioEngine.dpToPx(context, 4), 0, 0)
-        }
-        insightLayout.addView(subTv)
-        return insightLayout
-    }
-
-    private fun buildProfileHeaderPreview(compKey: String, comp: ComponentConfig): View {
-        val headerLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(
-                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 16),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 14),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 16),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 14)
-            )
-        }
-        val avatar = TextView(this).apply {
-            text = "VS"
-            gravity = Gravity.CENTER
-            textSize = 15f
-            setTypeface(null, Typeface.BOLD)
-            setTextColor(Color.WHITE)
-            val aSize = UiStudioEngine.dpToPx(context, 44)
-            layoutParams = LinearLayout.LayoutParams(aSize, aSize).apply {
-                marginEnd = UiStudioEngine.dpToPx(context, 14)
-            }
-            background = GradientDrawable().apply {
-                shape = GradientDrawable.OVAL
-                setColor(Color.parseColor("#007AFF"))
-            }
-        }
-        headerLayout.addView(avatar)
-
-        val infoCol = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-        }
-        val nameTv = TextView(this).apply {
-            tag = "title"
-            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "Vikram Sharma"
-            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.WHITE)
-            textSize = (comp.typography.textSize ?: 18).toFloat()
-            setTypeface(null, Typeface.BOLD)
-        }
-        infoCol.addView(nameTv)
-        val idTv = TextView(this).apply {
-            tag = "subtitle"
-            text = comp.content.subtitle ?: "ID: EV-849201 • Premium Member"
-            setTextColor(Color.parseColor("#94A3B8"))
-            textSize = 12f
-        }
-        infoCol.addView(idTv)
-        headerLayout.addView(infoCol)
-        return headerLayout
-    }
-
-    private fun buildProfileRowsPreview(compKey: String, comp: ComponentConfig): View {
-        val rowsLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(
-                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 14),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 10),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 14),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 10)
-            )
-        }
-        val menuItems = listOf(
-            Pair("📊", "Test Performance & Rank Analytics"),
-            Pair("🔖", "Bookmarks & Mistake Notebook"),
-            Pair("⚙️", "Settings, Theme & Notifications")
-        )
-        menuItems.forEachIndexed { i, (icon, label) ->
-            if (i > 0) {
-                val div = View(this).apply {
-                    layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, UiStudioEngine.dpToPx(context, 1)).apply {
-                        topMargin = UiStudioEngine.dpToPx(context, 8)
-                        bottomMargin = UiStudioEngine.dpToPx(context, 8)
-                    }
-                    setBackgroundColor(Color.parseColor("#334155"))
-                }
-                rowsLayout.addView(div)
-            }
-            val row = LinearLayout(this).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER_VERTICAL
-                setPadding(0, UiStudioEngine.dpToPx(context, 4), 0, UiStudioEngine.dpToPx(context, 4))
-            }
-            val ic = TextView(this).apply {
-                text = icon
-                textSize = 14f
-                setPadding(0, 0, UiStudioEngine.dpToPx(context, 10), 0)
-            }
-            row.addView(ic)
-            val lbl = TextView(this).apply {
-                text = label
-                textSize = 13f
-                setTextColor(Color.parseColor("#E2E8F0"))
-                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-            }
-            row.addView(lbl)
-            val chev = TextView(this).apply {
-                text = "›"
-                textSize = 16f
-                setTextColor(Color.parseColor("#64748B"))
-            }
-            row.addView(chev)
-            rowsLayout.addView(row)
-        }
-        return rowsLayout
-    }
-
-    private fun buildNotificationItemPreview(compKey: String, comp: ComponentConfig): View {
-        val notifLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(
-                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 14),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 12),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 14),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 12)
-            )
-        }
-        val bell = TextView(this).apply {
-            text = "🔔"
-            textSize = 16f
-            setPadding(0, 0, UiStudioEngine.dpToPx(context, 10), 0)
-        }
-        notifLayout.addView(bell)
-
-        val col = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-        }
-        val titleTv = TextView(this).apply {
-            tag = "title"
-            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "Exam Update Notification"
-            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.WHITE)
-            textSize = (comp.typography.textSize ?: 14).toFloat()
-            setTypeface(null, if (comp.typography.textStyle == "bold") Typeface.BOLD else Typeface.NORMAL)
-        }
-        col.addView(titleTv)
-        val subTv = TextView(this).apply {
-            tag = "subtitle"
-            text = comp.content.subtitle ?: "2 hours ago"
-            setTextColor(Color.parseColor("#94A3B8"))
-            textSize = 11f
-        }
-        col.addView(subTv)
-        notifLayout.addView(col)
-        return notifLayout
-    }
-
-    private fun buildSyllabusCardPreview(compKey: String, comp: ComponentConfig): View {
-        val card = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(
-                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 16),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 14),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 16),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 14)
-            )
-        }
-        val titleTv = TextView(this).apply {
-            tag = "title"
-            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "General Science & Technology"
-            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.WHITE)
-            textSize = (comp.typography.textSize ?: 15).toFloat()
-            setTypeface(null, Typeface.BOLD)
-        }
-        card.addView(titleTv)
-
-        val subTv = TextView(this).apply {
-            tag = "subtitle"
-            text = comp.content.subtitle ?: "85% syllabus covered • 12 Topics"
-            setTextColor(Color.parseColor("#94A3B8"))
-            textSize = 12f
-            setPadding(0, UiStudioEngine.dpToPx(context, 4), 0, UiStudioEngine.dpToPx(context, 8))
-        }
-        card.addView(subTv)
-
-        val progressTrack = LinearLayout(this).apply {
-            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, UiStudioEngine.dpToPx(context, 6))
-            background = GradientDrawable().apply {
-                cornerRadius = 3 * resources.displayMetrics.density
-                setColor(Color.parseColor("#334155"))
-            }
-        }
-        val progressFill = View(this).apply {
-            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 0.85f)
-            background = GradientDrawable().apply {
-                cornerRadius = 3 * resources.displayMetrics.density
-                setColor(Color.parseColor("#007AFF"))
-            }
-        }
-        progressTrack.addView(progressFill)
-        val space = View(this).apply {
-            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 0.15f)
-        }
-        progressTrack.addView(space)
-        card.addView(progressTrack)
-        return card
-    }
-
-    private fun buildLoginInputsPreview(compKey: String, comp: ComponentConfig): View {
-        val container = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(
-                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 16),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 16),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 16),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 16)
-            )
-        }
-        val headerTv = TextView(this).apply {
-            tag = "title"
-            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "Sign In to Account"
-            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.WHITE)
-            textSize = (comp.typography.textSize ?: 15).toFloat()
-            setTypeface(null, Typeface.BOLD)
-            setPadding(0, 0, 0, UiStudioEngine.dpToPx(context, 10))
-        }
-        container.addView(headerTv)
-
-        fun createField(placeholder: String, value: String): View {
-            return LinearLayout(this).apply {
-                orientation = LinearLayout.VERTICAL
-                layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
-                    bottomMargin = UiStudioEngine.dpToPx(context, 8)
-                }
-                val label = TextView(this@UiStudioActivity).apply {
-                    text = placeholder
-                    textSize = 11f
-                    setTextColor(Color.parseColor("#94A3B8"))
-                }
-                addView(label)
-                val box = TextView(this@UiStudioActivity).apply {
-                    text = value
-                    textSize = 13f
-                    setTextColor(Color.WHITE)
-                    setPadding(UiStudioEngine.dpToPx(context, 10), UiStudioEngine.dpToPx(context, 8), UiStudioEngine.dpToPx(context, 10), UiStudioEngine.dpToPx(context, 8))
-                    background = GradientDrawable().apply {
-                        cornerRadius = 8 * resources.displayMetrics.density
-                        setColor(Color.parseColor("#0F172A"))
-                        setStroke(UiStudioEngine.dpToPx(context, 1), Color.parseColor("#334155"))
-                    }
-                }
-                addView(box)
-            }
-        }
-        container.addView(createField("Email Address", "student@example.com"))
-        container.addView(createField("Password", "••••••••••••"))
-        return container
-    }
-
-    private fun buildAdminModulesPreview(compKey: String, comp: ComponentConfig): View {
-        val root = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(
-                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 16),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 14),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 16),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 14)
-            )
-        }
-        val title = TextView(this).apply {
-            tag = "title"
-            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "Operations Center"
-            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.WHITE)
-            textSize = (comp.typography.textSize ?: 15).toFloat()
-            setTypeface(null, Typeface.BOLD)
-            setPadding(0, 0, 0, UiStudioEngine.dpToPx(context, 8))
-        }
-        root.addView(title)
-
-        val row1 = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
-                bottomMargin = UiStudioEngine.dpToPx(context, 6)
-            }
-        }
-        val row2 = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        }
-        fun createTile(icon: String, name: String): View {
-            return LinearLayout(this).apply {
-                orientation = LinearLayout.VERTICAL
-                gravity = Gravity.CENTER
-                layoutParams = LinearLayout.LayoutParams(0, UiStudioEngine.dpToPx(context, 54), 1f).apply {
-                    marginStart = UiStudioEngine.dpToPx(context, 4)
-                    marginEnd = UiStudioEngine.dpToPx(context, 4)
-                }
-                background = GradientDrawable().apply {
-                    cornerRadius = 10 * resources.displayMetrics.density
-                    setColor(Color.parseColor("#0F172A"))
-                    setStroke(UiStudioEngine.dpToPx(context, 1), Color.parseColor("#334155"))
-                }
-                val ic = TextView(this@UiStudioActivity).apply { text = icon; textSize = 16f }
-                addView(ic)
-                val nm = TextView(this@UiStudioActivity).apply { text = name; textSize = 10f; setTextColor(Color.parseColor("#94A3B8")) }
-                addView(nm)
-            }
-        }
-        row1.addView(createTile("📝", "Tests"))
-        row1.addView(createTile("🎨", "UI Studio"))
-        row2.addView(createTile("📢", "Bulletins"))
-        row2.addView(createTile("👥", "Users"))
-        root.addView(row1)
-        root.addView(row2)
-        return root
-    }
-
-    private fun buildAdminHealthPreview(compKey: String, comp: ComponentConfig): View {
-        val root = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(
-                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 14),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 12),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 14),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 12)
-            )
-        }
-        val dot = View(this).apply {
-            val dSize = UiStudioEngine.dpToPx(context, 10)
-            layoutParams = LinearLayout.LayoutParams(dSize, dSize).apply {
-                marginEnd = UiStudioEngine.dpToPx(context, 10)
-            }
-            background = GradientDrawable().apply {
-                shape = GradientDrawable.OVAL
-                setColor(Color.parseColor("#22C55E"))
-            }
-        }
-        root.addView(dot)
-        val col = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-        }
-        val title = TextView(this).apply {
-            tag = "title"
-            text = comp.content.title?.takeIf { it.isNotBlank() } ?: "Cloudflare D1: Healthy (11 Migrations)"
-            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.parseColor("#22C55E"))
-            textSize = (comp.typography.textSize ?: 13).toFloat()
-            setTypeface(null, Typeface.BOLD)
-        }
-        col.addView(title)
-        val sub = TextView(this).apply {
-            tag = "subtitle"
-            text = comp.content.subtitle ?: "Active Edge Workers Online • 42ms"
-            setTextColor(Color.parseColor("#94A3B8"))
-            textSize = 11f
-        }
-        col.addView(sub)
-        root.addView(col)
-        return root
-    }
-
-    private fun buildInputPreview(compKey: String, comp: ComponentConfig): View {
-        val inputLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(
-                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 14),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 10),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 14),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 10)
-            )
-        }
-        val searchIcon = TextView(this).apply {
-            text = "🔍"
-            textSize = 13f
-            setPadding(0, 0, UiStudioEngine.dpToPx(context, 8), 0)
-        }
-        inputLayout.addView(searchIcon)
-
-        val inputTv = TextView(this).apply {
-            tag = "title"
-            text = comp.content.hint?.takeIf { it.isNotBlank() } ?: comp.content.title?.takeIf { it.isNotBlank() } ?: "Search..."
-            setTextColor(Color.parseColor("#64748B"))
-            textSize = (comp.typography.textSize ?: 14).toFloat()
-        }
-        inputLayout.addView(inputTv)
-        return inputLayout
-    }
-
-    private fun buildDividerPreview(compKey: String, comp: ComponentConfig): View {
-        return View(this).apply {
-            val strokeCol = UiStudioEngine.parseColorSafe(comp.appearance.strokeColor) ?: Color.parseColor("#334155")
-            setBackgroundColor(strokeCol)
-            val hPx = UiStudioEngine.parseDimensionPx(context, comp.layout.height, UiStudioEngine.dpToPx(context, 1))
-            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, hPx).apply {
-                setMargins(
-                    UiStudioEngine.dpToPx(context, comp.layout.marginStart ?: 16),
-                    UiStudioEngine.dpToPx(context, comp.layout.marginTop ?: 8),
-                    UiStudioEngine.dpToPx(context, comp.layout.marginEnd ?: 16),
-                    UiStudioEngine.dpToPx(context, comp.layout.marginBottom ?: 8)
-                )
-            }
-        }
-    }
-
-    private fun buildSpacerPreview(compKey: String, comp: ComponentConfig): View {
-        return View(this).apply {
-            val hPx = UiStudioEngine.parseDimensionPx(context, comp.layout.height, UiStudioEngine.dpToPx(context, 16))
-            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, hPx)
-        }
-    }
-
-    private fun buildTogglePreview(compKey: String, comp: ComponentConfig): View {
-        val toggleLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(
-                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 14),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 10),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 14),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 10)
-            )
-        }
-        val toggleLabel = TextView(this).apply {
-            tag = "title"
-            text = comp.content.title?.takeIf { it.isNotBlank() } ?: comp.name
-            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.WHITE)
-            textSize = (comp.typography.textSize ?: 14).toFloat()
-            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-        }
-        toggleLayout.addView(toggleLabel)
-        val sw = Switch(this).apply {
-            isChecked = comp.enabled
-            isClickable = false
-        }
-        toggleLayout.addView(sw)
-        return toggleLayout
-    }
-
-    private fun buildCardPreview(compKey: String, comp: ComponentConfig): View {
-        val cardLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(
-                UiStudioEngine.dpToPx(context, comp.layout.paddingStart ?: 14),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingTop ?: 14),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingEnd ?: 14),
-                UiStudioEngine.dpToPx(context, comp.layout.paddingBottom ?: 14)
-            )
-        }
-        val titleTv = TextView(this).apply {
-            tag = "title"
-            text = comp.content.title?.takeIf { it.isNotBlank() } ?: comp.name
-            setTextColor(UiStudioEngine.parseColorSafe(comp.typography.textColor) ?: Color.WHITE)
-            textSize = (comp.typography.textSize ?: 15).toFloat()
-            setTypeface(null, if (comp.typography.textStyle == "bold") Typeface.BOLD else Typeface.NORMAL)
-        }
-        cardLayout.addView(titleTv)
-
-        if (!comp.content.subtitle.isNullOrBlank() || comp.type in listOf("banner", "card")) {
-            val subTv = TextView(this).apply {
-                tag = "subtitle"
-                text = comp.content.subtitle ?: "Type: ${comp.type} • ID: $compKey"
-                setTextColor(Color.parseColor("#94A3B8"))
-                textSize = 12f
-                setPadding(0, UiStudioEngine.dpToPx(context, 4), 0, 0)
-            }
-            cardLayout.addView(subTv)
-        }
-        return cardLayout
-    }
-
-    private fun populateFieldsForCurrentComponent() {
-        isUpdatingFields = true
-        val comp = getCurrentComponentConfig()
-
-        binding.tvInspectorHeader.text = "INSPECTOR: ${comp.name} [${comp.id}]"
-
-        // Screen Background
-        val screen = activeConfig.screens[currentScreenKey]
-        val screenBgHex = screen?.backgroundColor ?: ""
-        if (binding.etScreenBackgroundColor.text.toString() != screenBgHex) {
-            binding.etScreenBackgroundColor.setText(screenBgHex)
-        }
-        val screenBgColor = UiStudioEngine.parseColorSafe(screenBgHex)
-            ?: UiStudioEngine.parseColorSafe(activeConfig.designSystem.appBackground)
-            ?: Color.BLACK
-        binding.swatchScreenBgColor.background = GradientDrawable().apply {
-            shape = GradientDrawable.OVAL
-            setColor(screenBgColor)
-        }
-
-        // Design / Appearance
-        binding.etBackgroundColor.setText(comp.appearance.backgroundColor ?: "")
-        binding.etCornerRadius.setText(comp.appearance.cornerRadius?.toString() ?: "")
-        binding.etStrokeWidth.setText(comp.appearance.strokeWidth?.toString() ?: "")
-        binding.etStrokeColor.setText(comp.appearance.strokeColor ?: "")
-        binding.etElevation.setText(comp.appearance.elevation?.toString() ?: "")
-        binding.etOpacity.setText(comp.appearance.opacity?.toString() ?: "")
-
-        val swatchColor = UiStudioEngine.parseColorSafe(comp.appearance.backgroundColor) ?: Color.DKGRAY
-        binding.swatchBgColor.background = GradientDrawable().apply {
-            shape = GradientDrawable.OVAL
-            setColor(swatchColor)
-        }
-
-        // Material / Blur
-        val blurVal = (comp.material.blurRadius ?: 0).coerceIn(0, 35)
-        binding.sliderBlurRadius.value = blurVal.toFloat()
-        binding.tvBlurLabel.text = "Glass Blur Radius: $blurVal px"
-        binding.switchBlurEnabled.isChecked = blurVal > 0
-
-        val matOpacity = (comp.material.materialOpacity ?: 1.0f).coerceIn(0.0f, 1.0f)
-        binding.sliderMaterialOpacity.value = matOpacity
-        binding.tvMaterialOpacityLabel.text = "Material Surface Opacity: ${(matOpacity * 100).toInt()}%"
-
-        binding.etTintColor.setText(comp.material.tintColor ?: "")
-        binding.etTintOpacity.setText(comp.material.tintOpacity?.toString() ?: "")
-
-        // Layout
-        binding.etLayoutWidth.setText(comp.layout.width ?: "")
-        binding.etLayoutHeight.setText(comp.layout.height ?: "")
-        binding.etMarginTop.setText(comp.layout.marginTop?.toString() ?: "")
-        binding.etMarginBottom.setText(comp.layout.marginBottom?.toString() ?: "")
-        binding.etMarginStart.setText(comp.layout.marginStart?.toString() ?: "")
-        binding.etMarginEnd.setText(comp.layout.marginEnd?.toString() ?: "")
-
-        binding.etPaddingTop.setText(comp.layout.paddingTop?.toString() ?: "")
-        binding.etPaddingBottom.setText(comp.layout.paddingBottom?.toString() ?: "")
-        binding.etPaddingStart.setText(comp.layout.paddingStart?.toString() ?: "")
-        binding.etPaddingEnd.setText(comp.layout.paddingEnd?.toString() ?: "")
-
-        // Typography
-        binding.etTextColor.setText(comp.typography.textColor ?: "")
-        binding.etTextSize.setText(comp.typography.textSize?.toString() ?: "")
-        binding.etTextStyle.setText(comp.typography.textStyle ?: "")
-        binding.etTextAlign.setText(comp.typography.textAlign ?: "")
-
-        // Content & Visibility
-        binding.switchVisible.isChecked = comp.visible
-        binding.switchEnabled.isChecked = comp.enabled
-        binding.etContentTitle.setText(comp.content.title ?: "")
-        binding.etContentSubtitle.setText(comp.content.subtitle ?: "")
-        binding.etContentHint.setText(comp.content.hint ?: "")
-
-        // Actions & Routing
-        val actionTypeIndex = when (comp.actions.actionType.lowercase()) {
-            "open_screen" -> 1
-            "go_back" -> 2
-            "open_url" -> 3
-            else -> 0
-        }
-        binding.spActionType.setSelection(actionTypeIndex)
-        binding.etActionTarget.setText(comp.actions.actionTarget ?: "")
-
-        // Animation
-        binding.switchAnimationEnabled.isChecked = comp.animation.enabled
-        val animTypeIndex = when (comp.animation.type.lowercase()) {
-            "fade" -> 1
-            "scale" -> 2
-            "fade_scale" -> 3
-            "slide" -> 4
-            "pop" -> 5
-            else -> 0
-        }
-        binding.spAnimationType.setSelection(animTypeIndex)
-        binding.etAnimDuration.setText(comp.animation.durationMs.toString())
-        binding.etAnimDelay.setText(comp.animation.delayMs.toString())
-
-        // States
-        binding.etStatePressedBg.setText(comp.states.pressedBackgroundColor ?: "")
-        binding.etStateSelectedBg.setText(comp.states.selectedBackgroundColor ?: "")
-        binding.etStateDisabledBg.setText(comp.states.disabledBackgroundColor ?: "")
-        binding.etStateSelectedText.setText(comp.states.selectedTextColor ?: "")
-
-        // Branding
-        binding.etBrandDisplayName.setText(activeConfig.branding.appDisplayName)
-        binding.etBrandShortName.setText(activeConfig.branding.shortName)
-        binding.etBrandLogoUrl.setText(activeConfig.branding.logoUrl ?: "")
-        binding.etBrandColorHex.setText(activeConfig.branding.brandColor)
-        binding.etBrandGlobalBgHex.setText(activeConfig.branding.globalBackgroundColor)
-
-        isUpdatingFields = false
-    }
-
-    private fun setupFieldListeners() {
-        fun addSimpleWatcher(editText: EditText, action: (String) -> Unit) {
-            editText.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-                override fun afterTextChanged(s: Editable?) {
-                    if (!isUpdatingFields) {
-                        action(s?.toString()?.trim() ?: "")
-                    }
-                }
-            })
-        }
-
-        // Screen Background
-        addSimpleWatcher(binding.etScreenBackgroundColor) { hex ->
-            val screen = activeConfig.screens[currentScreenKey] ?: return@addSimpleWatcher
-            val newBg = if (hex.isBlank()) null else hex
-            if (screen.backgroundColor != newBg) {
-                recordFieldEditUndo()
-                val updatedScreen = screen.copy(backgroundColor = newBg)
-                val updatedScreens = activeConfig.screens.toMutableMap().apply {
-                    put(currentScreenKey, updatedScreen)
-                }
-                activeConfig = activeConfig.copy(screens = updatedScreens)
-                val parsed = UiStudioEngine.parseColorSafe(newBg)
-                    ?: UiStudioEngine.parseColorSafe(activeConfig.designSystem.appBackground)
-                    ?: Color.BLACK
-                binding.swatchScreenBgColor.background = GradientDrawable().apply {
-                    shape = GradientDrawable.OVAL
-                    setColor(parsed)
-                }
-                binding.canvasContainer.setBackgroundColor(parsed)
-                repo.saveDraftToLocalCache(activeConfig)
-                markUnsaved()
-            }
-        }
-
-        // Appearance
-        addSimpleWatcher(binding.etBackgroundColor) { hex ->
-            updateCurrentComponentConfig { comp ->
-                comp.copy(appearance = comp.appearance.copy(backgroundColor = if (hex.isBlank()) null else hex))
-            }
-        }
-        addSimpleWatcher(binding.etCornerRadius) { v ->
-            updateCurrentComponentConfig { comp -> comp.copy(appearance = comp.appearance.copy(cornerRadius = v.toIntOrNull())) }
-        }
-        addSimpleWatcher(binding.etStrokeWidth) { v ->
-            updateCurrentComponentConfig { comp -> comp.copy(appearance = comp.appearance.copy(strokeWidth = v.toIntOrNull())) }
-        }
-        addSimpleWatcher(binding.etStrokeColor) { hex ->
-            updateCurrentComponentConfig { comp -> comp.copy(appearance = comp.appearance.copy(strokeColor = if (hex.isBlank()) null else hex)) }
-        }
-        addSimpleWatcher(binding.etElevation) { v ->
-            updateCurrentComponentConfig { comp -> comp.copy(appearance = comp.appearance.copy(elevation = v.toIntOrNull())) }
-        }
-        addSimpleWatcher(binding.etOpacity) { v ->
-            updateCurrentComponentConfig { comp -> comp.copy(appearance = comp.appearance.copy(opacity = v.toFloatOrNull())) }
-        }
-
-        // Material Blur Sliders
-        binding.switchBlurEnabled.setOnCheckedChangeListener { _, isChecked ->
-            if (!isUpdatingFields) {
-                val newRadius = if (isChecked) 18 else 0
-                binding.sliderBlurRadius.value = newRadius.toFloat()
-                binding.tvBlurLabel.text = "Glass Blur Radius: $newRadius px"
-                updateCurrentComponentConfig { comp ->
-                    comp.copy(material = comp.material.copy(blurRadius = newRadius))
-                }
-            }
-        }
-        binding.sliderBlurRadius.addOnChangeListener { _, value, fromUser ->
-            if (fromUser && !isUpdatingFields) {
-                val intVal = value.toInt()
-                binding.tvBlurLabel.text = "Glass Blur Radius: $intVal px"
-                binding.switchBlurEnabled.isChecked = intVal > 0
-                updateCurrentComponentConfig { comp ->
-                    comp.copy(material = comp.material.copy(blurRadius = intVal))
-                }
-            }
-        }
-        binding.sliderMaterialOpacity.addOnChangeListener { _, value, fromUser ->
-            if (fromUser && !isUpdatingFields) {
-                binding.tvMaterialOpacityLabel.text = "Material Surface Opacity: ${(value * 100).toInt()}%"
-                updateCurrentComponentConfig { comp ->
-                    comp.copy(material = comp.material.copy(materialOpacity = value))
-                }
-            }
-        }
-        addSimpleWatcher(binding.etTintColor) { hex ->
-            updateCurrentComponentConfig { comp -> comp.copy(material = comp.material.copy(tintColor = if (hex.isBlank()) null else hex)) }
-        }
-        addSimpleWatcher(binding.etTintOpacity) { v ->
-            updateCurrentComponentConfig { comp -> comp.copy(material = comp.material.copy(tintOpacity = v.toFloatOrNull())) }
-        }
-
-        // Layout
-        addSimpleWatcher(binding.etLayoutWidth) { w ->
-            updateCurrentComponentConfig { comp -> comp.copy(layout = comp.layout.copy(width = if (w.isBlank()) null else w)) }
-        }
-        addSimpleWatcher(binding.etLayoutHeight) { h ->
-            updateCurrentComponentConfig { comp -> comp.copy(layout = comp.layout.copy(height = if (h.isBlank()) null else h)) }
-        }
-        addSimpleWatcher(binding.etMarginTop) { v ->
-            updateCurrentComponentConfig { comp -> comp.copy(layout = comp.layout.copy(marginTop = v.toIntOrNull())) }
-        }
-        addSimpleWatcher(binding.etMarginBottom) { v ->
-            updateCurrentComponentConfig { comp -> comp.copy(layout = comp.layout.copy(marginBottom = v.toIntOrNull())) }
-        }
-        addSimpleWatcher(binding.etMarginStart) { v ->
-            updateCurrentComponentConfig { comp -> comp.copy(layout = comp.layout.copy(marginStart = v.toIntOrNull())) }
-        }
-        addSimpleWatcher(binding.etMarginEnd) { v ->
-            updateCurrentComponentConfig { comp -> comp.copy(layout = comp.layout.copy(marginEnd = v.toIntOrNull())) }
-        }
-        addSimpleWatcher(binding.etPaddingTop) { v ->
-            updateCurrentComponentConfig { comp -> comp.copy(layout = comp.layout.copy(paddingTop = v.toIntOrNull())) }
-        }
-        addSimpleWatcher(binding.etPaddingBottom) { v ->
-            updateCurrentComponentConfig { comp -> comp.copy(layout = comp.layout.copy(paddingBottom = v.toIntOrNull())) }
-        }
-        addSimpleWatcher(binding.etPaddingStart) { v ->
-            updateCurrentComponentConfig { comp -> comp.copy(layout = comp.layout.copy(paddingStart = v.toIntOrNull())) }
-        }
-        addSimpleWatcher(binding.etPaddingEnd) { v ->
-            updateCurrentComponentConfig { comp -> comp.copy(layout = comp.layout.copy(paddingEnd = v.toIntOrNull())) }
-        }
-
-        // Typography
-        addSimpleWatcher(binding.etTextColor) { hex ->
-            updateCurrentComponentConfig { comp -> comp.copy(typography = comp.typography.copy(textColor = if (hex.isBlank()) null else hex)) }
-        }
-        addSimpleWatcher(binding.etTextSize) { v ->
-            updateCurrentComponentConfig { comp -> comp.copy(typography = comp.typography.copy(textSize = v.toIntOrNull())) }
-        }
-        addSimpleWatcher(binding.etTextStyle) { s ->
-            updateCurrentComponentConfig { comp -> comp.copy(typography = comp.typography.copy(textStyle = if (s.isBlank()) null else s)) }
-        }
-        addSimpleWatcher(binding.etTextAlign) { a ->
-            updateCurrentComponentConfig { comp -> comp.copy(typography = comp.typography.copy(textAlign = if (a.isBlank()) null else a)) }
-        }
-
-        // Content & Visibility
-        binding.switchVisible.setOnCheckedChangeListener { _, isChecked ->
-            if (!isUpdatingFields) {
-                updateCurrentComponentConfig { comp -> comp.copy(visible = isChecked) }
-            }
-        }
-        binding.switchEnabled.setOnCheckedChangeListener { _, isChecked ->
-            if (!isUpdatingFields) {
-                updateCurrentComponentConfig { comp -> comp.copy(enabled = isChecked) }
-            }
-        }
-        binding.btnOpenEmojiPicker.setOnClickListener {
-            showEmojiPickerDialog()
-        }
-        addSimpleWatcher(binding.etContentTitle) { t ->
-            updateCurrentComponentConfig { comp -> comp.copy(content = comp.content.copy(title = if (t.isBlank()) null else t)) }
-        }
-        addSimpleWatcher(binding.etContentSubtitle) { s ->
-            updateCurrentComponentConfig { comp -> comp.copy(content = comp.content.copy(subtitle = if (s.isBlank()) null else s)) }
-        }
-        addSimpleWatcher(binding.etContentHint) { h ->
-            updateCurrentComponentConfig { comp -> comp.copy(content = comp.content.copy(hint = if (h.isBlank()) null else h)) }
-        }
-
-        // Actions & Animation
-        addSimpleWatcher(binding.etActionTarget) { t ->
-            updateCurrentComponentConfig { comp -> comp.copy(actions = comp.actions.copy(actionTarget = if (t.isBlank()) null else t)) }
-        }
-        binding.switchAnimationEnabled.setOnCheckedChangeListener { _, isChecked ->
-            if (!isUpdatingFields) {
-                updateCurrentComponentConfig { comp -> comp.copy(animation = comp.animation.copy(enabled = isChecked)) }
-            }
-        }
-        addSimpleWatcher(binding.etAnimDuration) { d ->
-            updateCurrentComponentConfig { comp -> comp.copy(animation = comp.animation.copy(durationMs = d.toLongOrNull() ?: 300L)) }
-        }
-        addSimpleWatcher(binding.etAnimDelay) { d ->
-            updateCurrentComponentConfig { comp -> comp.copy(animation = comp.animation.copy(delayMs = d.toLongOrNull() ?: 0L)) }
-        }
-
-        // States
-        addSimpleWatcher(binding.etStatePressedBg) { hex ->
-            updateCurrentComponentConfig { comp ->
-                comp.copy(states = comp.states.copy(pressedBackgroundColor = if (hex.isBlank()) null else hex))
-            }
-        }
-        addSimpleWatcher(binding.etStateSelectedBg) { hex ->
-            updateCurrentComponentConfig { comp ->
-                comp.copy(states = comp.states.copy(selectedBackgroundColor = if (hex.isBlank()) null else hex))
-            }
-        }
-        addSimpleWatcher(binding.etStateDisabledBg) { hex ->
-            updateCurrentComponentConfig { comp ->
-                comp.copy(states = comp.states.copy(disabledBackgroundColor = if (hex.isBlank()) null else hex))
-            }
-        }
-        addSimpleWatcher(binding.etStateSelectedText) { hex ->
-            updateCurrentComponentConfig { comp ->
-                comp.copy(states = comp.states.copy(selectedTextColor = if (hex.isBlank()) null else hex))
-            }
-        }
-
-        // Branding
-        addSimpleWatcher(binding.etBrandDisplayName) { name ->
-            activeConfig = activeConfig.copy(branding = activeConfig.branding.copy(appDisplayName = name))
-            repo.saveDraftToLocalCache(activeConfig)
-            markUnsaved()
-        }
-        addSimpleWatcher(binding.etBrandShortName) { shortName ->
-            activeConfig = activeConfig.copy(branding = activeConfig.branding.copy(shortName = shortName))
-            repo.saveDraftToLocalCache(activeConfig)
-            markUnsaved()
-        }
-        addSimpleWatcher(binding.etBrandLogoUrl) { url ->
-            activeConfig = activeConfig.copy(branding = activeConfig.branding.copy(logoUrl = if (url.isBlank()) null else url))
-            repo.saveDraftToLocalCache(activeConfig)
-            markUnsaved()
-        }
-        addSimpleWatcher(binding.etBrandColorHex) { hex ->
-            activeConfig = activeConfig.copy(branding = activeConfig.branding.copy(brandColor = hex))
-            repo.saveDraftToLocalCache(activeConfig)
-            markUnsaved()
-        }
-        addSimpleWatcher(binding.etBrandGlobalBgHex) { hex ->
-            activeConfig = activeConfig.copy(branding = activeConfig.branding.copy(globalBackgroundColor = hex))
-            repo.saveDraftToLocalCache(activeConfig)
-            markUnsaved()
-        }
-    }
-
-    private fun showAddComponentDialog() {
-        val typeOptions = UiStudioRegistry.COMPONENT_TYPES.map { "${it.displayName} (${it.type})" }
-        val dialogView = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(40, 20, 40, 20)
-        }
-
-        val spType = Spinner(this).apply {
-            adapter = ArrayAdapter(this@UiStudioActivity, android.R.layout.simple_spinner_dropdown_item, typeOptions)
-        }
-        val etName = EditText(this).apply {
-            hint = "Display Name (e.g. Featured Banner)"
-        }
-        val etId = EditText(this).apply {
-            hint = "Stable ID (lowercase letters & underscores)"
-        }
-
-        dialogView.addView(TextView(this).apply { text = "Select Component Primitive:" })
-        dialogView.addView(spType)
-        dialogView.addView(etName)
-        dialogView.addView(etId)
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Add UI Component")
-            .setView(dialogView)
-            .setPositiveButton("Add") { _, _ ->
-                val selectedType = UiStudioRegistry.COMPONENT_TYPES[spType.selectedItemPosition].type
-                val name = etName.text.toString().trim().ifBlank { "New Component" }
-                val rawId = etId.text.toString().trim().lowercase().replace(" ", "_")
-                val uniqueId = if (rawId.isNotBlank()) rawId else "${selectedType}_${System.currentTimeMillis() % 10000}"
-
-                pushUndoState()
-                val newComp = UiStudioRegistry.createDefaultComponent(uniqueId, selectedType, name)
-                val screen = activeConfig.screens[currentScreenKey] ?: ScreenConfig(id = currentScreenKey)
-                val updatedComponents = screen.components.toMutableMap().apply { put(uniqueId, newComp) }
-                val updatedScreen = screen.copy(components = updatedComponents)
-                val updatedScreens = activeConfig.screens.toMutableMap().apply { put(currentScreenKey, updatedScreen) }
-
-                activeConfig = activeConfig.copy(screens = updatedScreens)
-                repo.saveDraftToLocalCache(activeConfig)
-                markUnsaved()
-
-                currentCompKey = uniqueId
-                updateComponentDropdownAndTree()
-                renderRealScreenCanvas()
-                selectComponent(uniqueId)
-                AppBulletin.showSuccess(this, "Added component '$name'")
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun duplicateCurrentComponent() {
-        val screen = activeConfig.screens[currentScreenKey] ?: return
-        val comp = screen.components[currentCompKey] ?: return
-
-        pushUndoState()
-        val newId = "${comp.id}_copy_${System.currentTimeMillis() % 1000}"
-        val newComp = comp.copy(
-            id = newId,
-            name = "${comp.name} (Copy)",
-            isProtected = false,
-            order = comp.order + 1
-        )
-
-        val updatedComponents = screen.components.toMutableMap().apply { put(newId, newComp) }
-        val updatedScreen = screen.copy(components = updatedComponents)
-        val updatedScreens = activeConfig.screens.toMutableMap().apply { put(currentScreenKey, updatedScreen) }
-
-        activeConfig = activeConfig.copy(screens = updatedScreens)
-        repo.saveDraftToLocalCache(activeConfig)
-        markUnsaved()
-
-        currentCompKey = newId
-        updateComponentDropdownAndTree()
-        renderRealScreenCanvas()
-        selectComponent(newId)
-        AppBulletin.showSuccess(this, "Duplicated component '${comp.name}'")
-    }
-
-    private fun deleteCurrentComponent() {
-        val screen = activeConfig.screens[currentScreenKey] ?: return
-        val comp = screen.components[currentCompKey] ?: return
-
-        if (comp.isProtected) {
-            MaterialAlertDialogBuilder(this)
-                .setTitle("Protected Component")
-                .setMessage("Component '${comp.name}' is required for application functionality and cannot be deleted. You may set its Visibility to 'Gone' instead.")
-                .setPositiveButton("OK", null)
-                .show()
-            return
-        }
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Delete Component")
-            .setMessage("Are you sure you want to delete '${comp.name}' from this screen?")
-            .setPositiveButton("Delete") { _, _ ->
-                pushUndoState()
-                val updatedComponents = screen.components.toMutableMap().apply { remove(currentCompKey) }
-                val updatedScreen = screen.copy(components = updatedComponents)
-                val updatedScreens = activeConfig.screens.toMutableMap().apply { put(currentScreenKey, updatedScreen) }
-
-                activeConfig = activeConfig.copy(screens = updatedScreens)
-                repo.saveDraftToLocalCache(activeConfig)
-                markUnsaved()
-
-                currentCompKey = updatedComponents.keys.firstOrNull() ?: ""
-                updateComponentDropdownAndTree()
-                renderRealScreenCanvas()
-                if (currentCompKey.isNotBlank()) selectComponent(currentCompKey)
-                AppBulletin.showSuccess(this, "Deleted component '${comp.name}'")
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun reorderComponent(isUp: Boolean) {
-        val screen = activeConfig.screens[currentScreenKey] ?: return
-        val keys = screen.components.keys.toList()
-        val index = keys.indexOf(currentCompKey)
-        if (index == -1) return
-
-        val targetIndex = if (isUp) index - 1 else index + 1
-        if (targetIndex !in keys.indices) return
-
-        pushUndoState()
-        val entries = screen.components.entries.toList().toMutableList()
-        val item = entries.removeAt(index)
-        entries.add(targetIndex, item)
-
-        val reorderedMap = linkedMapOf<String, ComponentConfig>()
-        entries.forEachIndexed { i, entry ->
-            reorderedMap[entry.key] = entry.value.copy(order = i + 1)
-        }
-
-        val updatedScreen = screen.copy(components = reorderedMap)
-        val updatedScreens = activeConfig.screens.toMutableMap().apply { put(currentScreenKey, updatedScreen) }
-
-        activeConfig = activeConfig.copy(screens = updatedScreens)
-        repo.saveDraftToLocalCache(activeConfig)
-        markUnsaved()
-
-        updateComponentDropdownAndTree()
-        renderRealScreenCanvas()
-        selectComponent(currentCompKey)
-    }
-
-    private fun setupBottomActions() {
-        binding.btnSaveDraft.setOnClickListener { saveDraft() }
-        binding.btnValidate.setOnClickListener { validateCurrentDraft() }
-        binding.btnPublish.setOnClickListener { promptPublish() }
-    }
-
-    private fun saveDraft() {
-        val validation = repo.validateConfig(activeConfig)
-        if (!validation.first) {
-            AppBulletin.showError(this, "Validation issue: ${validation.second.firstOrNull()}")
-            return
-        }
-
-        lifecycleScope.launch {
-            binding.btnSaveDraft.isEnabled = false
-            binding.tvPersistentStatus.text = "SAVING DRAFT..."
-            val result = repo.saveDraftDetailed(activeConfig)
-            binding.btnSaveDraft.isEnabled = true
-
-            when (result) {
-                is SaveDraftResult.ServerSuccess -> {
-                    hasUnsavedChanges = false
-                    activeConfig = result.config
-                    binding.tvPersistentStatus.text = "✓ DRAFT SAVED (SYNCED)"
-                    binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this@UiStudioActivity, R.color.eve_green))
-                    binding.tvStudioStatus.text = "Draft saved & synced with server"
-                    AppBulletin.showSuccess(this@UiStudioActivity, "Draft saved and synced to server successfully")
-                }
-                is SaveDraftResult.Conflict -> {
-                    binding.tvPersistentStatus.text = "NEWER DRAFT EXISTS (CONFLICT)"
-                    binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this@UiStudioActivity, R.color.eve_system_yellow))
-                    showConcurrencyConflictDialog(result.serverDraft, result.message)
-                }
-                is SaveDraftResult.LocalOfflineSuccess -> {
-                    hasUnsavedChanges = false
-                    binding.tvPersistentStatus.text = "LOCAL DRAFT SAVED • OFFLINE"
-                    binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this@UiStudioActivity, R.color.eve_primary))
-                    binding.tvStudioStatus.text = "Local draft saved (Server sync failed)"
-                    AppBulletin.show(this@UiStudioActivity, "Local draft saved. Server sync offline: ${result.error}")
-                }
-                is SaveDraftResult.Failure -> {
-                    binding.tvPersistentStatus.text = "SAVE FAILED"
-                    binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this@UiStudioActivity, R.color.eve_red))
-                    AppBulletin.showError(this@UiStudioActivity, "Failed to save draft: ${result.error}")
-                }
-            }
-        }
-    }
-
-    private fun showConcurrencyConflictDialog(serverDraft: UiStudioConfig?, message: String) {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Newer Draft Exists on Server")
-            .setMessage("$message\n\nA collaborator or another session updated this draft. Would you like to reload the latest draft from the server or overwrite it with your local changes?")
-            .setPositiveButton("Reload Latest") { _, _ ->
-                if (serverDraft != null) {
-                    activeConfig = serverDraft
-                    repo.saveDraftToLocalCache(serverDraft)
-                    hasUnsavedChanges = false
-                    updateStudioStatusBadges()
-                    updateComponentDropdownAndTree()
-                    renderRealScreenCanvas()
-                    populateFieldsForCurrentComponent()
-                    AppBulletin.showSuccess(this, "Loaded latest server draft")
-                } else {
-                    loadDraftFromRepository()
-                }
-            }
-            .setNegativeButton("Keep Local Draft (Overwrite)") { _, _ ->
-                forceSaveDraft()
-            }
-            .setNeutralButton("Cancel", null)
-            .show()
-    }
-
-    private fun forceSaveDraft() {
-        lifecycleScope.launch {
-            binding.btnSaveDraft.isEnabled = false
-            binding.tvPersistentStatus.text = "FORCE SAVING DRAFT..."
-            val result = repo.saveDraftDetailed(activeConfig, force = true)
-            binding.btnSaveDraft.isEnabled = true
-            when (result) {
-                is SaveDraftResult.ServerSuccess -> {
-                    hasUnsavedChanges = false
-                    activeConfig = result.config
-                    binding.tvPersistentStatus.text = "✓ DRAFT SAVED (OVERWRITTEN)"
-                    binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this@UiStudioActivity, R.color.eve_green))
-                    AppBulletin.showSuccess(this@UiStudioActivity, "Draft force-saved successfully")
-                }
-                else -> {
-                    AppBulletin.showError(this@UiStudioActivity, "Failed to force save draft")
-                }
-            }
-        }
-    }
-
-    private fun validateCurrentDraft() {
-        val validation = repo.validateConfig(activeConfig)
-        if (validation.first) {
-            binding.tvPersistentStatus.text = "VALIDATION PASSED"
-            binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this, R.color.eve_green))
-            AppBulletin.showSuccess(this, "Validation passed: 100% compliant schema")
-        } else {
-            binding.tvPersistentStatus.text = "VALIDATION ISSUES (${validation.second.size})"
-            binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this, R.color.eve_red))
-            MaterialAlertDialogBuilder(this)
-                .setTitle("Validation Issues")
-                .setMessage(validation.second.joinToString("\n• ", prefix = "• "))
-                .setPositiveButton("OK", null)
-                .show()
-        }
-    }
-
-    private fun promptPublish() {
-        val validation = repo.validateConfig(activeConfig)
-        if (!validation.first) {
-            AppBulletin.showError(this, "Cannot publish: Fix schema errors first")
-            return
-        }
-
-        val input = EditText(this).apply {
-            hint = "Changelog notes (e.g. Master App Builder redesign)"
-            setPadding(40, 30, 40, 30)
-        }
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Publish Live Configuration")
-            .setMessage("This will push your changes live to all student devices after verifying the live snapshot.")
-            .setView(input)
-            .setPositiveButton("Publish Live") { _, _ ->
-                val notes = input.text.toString().trim()
-                executePublish(notes)
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun executePublish(notes: String) {
-        lifecycleScope.launch {
-            binding.btnPublish.isEnabled = false
-            binding.tvPersistentStatus.text = "PUBLISHING LIVE..."
-            val result = repo.publishVerified(notes, activeConfig)
-            binding.btnPublish.isEnabled = true
-
-            when (result) {
-                is PublishResult.VerifiedSuccess -> {
-                    hasUnsavedChanges = false
-                    activeConfig = result.config
-                    val timeStr = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(result.publishedAt))
-                    binding.tvPersistentStatus.text = "★ LIVE v${result.version} (VERIFIED)"
-                    binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this@UiStudioActivity, R.color.eve_green))
-                    binding.tvStudioStatus.text = "Published at $timeStr • Verified active on all devices"
-                    AppBulletin.showSuccess(this@UiStudioActivity, "Live v${result.version} published and verified successfully!")
-                }
-                is PublishResult.VerificationFailed -> {
-                    binding.tvPersistentStatus.text = "PUBLISH VERIFICATION FAILED"
-                    binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this@UiStudioActivity, R.color.eve_system_yellow))
-                    AppBulletin.showError(this@UiStudioActivity, "Verification failed: ${result.reason}")
-                }
-                is PublishResult.NetworkFailure -> {
-                    binding.tvPersistentStatus.text = "PUBLISH FAILED"
-                    binding.tvPersistentStatus.setTextColor(ContextCompat.getColor(this@UiStudioActivity, R.color.eve_red))
-                    AppBulletin.showError(this@UiStudioActivity, "Publish failed: ${result.error}")
-                }
-            }
-        }
-    }
-
-    private fun showResetOptionsDialog() {
-        val options = arrayOf(
-            "Reset Selected Component to Native Default",
-            "Reset Component to Screen Defaults",
-            "Reset Component to Global Design System",
-            "Reset Current Screen to Native Default",
-            "Reset Working Draft to Published Config",
-            "Emergency Factory Reset (All Screens)"
-        )
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Reset & Fallback Options")
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> resetCurrentComponentToDefault()
-                    1 -> resetComponentToScreenDefaults()
-                    2 -> resetComponentToGlobalDefaults()
-                    3 -> resetCurrentScreenToDefault()
-                    4 -> resetDraftToPublished()
-                    5 -> emergencyFactoryReset()
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun resetCurrentComponentToDefault() {
-        val defaultTemplate = repo.getDefaultTemplate()
-        val defaultComp = defaultTemplate.screens[currentScreenKey]?.components?.get(currentCompKey)
-        if (defaultComp != null) {
-            pushUndoState()
-            updateCurrentComponentConfig { defaultComp }
-            populateFieldsForCurrentComponent()
-            AppBulletin.showSuccess(this, "Reset '$currentCompKey' to native default")
-        } else {
-            AppBulletin.showError(this, "No default template found for component '$currentCompKey'")
-        }
-    }
-
-    private fun resetComponentToScreenDefaults() {
-        val screen = activeConfig.screens[currentScreenKey] ?: return
-        pushUndoState()
-        updateCurrentComponentConfig { comp ->
-            comp.copy(appearance = comp.appearance.copy(backgroundColor = screen.backgroundColor))
-        }
-        populateFieldsForCurrentComponent()
-        AppBulletin.showSuccess(this, "Reset component colors to screen baseline")
-    }
-
-    private fun resetComponentToGlobalDefaults() {
-        val ds = activeConfig.designSystem
-        pushUndoState()
-        updateCurrentComponentConfig { comp ->
-            comp.copy(
-                appearance = comp.appearance.copy(
-                    backgroundColor = ds.surfaceBackground,
-                    cornerRadius = ds.radiusScale,
-                    strokeColor = ds.borderColor,
-                    opacity = ds.defaultOpacity
-                ),
-                material = comp.material.copy(blurRadius = ds.defaultBlurRadius),
-                typography = comp.typography.copy(textColor = ds.textPrimary)
-            )
-        }
-        populateFieldsForCurrentComponent()
-        AppBulletin.showSuccess(this, "Reset component to Global Design System tokens")
-    }
-
-    private fun resetCurrentScreenToDefault() {
-        val defaultTemplate = repo.getDefaultTemplate()
-        val defaultScreen = defaultTemplate.screens[currentScreenKey]
-        if (defaultScreen != null) {
-            pushUndoState()
-            val updatedScreens = activeConfig.screens.toMutableMap().apply { put(currentScreenKey, defaultScreen) }
-            activeConfig = activeConfig.copy(screens = updatedScreens)
-            repo.saveDraftToLocalCache(activeConfig)
-            markUnsaved()
-            updateComponentDropdownAndTree()
-            renderRealScreenCanvas()
-            populateFieldsForCurrentComponent()
-            AppBulletin.showSuccess(this, "Reset screen '$currentScreenKey' to native default")
-        }
-    }
-
-    private fun resetDraftToPublished() {
-        lifecycleScope.launch {
-            val published = repo.loadCachedConfig()
-            if (published != null && published.screens.isNotEmpty()) {
-                pushUndoState()
-                activeConfig = published
-                repo.saveDraftToLocalCache(activeConfig)
-                hasUnsavedChanges = false
-                updateStudioStatusBadges()
-                updateComponentDropdownAndTree()
-                renderRealScreenCanvas()
-                populateFieldsForCurrentComponent()
-                AppBulletin.showSuccess(this@UiStudioActivity, "Restored published configuration")
-            } else {
-                AppBulletin.showError(this@UiStudioActivity, "No published configuration exists on device")
-            }
-        }
-    }
-
-    private fun emergencyFactoryReset() {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Confirm Emergency Reset")
-            .setMessage("This will reset all screens, layouts, and components back to factory defaults.")
-            .setPositiveButton("Reset Everything") { _, _ ->
-                pushUndoState()
-                activeConfig = repo.getDefaultTemplate()
-                repo.saveDraftToLocalCache(activeConfig)
-                hasUnsavedChanges = false
-                updateStudioStatusBadges()
-                updateComponentDropdownAndTree()
-                renderRealScreenCanvas()
-                populateFieldsForCurrentComponent()
-                AppBulletin.showSuccess(this, "Factory reset complete")
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun showVersionHistoryDialog() {
-        lifecycleScope.launch {
-            val result = repo.getVersions()
-            result.onSuccess { versions ->
-                if (versions.isEmpty()) {
-                    AppBulletin.show(this@UiStudioActivity, "No historical versions found yet")
-                    return@onSuccess
-                }
-
-                val items = versions.map { v ->
-                    "v${v.version} • ${v.notes ?: "Published update"} (${v.createdBy})"
-                }.toTypedArray()
-
-                MaterialAlertDialogBuilder(this@UiStudioActivity)
-                    .setTitle("Version Rollback & History")
-                    .setItems(items) { _, which ->
-                        val selectedVer = versions[which].version
-                        promptRollbackVersion(selectedVer)
-                    }
-                    .setNegativeButton("Close", null)
-                    .show()
-            }.onFailure { e ->
-                AppBulletin.showError(this@UiStudioActivity, "Failed to load versions: ${e.localizedMessage}")
-            }
-        }
-    }
-
-    private fun promptRollbackVersion(versionId: Int) {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Rollback to v$versionId")
-            .setMessage("Do you want to restore v$versionId into your active working draft?")
-            .setPositiveButton("Restore to Draft") { _, _ ->
-                lifecycleScope.launch {
-                    pushUndoState()
-                    val result = repo.restoreVersion(versionId, target = "draft")
-                    result.onSuccess {
-                        AppBulletin.showSuccess(this@UiStudioActivity, "Restored v$versionId into working draft")
-                        loadDraftFromRepository()
-                    }.onFailure { e ->
-                        AppBulletin.showError(this@UiStudioActivity, "Rollback failed: ${e.localizedMessage}")
-                    }
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun showExportImportDialog() {
-        val options = arrayOf("Copy Configuration JSON to Clipboard", "Import Configuration from JSON")
-        MaterialAlertDialogBuilder(this)
-            .setTitle("JSON Data Interchange")
-            .setItems(options) { _, which ->
-                if (which == 0) {
-                    val json = repo.exportToJson(activeConfig)
-                    val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    clipboard.setPrimaryClip(ClipData.newPlainText("EVE_UI_Studio_Config", json))
-                    AppBulletin.showSuccess(this, "Configuration JSON copied to clipboard")
-                } else {
-                    promptImportJson()
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun promptImportJson() {
-        val input = EditText(this).apply {
-            hint = "Paste UI Studio JSON schema here"
-            minLines = 4
-            setPadding(30, 20, 30, 20)
-        }
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Import Configuration")
-            .setView(input)
-            .setPositiveButton("Import") { _, _ ->
-                val json = input.text.toString().trim()
-                val result = repo.importFromJson(json)
-                result.onSuccess { importedConfig ->
-                    activeConfig = importedConfig
-                    repo.saveDraftToLocalCache(activeConfig)
-                    markUnsaved()
-                    updateComponentDropdownAndTree()
-                    renderRealScreenCanvas()
-                    populateFieldsForCurrentComponent()
-                    AppBulletin.showSuccess(this, "Configuration imported successfully")
-                }.onFailure { e ->
-                    AppBulletin.showError(this, "Import failed: ${e.localizedMessage}")
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+                busy=false
+            }
+        }
+    }
+    private fun versions() { lifecycleScope.launch { repo.getVersions().onSuccess { list->choiceDialog("Restore to draft (not live)",list.map{"v${it.version} · ${it.notes.orEmpty()}"}) { label->val version=list.first{label.startsWith("v${it.version} ·")};lifecycleScope.launch { repo.restoreVersion(version.version).onSuccess { repo.getServerDraft().onSuccess { change(it);status.text="Version restored to draft" } }.onFailure{status.text=it.message} } } }.onFailure{status.text=it.message} } }
+    private fun advanced() {
+        choiceDialog("Advanced",listOf("Export JSON","Import JSON","Audit log","Version history","Copy style","Paste style")) { action->when(action){
+            "Export JSON"->{ val input=EditText(this).apply{setText(repo.exportToJson(config));setSelectAllOnFocus(true)};AlertDialog.Builder(this).setTitle("Draft JSON · select to copy").setView(input).setPositiveButton("Close",null).show() }
+            "Import JSON"->{val input=EditText(this);AlertDialog.Builder(this).setTitle("Import into draft").setView(input).setPositiveButton("Validate & import"){_,_->repo.importFromJson(input.text.toString()).onSuccess { change(it.copy(revision=config.revision));if(!menu)renderScreen() }.onFailure{status.text=it.message}}.setNegativeButton("Cancel",null).show()}
+            "Audit log"->lifecycleScope.launch{repo.getAuditLogs().onSuccess{logs->AlertDialog.Builder(this@UiStudioActivity).setTitle("Audit log").setMessage(logs.joinToString("\n"){"${it.action} · ${it.performedBy}"}).setPositiveButton("Close",null).show()}.onFailure{status.text=it.message}}
+            "Version history"->versions()
+            "Copy style"->if(selected.isNotBlank())repo.copyStyle(current())
+            "Paste style"->if(selected.isNotBlank())edit{repo.pasteStyle(it)}
+        } }
     }
 }

@@ -35,6 +35,7 @@ data class UiStudioConfig(
 )
 
 data class BrandingConfig(
+    @SerializedName("enabled") val enabled: Boolean = false,
     @SerializedName("appDisplayName")
     val appDisplayName: String = "EVE Exam Prep",
     @SerializedName("shortName")
@@ -52,6 +53,7 @@ data class BrandingConfig(
 )
 
 data class DesignSystemConfig(
+    @SerializedName("enabled") val enabled: Boolean = false,
     @SerializedName("appBackground")
     val appBackground: String = "#000000",
     @SerializedName("surfaceBackground")
@@ -196,6 +198,7 @@ data class MaterialProperties(
 )
 
 data class TypographyProperties(
+    @SerializedName("fontFamily") val fontFamily: String? = null,
     @SerializedName("textColor")
     val textColor: String? = null,
     @SerializedName("textSize")
@@ -316,12 +319,16 @@ data class RestoreStudioRequest(
     @SerializedName("target")
     val target: String = "draft",
     @SerializedName("notes")
-    val notes: String = ""
+    val notes: String = "",
+    val baseRevision: String? = null,
+    val publishedVersion: Int? = null
 )
 
 data class ResetStudioRequest(
     @SerializedName("target")
-    val target: String = "draft"
+    val target: String = "draft",
+    val baseRevision: String? = null,
+    val publishedVersion: Int? = null
 )
 
 data class StateProperties(

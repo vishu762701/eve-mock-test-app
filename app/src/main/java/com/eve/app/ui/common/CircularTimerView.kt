@@ -180,10 +180,10 @@ class CircularTimerView @JvmOverloads constructor(
         trackColorHex: String?,
         textColorHex: String?
     ) {
-        normalColorHex?.let { com.eve.app.util.UiStudioEngine.parseColorSafe(it)?.let { c -> normalColorOverride = c } }
-        warningColorHex?.let { com.eve.app.util.UiStudioEngine.parseColorSafe(it)?.let { c -> warningColorOverride = c } }
-        trackColorHex?.let { com.eve.app.util.UiStudioEngine.parseColorSafe(it)?.let { c -> trackColorOverride = c } }
-        textColorHex?.let { com.eve.app.util.UiStudioEngine.parseColorSafe(it)?.let { c -> textColorOverride = c } }
+        normalColorOverride = com.eve.app.util.UiStudioEngine.parseColorSafe(normalColorHex)
+        warningColorOverride = com.eve.app.util.UiStudioEngine.parseColorSafe(warningColorHex)
+        trackColorOverride = com.eve.app.util.UiStudioEngine.parseColorSafe(trackColorHex)
+        textColorOverride = com.eve.app.util.UiStudioEngine.parseColorSafe(textColorHex)
         updateThemeColors()
     }
 

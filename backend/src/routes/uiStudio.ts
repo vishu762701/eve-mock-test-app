@@ -3,6 +3,7 @@
 // ============================================================================
 
 import { Hono } from "hono";
+import { validateStudioPolicy } from "./uiStudioPolicy";
 import { requireAdmin } from "../middleware/authMiddleware";
 import {
   AuthUser,
@@ -18,6 +19,11 @@ export const adminUiStudioRoutes = new Hono<{ Bindings: Env; Variables: { user: 
 
 // Guard all admin routes with admin authorization
 adminUiStudioRoutes.use("*", requireAdmin);
+
+const canonical = (value: any): string => JSON.stringify(value, (_key, nested) => {
+  if (nested && typeof nested === "object" && !Array.isArray(nested)) return Object.fromEntries(Object.entries(nested).sort(([a],[b]) => a.localeCompare(b)));
+  return nested;
+});
 
 const COLOR_HEX_REGEX = /^#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
 
@@ -170,6 +176,7 @@ export function validateUiStudioConfig(config: any): { valid: boolean; errors: s
     }
   }
 
+  errors.push(...validateStudioPolicy(config));
   return { valid: errors.length === 0, errors };
 }
 
@@ -290,35 +297,17 @@ adminUiStudioRoutes.put("/draft", async (c) => {
   const body = await c.req.json().catch(() => ({}));
   const config = body.config;
   const baseRevision = body.baseRevision;
-  const force = body.force === true;
+
 
   const validation = validateUiStudioConfig(config);
   if (!validation.valid) {
     return c.json({ success: false, error: "Validation failed", details: validation.errors }, 400);
   }
 
-  // Optimistic Concurrency Check (Section 73)
-  if (baseRevision && !force) {
-    const existing = await db
-      .prepare("SELECT config_json, updated_at, updated_by FROM ui_studio_drafts WHERE id = 'draft'")
-      .first<UiStudioDraftRow>();
-
-    if (existing && existing.config_json) {
-      try {
-        const parsed = JSON.parse(existing.config_json);
-        if (parsed.revision && parsed.revision !== baseRevision) {
-          return c.json({
-            success: false,
-            error: "NEWER_DRAFT_EXISTS",
-            message: "A newer draft exists on the server. Please reload or confirm overwrite.",
-            currentRevision: parsed.revision,
-            serverDraft: parsed,
-            updatedAt: existing.updated_at,
-            updatedBy: existing.updated_by
-          }, 409);
-        }
-      } catch (_) {}
-    }
+  const existing = await db.prepare("SELECT config_json, updated_at, updated_by FROM ui_studio_drafts WHERE id = 'draft'").first<UiStudioDraftRow>();
+  const serverDraft = existing?.config_json ? JSON.parse(existing.config_json) : null;
+  if (serverDraft && (serverDraft.revision || "") !== (baseRevision || "")) {
+    return c.json({ success: false, error: "NEWER_DRAFT_EXISTS", message: "Server draft changed; local work was not overwritten.", data: { serverDraft } }, 409);
   }
 
   const now = Date.now();
@@ -328,17 +317,20 @@ adminUiStudioRoutes.put("/draft", async (c) => {
   config.updatedAt = now;
   const jsonStr = JSON.stringify(config);
 
-  await db
+  const write = await db
     .prepare(
       `INSERT INTO ui_studio_drafts (id, config_json, updated_at, updated_by)
        VALUES ('draft', ?, ?, ?)
        ON CONFLICT(id) DO UPDATE SET
          config_json = excluded.config_json,
          updated_at = excluded.updated_at,
-         updated_by = excluded.updated_by`
+         updated_by = excluded.updated_by
+       WHERE ui_studio_drafts.config_json = ?`
     )
-    .bind(jsonStr, now, email)
+    .bind(jsonStr, now, email, existing?.config_json || "")
     .run();
+
+  if (write.meta?.changes === 0) return c.json({ success: false, error: "NEWER_DRAFT_EXISTS" }, 409);
 
   // Audit log entry
   const auditId = `audit-${now}-${Math.random().toString(36).substring(2, 7)}`;
@@ -383,6 +375,12 @@ adminUiStudioRoutes.post("/publish", async (c) => {
     return c.json({ success: false, error: "No configuration found to publish" }, 400);
   }
 
+  const currentDraft = await db.prepare("SELECT * FROM ui_studio_drafts WHERE id = 'draft'").first<UiStudioDraftRow>();
+  const current = currentDraft?.config_json ? JSON.parse(currentDraft.config_json) : null;
+  if (!current || !configToPublish.revision || current.revision !== configToPublish.revision || canonical(current) !== canonical(configToPublish)) {
+    return c.json({ success: false, error: "NEWER_DRAFT_EXISTS", message: "Save the current draft before publishing." }, 409);
+  }
+
   const validation = validateUiStudioConfig(configToPublish);
   if (!validation.valid) {
     return c.json({ success: false, error: "Validation failed", details: validation.errors }, 400);
@@ -400,20 +398,21 @@ adminUiStudioRoutes.post("/publish", async (c) => {
   // Stamp version into config
   configToPublish.version = nextVersion;
   configToPublish.publishedAt = now;
+  configToPublish.status = "published";
   const jsonStr = JSON.stringify(configToPublish);
 
   // 1. Snapshot into immutable versions table
   const insertVersionStmt = db
     .prepare(
-      "INSERT INTO ui_studio_versions (version, config_json, created_at, created_by, notes) VALUES (?, ?, ?, ?, ?)"
+      "INSERT INTO ui_studio_versions (version, config_json, created_at, created_by, notes) SELECT ?, ?, ?, ?, ? WHERE EXISTS (SELECT 1 FROM ui_studio_drafts WHERE id = 'draft' AND config_json = ?)"
     )
-    .bind(nextVersion, jsonStr, now, email, notes);
+    .bind(nextVersion, jsonStr, now, email, notes, currentDraft!.config_json);
 
   // 2. Update active published table
   const upsertPublishedStmt = db
     .prepare(
       `INSERT INTO ui_studio_published (id, version, config_json, published_at, published_by, notes)
-       VALUES ('active', ?, ?, ?, ?, ?)
+       SELECT 'active', ?, ?, ?, ?, ? WHERE EXISTS (SELECT 1 FROM ui_studio_versions WHERE version = ? AND config_json = ?)
        ON CONFLICT(id) DO UPDATE SET
          version = excluded.version,
          config_json = excluded.config_json,
@@ -421,37 +420,37 @@ adminUiStudioRoutes.post("/publish", async (c) => {
          published_by = excluded.published_by,
          notes = excluded.notes`
     )
-    .bind(nextVersion, jsonStr, now, email, notes);
+    .bind(nextVersion, jsonStr, now, email, notes, nextVersion, jsonStr);
 
   // 3. UI Studio audit log
   const auditId = `audit-${now}-${Math.random().toString(36).substring(2, 7)}`;
   const studioAuditStmt = db
     .prepare(
-      "INSERT INTO ui_studio_audit_log (id, action, performed_by, version, details, timestamp) VALUES (?, ?, ?, ?, ?, ?)"
+      "INSERT INTO ui_studio_audit_log (id, action, performed_by, version, details, timestamp) SELECT ?, ?, ?, ?, ?, ? WHERE EXISTS (SELECT 1 FROM ui_studio_versions WHERE version = ? AND config_json = ?)"
     )
-    .bind(auditId, "published", email, nextVersion, notes || `Published v${nextVersion}`, now);
+    .bind(auditId, "published", email, nextVersion, notes || `Published v${nextVersion}`, now, nextVersion, jsonStr);
 
   // 4. Main Admin Audit log
   const adminAuditStmt = db
     .prepare(
-      "INSERT INTO admin_audit_log (id, action_type, description, admin_email, timestamp) VALUES (?, ?, ?, ?, ?)"
+      "INSERT INTO admin_audit_log (id, action_type, description, admin_email, timestamp) SELECT ?, ?, ?, ?, ? WHERE EXISTS (SELECT 1 FROM ui_studio_versions WHERE version = ? AND config_json = ?)"
     )
     .bind(
       `audit-general-${now}-${Math.random().toString(36).substring(2, 7)}`,
       "UI_STUDIO_PUBLISH",
       `Published EVE UI Studio v${nextVersion}${notes ? `: ${notes}` : ""}`,
       email,
-      now
+      now,
+      nextVersion,
+      jsonStr
     );
 
-  if (typeof (db as any).batch === "function") {
-    await (db as any).batch([insertVersionStmt, upsertPublishedStmt, studioAuditStmt, adminAuditStmt]);
-  } else {
-    await insertVersionStmt.run();
-    await upsertPublishedStmt.run();
-    await studioAuditStmt.run();
-    await adminAuditStmt.run();
+  let results;
+  try { results = await db.batch([insertVersionStmt, upsertPublishedStmt, studioAuditStmt, adminAuditStmt]); } catch (err: any) {
+    if (String(err.message).includes("UNIQUE")) return c.json({ success: false, error: "NEWER_DRAFT_EXISTS", message: "Concurrent publication; refresh before retrying." }, 409);
+    throw err;
   }
+  if (results[0]?.meta?.changes === 0) return c.json({ success: false, error: "NEWER_DRAFT_EXISTS" }, 409);
 
   return c.json({
     success: true,
@@ -507,6 +506,15 @@ adminUiStudioRoutes.post("/restore/:versionId", async (c) => {
   const now = Date.now();
   const email = user.email || "admin";
 
+  const existingDraft = await db.prepare("SELECT * FROM ui_studio_drafts WHERE id = 'draft'").first<UiStudioDraftRow>();
+  if ((existingDraft?.config_json ? JSON.parse(existingDraft.config_json).revision || "" : "") !== (body.baseRevision || "")) {
+    return c.json({ success: false, error: "NEWER_DRAFT_EXISTS" }, 409);
+  }
+  const restored = JSON.parse(verRow.config_json);
+  const validation = validateUiStudioConfig(restored);
+  if (!validation.valid) return c.json({ success: false, error: "Historical config requires repair", details: validation.errors }, 400);
+  restored.revision = `rev-${now}-${crypto.randomUUID()}`;
+  restored.status = "draft";
   if (target === "draft") {
     const upsertDraftStmt = db
       .prepare(
@@ -515,51 +523,51 @@ adminUiStudioRoutes.post("/restore/:versionId", async (c) => {
          ON CONFLICT(id) DO UPDATE SET
            config_json = excluded.config_json,
            updated_at = excluded.updated_at,
-           updated_by = excluded.updated_by`
+           updated_by = excluded.updated_by
+         WHERE ui_studio_drafts.config_json = ?`
       )
-      .bind(verRow.config_json, now, email);
+      .bind(JSON.stringify(restored), now, email, existingDraft?.config_json || "");
 
     const auditId = `audit-${now}-${Math.random().toString(36).substring(2, 7)}`;
     const auditStmt = db
       .prepare(
-        "INSERT INTO ui_studio_audit_log (id, action, performed_by, version, details, timestamp) VALUES (?, ?, ?, ?, ?, ?)"
+        "INSERT INTO ui_studio_audit_log (id, action, performed_by, version, details, timestamp) SELECT ?, ?, ?, ?, ?, ? WHERE EXISTS (SELECT 1 FROM ui_studio_drafts WHERE id = 'draft' AND config_json = ?)"
       )
-      .bind(auditId, "restored", email, versionId, `Restored v${versionId} to draft`, now);
+      .bind(auditId, "restored", email, versionId, `Restored v${versionId} to draft`, now, JSON.stringify(restored));
 
-    if (typeof (db as any).batch === "function") {
-      await (db as any).batch([upsertDraftStmt, auditStmt]);
-    } else {
-      await upsertDraftStmt.run();
-      await auditStmt.run();
-    }
+    const result = await db.batch([upsertDraftStmt, auditStmt]);
+    if (result[0]?.meta?.changes === 0) return c.json({ success: false, error: "NEWER_DRAFT_EXISTS" }, 409);
 
     return c.json({
       success: true,
       message: `Restored version ${versionId} to draft`,
     });
   } else {
+    const active = await db.prepare("SELECT * FROM ui_studio_published WHERE id = 'active'").first<UiStudioPublishedRow>();
+    if (body.publishedVersion !== (active?.version || 0)) return c.json({ success: false, error: "NEWER_PUBLICATION_EXISTS" }, 409);
     // Restore directly to published -> bumps to next version number
     const maxRow = await db
       .prepare("SELECT MAX(version) as max_v FROM ui_studio_versions")
       .first<{ max_v: number | null }>();
     const nextVersion = (maxRow?.max_v || 0) + 1;
 
-    const restoredConfig = JSON.parse(verRow.config_json);
+    const restoredConfig = restored;
     restoredConfig.version = nextVersion;
+    restoredConfig.status = "published";
     restoredConfig.publishedAt = now;
     const jsonStr = JSON.stringify(restoredConfig);
     const restoreNotes = `Restored from v${versionId}`;
 
     const insertVerStmt = db
       .prepare(
-        "INSERT INTO ui_studio_versions (version, config_json, created_at, created_by, notes) VALUES (?, ?, ?, ?, ?)"
+        "INSERT INTO ui_studio_versions (version, config_json, created_at, created_by, notes) SELECT ?, ?, ?, ?, ? WHERE COALESCE((SELECT config_json FROM ui_studio_published WHERE id = 'active'), '') = ?"
       )
-      .bind(nextVersion, jsonStr, now, email, restoreNotes);
+      .bind(nextVersion, jsonStr, now, email, restoreNotes, active?.config_json || "");
 
     const upsertPubStmt = db
       .prepare(
         `INSERT INTO ui_studio_published (id, version, config_json, published_at, published_by, notes)
-         VALUES ('active', ?, ?, ?, ?, ?)
+         SELECT 'active', ?, ?, ?, ?, ? WHERE EXISTS (SELECT 1 FROM ui_studio_versions WHERE version = ? AND config_json = ?)
          ON CONFLICT(id) DO UPDATE SET
            version = excluded.version,
            config_json = excluded.config_json,
@@ -567,21 +575,21 @@ adminUiStudioRoutes.post("/restore/:versionId", async (c) => {
            published_by = excluded.published_by,
            notes = excluded.notes`
       )
-      .bind(nextVersion, jsonStr, now, email, restoreNotes);
+      .bind(nextVersion, jsonStr, now, email, restoreNotes, nextVersion, jsonStr);
 
     const auditId = `audit-${now}-${Math.random().toString(36).substring(2, 7)}`;
     const auditStmt = db
       .prepare(
-        "INSERT INTO ui_studio_audit_log (id, action, performed_by, version, details, timestamp) VALUES (?, ?, ?, ?, ?, ?)"
+        "INSERT INTO ui_studio_audit_log (id, action, performed_by, version, details, timestamp) SELECT ?, ?, ?, ?, ?, ? WHERE EXISTS (SELECT 1 FROM ui_studio_versions WHERE version = ? AND config_json = ?)"
       )
-      .bind(auditId, "restored", email, nextVersion, `Restored v${versionId} as v${nextVersion}`, now);
+      .bind(auditId, "restored", email, nextVersion, `Restored v${versionId} as v${nextVersion}`, now, nextVersion, jsonStr);
 
-    if (typeof (db as any).batch === "function") {
-      await (db as any).batch([insertVerStmt, upsertPubStmt, auditStmt]);
-    } else {
-      await insertVerStmt.run();
-      await upsertPubStmt.run();
-      await auditStmt.run();
+    try {
+      const results = await db.batch([insertVerStmt, upsertPubStmt, auditStmt]);
+      if (results[0]?.meta?.changes === 0) return c.json({ success: false, error: "NEWER_PUBLICATION_EXISTS" }, 409);
+    } catch (err: any) {
+      if (String(err.message).includes("UNIQUE")) return c.json({ success: false, error: "NEWER_PUBLICATION_EXISTS" }, 409);
+      throw err;
     }
 
     return c.json({
@@ -601,21 +609,20 @@ adminUiStudioRoutes.post("/reset", async (c) => {
   const now = Date.now();
   const email = user.email || "admin";
 
-  if (target === "draft" || target === "all") {
-    await db.prepare("DELETE FROM ui_studio_drafts WHERE id = 'draft'").run();
-  }
-
-  if (target === "published" || target === "all") {
-    await db.prepare("DELETE FROM ui_studio_published WHERE id = 'active'").run();
-  }
-
-  const auditId = `audit-${now}-${Math.random().toString(36).substring(2, 7)}`;
-  await db
-    .prepare(
-      "INSERT INTO ui_studio_audit_log (id, action, performed_by, version, details, timestamp) VALUES (?, ?, ?, ?, ?, ?)"
-    )
-    .bind(auditId, "reset", email, null, `Reset UI Studio config target: ${target}`, now)
-    .run();
+  if (!["draft", "published", "all"].includes(target)) return c.json({ success: false, error: "Invalid reset target" }, 400);
+  const draft = await db.prepare("SELECT * FROM ui_studio_drafts WHERE id = 'draft'").first<UiStudioDraftRow>();
+  const published = await db.prepare("SELECT * FROM ui_studio_published WHERE id = 'active'").first<UiStudioPublishedRow>();
+  if (target !== "published" && (draft?.config_json ? JSON.parse(draft.config_json).revision || "" : "") !== (body.baseRevision || "")) return c.json({ success: false, error: "NEWER_DRAFT_EXISTS" }, 409);
+  if (target !== "draft" && body.publishedVersion !== (published?.version || 0)) return c.json({ success: false, error: "NEWER_PUBLICATION_EXISTS" }, 409);
+  const auditId = `audit-${now}-${crypto.randomUUID()}`;
+  // The guard and deletes execute in one D1 transaction. A racing edit causes zero changes.
+  const guard = db.prepare("INSERT INTO ui_studio_audit_log (id, action, performed_by, version, details, timestamp) SELECT ?, ?, ?, ?, ?, ? WHERE COALESCE((SELECT config_json FROM ui_studio_drafts WHERE id = 'draft'), '') = ? AND COALESCE((SELECT config_json FROM ui_studio_published WHERE id = 'active'), '') = ?")
+    .bind(auditId, "reset", email, null, `Reset UI Studio config target: ${target}`, now, draft?.config_json || "", published?.config_json || "");
+  const statements = [guard];
+  if (target !== "published") statements.push(db.prepare("DELETE FROM ui_studio_drafts WHERE id = 'draft' AND EXISTS (SELECT 1 FROM ui_studio_audit_log WHERE id = ?)").bind(auditId));
+  if (target !== "draft") statements.push(db.prepare("DELETE FROM ui_studio_published WHERE id = 'active' AND EXISTS (SELECT 1 FROM ui_studio_audit_log WHERE id = ?)").bind(auditId));
+  const results = await db.batch(statements);
+  if (results[0]?.meta?.changes === 0) return c.json({ success: false, error: "NEWER_DRAFT_EXISTS" }, 409);
 
   return c.json({
     success: true,

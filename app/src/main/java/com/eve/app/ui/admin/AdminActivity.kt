@@ -133,9 +133,7 @@ class AdminActivity : EveBaseActivity() {
     }
 
     private fun applyUiStudioConfig() {
-        val studioConfig = com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig
-        val adminConfig = studioConfig.screens["admin"] ?: return
-        com.eve.app.util.UiStudioEngine.applyScreenBackground(binding.root, adminConfig.backgroundColor, studioConfig.designSystem)
+        com.eve.app.uistudio.StudioRenderer.apply(binding.root, "admin", com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig)
     }
 
     private fun setupUi() {

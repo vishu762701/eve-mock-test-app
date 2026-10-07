@@ -575,6 +575,7 @@ interface EveApiService {
 
     // --- UI Studio Endpoints ---
     @GET("api/ui-studio/published")
+    @Headers("Cache-Control: no-cache, no-store")
     suspend fun getPublishedUiStudioConfig(): ApiResponse<UiStudioPublishedResponse>
 
     @GET("api/admin/ui-studio/draft")

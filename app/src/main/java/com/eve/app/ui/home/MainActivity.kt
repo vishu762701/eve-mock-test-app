@@ -391,22 +391,7 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun applyUiStudioConfig(config: com.eve.app.data.model.uistudio.UiStudioConfig) {
-        val homeConfig = config.screens["home"] ?: return
-
-        // 1. Screen background with Design System fallback
-        com.eve.app.util.UiStudioEngine.applyScreenBackground(binding.root, homeConfig.backgroundColor, config.designSystem)
-        com.eve.app.util.UiStudioEngine.applyScreenBackground(binding.mainContentContainer, homeConfig.backgroundColor, config.designSystem)
-
-        // 2. Home screen components
-        homeConfig.components["streak_pill"]?.let {
-            com.eve.app.util.UiStudioEngine.applyStreakPill(binding.layoutStreakPill, binding.tvStreakSummary, it)
-        }
-        homeConfig.components["hero_banner"]?.let {
-            com.eve.app.util.UiStudioEngine.applyToView(binding.panelHomeBanner, it)
-        }
-        homeConfig.components["find_test_panel"]?.let {
-            com.eve.app.util.UiStudioEngine.applyToView(binding.btnSearch, it)
-        }
+        com.eve.app.uistudio.StudioRenderer.apply(binding.root, "home", config)
     }
 
     override fun onResume() {

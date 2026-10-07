@@ -9,51 +9,19 @@
 - Light app background tokens are pure `#FFFFFF`; dark background tokens are pure `#000000`.
 - Test submission remains server-side through `POST /api/attempts/submit`; authentication, scoring, answer persistence, and navigation code were not changed by the Home Banner/Test appearance task.
 
-### Last Completed Task
+### Latest UI Studio task — 2026-10-07
 
-Complete EVE UI Studio Premium Visual App Builder Rebuild (Parts 1–5):
-- Responsive Device Preview Canvas: Added authentic phone chrome (09:41 status bar, punch hole, 5G/battery, bottom gesture indicator), 50/50 weight-balanced split mode eliminating nested scroll conflict, and dynamic `FIT TO SCREEN` viewport calculation.
-- Authentic Screen Fidelity across 8 screens: Home, Test, Result, Profile, Notifications, Syllabus, Login, Admin. Replaced generic cards with type-specific EVE renderers.
-- Interactive Test Screen Capsules: Upgraded `buildOptionItemPreview` to render 4 answer options (A, B [Selected - Green #16A34A], C, D) with instant tactile touch feedback and selection switching in interact mode.
-- 13 Formal Typed Runtime Adapters in `UiStudioEngine`: TextAdapter, ButtonAdapter, TimerAdapter, QuestionOptionAdapter, TestActionAdapter, ResultStatAdapter, NavigationAdapter, MaterialSurfaceAdapter, ImageAdapter, IconAdapter, SwitchAdapter, SliderAdapter, RowAdapter.
-- Fixed Save & Publish Semantics: Enforced truthful failure handling on draft network errors, strict version equality matching on publish verification (`liveConfig.version == expectedVersion`), and atomic Cloudflare D1 batch transactions (`db.batch`).
-- 100% Protection Maintained: Telegram-style circular reveal Day/Night transition, test timer countdown/auto-submit, and exam authentication remain completely untouched.
+Continued the interrupted `MASTER_UI_STUDIO.md` implementation on `codex/ui-studio-functional`, based on fetched `origin/main` / starting HEAD `585f8ff91628677732da9fbf7a53c3ea618fa7d0`. Preserved the recovered working tree and external recovery copies; no reset, clean, force push or remote overwrite.
 
-## Last Verified Changes
+- Tool-first menu, 39 production-layout workspaces, production adapter fixtures, nested/repeated selection overlay, recoverable draft/session/undo, scoped dynamic insertion and shared published renderer.
+- Functional Android backdrop blur, separate material/item opacity, fonts, shape/states, safe inserted actions, explicit global opt-in and baseline/effect reset. Optical refraction/morphing are explicitly unsupported.
+- Worker/D1 remains source of truth; atomic revision/field guards cover save, publish, restore and reset. Publication uses fresh field/revision readback, not cached version equality.
+- Backend TypeScript check and 84 tests passed. Android APK/instrumentation builds and all 226 JVM tests passed. Lint still fails only on two upstream API-27 theme attributes against minSdk 24.
+- Six instrumentation scenarios passed on an API 31 emulator in day mode and again in night mode at font scale 1.3. Evidence includes actual blur pixels with sharp foreground, editor control/draft/runtime parity, undo/recreation, native-layout/adapter inflation and local fake-API recovery/publication scenarios.
+- The final full seven-test suite passed in 242.659 s in night mode at font scale 1.3: nested pointer selection at two zoom scales, ignored drag, overlay isolation, native button fill/corners/pressed/reset, configured card actions and bounded insertion height are included.
+- Authenticated production UI Studio publication/student sessions, API 24–30 blur fallback, physical-device performance, exhaustive accessibility checks and live exam/reveal/airplane regressions remain unverified. No production Worker deployment was performed.
 
-- Android unit tests: passed (226 unit tests completed, 0 failures via `./gradlew testDebugUnitTest`).
-- Android APK build: passed (clean APK packaging via `./gradlew assembleDebug`).
-- Backend unit tests: passed (80/80 tests passing via `npm test`).
-- Backend typecheck: passed (`npm run build` tsc --noEmit).
-- Git diff hygiene: verified zero whitespace or formatting errors (`git diff --check`).
-
-## Current In-Progress Task
-
-NONE. Implementation, verification, and test execution are complete.
-
-## What Remains
-
-- Physical device visual inspection on a physical Android handset with active touch display.
-
-## Known Issues / Blockers
-
-- Headless CLI environment without connected physical Android hardware or adb daemon.
-
-## Verification Status
-
-- `./gradlew testDebugUnitTest`: passed (226 tests completed, 0 failures).
-- `./gradlew assembleDebug`: passed (clean APK packaging in 1m 8s).
-- Backend `npm test`: passed (80/80 tests passing).
-- Backend `npm run build`: passed (clean TypeScript compilation).
-- Runtime adapters, 8-screen default templates, session persistence, and publish verification verified via unit tests.
-
-## Last Commit
-
-`f744463` — `feat(ui-studio): rebuild UI Studio with session persistence, tabbed inspector, truthful save, and verified publish`.
-
-## Next Recommended Action
-
-Run the pending Android device smoke checks when a working emulator/device is available.
+See `UI_STUDIO_VERIFICATION.md` for the capability matrix, exact evidence, files and limits. Git history is authoritative for the task commit SHA.
 
 ## Important Project Decisions
 

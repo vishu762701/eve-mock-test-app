@@ -164,9 +164,7 @@ class ProfileActivity : EveBaseActivity() {
     }
 
     private fun applyUiStudioConfig() {
-        val studioConfig = com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig
-        val profileConfig = studioConfig.screens["profile"] ?: return
-        com.eve.app.util.UiStudioEngine.applyScreenBackground(binding.root, profileConfig.backgroundColor, studioConfig.designSystem)
+        com.eve.app.uistudio.StudioRenderer.apply(binding.root, "profile", com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig)
     }
 
     private fun setupDobPicker() {

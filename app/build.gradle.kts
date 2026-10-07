@@ -23,6 +23,7 @@ android {
         applicationId = "com.eve.app"
         minSdk = 24
         targetSdk = 36
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         versionCode = appVersionCode
         versionName = appVersionName
     }
@@ -139,4 +140,7 @@ dependencies {
 
     // Unit Testing
     testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation("androidx.test:core-ktx:1.6.1")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
 }
