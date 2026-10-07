@@ -19,30 +19,35 @@ object StudioRenderer {
     data class Element(val id: String, val view: View, val parent: String?, val repeated: Boolean) {
         val label get() = id.removePrefix("native_").replace('_',' ') + if (repeated) " · all repeated items" else ""
         val dynamic get() = StudioPolicy.isDynamic(id)
-        val protected get() = !dynamic // Native structure/actions are owned by the app.
+        val protected get() = StudioPolicy.behaviorProtected(id) // Native structure/actions are owned by the app.
     }
     private val nativeLabels = WeakHashMap<TextView,CharSequence>()
     private val entered = WeakHashMap<View,Boolean>()
     private val applied = WeakHashMap<View, ComponentConfig>()
-    private val rendered = WeakHashMap<View,List<Any?>>()
-    private fun fingerprint(v: View): List<Any?> = listOf(v.background,(v as? TextView)?.textColors,(v as? TextView)?.textSize,(v as? TextView)?.typeface,v.elevation,v.paddingLeft,v.paddingTop,v.paddingRight,v.paddingBottom,v.layoutParams?.width,v.layoutParams?.height)
+    private fun fingerprint(v: View): List<Any?> = listOf(v.background,(v as? TextView)?.textColors,(v as? TextView)?.textSize,(v as? TextView)?.typeface,v.elevation,v.paddingLeft,v.paddingTop,v.paddingRight,v.paddingBottom,v.layoutParams?.width,v.layoutParams?.height,v.backgroundTintList,(v as? ImageView)?.imageTintList,(v as? ImageView)?.colorFilter)
     private val aliases = mapOf(
         "hero_banner" to "panelHomeBanner", "streak_pill" to "layoutStreakPill", "search_bar" to "btnSearch", "find_test_panel" to "btnSearch",
         "timer_pill" to "timerCapsuleHost", "question_card" to "questionContainer", "question_text" to "tvQuestion",
         "bottom_actions" to "layoutBottomBar", "action_grid" to "layoutBottomBar", "score_card" to "cardResultHero",
         "analytics_summary" to "rowOverviewStatisticsTiles", "login_hero" to "cardLogin", "login_card" to "cardLogin", "action_buttons" to "layoutBottomBar", "btn_reattempt" to "btnReattempt", "btn_share" to "btnShare"
     )
+    private fun structuralPath(v:View,parent:String?):String {
+        val siblings=(v.parent as? ViewGroup)?.children?.filter{it.javaClass==v.javaClass && it.tag!="studio_glass_host"}?.toList().orEmpty()
+        val index=if(v.parent is RecyclerView)0 else siblings.indexOf(v).coerceAtLeast(0)
+        return "native_path_${parent?.removePrefix("native_") ?: "root"}_${v.javaClass.simpleName}_$index"
+    }
+    private fun meaningful(v:View)=v is TextView || v is ImageView || v is ViewGroup && v.background!=null
     fun elements(root: View): List<Element> {
         val out = mutableListOf<Element>()
-        fun walk(v: View, parent: String?, repeated: Boolean) {
-            if (v is eightbitlab.com.blurview.BlurView || v.tag == "studio_backdrop" || v.tag == "studio_insertions") return
+        fun walk(v: View, parent: String?, repeated: Boolean, path:String?) {
+            if (v is eightbitlab.com.blurview.BlurView || v.tag == "studio_backdrop" || v.tag == "studio_glass_host" || v.tag == "studio_insertions") return
             val key = (v.tag as? String)?.takeIf { StudioPolicy.isDynamic(it) } ?: if (v.id != View.NO_ID) {
-                runCatching { "native_" + v.resources.getResourceEntryName(v.id) }.getOrNull()
-            } else null
+                runCatching { "native_" + v.resources.getResourceEntryName(v.id) }.getOrNull() ?: structuralPath(v,path).takeIf{meaningful(v)}
+            } else structuralPath(v,path).takeIf{meaningful(v)}
             if (key != null) out += Element(key, v, parent, repeated)
-            if (v is ViewGroup) v.children.toList().forEach { walk(it,key ?: parent,repeated || v is RecyclerView) }
+            if (v is ViewGroup) v.children.toList().forEach { walk(it,key ?: parent,repeated || v is RecyclerView,key ?: structuralPath(v,path)) }
         }
-        walk(root,null,false)
+        walk(root,null,false,null)
         // Inserted views live in a reserved host but remain individually selectable.
         fun dynamic(v: View, parent: String?) {
             val key = (v.tag as? String)?.takeIf { StudioPolicy.isDynamic(it) }
@@ -50,7 +55,8 @@ object StudioRenderer {
             if (v is ViewGroup) v.children.toList().forEach { dynamic(it,key ?: parent) }
         }
         (root as? ViewGroup)?.findViewWithTag<View>("studio_insertions")?.let { dynamic(it,null) }
-        return out
+        val counts=out.groupingBy{it.id}.eachCount()
+        return out.map{if((counts[it.id] ?: 0)>1)it.copy(repeated=true)else it}
     }
     fun keysFor(id: String): Set<String> = setOf(id) + aliases.filterValues { "native_"+it==id }.keys
     fun configuration(e: Element, components: Map<String,ComponentConfig>): ComponentConfig? {
@@ -88,20 +94,20 @@ object StudioRenderer {
             val source = c ?: defaults(e)
             val safe = if (c != null || screenColor != null || globalText != null) source.copy(
                 id=e.id, isProtected=e.protected, visible=source.visible, enabled=true, content=ContentProperties(), actions=ActionProperties(),
-                appearance=source.appearance.copy(backgroundColor=source.appearance.backgroundColor ?: screenColor,opacity=source.appearance.opacity?.coerceIn(.3f,1f)),
+                appearance=source.appearance.copy(backgroundColor=source.appearance.backgroundColor ?: screenColor,opacity=source.appearance.opacity?.coerceIn(0f,1f)),
                 typography=source.typography.copy(textColor=source.typography.textColor ?: globalText), animation=source.animation.copy(enabled=false)
             ) else null
             val previous = applied[e.view]
-            if (safe != null && (safe != previous || force || rendered[e.view] != fingerprint(e.view))) {
+            if (safe != null && (safe != previous || force || e.view.getTag(com.eve.app.R.id.studio_render_fingerprint) != fingerprint(e.view))) {
                 UiStudioEngine.applyToView(e.view,safe)
                 applied[e.view]=safe
                 if(e.view is com.eve.app.ui.common.CircularTimerView) e.view.setTimerColors(safe.appearance.strokeColor ?: safe.typography.textColor,safe.states.disabledBackgroundColor,safe.appearance.strokeColor,safe.typography.textColor)
-                rendered[e.view]=fingerprint(e.view)
+                e.view.setTag(com.eve.app.R.id.studio_render_fingerprint,fingerprint(e.view))
                 if (c?.animation?.enabled == true && previous == null) UiStudioEngine.playEntranceAnimation(e.view,c.animation)
             } else if (safe == null && previous != null && previous.id != "screen") {
                 UiStudioEngine.applyToView(e.view,defaults(e))
                 if(e.view is com.eve.app.ui.common.CircularTimerView)e.view.setTimerColors(null,null,null,null)
-                applied.remove(e.view);rendered.remove(e.view)
+                applied.remove(e.view);e.view.setTag(com.eve.app.R.id.studio_render_fingerprint,null)
             }
             if (e.view is TextView && e.id in setOf("native_tvLogo","native_tvAppName")) {
                 val text = nativeLabels.getOrPut(e.view) { e.view.text }
@@ -187,7 +193,8 @@ object StudioRenderer {
         // Only reorder inserted siblings; native layout constraints remain untouched.
         (listOfNotNull(host)+parents.values).forEach { parent ->
             val ordered=parent.children.filter { StudioPolicy.isDynamic(it.tag as? String ?: "") }.sortedBy { components[it.tag]?.order ?: 0 }.toList()
-            ordered.forEachIndexed { index,v -> if (parent.indexOfChild(v)!=index) { parent.removeView(v); parent.addView(v,index) } }
+            val current=parent.children.filter { StudioPolicy.isDynamic(it.tag as? String ?: "") }.toList()
+            if(current!=ordered){ordered.forEach{parent.removeView(it)};ordered.forEach{parent.addView(it)}}
         }
     }
     private fun create(root: View, c: ComponentConfig): View = (when(c.type) {

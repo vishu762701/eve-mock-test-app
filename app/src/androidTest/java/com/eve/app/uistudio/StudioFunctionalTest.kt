@@ -40,9 +40,9 @@ class StudioFunctionalTest {
             screenshot("01-tools")
             scenario.onActivity { activity ->
                 val root=activity.findViewById<View>(android.R.id.content)
-                assertTrue(views(root).filterIsInstance<Button>().any{it.text=="Blur & Glass"})
+                assertTrue(views(root).filterIsInstance<Button>().any{it.text=="Glass & Materials"})
                 assertFalse(views(root).any{it is SeekBar})
-                views(root).filterIsInstance<Button>().first{it.text=="Blur & Glass"}.performClick()
+                views(root).filterIsInstance<Button>().first{it.text=="Glass & Materials"}.performClick()
             }
             instrumentation.waitForIdleSync()
             screenshot("02-native-preview")
@@ -135,7 +135,7 @@ class StudioFunctionalTest {
             instrumentation.waitForIdleSync()
             scenario.onActivity { activity ->
                 val root=activity.findViewById<View>(android.R.id.content)
-                views(root).filterIsInstance<Button>().first{it.text=="Text & Fonts"}.performClick()
+                views(root).filterIsInstance<Button>().first{it.text=="Text"}.performClick()
             }
             instrumentation.waitForIdleSync()
             scenario.onActivity { activity ->
@@ -206,9 +206,9 @@ class StudioFunctionalTest {
             scenario.onActivity {
                 val root=card.parent as View
                 val unsafe=UiStudioConfig(screens=mapOf("login" to ScreenConfig(components=mapOf("native_tvLogo" to ComponentConfig(id="native_tvLogo",appearance=AppearanceProperties(opacity=0f))))))
-                assertFalse(UiStudioRepository.getInstance().validateConfig(unsafe).first)
+                assertTrue(UiStudioRepository.getInstance().validateConfig(unsafe).first)
                 StudioRenderer.apply(root,"login",unsafe)
-                assertEquals(.3f,label.alpha,.001f)
+                assertEquals(0f,label.alpha,.001f)
                 StudioRenderer.apply(root,"login",UiStudioConfig())
                 assertEquals(1f,label.alpha,.001f)
                 val button=com.google.android.material.button.MaterialButton(root.context).apply { id=android.R.id.button1;text="Protected action" }
@@ -216,17 +216,29 @@ class StudioFunctionalTest {
                 val baselineTint=button.backgroundTintList
                 val rounded=ComponentConfig(id="native_button1",type="button",appearance=AppearanceProperties(cornerRadius=20))
                 StudioRenderer.apply(root,"login",UiStudioConfig(screens=mapOf("login" to ScreenConfig(components=mapOf(rounded.id to rounded)))))
-                assertEquals(baselineTint!!.defaultColor,(button.background.current as android.graphics.drawable.GradientDrawable).color!!.defaultColor)
+                assertEquals(baselineTint!!.defaultColor,button.backgroundTintList!!.defaultColor)
                 val style=ComponentConfig(id="native_button1",type="button",appearance=AppearanceProperties(backgroundColor="#FF0000"),states=StateProperties(pressedBackgroundColor="#00FF00"))
                 StudioRenderer.apply(root,"login",UiStudioConfig(screens=mapOf("login" to ScreenConfig(components=mapOf(style.id to style)))))
-                assertNull("Native theme tint must not mask edited fill",button.backgroundTintList)
-                assertEquals(Color.RED,(button.background.current as android.graphics.drawable.GradientDrawable).color!!.defaultColor)
+                assertNotNull("Native ripple drawable keeps an explicit edited tint",button.backgroundTintList)
+                assertEquals(Color.RED,button.backgroundTintList!!.getColorForState(button.drawableState,0))
                 button.isPressed=true
-                assertEquals(Color.GREEN,(button.background.current as android.graphics.drawable.GradientDrawable).color!!.defaultColor)
+                assertEquals(Color.GREEN,button.backgroundTintList!!.getColorForState(button.drawableState,0))
                 button.isPressed=false
                 StudioRenderer.apply(root,"login",UiStudioConfig())
                 assertEquals(baselineTint,button.backgroundTintList)
             }
+            scenario.onActivity { activity->
+                label.elevation=100f
+                val root=card.parent as FrameLayout
+                root.addView(FrameLayout(activity).apply{id=android.R.id.text2;setBackgroundColor(Color.WHITE);elevation=10f},FrameLayout.LayoutParams(260,200).apply{leftMargin=30;topMargin=40})
+                selected=""
+            }
+            instrumentation.waitForIdleSync()
+            val overlap=android.graphics.Rect();scenario.onActivity{assertTrue(label.getGlobalVisibleRect(overlap))}
+            val time=android.os.SystemClock.uptimeMillis()
+            instrumentation.sendPointerSync(android.view.MotionEvent.obtain(time,time,android.view.MotionEvent.ACTION_DOWN,overlap.exactCenterX(),overlap.exactCenterY(),0))
+            instrumentation.sendPointerSync(android.view.MotionEvent.obtain(time,time+50,android.view.MotionEvent.ACTION_UP,overlap.exactCenterX(),overlap.exactCenterY(),0))
+            instrumentation.waitForIdleSync();assertEquals("native_text2",selected)
             screenshot("08-zoom-selection-overlay")
         }
     }

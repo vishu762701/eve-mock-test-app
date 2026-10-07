@@ -49,7 +49,7 @@ class StudioRepositoryFunctionalTest {
             }
         } as EveApiService
         val admin=UiStudioRepository(api,context)
-        val element=ComponentConfig(id="custom_notice",type="button",content=ContentProperties(title="Read syllabus"),layout=LayoutProperties(paddingTop=12,height="64"),appearance=AppearanceProperties(backgroundColor="#007AFF",cornerRadius=16,strokeColor="#FFFFFF",strokeWidth=1,elevation=4,opacity=.9f),material=MaterialProperties(12,.8f,"#FFFFFF",.25f),typography=TypographyProperties(textColor="#000000",textSize=20,fontFamily="serif"),actions=ActionProperties("navigate","syllabus"),animation=AnimationProperties(enabled=true,type="fade"),states=StateProperties(pressedBackgroundColor="#34C759"))
+        val element=ComponentConfig(id="custom_notice",type="button",content=ContentProperties(title="Read syllabus"),layout=LayoutProperties(paddingTop=12,height="64"),appearance=AppearanceProperties(backgroundColor="#007AFF",cornerRadius=16,strokeColor="#FFFFFF",strokeWidth=1,elevation=4,opacity=.9f,shape="capsule",iconTint="#FFFFFF",highlightColor="#FFFFFF",highlightOpacity=.4f),material=MaterialProperties(12,.8f,"#FFFFFF",.25f),typography=TypographyProperties(textColor="#000000",textSize=20,fontFamily="serif"),actions=ActionProperties("navigate","syllabus"),animation=AnimationProperties(enabled=true,type="fade",pressScale=.94f,springRelease=true,hapticFeedback=true),states=StateProperties(pressedBackgroundColor="#34C759",focusedBackgroundColor="#FF9500"))
         val config=UiStudioConfig(screens=mapOf("home" to ScreenConfig(id="home",components=mapOf(element.id to element))))
         assertTrue(admin.validateConfig(config).first)
         offline=true
@@ -65,11 +65,33 @@ class StudioRepositoryFunctionalTest {
         assertEquals(element,verified.config.screens.getValue("home").components.getValue(element.id))
         val student=UiStudioRepository(api,context)
         assertEquals(verified.config,student.fetchPublishedConfig(true))
+        // Fresh student readback renders through the same production path, not only DTO equality.
+        androidx.test.core.app.ActivityScenario.launch(com.eve.app.ui.admin.uistudio.UiStudioActivity::class.java).use { scenario->
+            scenario.onActivity { activity->
+                val root=android.widget.LinearLayout(activity).apply{orientation=android.widget.LinearLayout.VERTICAL;addView(android.widget.TextView(activity).apply{text="Native business data"})}
+                activity.setContentView(root)
+                val item=StudioRenderer.apply(root,"home",student.currentConfig).first{it.id==element.id}.view as android.widget.Button
+                assertEquals(element.content.title,item.text.toString());assertEquals(.9f,item.alpha,.001f)
+                assertNotNull(item.backgroundTintList ?: item.background)
+                assertEquals(.94f,student.currentConfig.screens.getValue("home").components.getValue(element.id).animation.pressScale!!,.001f)
+            }
+        }
         val edited=verified.config.copy(screens=mapOf("home" to verified.config.screens.getValue("home").copy(backgroundColor="#FFFFFF")))
         admin.saveDraftToLocalCache(edited)
         assertEquals(verified.config,student.currentConfig)
         offline=true
         assertEquals(verified.config,student.fetchPublishedConfig(true))
+        // Fresh student readback renders through the same production path, not only DTO equality.
+        androidx.test.core.app.ActivityScenario.launch(com.eve.app.ui.admin.uistudio.UiStudioActivity::class.java).use { scenario->
+            scenario.onActivity { activity->
+                val root=android.widget.LinearLayout(activity).apply{orientation=android.widget.LinearLayout.VERTICAL;addView(android.widget.TextView(activity).apply{text="Native business data"})}
+                activity.setContentView(root)
+                val item=StudioRenderer.apply(root,"home",student.currentConfig).first{it.id==element.id}.view as android.widget.Button
+                assertEquals(element.content.title,item.text.toString());assertEquals(.9f,item.alpha,.001f)
+                assertNotNull(item.backgroundTintList ?: item.background)
+                assertEquals(.94f,student.currentConfig.screens.getValue("home").components.getValue(element.id).animation.pressScale!!,.001f)
+            }
+        }
         offline=false;corruptReadback=true
         assertTrue(admin.publishVerified("Deliberately mismatched readback",edited) is PublishResult.VerificationFailed)
         assertEquals(verified.config,admin.currentConfig)

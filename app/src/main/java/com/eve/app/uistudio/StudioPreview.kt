@@ -48,11 +48,22 @@ class StudioPreview(context: Context) : FrameLayout(context) {
         if (event.actionMasked==MotionEvent.ACTION_DOWN) { x=event.rawX; y=event.rawY;return true }
         if (event.actionMasked==MotionEvent.ACTION_UP && kotlin.math.hypot(event.rawX-x,event.rawY-y) < ViewConfiguration.get(context).scaledTouchSlop) {
             val rect=Rect()
-            val hit=candidates().asReversed().firstOrNull { it.view.getGlobalVisibleRect(rect) && rect.contains(event.rawX.toInt(),event.rawY.toInt()) }
+            val hit=candidates().filter{it.view.getGlobalVisibleRect(rect) && rect.contains(event.rawX.toInt(),event.rawY.toInt())}.maxWithOrNull(Comparator{a,b->drawOrder(a.view,b.view)})
             onSelect(hit?.view); invalidate(); return true
         }
         // Ancestor scroll views can intercept movement; edit taps never trigger native actions.
         return true
+    }
+    private fun drawOrder(a:View,b:View):Int {
+        val left=generateSequence(a){it.parent as? View}.toList().asReversed()
+        val right=generateSequence(b){it.parent as? View}.toList().asReversed()
+        for(i in 0 until minOf(left.size,right.size))if(left[i]!==right[i]){
+            val z=left[i].z.compareTo(right[i].z)
+            if(z!=0)return z
+            val parent=left[i].parent as? android.view.ViewGroup
+            return (parent?.indexOfChild(left[i]) ?: 0).compareTo(parent?.indexOfChild(right[i]) ?: 0)
+        }
+        return left.size.compareTo(right.size)
     }
     override fun dispatchDraw(canvas: Canvas) {
         super.dispatchDraw(canvas)

@@ -172,6 +172,10 @@ data class LayoutProperties(
 )
 
 data class AppearanceProperties(
+    @SerializedName("iconTint") val iconTint: String? = null,
+    @SerializedName("shape") val shape: String? = null,
+    @SerializedName("highlightColor") val highlightColor: String? = null,
+    @SerializedName("highlightOpacity") val highlightOpacity: Float? = null,
     @SerializedName("backgroundColor")
     val backgroundColor: String? = null,
     @SerializedName("cornerRadius")
@@ -232,6 +236,10 @@ data class ActionProperties(
 )
 
 data class AnimationProperties(
+    @SerializedName("stateTransitionMs") val stateTransitionMs: Long = 0L,
+    @SerializedName("pressScale") val pressScale: Float? = null,
+    @SerializedName("springRelease") val springRelease: Boolean = false,
+    @SerializedName("hapticFeedback") val hapticFeedback: Boolean = false,
     @SerializedName("enabled")
     val enabled: Boolean = false,
     @SerializedName("type")
@@ -332,6 +340,7 @@ data class ResetStudioRequest(
 )
 
 data class StateProperties(
+    @SerializedName("focusedBackgroundColor") val focusedBackgroundColor: String? = null,
     @SerializedName("pressedBackgroundColor")
     val pressedBackgroundColor: String? = null,
     @SerializedName("selectedBackgroundColor")

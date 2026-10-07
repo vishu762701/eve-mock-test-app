@@ -1,0 +1,12 @@
+
+com.eve.app.uistudio.StudioVisualFunctionalTest:
+Error in nativeVisualsKeepActionsDataAndTrueBaseline(com.eve.app.uistudio.StudioVisualFunctionalTest):
+java.lang.IllegalArgumentException: Required value was null.
+	at com.eve.app.uistudio.StudioVisualFunctionalTest.shot(StudioVisualFunctionalTest.kt:27)
+	at com.eve.app.uistudio.StudioVisualFunctionalTest.nativeVisualsKeepActionsDataAndTrueBaseline(StudioVisualFunctionalTest.kt:63)
+
+com.eve.app.uistudio.StudioFunctionalTest:s_glBindAttribLocation: bind attrib 0 name position
+s_glBindAttribLocation: bind attrib 1 name localCoord
+.INSTRUMENTATION_RESULT: longMsg=Input dispatching timed out (78d9cf9 com.eve.app/com.eve.app.ui.admin.uistudio.UiStudioActivity (server) is not responding. Waited 5006ms for FocusEvent(hasFocus=true))
+INSTRUMENTATION_RESULT: shortMsg=keyDispatchingTimedOut
+INSTRUMENTATION_CODE: 0

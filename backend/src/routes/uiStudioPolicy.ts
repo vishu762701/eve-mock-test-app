@@ -33,7 +33,6 @@ export function validateStudioPolicy(config: any): string[] {
       if (a.actionType === 'open_url' && !safeUrl(a.actionTarget)) errors.push(`${key}: invalid external URL`);
       if (!custom && ((a.actionType && a.actionType !== 'none') || c.enabled === false)) errors.push(`${key}: native actions are protected`);
       if ((key.startsWith('native_') || c.isProtected || protectedLegacy.has(key)) && c.visible === false) errors.push(`${key}: essential element cannot be hidden`);
-      if (!custom && typeof c.appearance?.opacity === "number" && c.appearance.opacity < .3)errors.push(`${key}: native opacity must remain at least 30%`);
       if (custom && typeof c.parentId === "string" && c.parentId) {
         const p = comps[c.parentId];
         if (!p || !c.parentId.startsWith('custom_') || !['card','banner'].includes(p.type)) errors.push(`${key}: invalid inserted parent`);
@@ -51,6 +50,16 @@ export function validateStudioPolicy(config: any): string[] {
         }
       }
       if (c.content?.imageSource && !safeUrl(c.content.imageSource)) errors.push(`${key}: invalid image URL`);
+      const color=/^#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
+      for(const value of [c.appearance?.iconTint,c.appearance?.highlightColor,c.states?.focusedBackgroundColor,c.states?.pressedBackgroundColor,c.states?.selectedBackgroundColor,c.states?.disabledBackgroundColor,c.states?.selectedTextColor]) {
+        if(value!=null && (typeof value!=='string' || !color.test(value)))errors.push(`${key}: invalid visual color`);
+      }
+      if(c.appearance?.shape!=null && !['rounded','capsule','circle'].includes(c.appearance.shape))errors.push(`${key}: unsupported shape`);
+      const highlight=c.appearance?.highlightOpacity, press=c.animation?.pressScale;
+      if(highlight!=null && (typeof highlight!=='number' || !Number.isFinite(highlight) || highlight<0 || highlight>1))errors.push(`${key}: invalid highlight opacity`);
+      if(press!=null && (typeof press!=='number' || !Number.isFinite(press) || press<.85 || press>1))errors.push(`${key}: invalid press scale`);
+      if(c.animation?.stateTransitionMs!=null && (!Number.isInteger(c.animation.stateTransitionMs) || c.animation.stateTransitionMs<0 || c.animation.stateTransitionMs>600))errors.push(`${key}: state transition must be 0–600 ms`);
+      for(const flag of ['springRelease','hapticFeedback']) if(c.animation?.[flag]!=null && typeof c.animation[flag]!=='boolean')errors.push(`${key}: invalid interaction flag`);
       if (c.material?.blurRadius != null && (!Number.isInteger(c.material.blurRadius) || c.material.blurRadius < 0 || c.material.blurRadius > 50)) errors.push(`${key}: blur must be 0–50`);
       if (c.typography?.fontFamily && !['sans-serif','serif','monospace'].includes(c.typography.fontFamily)) errors.push(`${key}: unsupported font`);
       if (c.animation?.type && !['fade','scale','fade_scale','slide','pop'].includes(c.animation.type)) errors.push(`${key}: unsupported animation`);

@@ -1,0 +1,21 @@
+Final Android command: assembleDebug testDebugUnitTest --tests com.eve.app.util.UiStudioTest assembleDebugAndroidTest
+> Task :app:processDebugUnitTestJavaRes UP-TO-DATE
+> Task :app:testDebugUnitTest
+
+BUILD SUCCESSFUL in 2m 30s
+77 actionable tasks: 13 executed, 64 up-to-date
+
+Android JVM: {'name': 'com.eve.app.util.UiStudioTest', 'tests': '29', 'skipped': '0', 'failures': '0', 'errors': '0', 'timestamp': '2026-10-07T16:46:25', 'hostname': 'cd0ea8fb25d3', 'time': '0.479'}
+
+> eve-backend@1.0.0 build
+> node ./node_modules/typescript/bin/tsc --noEmit
+
+✔ visual fields are editable on protected native controls while behavior remains protected (0.246021ms)
+ℹ tests 85
+ℹ suites 0
+ℹ pass 85
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3490.276497

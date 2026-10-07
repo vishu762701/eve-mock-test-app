@@ -407,7 +407,7 @@ test('actions, protected elements, invalid parentage and cycles are rejected ser
   assert.equal(validate({native_btnNext:{visible:false,isProtected:false}}),false);
   assert.equal(validate({native_btnNext:{enabled:false}}),false);
   assert.equal(validate({custom_x:{type:"card",layout:{height:"999999999"}}}),false);
-  assert.equal(validate({native_btnNext:{appearance:{opacity:0}}}),false);
+  assert.equal(validate({native_btnNext:{appearance:{opacity:0}}}),true);
   assert.equal(validate({custom_x:{type:'button',actions:{actionType:'open_url',actionTarget:'javascript:alert(1)'}}}),false);
   assert.equal(validate({custom_x:{type:'button',actions:{actionType:'navigate',actionTarget:'submit'}}}),false);
   assert.equal(validate({custom_a:{type:'card',parentId:'custom_b'},custom_b:{type:'card',parentId:'custom_a'}}),false);
@@ -417,7 +417,7 @@ test('actions, protected elements, invalid parentage and cycles are rejected ser
 
 test('two admins cannot overwrite newer fields; draft stays isolated until verified publication',async()=>{
   const db=new MockUiStudioD1();const {app,env}=createApp(db,{isAdmin:true});
-  const initial={screens:{home:{components:{custom_glass:{id:'custom_glass',type:'card',material:{blurRadius:12,materialOpacity:0.65,tintColor:'#007AFF',tintOpacity:0.2}},custom_label:{id:'custom_label',type:'text',parentId:'custom_glass',content:{title:'Keep foreground sharp'}}}}}};
+  const initial={screens:{home:{components:{custom_glass:{id:'custom_glass',type:'card',material:{blurRadius:12,materialOpacity:0.65,tintColor:'#007AFF',tintOpacity:0.2},appearance:{opacity:0.2,iconTint:'#FFFFFF',shape:'capsule',highlightColor:'#FFFFFF',highlightOpacity:.4},animation:{pressScale:.94,springRelease:true,hapticFeedback:false},states:{pressedBackgroundColor:'#007AFF',focusedBackgroundColor:'#FFFFFF'}},custom_label:{id:'custom_label',type:'text',parentId:'custom_glass',content:{title:'Keep foreground sharp'}}}}}};
   const save=await request(app,env,'/api/admin/ui-studio/draft','PUT',{config:initial});
   const first=(await save.json()).data.config;
   assert.equal((await (await request(app,env,'/api/ui-studio/published')).json()).data.config,null);
@@ -458,4 +458,17 @@ test('stale restore and reset cannot replace newer admin work or publication', a
   assert.equal((await request(app,env,'/api/admin/ui-studio/restore/1','POST',{target:'publish',baseRevision:revision,publishedVersion:1})).status,200);
   assert.equal(db.published[0].version,2);
   assert.equal(JSON.parse(db.published[0].config_json).status,'published');
+});
+
+
+test('visual fields are editable on protected native controls while behavior remains protected',()=>{
+  const appearance={opacity:0,iconTint:'#FF007AFF',shape:'capsule',highlightColor:'#FFFFFF',highlightOpacity:.4};
+  const config={screens:{home:{components:{native_btnNext:{id:'native_btnNext',isProtected:true,appearance,animation:{pressScale:.94,springRelease:true,hapticFeedback:true},states:{focusedBackgroundColor:'#123456'}}}}}};
+  assert.equal(validateUiStudioConfig(config).valid,true);
+  for(const patch of [{iconTint:'bad'},{shape:'apple_native'},{highlightOpacity:2}]){
+    config.screens.home.components.native_btnNext.appearance={...appearance,...patch};assert.equal(validateUiStudioConfig(config).valid,false);
+  }
+  config.screens.home.components.native_btnNext.appearance=appearance;
+  config.screens.home.components.native_btnNext.actions={actionType:'navigate',actionTarget:'home'};
+  assert.equal(validateUiStudioConfig(config).valid,false);
 });

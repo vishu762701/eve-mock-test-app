@@ -914,4 +914,13 @@ class UiStudioTest {
         val isStaleVerified = (staleConfig.version == expectedVersion)
         assertFalse("Stale version must fail verification", isStaleVerified)
     }
+    @Test fun visualProtectionAndNewFieldsRoundTrip(){
+        val c=ComponentConfig(id="native_btnSubmit",isProtected=true,appearance=AppearanceProperties(opacity=0f,iconTint="#FFFFFF",shape="capsule",highlightColor="#FFFFFF",highlightOpacity=.4f),animation=AnimationProperties(pressScale=.94f,springRelease=true,hapticFeedback=true),states=StateProperties(focusedBackgroundColor="#007AFF"))
+        val config=UiStudioConfig(screens=mapOf("login" to ScreenConfig(components=mapOf(c.id to c))))
+        assertTrue(repo.validateConfig(config).first)
+        assertEquals(config,repo.importFromJson(repo.exportToJson(config)).getOrThrow())
+        assertFalse(repo.validateConfig(config.copy(screens=mapOf("login" to ScreenConfig(components=mapOf(c.id to c.copy(actions=ActionProperties("navigate","home"))))))).first)
+        assertFalse(repo.validateConfig(config.copy(screens=mapOf("login" to ScreenConfig(components=mapOf(c.id to c.copy(appearance=c.appearance.copy(highlightOpacity=2f))))))).first)
+    }
+
 }

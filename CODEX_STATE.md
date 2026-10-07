@@ -9,6 +9,18 @@
 - Light app background tokens are pure `#FFFFFF`; dark background tokens are pure `#000000`.
 - Test submission remains server-side through `POST /api/attempts/submit`; authentication, scoring, answer persistence, and navigation code were not changed by the Home Banner/Test appearance task.
 
+### Focused UI Studio visual continuation — 2026-10-07
+
+Continued the preserved implementation on `codex/ui-studio-functional` from `5b678765907604da0d7baed3435c7cba9261a60b`; fetched main remained `585f8ff91628677732da9fbf7a53c3ea618fa7d0`. Origin is exactly `https://github.com/vishu762701/eve-mock-test-app.git`.
+
+- Separated safe native visual editing from protected business behavior; removed the global opacity floor in editor, renderer and both validators.
+- Preserved native drawable/ripple/tint baselines, independent icon tint, surface/item/tint opacity, native states and reset; added real shared linear/constraint/button glass hosts and target-owned cleanup.
+- Added stable anonymous/repeated selection, overlap drawing-order hit testing, HSV color picker, 12 tools, explicit scope, shape/highlights, press response, optional haptics and state tint transitions. Presets use supported properties only.
+- No unrelated business logic or production Worker deployment changed. Android optical effects remain approximations; toolbar/internal adapter glass, physical refraction and navigation morphing are unsupported.
+- Final APK/instrumentation builds and 29 focused JVM checks passed; backend type check and 85 tests passed. Seven distinct API 31 focused scenarios passed across runs; combined runs were interrupted by a corrected fixture error and emulator ANRs. Final native border pixels/reset and typography/undo/reopen passed separately. See current evidence for exact run boundaries; earlier full-suite evidence below remains historical.
+- Authenticated production publication, older-API fallback, physical performance/haptics and animated timing remain unverified. Native foreground drawable ownership is preserved so MaterialCard stroke setters change the actual drawn edge.
+- Current verification and exact limitations are recorded in `UI_STUDIO_VERIFICATION.md`.
+
 ### Latest UI Studio task — 2026-10-07
 
 Continued the interrupted `MASTER_UI_STUDIO.md` implementation on `codex/ui-studio-functional`, based on fetched `origin/main` / starting HEAD `585f8ff91628677732da9fbf7a53c3ea618fa7d0`. Preserved the recovered working tree and external recovery copies; no reset, clean, force push or remote overwrite.

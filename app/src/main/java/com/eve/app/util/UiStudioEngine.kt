@@ -160,102 +160,20 @@ object UiStudioEngine {
                 view.elevation = (it * density)
             }
 
-            // 7. Card / Background Appearance & Material Tint
-            val app = config.appearance
-            val mat = config.material
-            // Native button tint must not mask an explicitly chosen fill. Baseline restores it on reset.
-            if(app.backgroundColor != null || mat.tintColor != null)view.backgroundTintList=null
-
-            if (view is MaterialCardView) {
-                // If material tint is provided, prefer tint color; else background color
-                val effectiveColor = parseColorSafe(mat.tintColor) ?: parseColorSafe(app.backgroundColor) ?: view.cardBackgroundColor.defaultColor
-                effectiveColor?.let { color ->
-                    val finalColor = if (mat.tintOpacity != null || mat.materialOpacity != null) {
-                        val alpha = ((mat.tintOpacity ?: 1f) * (mat.materialOpacity ?: 1f) * 255).toInt().coerceIn(0, 255)
-                        (color and 0x00FFFFFF) or (alpha shl 24)
-                    } else color
-                    view.setCardBackgroundColor(finalColor)
-                }
-                app.cornerRadius?.let { radiusDp ->
-                    view.radius = radiusDp * density
-                }
-                app.strokeWidth?.let { widthDp ->
-                    view.strokeWidth = (widthDp * density).toInt()
-                }
-                app.strokeColor?.let { strokeHex ->
-                    parseColorSafe(strokeHex)?.let { color ->
-                        view.strokeColor = color
-                    }
-                }
-            } else if (app.backgroundColor != null || app.cornerRadius != null || app.strokeColor != null || app.strokeWidth != null || mat.tintColor != null || mat.materialOpacity != null || mat.tintOpacity != null) {
-                val drawable = (view.background as? GradientDrawable) ?: GradientDrawable()
-                val effectiveColor = parseColorSafe(mat.tintColor) ?: parseColorSafe(app.backgroundColor)
-                    ?: (view.background as? android.graphics.drawable.ColorDrawable)?.color
-                    ?: (view.background as? GradientDrawable)?.color?.defaultColor
-                    ?: (view.background as? com.google.android.material.shape.MaterialShapeDrawable)?.fillColor?.defaultColor
-                    ?: view.backgroundTintList?.defaultColor
-                    ?: if(mat.materialOpacity != null || mat.tintOpacity != null) Color.WHITE else null
-                effectiveColor?.let { color ->
-                    val finalColor = if (mat.tintOpacity != null || mat.materialOpacity != null) {
-                        val alpha = ((mat.tintOpacity ?: 1f) * (mat.materialOpacity ?: 1f) * 255).toInt().coerceIn(0, 255)
-                        (color and 0x00FFFFFF) or (alpha shl 24)
-                    } else color
-                    drawable.setColor(finalColor)
-                }
-                app.cornerRadius?.let { radiusDp ->
-                    drawable.cornerRadius = radiusDp * density
-                }
-                val strokeWidthPx = (app.strokeWidth?.let { it * density } ?: 0f).toInt()
-                val strokeColorVal = parseColorSafe(app.strokeColor) ?: Color.TRANSPARENT
-                if (strokeWidthPx > 0 && strokeColorVal != Color.TRANSPARENT) {
-                    drawable.setStroke(strokeWidthPx, strokeColorVal)
-                }
-                view.backgroundTintList=null
-                view.background = drawable
-            }
-
             // 8. Typography (if view is TextView)
             if (view is TextView) {
                 applyTypography(view, config)
             }
 
-            // 9. Content (if view is ImageView)
-            if (view is ImageView) {
-                config.appearance.strokeColor?.let { hex ->
-                    parseColorSafe(hex)?.let { view.setColorFilter(it) }
-                }
-            }
-
+            com.eve.app.uistudio.StudioVisual.apply(view, config)
             com.eve.app.uistudio.StudioMaterial.apply(view, config)
-            applyStates(view, config)
+            com.eve.app.uistudio.StudioInteraction.apply(view, config.animation)
             // 10. Animation if configured
             if (config.animation.enabled) {
                 playEntranceAnimation(view, config.animation)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed applying UI Studio config to view: ${config.id}", e)
-        }
-    }
-
-    private fun applyStates(view: View, config: ComponentConfig) {
-        val states = config.states
-        if (states == com.eve.app.data.model.uistudio.StateProperties()) return
-        val drawable = android.graphics.drawable.StateListDrawable()
-        fun add(state: IntArray, hex: String?) {
-            val color = parseColorSafe(hex) ?: return
-            drawable.addState(state, GradientDrawable().apply {
-                setColor(color)
-                cornerRadius = dpToPx(view.context, config.appearance.cornerRadius ?: 0).toFloat()
-            })
-        }
-        add(intArrayOf(-android.R.attr.state_enabled), states.disabledBackgroundColor)
-        add(intArrayOf(android.R.attr.state_pressed), states.pressedBackgroundColor)
-        add(intArrayOf(android.R.attr.state_selected), states.selectedBackgroundColor)
-        add(intArrayOf(android.R.attr.state_checked), states.selectedBackgroundColor)
-        drawable.addState(intArrayOf(), view.background ?: android.graphics.drawable.ColorDrawable(Color.TRANSPARENT))
-        view.background = drawable
-        if (view is TextView) parseColorSafe(states.selectedTextColor)?.let {
-            view.setTextColor(android.content.res.ColorStateList(arrayOf(intArrayOf(android.R.attr.state_selected), intArrayOf(android.R.attr.state_checked), intArrayOf()), intArrayOf(it, it, view.currentTextColor)))
         }
     }
 

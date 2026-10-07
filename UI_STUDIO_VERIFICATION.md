@@ -2,7 +2,66 @@
 
 Repository: `https://github.com/vishu762701/eve-mock-test-app.git`
 Branch: `codex/ui-studio-functional`
-Starting HEAD / fetched base: `585f8ff91628677732da9fbf7a53c3ea618fa7d0`
+Current task starting HEAD: `5b678765907604da0d7baed3435c7cba9261a60b`
+Fetched upstream main: `585f8ff91628677732da9fbf7a53c3ea618fa7d0`
+
+## Current focused visual continuation — 2026-10-07
+
+Starting HEAD: `5b678765907604da0d7baed3435c7cba9261a60b`. Fetched `origin/main`: `585f8ff91628677732da9fbf7a53c3ea618fa7d0`; main had not advanced and the branch retained the previously pushed Studio implementation. No reset/clean/revert, unrelated business changes or broad redesign.
+
+### Root causes and fixes
+
+- The 30% floor existed in four places (control, Android policy, Worker policy, renderer). All four now permit 0–100%; the editor warns that transparent essential controls retain actions but may be hard to discover.
+- Background color/shape/state application replaced native drawables, and icon tint reused border color. Shared `StudioVisual` now keeps native ripple/state structure, applies state-aware tint, uses MaterialButton/Card shape APIs, and independently styles image/compound/button icons. Baseline includes native tint, outlines, clipping, strokes and icon tint, with reset requesting layout when dimensions change. MaterialCard keeps its owned foreground drawable identity: cloning it disconnected the visible stroke from Material helper setters. A device-side border pixel assertion checks actual drawing.
+- Glass was FrameLayout-only. `StudioMaterial` retains native views/IDs/layout params and adds a noninteractive backdrop host before the surface foreground. Linear/constraint containers receive an internal host; supported buttons get a sibling underlay. Frame hosts fill the frame; constraint hosts anchor to parent edges; linear hosts use compensating margins to avoid shifting native children. Pre-draw updates dimensions only when bounds change and follows transforms/visibility without screenshot capture or reparenting native controls. Toolbar blur is not offered because inserting a host can disturb its internal layout. Effect state is owned by its target, and reset removes hosts/listeners and stops blur updates.
+- Anonymous image/text children lacked IDs. Structural IDs now include unnamed layout paths, normalize RecyclerView template roots and omit Studio/framework plumbing. Matching duplicates are labeled as template edits. Selection accounts for ancestor elevation, depth and transformed visible bounds.
+- HEX led the color UI and long labels obscured the tools. The 12 requested categories now offer an HSV picker, current color swatch/HEX, recent/preset colors, reset and fine +/- adjustment. Controls identify screen, element and scope. Selected element is default; selected-screen bulk visual edits are explicit. Global scope routes to the existing opt-in global palette/branding controls, rather than silently applying glass everywhere. Button actions remain under Arrange; Advanced retains JSON, audit, versions and clipboard.
+
+### Focused checks for this continuation
+
+- Final production/debug and instrumentation APKs built successfully. Focused Android JVM `UiStudioTest`: **29 passed**, including Gson round-trip/new-field validation and native visual versus action protection.
+- Backend TypeScript check and **85 tests passed**, including new native visual fields, opacity zero, invalid values, SQLite/revision/conflict/publication and fresh field readback.
+- Lint still reports the two pre-existing `windowLightNavigationBar` API-27 attributes in day/night themes against minSdk 24. These unrelated theme files were not modified.
+- Device verification initially exposed an idle-loop bug in a zero-sized linear glass host; fixed by using stable dimensions and compensating margins with updates only on bounds changes. A subsequent isolated glass scenario passed on API 31.
+- The first combined run passed picker/recovery, low-versus-high blur, repeated templates, repository fresh-readback/rendering and pointer selection; its native-card test incorrectly cast Login's actual LinearLayout to MaterialCardView. The fixture now reuses the real Result MaterialCardView within the Login test hierarchy. The combined run ended with an input-timeout/emulator interruption before typography finished; it is not recorded as a complete pass. The cold emulator retry encountered launcher/System UI ANRs before verification; an isolated pointer check subsequently passed, but screenshot capture returned null during the native check and typography again timed out. Non-pixel evidence capture now retries and logs unavailability without skipping reset assertions; glass pixel tests still require real captures.
+
+### Final device results and evidence
+
+**Seven distinct focused scenarios passed across runs** on API 31 (360×800, font scale 1.3, system animation scales zero). System night mode was set, while Eve retained its configured theme as shown in the screenshots; exhaustive day/dark contrast is not claimed. The interrupted combined run is not a complete-suite pass.
+
+- Final APK native check: **passed, 55.526 s**. Real Result MaterialCard in Login hierarchy: red fill, 20% item opacity, radius 24, green border verified by drawn edge pixels; nested green/serif text; actual MaterialButton selected/pressed colors, press scale, retained click listener, original color/radius/opacity/scale and normal drawable reset.
+- Final isolated typography/undo/recovery/reopen check: **passed, 90.242 s**.
+- Earlier focused runs passed the visual picker → selected native draft at 5% opacity → recreation; real NotificationAdapter template text/anonymous icon tint/reset; API/repository offline/reconnect/401/403/conflicts/fresh-published rendering; nested pointer/zoom/drag/overlap selection. These results are in the retained raw logs; live authenticated publication is not claimed.
+- Final APK glass check: **passed, 33.192 s**. Checks compare low/high radius with identical tint/opacity, verify changed backdrop pixels with sharp independent child text, separate item/material alpha, button/linear hosts, border/highlight/depth, and remove hosts/effects on reset. Final screenshots/readout are recorded with the evidence below.
+
+Evidence: [`docs/ui-studio/visual-controls/`](docs/ui-studio/visual-controls/). Native styled/reset screenshots, typography and overlap screenshots are from the final/retry device runs. Raw failed/interrupted logs are retained alongside passing logs so capture failures and emulator timeouts remain visible; screenshots from the first emulator were lost when it exited.
+
+Changed implementation files: model DTOs; `UiStudioActivity`; `StudioPolicy`, `StudioBaseline`, `StudioMaterial`, `StudioRenderer`, `StudioPreview`, `UiStudioEngine`; new `StudioVisual`, `StudioInteraction`, `StudioColorPicker`, `StudioPresets` and keyed tag resource IDs. Changed checks: `StudioFunctionalTest`, `StudioRepositoryFunctionalTest`, new `StudioVisualFunctionalTest`, `UiStudioTest`, Worker `uiStudioPolicy.ts` and `ui_studio.test.cjs`. Continuity/evidence changes: this file, `CODEX_STATE.md`, and the focused evidence directory. No unrelated business files changed.
+
+### Remaining limits for this continuation
+
+- Authenticated production publication/student accounts and deployed Worker behavior were not exercised: no production credentials/deployment were available. Local fresh HTTP readback, disk/cache recovery, real shared renderer and SQLite Worker routes are tested separately.
+- API 24–30 blur fallback, physical-device frame/memory performance, physical haptics and animated timing are not verified in this run. API 31 evidence uses disabled system animations; exhaustive rotation/accessibility and every one of the 39 host layouts are not re-tested here.
+- Toolbar/internal scroll or adapter hosts, unsupported button parents and tiny image/text targets do not offer glass. Select a supported containing surface instead. Custom Canvas subparts and separately launched production dialogs are not automatically exposed.
+- Global scope retains explicit palette/branding controls, not blanket global glass. Selected-screen bulk styles affect compatible currently rendered template views. Constraints still govern native layout.
+- Historical border-color-as-icon-tint coupling was removed; icon styling now requires `iconTint`. Existing JSON is preserved. A GradientDrawable has no public original stroke getter; explicit stroke widths replace its border with a foreground edge, while color-only edits preserve the original drawable border.
+
+### Visual versus behavior protection
+
+`visuallyEditable` and `behaviorProtected` are separate policy concepts. Native visual fill, tint, opacity, text/icon style, supported padding/margins/dimensions, shape/depth, states and motion are editable. Native actions, enabled/visibility/structure, authentication/exam behavior and data-bound text remain owned by Eve. No touch/click listener is replaced for interaction styling: pre-draw observes pressed state. Existing draft/save/publish/undo/recovery/version/conflict features remain.
+
+### iOS 26 capability mapping
+
+| Capability | Android implementation | Exact limit |
+|---|---|---|
+| Clear/frosted/tinted/light/dark/floating material | True BlurView backdrop; theme-aware neutral, independent material/item/tint alpha; manual controls plus seven shortcuts | No Apple APIs, physical refraction or adaptive luminosity |
+| Rounded/capsule/circle | Native Material shapes plus clipped rounded outlines; circle requires square size | Android round-rect approximation, not Apple's continuous curvature |
+| Specular/depth | Two restrained static gradient edges, separate highlight strength, border and native elevation | No moving optical highlights, lens distortion or fluid morphing |
+| Press/selected/disabled/focus | State-aware native fill/ripple, optional scale/haptic observer, configurable tint transitions | Haptics depend on device/settings; no action rewriting |
+| Motion | Fade, scale, fade+scale, slide; spring-like overshoot release/entrance; explicit screen entrance | Overshoot approximation, not a physical spring; no shared-element navigation morphing |
+| Bars/panels/pills/floating controls | Same material/visual path where supported existing containers/buttons expose real views | Scroll/adapter internals, custom Canvas subparts, separate production dialog windows and unsupported parents are not invented as editable glass surfaces |
+
+Re-read Apple's current adopting-Liquid-Glass documentation JSON for this continuation; its guidance emphasizes restrained use, legibility, accessibility and preserving system controls. Prior HIG reference links remain below.
 
 ## Recovery and scope
 
@@ -18,16 +77,16 @@ All offered fields use `UiStudioActivity` controls → immutable `UiStudioConfig
 
 | Tool / fields | Implementation and limits |
 |---|---|
-| Blur / radius, tint, tint opacity, material opacity | Backdrop `BlurView` is the surface's first child; foreground remains a separate view. API 31+ RenderEffect backend, earlier API RenderScript backend. Only compatible card/frame containers offer blur. Other targets explicitly offer flat tint only. Radius UI 0–25; stored legacy 26–50 is preserved and rendered at 25. Material opacity affects the backdrop/fill; item opacity affects the whole item. |
-| Colors / background, opacity | Native/dynamic item fill; screen background is explicitly separate. Native opacity has a 30% readability floor in controls, both validators and the renderer. Reset restores the captured native drawable. |
+| Blur / radius, tint, tint opacity, material opacity | Backdrop `BlurView` is the surface's first child; foreground remains a separate view. API 31+ RenderEffect backend, earlier API RenderScript backend. Frame/card, linear and constraint surfaces plus buttons in supported parents use render-only hosts. Scroll/adapter-owned hosts and tiny text/image children do not offer blur. Radius UI 0–25; stored legacy 26–50 is preserved and rendered at 25. Material opacity affects the backdrop/fill; item opacity affects the whole item. Partial material/item alpha crossfades the blurred layer with the original backdrop, so some sharp backdrop remains visible; use 100% on both for full-strength blur. |
+| Colors / background, opacity | Native/dynamic fill preserves drawable/ripple structure via tint. Whole-element opacity is 0–100% for all items; warnings call out essential transparent controls. Material, tint and selected text/image opacity remain separate paths. Reset restores captured native appearance. |
 | Text / color, size, family, style, alignment | Select child TextViews. Built-in sans-serif, serif and monospace; no unsupported font URL control. Data-bound business text is preserved. |
 | Layout / margin, padding, inserted height | Existing Android layout constraints remain authoritative. Native button theme tint cannot mask an explicitly edited fill/stroke; reset restores native tint. No free positioning control is advertised for constrained native items. Inserted items occupy a scrollable vertical container capped at one third of device height, preserving room for native content. |
-| Shape / radius, border, elevation | Android corners, stroke and elevation; blurred frame edge uses a foreground overlay that resets with baseline. This is a static highlight approximation. |
+| Shape / radius, border, elevation | Rounded outlines, capsule and square-bounded circle, stroke, elevation and layered gradient edge highlights. Highlights and continuous-looking corners approximate optics; no physical refraction. |
 | Content / label, image URL, icon | Inserted text/buttons, HTTP(S) images and three bundled icon choices. Only native app-name labels permit static text overrides. Scores/questions/timers/exam titles remain bound to business data. |
 | Arrange | Eight inserted types: text/button/image/icon/card/banner/divider/spacer. Stable UUIDs, sibling order, duplicate subtree, valid inserted card/banner parent, cycle rejection, hide/show and subtree removal. Native structure/actions/visibility are protected. Screens without a safe container explain insertion is unavailable. |
 | Actions | Inserted actions allow none, eight safe navigation destinations or validated HTTP(S) links. Native exam/auth/navigation actions remain app-owned. Sandbox links show their destination without launching an external app. |
-| Motion | Configurable item entrance and explicit selected-screen entrance; replay, duration and reset. Android animation scale is respected. No optical morphing or refraction is advertised. |
-| States | Pressed/selected/disabled background and selected text state lists. Inserted enabled state is configurable; native enabled state is business-owned. |
+| Motion | Fade/scale/combined/slide entrance and screen entrance, spring-like overshoot curve, observed press/release scale, opt-in haptic and smooth state/material tint transitions. System animation settings are respected; business listeners are preserved. |
+| States | Pressed/selected/checked/disabled/focused fill and selected text; optional color transition. Native state/ripple drawables remain intact. Enabled state on native controls remains business-owned. |
 | Branding / theme | Selected-screen background by default; explicit opt-in global app-name labels/color and app/text palette. Launcher metadata, adaptive lighting and automatic color contrast are not implemented controls. |
 | Presets / restore | Selected-material clear/tinted/frosted/opaque presets; selected item and screen resets; cached-published discard with retained server revision; version restore to draft; undo/redo. JSON/import/export/audit/style clipboard stay in Advanced. |
 

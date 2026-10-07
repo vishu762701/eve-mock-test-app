@@ -1,0 +1,4 @@
+
+com.eve.app.uistudio.StudioVisualFunctionalTest:INSTRUMENTATION_RESULT: longMsg=Input dispatching timed out (ce25bf1 com.eve.app/com.eve.app.ui.admin.uistudio.UiStudioActivity (server) is not responding. Waited 5015ms for FocusEvent(hasFocus=true))
+INSTRUMENTATION_RESULT: shortMsg=keyDispatchingTimedOut
+INSTRUMENTATION_CODE: 0
