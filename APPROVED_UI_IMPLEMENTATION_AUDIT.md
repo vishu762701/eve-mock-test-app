@@ -54,7 +54,7 @@ Mock Test changes. Next/Submit has its own zero-stroke style.
 | Mock Test | Answered palette | #34C759 both themes | #34C759 both themes | `app/src/main/res/values/approved_ui_colors.xml:5`; `app/src/main/res/values-night/approved_ui_colors.xml:5` | UNVERIFIED (CI pending) | UNVERIFIED (CI pending) | Native view assertions + rendered bitmap; pending CI | UNVERIFIED |
 | Mock Test | Review palette | #FFCC00 both themes | #FFCC00 both themes | `app/src/main/res/values/approved_ui_colors.xml:6`; `app/src/main/res/values-night/approved_ui_colors.xml:6` | UNVERIFIED (CI pending) | UNVERIFIED (CI pending) | Native view assertions + rendered bitmap; pending CI | UNVERIFIED |
 | Mock Test | Timer background | #000000 dark / #FFFFFF light | #000000 dark / #FFFFFF light | `app/src/main/java/com/eve/app/ui/common/CircularTimerView.kt:79` | UNVERIFIED (CI pending) | UNVERIFIED (CI pending) | Native view assertions + rendered bitmap; pending CI | UNVERIFIED |
-| Mock Test | Timer circle | Equal 44dp width/height | Equal 44dp width/height | `app/src/main/java/com/eve/app/ui/test/../common/CircularTimerView.kt:68` | UNVERIFIED (CI pending) | UNVERIFIED (CI pending) | Native view assertions + rendered bitmap; pending CI | UNVERIFIED |
+| Mock Test | Timer circle | Equal 44dp width/height | Equal 44dp width/height | `app/src/main/java/com/eve/app/ui/common/CircularTimerView.kt:68` | UNVERIFIED (CI pending) | UNVERIFIED (CI pending) | Native view assertions + rendered bitmap; pending CI | UNVERIFIED |
 | Mock Test | Palette circles | Equal 38dp width/height; 19dp radius | Equal 38dp width/height; 19dp radius | `app/src/main/java/com/eve/app/ui/common/QuestionPaletteAdapter.kt:124` | UNVERIFIED (CI pending) | UNVERIFIED (CI pending) | Native view assertions + rendered bitmap; pending CI | UNVERIFIED |
 | Mock Test | Question shape | No visible background / border | No visible background / border | `app/src/main/res/layout/item_question.xml:109` | UNVERIFIED (CI pending) | UNVERIFIED (CI pending) | Native view assertions + rendered bitmap; pending CI | UNVERIFIED |
 | Mock Test | Answer shape | Rounded rectangle, 12dp radius | Rounded rectangle, 12dp radius | `app/src/main/java/com/eve/app/ui/common/TelegramRadioButton.kt:124` | UNVERIFIED (CI pending) | UNVERIFIED (CI pending) | Native view assertions + rendered bitmap; pending CI | UNVERIFIED |
@@ -161,3 +161,13 @@ Native fixtures verify geometry, styling and selected-tab content visibility, no
 real exam submission to production or authenticated network results. Those business
 handlers remain unchanged and relevant JVM/backend regression tests run. No production
 database reset, migration deletion, force-push, branch-protection bypass, or new design.
+
+## Intermediate native verification
+
+Run 37758687488: 3 existing interaction tests passed; the new rendering test
+failed at a half-ring edge pixel (#0B0B0B versus black) due to native antialiasing.
+The exact Paint color and 2dp stroke assertions passed. The curved-edge check
+now allows a 16-channel antialiasing tolerance while retaining exact Paint/value
+assertions. The render export moved to scoped MediaStore Pictures storage so
+Gradle's automatic APK uninstall cannot delete the artifacts. Final native
+verification remains pending; this intermediate run is not reported as passed.

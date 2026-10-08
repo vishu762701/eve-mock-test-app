@@ -61,7 +61,7 @@ jobs:
           arch: x86_64
           disable-animations: true
           script: >-
-            bash -c 'trap "mkdir -p ui-renderings; adb pull /sdcard/Android/data/com.eve.app/files/approved-ui ui-renderings/ || true" EXIT; gradle connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=com.eve.app.ui --stacktrace'
+            bash -c 'trap "mkdir -p ui-renderings; adb pull /sdcard/Pictures/eve-approved-ui ui-renderings/ || true" EXIT; gradle connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=com.eve.app.ui --stacktrace'
       - uses: actions/upload-artifact@v4
         if: always()
         with:

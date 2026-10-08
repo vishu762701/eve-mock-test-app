@@ -1,5 +1,7 @@
 package com.eve.app.ui
 
+import android.content.ContentValues
+import android.provider.MediaStore
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -30,7 +32,6 @@ import com.google.android.material.button.MaterialButton
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.File
 
 /** Renders production XML, custom views, and adapters; fixtures never access user data. */
 @RunWith(AndroidJUnit4::class)
@@ -54,9 +55,16 @@ class ApprovedUiRenderingTest {
     private fun bitmap(view: View): Bitmap = Bitmap.createBitmap(view.width, view.height,
         Bitmap.Config.ARGB_8888).also { view.draw(Canvas(it)) }
     private fun save(view: View, name: String) {
-        val dir = File(context.getExternalFilesDir(null), "approved-ui").apply { mkdirs() }
-        bitmap(view).useBitmap { image -> File(dir, "$name-${if (dark) "dark" else "light"}.png")
-            .outputStream().use { image.compress(Bitmap.CompressFormat.PNG, 100, it) } }
+        // Shared Pictures survives Gradle's automatic test APK uninstall.
+        val values = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, "$name-${if (dark) "dark" else "light"}.png")
+            put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/eve-approved-ui")
+        }
+        val uri = context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)!!
+        bitmap(view).useBitmap { image -> context.contentResolver.openOutputStream(uri)!!.use {
+            image.compress(Bitmap.CompressFormat.PNG, 100, it)
+        } }
     }
     private inline fun Bitmap.useBitmap(block: (Bitmap) -> Unit) { try { block(this) } finally { recycle() } }
     private fun bare(view: View) {
@@ -65,7 +73,11 @@ class ApprovedUiRenderingTest {
         assertTrue(view.layoutParams.height >= dp(48))
     }
 
-    @Test fun allApprovedValuesReachNativeRenderersInBothThemes() {
+    @Test fun approvedHomeRendersInBothThemes() = inBothThemes { verifyHome() }
+    @Test fun approvedMockRendersInBothThemes() = inBothThemes { verifyMock() }
+    @Test fun approvedResultRendersInBothThemes() = inBothThemes { verifyResult() }
+
+    private fun inBothThemes(verify: () -> Unit) {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         instrumentation.runOnMainSync {
             for (night in listOf(Configuration.UI_MODE_NIGHT_NO, Configuration.UI_MODE_NIGHT_YES)) {
@@ -75,15 +87,14 @@ class ApprovedUiRenderingTest {
                     uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or night
                 }
                 context = ContextThemeWrapper(base.createConfigurationContext(config), R.style.Theme_Eve)
-                verifyHome()
-                verifyMock()
-                verifyResult()
+                verify()
             }
         }
     }
 
     private fun verifyHome() {
         val b = ActivityMainBinding.inflate(LayoutInflater.from(context))
+        assertEquals(background, (b.mainContentContainer.background as ColorDrawable).color)
         assertEquals(background, context.getColor(R.color.eve_bg))
         assertEquals(background, context.getColor(R.color.eve_canvas))
         listOf(b.btnSearch, b.btnNotification, b.btnOverflow).forEach { bare(it) }
@@ -252,7 +263,12 @@ class ApprovedUiRenderingTest {
         val half = CircularTimerView(context).apply { setTime(900, 1800) }
         measure(half, 44, 44)
         bitmap(half).useBitmap { image ->
-            assertEquals(foreground, image.getPixel(dp(43), dp(22)))
+            // Native antialiasing blends the curved outer edge with the background.
+            // Paint color/stroke assertions above remain exact.
+            val pixel = image.getPixel(dp(43), dp(22))
+            assertTrue("The remaining half-ring must render", listOf(
+                Color.red(pixel) - Color.red(foreground), Color.green(pixel) - Color.green(foreground),
+                Color.blue(pixel) - Color.blue(foreground)).all { kotlin.math.abs(it) <= 16 })
             assertEquals(background, image.getPixel(dp(1), dp(22)))
         }
         b.viewPager.setCurrentItem(59, false)
