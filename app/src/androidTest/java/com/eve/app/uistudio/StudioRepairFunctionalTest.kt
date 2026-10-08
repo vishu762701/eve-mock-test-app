@@ -194,6 +194,12 @@ class StudioRepairFunctionalTest {
                 assertEquals(Color.GREEN,paint("trackPaint").color)
                 StudioRenderer.apply(root,"test",UiStudioConfig())
                 assertEquals(13*activity.resources.displayMetrics.scaledDensity,paint("textPaint").textSize,.01f)
+                timer.setTime(300,600)
+                val nativeRing=paint("progressPaint").color
+                val textOnly=ComponentConfig(id="native_circularTimerView",typography=TypographyProperties(textColor="#FF0000"))
+                StudioRenderer.apply(root,"test",UiStudioConfig(screens=mapOf("test" to ScreenConfig(components=mapOf(textOnly.id to textOnly)))))
+                assertEquals("Text color must not recolor the independent timer ring",nativeRing,paint("progressPaint").color)
+                assertEquals(Color.RED,paint("textPaint").color)
                 bitmap.recycle()
             }
         }
@@ -229,6 +235,15 @@ class StudioRepairFunctionalTest {
                 root.measure(View.MeasureSpec.makeMeasureSpec(360,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(700,View.MeasureSpec.EXACTLY))
                 root.layout(0,0,360,700)
                 assertTrue(StudioRenderer.unsupported(root,"notifications",config).any { it.contains("backdrop blur") })
+                val screenFill=UiStudioConfig(screens=mapOf("notifications" to ScreenConfig(backgroundColor="#112233")))
+                StudioRenderer.apply(root,"notifications",screenFill)
+                val screenFingerprint=root.getTag(R.id.studio_render_fingerprint)
+                StudioRenderer.apply(root,"notifications",screenFill)
+                assertSame("Anonymous screen background must not be rendered twice on every frame",screenFingerprint,root.getTag(R.id.studio_render_fingerprint))
+                val test=activity.layoutInflater.inflate(R.layout.activity_test,null)
+                val timerSurface=ComponentConfig(id="timer_pill",material=MaterialProperties(blurRadius=12),typography=TypographyProperties(textColor="#0000FF"))
+                val timerConfig=UiStudioConfig(screens=mapOf("test" to ScreenConfig(components=mapOf(timerSurface.id to timerSurface))))
+                assertTrue("Surface blur must not be validated as blur on its typography-only timer child",StudioRenderer.unsupported(test,"test",timerConfig).isEmpty())
                 val login=activity.layoutInflater.inflate(R.layout.activity_login,null)
                 val label=ComponentConfig(id="native_tvLogo",typography=TypographyProperties(textColor="#00FF00"))
                 val branded=UiStudioConfig(branding=BrandingConfig(enabled=true,brandColor="#FF0000"),screens=mapOf("login" to ScreenConfig(components=mapOf(label.id to label))))

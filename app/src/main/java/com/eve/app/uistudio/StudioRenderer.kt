@@ -104,12 +104,7 @@ object StudioRenderer {
         }
         val backgroundTarget = root.findViewById<View>(com.eve.app.R.id.mainContentContainer) ?: root
         val background = screen?.backgroundColor ?: config.designSystem.appBackground.takeIf { config.designSystem.enabled }
-        if (backgroundTarget.id == View.NO_ID) {
-            val bgConfig = ComponentConfig(id="screen", appearance=AppearanceProperties(backgroundColor=background))
-            if ((background != null || applied[backgroundTarget]?.id == "screen") && applied[backgroundTarget] != bgConfig) {
-                UiStudioEngine.applyToView(backgroundTarget,bgConfig);applied[backgroundTarget]=bgConfig
-            }
-        }
+        // Anonymous layout roots are elements too; one render path owns their background/fingerprint.
         val components = screen?.components.orEmpty()
         var list = elements(root)
         for (e in list.filter { !it.dynamic }) {
@@ -128,7 +123,7 @@ object StudioRenderer {
                 StudioBaseline.refreshNative(e.view)
                 UiStudioEngine.applyToView(e.view,safe)
                 applied[e.view]=safe
-                if(e.view is com.eve.app.ui.common.CircularTimerView) e.view.setTimerColors(safe.appearance.strokeColor ?: safe.typography.textColor,safe.states.disabledBackgroundColor,safe.appearance.strokeColor,safe.typography.textColor).also { e.view.setStudioTypography(safe.typography) }
+                if(e.view is com.eve.app.ui.common.CircularTimerView) e.view.setTimerColors(safe.appearance.strokeColor,safe.states.disabledBackgroundColor,safe.appearance.strokeColor,safe.typography.textColor).also { e.view.setStudioTypography(safe.typography) }
                 e.view.setTag(com.eve.app.R.id.studio_render_fingerprint,fingerprint(e.view,safe))
             } else if (safe == null && previous != null && previous.id != "screen") {
                 StudioBaseline.refreshNative(e.view)
@@ -161,19 +156,21 @@ object StudioRenderer {
             val targets=list.filter { key in keysFor(it.id) || configuration(it,mapOf(key to c))!=null }
             if(targets.isEmpty()) return@flatMap listOf("$screenKey.$key: no matching production view")
             targets.flatMap { e ->
+                // Legacy surfaces route only their typography to children, not surface blur/fill.
+                val effective=configuration(e,mapOf(key to c)) ?: c
                 val errors=mutableListOf<String>()
                 val prefix="$screenKey.$key: Unsupported property"
-                if((c.material.blurRadius ?: 0)>25) errors += "$prefix blur radius above 25; reduce it to the supported range"
-                if((c.material.blurRadius ?: 0)>0 && !StudioMaterial.supported(e.view))
+                if((effective.material.blurRadius ?: 0)>25) errors += "$prefix blur radius above 25; reduce it to the supported range"
+                if((effective.material.blurRadius ?: 0)>0 && !StudioMaterial.supported(e.view))
                     errors += "$prefix backdrop blur; select a containing card/panel or button in a supported parent"
                 val legacyTypographyHost=key in setOf("timer_pill","score_card") && key in keysFor(e.id)
-                if(c.typography!=TypographyProperties() && !legacyTypographyHost && e.view !is TextView && e.view !is com.eve.app.ui.common.CircularTimerView)
+                if(effective.typography!=TypographyProperties() && !legacyTypographyHost && e.view !is TextView && e.view !is com.eve.app.ui.common.CircularTimerView)
                     errors += "$prefix typography; select the child text element"
-                if(e.view is com.eve.app.ui.common.CircularTimerView && (c.typography.textAlign!=null || c.typography.maxLines!=null))
+                if(e.view is com.eve.app.ui.common.CircularTimerView && (effective.typography.textAlign!=null || effective.typography.maxLines!=null))
                     errors += "$prefix timer alignment/line count; the countdown stays centered on one line"
-                if(c.states.selectedTextColor!=null && e.view !is TextView)
+                if(effective.states.selectedTextColor!=null && e.view !is TextView)
                     errors += "$prefix selected text color; select the child text element"
-                if(c.appearance.iconTint!=null && e.view !is ImageView && e.view !is com.google.android.material.button.MaterialButton &&
+                if(effective.appearance.iconTint!=null && e.view !is ImageView && e.view !is com.google.android.material.button.MaterialButton &&
                     (e.view as? TextView)?.compoundDrawables?.any { it!=null }!=true)
                     errors += "$prefix icon tint; select the child icon/image"
                 errors

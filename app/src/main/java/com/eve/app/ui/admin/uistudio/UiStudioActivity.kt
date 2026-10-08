@@ -70,7 +70,7 @@ class UiStudioActivity : EveBaseActivity() {
             repo.getDraft().onSuccess { config=it }.onFailure { config=repo.loadCachedDraft() ?: UiStudioConfig() }
             loading=false
             if(savedInstanceState?.getBoolean("workspace") == true)showWorkspace()
-            status.text=if(config.status=="published")"Published v${config.version} · last verified configuration" else "Recoverable local draft · not published"
+            status.text=if(config.status=="published")"Published configuration v${config.version} · local copy" else "Recoverable local draft · not published"
         }
     }
     override fun onSaveInstanceState(outState: Bundle) {
@@ -452,6 +452,9 @@ class UiStudioActivity : EveBaseActivity() {
         }
         return errors.distinct()
     }
+    private fun sameEditedFields(a: UiStudioConfig,b: UiStudioConfig)=
+        a.screens==b.screens && a.branding==b.branding && a.designSystem==b.designSystem &&
+            a.schemaVersion==b.schemaVersion && a.configVersion==b.configVersion
     private fun save() {
         flushFields();if(busy)return
         val errors=repo.validateConfig(config).second
@@ -459,7 +462,7 @@ class UiStudioActivity : EveBaseActivity() {
         busy=true;val snapshot=config
         lifecycleScope.launch {
             when(val result=repo.saveDraftDetailed(snapshot)) {
-                is SaveDraftResult.ServerSuccess -> { if(config==snapshot)config=result.config else config=config.copy(revision=result.config.revision);persist();status.text=if(config.screens==snapshot.screens)"Saved on server · not published" else "Server saved earlier edit · newer edits local" }
+                is SaveDraftResult.ServerSuccess -> { if(config==snapshot)config=result.config else config=config.copy(revision=result.config.revision);persist();status.text=if(sameEditedFields(config,snapshot))"Saved on server · not published" else "Server saved earlier edit · newer edits local" }
                 is SaveDraftResult.LocalOfflineSuccess -> status.text="Saved locally/offline · ${result.error}"
                 is SaveDraftResult.Conflict -> { status.text="Conflict · local work kept";conflict(result.serverDraft) }
                 is SaveDraftResult.Failure -> status.text="Save rejected · local draft retained: ${result.error}"
@@ -480,12 +483,12 @@ class UiStudioActivity : EveBaseActivity() {
             lifecycleScope.launch {
                 val result=repo.publishVerified("UI Studio editor",snapshot)
                 // Save may succeed before publish/readback fails. Keep its revision for a truthful retry.
-                repo.lastServerSavedDraft?.takeIf { it.screens==snapshot.screens && it.branding==snapshot.branding && it.designSystem==snapshot.designSystem }?.let {
+                repo.lastServerSavedDraft?.takeIf { sameEditedFields(it,snapshot) }?.let {
                     config=config.copy(revision=it.revision)
                     persist()
                 }
                 when(result) {
-                    is PublishResult.VerifiedSuccess -> { if(config.screens==snapshot.screens && config.branding==snapshot.branding && config.designSystem==snapshot.designSystem)config=result.config else config=config.copy(revision=result.config.revision);persist();status.text=if(config==result.config)"Published and verified · v${result.version}" else "Published earlier edit v${result.version} · newer edits unsaved" }
+                    is PublishResult.VerifiedSuccess -> { if(sameEditedFields(config,snapshot))config=result.config else config=config.copy(revision=result.config.revision);persist();status.text=if(config==result.config)"Published and verified · v${result.version}" else "Published earlier edit v${result.version} · newer edits unsaved" }
                     is PublishResult.VerificationFailed -> status.text="Publish readback failed · ${result.reason}"
                     is PublishResult.NetworkFailure -> status.text="Publish failed · ${result.error}"
                 }
