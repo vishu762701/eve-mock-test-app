@@ -45,6 +45,7 @@ class QuestionAdapter(
         private val b: ItemQuestionBinding
     ) : RecyclerView.ViewHolder(b.root) {
         private var currentAnimator: ValueAnimator? = null
+        private var suppressSelectionCallbacks = false
         init {
             listOf(b.rbA, b.rbB, b.rbC, b.rbD).forEach { it.enableApprovedTestStyle() }
         }
@@ -194,6 +195,7 @@ class QuestionAdapter(
                 "D" -> b.rbD.isChecked = true
             }
             b.rgOptions.setOnCheckedChangeListener { _, checkedId ->
+                if (suppressSelectionCallbacks) return@setOnCheckedChangeListener
                 val letter = when (checkedId) {
                     R.id.rbA -> "A"
                     R.id.rbB -> "B"
@@ -209,8 +211,14 @@ class QuestionAdapter(
         }
 
         fun clearSelection() {
-            // The listener ignores NO_ID; keep it attached so the next tap saves an answer.
-            b.rgOptions.clearCheck()
+            // RadioGroup may notify the old ID while unchecking its child. Do not save
+            // either that intermediate answer or NO_ID; keep the next tap connected.
+            suppressSelectionCallbacks = true
+            try {
+                b.rgOptions.clearCheck()
+            } finally {
+                suppressSelectionCallbacks = false
+            }
         }
     }
 

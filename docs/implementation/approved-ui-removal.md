@@ -119,7 +119,8 @@ unreachable resources, also removed:
 - `app/src/main/res/font/source_serif_4_semibold.ttf`
 
 The final behavior review also keeps the option listener attached after Clear
-Response (the NO_ID callback does not save an answer), so immediate reselection
+Response (intermediate child notifications and NO_ID are suppressed only during
+clearing), so immediate reselection
 works without a rebind. The focused native test now covers this directly. Mark
 for Review's selected button state uses approved yellow/black contrast and
 follows the existing marked state on both toggle and page navigation.
@@ -133,3 +134,9 @@ for another CI run with the stronger native assertions.
 
 Selected indicator fill stays inside its 2dp border; a native pixel assertion
 checks that selecting an answer does not paint over the border in either theme.
+
+The strengthened emulator test exposed RadioGroup.clearCheck's intermediate old-ID
+notification. The final adapter suppresses callbacks during clearCheck only;
+this prevents the old answer being saved again and retains immediate reselection.
+The failing refinement run is retained as evidence:
+https://github.com/vishu762701/eve-mock-test-app/actions/runs/37745551098
