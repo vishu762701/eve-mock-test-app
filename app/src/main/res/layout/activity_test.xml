@@ -210,7 +210,9 @@
                     style="@style/Widget.Eve.ApprovedTestAction"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="Mark for review" />
+                    android:text="Mark for review"
+                    android:textColor="@color/test_review_button_text"
+                    app:backgroundTint="@color/test_review_button_bg" />
             </FrameLayout>
         </LinearLayout>
 

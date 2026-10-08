@@ -158,6 +158,7 @@ class TestActivity : EveBaseActivity() {
             viewModel.toggleMark(current)
             updatePalette(current)
             val isMarked = viewModel.isMarked(current)
+            binding.btnMarkReview.isSelected = isMarked
             binding.btnMarkReview.text = if (isMarked) getString(R.string.unmark_review) else getString(R.string.mark_for_review)
         }
         binding.btnRetry.setOnClickListener { viewModel.retry(examId, timeLimit, topic, pyqYear, pyqPaper, isAdminUser, examName, fromBookmark) }
@@ -411,6 +412,7 @@ class TestActivity : EveBaseActivity() {
             binding.btnNext.isEnabled = true
         }
         val isMarked = viewModel.isMarked(position)
+        binding.btnMarkReview.isSelected = isMarked
         binding.btnMarkReview.text = if (isMarked) getString(R.string.unmark_review) else getString(R.string.mark_for_review)
     }
 

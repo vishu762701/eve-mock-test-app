@@ -117,3 +117,16 @@ unreachable resources, also removed:
 - `app/src/main/res/font/poppins_regular.ttf`
 - `app/src/main/res/font/source_serif_4_medium.ttf`
 - `app/src/main/res/font/source_serif_4_semibold.ttf`
+
+The final behavior review also keeps the option listener attached after Clear
+Response (the NO_ID callback does not save an answer), so immediate reselection
+works without a rebind. The focused native test now covers this directly. Mark
+for Review's selected button state uses approved yellow/black contrast and
+follows the existing marked state on both toggle and page navigation.
+
+The first GitHub Actions run passed both Android and backend jobs, including all
+three native emulator tests:
+https://github.com/vishu762701/eve-mock-test-app/actions/runs/37744940470
+The final Clear Response/review-state refinement passed the same local Android
+build/lint/189-unit-test/instrumentation-compilation commands and is submitted
+for another CI run with the stronger native assertions.

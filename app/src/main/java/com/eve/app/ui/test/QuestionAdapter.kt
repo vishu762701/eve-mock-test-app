@@ -209,7 +209,7 @@ class QuestionAdapter(
         }
 
         fun clearSelection() {
-            b.rgOptions.setOnCheckedChangeListener(null)
+            // The listener ignores NO_ID; keep it attached so the next tap saves an answer.
             b.rgOptions.clearCheck()
         }
     }

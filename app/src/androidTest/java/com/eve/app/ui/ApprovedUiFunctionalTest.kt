@@ -10,6 +10,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.eve.app.R
 import com.eve.app.data.model.Question
+import com.eve.app.databinding.ActivityTestBinding
 import com.eve.app.databinding.ActivityResultBinding
 import com.eve.app.ui.result.ResultTabs
 import com.eve.app.databinding.ItemQuestionBinding
@@ -66,10 +67,17 @@ class ApprovedUiFunctionalTest {
                 assertEquals(listOf("A"), calls)
                 holder.clearSelection()
                 assertEquals(-1, b.rgOptions.checkedRadioButtonId)
+                b.rbB.performClick()
+                assertEquals("Reselection immediately after Clear must save", listOf("A", "B"), calls)
                 saved = ""
                 adapter.onBindViewHolder(holder, 0)
-                b.rbB.performClick()
-                assertEquals(listOf("A", "B"), calls)
+                assertEquals(-1, b.rgOptions.checkedRadioButtonId)
+                assertEquals("Rebinding must not save an answer", listOf("A", "B"), calls)
+                val actions = ActivityTestBinding.inflate(LayoutInflater.from(context))
+                actions.btnMarkReview.isSelected = true
+                val selectedState = intArrayOf(android.R.attr.state_selected)
+                assertEquals(Color.parseColor("#FFCC00"), actions.btnMarkReview.backgroundTintList!!.getColorForState(selectedState, 0))
+                assertEquals(Color.BLACK, actions.btnMarkReview.textColors.getColorForState(selectedState, 0))
                 assertEquals(16f, b.tvQuestion.textSize / context.resources.displayMetrics.scaledDensity, 0.01f)
                 assertEquals(14f, b.rbA.textSize / context.resources.displayMetrics.scaledDensity, 0.01f)
                 assertEquals(1.5f, b.tvQuestion.lineSpacingMultiplier, 0.01f)
