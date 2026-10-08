@@ -115,13 +115,13 @@ class QuestionPaletteAdapter(
 
             if (approvedTestStyle) {
                 // Explicit padding also keeps the approved 8dp gap on API 24/25.
-                val halfGap = (4f * density).toInt()
-                b.root.setPadding(halfGap, halfGap, halfGap, halfGap)
+                val halfGap = Math.round(8f * density) / 2
+                b.root.setPadding(halfGap, halfGap, Math.round(8f * density) - halfGap, Math.round(8f * density) - halfGap)
                 b.cardCircle.layoutParams = b.cardCircle.layoutParams.apply {
-                    width = (38f * density).toInt()
-                    height = (38f * density).toInt()
+                    width = Math.round(38f * density)
+                    height = Math.round(38f * density)
                 }
-                b.cardCircle.radius = 19f * density
+                b.cardCircle.radius = Math.round(38f * density) / 2f
                 b.tvCircleNumber.textSize = 12f
                 val fill = when (item.state) {
                     PaletteState.ANSWERED -> R.color.eve_test_selected
@@ -133,7 +133,7 @@ class QuestionPaletteAdapter(
                     ?: bgColor)
                 b.tvCircleNumber.setTextColor(if (fill == R.color.eve_test_selected || fill == R.color.eve_test_review) android.graphics.Color.BLACK
                     else if (fill == R.color.eve_test_option_bg) ContextCompat.getColor(ctx, R.color.eve_test_foreground) else textColor)
-                b.cardCircle.strokeWidth = density.toInt().coerceAtLeast(1)
+                b.cardCircle.strokeWidth = Math.round(density).coerceAtLeast(1)
                 b.cardCircle.strokeColor = ContextCompat.getColor(ctx, R.color.eve_test_border)
                 // Active position must not erase answer/review state or add an extra outline.
                 b.tvCircleNumber.typeface = android.graphics.Typeface.create(

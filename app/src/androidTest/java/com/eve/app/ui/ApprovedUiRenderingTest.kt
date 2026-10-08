@@ -77,6 +77,34 @@ class ApprovedUiRenderingTest {
     @Test fun approvedMockRendersInBothThemes() = inBothThemes { verifyMock() }
     @Test fun approvedResultRendersInBothThemes() = inBothThemes { verifyResult() }
 
+    @Test fun approvedPixelSizesAndGapsMatchXmlAtFractionalDensities() = inBothThemes {
+        for (dpi in listOf(420, 440, 480)) {
+            val config = Configuration(context.resources.configuration).apply { densityDpi = dpi }
+            val scaledContext = ContextThemeWrapper(context.createConfigurationContext(config), R.style.Theme_Eve)
+            assertEquals(dpi, scaledContext.resources.displayMetrics.densityDpi)
+            val scale = scaledContext.resources.displayMetrics.density
+            fun pixels(dp: Int) = Math.round(dp * scale)
+            val adapter = QuestionPaletteAdapter(approvedTestStyle = true) {}
+            adapter.submit(listOf(PaletteItem(1)))
+            val holder = adapter.onCreateViewHolder(FrameLayout(scaledContext), 0)
+            adapter.onBindViewHolder(holder, 0)
+            val p = ItemPaletteCircleBinding.bind(holder.itemView)
+            assertEquals(pixels(38), p.cardCircle.layoutParams.width)
+            assertEquals(pixels(38), p.cardCircle.layoutParams.height)
+            assertEquals(pixels(38) / 2f, p.cardCircle.radius, 0.01f)
+            assertEquals(pixels(1), p.cardCircle.strokeWidth)
+            assertEquals("Total palette gap must be rounded once, not each half", pixels(8), p.root.paddingLeft + p.root.paddingRight)
+            val qAdapter = QuestionAdapter(listOf(Question()), { "" }, { _, _ -> }, { false }, {}, { false }, {}, { 0L })
+            val qHolder = qAdapter.onCreateViewHolder(FrameLayout(scaledContext), 0)
+            qAdapter.onBindViewHolder(qHolder, 0)
+            val q = ItemQuestionBinding.bind(qHolder.itemView)
+            assertEquals(pixels(56), q.rbA.minHeight)
+            assertEquals(pixels(12), q.rbA.paddingTop)
+            assertEquals(pixels(12), q.rbA.paddingRight)
+            assertEquals(pixels(44), q.rbA.paddingLeft)
+        }
+    }
+
     private fun inBothThemes(verify: () -> Unit) {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         instrumentation.runOnMainSync {
@@ -278,6 +306,11 @@ class ApprovedUiRenderingTest {
     private fun verifyResult() {
         val b = ActivityResultBinding.inflate(LayoutInflater.from(context))
         ResultTabs.bind(b) {}
+        val margins = b.tabLayoutResult.layoutParams as ViewGroup.MarginLayoutParams
+        assertEquals(dp(16), margins.marginStart)
+        assertEquals(dp(16), margins.marginEnd)
+        assertEquals(dp(6), margins.topMargin)
+        assertEquals(dp(6), margins.bottomMargin)
         assertEquals(0, b.tabLayoutResult.selectedTabPosition)
         assertEquals(com.google.android.material.tabs.TabLayout.INDICATOR_GRAVITY_STRETCH,
             b.tabLayoutResult.tabIndicatorGravity)

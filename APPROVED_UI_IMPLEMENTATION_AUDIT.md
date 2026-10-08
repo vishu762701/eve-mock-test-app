@@ -67,7 +67,7 @@ and the verification method shown, not production network end-to-end execution.
 | Mock Test | Review palette | #FFCC00 both themes | #FFCC00 both themes | `app/src/main/res/values/approved_ui_colors.xml:6`; `app/src/main/res/values-night/approved_ui_colors.xml:6` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
 | Mock Test | Timer background | #000000 dark / #FFFFFF light | #000000 dark / #FFFFFF light | `app/src/main/java/com/eve/app/ui/common/CircularTimerView.kt:79` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
 | Mock Test | Timer circle | Equal 44dp width/height | Equal 44dp width/height | `app/src/main/java/com/eve/app/ui/common/CircularTimerView.kt:68` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
-| Mock Test | Palette circles | Equal 38dp width/height; 19dp radius | Equal 38dp width/height; 19dp radius | `app/src/main/java/com/eve/app/ui/common/QuestionPaletteAdapter.kt:124` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
+| Mock Test | Palette circles | Equal 38dp width/height; radius half the resolved diameter | Equal 38dp width/height; radius half the resolved diameter | `app/src/main/java/com/eve/app/ui/common/QuestionPaletteAdapter.kt:124` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
 | Mock Test | Question shape | No visible background / border | No visible background / border | `app/src/main/res/layout/item_question.xml:109` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
 | Mock Test | Answer shape | Rounded rectangle, 12dp radius | Rounded rectangle, 12dp radius | `app/src/main/java/com/eve/app/ui/common/TelegramRadioButton.kt:124` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
 | Mock Test | Selection indicator circle | 20dp outer diameter | 20dp outer diameter | `app/src/main/java/com/eve/app/ui/common/TelegramRadioButton.kt:205` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
@@ -91,7 +91,7 @@ and the verification method shown, not production network end-to-end execution.
 | Mock Test | Timer size | 44dp | 44dp | `app/src/main/res/layout/activity_test.xml:28` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
 | Mock Test | Timer text | 12sp | 12sp | `app/src/main/java/com/eve/app/ui/common/CircularTimerView.kt:46` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
 | Mock Test | Palette cell size | 38dp | 38dp | `app/src/main/java/com/eve/app/ui/common/QuestionPaletteAdapter.kt:121` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
-| Mock Test | Palette gap | 8dp (4dp + 4dp) | 8dp (4dp + 4dp) | `app/src/main/java/com/eve/app/ui/common/QuestionPaletteAdapter.kt:118` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
+| Mock Test | Palette gap | 8dp total, rounded once then split between adjacent cells | 8dp total, rounded once then split between adjacent cells | `app/src/main/java/com/eve/app/ui/common/QuestionPaletteAdapter.kt:118` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
 | Mock Test | Palette number text | 12sp | 12sp | `app/src/main/java/com/eve/app/ui/common/QuestionPaletteAdapter.kt:125` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
 | Mock Test | Real palette counts / scrolling | Dynamic test count; no five-row limit | Dynamic test count; no five-row limit | `app/src/main/java/com/eve/app/ui/test/TestActivity.kt:662` | PASS | PASS | Native 60-question adapter/navigation; source count mapping | PASS |
 | Mock Test | Question font | 16sp | 16sp | `app/src/main/res/layout/item_question.xml:123` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
@@ -101,7 +101,7 @@ and the verification method shown, not production network end-to-end execution.
 | Mock Test | Option font | 14sp | 14sp | `app/src/main/res/layout/item_question.xml:51` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
 | Mock Test | Option minimum height | 56dp | 56dp | `app/src/main/res/layout/item_question.xml:149` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
 | Mock Test | Option gap | 10dp between options; no trailing extra gap | 10dp between options; no trailing extra gap | `app/src/main/res/layout/item_question.xml:145` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
-| Mock Test | Option content padding | 12dp edge inset; text inset includes 20dp indicator + 12dp gap | 12dp edge inset; text inset includes 20dp indicator + 12dp gap | `app/src/main/java/com/eve/app/ui/common/TelegramRadioButton.kt:137` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
+| Mock Test | Option content padding | 12dp edge inset; text inset includes 20dp indicator + 12dp gap; Android pixel rounding | 12dp edge inset; text inset includes 20dp indicator + 12dp gap; Android pixel rounding | `app/src/main/java/com/eve/app/ui/common/TelegramRadioButton.kt:137` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
 | Mock Test | Selection indicator size | 20dp (9dp radius centerline + 1dp half-stroke) | 20dp (9dp radius centerline + 1dp half-stroke) | `app/src/main/java/com/eve/app/ui/common/TelegramRadioButton.kt:205` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
 | Mock Test | Clear height | 44dp | 44dp | `app/src/main/res/layout/activity_test.xml:196` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
 | Mock Test | Review height | 44dp | 44dp | `app/src/main/res/layout/activity_test.xml:211` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
@@ -121,14 +121,14 @@ and the verification method shown, not production network end-to-end execution.
 | Mock Test | Previous / Next / Submit | Existing business logic retained | Existing business logic retained | `app/src/main/java/com/eve/app/ui/test/TestActivity.kt:140` | PASS | PASS | Diff review + existing unit tests; bookmark/report callback and palette tests where applicable | PASS |
 | Mock Test | Offline / loading / error | Existing business logic retained | Existing business logic retained | `app/src/main/java/com/eve/app/ui/test/TestActivity.kt:281` | PASS | PASS | Diff review + existing unit tests; bookmark/report callback and palette tests where applicable | PASS |
 | Mock Test | Bookmark / Report | Existing business logic retained | Existing business logic retained | `app/src/main/java/com/eve/app/ui/test/QuestionAdapter.kt:59` | PASS | PASS | Diff review + existing unit tests; bookmark/report callback and palette tests where applicable | PASS |
-| Result | Tab order | Overview, Review, Leaderboard | Overview, Review, Leaderboard | `app/src/main/res/layout/activity_result.xml:126` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
+| Result | Tab order | Overview, Review, Leaderboard | Overview, Review, Leaderboard | `app/src/main/res/layout/activity_result.xml:128` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
 | Result | Floating rounded track | Existing rounded segmented geometry; isolated Result drawable | Existing rounded segmented geometry; isolated Result drawable | `app/src/main/res/drawable/bg_result_segmented_track.xml:5` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
 | Result | Dark track reference | #171717 | #171717 | `app/src/main/res/values-night/approved_ui_colors.xml:11` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
 | Result | Light track reference | #F1F1F3 | #F1F1F3 | `app/src/main/res/values/approved_ui_colors.xml:11` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
 | Result | Selected pill | #FFFFFF dark / #000000 light | #FFFFFF dark / #000000 light | `app/src/main/res/drawable/bg_result_segmented_indicator.xml:8` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
-| Result | Selected text | #000000 dark / #FFFFFF light | #000000 dark / #FFFFFF light | `app/src/main/res/layout/activity_result.xml:119` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
-| Result | Unselected text | Readable #FFFFFF dark / #000000 light | Readable #FFFFFF dark / #000000 light | `app/src/main/res/layout/activity_result.xml:121` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
-| Result | No underline | Full-height inset pill; indicator gravity stretch | Full-height inset pill; indicator gravity stretch | `app/src/main/res/layout/activity_result.xml:113` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
+| Result | Selected text | #000000 dark / #FFFFFF light | #000000 dark / #FFFFFF light | `app/src/main/res/layout/activity_result.xml:121` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
+| Result | Unselected text | Readable #FFFFFF dark / #000000 light | Readable #FFFFFF dark / #000000 light | `app/src/main/res/layout/activity_result.xml:123` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
+| Result | No underline | Full-height inset pill; indicator gravity stretch | Full-height inset pill; indicator gravity stretch | `app/src/main/res/layout/activity_result.xml:115` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
 | Result | No additional bottom navigation | Only existing Result navigation | Only existing Result navigation | `app/src/main/res/layout/activity_result.xml:101` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
 | Result | Initial selection | Overview, index 0 | Overview, index 0 | `app/src/main/java/com/eve/app/ui/result/ResultTabs.kt:10` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
 | Result | Tab section mapping | 0 Overview / 1 Review / 2 Leaderboard | 0 Overview / 1 Review / 2 Leaderboard | `app/src/main/java/com/eve/app/ui/result/ResultTabs.kt:13` | PASS | PASS | Native value assertions / bitmap where visible | PASS |
@@ -196,3 +196,19 @@ verification passed in run 37759514376; the intermediate failed run is not repor
 - This final audit-only commit carries the successful implementation evidence.
   Its own HEAD/SHA and Actions status are reported in the final delivery response.
 - Lint completes with 0 errors; existing project warnings remain.
+
+## Fractional-density correction
+
+The initial six-test success above used the emulator's default density. A source
+audit then found integer truncation for programmatic dimensions. Palette cells and
+1dp strokes now use the same rounding as Android XML. The total 8dp gap is rounded
+once and split across the two edges, avoiding double-rounding at 420dpi. Option
+minimum height and content padding use Android pixel rounding too. A seventh native
+test exercises 420, 440 and 480dpi in both themes. Final execution of that test is
+pending the next main build; the previously recorded six-test success remains valid
+for its original commit. No semantic state or business behavior changed.
+
+The Result segmented control's existing 16dp side / 6dp vertical margins are
+expressed with start/end/top/bottom attributes so the floating placement also
+works on the supported API 24/25 versions. Their values and other Result geometry
+are unchanged; this does not introduce new Result card radii or styling.

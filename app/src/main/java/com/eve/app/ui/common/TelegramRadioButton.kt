@@ -133,9 +133,9 @@ class TelegramRadioButton @JvmOverloads constructor(
             arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
             intArrayOf(Color.BLACK, ContextCompat.getColor(context, R.color.eve_test_foreground))
         ))
-        minHeight = (56f * density).toInt()
-        setPadding((44f * density).toInt(), (12f * density).toInt(),
-            (12f * density).toInt(), (12f * density).toInt())
+        minHeight = Math.round(56f * density)
+        setPadding(Math.round(44f * density), Math.round(12f * density),
+            Math.round(12f * density), Math.round(12f * density))
         invalidate()
     }
 
