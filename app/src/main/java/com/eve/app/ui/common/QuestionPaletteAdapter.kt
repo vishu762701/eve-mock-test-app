@@ -114,6 +114,9 @@ class QuestionPaletteAdapter(
             }
 
             if (approvedTestStyle) {
+                // Explicit padding also keeps the approved 8dp gap on API 24/25.
+                val halfGap = (4f * density).toInt()
+                b.root.setPadding(halfGap, halfGap, halfGap, halfGap)
                 b.cardCircle.layoutParams = b.cardCircle.layoutParams.apply {
                     width = (38f * density).toInt()
                     height = (38f * density).toInt()

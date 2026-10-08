@@ -13,7 +13,8 @@
         android:background="@color/eve_bg"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         android:paddingVertical="10dp">
 
         <!-- Telegram-style circular countdown timer with visible editable host capsule -->
@@ -173,7 +174,8 @@
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         android:orientation="vertical"
-        android:paddingHorizontal="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         android:paddingTop="20dp"
         android:paddingBottom="10dp">
 

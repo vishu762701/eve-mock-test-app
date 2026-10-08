@@ -146,3 +146,7 @@ The initial indicator pixel assertion was too strict at a curved antialiased
 edge; the final rendering check allows up to 24 levels of edge blending per
 RGB channel, while still rejecting a fill covering the contrasting border.
 The resource/paint colors and stroke width are unchanged.
+
+Test body/action 16dp horizontal padding and the palette 8dp gap use explicit
+start/end or native setPadding values so they also apply on API 24/25, where
+XML paddingHorizontal/paddingVertical attributes are unavailable.
