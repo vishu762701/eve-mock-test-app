@@ -47,6 +47,34 @@ class ApprovedUiFunctionalTest {
         }
     }
 
+    @Test fun submittingOrExpiredQuestionsKeepTheStoredSelection() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        instrumentation.runOnMainSync {
+            val context = ContextThemeWrapper(instrumentation.targetContext, R.style.Theme_Eve)
+            var saved = "B"
+            var editable = false
+            val calls = mutableListOf<String>()
+            val adapter = QuestionAdapter(
+                listOf(Question(questionText = "Question", optionA = "A", optionB = "B")),
+                { saved }, { _, answer -> saved = answer; calls += answer },
+                { false }, {}, { false }, {}, { 0L }, canSelect = { editable }
+            )
+            val holder = adapter.onCreateViewHolder(FrameLayout(context), 0)
+            adapter.onBindViewHolder(holder, 0)
+            val binding = ItemQuestionBinding.bind(holder.itemView)
+            binding.rbA.performClick()
+            assertEquals(R.id.rbB, binding.rgOptions.checkedRadioButtonId)
+            assertTrue(calls.isEmpty())
+            editable = true
+            binding.rbA.performClick()
+            assertEquals(listOf("A"), calls)
+            editable = false
+            binding.rbB.performClick()
+            assertEquals(R.id.rbA, binding.rgOptions.checkedRadioButtonId)
+            assertEquals(listOf("A"), calls)
+        }
+    }
+
     @Test fun nativeOptionsRestoreClearAndSelectInBothThemes() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         instrumentation.runOnMainSync {

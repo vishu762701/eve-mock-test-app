@@ -1,5 +1,6 @@
 package com.eve.app
 
+import kotlinx.coroutines.launch
 import android.app.Application
 import com.eve.app.util.ThemeManager
 
@@ -21,7 +22,11 @@ class EveApplication : Application() {
         com.eve.app.util.ThemeSwitchAnimator.ensureLifecycleRegistered(this)
         com.eve.app.util.SystemBarHelper.init(this)
         try {
-            com.eve.app.worker.SubmitWorker.enqueueAllPending(this)
+            com.google.firebase.auth.FirebaseAuth.getInstance().addAuthStateListener { auth ->
+                if (auth.currentUser != null) kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                    com.eve.app.worker.SubmitWorker.enqueueAllPending(this@EveApplication)
+                }
+            }
         } catch (_: Throwable) {}
     }
 }

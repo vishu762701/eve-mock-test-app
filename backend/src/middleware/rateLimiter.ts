@@ -92,7 +92,7 @@ export function userRateLimit() {
       endpointBucket = { name: "submit", limit: 10 };
     } else if (method === "POST" && path === "/api/attempts/start") {
       endpointBucket = { name: "start", limit: 20 };
-    } else if (method === "POST" && path === "/api/generated-tests/generate-now") {
+    } else if (method === "POST" && (path === "/api/generated-tests/generate-now" || /\/system\/jobs\/.*\/retry/.test(path))) {
       endpointBucket = { name: "generate-now", limit: 5 };
     }
 

@@ -35,7 +35,7 @@ class GeneratedTestAdapter(
                     DateUtils.MINUTE_IN_MILLIS
                 )
             } else "Recent"
-            b.tvTestDetails.text = "${test.questionCount} questions • Generated $timeAgo"
+            b.tvTestDetails.text = "${test.questionCount} questions • Generated $timeAgo" + if (test.validationError.isNotBlank()) "\n${test.validationError}" else ""
 
             if (test.availableFrom > 0) {
                 b.tvScheduledTime.text = com.eve.app.util.TestScheduleHelper.formatOpensAt(test.availableFrom)
@@ -47,11 +47,12 @@ class GeneratedTestAdapter(
             val isLive = test.isLive
             b.switchLive.setOnCheckedChangeListener(null)
             b.switchLive.isChecked = isLive
+            b.switchLive.isEnabled = isLive || test.validationError.isBlank()
             b.switchLive.setOnCheckedChangeListener { _, isChecked ->
                 onStatusToggle(test, isChecked)
             }
 
-            b.tvStatusBadge.text = if (isLive) "LIVE" else "PAUSED"
+            b.tvStatusBadge.text = test.status.uppercase()
             b.tvStatusBadge.setBackgroundResource(
                 if (isLive) R.drawable.bg_tile_right else R.drawable.bg_tile_medium
             )

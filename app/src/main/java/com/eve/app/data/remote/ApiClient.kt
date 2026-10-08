@@ -14,7 +14,7 @@ object ApiClient {
     private val loggingInterceptor by lazy {
         HttpLoggingInterceptor().apply {
             level = if (BuildConfig.DEBUG) {
-                HttpLoggingInterceptor.Level.BODY
+                HttpLoggingInterceptor.Level.BASIC
             } else {
                 HttpLoggingInterceptor.Level.NONE
             }
@@ -27,7 +27,10 @@ object ApiClient {
                 val request = chain.request().newBuilder()
                     .header("X-Eve-Client", "2")
                     .build()
-                chain.proceed(request)
+                val configured = if (request.url.encodedPath.endsWith("generate-now") || request.url.encodedPath.endsWith("/retry")) {
+                    chain.withReadTimeout(150, TimeUnit.SECONDS)
+                } else chain
+                configured.proceed(request)
             }
             .addInterceptor(AuthInterceptor())
             .addInterceptor(loggingInterceptor)

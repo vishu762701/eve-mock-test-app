@@ -2,10 +2,11 @@
 // AI Generated Tests Management Routes
 // ============================================================================
 
+import { runGeneration, GenerationBusyError } from "../services/generation";
+import { parseAndValidateQuestions } from "../ai/generator";
+import { hideAnswers } from "../util/clientProtocol";
 import { Hono } from "hono";
-import type { ContentfulStatusCode } from "hono/utils/http-status";
-import { generateQuestions, getIstTimeAndDate, incrementTestNumber, GeminiProviderError } from "../ai/generator";
-import { resolvePublishStatus } from "../util/publishMode";
+import { GeminiProviderError } from "../ai/generator";
 import { requireAdmin } from "../middleware/authMiddleware";
 import { AuthUser, Env, ExamRow, GeneratedTestRow } from "../types";
 
@@ -48,7 +49,13 @@ generatedTestRoutes.get("/", async (c) => {
       } catch (_e) {}
     }
 
+    let validationError = "";
+    if (user.isAdmin) {
+      try { if (parseAndValidateQuestions(r.questions_json).length !== questionCount) throw new Error(); }
+      catch { validationError = "Invalid questions, duplicate options, answer keys or question count"; }
+    }
     return {
+      validationError,
       id: r.id,
       examId: r.exam_id,
       examName: r.exam_name,
@@ -81,6 +88,7 @@ generatedTestRoutes.get("/:id", async (c) => {
     return c.json({ success: false, error: "Test is not available" }, 403);
   }
 
+  if (!user.isAdmin && (row.available_from || 0) > serverNow) return c.json({ success: false, error: "Test not open yet" }, 403);
   let questionCount = row.question_count;
   let questions: any[] = [];
   if (row.questions_json) {
@@ -92,10 +100,17 @@ generatedTestRoutes.get("/:id", async (c) => {
     } catch (_e) {}
   }
 
+  let validationError = "";
+  try { if (parseAndValidateQuestions(row.questions_json).length !== questionCount) throw new Error(); }
+  catch { validationError = "Invalid questions or answer keys"; }
+  if (!Array.isArray(questions)) questions = [];
+  if (!user.isAdmin && validationError) return c.json({ success: false, error: "This test needs administrator repair before it can be attempted" }, 409);
+
   return c.json({
     success: true,
     serverNow,
     data: {
+      validationError,
       id: row.id,
       examId: row.exam_id,
       examName: row.exam_name,
@@ -105,7 +120,7 @@ generatedTestRoutes.get("/:id", async (c) => {
       status: row.status,
       questionCount: questionCount || 0,
       availableFrom: row.available_from || 0,
-      questions,
+      questions: hideAnswers(c) ? questions.map((q) => ({ ...q, correctAnswer: "", correct_answer: "", answer: "", explanation: "", explanationHi: "", explanation_hi: "" })) : questions,
     },
   });
 });
@@ -132,6 +147,15 @@ generatedTestRoutes.put("/:id/status", requireAdmin, async (c) => {
   const status = String(body.status || "paused").trim().toLowerCase();
   const db = c.env.DB;
 
+  if (!["draft", "paused", "live", "published", "unpublished"].includes(status)) return c.json({ success: false, error: "Invalid test status" }, 400);
+  const test = await db.prepare("SELECT * FROM generated_tests WHERE id = ?").bind(id).first<GeneratedTestRow>();
+  if (!test) return c.json({ success: false, error: "Test not found" }, 404);
+  if (["live", "published"].includes(status)) {
+    try {
+      const validated = parseAndValidateQuestions(test.questions_json);
+      if (validated.length !== test.question_count) throw new Error("Question count mismatch");
+    } catch { return c.json({ success: false, error: "Test has invalid questions or answer keys; repair it before publishing" }, 400); }
+  }
   await db.prepare("UPDATE generated_tests SET status = ? WHERE id = ?").bind(status, id).run();
   return c.json({ success: true });
 });
@@ -140,6 +164,10 @@ generatedTestRoutes.put("/:id/status", requireAdmin, async (c) => {
 generatedTestRoutes.delete("/:id", requireAdmin, async (c) => {
   const id = c.req.param("id");
   const db = c.env.DB;
+  const used = await db.prepare("SELECT 1 FROM attempts WHERE exam_id = ? OR substr(exam_id, -length(?) - 2) = '__' || ? LIMIT 1").bind(id, id, id).first();
+  if (used) return c.json({ success: false, error: "This test has student attempts. Unpublish it instead." }, 409);
+  const active = await db.prepare("SELECT 1 FROM attempt_sessions WHERE exam_key = ? OR substr(exam_key, -length(?) - 2) = '__' || ? LIMIT 1").bind(id, id, id).first();
+  if (active) return c.json({ success: false, error: "This test has active sessions. Unpublish it instead." }, 409);
   await db.prepare("DELETE FROM generated_tests WHERE id = ?").bind(id).run();
   return c.json({ success: true });
 });
@@ -160,117 +188,17 @@ generatedTestRoutes.post("/generate-now", requireAdmin, async (c) => {
   }
 
   const examName = exam.exam_name || "Mock Test";
-  const targetCount = Math.max(1, Math.min(200, Number(body.questionCount || exam.question_count || 20)));
+  const targetCount = Number(body.questionCount ?? exam.question_count ?? 20);
+  if (!Number.isInteger(targetCount) || targetCount < 1 || targetCount > 200) return c.json({ success: false, error: "questionCount must be an integer between 1 and 200" }, 400);
   const testNumber = String(body.testNumber || exam.test_number || "Test 1").trim();
   const customPrompt = String(body.customPromptNotes || exam.generation_prompt || exam.custom_prompt_notes || "").trim();
-  const { todayDate } = getIstTimeAndDate();
-
-  await db
-    .prepare("UPDATE exams SET last_generation_status = 'running', last_generation_time = ? WHERE id = ?")
-    .bind(Date.now(), examId)
-    .run();
 
   try {
-    const questions = await generateQuestions(
-      c.env,
-      examName,
-      exam.syllabus || "",
-      targetCount,
-      customPrompt
-    );
-
-    const testId = crypto.randomUUID();
-    const now = Date.now();
-    const title = `${examName} - ${testNumber}`;
-    const nextTestNumber = incrementTestNumber(testNumber);
-    const initialStatus = await resolvePublishStatus(db, exam);
-
-    await db.batch([
-      db
-        .prepare(
-          `INSERT INTO generated_tests (id, exam_id, exam_name, test_number, title, generated_at, status, question_count, syllabus_used, prompt_used, questions_json)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-        )
-        .bind(
-          testId,
-          examId,
-          examName,
-          testNumber,
-          title,
-          now,
-          initialStatus,
-          questions.length,
-          exam.syllabus || "",
-          customPrompt,
-          JSON.stringify(questions)
-        ),
-      db
-        .prepare(
-          `UPDATE exams SET
-            generating_lock_until = 0,
-            last_generated_date = ?,
-            last_generation_status = 'success',
-            last_generation_error = '',
-            last_generation_time = ?,
-            test_number = ?
-           WHERE id = ?`
-        )
-        .bind(todayDate, now, nextTestNumber, examId),
-    ]);
-
-    return c.json({
-      success: true,
-      data: {
-        testId,
-        questionCount: questions.length,
-        testNumber,
-        nextTestNumber,
-      },
-    });
+    const data = await runGeneration(c.env, exam, targetCount, testNumber, customPrompt, "manual", body.requestId ? String(body.requestId).slice(0, 100) : undefined);
+    return c.json({ success: true, data });
   } catch (err: any) {
-    const isGeminiErr = err instanceof GeminiProviderError;
-    const userMsg = isGeminiErr ? err.userFacingMessage : (err.userFacingMessage || err.message || "Generation failed");
-    const isTemporary = isGeminiErr && (err.isTransient || err.httpStatus === 429 || err.httpStatus === 503);
-    const httpStatus: ContentfulStatusCode = isGeminiErr ? (isTemporary ? 503 : 502) : 500;
-    const errorCode = isGeminiErr ? err.code : "GENERATION_FAILED";
-
-    const details = isGeminiErr
-      ? {
-          providerStatus: err.providerStatus || null,
-          providerMessage: err.providerMessage || null,
-          model: err.model || null,
-          correlationId: err.correlationId || null,
-        }
-      : {
-          providerStatus: null,
-          providerMessage: err.message ? String(err.message).slice(0, 300) : null,
-          model: null,
-          correlationId: null,
-        };
-
-    const shortCode = isGeminiErr ? ` [${err.code}]` : "";
-    const errorToStore = `${userMsg}${shortCode}`.slice(0, 200);
-
-    await db
-      .prepare(
-        `UPDATE exams SET
-          generating_lock_until = 0,
-          last_generation_status = 'failed',
-          last_generation_error = ?,
-          last_generation_time = ?
-         WHERE id = ?`
-      )
-      .bind(errorToStore, Date.now(), examId)
-      .run();
-
-    return c.json(
-      {
-        success: false,
-        error: userMsg,
-        code: errorCode,
-        details,
-      },
-      httpStatus
-    );
+    if (err instanceof GenerationBusyError) return c.json({ success: false, error: err.message, code: "GENERATION_BUSY" }, 409);
+    const provider = err instanceof GeminiProviderError;
+    return c.json({ success: false, error: provider ? err.userFacingMessage : "Generation could not be completed. Check the system monitor and retry.", code: provider ? err.code : "GENERATION_FAILED" }, provider ? 502 : 500);
   }
 });

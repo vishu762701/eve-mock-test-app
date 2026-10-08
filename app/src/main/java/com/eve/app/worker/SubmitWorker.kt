@@ -18,8 +18,14 @@ class SubmitWorker(
         val store = PendingSubmissionStore(applicationContext)
         val pending = store.get(clientAttemptId) ?: return Result.success()
 
+        val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+        // Legacy files have no owner: retain them for manual recovery, never replay as another user.
+        if (!com.eve.app.util.SubmissionRetryPolicy.ownsSubmission(pending.userId, currentUser?.uid)) return Result.failure()
+
         val body = mutableMapOf<String, Any>(
             "examId" to pending.examId,
+            "expectedUid" to pending.userId,
+            "practice" to pending.practice,
             "examName" to pending.examName,
             "category" to pending.category,
             "clientAttemptId" to pending.clientAttemptId,
@@ -47,22 +53,27 @@ class SubmitWorker(
             val response = ApiClient.api.submitAttempt(body)
             if (response.success && response.data != null) {
                 store.remove(clientAttemptId)
+                com.eve.app.data.local.TestSessionStore(applicationContext).clearSession(pending.examId, pending.userId)
+                if (!pending.practice && pending.topic.isNullOrBlank() && (pending.pyqYear ?: 0) == 0) {
+                    com.eve.app.util.AttemptLimitManager.recordAttempt(applicationContext, pending.examId, response.data.attemptId, pending.userId)
+                }
                 NotificationHelper.showSubmissionResult(applicationContext, pending.examName, success = true)
                 Result.success()
             } else {
-                store.remove(clientAttemptId)
                 NotificationHelper.showSubmissionResult(applicationContext, pending.examName, success = false)
                 Result.failure()
             }
         } catch (e: HttpException) {
             val code = e.code()
+            if (com.eve.app.util.SubmissionRetryPolicy.shouldRetryHttp(code)) return Result.retry()
             if (code in 400..499) {
-                store.remove(clientAttemptId)
                 NotificationHelper.showSubmissionResult(applicationContext, pending.examName, success = false)
                 Result.failure()
             } else {
                 Result.retry()
             }
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
         } catch (_: Exception) {
             Result.retry()
         }

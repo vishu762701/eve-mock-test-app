@@ -111,13 +111,14 @@ object AttemptLimitManager {
     /**
      * Increments the attempt count for this exam in local preferences as an offline hint.
      */
-    suspend fun recordAttempt(context: Context, examId: String) {
+    @Synchronized
+    fun recordAttempt(context: Context, examId: String, confirmedAttemptId: String, ownerUid: String) {
         val user = FirebaseAuth.getInstance().currentUser ?: return
-        val uid = user.uid
-        if (examId.isBlank() || uid.isBlank()) return
-
-        val currentCount = getLocalAttemptCount(context, examId, uid)
-        val newCount = currentCount + 1
-        setLocalAttemptCount(context, examId, uid, newCount)
+        if (examId.isBlank() || confirmedAttemptId.isBlank() || user.uid != ownerUid) return
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val marker = "confirmed_${user.uid}_$confirmedAttemptId"
+        if (prefs.getBoolean(marker, false)) return
+        val key = "${KEY_PREFIX}${user.uid}_$examId"
+        prefs.edit().putInt(key, prefs.getInt(key, 0) + 1).putBoolean(marker, true).apply()
     }
 }

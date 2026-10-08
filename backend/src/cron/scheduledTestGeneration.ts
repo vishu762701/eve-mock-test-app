@@ -2,8 +2,8 @@
 // Phase 4: Scheduled AI Test Generation Cron Handler (Every 5 minutes)
 // ============================================================================
 
-import { generateQuestions, getIstTimeAndDate, incrementTestNumber, GeminiProviderError } from "../ai/generator";
-import { resolvePublishStatus } from "../util/publishMode";
+import { runGeneration, GenerationBusyError } from "../services/generation";
+import { getIstTimeAndDate, GeminiProviderError } from "../ai/generator";
 import { Env, ExamRow } from "../types";
 
 export async function handleScheduledTestGeneration(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
@@ -11,13 +11,16 @@ export async function handleScheduledTestGeneration(event: ScheduledEvent, env: 
   const { todayDate, currentTime } = getIstTimeAndDate();
   const now = Date.now();
 
-  // Cleanup expired rate_limits (> 1 hour old) and attempt_sessions (> 2 days old)
+  // Cleanup rate limits and bounded monitoring retention; preserve offline attempt sessions
   try {
     const nowSec = Math.floor(now / 1000);
-    const twoDaysAgoMs = now - 2 * 86400 * 1000;
     await db.batch([
+      db.prepare("UPDATE generation_jobs SET status = 'failed', completed_at = ?, error_category = 'TIMEOUT', failed_count = requested_count, retryable = 1 WHERE status = 'running' AND started_at < ?").bind(now, now - 180_000),
+      db.prepare("UPDATE exams SET generating_lock_until = 0, last_generation_status = 'failed', last_generation_error = 'TIMEOUT', last_generation_time = ? WHERE last_generation_status = 'running' AND generating_lock_until > 0 AND generating_lock_until <= ?").bind(now, now),
       db.prepare("DELETE FROM rate_limits WHERE reset_at < ?").bind(nowSec - 3600),
-      db.prepare("DELETE FROM attempt_sessions WHERE started_at < ?").bind(twoDaysAgoMs),
+      db.prepare("DELETE FROM operation_events WHERE timestamp < ?").bind(now - 30 * 86400_000),
+      db.prepare("DELETE FROM generation_jobs WHERE status != 'running' AND started_at < ?").bind(now - 30 * 86400_000),
+      db.prepare("DELETE FROM generation_logs WHERE timestamp < ?").bind(now - 30 * 86400_000),
     ]);
   } catch (err: any) {
     console.error("[Scheduler] Cleanup failed:", err.message);
@@ -45,7 +48,6 @@ export async function handleScheduledTestGeneration(event: ScheduledEvent, env: 
     `[Scheduler Start] IST: ${todayDate} ${currentTime}, Model: ${model}, Exams Scanned: ${exams.length}, Eligible: ${eligibleExams.length}`
   );
 
-  let executedCount = 0;
   for (const exam of exams) {
     const examId = exam.id;
     const examName = exam.exam_name || "Mock Test";
@@ -80,139 +82,10 @@ export async function handleScheduledTestGeneration(event: ScheduledEvent, env: 
       continue;
     }
 
-    // Acquire lock
-    const lockExpiry = now + 10 * 60 * 1000;
-    const lockAcquired = await db
-      .prepare(
-        `UPDATE exams SET
-          generating_lock_until = ?,
-          last_generation_status = 'running',
-          last_generation_time = ?
-         WHERE id = ? AND (generating_lock_until IS NULL OR generating_lock_until < ?)`
-      )
-      .bind(lockExpiry, now, examId, now)
-      .run();
-
-    if (!lockAcquired.meta.changes || lockAcquired.meta.changes === 0) {
-      console.log(`[Scheduler] Failed to acquire lock for '${examName}'. Skipping.`);
-      continue;
-    }
-    console.log(`[Scheduler] Lock acquired for '${examName}' until ${new Date(lockExpiry).toISOString()}`);
-
-    // Requirement 4e: Stagger execution when multiple exams are scheduled at the same time
-    if (executedCount > 0) {
-      console.log(`[Scheduler] Staggering next generation for '${examName}' to prevent API rate limits...`);
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-    }
-    executedCount++;
-
-    console.log(`[Scheduler] Exam '${examName}' selected for generation. Calling Gemini (${model})...`);
-
-    const targetCount = Math.max(1, Math.min(200, Number(exam.question_count || 20)));
-    const testNumber = exam.test_number || "Test 1";
-    const prompt = exam.generation_prompt || exam.custom_prompt_notes || "";
-
     try {
-      const questions = await generateQuestions(
-        env,
-        examName,
-        exam.syllabus || "",
-        targetCount,
-        prompt
-      );
-
-      console.log(
-        `[Scheduler] Gemini generation succeeded for '${examName}' (${questions.length} questions received). Inserting test and updating exam metadata...`
-      );
-
-      const testId = crypto.randomUUID();
-      const title = `${examName} - ${testNumber}`;
-      const nextTestNumber = incrementTestNumber(testNumber);
-      const finishTime = Date.now();
-      const initialStatus = await resolvePublishStatus(db, exam);
-
-      await db.batch([
-        db
-          .prepare(
-            `INSERT INTO generated_tests (id, exam_id, exam_name, test_number, title, generated_at, status, question_count, syllabus_used, prompt_used, questions_json)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-          )
-          .bind(
-            testId,
-            examId,
-            examName,
-            testNumber,
-            title,
-            finishTime,
-            initialStatus,
-            questions.length,
-            exam.syllabus || "",
-            prompt,
-            JSON.stringify(questions)
-          ),
-        db
-          .prepare(
-            `UPDATE exams SET
-              generating_lock_until = 0,
-              last_generated_date = ?,
-              last_generation_status = 'success',
-              last_generation_error = '',
-              last_generation_time = ?,
-              test_number = ?
-             WHERE id = ?`
-          )
-          .bind(todayDate, finishTime, nextTestNumber, examId),
-        db
-          .prepare(
-            "INSERT INTO generation_logs (id, exam_id, exam_name, status, message, timestamp) VALUES (?, ?, ?, ?, ?, ?)"
-          )
-          .bind(
-            crypto.randomUUID(),
-            examId,
-            examName,
-            "success",
-            `Generated ${questions.length} questions for ${testNumber}`,
-            finishTime
-          ),
-      ]);
-
-      console.log(
-        `[Scheduler] Successfully inserted test '${title}' (${questions.length} questions). Exam metadata updated and lock released for '${examName}'.`
-      );
-    } catch (err: any) {
-      const isGeminiErr = err instanceof GeminiProviderError;
-      const safeMsg = (isGeminiErr ? err.userFacingMessage : err.message) || "Unknown error";
-      const shortCode = isGeminiErr ? ` [${err.code}]` : "";
-      const errorToStore = `${safeMsg}${shortCode}`.slice(0, 200);
-      console.error(`[Scheduler] Generation failed for '${examName}':`, errorToStore);
-
-      const finishTime = Date.now();
-      await db.batch([
-        db
-          .prepare(
-            `UPDATE exams SET
-              generating_lock_until = 0,
-              last_generation_status = 'failed',
-              last_generation_error = ?,
-              last_generation_time = ?
-             WHERE id = ?`
-          )
-          .bind(errorToStore, finishTime, examId),
-        db
-          .prepare(
-            "INSERT INTO generation_logs (id, exam_id, exam_name, status, message, timestamp) VALUES (?, ?, ?, ?, ?, ?)"
-          )
-          .bind(
-            crypto.randomUUID(),
-            examId,
-            examName,
-            "failed",
-            errorToStore,
-            finishTime
-          ),
-      ]);
-
-      console.log(`[Scheduler] Released lock and recorded failed status for '${examName}'.`);
+      await runGeneration(env, exam, Number(exam.question_count || 20), exam.test_number || "Test 1", exam.generation_prompt || exam.custom_prompt_notes || "", "scheduled", `scheduled:${exam.id}:${todayDate}`);
+    } catch (err) {
+      console.warn("Scheduled generation:", err instanceof GenerationBusyError ? "BUSY" : err instanceof GeminiProviderError ? err.code : "GENERATION_FAILED");
     }
   }
 }

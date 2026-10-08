@@ -44,7 +44,7 @@ jobs:
             echo "::error::CLOUDFLARE_API_TOKEN secret is empty or missing in GitHub repository secrets!"
             exit 1
           fi
-          OUTPUT=$(echo "y" | npx wrangler d1 migrations apply eve-database --remote 2>&1) || {
+          OUTPUT=$(echo "y" | npx --no-install wrangler d1 migrations apply eve-database --remote 2>&1) || {
             STATUS=$?
             ESCAPED="${OUTPUT//$'\n'/'%0A'}"
             echo "::error title=D1 Migration Failed::$ESCAPED"
@@ -70,28 +70,28 @@ jobs:
           DIAGNOSTIC_KEY: ${{ secrets.DIAGNOSTIC_KEY }}
         run: |
           if [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
-            echo "$SUPABASE_SERVICE_ROLE_KEY" | npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+            echo "$SUPABASE_SERVICE_ROLE_KEY" | npx --no-install wrangler secret put SUPABASE_SERVICE_ROLE_KEY
           fi
           if [ -n "$DIAGNOSTIC_KEY" ]; then
-            echo "$DIAGNOSTIC_KEY" | npx wrangler secret put DIAGNOSTIC_KEY
+            echo "$DIAGNOSTIC_KEY" | npx --no-install wrangler secret put DIAGNOSTIC_KEY
           fi
           if [ -n "$GEMINI_API_KEY" ]; then
-            echo "$GEMINI_API_KEY" | npx wrangler secret put GEMINI_API_KEY
+            echo "$GEMINI_API_KEY" | npx --no-install wrangler secret put GEMINI_API_KEY
           fi
           if [ -n "$GEMINI_API_KEY_1" ]; then
-            echo "$GEMINI_API_KEY_1" | npx wrangler secret put GEMINI_API_KEY_1
+            echo "$GEMINI_API_KEY_1" | npx --no-install wrangler secret put GEMINI_API_KEY_1
           fi
           if [ -n "$GEMINI_API_KEY_2" ]; then
-            echo "$GEMINI_API_KEY_2" | npx wrangler secret put GEMINI_API_KEY_2
+            echo "$GEMINI_API_KEY_2" | npx --no-install wrangler secret put GEMINI_API_KEY_2
           fi
           if [ -n "$GEMINI_API_KEY_3" ]; then
-            echo "$GEMINI_API_KEY_3" | npx wrangler secret put GEMINI_API_KEY_3
+            echo "$GEMINI_API_KEY_3" | npx --no-install wrangler secret put GEMINI_API_KEY_3
           fi
           if [ -n "$GEMINI_API_KEY_4" ]; then
-            echo "$GEMINI_API_KEY_4" | npx wrangler secret put GEMINI_API_KEY_4
+            echo "$GEMINI_API_KEY_4" | npx --no-install wrangler secret put GEMINI_API_KEY_4
           fi
           if [ -n "$GEMINI_API_KEYS" ]; then
-            echo "$GEMINI_API_KEYS" | npx wrangler secret put GEMINI_API_KEYS
+            echo "$GEMINI_API_KEYS" | npx --no-install wrangler secret put GEMINI_API_KEYS
           fi
 
       - name: Deploy Cloudflare Worker
@@ -101,6 +101,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: 'a50b9cf54c5e84de0183a5d3a4b38844'
           workingDirectory: 'backend'
+          wranglerVersion: '4.83.0'
 
       - name: Run Live Production Smoke Tests
         working-directory: backend

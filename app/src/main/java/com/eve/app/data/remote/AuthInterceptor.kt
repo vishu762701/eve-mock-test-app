@@ -39,26 +39,20 @@ class AuthInterceptor : Interceptor {
             }
         }
 
-        var response = chain.proceed(requestBuilder.build())
-
-        // If response is 401 Unauthorized, force-refresh the Firebase ID token and retry once
+        val response = chain.proceed(requestBuilder.build())
         if (response.code == 401) {
-            try {
-                val forceRefreshTask = user.getIdToken(true)
-                val freshResult = Tasks.await(forceRefreshTask, 15, TimeUnit.SECONDS)
-                val freshToken = freshResult?.token
-                if (!freshToken.isNullOrBlank()) {
-                    response.close()
-                    val retryRequest = original.newBuilder()
-                        .header("Authorization", "Bearer $freshToken")
-                        .build()
-                    response = chain.proceed(retryRequest)
-                }
-            } catch (e: Exception) {
-                Log.w("AuthInterceptor", "Failed to force-refresh Firebase ID token on 401: ${e.message}")
+            val freshToken = try {
+                Tasks.await(user.getIdToken(true), 15, TimeUnit.SECONDS)?.token
+            } catch (_: Exception) {
+                Log.w("AuthInterceptor", "Could not refresh Firebase authentication")
+                null
+            }
+            if (!freshToken.isNullOrBlank()) {
+                response.close()
+                // Propagate network failure normally; never return the closed original response.
+                return chain.proceed(original.newBuilder().header("Authorization", "Bearer $freshToken").build())
             }
         }
-
         return response
     }
 }

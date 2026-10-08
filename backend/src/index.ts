@@ -2,6 +2,8 @@
 // Eve Mock Test App — Cloudflare Worker Backend API
 // ============================================================================
 
+import { monitoringRoutes } from "./routes/monitoring";
+import { operationMonitor } from "./middleware/operationMonitor";
 import { Context, Hono } from "hono";
 import { cors } from "hono/cors";
 import { handleScheduledTestGeneration } from "./cron/scheduledTestGeneration";
@@ -29,6 +31,8 @@ import { AuthUser, Env } from "./types";
 type AppContext = Context<{ Bindings: Env; Variables: { user: AuthUser } }>;
 
 const app = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
+
+app.use("*", operationMonitor);
 
 // 1. CORS Middleware
 app.use(
@@ -245,6 +249,7 @@ app.route("/api/pins", pinRoutes);
 app.route("/api/bookmarks", bookmarkRoutes);
 app.route("/api/polls", pollRoutes);
 app.route("/api/app-content", appContentRoutes);
+app.route("/api/admin/system", monitoringRoutes);
 app.route("/api/admin", adminRoutes);
 app.route("/api/generated-tests", generatedTestRoutes);
 app.route("/api/premium", premiumRoutes);
@@ -258,8 +263,8 @@ app.notFound((c) => {
 });
 
 app.onError((err, c) => {
-  console.error("Unhandled Worker error:", err);
-  return c.json({ success: false, error: err.message || "Internal server error" }, 500);
+  console.error("Unhandled Worker failure", { name: err.name });
+  return c.json({ success: false, error: "The server could not complete this operation. Please retry.", requestId: c.res.headers.get("X-Request-ID") }, 500);
 });
 
 export default {

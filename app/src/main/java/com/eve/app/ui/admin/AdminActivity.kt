@@ -229,6 +229,9 @@ class AdminActivity : EveBaseActivity() {
             showManageFeedbackPostsDialog()
         }
 
+        binding.btnSystemMonitor.setOnClickListener {
+            startActivity(Intent(this, SystemMonitorActivity::class.java))
+        }
         // Section 4: Analytics & Monitoring
         binding.btnAnalyticsAdmin.setOnClickListener {
             startActivity(Intent(this, AdminAnalyticsActivity::class.java))

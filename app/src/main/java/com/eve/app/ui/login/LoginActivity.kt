@@ -179,7 +179,7 @@ class LoginActivity : EveBaseActivity() {
     private fun handleEmailPasswordAuth() {
         lastAttemptedGoogle = false
         val email = binding.etEmail.text?.toString()?.trim().orEmpty()
-        val password = binding.etPassword.text?.toString()?.trim().orEmpty()
+        val password = binding.etPassword.text?.toString().orEmpty()
         val name = binding.etName.text?.toString()?.trim().orEmpty()
 
         if (isSignUpMode && name.isEmpty()) {

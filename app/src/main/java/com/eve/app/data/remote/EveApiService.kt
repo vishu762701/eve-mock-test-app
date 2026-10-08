@@ -46,7 +46,10 @@ data class AttemptSubmitResult(
 )
 
 data class StartAttemptResponse(
+    val alreadySubmitted: Boolean = false,
+    val completedAttemptId: String? = null,
     val startedAt: Long,
+    val clientAttemptId: String? = null,
     val serverNow: Long,
     val timeLimitSeconds: Long,
     val remainingSeconds: Long? = null,
@@ -175,6 +178,19 @@ data class AdminAuditLogDto(
 )
 
 interface EveApiService {
+
+    @GET("api/admin/system/overview")
+    suspend fun systemOverview(): ApiResponse<com.google.gson.JsonObject>
+
+    @GET("api/admin/system/health")
+    suspend fun systemHealth(): ApiResponse<com.google.gson.JsonObject>
+
+    @GET("api/admin/system/operations")
+    suspend fun systemOperations(@Query("offset") offset: Int): ApiResponse<com.google.gson.JsonObject>
+
+    @POST("api/admin/system/jobs/{id}/retry")
+    suspend fun retryGenerationJob(@Path("id") id: String): ApiResponse<com.google.gson.JsonObject>
+
 
     // --- Auth & Profile ---
     @GET("api/auth/me")

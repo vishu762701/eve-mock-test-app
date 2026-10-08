@@ -66,7 +66,7 @@ adminRoutes.get("/analytics/exams", async (c) => {
           COALESCE(MAX(a.timestamp), 0) as last_attempt_at,
           COALESCE(AVG(a.score), 0.0) as average_score
         FROM exams e
-        LEFT JOIN attempts a ON e.id = a.exam_id AND a.timestamp >= ?
+        LEFT JOIN attempts a ON (e.id = a.exam_id OR substr(a.exam_id, 1, length(e.id) + 2) = e.id || '__') AND a.counted = 1 AND a.timestamp >= ?
         GROUP BY e.id, e.exam_name, e.category
         ORDER BY attempt_count DESC, e.exam_name ASC
       `
@@ -80,7 +80,7 @@ adminRoutes.get("/analytics/exams", async (c) => {
           COALESCE(MAX(a.timestamp), 0) as last_attempt_at,
           COALESCE(AVG(a.score), 0.0) as average_score
         FROM exams e
-        LEFT JOIN attempts a ON e.id = a.exam_id
+        LEFT JOIN attempts a ON (e.id = a.exam_id OR substr(a.exam_id, 1, length(e.id) + 2) = e.id || '__') AND a.counted = 1
         GROUP BY e.id, e.exam_name, e.category
         ORDER BY attempt_count DESC, e.exam_name ASC
       `;

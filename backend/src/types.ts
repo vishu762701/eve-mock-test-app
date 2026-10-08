@@ -26,6 +26,7 @@ export interface AuthUser {
   email: string;
   displayName: string;
   isAdmin: boolean;
+  emailVerified?: boolean;
 }
 
 export interface ApiResponse<T = any> {
@@ -235,6 +236,9 @@ export interface AttemptSessionRow {
   accumulated_active_seconds?: number;
   status?: string;
   last_resumed_at?: number;
+  questions_json?: string;
+  negative_marking_value?: number | null;
+  session_instance_id?: string;
 }
 
 export interface AdminAnalyticsQuestionRow {

@@ -33,7 +33,8 @@ async function fetchGoogleJwks(forceRefresh: boolean = false): Promise<JwkKey[]>
   }
 
   const res = await fetch(
-    "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com"
+    "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com",
+    { signal: AbortSignal.timeout(5000) }
   );
   if (!res.ok) {
     throw new Error(`Failed to fetch Google JWKS: ${res.statusText}`);
@@ -128,6 +129,7 @@ export async function verifyFirebaseIdToken(token: string, projectId: string): P
     sub: string;
     exp: number;
     email?: string;
+    email_verified?: boolean;
     name?: string;
     firebase?: {
       identities?: {
@@ -138,7 +140,7 @@ export async function verifyFirebaseIdToken(token: string, projectId: string): P
 
   const nowSeconds = Math.floor(Date.now() / 1000);
   // Allow 60 seconds of clock skew tolerance
-  if (payload.exp < nowSeconds - 60) {
+  if (!Number.isFinite(payload.exp) || payload.exp < nowSeconds - 60) {
     throw new Error("Token expired");
   }
 
@@ -174,7 +176,8 @@ export async function verifyFirebaseIdToken(token: string, projectId: string): P
     uid: payload.sub,
     email,
     displayName: payload.name || "Student",
-    isAdmin: HARDCODED_ADMIN_EMAILS.has(email),
+    emailVerified: payload.email_verified === true,
+    isAdmin: payload.email_verified === true && HARDCODED_ADMIN_EMAILS.has(email),
   };
 }
 

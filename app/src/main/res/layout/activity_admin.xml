@@ -662,6 +662,14 @@
                     android:textSize="13sp" />
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSystemMonitor"
+                    style="@style/Widget.Eve.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="System Health &amp; Operations" />
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAnalyticsAdmin"
                     style="@style/Widget.Eve.OutlinedButton"
                     android:layout_width="match_parent"

@@ -146,6 +146,7 @@ class TestActivity : EveBaseActivity() {
             }
         }
         binding.btnClear.setOnClickListener {
+            if (submitted || viewModel.timeUp.value == true) return@setOnClickListener
             val current = binding.viewPager.currentItem
             viewModel.setAnswer(current, "")
             updatePalette(current)
@@ -161,7 +162,7 @@ class TestActivity : EveBaseActivity() {
             binding.btnMarkReview.isSelected = isMarked
             binding.btnMarkReview.text = if (isMarked) getString(R.string.unmark_review) else getString(R.string.mark_for_review)
         }
-        binding.btnRetry.setOnClickListener { viewModel.retry(examId, timeLimit, topic, pyqYear, pyqPaper, isAdminUser, examName, fromBookmark) }
+        binding.btnRetry.setOnClickListener { viewModel.retry(examId, timeLimit, topic, pyqYear, pyqPaper, isAdminUser, examName, fromBookmark, testId) }
 
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
@@ -211,9 +212,11 @@ class TestActivity : EveBaseActivity() {
                     .setMessage("Your progress is saved. You can resume this test anytime.")
                     .setPositiveButton("Leave") { _, _ ->
                         val currentPos = binding.viewPager.currentItem
-                        viewModel.pauseSession(examId, currentPos)
                         viewModel.stopTimer()
-                        finish()
+                        lifecycleScope.launch {
+                            try { viewModel.pauseSession(examId, currentPos) }
+                            finally { finish() }
+                        }
                     }
                     .setNegativeButton("Continue", null)
                     .show()
@@ -339,10 +342,13 @@ class TestActivity : EveBaseActivity() {
                     binding.viewPager.adapter = QuestionAdapter(
                         questions = list,
                         getSelected = { viewModel.getAnswer(it) },
+                        canSelect = { !submitted && !viewModel.timeUp.value },
                         onSelect = { pos, letter ->
-                            viewModel.setAnswer(pos, letter)
-                            viewModel.markVisited(pos)
-                            updatePalette(pos)
+                            if (!submitted && !viewModel.timeUp.value) {
+                                viewModel.setAnswer(pos, letter)
+                                viewModel.markVisited(pos)
+                                updatePalette(pos)
+                            }
                         },
                         getBookmarked = { viewModel.isBookmarked(it) },
                         onToggleBookmark = { viewModel.toggleBookmark(it) },
@@ -406,10 +412,10 @@ class TestActivity : EveBaseActivity() {
         binding.btnPrev.isEnabled = position > 0
         if (position >= totalQuestions - 1) {
             binding.btnNext.text = "Submit"
-            binding.btnNext.isEnabled = true
+            binding.btnNext.isEnabled = !submitted
         } else {
             binding.btnNext.text = "Save and Next"
-            binding.btnNext.isEnabled = true
+            binding.btnNext.isEnabled = !submitted
         }
         val isMarked = viewModel.isMarked(position)
         binding.btnMarkReview.isSelected = isMarked
@@ -440,9 +446,12 @@ class TestActivity : EveBaseActivity() {
         if (submitted) return
         submitted = true
         viewModel.stopTimer()
+        binding.btnNext.isEnabled = false
+        binding.btnClear.isEnabled = false
+        viewModel.saveCurrentSession(examId, binding.viewPager.currentItem)
         val items = viewModel.buildAnswerItems()
         val attemptName = sessionTitle()
-        val isStandardMock = topic.isBlank() && pyqYear == 0
+        val isStandardMock = topic.isBlank() && pyqYear == 0 && !fromBookmark
 
         if (items.isEmpty()) {
             showSubmissionError("No questions found in this test payload.", attemptName, items)
@@ -469,11 +478,13 @@ class TestActivity : EveBaseActivity() {
 
         val body = mutableMapOf<String, Any>(
             "examId" to targetExamId,
+            "expectedUid" to viewModel.currentUserId,
             "examName" to attemptName,
             "category" to examCategory,
             "clientAttemptId" to viewModel.clientAttemptId,
             "answers" to rawAnswers
         )
+        if (fromBookmark) body["practice"] = true
         if (topic.isNotBlank()) body["topic"] = topic
         if (pyqYear > 0) body["pyqYear"] = pyqYear
         if (pyqPaper.isNotBlank()) body["pyqPaper"] = pyqPaper
@@ -483,6 +494,7 @@ class TestActivity : EveBaseActivity() {
                 val response = com.eve.app.data.remote.ApiClient.api.submitAttempt(body)
                 if (response.success && response.data != null) {
                     val graded = response.data
+                    com.eve.app.data.local.PendingSubmissionStore(this@TestActivity).remove(viewModel.clientAttemptId)
                     viewModel.clearSession(examId)
                     viewModel.clearSession(targetExamId)
                     try {
@@ -522,7 +534,7 @@ class TestActivity : EveBaseActivity() {
 
                     val localAttempt = com.eve.app.data.model.TestAttempt(
                         id = graded.attemptId,
-                        userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid.orEmpty(),
+                        userId = viewModel.currentUserId,
                         examId = targetExamId,
                         examName = attemptName,
                         category = examCategory,
@@ -538,7 +550,7 @@ class TestActivity : EveBaseActivity() {
                     if (isStandardMock) {
                         com.eve.app.ui.home.HomeViewModel.markAttemptSubmitted(targetExamId, localAttempt)
                         com.eve.app.ui.home.HomeViewModel.markAttemptSubmitted(examId, localAttempt)
-                        com.eve.app.util.AttemptLimitManager.recordAttempt(this@TestActivity, targetExamId)
+                        com.eve.app.util.AttemptLimitManager.recordAttempt(this@TestActivity, targetExamId, graded.attemptId, viewModel.currentUserId)
                     }
 
                     ResultDataHolder.setAnswers(enrichedAnswers)
@@ -568,6 +580,10 @@ class TestActivity : EveBaseActivity() {
                         showSubmissionError(errMsg, attemptName, items)
                     }
                 }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                submitted = false
+                viewModel.resumeTimerAfterFailure()
+                throw e
             } catch (e: Exception) {
                 if (e is java.io.IOException || !NetworkUtil.isOnline(this@TestActivity)) {
                     handleOfflineSubmit(attemptName, items)
@@ -581,6 +597,9 @@ class TestActivity : EveBaseActivity() {
 
     private fun showSubmissionError(message: String, attemptName: String, items: List<AnswerItem>) {
         submitted = false
+        binding.btnNext.isEnabled = !submitted
+        binding.btnClear.isEnabled = true
+        viewModel.resumeTimerAfterFailure()
         com.eve.app.util.HapticHelper.performSubmitFailure(binding.root)
         AlertDialog.Builder(this)
             .setTitle("Submission Failed")
@@ -598,12 +617,13 @@ class TestActivity : EveBaseActivity() {
 
     private fun handleOfflineSubmit(attemptName: String, items: List<AnswerItem>) {
         val targetExamId = if (viewModel.currentExamId.isNotBlank()) viewModel.currentExamId else examId
-        viewModel.clearSession(examId)
-        viewModel.clearSession(targetExamId)
+        viewModel.saveCurrentSession(examId, binding.viewPager.currentItem)
         com.eve.app.util.HapticHelper.performSubmitFailure(binding.root)
 
         val pending = com.eve.app.data.local.PendingSubmission(
             clientAttemptId = viewModel.clientAttemptId,
+            userId = viewModel.currentUserId,
+            practice = fromBookmark,
             examId = targetExamId,
             examName = attemptName,
             category = examCategory,
@@ -620,13 +640,14 @@ class TestActivity : EveBaseActivity() {
             pyqYear = if (pyqYear > 0) pyqYear else null,
             pyqPaper = pyqPaper.ifBlank { null }
         )
-        com.eve.app.data.local.PendingSubmissionStore(this).save(pending)
-        com.eve.app.worker.SubmitWorker.enqueue(this, viewModel.clientAttemptId)
-        if (topic.isBlank() && pyqYear == 0) {
-            lifecycleScope.launch {
-                com.eve.app.util.AttemptLimitManager.recordAttempt(this@TestActivity, targetExamId)
-            }
+        try {
+            com.eve.app.data.local.PendingSubmissionStore(this).save(pending)
+        } catch (e: Exception) {
+            showSubmissionError("Could not save answers on this device. Free some storage and retry.", attemptName, items)
+            return
         }
+        com.eve.app.worker.SubmitWorker.enqueue(this, viewModel.clientAttemptId)
+
 
         AlertDialog.Builder(this)
             .setTitle("Submission Saved Offline")

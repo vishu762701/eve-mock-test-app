@@ -276,6 +276,15 @@ exports.submitAttempt = onCall(async (request) => {
   const examId = String(data.examId || "").trim();
   const db = getFirestore();
 
+  const clientAttemptId = String(data.clientAttemptId || examId).trim();
+  const attemptRef = db.collection("attempts").doc(crypto.createHash("sha256").update(`${uid}:${clientAttemptId}`).digest("hex"));
+  const resultFor = (value) => ({ attemptId: attemptRef.id, score: value.score, total: value.total, correct: value.correct, wrong: value.wrong, unattempted: value.unattempted });
+  const cached = await attemptRef.get();
+  if (cached.exists) {
+    if (cached.data().examId !== examId) throw new HttpsError("already-exists", "Attempt ID belongs to another test");
+    return resultFor(cached.data());
+  }
+
   // A student may submit a particular exam only once. Admins retain preview/retry access.
   const adminEmails = new Set([
     "pronlike9@gmail.com",
@@ -284,8 +293,8 @@ exports.submitAttempt = onCall(async (request) => {
     "ghatisarkar56@gmail.com"
   ]);
   const callerEmail = String(request.auth?.token?.email || "").toLowerCase();
-  const dynamicAdmin = await db.collection("admins").doc(callerEmail).get();
-  const isAdminCaller = adminEmails.has(callerEmail) || dynamicAdmin.exists;
+  const dynamicAdmin = callerEmail ? await db.collection("admins").doc(callerEmail).get() : { exists: false };
+  const isAdminCaller = request.auth.token.email_verified === true && (adminEmails.has(callerEmail) || dynamicAdmin.exists);
   const examName = String(data.examName || "Test").trim();
   const category = String(data.category || "").trim();
   const rawAnswers = Array.isArray(data.answers) ? data.answers : [];
@@ -299,9 +308,10 @@ exports.submitAttempt = onCall(async (request) => {
   const picks = [];
   for (const a of rawAnswers) {
     const questionId = String(a?.questionId || "").trim();
-    if (!questionId || seen.has(questionId)) continue;
+    if (!questionId || seen.has(questionId)) throw new HttpsError("invalid-argument", "Invalid or duplicate question ID");
     seen.add(questionId);
     const selectedRaw = String(a?.selected || "").trim().toUpperCase();
+    if (selectedRaw && !VALID_OPTIONS.includes(selectedRaw)) throw new HttpsError("invalid-argument", "Invalid answer option");
     picks.push({
       questionId,
       number: Number(a?.number || 0),
@@ -316,32 +326,6 @@ exports.submitAttempt = onCall(async (request) => {
   const isPractice = Boolean(data.topic || data.pyqYear);
   const lockKey = isPractice ? null : `${uid}_${examId}`;
   const lockRef = lockKey ? db.collection("attempt_locks").doc(lockKey) : null;
-  if (!isAdminCaller && lockRef) {
-    // Legacy compatibility: convert an old attempts document into the new deterministic lock.
-    const existingLock = await lockRef.get();
-    if (existingLock.exists) {
-      throw new HttpsError("already-exists", "You have already completed this test.");
-    }
-    const existing = await db.collection("attempts")
-      .where("userId", "==", uid)
-      .where("examId", "==", examId)
-      .limit(1)
-      .get();
-    if (!existing.empty) {
-      await lockRef.set({ userId: uid, examId, timestamp: Date.now(), source: "legacy_migration" });
-      throw new HttpsError("already-exists", "You have already completed this test.");
-    }
-
-    // Close the race where two devices submit the same test simultaneously.
-    await db.runTransaction(async (tx) => {
-      const lock = await tx.get(lockRef);
-      if (lock.exists) {
-        throw new HttpsError("already-exists", "You have already completed this test.");
-      }
-      tx.create(lockRef, { userId: uid, examId, timestamp: Date.now(), source: "submit" });
-    });
-  }
-
   const refs = picks.map((p) => db.collection("questions").doc(p.questionId));
   const snaps = await db.getAll(...refs);
 
@@ -356,26 +340,28 @@ exports.submitAttempt = onCall(async (request) => {
 
     if (snap && snap.exists) {
       q = snap.data();
-      if (String(q.examId || "") !== examId) continue;
+      if (String(q.examId || "") !== examId) throw new HttpsError("invalid-argument", "Question does not belong to this exam");
     } else if (pick.questionId.includes("_")) {
       const lastUnderscore = pick.questionId.lastIndexOf("_");
       const testId = pick.questionId.substring(0, lastUnderscore);
       const qIndex = parseInt(pick.questionId.substring(lastUnderscore + 1), 10);
-      if (!isNaN(qIndex)) {
+      if (/^\d+$/.test(pick.questionId.substring(lastUnderscore + 1)) && Number.isSafeInteger(qIndex)) {
         if (!generatedTestsCache.has(testId)) {
           const gDoc = await db.collection("generated_tests").doc(testId).get();
           generatedTestsCache.set(testId, gDoc.exists ? gDoc.data() : null);
         }
         const gData = generatedTestsCache.get(testId);
         if (gData && String(gData.examId || "") === examId && Array.isArray(gData.questions)) {
+          if (!isAdminCaller && !["live", "published"].includes(gData.status)) throw new HttpsError("permission-denied", "Test is not published");
           q = gData.questions[qIndex] || null;
         }
       }
     }
 
-    if (!q) continue;
+    if (!q) throw new HttpsError("invalid-argument", "Unknown question in payload");
 
-    const correctAnswer = String(q.correctAnswer || "");
+    const correctAnswer = String(q.correctAnswer || "").toUpperCase();
+    if (!VALID_OPTIONS.includes(correctAnswer)) throw new HttpsError("failed-precondition", "Question needs an administrator to repair its answer key");
     const attempted = pick.selected.length > 0;
     const isCorrect = attempted && pick.selected === correctAnswer;
 
@@ -419,8 +405,12 @@ exports.submitAttempt = onCall(async (request) => {
     }
   }
 
-  const attemptRef = db.collection("attempts").doc();
-  await attemptRef.set({
+  if (!isAdminCaller && lockRef) {
+    const legacy = await db.collection("attempts").where("userId", "==", uid).where("examId", "==", examId).limit(1).get();
+    if (!legacy.empty) throw new HttpsError("already-exists", "You have already completed this test");
+  }
+
+  const attemptData = {
     userId: uid,
     displayName,
     examId,
@@ -432,8 +422,21 @@ exports.submitAttempt = onCall(async (request) => {
     wrong,
     unattempted,
     timestamp: Date.now(),
-    answers: answersData
+    answers: answersData,
+    clientAttemptId,
+  };
+  const committed = await db.runTransaction(async (tx) => {
+    const existing = await tx.get(attemptRef);
+    if (existing.exists) return { created: false, data: existing.data() };
+    if (!isAdminCaller && lockRef) {
+      const lock = await tx.get(lockRef);
+      if (lock.exists) throw new HttpsError("already-exists", "You have already completed this test");
+      tx.create(lockRef, { userId: uid, examId, timestamp: Date.now(), source: "submit" });
+    }
+    tx.create(attemptRef, attemptData);
+    return { created: true, data: attemptData };
   });
+  if (!committed.created) return resultFor(committed.data);
 
   try {
     const now = new Date();
@@ -646,7 +649,7 @@ async function incrementGeminiUsage(db) {
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function callGeminiWithRotation(db, promptText, startingIndex = 0) {
+async function callGeminiWithRotation(db, promptText, startingIndex = 0, deadline = Date.now() + 120000) {
   const keys = getGeminiApiKeys();
   if (keys.length === 0) {
     throw new Error("No Gemini API keys configured. Set GEMINI_API_KEY in Firebase secrets or environment.");
@@ -654,6 +657,7 @@ async function callGeminiWithRotation(db, promptText, startingIndex = 0) {
 
   const failedAttempts = [];
   for (let offset = 0; offset < keys.length; offset++) {
+    if (Date.now() >= deadline) throw new Error("AI generation timed out");
     const keyIndex = (startingIndex + offset) % keys.length;
     const currentKey = keys[keyIndex];
 
@@ -677,6 +681,7 @@ async function callGeminiWithRotation(db, promptText, startingIndex = 0) {
           "x-goog-api-key": currentKey,
         },
         body: JSON.stringify(body),
+        signal: AbortSignal.timeout(Math.max(1, Math.min(30000, deadline - Date.now()))),
       });
 
       if (!response.ok) {
@@ -734,75 +739,7 @@ async function callGeminiWithRotation(db, promptText, startingIndex = 0) {
   throw new Error(`All ${keys.length} Gemini API keys failed: [${failureDetails}]`);
 }
 
-function parseAndValidateGeminiQuestions(rawJson) {
-  let cleaned = rawJson.trim();
-  if (cleaned.startsWith("```json")) {
-    cleaned = cleaned.replace(/^```json\s*/, "").replace(/\s*```$/, "");
-  } else if (cleaned.startsWith("```")) {
-    cleaned = cleaned.replace(/^```\s*/, "").replace(/\s*```$/, "");
-  }
-
-  let parsed;
-  try {
-    parsed = JSON.parse(cleaned);
-  } catch (err) {
-    throw new Error(`Invalid JSON output from Gemini: ${err.message}`);
-  }
-
-  const list = Array.isArray(parsed)
-    ? parsed
-    : (Array.isArray(parsed.questions) ? parsed.questions : []);
-
-  const validQuestions = [];
-  const validAnswers = new Set(["A", "B", "C", "D"]);
-
-  for (const q of list) {
-    const questionText = String(q.questionText || q.question || "").trim();
-    const optionA = String(q.optionA || q.a || "").trim();
-    const optionB = String(q.optionB || q.b || "").trim();
-    const optionC = String(q.optionC || q.c || "").trim();
-    const optionD = String(q.optionD || q.d || "").trim();
-    let correctAnswer = String(q.correctAnswer || q.answer || "").trim().toUpperCase();
-
-    if (!validAnswers.has(correctAnswer)) {
-      if (correctAnswer === "1" || correctAnswer === optionA.toUpperCase()) correctAnswer = "A";
-      else if (correctAnswer === "2" || correctAnswer === optionB.toUpperCase()) correctAnswer = "B";
-      else if (correctAnswer === "3" || correctAnswer === optionC.toUpperCase()) correctAnswer = "C";
-      else if (correctAnswer === "4" || correctAnswer === optionD.toUpperCase()) correctAnswer = "D";
-      else correctAnswer = "A";
-    }
-
-    const explanation = String(q.explanation || "").trim();
-
-    // Check non-empty
-    if (!questionText || !optionA || !optionB || !optionC || !optionD) {
-      continue;
-    }
-
-    // Check no duplicate choices among options
-    const uniqueOptions = new Set([
-      optionA.toLowerCase(),
-      optionB.toLowerCase(),
-      optionC.toLowerCase(),
-      optionD.toLowerCase(),
-    ]);
-    if (uniqueOptions.size < 4) {
-      continue;
-    }
-
-    validQuestions.push({
-      questionText,
-      optionA,
-      optionB,
-      optionC,
-      optionD,
-      correctAnswer,
-      explanation: explanation || `Option ${correctAnswer} is the correct answer.`,
-    });
-  }
-
-  return validQuestions;
-}
+const { parseAndValidateGeminiQuestions } = require("./questionValidation");
 
 function buildPrompt(examName, syllabusText, questionCount, customPromptNotes, chunkIndex = 0) {
   return `You are an expert question-setter for ${examName}, a well-known Indian competitive/entrance exam.
@@ -840,6 +777,7 @@ async function generateQuestionsForExam(db, exam, targetCount, customPrompt) {
   const syllabus = exam.syllabus || "";
   const promptNotes = customPrompt || exam.generationPrompt || exam.customPromptNotes || "";
 
+  const deadline = Date.now() + 120000;
   const CHUNK_SIZE = 25;
   const numChunks = Math.ceil(targetCount / CHUNK_SIZE);
   const collectedQuestions = [];
@@ -857,8 +795,9 @@ async function generateQuestionsForExam(db, exam, targetCount, customPrompt) {
     let chunkQuestions = [];
 
     while (attempts < 2 && chunkQuestions.length === 0) {
+      if (Date.now() >= deadline) throw new Error("AI generation timed out");
       attempts++;
-      const { text: rawJson, usedKeyIndex } = await callGeminiWithRotation(db, prompt, keyIndex);
+      const { text: rawJson, usedKeyIndex } = await callGeminiWithRotation(db, prompt, keyIndex, deadline);
       keyIndex = (usedKeyIndex + 1) % poolSize;
       const parsed = parseAndValidateGeminiQuestions(rawJson);
 
@@ -882,11 +821,11 @@ async function generateQuestionsForExam(db, exam, targetCount, customPrompt) {
     }
   }
 
-  if (collectedQuestions.length === 0) {
+  if (collectedQuestions.length < targetCount) {
     throw new Error(`Failed to generate valid questions for ${examName}.`);
   }
 
-  return collectedQuestions;
+  return collectedQuestions.slice(0, targetCount);
 }
 
 /**
@@ -906,7 +845,7 @@ exports.triggerAiTestGeneration = onCall(
 
     const db = getFirestore();
     const callerEmail = String(request.auth?.token?.email || "");
-    const isAdmin = await verifyIsAdmin(db, callerEmail);
+    const isAdmin = request.auth.token.email_verified === true && await verifyIsAdmin(db, callerEmail);
     if (!isAdmin) {
       throw new HttpsError("permission-denied", "Admin privileges required.");
     }
@@ -924,7 +863,8 @@ exports.triggerAiTestGeneration = onCall(
 
     const exam = examDoc.data();
     const examName = exam.examName || "Mock Test";
-    const targetCount = Math.max(1, Math.min(200, Number(data.questionCount || exam.questionCount || 20)));
+    const targetCount = Number(data.questionCount ?? exam.questionCount ?? 20);
+    if (!Number.isInteger(targetCount) || targetCount < 1 || targetCount > 200) throw new HttpsError("invalid-argument", "questionCount must be an integer from 1 to 200");
     const testNumber = String(data.testNumber || exam.testNumber || "Test 1").trim();
     const customPrompt = String(data.customPromptNotes || "").trim();
 
@@ -932,15 +872,17 @@ exports.triggerAiTestGeneration = onCall(
     const examRef = db.collection("exams").doc(examId);
 
     try {
-      await examRef.update({
-        lastGenerationStatus: "running",
-        lastGenerationTime: Date.now(),
+      await db.runTransaction(async (tx) => {
+        const current = await tx.get(examRef);
+        if (Number(current.data()?.generatingLockUntil || 0) > Date.now()) throw new HttpsError("already-exists", "Generation is already running");
+        tx.update(examRef, { generatingLockUntil: Date.now() + 180000, lastGenerationStatus: "running", lastGenerationTime: Date.now() });
       });
 
       const questions = await generateQuestionsForExam(db, exam, targetCount, customPrompt);
 
       const genTestRef = db.collection("generated_tests").doc();
-      await genTestRef.set({
+      const batch = db.batch();
+      batch.set(genTestRef, {
         examId,
         examName,
         testNumber,
@@ -955,7 +897,7 @@ exports.triggerAiTestGeneration = onCall(
 
       const nextTestNumber = incrementTestNumber(testNumber);
 
-      await examRef.update({
+      batch.update(examRef, {
         generatingLockUntil: 0,
         lastGeneratedDate: todayDate,
         lastGenerationStatus: "success",
@@ -963,6 +905,7 @@ exports.triggerAiTestGeneration = onCall(
         lastGenerationTime: Date.now(),
         testNumber: nextTestNumber,
       });
+      await batch.commit();
 
       return {
         success: true,
@@ -972,6 +915,7 @@ exports.triggerAiTestGeneration = onCall(
         nextTestNumber,
       };
     } catch (err) {
+      if (err instanceof HttpsError && err.code === "already-exists") throw err;
       console.error(`[triggerAiTestGeneration] Error for ${examName}:`, err.message);
       await examRef.update({
         generatingLockUntil: 0,
@@ -1073,7 +1017,7 @@ exports.updateRemoteConfigMaintenance = onCall(async (request) => {
 
   const db = getFirestore();
   const callerEmail = String(request.auth?.token?.email || "");
-  const isAdmin = await verifyIsAdmin(db, callerEmail);
+  const isAdmin = request.auth.token.email_verified === true && await verifyIsAdmin(db, callerEmail);
   if (!isAdmin) {
     throw new HttpsError("permission-denied", "Admin privileges required.");
   }
@@ -1134,7 +1078,7 @@ exports.reformatQuestionExplanation = onCall(async (request) => {
   }
   const db = getFirestore();
   const callerEmail = String(request.auth?.token?.email || "");
-  const isAdmin = await verifyIsAdmin(db, callerEmail);
+  const isAdmin = request.auth.token.email_verified === true && await verifyIsAdmin(db, callerEmail);
   if (!isAdmin) {
     throw new HttpsError("permission-denied", "Admin privileges required.");
   }
@@ -1168,7 +1112,7 @@ Output ONLY the reformatted explanation text in the exact Key Points format:`;
   try {
     const poolSize = getGeminiApiKeys().length || 4;
     let keyIndex = await getLastUsedKeyIndex(db, poolSize);
-    const { text, usedKeyIndex } = await callGeminiWithRotation(db, prompt, keyIndex);
+    const { text, usedKeyIndex } = await callGeminiWithRotation(db, prompt, keyIndex, deadline);
     await persistLastUsedKeyIndex(db, (usedKeyIndex + 1) % poolSize);
     await incrementGeminiUsage(db);
 

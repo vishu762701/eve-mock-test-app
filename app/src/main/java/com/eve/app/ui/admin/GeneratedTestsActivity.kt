@@ -159,10 +159,19 @@ class GeneratedTestsActivity : EveBaseActivity() {
 
     private fun previewTest(test: GeneratedTest) {
         if (test.questions.isEmpty()) {
-            AppBulletin.showError(this, "No questions found in this test payload.")
+            lifecycleScope.launch {
+                try {
+                    val detail = examRepo.getGeneratedTest(test.id)
+                    if (detail == null || detail.questions.isEmpty()) {
+                        AppBulletin.showError(this@GeneratedTestsActivity, "No valid question payload is available for preview")
+                    } else {
+                        previewTest(detail)
+                    }
+                } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+                catch (e: Exception) { AppBulletin.showError(this@GeneratedTestsActivity, "Could not load test preview. Refresh and retry.") }
+            }
             return
         }
-
         val formattedText = StringBuilder()
         test.questions.forEachIndexed { index, q ->
             formattedText.append("Q${index + 1}: ${q.questionText}\n")

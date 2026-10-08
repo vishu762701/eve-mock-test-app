@@ -2,6 +2,7 @@
 // Question Bank Routes
 // ============================================================================
 
+import { parseAndValidateQuestions } from "../ai/generator";
 import { Hono } from "hono";
 import { requireAdmin } from "../middleware/authMiddleware";
 import { AuthUser, Env, QuestionRow } from "../types";
@@ -151,12 +152,13 @@ questionRoutes.post("/", requireAdmin, async (c) => {
   const optionB = String(body.optionB || "").trim();
   const optionC = String(body.optionC || "").trim();
   const optionD = String(body.optionD || "").trim();
-  const correctAnswer = String(body.correctAnswer || "A").trim().toUpperCase();
+  let correctAnswer: string;
 
   if (!examId || !questionText || !optionA || !optionB || !optionC || !optionD) {
     return c.json({ success: false, error: "Missing required question fields" }, 400);
   }
 
+  try { const valid = parseAndValidateQuestions(JSON.stringify([body]))[0]; correctAnswer = valid.correctAnswer; Object.assign(body, valid); } catch { return c.json({ success: false, error: "Question fields, options or answer are invalid" }, 400); }
   const id = crypto.randomUUID();
   const db = c.env.DB;
 
@@ -199,49 +201,34 @@ questionRoutes.post("/batch", requireAdmin, async (c) => {
   const body = await c.req.json().catch(() => ({}));
   const questions: any[] = Array.isArray(body.questions) ? body.questions : [];
 
-  if (questions.length === 0) {
-    return c.json({ success: false, error: "Empty questions array" }, 400);
+  if (questions.length === 0 || questions.length > 300) {
+    return c.json({ success: false, error: "Provide between 1 and 300 questions" }, 400);
   }
 
+  try { const valid = parseAndValidateQuestions(JSON.stringify(questions)); questions.forEach((q, i) => Object.assign(q, valid[i])); } catch { return c.json({ success: false, error: "Batch contains invalid or duplicate questions" }, 400); }
+  if (questions.some((q) => !q.examId)) return c.json({ success: false, error: "Every question requires examId" }, 400);
   const db = c.env.DB;
-  const statements = questions.map((q) => {
-    const id = q.id || crypto.randomUUID();
-    return db
-      .prepare(
-        `INSERT INTO questions (
-          id, exam_id, question_text, option_a, option_b, option_c, option_d,
-          correct_answer, explanation, topic, is_pyq, pyq_year, pyq_paper,
-          question_text_hi, option_a_hi, option_b_hi, option_c_hi, option_d_hi, explanation_hi
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-      )
-      .bind(
-        id,
-        String(q.examId || ""),
-        String(q.questionText || ""),
-        String(q.optionA || ""),
-        String(q.optionB || ""),
-        String(q.optionC || ""),
-        String(q.optionD || ""),
-        String(q.correctAnswer || "A").toUpperCase(),
-        String(q.explanation || ""),
-        String(q.topic || ""),
-        q.isPyq ? 1 : 0,
-        Number(q.pyqYear) || 0,
-        String(q.pyqPaper || ""),
-        String(q.questionTextHi || ""),
-        String(q.optionAHi || ""),
-        String(q.optionBHi || ""),
-        String(q.optionCHi || ""),
-        String(q.optionDHi || ""),
-        String(q.explanationHi || "")
-      );
-  });
-
-  // Execute in chunks of 50 to respect D1 batch limits
-  for (let i = 0; i < statements.length; i += 50) {
-    const chunk = statements.slice(i, i + 50);
-    await db.batch(chunk);
-  }
+  const records = questions.map((q) => ({
+    ...q, id: q.id || crypto.randomUUID(), explanation: String(q.explanation || ""),
+    topic: String(q.topic || ""), isPyq: q.isPyq ? 1 : 0, pyqYear: Number(q.pyqYear) || 0,
+    pyqPaper: String(q.pyqPaper || ""), questionTextHi: String(q.questionTextHi || ""),
+    optionAHi: String(q.optionAHi || ""), optionBHi: String(q.optionBHi || ""),
+    optionCHi: String(q.optionCHi || ""), optionDHi: String(q.optionDHi || ""),
+    explanationHi: String(q.explanationHi || ""),
+  }));
+  // A single set insert is atomic and avoids one D1 query per imported question.
+  await db.prepare(`INSERT INTO questions (
+    id, exam_id, question_text, option_a, option_b, option_c, option_d,
+    correct_answer, explanation, topic, is_pyq, pyq_year, pyq_paper,
+    question_text_hi, option_a_hi, option_b_hi, option_c_hi, option_d_hi, explanation_hi
+  ) SELECT json_extract(value, '$.id'), json_extract(value, '$.examId'),
+    json_extract(value, '$.questionText'), json_extract(value, '$.optionA'), json_extract(value, '$.optionB'),
+    json_extract(value, '$.optionC'), json_extract(value, '$.optionD'), json_extract(value, '$.correctAnswer'),
+    json_extract(value, '$.explanation'), json_extract(value, '$.topic'), json_extract(value, '$.isPyq'),
+    json_extract(value, '$.pyqYear'), json_extract(value, '$.pyqPaper'), json_extract(value, '$.questionTextHi'),
+    json_extract(value, '$.optionAHi'), json_extract(value, '$.optionBHi'), json_extract(value, '$.optionCHi'),
+    json_extract(value, '$.optionDHi'), json_extract(value, '$.explanationHi') FROM json_each(?)`)
+    .bind(JSON.stringify(records)).run();
 
   return c.json({ success: true, count: questions.length }, 201);
 });
@@ -250,6 +237,7 @@ questionRoutes.post("/batch", requireAdmin, async (c) => {
 questionRoutes.put("/:id", requireAdmin, async (c) => {
   const id = c.req.param("id");
   const body = await c.req.json().catch(() => ({}));
+  try { Object.assign(body, parseAndValidateQuestions(JSON.stringify([body]))[0]); } catch { return c.json({ success: false, error: "Question fields, options or answer are invalid" }, 400); }
   const db = c.env.DB;
 
   await db
@@ -282,7 +270,7 @@ questionRoutes.put("/:id", requireAdmin, async (c) => {
       String(body.optionB || ""),
       String(body.optionC || ""),
       String(body.optionD || ""),
-      String(body.correctAnswer || "A").toUpperCase(),
+      body.correctAnswer,
       String(body.explanation || ""),
       String(body.topic || ""),
       body.isPyq ? 1 : 0,

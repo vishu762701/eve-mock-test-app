@@ -51,7 +51,7 @@ service cloud.firestore {
 
     // Master Admin Check: chahe hardcoded ho ya dynamic admin doc exist kare
     function isAdmin() {
-      return isHardcodedAdmin() || isDynamicAdmin();
+      return isSignedIn() && request.auth.token.email_verified == true && (isHardcodedAdmin() || isDynamicAdmin());
     }
 
     // ------------------------------------------------------------------------
@@ -70,7 +70,8 @@ service cloud.firestore {
     // - Sabhi logged-in students test dete waqt questions read kar sakte hain.
     // - Sirf Admin questions add, edit ya delete kar sakta hai.
     match /questions/{questionId} {
-      allow read: if isSignedIn();
+      // Raw keys are private; student questions come from the Worker without answers.
+      allow read: if isAdmin();
       allow write: if isAdmin();
     }
 
@@ -250,14 +251,11 @@ service cloud.firestore {
     // - Students sirf 'live' ya 'published' tests aur unke questions read kar sakte hain.
     // - Admin draft/generating state ke tests bhi dekh sakta hai aur status manage kar sakta hai.
     match /generated_tests/{testId} {
-      allow read: if isSignedIn() && (isAdmin() || resource.data.status in ["live", "published"]);
+      allow read: if isAdmin();
       allow write: if isAdmin();
 
       match /questions/{questionId} {
-        allow read: if isSignedIn() && (
-          isAdmin() ||
-          get(/databases/$(database)/documents/generated_tests/$(testId)).data.status in ["live", "published"]
-        );
+        allow read: if isAdmin();
         allow write: if isAdmin();
       }
     }

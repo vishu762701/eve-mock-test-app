@@ -35,16 +35,20 @@ export async function authMiddleware(c: Context<{ Bindings: Env; Variables: { us
     return c.json({ success: false, error: "Empty Bearer token" }, 401);
   }
 
+  let user: AuthUser;
+  try { user = await verifyFirebaseIdToken(token, c.env.FIREBASE_PROJECT_ID); }
+  catch { return c.json({ success: false, error: "Invalid or expired authentication. Please sign in again." }, 401); }
   try {
-    const user = await verifyFirebaseIdToken(token, c.env.FIREBASE_PROJECT_ID);
     // Double check dynamic admin list from D1
-    const isAdmin = user.isAdmin || (await isUserAdmin(c.env.DB, user.email));
+    const isAdmin = user.isAdmin || (user.emailVerified === true && await isUserAdmin(c.env.DB, user.email));
     user.isAdmin = isAdmin;
 
+    const profile = await c.env.DB.prepare("SELECT * FROM users WHERE id = ?").bind(user.uid).first<{ disabled?: number }>();
+    if (profile?.disabled === 1) return c.json({ success: false, error: "This account is disabled. Contact an administrator." }, 403);
     c.set("user", user);
     return next();
   } catch (err: any) {
-    return c.json({ success: false, error: err.message || "Invalid or expired token" }, 401);
+    return c.json({ success: false, error: "Authentication services are temporarily unavailable. Please retry." }, 503);
   }
 }
 

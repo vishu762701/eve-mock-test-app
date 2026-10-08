@@ -22,13 +22,18 @@ class HistoryRepository(
         examName: String,
         category: String,
         displayName: String,
-        items: List<AnswerItem>
+        items: List<AnswerItem>,
+        clientAttemptId: String = java.util.UUID.randomUUID().toString(),
+        ownerUid: String = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
     ): Boolean {
+        check(com.eve.app.util.SubmissionRetryPolicy.ownsSubmission(ownerUid, com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid)) { "Sign in with the account that started this test" }
         val payload = mapOf(
             "examId" to examId,
             "examName" to examName,
             "category" to category,
             "displayName" to displayName,
+            "clientAttemptId" to clientAttemptId,
+            "expectedUid" to ownerUid,
             "answers" to items.map { a ->
                 mapOf(
                     "questionId" to a.questionId,
@@ -39,7 +44,7 @@ class HistoryRepository(
             }
         )
         val res = api.submitAttempt(payload)
-        if (res.success) {
+        if (res.success && res.data != null) {
             try {
                 ApiUsageRepository().incrementTestSubmissions()
             } catch (_: Exception) {
@@ -58,12 +63,16 @@ class HistoryRepository(
         displayName: String,
         items: List<AnswerItem>
     ) {
+        val clientAttemptId = java.util.UUID.randomUUID().toString()
+        val ownerUid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
         submitScope.launch {
             val maxAttempts = 3
             for (attempt in 1..maxAttempts) {
                 try {
-                    val ok = submitAttemptSync(examId, examName, category, displayName, items)
+                    val ok = submitAttemptSync(examId, examName, category, displayName, items, clientAttemptId, ownerUid)
                     if (ok) return@launch
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e
                 } catch (_: Exception) {
                     // optional: retry on failure
                 }

@@ -157,7 +157,7 @@ export function parseAndValidateQuestions(rawText: string): GeneratedQuestionIte
   }
 
   if (!parsed) {
-    throw new Error(`Failed to extract valid JSON from Gemini output: ${text.slice(0, 150)}`);
+    throw new Error("Failed to extract valid JSON from Gemini output");
   }
 
   const list: any[] = Array.isArray(parsed)
@@ -175,14 +175,20 @@ export function parseAndValidateQuestions(rawText: string): GeneratedQuestionIte
   const validQuestions: GeneratedQuestionItem[] = [];
   const validAnswers = new Set(["A", "B", "C", "D"]);
 
+  const field = (value: unknown): string => {
+    if (value === undefined || value === null) return "";
+    if (typeof value !== "string") throw new Error("Question text and options must be strings");
+    return value.trim();
+  };
+  const seen = new Set<string>();
   for (const q of list) {
-    if (!q || typeof q !== "object") continue;
+    if (!q || typeof q !== "object") throw new Error("Invalid question object");
 
-    const questionText = String(q.questionText || q.question || "").trim();
-    const optionA = String(q.optionA || q.a || q.options?.A || q.options?.[0] || "").trim();
-    const optionB = String(q.optionB || q.b || q.options?.B || q.options?.[1] || "").trim();
-    const optionC = String(q.optionC || q.c || q.options?.C || q.options?.[2] || "").trim();
-    const optionD = String(q.optionD || q.d || q.options?.D || q.options?.[3] || "").trim();
+    const questionText = field(q.questionText || q.question_text || q.question || "");
+    const optionA = field(q.optionA || q.option_a || q.a || q.options?.A || q.options?.[0] || "");
+    const optionB = field(q.optionB || q.option_b || q.b || q.options?.B || q.options?.[1] || "");
+    const optionC = field(q.optionC || q.option_c || q.c || q.options?.C || q.options?.[2] || "");
+    const optionD = field(q.optionD || q.option_d || q.d || q.options?.D || q.options?.[3] || "");
 
     let correctAnswer = String(q.correctAnswer || q.answer || q.correct_answer || "").trim().toUpperCase();
 
@@ -191,13 +197,13 @@ export function parseAndValidateQuestions(rawText: string): GeneratedQuestionIte
       else if (correctAnswer === "2" || correctAnswer === optionB.toUpperCase()) correctAnswer = "B";
       else if (correctAnswer === "3" || correctAnswer === optionC.toUpperCase()) correctAnswer = "C";
       else if (correctAnswer === "4" || correctAnswer === optionD.toUpperCase()) correctAnswer = "D";
-      else correctAnswer = "A";
+      else throw new Error("Invalid correct answer; expected A, B, C or D");
     }
 
     const explanation = String(q.explanation || "").trim();
 
     if (!questionText || !optionA || !optionB || !optionC || !optionD) {
-      continue;
+      throw new Error("Missing question text or option");
     }
 
     const uniqueOptions = new Set([
@@ -207,9 +213,12 @@ export function parseAndValidateQuestions(rawText: string): GeneratedQuestionIte
       optionD.toLowerCase(),
     ]);
     if (uniqueOptions.size < 4) {
-      continue;
+      throw new Error("Question options must be distinct");
     }
 
+    const normalized = questionText.toLowerCase().replace(/\s+/g, " ");
+    if (seen.has(normalized)) throw new Error("Duplicate question in AI response");
+    seen.add(normalized);
     validQuestions.push({
       questionText,
       optionA,
@@ -572,6 +581,9 @@ export async function generateQuestions(
   customPrompt: string,
   fetchFn: typeof fetch = fetch
 ): Promise<GeneratedQuestionItem[]> {
+  if (!Number.isInteger(targetCount) || targetCount < 1 || targetCount > 200) {
+    throw new Error("questionCount must be an integer between 1 and 200");
+  }
   const candidateKeys = getGeminiApiKeys(env);
   if (candidateKeys.length === 0) {
     throw new GeminiProviderError(
@@ -648,6 +660,7 @@ export async function generateQuestions(
               "x-goog-api-key": apiKey,
             },
             body: JSON.stringify(body),
+            signal: AbortSignal.timeout(Math.max(1, Math.min(30_000, TIME_BUDGET_MS - (Date.now() - startTime)))),
           });
 
           if (!res.ok) {
@@ -696,7 +709,7 @@ export async function generateQuestions(
             if (providerErr.isTransient && attempt < 3) {
               const retryAfterMs = parseRetryAfterMs(res.headers.get("Retry-After"));
               const backoffMs = Math.min(5000, 500 * Math.pow(2, attempt - 1) + Math.random() * 300);
-              const waitMs = Math.max(retryAfterMs, backoffMs);
+              const waitMs = Math.min(Math.max(retryAfterMs, backoffMs), Math.max(0, TIME_BUDGET_MS - (Date.now() - startTime)));
               await sleep(waitMs);
               continue attemptLoop;
             }
@@ -747,7 +760,7 @@ export async function generateQuestions(
             }
           }
 
-          const rawText = candidate.content?.parts?.[0]?.text;
+          const rawText = candidate.content?.parts?.map((part: any) => part.text || "").join("");
           if (!rawText) {
             lastError = new GeminiProviderError(
               GeminiErrorCode.INVALID_GEMINI_RESPONSE,
@@ -758,7 +771,10 @@ export async function generateQuestions(
             continue attemptLoop;
           }
 
-          const parsed = parseAndValidateQuestions(rawText);
+          let parsed: GeneratedQuestionItem[];
+          try { parsed = parseAndValidateQuestions(rawText); } catch {
+            throw new GeminiProviderError(GeminiErrorCode.INVALID_GENERATED_QUESTIONS, 502, "AI returned invalid questions. Please retry.", { correlationId, model: currentModel, attempt, isTransient: true });
+          }
           if (parsed.length === 0) {
             lastError = new GeminiProviderError(
               GeminiErrorCode.INVALID_GENERATED_QUESTIONS,
@@ -805,9 +821,6 @@ export async function generateQuestions(
 
     if (!chunkSuccess) {
       // If we failed to get questions for this chunk, stop loop
-      if (collected.length > 0) {
-        break; // Return whatever valid questions were collected
-      }
       throw lastError || new GeminiProviderError(
         GeminiErrorCode.TEMPORARY_PROVIDER_ERROR,
         500,
@@ -818,7 +831,7 @@ export async function generateQuestions(
 
     let addedFromChunk = 0;
     for (const q of chunkQuestions) {
-      const norm = q.questionText.trim().toLowerCase();
+      const norm = q.questionText.trim().toLowerCase().replace(/\s+/g, " ");
       if (!seenTexts.has(norm)) {
         seenTexts.add(norm);
         collected.push(q);
@@ -829,7 +842,7 @@ export async function generateQuestions(
 
     // If chunk returned fewer valid questions than asked and we still haven't met target,
     // allow up to MAX_EXTRA_ROUNDS to request the remainder
-    if (collected.length < targetCount) {
+    if (collected.length < targetCount && addedFromChunk < neededCount) {
       if (addedFromChunk === 0 || extraRounds >= MAX_EXTRA_ROUNDS) {
         break;
       }
@@ -837,12 +850,12 @@ export async function generateQuestions(
     }
   }
 
-  if (collected.length === 0) {
+  if (collected.length !== targetCount) {
     throw new GeminiProviderError(
       GeminiErrorCode.INVALID_GENERATED_QUESTIONS,
       500,
-      `Failed to generate valid questions for ${examName}.`,
-      { correlationId }
+      `AI produced ${collected.length} of ${targetCount} required questions. No test was published.`,
+      { correlationId, isTransient: true }
     );
   }
 

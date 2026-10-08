@@ -20,6 +20,7 @@ data class GeneratedTest(
     val status: String = "paused", // "paused" | "live" | "rejected"
     val questionCount: Int = 0,
     val availableFrom: Long = 0L,
+    val validationError: String = "",
     val questions: List<GeneratedQuestion> = emptyList()
 ) {
     val isLive: Boolean get() = status.equals("live", ignoreCase = true) || status.equals("published", ignoreCase = true)

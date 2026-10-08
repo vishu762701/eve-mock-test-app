@@ -808,6 +808,7 @@ class ManageExamsActivity : EveBaseActivity() {
                         val promptNotes = binding.etGenerationPrompt.text?.toString()?.trim().orEmpty()
                         val data = mapOf<String, Any>(
                             "examId" to targetId,
+                            "requestId" to java.util.UUID.randomUUID().toString(),
                             "questionCount" to count,
                             "testNumber" to testNumber,
                             "customPromptNotes" to promptNotes
@@ -818,7 +819,7 @@ class ManageExamsActivity : EveBaseActivity() {
                         if (!res.success) {
                             showGenerationErrorDialog(res.error, null)
                         } else {
-                            val generatedCount = res.data?.get("count") ?: count
+                            val generatedCount = res.data?.get("questionCount") ?: count
                             auditLogRepo.recordLog(
                                 AdminAuditLog.ACTION_GENERATE_NOW_TRIGGERED,
                                 "Triggered manual generation for '$examName': $generatedCount questions"
@@ -898,10 +899,19 @@ class ManageExamsActivity : EveBaseActivity() {
 
     private fun previewTest(test: GeneratedTest) {
         if (test.questions.isEmpty()) {
-            AppBulletin.showError(this, "No questions found in this test payload.")
+            lifecycleScope.launch {
+                try {
+                    val detail = examRepo.getGeneratedTest(test.id)
+                    if (detail == null || detail.questions.isEmpty()) {
+                        AppBulletin.showError(this@ManageExamsActivity, "No valid question payload is available for preview")
+                    } else {
+                        previewTest(detail)
+                    }
+                } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+                catch (e: Exception) { AppBulletin.showError(this@ManageExamsActivity, "Could not load test preview. Refresh and retry.") }
+            }
             return
         }
-
         val formattedText = StringBuilder()
         test.questions.forEachIndexed { index, q ->
             formattedText.append("Q${index + 1}: ${q.questionText}\n")

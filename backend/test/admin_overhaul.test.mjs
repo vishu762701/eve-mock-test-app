@@ -1,9 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import workerModule from "../src/index.ts";
+const worker = workerModule.default || workerModule;
 
-// 1. Test live /api/app-config endpoint directly over HTTP
-test("live /api/app-config endpoint returns valid schema and default config", async () => {
-  const res = await fetch("https://eve-backend.anyqueairdrop.workers.dev/api/app-config");
+// 1. Exercise the real Worker config endpoint without coupling unit tests to production.
+test("Worker /api/app-config endpoint returns valid schema and default config", async () => {
+  const res = await worker.fetch(new Request("https://example.test/api/app-config"), { DB: { prepare: () => ({ first: async () => null }) } }, {});
   assert.equal(res.status, 200);
 
   const json = await res.json();

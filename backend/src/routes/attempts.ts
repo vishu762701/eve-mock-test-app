@@ -2,6 +2,7 @@
 // Attempt Submission, Results History, Mistakes, Streak, and Anti-Cheat Locking
 // ============================================================================
 
+import { parseAndValidateQuestions } from "../ai/generator";
 import { Hono } from "hono";
 import { AttemptAnswerRow, AttemptRow, AttemptSessionRow, AuthUser, Env, ExamRow, GeneratedTestRow, QuestionRow } from "../types";
 import { hideAnswers } from "../util/clientProtocol";
@@ -33,7 +34,7 @@ export function parseGeneratedQuestionId(questionId: string): { testId: string; 
   const testId = trimmed.substring(0, lastUnderscore);
   const idxStr = trimmed.substring(lastUnderscore + 1);
   const index = parseInt(idxStr, 10);
-  if (isNaN(index) || index < 0) return null;
+  if (!/^\d+$/.test(idxStr) || !Number.isSafeInteger(index) || index < 0) return null;
   return { testId, index };
 }
 
@@ -65,20 +66,34 @@ attemptRoutes.post("/start", async (c) => {
   const uid = user.uid;
   const db = c.env.DB;
   const body = await c.req.json().catch(() => ({}));
-  const examId = String(body.examId || "").trim();
+  let examId = String(body.examId || "").trim();
 
   if (!examId) {
     return c.json({ success: false, error: "examId is required" }, 400);
   }
 
+  if (!examId.includes(ATTEMPT_KEY_SEP)) {
+    const direct = await db.prepare("SELECT exam_id FROM generated_tests WHERE id = ?").bind(examId).first<{ exam_id: string }>();
+    if (direct) examId = `${direct.exam_id}${ATTEMPT_KEY_SEP}${examId}`;
+  }
   let { sourceExamId, generatedTestId } = parseAttemptKey(examId);
+  const resumeAttemptId = String(body.resumeAttemptId || '').trim();
+  if (resumeAttemptId) {
+    const confirmed = await db.prepare("SELECT id, exam_id, timestamp FROM attempts WHERE user_id = ? AND (client_attempt_id = ? OR server_session_id = ?)").bind(uid, resumeAttemptId, resumeAttemptId).first<{ id: string; exam_id: string; timestamp: number }>();
+    if (confirmed) {
+      if (confirmed.exam_id !== examId) return c.json({ success: false, error: "Saved session belongs to another test" }, 409);
+      return c.json({ success: true, data: { alreadySubmitted: true, completedAttemptId: confirmed.id, startedAt: confirmed.timestamp, serverNow: Date.now(), timeLimitSeconds: 0, clientAttemptId: resumeAttemptId, questions: [] } });
+    }
+  }
+
 
   // Read exam row for time limit
   const examRow = await db
-    .prepare("SELECT time_limit_minutes FROM exams WHERE id = ?")
+    .prepare("SELECT time_limit_minutes, negative_marking_value FROM exams WHERE id = ?")
     .bind(sourceExamId)
-    .first<{ time_limit_minutes: number }>();
+    .first<{ time_limit_minutes: number; negative_marking_value: number }>();
 
+  if (!examRow) return c.json({ success: false, error: "Exam not found" }, 404);
   const limitSeconds = examRow && typeof examRow.time_limit_minutes === "number" ? examRow.time_limit_minutes * 60 : 0;
 
   // Non-admin with maximum attempts (3) reached -> 409
@@ -98,6 +113,7 @@ attemptRoutes.post("/start", async (c) => {
     }
   }
 
+  const activeSession = await db.prepare("SELECT * FROM attempt_sessions WHERE id = ?").bind(`${uid}_${examId}`).first<AttemptSessionRow>();
   let generatedTestRow: GeneratedTestRow | null = null;
   if (generatedTestId) {
     generatedTestRow = await db
@@ -113,12 +129,12 @@ attemptRoutes.post("/start", async (c) => {
       return c.json({ success: false, error: "Test does not belong to specified exam" }, 400);
     }
 
-    if (!user.isAdmin && generatedTestRow.status !== "live" && generatedTestRow.status !== "published") {
+    if (!user.isAdmin && !activeSession && generatedTestRow.status !== "live" && generatedTestRow.status !== "published") {
       return c.json({ success: false, error: "Test is not available" }, 403);
     }
 
     const availableFrom = generatedTestRow.available_from || 0;
-    if (availableFrom > Date.now()) {
+    if (!activeSession && availableFrom > Date.now()) {
       return c.json({ success: false, error: "Test not open yet", availableFrom }, 403);
     }
   } else {
@@ -133,6 +149,24 @@ attemptRoutes.post("/start", async (c) => {
     }
   }
 
+  let snapshotQuestions: any[];
+  if (activeSession?.questions_json && activeSession.questions_json !== '[]') {
+    try {
+      snapshotQuestions = JSON.parse(activeSession.questions_json);
+      if (!Array.isArray(snapshotQuestions)) throw new Error();
+    } catch { return c.json({ success: false, error: "Saved test session requires administrator repair" }, 409); }
+  } else if (generatedTestRow) {
+    try {
+      const valid = parseAndValidateQuestions(generatedTestRow.questions_json);
+      if (valid.length !== generatedTestRow.question_count) throw new Error();
+      const stored = JSON.parse(generatedTestRow.questions_json);
+      const list = Array.isArray(stored) ? stored : stored.questions;
+      snapshotQuestions = list.map((q: any, index: number) => ({ ...q, ...valid[index], id: canonicalGeneratedQuestionId(generatedTestId!, index) }));
+    } catch { return c.json({ success: false, error: "Test questions require administrator repair" }, 409); }
+  } else {
+    snapshotQuestions = (await db.prepare("SELECT * FROM questions WHERE exam_id = ? AND (is_pyq = 0 OR is_pyq IS NULL) ORDER BY RANDOM()").bind(sourceExamId).all<QuestionRow>()).results || [];
+  }
+
   // Idempotent: INSERT OR IGNORE then SELECT
   const sessionId = `${uid}_${examId}`;
   const now = Date.now();
@@ -140,11 +174,13 @@ attemptRoutes.post("/start", async (c) => {
   await db
     .prepare(
       `INSERT OR IGNORE INTO attempt_sessions (
-         id, user_id, exam_key, started_at, time_limit_seconds, accumulated_active_seconds, status, last_resumed_at
-       ) VALUES (?, ?, ?, ?, ?, 0, 'RUNNING', ?)`
+         id, user_id, exam_key, started_at, time_limit_seconds, accumulated_active_seconds, status, last_resumed_at, questions_json, negative_marking_value, session_instance_id
+       ) VALUES (?, ?, ?, ?, ?, 0, 'RUNNING', ?, ?, ?, ?)`
     )
-    .bind(sessionId, uid, examId, now, limitSeconds, now)
+    .bind(sessionId, uid, examId, now, limitSeconds, now, JSON.stringify(snapshotQuestions), examRow.negative_marking_value ?? 0, crypto.randomUUID())
     .run();
+
+  await db.prepare("UPDATE attempt_sessions SET session_instance_id = ? WHERE id = ? AND session_instance_id = ''").bind(crypto.randomUUID(), sessionId).run();
 
   const session = await db
     .prepare("SELECT * FROM attempt_sessions WHERE id = ?")
@@ -188,22 +224,22 @@ attemptRoutes.post("/start", async (c) => {
     timeLimitSeconds > 0 ? Math.max(0, timeLimitSeconds - activeSeconds) : 0;
 
   let questions: any[] | undefined = undefined;
-  if (generatedTestRow) {
+  if (session?.questions_json && session.questions_json !== "[]") {
     let parsedQuestions: any[] = [];
     try {
-      parsedQuestions = JSON.parse(generatedTestRow.questions_json);
+      parsedQuestions = JSON.parse(session.questions_json);
     } catch (_e) {}
 
     const shouldHide = hideAnswers(c);
     questions = parsedQuestions.map((q, idx) => ({
-      id: canonicalGeneratedQuestionId(generatedTestId!, idx),
-      examId: generatedTestRow!.exam_id,
+      id: q.id || canonicalGeneratedQuestionId(generatedTestId!, idx),
+      examId: sourceExamId,
       questionText: q.question_text || q.questionText || "",
       optionA: q.option_a || q.optionA || "",
       optionB: q.option_b || q.optionB || "",
       optionC: q.option_c || q.optionC || "",
       optionD: q.option_d || q.optionD || "",
-      correctAnswer: shouldHide ? "" : String(q.correct_answer || q.correctAnswer || "A").toUpperCase(),
+      correctAnswer: shouldHide ? "" : String(q.correct_answer || q.correctAnswer || "").toUpperCase(),
       explanation: shouldHide ? "" : String(q.explanation || ""),
       topic: String(q.topic || ""),
       questionTextHi: q.question_text_hi || q.questionTextHi || "",
@@ -219,6 +255,7 @@ attemptRoutes.post("/start", async (c) => {
     success: true,
     data: {
       startedAt,
+      clientAttemptId: session?.session_instance_id || "",
       serverNow: Date.now(),
       timeLimitSeconds,
       remainingSeconds,
@@ -330,18 +367,23 @@ attemptRoutes.post("/submit", async (c) => {
   const clientAttemptId = String(body.clientAttemptId || "").trim();
   const rawAnswers: any[] = Array.isArray(body.answers) ? body.answers : [];
 
-  if (!examId || rawAnswers.length > 300) {
+  if (!examId || !Array.isArray(body.answers) || rawAnswers.length > 300 || clientAttemptId.length > 100 || (c.req.header("X-Eve-Client") === "2" && !clientAttemptId)) {
     return c.json({ success: false, error: "Invalid attempt payload" }, 400);
   }
 
+  if (body.expectedUid && body.expectedUid !== uid) return c.json({ success: false, error: "Sign in as the student who started this attempt" }, 403);
+
+  let serverSessionId = "";
   // 1. Idempotency Check: if clientAttemptId exists, return cached result
+  const cachedResult = async () => {
   if (clientAttemptId) {
     const existing = await db
-      .prepare("SELECT * FROM attempts WHERE user_id = ? AND client_attempt_id = ?")
-      .bind(uid, clientAttemptId)
+      .prepare("SELECT * FROM attempts WHERE user_id = ? AND (client_attempt_id = ? OR server_session_id = ?)")
+      .bind(uid, clientAttemptId, serverSessionId || clientAttemptId)
       .first<AttemptRow>();
 
     if (existing) {
+      if (existing.exam_id !== examId) return c.json({ success: false, error: "Attempt ID belongs to another test" }, 409);
       const { results: answers } = await db
         .prepare("SELECT * FROM attempt_answers WHERE attempt_id = ? ORDER BY question_number ASC")
         .bind(existing.id)
@@ -380,7 +422,12 @@ attemptRoutes.post("/submit", async (c) => {
     }
   }
 
-  const isPractice = Boolean(body.topic || body.pyqYear);
+    return null;
+  };
+  const cached = await cachedResult();
+  if (cached) return cached;
+
+  const isPractice = Boolean(body.practice || body.topic || body.pyqYear);
   const lockKey = `${uid}_${examId}`;
 
   // 2. Anti-cheat lock check: Max 3 attempts for non-admins on non-practice tests
@@ -400,6 +447,15 @@ attemptRoutes.post("/submit", async (c) => {
   }
 
   const { sourceExamId, generatedTestId } = parseAttemptKey(examId);
+
+  const sessionId = `${uid}_${examId}`;
+  const session = await db.prepare("SELECT * FROM attempt_sessions WHERE id = ?").bind(sessionId).first<AttemptSessionRow>();
+  serverSessionId = session?.session_instance_id || "";
+  if (serverSessionId) {
+    const confirmed = await cachedResult();
+    if (confirmed) return confirmed;
+  }
+
 
   // 3. Build EXPECTED question set
   type ExpectedQ = {
@@ -424,11 +480,28 @@ attemptRoutes.post("/submit", async (c) => {
   const expectedQuestions: ExpectedQ[] = [];
   const expectedMap = new Map<string, ExpectedQ>();
 
-  if (generatedTestId) {
+  if (!isPractice && session?.questions_json && session.questions_json !== '[]') {
+    let snapshot: any[];
+    try { snapshot = JSON.parse(session.questions_json); if (!Array.isArray(snapshot)) throw new Error(); }
+    catch { return c.json({ success: false, error: "The saved test session needs administrator repair" }, 409); }
+    snapshot.forEach((q, index) => {
+      const entry: ExpectedQ = {
+        id: q.id, defaultNumber: index + 1,
+        questionText: q.questionText || q.question_text || '', questionTextHi: q.questionTextHi || q.question_text_hi || '',
+        optionA: q.optionA || q.option_a || '', optionB: q.optionB || q.option_b || '',
+        optionC: q.optionC || q.option_c || '', optionD: q.optionD || q.option_d || '',
+        optionAHi: q.optionAHi || q.option_a_hi || '', optionBHi: q.optionBHi || q.option_b_hi || '',
+        optionCHi: q.optionCHi || q.option_c_hi || '', optionDHi: q.optionDHi || q.option_d_hi || '',
+        correctAnswer: String(q.correctAnswer || q.correct_answer || '').toUpperCase(),
+        explanation: q.explanation || '', explanationHi: q.explanationHi || q.explanation_hi || '', topic: q.topic || '',
+      };
+      expectedQuestions.push(entry); expectedMap.set(entry.id, entry);
+    });
+  } else if (generatedTestId) {
     const gRow = await db
-      .prepare("SELECT id, exam_id, questions_json FROM generated_tests WHERE id = ?")
+      .prepare("SELECT id, exam_id, questions_json, status, available_from FROM generated_tests WHERE id = ?")
       .bind(generatedTestId)
-      .first<{ id: string; exam_id: string; questions_json: string }>();
+      .first<{ id: string; exam_id: string; questions_json: string; status: string; available_from: number }>();
 
     if (!gRow) {
       return c.json({ success: false, error: "Generated test not found" }, 400);
@@ -438,10 +511,16 @@ attemptRoutes.post("/submit", async (c) => {
       return c.json({ success: false, error: "Test does not belong to specified exam" }, 400);
     }
 
+    if (!user.isAdmin && !session && (!['live', 'published'].includes(gRow.status) || (gRow.available_from || 0) > Date.now())) {
+      return c.json({ success: false, error: "Test is not available" }, 403);
+    }
+
     let parsedQuestions: any[] = [];
     try {
+      parseAndValidateQuestions(gRow.questions_json);
       parsedQuestions = JSON.parse(gRow.questions_json);
-    } catch (_e) {}
+      if (!Array.isArray(parsedQuestions)) parsedQuestions = JSON.parse(gRow.questions_json).questions;
+    } catch { return c.json({ success: false, error: "Test questions require administrator repair" }, 409); }
 
     parsedQuestions.forEach((q, idx) => {
       const qId = canonicalGeneratedQuestionId(generatedTestId!, idx);
@@ -457,7 +536,7 @@ attemptRoutes.post("/submit", async (c) => {
         optionBHi: q.option_b_hi || q.optionBHi || "",
         optionCHi: q.option_c_hi || q.optionCHi || "",
         optionDHi: q.option_d_hi || q.optionDHi || "",
-        correctAnswer: String(q.correct_answer || q.correctAnswer || "A").toUpperCase(),
+        correctAnswer: String(q.correct_answer || q.correctAnswer || "").toUpperCase(),
         explanation: String(q.explanation || ""),
         explanationHi: String(q.explanation_hi || q.explanationHi || ""),
         topic: String(q.topic || ""),
@@ -496,7 +575,7 @@ attemptRoutes.post("/submit", async (c) => {
         optionBHi: q.option_b_hi || "",
         optionCHi: q.option_c_hi || "",
         optionDHi: q.option_d_hi || "",
-        correctAnswer: String(q.correct_answer || "A").toUpperCase(),
+        correctAnswer: String(q.correct_answer || "").toUpperCase(),
         explanation: q.explanation || "",
         explanationHi: q.explanation_hi || "",
         topic: q.topic || "",
@@ -524,12 +603,6 @@ attemptRoutes.post("/submit", async (c) => {
           .prepare("SELECT id, questions_json FROM generated_tests WHERE id = ? AND exam_id = ?")
           .bind(candidateGenTestId, sourceExamId)
           .first<{ id: string; questions_json: string }>();
-        if (!gRow) {
-          gRow = await db
-            .prepare("SELECT id, questions_json FROM generated_tests WHERE id = ?")
-            .bind(candidateGenTestId)
-            .first<{ id: string; questions_json: string }>();
-        }
       }
       if (!gRow) {
         gRow = await db
@@ -543,8 +616,10 @@ attemptRoutes.post("/submit", async (c) => {
       if (gRow) {
         let parsedQuestions: any[] = [];
         try {
+          parseAndValidateQuestions(gRow.questions_json);
           parsedQuestions = JSON.parse(gRow.questions_json);
-        } catch (_e) {}
+          if (!Array.isArray(parsedQuestions)) parsedQuestions = JSON.parse(gRow.questions_json).questions;
+        } catch { return c.json({ success: false, error: "Test questions require administrator repair" }, 409); }
 
         parsedQuestions.forEach((q, idx) => {
           const qId = canonicalGeneratedQuestionId(gRow!.id, idx);
@@ -560,7 +635,7 @@ attemptRoutes.post("/submit", async (c) => {
             optionBHi: q.option_b_hi || q.optionBHi || "",
             optionCHi: q.option_c_hi || q.optionCHi || "",
             optionDHi: q.option_d_hi || q.optionDHi || "",
-            correctAnswer: String(q.correct_answer || q.correctAnswer || "A").toUpperCase(),
+            correctAnswer: String(q.correct_answer || q.correctAnswer || "").toUpperCase(),
             explanation: String(q.explanation || ""),
             explanationHi: String(q.explanation_hi || q.explanationHi || ""),
             topic: String(q.topic || ""),
@@ -586,7 +661,7 @@ attemptRoutes.post("/submit", async (c) => {
           optionBHi: q.option_b_hi || "",
           optionCHi: q.option_c_hi || "",
           optionDHi: q.option_d_hi || "",
-          correctAnswer: String(q.correct_answer || "A").toUpperCase(),
+          correctAnswer: String(q.correct_answer || "").toUpperCase(),
           explanation: q.explanation || "",
           explanationHi: q.explanation_hi || "",
           topic: q.topic || "",
@@ -598,6 +673,8 @@ attemptRoutes.post("/submit", async (c) => {
     }
   }
 
+  if (expectedQuestions.some((q) => !VALID_OPTIONS.has(q.correctAnswer))) return c.json({ success: false, error: "Test has an invalid answer key. Contact an administrator." }, 409);
+
   // Filter student picks against expected question set
   const submittedPicksMap = new Map<
     string,
@@ -606,13 +683,14 @@ attemptRoutes.post("/submit", async (c) => {
 
   for (const a of rawAnswers) {
     const qId = String(a?.questionId || "").trim();
-    if (!qId || !expectedMap.has(qId) || submittedPicksMap.has(qId)) continue;
+    if (!qId || !expectedMap.has(qId) || submittedPicksMap.has(qId)) return c.json({ success: false, error: "Unknown or duplicate question ID" }, 400);
 
     const selectedRaw = String(a?.selected || "").trim().toUpperCase();
-    const timeTaken = Math.max(0, parseInt(a?.timeTakenSeconds, 10) || 0);
+    if (selectedRaw && !VALID_OPTIONS.has(selectedRaw)) return c.json({ success: false, error: "Invalid answer option" }, 400);
+    const timeTaken = Math.max(0, Math.min(7200, parseInt(a?.timeTakenSeconds, 10) || 0));
 
     submittedPicksMap.set(qId, {
-      number: Number(a?.number || 0),
+      number: expectedMap.get(qId)!.defaultNumber,
       selected: VALID_OPTIONS.has(selectedRaw) ? selectedRaw : "",
       isBookmarked: Boolean(a?.isBookmarked),
       timeTakenSeconds: timeTaken,
@@ -627,12 +705,9 @@ attemptRoutes.post("/submit", async (c) => {
     return c.json({ success: false, error: "No valid answers in payload" }, 400);
   }
 
+  if (!isPractice && !user.isAdmin && !session) return c.json({ success: false, error: "No active session. Reopen the test before submitting." }, 409);
+
   // 4. Timing & Counted logic
-  const sessionId = `${uid}_${examId}`;
-  const session = await db
-    .prepare("SELECT * FROM attempt_sessions WHERE id = ?")
-    .bind(sessionId)
-    .first<AttemptSessionRow>();
 
   const examRow = await db
     .prepare("SELECT time_limit_minutes, negative_marking_value FROM exams WHERE id = ?")
@@ -778,7 +853,7 @@ attemptRoutes.post("/submit", async (c) => {
   }
 
   const total = answersData.length;
-  const negativeMarking = examRow && typeof examRow.negative_marking_value === "number" ? examRow.negative_marking_value : 0.0;
+  const negativeMarking = session?.negative_marking_value ?? (examRow && typeof examRow.negative_marking_value === "number" ? examRow.negative_marking_value : 0.0);
   const score = Math.round((correct - wrong * negativeMarking) * 100) / 100;
   const attemptId = crypto.randomUUID();
 
@@ -811,8 +886,8 @@ attemptRoutes.post("/submit", async (c) => {
   batchStatements.push(
     db
       .prepare(
-        `INSERT INTO attempts (id, user_id, display_name, exam_id, exam_name, category, score, total, correct, wrong, unattempted, timestamp, time_taken_seconds, client_attempt_id, counted)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO attempts (id, user_id, display_name, exam_id, exam_name, category, score, total, correct, wrong, unattempted, timestamp, time_taken_seconds, client_attempt_id, counted, server_session_id)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
       .bind(
         attemptId,
@@ -829,43 +904,23 @@ attemptRoutes.post("/submit", async (c) => {
         now,
         attemptTimeTakenSeconds,
         clientAttemptId,
-        counted
+        counted,
+        serverSessionId
       )
   );
 
-  // 4. Insert evaluated answers
-  for (const a of answersData) {
-    const answerId = crypto.randomUUID();
-    batchStatements.push(
-      db
-        .prepare(
-          `INSERT INTO attempt_answers (
-            id, attempt_id, question_id, question_number, question_text, selected, selected_text,
-            correct, correct_text, explanation, is_bookmarked, topic,
-            question_text_hi, selected_text_hi, correct_text_hi, explanation_hi, time_taken_seconds
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-        )
-        .bind(
-          answerId,
-          attemptId,
-          a.questionId,
-          a.number,
-          a.questionText,
-          a.selected,
-          a.selectedText,
-          a.correct,
-          a.correctText,
-          a.explanation,
-          a.isBookmarked ? 1 : 0,
-          a.topic,
-          a.questionTextHi,
-          a.selectedTextHi,
-          a.correctTextHi,
-          a.explanationHi,
-          a.timeTakenSeconds
-        )
-    );
-  }
+  // One JSON set insert avoids one query per answer and stays within free D1 query limits.
+  const storedAnswers = answersData.map((answer) => ({ ...answer, id: crypto.randomUUID(), isBookmarked: answer.isBookmarked ? 1 : 0 }));
+  batchStatements.push(db.prepare(`INSERT INTO attempt_answers (
+    id, attempt_id, question_id, question_number, question_text, selected, selected_text,
+    correct, correct_text, explanation, is_bookmarked, topic,
+    question_text_hi, selected_text_hi, correct_text_hi, explanation_hi, time_taken_seconds
+  ) SELECT json_extract(value, '$.id'), ?, json_extract(value, '$.questionId'),
+    json_extract(value, '$.number'), json_extract(value, '$.questionText'), json_extract(value, '$.selected'),
+    json_extract(value, '$.selectedText'), json_extract(value, '$.correct'), json_extract(value, '$.correctText'),
+    json_extract(value, '$.explanation'), json_extract(value, '$.isBookmarked'), json_extract(value, '$.topic'),
+    json_extract(value, '$.questionTextHi'), json_extract(value, '$.selectedTextHi'), json_extract(value, '$.correctTextHi'),
+    json_extract(value, '$.explanationHi'), json_extract(value, '$.timeTakenSeconds') FROM json_each(?)`).bind(attemptId, JSON.stringify(storedAnswers)));
 
   // 5. Leaderboard, overall, and analytics ONLY when counted = 1
   if (counted === 1) {
@@ -938,53 +993,38 @@ attemptRoutes.post("/submit", async (c) => {
     );
 
     // Upsert admin_analytics_questions per evaluated answer
-    for (const a of answersData) {
-      const qKey = `${examId}_${a.questionId}`;
-      const isAttempted = a.selected.length > 0;
-      const isCorrect = isAttempted && a.selected === a.correct;
-      const isWrong = isAttempted && a.selected !== a.correct;
-      const isUnattempted = !isAttempted;
-
-      batchStatements.push(
-        db
-          .prepare(
-            `INSERT INTO admin_analytics_questions (
-               id, exam_id, exam_name, question_id, question_number, question_text, topic,
-               attempts, correct, wrong, unattempted, total_time_seconds
-             )
-             VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?)
-             ON CONFLICT(id) DO UPDATE SET
-               exam_name = excluded.exam_name,
-               question_number = excluded.question_number,
-               question_text = CASE WHEN excluded.question_text != '' THEN excluded.question_text ELSE admin_analytics_questions.question_text END,
-               topic = CASE WHEN excluded.topic != '' THEN excluded.topic ELSE admin_analytics_questions.topic END,
-               attempts = admin_analytics_questions.attempts + 1,
-               correct = admin_analytics_questions.correct + excluded.correct,
-               wrong = admin_analytics_questions.wrong + excluded.wrong,
-               unattempted = admin_analytics_questions.unattempted + excluded.unattempted,
-               total_time_seconds = admin_analytics_questions.total_time_seconds + excluded.total_time_seconds`
-          )
-          .bind(
-            qKey,
-            examId,
-            examName,
-            a.questionId,
-            a.number,
-            a.questionText || "",
-            a.topic || "",
-            isCorrect ? 1 : 0,
-            isWrong ? 1 : 0,
-            isUnattempted ? 1 : 0,
-            a.timeTakenSeconds
-          )
-      );
-    }
+    const questionStats = answersData.map((answer) => ({
+      ...answer, key: `${examId}_${answer.questionId}`,
+      isCorrect: answer.selected !== '' && answer.selected === answer.correct ? 1 : 0,
+      isWrong: answer.selected !== '' && answer.selected !== answer.correct ? 1 : 0,
+      isUnattempted: answer.selected === '' ? 1 : 0,
+    }));
+    batchStatements.push(db.prepare(`INSERT INTO admin_analytics_questions (
+      id, exam_id, exam_name, question_id, question_number, question_text, topic,
+      attempts, correct, wrong, unattempted, total_time_seconds
+    ) SELECT json_extract(value, '$.key'), ?, ?, json_extract(value, '$.questionId'),
+      json_extract(value, '$.number'), json_extract(value, '$.questionText'), json_extract(value, '$.topic'),
+      1, json_extract(value, '$.isCorrect'), json_extract(value, '$.isWrong'), json_extract(value, '$.isUnattempted'),
+      json_extract(value, '$.timeTakenSeconds') FROM json_each(?) WHERE 1
+    ON CONFLICT(id) DO UPDATE SET
+      exam_name = excluded.exam_name, question_number = excluded.question_number,
+      question_text = excluded.question_text, topic = excluded.topic,
+      attempts = admin_analytics_questions.attempts + 1,
+      correct = admin_analytics_questions.correct + excluded.correct,
+      wrong = admin_analytics_questions.wrong + excluded.wrong,
+      unattempted = admin_analytics_questions.unattempted + excluded.unattempted,
+      total_time_seconds = admin_analytics_questions.total_time_seconds + excluded.total_time_seconds
+    `).bind(examId, examName, JSON.stringify(questionStats)));
   }
 
-  // Execute D1 batch in chunks of 50
-  for (let i = 0; i < batchStatements.length; i += 50) {
-    const chunk = batchStatements.slice(i, i + 50);
-    await db.batch(chunk);
+  // D1 batch is one transaction: a failed answer/stat write rolls back the attempt too.
+  // The existing unique (user_id, client_attempt_id) index serializes racing retries.
+  try {
+    await db.batch(batchStatements);
+  } catch (err) {
+    const winner = await cachedResult();
+    if (winner) return winner;
+    throw err;
   }
 
   return c.json({
@@ -1017,11 +1057,9 @@ attemptRoutes.get("/", async (c) => {
     return c.json({ success: true, data: [] });
   }
 
-  const attemptIds = attempts.map((a) => a.id);
-  const placeholders = attemptIds.map(() => "?").join(",");
   const { results: allAnswers } = await db
-    .prepare(`SELECT * FROM attempt_answers WHERE attempt_id IN (${placeholders}) ORDER BY question_number ASC`)
-    .bind(...attemptIds)
+    .prepare(`SELECT aa.* FROM attempt_answers aa JOIN attempts a ON a.id = aa.attempt_id WHERE a.user_id = ? ORDER BY aa.question_number ASC`)
+    .bind(user.uid)
     .all<AttemptAnswerRow>();
 
   const answersByAttempt = new Map<string, any[]>();

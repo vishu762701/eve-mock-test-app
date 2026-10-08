@@ -342,6 +342,12 @@ examRoutes.delete("/:id", requireAdmin, async (c) => {
   const id = c.req.param("id");
   const db = c.env.DB;
 
+  const used = await db.prepare("SELECT 1 FROM attempts WHERE exam_id = ? OR substr(exam_id, 1, length(?) + 2) = ? || '__' LIMIT 1").bind(id, id, id).first();
+  if (used) return c.json({ success: false, error: "This exam has student attempts and cannot be deleted. Unpublish its tests instead." }, 409);
+
+  const active = await db.prepare("SELECT 1 FROM attempt_sessions WHERE exam_key = ? OR substr(exam_key, 1, length(?) + 2) = ? || '__' LIMIT 1").bind(id, id, id).first();
+  if (active) return c.json({ success: false, error: "This exam has active student sessions. Unpublish its tests instead." }, 409);
+
   const hasSubExams = await db.prepare("SELECT 1 FROM exams WHERE parent_exam_id = ? LIMIT 1").bind(id).first();
   if (hasSubExams) {
     return c.json({ success: false, error: "This exam has sub-exams. Delete them first." }, 409);
@@ -362,8 +368,6 @@ examRoutes.delete("/:id", requireAdmin, async (c) => {
   await db.batch([
     db.prepare("DELETE FROM questions WHERE exam_id = ?").bind(id),
     db.prepare("DELETE FROM generated_tests WHERE exam_id = ?").bind(id),
-    db.prepare("DELETE FROM attempts WHERE exam_id = ?").bind(id),
-    db.prepare("DELETE FROM leaderboard WHERE exam_id = ?").bind(id),
     db.prepare("DELETE FROM exams WHERE id = ?").bind(id),
   ]);
 

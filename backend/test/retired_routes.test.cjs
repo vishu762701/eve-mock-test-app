@@ -10,7 +10,7 @@ require.extensions['.ts'] = (module, filename) => {
 };
 // Keep the actual router and authorization middleware; isolate Firebase verification.
 const auth = require('../src/auth');
-auth.verifyFirebaseIdToken = async () => ({ uid: 'test-admin', email: 'admin@example.com' });
+auth.verifyFirebaseIdToken = async () => ({ uid: 'test-admin', email: 'admin@example.com', emailVerified: true });
 auth.isUserAdmin = async () => true;
 const worker = require('../src/index').default;
 const queries = [];

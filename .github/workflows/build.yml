@@ -96,3 +96,15 @@ jobs:
         run: |
           npm run build
           npm test
+
+  firebase-functions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate optional Firebase Functions and question parser
+        run: |
+          npm run build --prefix functions
+          npm test --prefix functions

@@ -21,6 +21,8 @@ data class PendingSubmission(
     val topic: String? = null,
     val pyqYear: Int? = null,
     val pyqPaper: String? = null,
+    val userId: String = "",
+    val practice: Boolean = false,
     val savedAt: Long = System.currentTimeMillis()
 )
 
@@ -36,10 +38,12 @@ class PendingSubmissionStore(private val context: Context) {
         }
 
     fun save(submission: PendingSubmission) {
-        try {
-            val file = File(dir, "${submission.clientAttemptId}.json")
-            file.writeText(gson.toJson(submission))
-        } catch (_: Exception) {}
+        require(submission.clientAttemptId.matches(Regex("[A-Za-z0-9_-]{1,100}")))
+        val file = File(dir, "${submission.clientAttemptId}.json")
+        val temporary = File(dir, "${submission.clientAttemptId}.tmp")
+        temporary.writeText(gson.toJson(submission))
+        check(temporary.renameTo(file)) { "Could not safely save test answers" }
+
     }
 
     fun remove(clientAttemptId: String) {

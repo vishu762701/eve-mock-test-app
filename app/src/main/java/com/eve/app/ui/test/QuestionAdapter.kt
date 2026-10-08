@@ -23,7 +23,8 @@ class QuestionAdapter(
     private val onReport: (Question) -> Unit,
     private val getQuestionTime: (Int) -> Long,
     private val isMarked: (Int) -> Boolean = { false },
-    private val onToggleMark: (Int) -> Unit = {}
+    private val onToggleMark: (Int) -> Unit = {},
+    private val canSelect: () -> Boolean = { true }
 ) : RecyclerView.Adapter<QuestionAdapter.VH>() {
 
     companion object {
@@ -196,6 +197,18 @@ class QuestionAdapter(
             }
             b.rgOptions.setOnCheckedChangeListener { _, checkedId ->
                 if (suppressSelectionCallbacks) return@setOnCheckedChangeListener
+                if (!canSelect()) {
+                    suppressSelectionCallbacks = true
+                    b.rgOptions.clearCheck()
+                    when (getSelected(position)) {
+                        "A" -> b.rbA.isChecked = true
+                        "B" -> b.rbB.isChecked = true
+                        "C" -> b.rbC.isChecked = true
+                        "D" -> b.rbD.isChecked = true
+                    }
+                    suppressSelectionCallbacks = false
+                    return@setOnCheckedChangeListener
+                }
                 val letter = when (checkedId) {
                     R.id.rbA -> "A"
                     R.id.rbB -> "B"
