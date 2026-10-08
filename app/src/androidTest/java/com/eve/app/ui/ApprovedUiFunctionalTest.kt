@@ -95,8 +95,15 @@ class ApprovedUiFunctionalTest {
                 b.rbA.layout(0, 0, width, height)
                 val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
                 b.rbA.draw(Canvas(bitmap))
-                assertEquals(context.getColor(R.color.eve_test_foreground),
-                    bitmap.getPixel((31f * density).toInt(), height / 2))
+                val expectedBorder = context.getColor(R.color.eve_test_foreground)
+                val actualBorder = bitmap.getPixel((31f * density).toInt(), height / 2)
+                // At low density a curved edge shares a pixel with the green surface.
+                // Allow antialiasing, while rejecting a selected fill covering the ring.
+                assertTrue("Indicator border must remain visible in theme $night",
+                    listOf(Color.red(expectedBorder) - Color.red(actualBorder),
+                        Color.green(expectedBorder) - Color.green(actualBorder),
+                        Color.blue(expectedBorder) - Color.blue(actualBorder))
+                        .all { kotlin.math.abs(it) <= 24 })
                 bitmap.recycle()
             }
         }

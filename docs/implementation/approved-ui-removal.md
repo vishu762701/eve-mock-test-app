@@ -140,3 +140,9 @@ notification. The final adapter suppresses callbacks during clearCheck only;
 this prevents the old answer being saved again and retains immediate reselection.
 The failing refinement run is retained as evidence:
 https://github.com/vishu762701/eve-mock-test-app/actions/runs/37745551098
+
+The immediate-clear regression passed on the emulator after callback suppression.
+The initial indicator pixel assertion was too strict at a curved antialiased
+edge; the final rendering check allows up to 24 levels of edge blending per
+RGB channel, while still rejecting a fill covering the contrasting border.
+The resource/paint colors and stroke width are unchanged.
