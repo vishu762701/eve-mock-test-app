@@ -1,7 +1,6 @@
 package com.eve.app.data.remote
 
 import com.eve.app.data.model.*
-import com.eve.app.data.model.uistudio.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.*
@@ -573,32 +572,4 @@ interface EveApiService {
     @GET("api/admin/audit-log")
     suspend fun getAdminAuditLogs(@Query("range") range: String = "all"): ApiResponse<List<AdminAuditLogDto>>
 
-    // --- UI Studio Endpoints ---
-    @GET("api/ui-studio/published")
-    @Headers("Cache-Control: no-cache, no-store")
-    suspend fun getPublishedUiStudioConfig(): ApiResponse<UiStudioPublishedResponse>
-
-    @GET("api/admin/ui-studio/draft")
-    suspend fun getAdminUiStudioDraft(): ApiResponse<UiStudioDraftResponse>
-
-    @PUT("api/admin/ui-studio/draft")
-    suspend fun saveAdminUiStudioDraft(@Body body: SaveDraftRequest): ApiResponse<UiStudioDraftResponse>
-
-    @POST("api/admin/ui-studio/publish")
-    suspend fun publishUiStudioConfig(@Body body: PublishStudioRequest): ApiResponse<Map<String, Any>>
-
-    @GET("api/admin/ui-studio/versions")
-    suspend fun getUiStudioVersions(): ApiResponse<List<UiStudioVersionItem>>
-
-    @POST("api/admin/ui-studio/restore/{versionId}")
-    suspend fun restoreUiStudioVersion(
-        @Path("versionId") versionId: Int,
-        @Body body: RestoreStudioRequest
-    ): ApiResponse<Map<String, Any>>
-
-    @POST("api/admin/ui-studio/reset")
-    suspend fun resetUiStudioConfig(@Body body: ResetStudioRequest): ApiResponse<Map<String, Any>>
-
-    @GET("api/admin/ui-studio/audit-log")
-    suspend fun getUiStudioAuditLogs(): ApiResponse<List<UiStudioAuditItem>>
 }

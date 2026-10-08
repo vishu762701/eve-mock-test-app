@@ -32,6 +32,7 @@ data class PaletteItem(
 )
 
 class QuestionPaletteAdapter(
+    private val approvedTestStyle: Boolean = false,
     private val onSelect: (Int) -> Unit
 ) : RecyclerView.Adapter<QuestionPaletteAdapter.VH>() {
 
@@ -70,7 +71,6 @@ class QuestionPaletteAdapter(
             val ctx = b.root.context
             val density = ctx.resources.displayMetrics.density
             val stroke2dp = (2 * density).toInt().coerceAtLeast(1)
-            val stroke3dp = (3 * density).toInt().coerceAtLeast(2)
 
             b.tvCircleNumber.text = item.number.toString()
 
@@ -79,7 +79,7 @@ class QuestionPaletteAdapter(
             val strokeColor: Int
             val strokeW: Int
 
-            if (item.isActive) {
+            if (item.isActive && !approvedTestStyle) {
                 bgColor = ContextCompat.getColor(ctx, R.color.eve_surface)
                 textColor = ContextCompat.getColor(ctx, R.color.eve_text)
                 strokeColor = ContextCompat.getColor(ctx, R.color.eve_text)
@@ -113,10 +113,37 @@ class QuestionPaletteAdapter(
                 }
             }
 
-            b.cardCircle.setCardBackgroundColor(bgColor)
-            b.tvCircleNumber.setTextColor(textColor)
-            b.cardCircle.strokeWidth = strokeW
-            b.cardCircle.strokeColor = strokeColor
+            if (approvedTestStyle) {
+                b.cardCircle.layoutParams = b.cardCircle.layoutParams.apply {
+                    width = (38f * density).toInt()
+                    height = (38f * density).toInt()
+                }
+                b.cardCircle.radius = 19f * density
+                b.tvCircleNumber.textSize = 12f
+                val fill = when (item.state) {
+                    PaletteState.ANSWERED -> R.color.eve_test_selected
+                    PaletteState.MARKED, PaletteState.ANSWERED_MARKED -> R.color.eve_test_review
+                    PaletteState.UNATTEMPTED, PaletteState.VISITED -> R.color.eve_test_option_bg
+                    else -> null
+                }
+                b.cardCircle.setCardBackgroundColor(fill?.let { ContextCompat.getColor(ctx, it) }
+                    ?: bgColor)
+                b.tvCircleNumber.setTextColor(if (fill == R.color.eve_test_selected || fill == R.color.eve_test_review) android.graphics.Color.BLACK
+                    else if (fill == R.color.eve_test_option_bg) ContextCompat.getColor(ctx, R.color.eve_test_foreground) else textColor)
+                b.cardCircle.strokeWidth = density.toInt().coerceAtLeast(1)
+                b.cardCircle.strokeColor = ContextCompat.getColor(ctx, R.color.eve_test_border)
+                // Active position must not erase answer/review state or add an extra outline.
+                b.tvCircleNumber.typeface = android.graphics.Typeface.create(
+                    "sans-serif", if (item.isActive) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
+                b.root.isSelected = item.isActive
+                b.root.contentDescription = "Question ${item.number}, ${item.state.name.lowercase().replace('_', ' ')}" +
+                    if (item.isActive) ", current" else ""
+            } else {
+                b.cardCircle.setCardBackgroundColor(bgColor)
+                b.tvCircleNumber.setTextColor(textColor)
+                b.cardCircle.strokeWidth = strokeW
+                b.cardCircle.strokeColor = strokeColor
+            }
             b.cardCircle.cardElevation = 0f
 
             // Dot indicator for marked for review (orange dot)

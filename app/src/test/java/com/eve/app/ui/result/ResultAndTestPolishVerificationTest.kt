@@ -190,7 +190,7 @@ class ResultAndTestPolishVerificationTest {
         assertTrue("btnReport must exist", content.contains("android:id=\"@+id/btnReport\""))
         assertTrue("btnReport must use ic_report_flag_premium", content.contains("@drawable/ic_report_flag_premium"))
         assertFalse("btnReport must not use circular bg_btn_report", content.contains("@drawable/bg_btn_report"))
-        assertTrue("btnReport must use valid background", content.contains("@drawable/bg_report_button") || content.contains("?attr/selectableItemBackgroundBorderless"))
+        assertTrue("Bookmark/report must use bare backgrounds", content.contains("android:background=\"@android:color/transparent\""))
         assertTrue("Touch target FrameLayout must be 48dp", content.contains("android:layout_width=\"48dp\"") && content.contains("android:layout_height=\"48dp\""))
     }
 
@@ -239,12 +239,12 @@ class ResultAndTestPolishVerificationTest {
         assertTrue("sectionReview must exist", content.contains("android:id=\"@+id/sectionReview\""))
         assertTrue("sectionLeaderboard must exist", content.contains("android:id=\"@+id/sectionLeaderboard\""))
 
-        // Tab Order verification: Review -> Overview -> Leaderboard
+        // Approved tab order: Overview -> Review -> Leaderboard
         val reviewIdx = content.indexOf("android:text=\"Review\"")
         val overviewIdx = content.indexOf("android:text=\"Overview\"")
         val leaderboardIdx = content.indexOf("android:text=\"Leaderboard\"")
-        assertTrue("Review tab must appear before Overview", reviewIdx in 0 until overviewIdx)
-        assertTrue("Overview tab must appear before Leaderboard", overviewIdx in 0 until leaderboardIdx)
+        assertTrue("Overview tab must appear before Review", overviewIdx in 0 until reviewIdx)
+        assertTrue("Review tab must appear before Leaderboard", reviewIdx in 0 until leaderboardIdx)
 
         // Cutoff integrated into Overview
         val overviewStart = content.indexOf("android:id=\"@+id/sectionOverview\"")
@@ -439,31 +439,16 @@ class ResultAndTestPolishVerificationTest {
     }
 
     @Test
-    fun testOnlyTestOptionsAndActionsUseThinMaterialPills() {
-        val questionFile = File("src/main/res/layout/item_question.xml").takeIf { it.exists() }
-            ?: File("app/src/main/res/layout/item_question.xml")
-        val testFile = File("src/main/res/layout/activity_test.xml").takeIf { it.exists() }
-            ?: File("app/src/main/res/layout/activity_test.xml")
-        assertTrue("item_question.xml must exist", questionFile.exists())
-        assertTrue("activity_test.xml must exist", testFile.exists())
-        val question = questionFile.readText()
-        val test = testFile.readText()
-
-        listOf("blurOptionA", "blurOptionB", "blurOptionC", "blurOptionD").forEach {
-            assertTrue("Option Thin Material surface $it must exist", question.contains("@+id/$it"))
-        }
-        listOf("blurBtnClear", "blurBtnMarkReview", "blurBtnPrev", "blurBtnNext").forEach {
-            assertTrue("Action Thin Material surface $it must exist", test.contains("@+id/$it"))
-        }
-        assertEquals(
-            "Only the four requested Test actions should use the scoped pill style",
-            4,
-            Regex("style=\\\"@style/Widget.Eve.TestThinMaterialPill\\\"").findAll(test).count()
-        )
-        assertTrue("Test action area must not add a background card", test.contains("android:id=\"@+id/layoutBottomBar\""))
-        val bottomBar = test.substring(test.indexOf("android:id=\"@+id/layoutBottomBar\""))
-        assertTrue("Test action area background must be transparent", bottomBar.contains("android:background=\"@android:color/transparent\""))
-        assertFalse("Other app controls must not use the scoped test pill style", question.contains("Widget.Eve.TestThinMaterialPill"))
+    fun testApprovedNativeTestSurfaces() {
+        val base = File("src/main/res").takeIf { it.exists() } ?: File("app/src/main/res")
+        val question = File(base, "layout/item_question.xml").readText()
+        val test = File(base, "layout/activity_test.xml").readText()
+        assertFalse(question.contains("BlurView"))
+        assertFalse(test.contains("BlurView"))
+        assertTrue(question.contains("@+id/questionScroll"))
+        assertTrue(question.contains("android:lineSpacingMultiplier=\"1.5\""))
+        assertTrue(test.contains("Widget.Eve.ApprovedTestAction"))
+        assertTrue(test.contains("Widget.Eve.ApprovedTestNavigation"))
     }
 
     @Test

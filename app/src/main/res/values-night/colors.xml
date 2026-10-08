@@ -174,9 +174,6 @@
     <color name="eve_option_selected_bg">#1F2B3E</color>
     <color name="eve_option_selected_stroke">#0A84FF</color>
     <color name="eve_option_dot_selected">#0A84FF</color>
-    <color name="eve_test_option_stroke">#3DFFFFFF</color>
-    <color name="eve_test_option_selected_stroke">@color/eve_system_green</color>
-    <color name="eve_test_option_selected_overlay">#2630D158</color>
     <color name="eve_home_banner_matte">#22000000</color>
 
     <!-- Exam-card icon tile -->

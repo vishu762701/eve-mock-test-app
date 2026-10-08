@@ -809,34 +809,8 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun updateFloatingAirplaneState(link: String?) {
-        if (!link.isNullOrBlank()) {
-            val isCurrentlyGone = binding.cardFloatingAirplane.visibility != View.VISIBLE
-            if (isCurrentlyGone) {
-                binding.cardFloatingAirplane.scaleX = 0f
-                binding.cardFloatingAirplane.scaleY = 0f
-                binding.cardFloatingAirplane.alpha = 0f
-                binding.cardFloatingAirplane.visibility = View.VISIBLE
-                binding.cardFloatingAirplane.animate()
-                    .scaleX(1f)
-                    .scaleY(1f)
-                    .alpha(1f)
-                    .setDuration(com.eve.app.util.EveMotionHelper.DURATION_SPRING_MS)
-                    .setInterpolator(com.eve.app.util.EveMotionHelper.springInterpolator)
-                    .start()
-            }
-            val animScale = Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
-            if (animScale == 0f) {
-                binding.lottieFloatingAirplane.progress = 1f
-            } else {
-                binding.lottieFloatingAirplane.repeatCount = com.airbnb.lottie.LottieDrawable.INFINITE
-                if (!binding.lottieFloatingAirplane.isAnimating) {
-                    binding.lottieFloatingAirplane.playAnimation()
-                }
-            }
-        } else {
-            binding.cardFloatingAirplane.visibility = View.GONE
-            binding.lottieFloatingAirplane.cancelAnimation()
-        }
+        binding.cardFloatingAirplane.visibility = View.GONE
+        binding.lottieFloatingAirplane.cancelAnimation()
     }
 
     private fun setupBannerCarousel() {
@@ -946,7 +920,7 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun setupHomeBannerSurface() {
-        val radius = resources.getDimension(R.dimen.eve_radius_card)
+        val radius = 18f * resources.displayMetrics.density
         binding.panelHomeBanner.outlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View, outline: Outline) {
                 outline.setRoundRect(0, 0, view.width, view.height, radius)
@@ -1110,7 +1084,7 @@ class MainActivity : EveBaseActivity() {
                 text = category
                 isCheckable = true
                 isChecked = category == selected
-                chipCornerRadius = 100f * resources.displayMetrics.density
+                chipCornerRadius = 50f * resources.displayMetrics.density
                 chipStrokeWidth = 1f * resources.displayMetrics.density
                 chipStrokeColor = androidx.core.content.ContextCompat.getColorStateList(this@MainActivity, R.color.selector_category_chip_stroke)
                 chipBackgroundColor = androidx.core.content.ContextCompat.getColorStateList(this@MainActivity, R.color.selector_category_chip_bg)

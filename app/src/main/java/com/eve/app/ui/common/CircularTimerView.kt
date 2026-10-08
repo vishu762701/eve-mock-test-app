@@ -4,7 +4,6 @@ import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.graphics.Typeface
@@ -27,17 +26,12 @@ class CircularTimerView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
     private val density = resources.displayMetrics.density
-    private val strokePx = 2.5f * density
-    private var normalColorOverride: Int? = null
-    private var warningColorOverride: Int? = null
-    private var trackColorOverride: Int? = null
-    private var textColorOverride: Int? = null
-
+    private val strokePx = 2f * density
     private val normalColor: Int
-        get() = normalColorOverride ?: ContextCompat.getColor(context, R.color.eve_text)
+        get() = ContextCompat.getColor(context, R.color.eve_test_foreground)
 
     private val warningColor: Int
-        get() = warningColorOverride ?: ContextCompat.getColor(context, R.color.eve_timer_warning)
+        get() = ContextCompat.getColor(context, R.color.eve_timer_warning)
 
     private val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
@@ -55,11 +49,10 @@ class CircularTimerView @JvmOverloads constructor(
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textAlign = Paint.Align.CENTER
         color = normalColor
-        textSize = sp(13f)
+        textSize = sp(12f)
         typeface = ResourcesCompat.getFont(context, R.font.poppins_semibold) ?: Typeface.DEFAULT_BOLD
     }
 
-    private val nativeTextTypeface=textPaint.typeface
     private val oval = RectF()
     private val argbEvaluator = ArgbEvaluator()
 
@@ -89,9 +82,10 @@ class CircularTimerView @JvmOverloads constructor(
         super.onDraw(canvas)
         if (oval.isEmpty) return
 
+        canvas.drawColor(ContextCompat.getColor(context, R.color.eve_bg))
         // 1. Background ring track
         val nc = normalColor
-        trackPaint.color = trackColorOverride ?: Color.argb(64, Color.red(nc), Color.green(nc), Color.blue(nc))
+        trackPaint.color = nc
         canvas.drawOval(oval, trackPaint)
         // 2. Depleting progress arc
         val sweepAngle = 360f * currentProgress
@@ -149,7 +143,7 @@ class CircularTimerView @JvmOverloads constructor(
             colorAnimator = null
             currentColor = targetColor
             progressPaint.color = targetColor
-            textPaint.color = textColorOverride ?: targetColor
+            textPaint.color = targetColor
             invalidate()
             return
         }
@@ -161,7 +155,7 @@ class CircularTimerView @JvmOverloads constructor(
                     val c = va.animatedValue as Int
                     currentColor = c
                     progressPaint.color = c
-                    textPaint.color = textColorOverride ?: c
+                    textPaint.color = c
                     invalidate()
                 }
                 addListener(object : android.animation.AnimatorListenerAdapter() {
@@ -175,39 +169,15 @@ class CircularTimerView @JvmOverloads constructor(
         invalidate()
     }
 
-    fun setStudioTypography(typography: com.eve.app.data.model.uistudio.TypographyProperties?) {
-        textPaint.textSize=sp(typography?.textSize?.toFloat() ?: 13f)
-        val style=when(typography?.textStyle) {
-            "normal" -> Typeface.NORMAL; "italic" -> Typeface.ITALIC
-            "bold_italic" -> Typeface.BOLD_ITALIC; else -> Typeface.BOLD
-        }
-        textPaint.typeface=typography?.fontFamily?.let { Typeface.create(it,style) }
-            ?: typography?.textStyle?.let { Typeface.create(nativeTextTypeface,style) } ?: nativeTextTypeface
-        invalidate()
-    }
-
-    fun setTimerColors(
-        normalColorHex: String?,
-        warningColorHex: String?,
-        trackColorHex: String?,
-        textColorHex: String?
-    ) {
-        normalColorOverride = com.eve.app.util.UiStudioEngine.parseColorSafe(normalColorHex)
-        warningColorOverride = com.eve.app.util.UiStudioEngine.parseColorSafe(warningColorHex)
-        trackColorOverride = com.eve.app.util.UiStudioEngine.parseColorSafe(trackColorHex)
-        textColorOverride = com.eve.app.util.UiStudioEngine.parseColorSafe(textColorHex)
-        updateThemeColors()
-    }
-
     fun updateThemeColors() {
-        val tc = trackColorOverride ?: ContextCompat.getColor(context, R.color.eve_border)
+        val tc = normalColor
         trackPaint.color = tc
-        val nc = textColorOverride ?: normalColor
+        val nc = normalColor
         if (colorAnimator == null && currentColor != warningColor) {
             currentColor = nc
             progressPaint.color = normalColor
         }
-        textPaint.color = textColorOverride ?: currentColor
+        textPaint.color = currentColor
         invalidate()
     }
 

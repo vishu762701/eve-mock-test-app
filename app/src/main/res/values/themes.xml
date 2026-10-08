@@ -5,13 +5,14 @@
         <item name="postSplashScreenTheme">@style/Theme.Eve</item>
     </style>
 
-    <style name="Theme.Eve" parent="Theme.Material3.Light.NoActionBar">
+    <style name="Theme.Eve" parent="Theme.Eve.Base" />
+
+    <style name="Theme.Eve.Base" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/eve_primary</item><item name="colorOnPrimary">@color/eve_on_primary</item>
         <item name="colorSecondary">@color/eve_accent</item><item name="colorSurface">@color/eve_surface</item>
         <item name="colorOnSurface">@color/eve_text</item><item name="colorOutline">@color/eve_stroke</item>
         <item name="android:windowBackground">@color/eve_bg</item><item name="android:statusBarColor">@color/eve_bg</item>
         <item name="android:navigationBarColor">@color/eve_bg</item><item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowLightNavigationBar">true</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
         <item name="textAppearanceDisplayLarge">@style/TextAppearance.Eve.M3.DisplayLarge</item>

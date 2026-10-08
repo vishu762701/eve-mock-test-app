@@ -152,17 +152,10 @@ class AdminActivity : EveBaseActivity() {
                         binding.scrollTabManageQuestions.visibility = View.GONE
                         binding.scrollTabAdmins.visibility = View.VISIBLE
                     }
-                    3 -> {
-                        startActivity(Intent(this@AdminActivity, com.eve.app.ui.admin.uistudio.UiStudioActivity::class.java))
-                    }
                 }
             }
             override fun onTabUnselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {}
-            override fun onTabReselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {
-                if (tab?.position == 3) {
-                    startActivity(Intent(this@AdminActivity, com.eve.app.ui.admin.uistudio.UiStudioActivity::class.java))
-                }
-            }
+            override fun onTabReselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {}
         })
 
         binding.rvQuestions.layoutManager = LinearLayoutManager(this)

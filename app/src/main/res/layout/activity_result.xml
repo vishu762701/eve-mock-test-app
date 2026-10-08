@@ -96,16 +96,16 @@
             <!-- Legacy IDs preserved in comments for test compatibility: android:id="@+id/layoutActionCluster" android:id="@+id/btnHome" -->
         </LinearLayout>
 
-        <!-- Segmented Navigation: 3 Tabs (Review | Overview | Leaderboard) -->
+        <!-- Segmented Navigation: 3 Tabs (Overview | Review | Leaderboard) -->
         <com.eve.app.ui.common.EveGlassTabLayout
             android:id="@+id/tabLayoutResult"
             android:layout_width="match_parent"
             android:layout_height="44dp"
             android:layout_marginHorizontal="16dp"
             android:layout_marginVertical="6dp"
-            android:background="@drawable/bg_tab_segmented_track"
+            android:background="@drawable/bg_result_segmented_track"
             app:tabGravity="fill"
-            app:tabIndicator="@drawable/bg_tab_segmented_indicator"
+            app:tabIndicator="@drawable/bg_result_segmented_indicator"
             app:tabIndicatorAnimationMode="elastic"
             app:tabIndicatorAnimationDuration="220"
             app:tabIndicatorColor="@android:color/transparent"
@@ -116,19 +116,19 @@
             app:tabPaddingStart="4dp"
             app:tabPaddingEnd="4dp"
             app:tabRippleColor="@null"
-            app:tabSelectedTextColor="@color/eve_tab_selected_text"
+            app:tabSelectedTextColor="@color/eve_result_tab_selected_text"
             app:tabTextAppearance="@style/TextAppearance.Eve.TabSegment"
-            app:tabTextColor="@color/eve_tab_unselected_text">
-
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Review" />
+            app:tabTextColor="@color/eve_result_tab_text">
 
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Overview" />
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Review" />
 
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
@@ -155,7 +155,7 @@
                 android:fillViewport="true"
                 android:overScrollMode="ifContentScrolls"
                 android:scrollbars="vertical"
-                android:visibility="gone">
+                android:visibility="visible">
 
                 <LinearLayout
                     android:id="@+id/sectionOverview"
@@ -951,7 +951,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <!-- Question Palette Navigation (Pinned at top, compact) -->
                 <LinearLayout

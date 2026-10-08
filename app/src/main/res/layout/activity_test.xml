@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/eve_bg">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,7 +21,7 @@
             android:id="@+id/timerCapsuleHost"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="2dp">
+            android:padding="0dp">
 
             <com.eve.app.ui.common.CircularTimerView
                 android:id="@+id/circularTimerView"
@@ -51,17 +52,13 @@
             android:textSize="16sp" />
     </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/eve_stroke_hairline"
-        android:background="@color/eve_separator" />
 
     <!-- QUESTION PALETTE NAVIGATION -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvQuestionPalette"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_surface"
+        android:background="@color/eve_test_palette_bg"
         android:clipToPadding="false"
         android:orientation="horizontal"
         android:paddingHorizontal="10dp"
@@ -177,7 +174,7 @@
         android:background="@android:color/transparent"
         android:orientation="vertical"
         android:paddingHorizontal="16dp"
-        android:paddingTop="8dp"
+        android:paddingTop="20dp"
         android:paddingBottom="10dp">
 
         <!-- Action Row 1: Clear Response & Mark for Review (Equal 8dp horizontal gap) -->
@@ -188,20 +185,14 @@
 
             <FrameLayout
                 android:layout_width="0dp"
-                android:layout_height="@dimen/eve_test_pill_height"
+                android:layout_height="44dp"
                 android:layout_marginEnd="4dp"
                 android:layout_weight="1">
 
-                <eightbitlab.com.blurview.BlurView
-                    android:id="@+id/blurBtnClear"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:importantForAccessibility="no"
-                    android:clickable="false" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnClear"
-                    style="@style/Widget.Eve.TestThinMaterialPill"
+                    style="@style/Widget.Eve.ApprovedTestAction"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:text="Clear response" />
@@ -209,20 +200,14 @@
 
             <FrameLayout
                 android:layout_width="0dp"
-                android:layout_height="@dimen/eve_test_pill_height"
+                android:layout_height="44dp"
                 android:layout_marginStart="4dp"
                 android:layout_weight="1">
 
-                <eightbitlab.com.blurview.BlurView
-                    android:id="@+id/blurBtnMarkReview"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:importantForAccessibility="no"
-                    android:clickable="false" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnMarkReview"
-                    style="@style/Widget.Eve.TestThinMaterialPill"
+                    style="@style/Widget.Eve.ApprovedTestAction"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:text="Mark for review" />
@@ -233,25 +218,19 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="20dp"
             android:orientation="horizontal">
 
             <FrameLayout
                 android:layout_width="0dp"
-                android:layout_height="@dimen/eve_test_pill_height"
-                android:layout_marginEnd="4dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="6dp"
                 android:layout_weight="1">
 
-                <eightbitlab.com.blurview.BlurView
-                    android:id="@+id/blurBtnPrev"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:importantForAccessibility="no"
-                    android:clickable="false" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnPrev"
-                    style="@style/Widget.Eve.TestThinMaterialPill"
+                    style="@style/Widget.Eve.ApprovedTestNavigation"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:text="Previous" />
@@ -259,23 +238,18 @@
 
             <FrameLayout
                 android:layout_width="0dp"
-                android:layout_height="@dimen/eve_test_pill_height"
-                android:layout_marginStart="4dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="6dp"
                 android:layout_weight="1">
 
-                <eightbitlab.com.blurview.BlurView
-                    android:id="@+id/blurBtnNext"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:importantForAccessibility="no"
-                    android:clickable="false" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnNext"
-                    style="@style/Widget.Eve.TestThinMaterialPill"
+                    style="@style/Widget.Eve.ApprovedTestNavigation"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="Save and Next" />
+                    android:text="Save and Next"
+                    app:strokeWidth="0dp" />
             </FrameLayout>
         </LinearLayout>
     </LinearLayout>

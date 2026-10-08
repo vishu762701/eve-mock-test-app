@@ -6,15 +6,12 @@ import android.animation.ValueAnimator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import android.view.animation.DecelerateInterpolator
 import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.R
 import com.eve.app.data.model.Question
 import com.eve.app.databinding.ItemQuestionBinding
 import com.eve.app.util.HapticHelper
-import com.eve.app.util.TestThinMaterialPillHelper
-import eightbitlab.com.blurview.BlurView
 
 class QuestionAdapter(
     private val questions: List<Question>,
@@ -26,10 +23,7 @@ class QuestionAdapter(
     private val onReport: (Question) -> Unit,
     private val getQuestionTime: (Int) -> Long,
     private val isMarked: (Int) -> Boolean = { false },
-    private val onToggleMark: (Int) -> Unit = {},
-    private val studioConfig: () -> com.eve.app.data.model.uistudio.UiStudioConfig = {
-        com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig
-    }
+    private val onToggleMark: (Int) -> Unit = {}
 ) : RecyclerView.Adapter<QuestionAdapter.VH>() {
 
     companion object {
@@ -48,62 +42,11 @@ class QuestionAdapter(
     }
 
     inner class VH(
-        private val b: ItemQuestionBinding,
-        blurRoot: ViewGroup
+        private val b: ItemQuestionBinding
     ) : RecyclerView.ViewHolder(b.root) {
         private var currentAnimator: ValueAnimator? = null
-        private val optionPills = listOf(
-            b.rbA to b.blurOptionA,
-            b.rbB to b.blurOptionB,
-            b.rbC to b.blurOptionC,
-            b.rbD to b.blurOptionD
-        )
-
         init {
-            optionPills.forEach { (button, surface) ->
-                button.enableTestThinMaterialStyle()
-                TestThinMaterialPillHelper.attach(surface, blurRoot, b.root.context, drawStroke = false)
-                button.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> updateOptionPillBounds() }
-            }
-            b.rgOptions.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> updateOptionPillBounds() }
-            b.optionsMaterialHost.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> updateOptionPillBounds() }
-            b.optionsMaterialHost.post { updateOptionPillBounds() }
-        }
-
-        private fun updateOptionPillBounds() {
-            if (b.optionsMaterialHost.width == 0 || b.rgOptions.height == 0) return
-            optionPills.forEach { (button, surface) ->
-                if (button.width == 0 || button.height == 0) return@forEach
-                val oldParams = surface.layoutParams as? FrameLayout.LayoutParams
-                val left = b.rgOptions.left + button.left
-                val top = b.rgOptions.top + button.top
-                if (oldParams == null || oldParams.width != button.width || oldParams.height != button.height ||
-                    oldParams.leftMargin != left || oldParams.topMargin != top
-                ) {
-                    val params = FrameLayout.LayoutParams(button.width, button.height).apply {
-                        leftMargin = left
-                        topMargin = top
-                    }
-                    surface.layoutParams = params
-                    TestThinMaterialPillHelper.setSelected(
-                        surface,
-                        b.rgOptions.checkedRadioButtonId == button.id,
-                        b.root.context,
-                        drawStroke = false
-                    )
-                }
-            }
-        }
-
-        private fun updateOptionSelection(checkedId: Int) {
-            optionPills.forEach { (button, surface) ->
-                TestThinMaterialPillHelper.setSelected(
-                    surface,
-                    checkedId == button.id,
-                    b.root.context,
-                    drawStroke = false
-                )
-            }
+            listOf(b.rbA, b.rbB, b.rbC, b.rbD).forEach { it.enableApprovedTestStyle() }
         }
 
         fun updateTimer(seconds: Long) {
@@ -124,20 +67,9 @@ class QuestionAdapter(
             b.rbC.text = "C. ${q.displayOptionText("C", hindi)}"
             b.rbD.text = "D. ${q.displayOptionText("D", hindi)}"
 
-            com.eve.app.uistudio.StudioRenderer.apply(b.root, "test", studioConfig(), force = true)
 
-            // Reset scroll position and auto-fit question text and options to the viewport
-            b.svQuestion.scrollTo(0, 0)
-            val optionsList = listOf(b.rbA, b.rbB, b.rbC, b.rbD)
-            QuestionFitHelper.fitQuestionAndOptions(
-                tvQuestion = b.tvQuestion,
-                svQuestion = b.svQuestion,
-                ivScrollHint = b.ivScrollHint,
-                options = optionsList,
-                questionText = questionText,
-                questionContainer = b.questionContainer,
-                rgOptions = b.rgOptions
-            )
+            // Keep the approved font sizes; scroll the full question and options on small screens.
+            b.questionScroll.scrollTo(0, 0)
 
             // Cancel any in-flight star animation on recycled view and restore clean baseline
             currentAnimator?.cancel()
@@ -261,9 +193,7 @@ class QuestionAdapter(
                 "C" -> b.rbC.isChecked = true
                 "D" -> b.rbD.isChecked = true
             }
-            updateOptionSelection(b.rgOptions.checkedRadioButtonId)
             b.rgOptions.setOnCheckedChangeListener { _, checkedId ->
-                updateOptionSelection(checkedId)
                 val letter = when (checkedId) {
                     R.id.rbA -> "A"
                     R.id.rbB -> "B"
@@ -281,14 +211,12 @@ class QuestionAdapter(
         fun clearSelection() {
             b.rgOptions.setOnCheckedChangeListener(null)
             b.rgOptions.clearCheck()
-            updateOptionSelection(View.NO_ID)
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         VH(
-            ItemQuestionBinding.inflate(LayoutInflater.from(parent.context), parent, false),
-            parent.rootView as? ViewGroup ?: parent
+            ItemQuestionBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         )
 
     override fun onBindViewHolder(holder: VH, position: Int) =

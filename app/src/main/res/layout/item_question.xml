@@ -1,17 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingHorizontal="16dp"
-    android:paddingTop="10dp"
-    android:paddingBottom="6dp">
+    android:id="@+id/questionScroll"
+    android:fillViewport="true">
 
-    <!-- 1. Compact Meta Row (height ≈ 40dp) -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="6dp">
+
+    <!-- Question timer and bare bookmark/report actions -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:layout_marginBottom="6dp">
@@ -65,13 +71,13 @@
 
             <ImageButton
                 android:id="@+id/btnBookmark"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_gravity="center"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="@android:color/transparent"
                 android:stateListAnimator="@animator/press_scale"
-                android:contentDescription="Mark for review"
-                android:padding="8dp"
+                android:contentDescription="Bookmark question"
+                android:padding="13dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_star_outline" />
         </FrameLayout>
@@ -84,20 +90,20 @@
 
             <ImageButton
                 android:id="@+id/btnReport"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_gravity="center"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="@android:color/transparent"
                 android:stateListAnimator="@animator/press_scale"
                 android:contentDescription="Report this question"
-                android:padding="8dp"
+                android:padding="13dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_report_flag_premium"
                 app:tint="@color/eve_text_secondary" />
         </FrameLayout>
     </LinearLayout>
 
-    <!-- 2. Question Region: wrap_content, max-height managed by QuestionFitHelper -->
+    <!-- Question and options keep their approved sizes inside the scrolling page. -->
     <FrameLayout
         android:id="@+id/questionContainer"
         android:layout_width="match_parent"
@@ -105,74 +111,27 @@
         android:minHeight="48dp"
         android:layout_marginBottom="0dp">
 
-        <ScrollView
-            android:id="@+id/svQuestion"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fillViewport="false"
-            android:scrollbars="vertical"
-            android:requiresFadingEdge="vertical"
-            android:fadingEdgeLength="16dp">
 
             <TextView
                 android:id="@+id/tvQuestion"
                 style="@style/TextAppearance.Eve.QuestionText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:lineSpacingMultiplier="1.25"
-                android:textColor="@color/eve_text"
-                android:textSize="18sp" />
-        </ScrollView>
+                android:lineSpacingMultiplier="1.5"
+                android:gravity="left"
+                android:textColor="@color/eve_test_foreground"
+                android:textSize="16sp" />
 
-        <ImageView
-            android:id="@+id/ivScrollHint"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="bottom|center_horizontal"
-            android:layout_marginBottom="2dp"
-            android:src="@drawable/ic_chevron_down"
-            app:tint="@color/eve_text_secondary"
-            android:alpha="0.7"
-            android:visibility="gone"
-            android:contentDescription="Scroll for more" />
     </FrameLayout>
 
-    <!-- 3. Options Block: wrap_content, directly beneath question with 10dp gap -->
+    <!-- Answer options, 16dp below the question -->
     <FrameLayout
         android:id="@+id/optionsMaterialHost"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="16dp"
         android:clipChildren="false"
         android:clipToPadding="false">
-
-        <eightbitlab.com.blurview.BlurView
-            android:id="@+id/blurOptionA"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:importantForAccessibility="no"
-            android:clickable="false" />
-
-        <eightbitlab.com.blurview.BlurView
-            android:id="@+id/blurOptionB"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:importantForAccessibility="no"
-            android:clickable="false" />
-
-        <eightbitlab.com.blurview.BlurView
-            android:id="@+id/blurOptionC"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:importantForAccessibility="no"
-            android:clickable="false" />
-
-        <eightbitlab.com.blurview.BlurView
-            android:id="@+id/blurOptionD"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:importantForAccessibility="no"
-            android:clickable="false" />
 
         <RadioGroup
             android:id="@+id/rgOptions"
@@ -183,45 +142,50 @@
             android:id="@+id/rbA"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="10dp"
             android:background="@android:color/transparent"
             android:fontFamily="sans-serif"
-            android:paddingVertical="10dp"
+            android:paddingVertical="12dp"
+            android:minHeight="56dp"
             android:paddingEnd="12dp"
-            android:textSize="16sp" />
+            android:textSize="14sp" />
 
         <com.eve.app.ui.common.TelegramRadioButton
             android:id="@+id/rbB"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="10dp"
             android:background="@android:color/transparent"
             android:fontFamily="sans-serif"
-            android:paddingVertical="10dp"
+            android:paddingVertical="12dp"
+            android:minHeight="56dp"
             android:paddingEnd="12dp"
-            android:textSize="16sp" />
+            android:textSize="14sp" />
 
         <com.eve.app.ui.common.TelegramRadioButton
             android:id="@+id/rbC"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="10dp"
             android:background="@android:color/transparent"
             android:fontFamily="sans-serif"
-            android:paddingVertical="10dp"
+            android:paddingVertical="12dp"
+            android:minHeight="56dp"
             android:paddingEnd="12dp"
-            android:textSize="16sp" />
+            android:textSize="14sp" />
 
         <com.eve.app.ui.common.TelegramRadioButton
             android:id="@+id/rbD"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="10dp"
             android:background="@android:color/transparent"
             android:fontFamily="sans-serif"
-            android:paddingVertical="10dp"
+            android:paddingVertical="12dp"
+            android:minHeight="56dp"
             android:paddingEnd="12dp"
-            android:textSize="16sp" />
+            android:textSize="14sp" />
         </RadioGroup>
     </FrameLayout>
 </LinearLayout>
+</ScrollView>

@@ -8,9 +8,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
-import android.graphics.RectF
 import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.RippleDrawable
 import android.graphics.drawable.StateListDrawable
 import android.util.AttributeSet
@@ -48,12 +46,6 @@ class TelegramRadioButton @JvmOverloads constructor(
         style = Paint.Style.FILL
     }
 
-    private val testPillStrokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.STROKE
-        strokeWidth = 1f * density
-    }
-    private val testPillBounds = RectF()
-
     private val checkPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
@@ -66,7 +58,7 @@ class TelegramRadioButton @JvmOverloads constructor(
     private val argbEvaluator = ArgbEvaluator()
     private var checkProgress = if (isChecked) 1f else 0f
     private var checkAnimator: ValueAnimator? = null
-    private var useTestThinMaterialStyle = false
+    private var useApprovedTestStyle = false
 
     init {
         // Clear default Android radio graphic
@@ -125,21 +117,25 @@ class TelegramRadioButton @JvmOverloads constructor(
         }
     }
 
-    /** Enables the Test-only capsule treatment while leaving Admin answer editors unchanged. */
-    fun enableTestThinMaterialStyle() {
-        useTestThinMaterialStyle = true
-        background = ColorDrawable(Color.TRANSPARENT)
-        val isDark = ThemeSwitchAnimator.isDarkMode(context)
-        val rippleColor = androidx.core.graphics.ColorUtils.setAlphaComponent(
-            ContextCompat.getColor(context, R.color.eve_text),
-            if (isDark) 36 else 28
-        )
-        val rippleMask = GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            cornerRadius = 999f * density
-            setColor(Color.WHITE)
+    /** Native Test-only appearance; Admin answer editors keep their existing style. */
+    fun enableApprovedTestStyle() {
+        useApprovedTestStyle = true
+        fun surface(color: Int) = GradientDrawable().apply {
+            cornerRadius = 12f * density
+            setColor(ContextCompat.getColor(context, color))
         }
-        foreground = RippleDrawable(ColorStateList.valueOf(rippleColor), null, rippleMask)
+        background = StateListDrawable().apply {
+            addState(intArrayOf(android.R.attr.state_checked), surface(R.color.eve_test_selected))
+            addState(intArrayOf(), surface(R.color.eve_test_option_bg))
+        }
+        foreground = null
+        setTextColor(ColorStateList(
+            arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
+            intArrayOf(Color.BLACK, ContextCompat.getColor(context, R.color.eve_test_foreground))
+        ))
+        minHeight = (56f * density).toInt()
+        setPadding((44f * density).toInt(), (12f * density).toInt(),
+            (12f * density).toInt(), (12f * density).toInt())
         invalidate()
     }
 
@@ -191,31 +187,22 @@ class TelegramRadioButton @JvmOverloads constructor(
     }
 
     override fun onDraw(canvas: Canvas) {
-        val unselectedColor = ContextCompat.getColor(context, R.color.eve_separator)
-        val selectedColor = ContextCompat.getColor(
-            context,
-            if (useTestThinMaterialStyle) R.color.eve_system_green else R.color.eve_accent
-        )
-
-        if (useTestThinMaterialStyle && width > 0 && height > 0) {
-            testPillStrokePaint.color = ContextCompat.getColor(
-                context,
-                if (isChecked) R.color.eve_test_option_selected_stroke else R.color.eve_test_option_stroke
-            )
-            val inset = testPillStrokePaint.strokeWidth / 2f
-            testPillBounds.set(inset, inset, width - inset, height - inset)
-            canvas.drawRoundRect(testPillBounds, height / 2f, height / 2f, testPillStrokePaint)
-        }
+        val unselectedColor = ContextCompat.getColor(context,
+            if (useApprovedTestStyle) R.color.eve_test_foreground else R.color.eve_separator)
+        val selectedColor = if (useApprovedTestStyle) Color.BLACK
+            else ContextCompat.getColor(context, R.color.eve_accent)
+        ringPaint.strokeWidth = if (useApprovedTestStyle) 2f * density else strokeWidthPx
+        checkPaint.color = Color.WHITE
 
         val currentRingColor = argbEvaluator.evaluate(checkProgress, unselectedColor, selectedColor) as Int
-        ringPaint.color = currentRingColor
+        ringPaint.color = if (useApprovedTestStyle) unselectedColor else currentRingColor
         dotPaint.color = selectedColor
 
-        val cx = 16f * density
+        val cx = (if (useApprovedTestStyle) 22f else 16f) * density
         val cy = height / 2f
 
         // Draw outer ring
-        canvas.drawCircle(cx, cy, indicatorRadius, ringPaint)
+        canvas.drawCircle(cx, cy, if (useApprovedTestStyle) 9f * density else indicatorRadius, ringPaint)
 
         // Draw filled checkmark indicator on selection
         if (checkProgress > 0f) {

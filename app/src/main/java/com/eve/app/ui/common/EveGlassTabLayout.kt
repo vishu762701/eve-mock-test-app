@@ -22,7 +22,7 @@ class EveGlassTabLayout @JvmOverloads constructor(
 ) : TabLayout(context, attrs, defStyleAttr) {
 
     init {
-        setBackgroundResource(R.drawable.bg_tab_segmented_track)
+        if (background == null) setBackgroundResource(R.drawable.bg_tab_segmented_track)
         tabRippleColor = null
         clipToOutline = true
         addOnTabSelectedListener(object : OnTabSelectedListener {

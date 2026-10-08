@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="eve_test_foreground">#000000</color>
+    <color name="eve_test_option_bg">#F3F3F5</color>
+    <color name="eve_test_selected">#34C759</color>
+    <color name="eve_test_review">#FFCC00</color>
+    <color name="eve_test_button_bg">#000000</color>
+    <color name="eve_test_button_text">#FFFFFF</color>
+    <color name="eve_test_palette_bg">#EEEEF0</color>
+    <color name="eve_test_border">#888888</color>
+    <color name="eve_result_tab_track">#F1F1F3</color>
+    <color name="eve_result_tab_selected">#000000</color>
+    <color name="eve_result_tab_selected_text">#FFFFFF</color>
+    <color name="eve_result_tab_text">#000000</color>
+</resources>

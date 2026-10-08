@@ -40,7 +40,6 @@ import com.eve.app.util.ShareCardHelper
 import com.eve.app.util.TopicAccuracyHelper
 import com.eve.app.ui.common.ExpandableCardHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.launch
 
 class ResultActivity : EveBaseActivity() {
@@ -298,7 +297,7 @@ class ResultActivity : EveBaseActivity() {
         adapter.setHindi(LanguageManager.isHindi(this))
         adapter.setShowTimeInsight(!fromHistory)
 
-        // Setup Segmented Navigation Tabs (Review | Overview | Leaderboard)
+        // Setup Segmented Navigation Tabs (Overview | Review | Leaderboard)
         setupTabLayout()
 
         // Setup Question Palette Navigation (Single Question Isolation)
@@ -334,21 +333,7 @@ class ResultActivity : EveBaseActivity() {
     }
 
     private fun setupTabLayout() {
-        binding.tabLayoutResult.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                val pos = tab?.position ?: 0
-                binding.sectionReview.visibility = if (pos == 0) View.VISIBLE else View.GONE
-                binding.scrollResultContent.visibility = if (pos == 1) View.VISIBLE else View.GONE
-                binding.scrollLeaderboard.visibility = if (pos == 2) View.VISIBLE else View.GONE
-
-                if (pos == 0) {
-                    selectQuestion(selectedQuestionIndex)
-                }
-            }
-
-            override fun onTabUnselected(tab: TabLayout.Tab?) {}
-            override fun onTabReselected(tab: TabLayout.Tab?) {}
-        })
+        ResultTabs.bind(binding) { selectQuestion(selectedQuestionIndex) }
     }
 
     private fun setupAnalysisSection(
