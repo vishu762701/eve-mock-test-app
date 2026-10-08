@@ -23,10 +23,12 @@ blur are not exercised. Full-window/system-bar rendering, live Firebase authenti
 and production network end-to-end flows are not claimed as visually verified.
 
 Native execution **PASS** on the GitHub Actions API 35 emulator at commit
-`60d8ad0d9f767059050b9393ed748206ef4f1b1e`: 6 native tests, 0 failures/errors.
-[Successful build, lint, JVM/backend and native verification](https://github.com/vishu762701/eve-mock-test-app/actions/runs/37759514376).
+`61013ec0f1e2a4bf3d1063f3944cbedbbb697fae`: 7 native tests, 0 failures/errors,
+including 420/440/480dpi configurations in both themes.
+[Successful build, lint, JVM/backend and native verification](https://github.com/vishu762701/eve-mock-test-app/actions/runs/37761138123).
 The `approved-ui-verification` artifact contains the JUnit report and 10 dark/light
-native layout PNGs. All 10 were retrieved and visually inspected. Mock Test and
+native layout PNGs. All 10 were retrieved; they are pixel-identical to the 10 renderings retrieved
+and visually inspected from successful run 37759514376. Mock Test and
 all Result selected-pill states rendered visibly and passed pixel/value assertions.
 Home's asynchronous bell artwork, network banner image and entrance-animated exam
 row are not visually established by the offscreen captures; their required bare
@@ -147,7 +149,7 @@ and the verification method shown, not production network end-to-end execution.
 - Android `assembleDebug`, `lintDebug`, `testDebugUnitTest`, `assembleDebugAndroidTest`: PASS locally (189 tests; lint 0 errors).
 - Backend TypeScript `npm run build`: PASS.
 - Backend tests using the environment's supported proxy dispatcher: 73 PASS, 0 failed.
-- Native `ApprovedUiFunctionalTest` and `ApprovedUiRenderingTest`: 6 PASS, 0 failures/errors (API 35 emulator; both themes).
+- Native `ApprovedUiFunctionalTest` and `ApprovedUiRenderingTest`: 7 PASS, 0 failures/errors (API 35 emulator; both themes; fractional density checks).
 - XML/resource linking: Android AAPT compile/link PASS; all 242 repository XML files parse successfully.
 - Active UI Studio reference audit (`app/src/main`, `backend/src`): zero matches.
 - Full Leaderboard and historical migration audit: 17 tracked files byte-identical versus original main, including activity/adapter/ViewModel/activity XML/row XML.
@@ -190,7 +192,9 @@ verification passed in run 37759514376; the intermediate failed run is not repor
 - Implementation/refinement commits: 4aa552ff99d9fc63ba2a3a7bd7dd531a5039ccd5
   and 60d8ad0d9f767059050b9393ed748206ef4f1b1e, pushed directly to origin/main.
 - Both direct pushes verified using `git ls-remote origin refs/heads/main`.
-- Build, emulator, Android lint/JVM and backend jobs: successful run 37759514376.
+- Final implementation commit 61013ec0f1e2a4bf3d1063f3944cbedbbb697fae: directly
+  pushed and remote-SHA verified. Build, emulator, Android lint/JVM and backend
+  jobs: successful run 37761138123.
 - Existing Worker deployment workflow: successful run 37758687480. Historical
   migrations were unchanged; no schema cleanup or data deletion was added.
 - This final audit-only commit carries the successful implementation evidence.
@@ -204,9 +208,9 @@ audit then found integer truncation for programmatic dimensions. Palette cells a
 1dp strokes now use the same rounding as Android XML. The total 8dp gap is rounded
 once and split across the two edges, avoiding double-rounding at 420dpi. Option
 minimum height and content padding use Android pixel rounding too. A seventh native
-test exercises 420, 440 and 480dpi in both themes. Final execution of that test is
-pending the next main build; the previously recorded six-test success remains valid
-for its original commit. No semantic state or business behavior changed.
+test exercises 420, 440 and 480dpi in both themes. That test passed with the six other native tests in run 37761138123.
+The previously recorded six-test success remains valid for its original commit.
+No semantic state or business behavior changed.
 
 The Result segmented control's existing 16dp side / 6dp vertical margins are
 expressed with start/end/top/bottom attributes so the floating placement also
