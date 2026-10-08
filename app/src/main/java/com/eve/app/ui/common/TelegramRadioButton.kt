@@ -206,7 +206,8 @@ class TelegramRadioButton @JvmOverloads constructor(
 
         // Draw filled checkmark indicator on selection
         if (checkProgress > 0f) {
-            canvas.drawCircle(cx, cy, indicatorRadius * checkProgress, dotPaint)
+            val fillRadius = if (useApprovedTestStyle) 8f * density else indicatorRadius
+            canvas.drawCircle(cx, cy, fillRadius * checkProgress, dotPaint)
 
             checkPath.reset()
             checkPath.moveTo(cx - 4.5f * density, cy)

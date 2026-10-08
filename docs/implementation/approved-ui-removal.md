@@ -130,3 +130,6 @@ https://github.com/vishu762701/eve-mock-test-app/actions/runs/37744940470
 The final Clear Response/review-state refinement passed the same local Android
 build/lint/189-unit-test/instrumentation-compilation commands and is submitted
 for another CI run with the stronger native assertions.
+
+Selected indicator fill stays inside its 2dp border; a native pixel assertion
+checks that selecting an answer does not paint over the border in either theme.

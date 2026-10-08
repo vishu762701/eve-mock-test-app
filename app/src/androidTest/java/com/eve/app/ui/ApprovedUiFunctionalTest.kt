@@ -1,6 +1,8 @@
 package com.eve.app.ui
 
 import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
 import android.view.View
 import android.view.LayoutInflater
@@ -82,6 +84,20 @@ class ApprovedUiFunctionalTest {
                 assertEquals(14f, b.rbA.textSize / context.resources.displayMetrics.scaledDensity, 0.01f)
                 assertEquals(1.5f, b.tvQuestion.lineSpacingMultiplier, 0.01f)
                 assertEquals((56f * context.resources.displayMetrics.density).toInt(), b.rbA.minHeight)
+                // A selected fill must not paint over the approved 2dp indicator border.
+                b.rbA.isChecked = true
+                b.rbA.jumpDrawablesToCurrentState()
+                val density = context.resources.displayMetrics.density
+                val width = (320f * density).toInt()
+                val height = (56f * density).toInt()
+                b.rbA.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY))
+                b.rbA.layout(0, 0, width, height)
+                val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                b.rbA.draw(Canvas(bitmap))
+                assertEquals(context.getColor(R.color.eve_test_foreground),
+                    bitmap.getPixel((31f * density).toInt(), height / 2))
+                bitmap.recycle()
             }
         }
     }
