@@ -1,5 +1,8 @@
 package com.eve.app.ui.home
 
+import android.graphics.Outline
+import android.view.ViewOutlineProvider
+
 import com.eve.app.ui.common.EveBaseActivity
 
 import android.Manifest
@@ -12,8 +15,6 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Outline
-import android.view.ViewOutlineProvider
 import android.os.Build
 import com.eve.app.util.FastBlurHelper
 import android.os.Bundle
@@ -920,13 +921,7 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun setupHomeBannerSurface() {
-        val radius = 18f * resources.displayMetrics.density
-        binding.panelHomeBanner.outlineProvider = object : ViewOutlineProvider() {
-            override fun getOutline(view: View, outline: Outline) {
-                outline.setRoundRect(0, 0, view.width, view.height, radius)
-            }
-        }
-        binding.panelHomeBanner.clipToOutline = true
+        HomeAppearance.clipBanner(binding.panelHomeBanner)
         binding.blurHomeBannerMaterial.outlineProvider = binding.panelHomeBanner.outlineProvider
         binding.blurHomeBannerMaterial.clipToOutline = true
         com.eve.app.util.EveBlurHelper.setupBlurView(
@@ -1080,17 +1075,8 @@ class MainActivity : EveBaseActivity() {
         }
         binding.chipGroupCategory.removeAllViews()
         categories.forEach { category ->
-            val chip = Chip(this).apply {
-                text = category
-                isCheckable = true
-                isChecked = category == selected
-                chipCornerRadius = 50f * resources.displayMetrics.density
-                chipStrokeWidth = 1f * resources.displayMetrics.density
-                chipStrokeColor = androidx.core.content.ContextCompat.getColorStateList(this@MainActivity, R.color.selector_category_chip_stroke)
-                chipBackgroundColor = androidx.core.content.ContextCompat.getColorStateList(this@MainActivity, R.color.selector_category_chip_bg)
-                setTextColor(androidx.core.content.ContextCompat.getColorStateList(this@MainActivity, R.color.selector_category_chip_text))
-                isCheckedIconVisible = false
-                setOnClickListener { viewModel.selectCategory(category) }
+            val chip = HomeAppearance.categoryChip(this, category, selected) {
+                viewModel.selectCategory(category)
             }
             binding.chipGroupCategory.addView(chip)
         }

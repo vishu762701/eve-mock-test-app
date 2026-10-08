@@ -33,12 +33,6 @@ class CircularTimerView @JvmOverloads constructor(
     private val warningColor: Int
         get() = ContextCompat.getColor(context, R.color.eve_timer_warning)
 
-    private val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.STROKE
-        strokeWidth = strokePx
-        color = ContextCompat.getColor(context, R.color.eve_border)
-    }
-
     private val progressPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = strokePx
@@ -70,7 +64,7 @@ class CircularTimerView @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        val pad = strokePx / 2f + 2f
+        val pad = strokePx / 2f
         val diameter = minOf(w, h).toFloat()
         val cx = w / 2f
         val cy = h / 2f
@@ -83,11 +77,9 @@ class CircularTimerView @JvmOverloads constructor(
         if (oval.isEmpty) return
 
         canvas.drawColor(ContextCompat.getColor(context, R.color.eve_bg))
-        // 1. Background ring track
-        val nc = normalColor
-        trackPaint.color = nc
-        canvas.drawOval(oval, trackPaint)
-        // 2. Depleting progress arc
+        // The approved 2dp ring is the countdown arc. A full foreground-color
+        // track underneath it would conceal progress as the timer depletes.
+        // Preserve the existing warning color when time is low.
         val sweepAngle = 360f * currentProgress
         canvas.drawArc(oval, -90f, sweepAngle, false, progressPaint)
 
@@ -170,8 +162,6 @@ class CircularTimerView @JvmOverloads constructor(
     }
 
     fun updateThemeColors() {
-        val tc = normalColor
-        trackPaint.color = tc
         val nc = normalColor
         if (colorAnimator == null && currentColor != warningColor) {
             currentColor = nc

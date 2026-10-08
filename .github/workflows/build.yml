@@ -60,7 +60,17 @@ jobs:
           api-level: 35
           arch: x86_64
           disable-animations: true
-          script: gradle connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.eve.app.ui.ApprovedUiFunctionalTest --stacktrace
+          script: >-
+            bash -c 'trap "mkdir -p ui-renderings; adb pull /sdcard/Android/data/com.eve.app/files/approved-ui ui-renderings/ || true" EXIT; gradle connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=com.eve.app.ui --stacktrace'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: approved-ui-verification
+          path: |
+            ui-renderings/
+            app/build/reports/androidTests/
+            app/build/outputs/androidTest-results/
+          if-no-files-found: warn
 
       - name: Android lint and unit tests
         run: gradle lintDebug testDebugUnitTest assembleDebugAndroidTest --stacktrace

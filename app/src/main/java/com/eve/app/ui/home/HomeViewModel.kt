@@ -272,7 +272,7 @@ class HomeViewModel : ViewModel() {
         feedbackPosts: List<FeedbackPost>
     ): HomeUiData {
         val mainExams = all.filter { it.isMainExam }
-        val categories = listOf(Constants.CATEGORY_ALL) + mainExams.map { it.categoryOrOther }.distinct().sortedWith(compareBy<String> { it != "Other" }.thenBy { it })
+        val categories = HomeAppearance.categories(mainExams.map { it.categoryOrOther })
         val effectiveSelected = if (selected in categories) selected else Constants.CATEGORY_ALL
         val filtered = if (effectiveSelected == Constants.CATEGORY_ALL) mainExams else mainExams.filter { it.categoryOrOther == effectiveSelected }
 

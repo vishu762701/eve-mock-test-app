@@ -25,4 +25,7 @@
     <style name="Widget.Eve.ApprovedTestNavigation" parent="Widget.Eve.ApprovedTestAction">
         <item name="android:textSize">14sp</item>
     </style>
+    <style name="Widget.Eve.ApprovedTestNext" parent="Widget.Eve.ApprovedTestNavigation">
+        <item name="strokeWidth">0dp</item>
+    </style>
 </resources>
