@@ -168,6 +168,7 @@ object UiStudioEngine {
             com.eve.app.uistudio.StudioVisual.apply(view, config)
             com.eve.app.uistudio.StudioMaterial.apply(view, config)
             com.eve.app.uistudio.StudioInteraction.apply(view, config.animation)
+            com.eve.app.uistudio.StudioBaseline.record(view, config)
             // 10. Animation if configured
             if (config.animation.enabled) {
                 playEntranceAnimation(view, config.animation)
@@ -229,8 +230,11 @@ object UiStudioEngine {
      * Executes safe entrance animation for a view based on animation schema.
      */
     private val motionOrigins=java.util.WeakHashMap<View,FloatArray>()
+    private val motionAlpha=java.util.WeakHashMap<View,Float>()
+    fun stableAlpha(view: View): Float = motionAlpha[view] ?: view.alpha
     fun cancelMotion(view: View) {
-        view.animate().cancel()
+        if(motionOrigins.containsKey(view) || motionAlpha.containsKey(view))view.animate().setListener(null).cancel()
+        motionAlpha.remove(view)?.let { view.alpha=it }
         motionOrigins.remove(view)?.let { view.scaleX=it[0];view.scaleY=it[1];view.translationX=it[2];view.translationY=it[3] }
     }
     fun playEntranceAnimation(view: View?, animConfig: AnimationProperties?) {
@@ -239,13 +243,21 @@ object UiStudioEngine {
         if (android.provider.Settings.Global.getFloat(view.context.contentResolver, android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f) return
         cancelMotion(view)
         val targetAlpha = view.alpha
+        motionAlpha[view] = targetAlpha
         val targetScaleX=view.scaleX;val targetScaleY=view.scaleY;val targetY=view.translationY
         motionOrigins[view]=floatArrayOf(targetScaleX,targetScaleY,view.translationX,targetY)
-        val duration = animConfig.durationMs.coerceIn(50L, 2000L)
-        val delay = animConfig.delayMs.coerceIn(0L, 2000L)
+        view.animate().setListener(object : android.animation.AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: android.animation.Animator) {
+                motionAlpha.remove(view)
+                motionOrigins.remove(view)
+                view.animate().setListener(null)
+            }
+        })
+        val duration = animConfig.durationMs.coerceIn(0L, 10000L)
+        val delay = animConfig.delayMs.coerceIn(0L, 10000L)
         val interpolator: TimeInterpolator = when (animConfig.interpolator.lowercase()) {
-            "accelerate" -> AccelerateInterpolator()
-            "decelerate" -> DecelerateInterpolator()
+            "ease_in", "accelerate" -> AccelerateInterpolator()
+            "ease_out", "decelerate" -> DecelerateInterpolator()
             "overshoot", "spring" -> OvershootInterpolator(1.2f)
             else -> AccelerateDecelerateInterpolator()
         }

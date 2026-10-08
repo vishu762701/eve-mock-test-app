@@ -20,7 +20,7 @@ object StudioPolicy {
         "open_url" -> safeUrl(a.actionTarget)
         else -> false
     }
-    fun validate(config: UiStudioConfig): List<String> {
+    fun validate(config: UiStudioConfig, allowLegacyBlur: Boolean = false): List<String> {
         val errors = mutableListOf<String>()
         config.screens.forEach { (screenKey, screen) ->
             screen.components.forEach { (key, c) ->
@@ -57,7 +57,10 @@ object StudioPolicy {
                 c.appearance.highlightOpacity?.let { if(!it.isFinite() || it !in 0f..1f)errors += "$path: highlight opacity must be 0–1" }
                 if(c.animation.stateTransitionMs !in 0L..600L)errors += "$path: state transition must be 0–600 ms"
                 c.animation.pressScale?.let { if(!it.isFinite() || it !in .85f..1f)errors += "$path: press scale must be 0.85–1" }
-                c.material.blurRadius?.let { if (it !in 0..50) errors += "$path: blur must be 0–50" }
+                c.material.blurRadius?.let { if (it !in 0..(if(allowLegacyBlur)50 else 25)) errors += "$path: blur must be 0–25" }
+                c.typography.textStyle?.let { if(it !in listOf("normal","bold","italic","bold_italic"))errors += "$path: unsupported text style" }
+                c.typography.textAlign?.let { if(it !in listOf("start","left","center","end","right"))errors += "$path: unsupported text alignment" }
+                c.animation.interpolator.let { if(it !in listOf("standard","ease_in","ease_out","spring","accelerate","decelerate","overshoot"))errors += "$path: unsupported response curve" }
                 c.typography.fontFamily?.let { if(it !in listOf("sans-serif","serif","monospace"))errors += "$path: unsupported font" }
                 if (c.animation.type !in listOf("fade", "scale", "fade_scale", "slide", "pop")) errors += "$path: unsupported animation"
             }

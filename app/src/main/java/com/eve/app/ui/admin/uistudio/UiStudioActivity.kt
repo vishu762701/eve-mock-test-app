@@ -36,6 +36,12 @@ class UiStudioActivity : EveBaseActivity() {
     private var previewMode=false
     private var scale=1f
     private var content: View?=null
+    private var previewListener: android.view.ViewTreeObserver.OnPreDrawListener?=null
+    private fun clearPreviewListener() {
+        previewListener?.let { listener -> content?.viewTreeObserver?.takeIf { it.isAlive }?.removeOnPreDrawListener(listener) }
+        previewListener=null
+    }
+    override fun onDestroy() { clearPreviewListener();super.onDestroy() }
     private var elements=emptyList<StudioRenderer.Element>()
     private lateinit var page: LinearLayout
     private lateinit var status: TextView
@@ -64,7 +70,7 @@ class UiStudioActivity : EveBaseActivity() {
             repo.getDraft().onSuccess { config=it }.onFailure { config=repo.loadCachedDraft() ?: UiStudioConfig() }
             loading=false
             if(savedInstanceState?.getBoolean("workspace") == true)showWorkspace()
-            status.text="Recoverable local draft · not published"
+            status.text=if(config.status=="published")"Published v${config.version} · last verified configuration" else "Recoverable local draft · not published"
         }
     }
     override fun onSaveInstanceState(outState: Bundle) {
@@ -90,19 +96,20 @@ class UiStudioActivity : EveBaseActivity() {
         buttons.forEach { (text,action)->Button(this).apply { this.text=text;isAllCaps=false;minHeight=dp(48);setOnClickListener { action() };r.addView(this,LinearLayout.LayoutParams(0,-2,1f)) } }
     }
     private fun initPage(title: String) {
+        val previousStatus=if(::status.isInitialized)status.text.toString() else null
         page=column();setContentView(page)
         label(page,title).textSize=24f
-        status=label(page,if(loading) "Loading draft…" else "Local draft · preview only")
+        status=label(page,if(loading) "Loading draft…" else previousStatus ?: "Local draft · preview only")
     }
     private fun showMenu() {
-        flushFields();menu=true;sheet?.dismiss();initPage("UI Studio")
+        flushFields();clearPreviewListener();menu=true;sheet?.dismiss();initPage("UI Studio")
         label(page,"Choose a tool, then select an item on the screen. Changes stay in your draft until you publish.")
         val list=column();page.addView(ScrollView(this).apply { addView(list) },LinearLayout.LayoutParams(-1,0,1f))
         tools.forEachIndexed { index,title -> button(list,title) { if(!loading) { if(index==11)advanced() else {tool=index;visualScope="element";showWorkspace()} } } }
         row(page,listOf("Back" to { finish() },"Advanced" to { advanced() }))
     }
     private fun showWorkspace() {
-        flushFields();menu=false;initPage(tools[tool]);
+        flushFields();clearPreviewListener();menu=false;initPage(tools[tool]);
         row(page,listOf("Tools" to { showMenu() },"Controls" to { controls() },"Elements" to { elementList() }))
         val spinner=Spinner(this)
         val screens=StudioScreens.all
@@ -131,13 +138,17 @@ class UiStudioActivity : EveBaseActivity() {
     }
     private fun renderScreen() {
         val descriptor=StudioScreens.all.firstOrNull { it.key==screen } ?: return
-        selectedInstance=null;preview.removeAllViews()
+        clearPreviewListener();selectedInstance=null;preview.removeAllViews()
         content=layoutInflater.inflate(descriptor.layout,preview,false)
         preview.addView(content,FrameLayout.LayoutParams(dp(360),dp(700)))
         StudioFixtures.bind(content!!,screen,{config}) { destination ->
             if(previewMode) { screen=destination;selected="";showWorkspace() }
         }
-        content!!.viewTreeObserver.addOnGlobalLayoutListener { if(content?.isAttachedToWindow==true) applyPreview() }
+        val rendered=content!!
+        previewListener=android.view.ViewTreeObserver.OnPreDrawListener {
+            if(content===rendered && rendered.isAttachedToWindow)applyPreview()
+            true
+        }.also { rendered.viewTreeObserver.addOnPreDrawListener(it) }
         applyPreview();resizePreview();persist()
     }
     private fun applyPreview() {
@@ -156,10 +167,11 @@ class UiStudioActivity : EveBaseActivity() {
     }
     private fun select() {
         val e=elements.firstOrNull { it.id==selected && it.view===selectedInstance } ?: elements.firstOrNull { it.id==selected }
+        val selectionChanged=preview.selected!==e?.view
         preview.selected=e?.view
         val label=if(e==null) "No item selected · tap preview or Elements" else "${e.parent?.removePrefix("native_")?.plus(" › ") ?: ""}${e.label}\nScope: ${if(visualScope=="screen")"selected screen" else "selected element"}${if(e.repeated) " template (all rows)" else ""}"
         if(selection.text.toString()!=label)selection.text=label
-        preview.invalidate()
+        if(selectionChanged)preview.invalidate()
     }
     private fun elementList() {
         val unique=elements.distinctBy { it.id }
@@ -270,12 +282,12 @@ class UiStudioActivity : EveBaseActivity() {
                 button(box,"Reset colors") { edit { it.copy(appearance=it.appearance.copy(backgroundColor=null,opacity=null)) };controls() }
             }
             2 -> {
-                if(e?.view !is TextView)label(box,"Choose a child text element to edit typography.") else {
+                if(e?.view !is TextView && e?.view !is com.eve.app.ui.common.CircularTimerView)label(box,"Choose a child text element to edit typography.") else {
                     color(box,"Text color",c.typography.textColor){v->edit{it.copy(typography=it.typography.copy(textColor=v))}}
-                    slider(box,"Text size (sp)",c.typography.textSize ?: ((e.view as TextView).textSize/resources.displayMetrics.scaledDensity).toInt(),10,48){v,h->edit(h){it.copy(typography=it.typography.copy(textSize=v))}}
+                    slider(box,"Text size (sp)",c.typography.textSize ?: ((e.view as? TextView)?.let { it.textSize/resources.displayMetrics.scaledDensity } ?: 13f).toInt(),10,48){v,h->edit(h){it.copy(typography=it.typography.copy(textSize=v))}}
                     choice(box,"Font family",listOf("sans-serif","serif","monospace")){v->edit{it.copy(typography=it.typography.copy(fontFamily=v))}}
                     choice(box,"Font style",listOf("normal","bold","italic","bold_italic")){v->edit{it.copy(typography=it.typography.copy(textStyle=v))}}
-                    choice(box,"Text alignment",listOf("start","center","end")){v->edit{it.copy(typography=it.typography.copy(textAlign=v))}}
+                    if(e.view is TextView)choice(box,"Text alignment",listOf("start","center","end")){v->edit{it.copy(typography=it.typography.copy(textAlign=v))}}
                     button(box,"Reset text styling"){edit{it.copy(typography=TypographyProperties())};controls()}
                 }
             }
@@ -333,7 +345,8 @@ class UiStudioActivity : EveBaseActivity() {
                 color(box,"Selected background",c.states.selectedBackgroundColor){v->edit{it.copy(states=it.states.copy(selectedBackgroundColor=v))}}
                 color(box,"Disabled background",c.states.disabledBackgroundColor){v->edit{it.copy(states=it.states.copy(disabledBackgroundColor=v))}}
                 color(box,"Focused background",c.states.focusedBackgroundColor){v->edit{it.copy(states=it.states.copy(focusedBackgroundColor=v))}}
-                color(box,"Selected text",c.states.selectedTextColor){v->edit{it.copy(states=it.states.copy(selectedTextColor=v))}}
+                if(e?.view is TextView)color(box,"Selected text",c.states.selectedTextColor){v->edit{it.copy(states=it.states.copy(selectedTextColor=v))}}
+                else label(box,"Selected text color: select a child text element.")
                 slider(box,"State / material color transition (ms)",c.animation.stateTransitionMs.toInt(),0,600){v,h->edit(h){it.copy(animation=it.animation.copy(stateTransitionMs=v.toLong()))}}
                 button(box,"Preview selected state"){e?.view?.isSelected=!(e?.view?.isSelected ?: false)}
                 if(dynamic)toggle(box,"Enabled",c.enabled){v->edit{it.copy(enabled=v)}}
@@ -424,6 +437,21 @@ class UiStudioActivity : EveBaseActivity() {
     }
     private fun choiceDialog(title: String,values: List<String>,action: (String)->Unit) { AlertDialog.Builder(this).setTitle(title).setItems(values.toTypedArray()){_,i->action(values[i])}.show() }
     private fun confirm(message: String,action: ()->Unit) { AlertDialog.Builder(this).setMessage(message).setPositiveButton("Continue"){_,_->action()}.setNegativeButton("Cancel",null).show() }
+    private fun publicationErrors(): List<String> {
+        val errors=repo.validateConfig(config).second.toMutableList()
+        if(errors.isNotEmpty())return errors
+        config.screens.keys.forEach { key ->
+            val descriptor=StudioScreens.all.firstOrNull { it.key==key }
+            if(descriptor==null) { errors += "$key: no registered production screen";return@forEach }
+            val root=layoutInflater.inflate(descriptor.layout,null)
+            StudioFixtures.bind(root,key,{config},{})
+            StudioRenderer.apply(root,key,config,sandbox={})
+            root.measure(View.MeasureSpec.makeMeasureSpec(dp(360),View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(dp(700),View.MeasureSpec.EXACTLY))
+            root.layout(0,0,dp(360),dp(700))
+            errors += StudioRenderer.unsupported(root,key,config)
+        }
+        return errors.distinct()
+    }
     private fun save() {
         flushFields();if(busy)return
         val errors=repo.validateConfig(config).second
@@ -445,12 +473,19 @@ class UiStudioActivity : EveBaseActivity() {
     private fun publish() {
         flushFields();if(busy)return
         confirm("Publish this draft to students? The server revision and fresh readback must match.") {
-            val errors=repo.validateConfig(config).second
+            val errors=publicationErrors()
             if(errors.isNotEmpty()){status.text=errors.joinToString("\n");return@confirm}
             busy=true;val snapshot=config
+            status.text="Publishing · waiting for fresh server verification"
             lifecycleScope.launch {
-                when(val result=repo.publishVerified("UI Studio editor",snapshot)) {
-                    is PublishResult.VerifiedSuccess -> { if(config==snapshot)config=result.config else config=config.copy(revision=result.config.revision);persist();status.text="Published v${result.version} · fields verified by fresh readback" }
+                val result=repo.publishVerified("UI Studio editor",snapshot)
+                // Save may succeed before publish/readback fails. Keep its revision for a truthful retry.
+                repo.lastServerSavedDraft?.takeIf { it.screens==snapshot.screens && it.branding==snapshot.branding && it.designSystem==snapshot.designSystem }?.let {
+                    config=config.copy(revision=it.revision)
+                    persist()
+                }
+                when(result) {
+                    is PublishResult.VerifiedSuccess -> { if(config.screens==snapshot.screens && config.branding==snapshot.branding && config.designSystem==snapshot.designSystem)config=result.config else config=config.copy(revision=result.config.revision);persist();status.text=if(config==result.config)"Published and verified · v${result.version}" else "Published earlier edit v${result.version} · newer edits unsaved" }
                     is PublishResult.VerificationFailed -> status.text="Publish readback failed · ${result.reason}"
                     is PublishResult.NetworkFailure -> status.text="Publish failed · ${result.error}"
                 }

@@ -176,7 +176,7 @@ test("public /api/ui-studio/published returns empty config safely when not confi
   assert.equal(data.success, true);
   assert.equal(data.data.version, 0);
   assert.equal(data.data.config, null);
-  assert.equal(res.headers.get("cache-control"), "public, max-age=60");
+  assert.equal(res.headers.get("cache-control"), "no-store");
 });
 
 // 3. Admin authorization guard
@@ -471,4 +471,23 @@ test('visual fields are editable on protected native controls while behavior rem
   config.screens.home.components.native_btnNext.appearance=appearance;
   config.screens.home.components.native_btnNext.actions={actionType:'navigate',actionTarget:'home'};
   assert.equal(validateUiStudioConfig(config).valid,false);
+});
+
+test('fresh public readback never permits stale CDN/browser configuration including an empty reset', async () => {
+  const db=new MockUiStudioD1();const {app,env}=createApp(db,{isAdmin:true});
+  const empty=await request(app,env,'/api/ui-studio/published');
+  assert.equal(empty.headers.get('cache-control'),'no-store');
+  await saveAndPublish(app,env,{config:{screens:{home:{components:{native_panelHomeBanner:{appearance:{backgroundColor:'#123456',opacity:.35},material:{blurRadius:22,tintColor:'#FFFFFF',tintOpacity:.2,materialOpacity:.6}}}}}}});
+  const readback=await request(app,env,'/api/ui-studio/published');
+  assert.equal(readback.headers.get('cache-control'),'no-store');
+  const json=await readback.json();assert.equal(json.data.config.screens.home.components.native_panelHomeBanner.appearance.opacity,.35);
+  const conditional=await request(app,env,'/api/ui-studio/published','GET',null,{'if-none-match':readback.headers.get('etag')});
+  assert.equal(conditional.headers.get('cache-control'),'no-store');
+});
+test('validation cannot publish a blur radius the cross-version renderer silently clamps', () => {
+  for(const radius of [26,50]) {
+    const result=validateUiStudioConfig({screens:{home:{components:{native_panelHomeBanner:{material:{blurRadius:radius}}}}}});
+    assert.equal(result.valid,false);assert.ok(result.errors.some(e=>e.includes('25')));
+  }
+  assert.equal(validateUiStudioConfig({screens:{home:{components:{native_panelHomeBanner:{material:{blurRadius:25},appearance:{opacity:0}}}}}}).valid,true);
 });

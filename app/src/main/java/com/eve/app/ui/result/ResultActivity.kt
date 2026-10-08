@@ -81,7 +81,6 @@ class ResultActivity : EveBaseActivity() {
         SecurityHelper.applyScreenProtection(this)
         binding = ActivityResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        applyUiStudioConfig()
 
         onBackPressedDispatcher.addCallback(this) {
             close()
@@ -881,7 +880,4 @@ class ResultActivity : EveBaseActivity() {
         }
     }
 
-    private fun applyUiStudioConfig() {
-        com.eve.app.uistudio.StudioRenderer.apply(binding.root, "result", com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig)
-    }
 }

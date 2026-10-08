@@ -9,6 +9,9 @@ import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.EveApiService
 import com.eve.app.uistudio.UiStudioRegistry
 import com.google.gson.Gson
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -86,6 +89,10 @@ class UiStudioRepository(
         }
     }
 
+    // Serialize network readback and publication: a pre-publish read must finish before publication.
+    private val publishedMutex = Mutex()
+    var lastServerSavedDraft: UiStudioConfig? = null
+        private set
     private val _activeConfigFlow = MutableStateFlow<UiStudioConfig>(loadCachedConfig() ?: UiStudioConfig())
     val activeConfigFlow: StateFlow<UiStudioConfig> = _activeConfigFlow.asStateFlow()
 
@@ -98,7 +105,7 @@ class UiStudioRepository(
     fun loadCachedConfig(): UiStudioConfig? {
         val json = prefs?.getString(KEY_CACHED_CONFIG, null) ?: return null
         return try {
-            gson.fromJson(json, UiStudioConfig::class.java)?.takeIf { validateConfig(it).first }
+            gson.fromJson(json, UiStudioConfig::class.java)?.takeIf { validateConfig(it, allowLegacyBlur=true).first }
         } catch (e: Exception) {
             Log.w(TAG, "Failed to parse cached UI Studio published config", e)
             null
@@ -142,47 +149,37 @@ class UiStudioRepository(
         }
     }
 
-    private fun clearLocalCache() {
-        prefs?.edit()
-            ?.remove(KEY_CACHED_CONFIG)
-            ?.remove(KEY_CACHED_VERSION)
-            ?.remove(KEY_CACHED_DRAFT)
-            ?.remove(KEY_CACHED_DRAFT_VERSION)
-            ?.apply()
-    }
-
     /**
      * Fetches published configuration from backend with offline & error resilience.
      * Guaranteed never to crash or blank the UI.
      */
     suspend fun fetchPublishedConfig(forceRefresh: Boolean = false): UiStudioConfig = withContext(Dispatchers.IO) {
-        if (!forceRefresh && _activeConfigFlow.value.version > 0) {
-            return@withContext _activeConfigFlow.value
-        }
-
-        try {
-            val response = api.getPublishedUiStudioConfig()
-            if (response.success && response.data != null) {
-                val publishedData = response.data
-                val config = publishedData.config
-                if (config != null && validateConfig(config).first) {
-                    saveToLocalCache(config)
-                    _activeConfigFlow.value = config
-                    return@withContext config
-                } else if (config == null) {
-                    val emptyConfig = UiStudioConfig()
-                    saveToLocalCache(emptyConfig)
-                    _activeConfigFlow.value = emptyConfig
-                    return@withContext emptyConfig
+        publishedMutex.withLock {
+            if (!forceRefresh && currentConfig.version > 0) return@withLock currentConfig
+            try {
+                val response = api.getPublishedUiStudioConfig()
+                val data = response.data
+                if (response.success && data != null) {
+                    val config = data.config
+                    if (config != null && config.version == data.version &&
+                        config.version >= currentConfig.version && validateConfig(config, allowLegacyBlur=true).first) {
+                        saveToLocalCache(config)
+                        _activeConfigFlow.value = config
+                    } else if (config == null && data.version == 0) {
+                        // An authoritative server reset, never an error/malformed envelope.
+                        val emptyConfig = UiStudioConfig()
+                        saveToLocalCache(emptyConfig)
+                        _activeConfigFlow.value = emptyConfig
+                    }
                 }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w(TAG, "Published refresh failed; retaining last known good memory/disk state: ${e.message}")
             }
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to fetch published UI Studio config from network: ${e.message}")
+            // Disk initializes memory once. A failing refresh must never roll memory backwards.
+            currentConfig
         }
-
-        val cached = loadCachedConfig() ?: UiStudioConfig()
-        _activeConfigFlow.value = cached
-        cached
     }
 
     // ========================================================================
@@ -241,8 +238,14 @@ class UiStudioRepository(
      * Truthful draft save that distinguishes between server confirmation,
      * offline local caching, and optimistic concurrency conflicts.
      */
+    private fun sameVisualFields(a: UiStudioConfig,b: UiStudioConfig): Boolean =
+        a.screens==b.screens && a.branding==b.branding && a.designSystem==b.designSystem &&
+            a.schemaVersion==b.schemaVersion && a.configVersion==b.configVersion
+
     suspend fun saveDraftDetailed(config: UiStudioConfig, force: Boolean = false): SaveDraftResult = withContext(Dispatchers.IO) {
         saveDraftToLocalCache(config)
+        val validation = validateConfig(config)
+        if (!validation.first) return@withContext SaveDraftResult.Failure(validation.second.joinToString("; "))
         try {
             val response = api.saveAdminUiStudioDraft(
                 SaveDraftRequest(
@@ -255,6 +258,10 @@ class UiStudioRepository(
                 val savedConfig = response.data.config.copy(
                     revision = response.data.revision ?: response.data.config.revision
                 )
+                if (!sameVisualFields(savedConfig,config) || !validateConfig(savedConfig).first) {
+                    return@withContext SaveDraftResult.Failure("Server draft fields differ from the edited configuration; local work retained")
+                }
+                lastServerSavedDraft = savedConfig
                 saveDraftToLocalCache(savedConfig)
                 SaveDraftResult.ServerSuccess(savedConfig)
             } else if (response.error == "NEWER_DRAFT_EXISTS") {
@@ -263,7 +270,7 @@ class UiStudioRepository(
                     message = response.message ?: "A newer draft exists on the server."
                 )
             } else {
-                SaveDraftResult.Failure(response.error ?: "Server rejected draft; local copy retained")
+                SaveDraftResult.Failure(response.message ?: response.error ?: "Server rejected draft; local copy retained")
             }
         } catch (e: retrofit2.HttpException) {
             if (e.code() == 409) {
@@ -274,6 +281,8 @@ class UiStudioRepository(
             } else {
                 SaveDraftResult.Failure("HTTP ${e.code()}: server rejected draft; local copy retained")
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             SaveDraftResult.LocalOfflineSuccess(config, e.localizedMessage ?: "Network unavailable")
         }
@@ -301,42 +310,46 @@ class UiStudioRepository(
      * 4. Confirms active version matches published version.
      */
     suspend fun publishVerified(notes: String, config: UiStudioConfig? = null): PublishResult = withContext(Dispatchers.IO) {
-        val source = config ?: loadCachedDraft() ?: currentConfig
-        val configToPublish = when (val saved = saveDraftDetailed(source)) {
-            is SaveDraftResult.ServerSuccess -> saved.config
-            is SaveDraftResult.Conflict -> return@withContext PublishResult.NetworkFailure("Revision conflict: load the server draft before publishing")
-            is SaveDraftResult.LocalOfflineSuccess -> return@withContext PublishResult.NetworkFailure("Draft is local only: ${saved.error}")
-            is SaveDraftResult.Failure -> return@withContext PublishResult.NetworkFailure(saved.error)
-        }
-        try {
-            val response = api.publishUiStudioConfig(PublishStudioRequest(notes = notes, config = configToPublish))
-            if (!response.success) {
-                return@withContext PublishResult.NetworkFailure(response.error ?: "Publish failed on server")
+        publishedMutex.withLock {
+            val source = config ?: loadCachedDraft() ?: currentConfig
+            val configToPublish = when (val saved = saveDraftDetailed(source)) {
+                is SaveDraftResult.ServerSuccess -> saved.config
+                is SaveDraftResult.Conflict -> return@withLock PublishResult.NetworkFailure("Revision conflict: load the server draft before publishing")
+                is SaveDraftResult.LocalOfflineSuccess -> return@withLock PublishResult.NetworkFailure("Draft is local only: ${saved.error}")
+                is SaveDraftResult.Failure -> return@withLock PublishResult.NetworkFailure(saved.error)
             }
-            val expectedVersion = (response.data?.get("version") as? Number)?.toInt()
-                ?: return@withContext PublishResult.VerificationFailed(0, "Publish response omitted its version")
-            val publishedAt = (response.data?.get("publishedAt") as? Number)?.toLong() ?: System.currentTimeMillis()
+            try {
+                val response = api.publishUiStudioConfig(PublishStudioRequest(notes = notes, config = configToPublish))
+                if (!response.success) {
+                    return@withLock PublishResult.NetworkFailure(response.error ?: "Publish failed on server")
+                }
+                val expectedVersion = (response.data?.get("version") as? Number)?.toInt()
+                    ?: return@withLock PublishResult.VerificationFailed(0, "Publish response omitted its version")
+                val publishedAt = (response.data?.get("publishedAt") as? Number)?.toLong() ?: System.currentTimeMillis()
 
-            // No offline/cache fallback is permitted for publication verification.
-            val readback = try { api.getPublishedUiStudioConfig() } catch (e: Exception) {
-                return@withContext PublishResult.VerificationFailed(expectedVersion, "Fresh readback unavailable: ${e.message}")
+                // No offline/cache fallback is permitted for publication verification.
+                val readback = try { api.getPublishedUiStudioConfig() } catch (e: CancellationException) { throw e } catch (e: Exception) {
+                    return@withLock PublishResult.VerificationFailed(expectedVersion, "Fresh readback unavailable: ${e.message}")
+                }
+                val liveConfig = readback.data?.config
+                if (!readback.success || liveConfig == null) {
+                    return@withLock PublishResult.VerificationFailed(expectedVersion, "Fresh readback returned no configuration")
+                }
+                val sameFields = validateConfig(liveConfig).first && sameVisualFields(liveConfig,source) &&
+                    liveConfig.revision == configToPublish.revision
+                if (expectedVersion>currentConfig.version && liveConfig.version == expectedVersion &&
+                    readback.data.version == expectedVersion && liveConfig.status=="published" && sameFields) {
+                    saveToLocalCache(liveConfig)
+                    _activeConfigFlow.value = liveConfig
+                    PublishResult.VerifiedSuccess(expectedVersion, publishedAt, liveConfig)
+                } else {
+                    PublishResult.VerificationFailed(expectedVersion, "Published version, revision or edited fields differ from this draft")
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                PublishResult.NetworkFailure(e.localizedMessage ?: "Network error during publish")
             }
-            val liveConfig = readback.data?.config
-            if (!readback.success || liveConfig == null) {
-                return@withContext PublishResult.VerificationFailed(expectedVersion, "Fresh readback returned no configuration")
-            }
-            val sameFields = liveConfig.screens == configToPublish.screens &&
-                liveConfig.branding == configToPublish.branding && liveConfig.designSystem == configToPublish.designSystem &&
-                liveConfig.schemaVersion == configToPublish.schemaVersion && liveConfig.revision == configToPublish.revision
-            if (liveConfig.version == expectedVersion && readback.data.version == expectedVersion && sameFields) {
-                saveToLocalCache(liveConfig)
-                _activeConfigFlow.value = liveConfig
-                PublishResult.VerifiedSuccess(expectedVersion, publishedAt, liveConfig)
-            } else {
-                PublishResult.VerificationFailed(expectedVersion, "Published version, revision or edited fields differ from this draft")
-            }
-        } catch (e: Exception) {
-            PublishResult.NetworkFailure(e.localizedMessage ?: "Network error during publish")
         }
     }
 
@@ -369,35 +382,56 @@ class UiStudioRepository(
     }
 
     suspend fun restoreVersion(versionId: Int, target: String = "draft"): Result<Unit> = withContext(Dispatchers.IO) {
-        try {
-            val response = api.restoreUiStudioVersion(versionId, RestoreStudioRequest(target = target, baseRevision = loadCachedDraft()?.revision, publishedVersion = currentConfig.version))
-            if (response.success) {
+        publishedMutex.withLock {
+            try {
+                val response = api.restoreUiStudioVersion(versionId, RestoreStudioRequest(target = target,
+                    baseRevision = loadCachedDraft()?.revision, publishedVersion = currentConfig.version))
+                check(response.success) { response.message ?: response.error ?: "Failed to restore version" }
                 if (target == "publish") {
-                    fetchPublishedConfig(forceRefresh = true)
+                    val expected=(response.data?.get("version") as? Number)?.toInt() ?: error("Restore omitted its published version")
+                    val fresh=api.getPublishedUiStudioConfig()
+                    val restored=fresh.data?.config
+                    check(fresh.success && restored!=null && fresh.data.version==expected &&
+                        restored.version==expected && expected>currentConfig.version && validateConfig(restored).first) {
+                        "Restore not verified by fresh published readback; last good styling retained"
+                    }
+                    saveToLocalCache(restored)
+                    _activeConfigFlow.value=restored
+                } else {
+                    val fresh=api.getAdminUiStudioDraft()
+                    val restored=fresh.data?.config
+                    check(fresh.success && restored!=null && validateConfig(restored).first) { "Restored draft readback failed" }
+                    saveDraftToLocalCache(restored)
                 }
                 Result.success(Unit)
-            } else {
-                Result.failure(Exception(response.error ?: "Failed to restore version"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
+            } catch (e: CancellationException) { throw e }
+            catch (e: Exception) { Result.failure(e) }
         }
     }
 
     suspend fun reset(target: String = "all"): Result<Unit> = withContext(Dispatchers.IO) {
-        try {
-            val response = api.resetUiStudioConfig(ResetStudioRequest(target = target, baseRevision = loadCachedDraft()?.revision, publishedVersion = currentConfig.version))
-            if (response.success) {
+        publishedMutex.withLock {
+            try {
+                val response = api.resetUiStudioConfig(ResetStudioRequest(target = target,
+                    baseRevision = loadCachedDraft()?.revision, publishedVersion = currentConfig.version))
+                check(response.success) { response.message ?: response.error ?: "Reset failed" }
                 if (target == "published" || target == "all") {
-                    clearLocalCache()
-                    _activeConfigFlow.value = UiStudioConfig()
+                    val fresh=api.getPublishedUiStudioConfig()
+                    check(fresh.success && fresh.data?.version==0 && fresh.data.config==null) {
+                        "Reset not verified by fresh published readback; last good styling retained"
+                    }
+                    val empty=UiStudioConfig()
+                    saveToLocalCache(empty)
+                    _activeConfigFlow.value=empty
+                }
+                if (target == "draft" || target == "all") {
+                    // Remove only the reset draft. A published-only reset must retain local editing work.
+                    prefs?.edit()?.remove(KEY_CACHED_DRAFT)?.remove(KEY_CACHED_DRAFT_VERSION)?.apply()
+                    lastServerSavedDraft=null
                 }
                 Result.success(Unit)
-            } else {
-                Result.failure(Exception(response.error ?: "Reset failed"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
+            } catch (e: CancellationException) { throw e }
+            catch (e: Exception) { Result.failure(e) }
         }
     }
 
@@ -439,11 +473,11 @@ class UiStudioRepository(
     /**
      * Validates configuration schema.
      */
-    fun validateConfig(config: UiStudioConfig?): Pair<Boolean, List<String>> = try {
-        validateConfigFields(config)
+    fun validateConfig(config: UiStudioConfig?, allowLegacyBlur: Boolean = false): Pair<Boolean, List<String>> = try {
+        validateConfigFields(config, allowLegacyBlur)
     } catch (_: Exception) { false to listOf("Malformed configuration: required object is null or invalid") }
 
-    private fun validateConfigFields(config: UiStudioConfig?): Pair<Boolean, List<String>> {
+    private fun validateConfigFields(config: UiStudioConfig?, allowLegacyBlur: Boolean): Pair<Boolean, List<String>> {
         val errors = mutableListOf<String>()
         if (config == null) {
             return Pair(false, listOf("Configuration is null"))
@@ -510,7 +544,7 @@ class UiStudioRepository(
                 // Material / Glass Validation
                 val mat = comp.material
                 mat.blurRadius?.let {
-                    if (it !in 0..50) errors.add("Invalid blurRadius ($it) in $screenKey.$compKey")
+                    if (it !in 0..(if(allowLegacyBlur)50 else 25)) errors.add("Invalid blurRadius ($it) in $screenKey.$compKey")
                 }
                 mat.materialOpacity?.let {
                     if (it !in 0.0f..1.0f) errors.add("Invalid materialOpacity ($it) in $screenKey.$compKey")
@@ -558,7 +592,7 @@ class UiStudioRepository(
             }
         }
 
-        errors += com.eve.app.uistudio.StudioPolicy.validate(config)
+        errors += com.eve.app.uistudio.StudioPolicy.validate(config, allowLegacyBlur)
         return Pair(errors.isEmpty(), errors)
     }
 

@@ -59,6 +59,7 @@ class CircularTimerView @JvmOverloads constructor(
         typeface = ResourcesCompat.getFont(context, R.font.poppins_semibold) ?: Typeface.DEFAULT_BOLD
     }
 
+    private val nativeTextTypeface=textPaint.typeface
     private val oval = RectF()
     private val argbEvaluator = ArgbEvaluator()
 
@@ -90,7 +91,7 @@ class CircularTimerView @JvmOverloads constructor(
 
         // 1. Background ring track
         val nc = normalColor
-        trackPaint.color = Color.argb(64, Color.red(nc), Color.green(nc), Color.blue(nc))
+        trackPaint.color = trackColorOverride ?: Color.argb(64, Color.red(nc), Color.green(nc), Color.blue(nc))
         canvas.drawOval(oval, trackPaint)
         // 2. Depleting progress arc
         val sweepAngle = 360f * currentProgress
@@ -148,7 +149,7 @@ class CircularTimerView @JvmOverloads constructor(
             colorAnimator = null
             currentColor = targetColor
             progressPaint.color = targetColor
-            textPaint.color = targetColor
+            textPaint.color = textColorOverride ?: targetColor
             invalidate()
             return
         }
@@ -160,7 +161,7 @@ class CircularTimerView @JvmOverloads constructor(
                     val c = va.animatedValue as Int
                     currentColor = c
                     progressPaint.color = c
-                    textPaint.color = c
+                    textPaint.color = textColorOverride ?: c
                     invalidate()
                 }
                 addListener(object : android.animation.AnimatorListenerAdapter() {
@@ -171,6 +172,17 @@ class CircularTimerView @JvmOverloads constructor(
                 start()
             }
         }
+        invalidate()
+    }
+
+    fun setStudioTypography(typography: com.eve.app.data.model.uistudio.TypographyProperties?) {
+        textPaint.textSize=sp(typography?.textSize?.toFloat() ?: 13f)
+        val style=when(typography?.textStyle) {
+            "normal" -> Typeface.NORMAL; "italic" -> Typeface.ITALIC
+            "bold_italic" -> Typeface.BOLD_ITALIC; else -> Typeface.BOLD
+        }
+        textPaint.typeface=typography?.fontFamily?.let { Typeface.create(it,style) }
+            ?: typography?.textStyle?.let { Typeface.create(nativeTextTypeface,style) } ?: nativeTextTypeface
         invalidate()
     }
 
@@ -194,8 +206,8 @@ class CircularTimerView @JvmOverloads constructor(
         if (colorAnimator == null && currentColor != warningColor) {
             currentColor = nc
             progressPaint.color = normalColor
-            textPaint.color = nc
         }
+        textPaint.color = textColorOverride ?: currentColor
         invalidate()
     }
 

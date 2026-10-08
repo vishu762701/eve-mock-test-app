@@ -44,6 +44,12 @@ class StudioRepositoryFunctionalTest {
                     published=(args!![0] as PublishStudioRequest).config!!.copy(version=(published?.version ?: 0)+1,status="published")
                     ApiResponse(true,mapOf("version" to published!!.version,"publishedAt" to 1L))
                 }
+                "resetUiStudioConfig" -> {
+                    val target=(args!![0] as ResetStudioRequest).target
+                    if(target!="draft")published=null
+                    if(target!="published")draft=null
+                    ApiResponse<Any>(true)
+                }
                 "getPublishedUiStudioConfig" -> ApiResponse(true,UiStudioPublishedResponse(version=published?.version ?: 0,config=if(corruptReadback)published?.copy(screens=emptyMap())else published))
                 else -> error("Unexpected local API method ${method.name}")
             }
@@ -80,6 +86,9 @@ class StudioRepositoryFunctionalTest {
         admin.saveDraftToLocalCache(edited)
         assertEquals(verified.config,student.currentConfig)
         offline=true
+        val restarted=UiStudioRepository(api,context)
+        assertEquals(verified.config,restarted.currentConfig)
+        assertEquals(verified.config,restarted.fetchPublishedConfig(true))
         assertEquals(verified.config,student.fetchPublishedConfig(true))
         // Fresh student readback renders through the same production path, not only DTO equality.
         androidx.test.core.app.ActivityScenario.launch(com.eve.app.ui.admin.uistudio.UiStudioActivity::class.java).use { scenario->
@@ -95,5 +104,12 @@ class StudioRepositoryFunctionalTest {
         offline=false;corruptReadback=true
         assertTrue(admin.publishVerified("Deliberately mismatched readback",edited) is PublishResult.VerificationFailed)
         assertEquals(verified.config,admin.currentConfig)
+        corruptReadback=false
+        val retainedDraft=admin.loadCachedDraft()
+        assertTrue(admin.reset("published").isSuccess)
+        assertEquals(UiStudioConfig(),admin.currentConfig)
+        assertEquals(retainedDraft,admin.loadCachedDraft())
+        assertTrue(admin.reset("draft").isSuccess)
+        assertNull(admin.loadCachedDraft())
     }
 }

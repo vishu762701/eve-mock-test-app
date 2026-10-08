@@ -377,21 +377,8 @@ class MainActivity : EveBaseActivity() {
                         binding.tvOfflineBanner.visibility = if (online) View.GONE else View.VISIBLE
                     }
                 }
-                launch {
-                    com.eve.app.data.repository.UiStudioRepository.getInstance().activeConfigFlow.collect { config ->
-                        applyUiStudioConfig(config)
-                    }
-                }
             }
         }
-
-        lifecycleScope.launch(lifecycleExceptionHandler) {
-            com.eve.app.data.repository.UiStudioRepository.getInstance().fetchPublishedConfig()
-        }
-    }
-
-    private fun applyUiStudioConfig(config: com.eve.app.data.model.uistudio.UiStudioConfig) {
-        com.eve.app.uistudio.StudioRenderer.apply(binding.root, "home", config)
     }
 
     override fun onResume() {

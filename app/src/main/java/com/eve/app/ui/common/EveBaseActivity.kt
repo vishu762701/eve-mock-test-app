@@ -24,7 +24,7 @@ abstract class EveBaseActivity : AppCompatActivity() {
 
     private var activityFontVersion: Int = 0
     private var studioRoot: View? = null
-    private var studioListener: ViewTreeObserver.OnGlobalLayoutListener? = null
+    private var studioListener: ViewTreeObserver.OnPreDrawListener? = null
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
@@ -32,19 +32,27 @@ abstract class EveBaseActivity : AppCompatActivity() {
         val root = findViewById<ViewGroup>(android.R.id.content).getChildAt(0) ?: return
         studioRoot = root
         val repository = UiStudioRepository.getInstance()
-        studioListener = ViewTreeObserver.OnGlobalLayoutListener {
+        // Rebinding may change fill/alpha without a layout. Reconcile before visible pixels draw.
+        val listener = ViewTreeObserver.OnPreDrawListener {
             StudioRenderer.apply(root, screen.key, repository.currentConfig)
-        }.also { root.viewTreeObserver.addOnGlobalLayoutListener(it) }
+            true
+        }
+        studioListener = listener
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch { repository.activeConfigFlow.collect { StudioRenderer.apply(root, screen.key, it) } }
-                launch { repository.fetchPublishedConfig(forceRefresh = true) }
+                root.viewTreeObserver.addOnPreDrawListener(listener)
+                try {
+                    launch { repository.fetchPublishedConfig(forceRefresh = true) }
+                    repository.activeConfigFlow.collect { StudioRenderer.apply(root, screen.key, it) }
+                } finally {
+                    if (root.viewTreeObserver.isAlive) root.viewTreeObserver.removeOnPreDrawListener(listener)
+                }
             }
         }
     }
 
     override fun onDestroy() {
-        studioListener?.let { studioRoot?.viewTreeObserver?.removeOnGlobalLayoutListener(it) }
+        studioListener?.let { studioRoot?.viewTreeObserver?.removeOnPreDrawListener(it) }
         studioRoot = null
         super.onDestroy()
     }

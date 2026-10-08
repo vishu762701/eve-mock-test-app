@@ -114,8 +114,8 @@ export function validateUiStudioConfig(config: any): { valid: boolean; errors: s
           // Check Material / Glass (including Blur control)
           if (comp.material && typeof comp.material === "object") {
             const mat = comp.material;
-            if (mat.blurRadius !== undefined && (typeof mat.blurRadius !== "number" || mat.blurRadius < 0 || mat.blurRadius > 50)) {
-              errors.push(`Invalid blurRadius in ${screenKey}.${compKey} (must be 0-50)`);
+            if (mat.blurRadius !== undefined && (typeof mat.blurRadius !== "number" || mat.blurRadius < 0 || mat.blurRadius > 25)) {
+              errors.push(`Invalid blurRadius in ${screenKey}.${compKey} (must be 0-25)`);
             }
             if (mat.materialOpacity !== undefined && (typeof mat.materialOpacity !== "number" || mat.materialOpacity < 0 || mat.materialOpacity > 1)) {
               errors.push(`Invalid materialOpacity in ${screenKey}.${compKey} (must be 0.0 to 1.0)`);
@@ -191,7 +191,7 @@ publicUiStudioRoutes.get("/published", async (c) => {
       .first<UiStudioPublishedRow>();
 
     if (!row || !row.config_json) {
-      c.header("Cache-Control", "public, max-age=60");
+      c.header("Cache-Control", "no-store");
       return c.json({
         success: true,
         data: {
@@ -212,14 +212,14 @@ publicUiStudioRoutes.get("/published", async (c) => {
         status: 304,
         headers: {
           ETag: etag,
-          "Cache-Control": "public, max-age=60",
+          "Cache-Control": "no-store",
         },
       });
     }
 
     const config = JSON.parse(row.config_json);
     c.header("ETag", etag);
-    c.header("Cache-Control", "public, max-age=60");
+    c.header("Cache-Control", "no-store");
     return c.json({
       success: true,
       data: {

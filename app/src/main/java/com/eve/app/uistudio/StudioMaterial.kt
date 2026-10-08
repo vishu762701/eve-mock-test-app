@@ -21,6 +21,8 @@ import java.lang.ref.WeakReference
 
 /** Backdrop-only hosts draw before foreground. Native views/IDs/layout params and actions stay in place. */
 object StudioMaterial {
+    fun bannerMatte(view: View): View? = if(view.id==R.id.panelHomeBanner)
+        view.findViewById(R.id.homeBannerMatte) else null
     private fun container(v:View?)=v is LinearLayout && v.showDividers==LinearLayout.SHOW_DIVIDER_NONE || v is ConstraintLayout || v is FrameLayout && v !is ScrollView && v !is androidx.core.widget.NestedScrollView && v !is BlurView && v !is androidx.recyclerview.widget.RecyclerView && v !is androidx.viewpager2.widget.ViewPager2
     fun supported(view:View?)=container(view) || view is Button && container(view.parent as? View)
     private class Effect(val blur:BlurView,val host:View,val parent:ViewGroup,target:View,val sibling:Boolean):ViewTreeObserver.OnPreDrawListener {
@@ -59,6 +61,7 @@ object StudioMaterial {
         val radius=config.material.blurRadius ?: 0
         if(radius==0 || !supported(view)){
             effect?.remove();view.setTag(R.id.studio_material_effect,null)
+            bannerMatte(view)?.let { StudioBaseline.visibility(it,false) }
             (view as? ViewGroup)?.let { host->(0 until host.childCount).map{host.getChildAt(it)}.filterIsInstance<BlurView>().forEach{StudioBaseline.visibility(it,false)} }
             return
         }
@@ -70,7 +73,7 @@ object StudioMaterial {
             val blur=BlurView(view.context).apply{tag="studio_backdrop";importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO;isClickable=false;isFocusable=false}
             val direct=view is FrameLayout && !sibling
             val host=if(direct)blur else FrameLayout(view.context).apply{tag="studio_glass_host";importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO;addView(blur,FrameLayout.LayoutParams(-1,-1))}
-            val index=if(sibling)parent.indexOfChild(view) else 0
+            val index=if(sibling)parent.indexOfChild(view) else bannerMatte(view)?.let { parent.indexOfChild(it) } ?: 0
             parent.addView(host,index,if(direct)FrameLayout.LayoutParams(-1,-1) else parameters(parent,view.width,view.height,sibling))
             if(Build.VERSION.SDK_INT>=31)blur.setupWith(root,RenderEffectBlur()) else blur.setupWith(root)
             effect=Effect(blur,host,parent,view,sibling)
@@ -78,6 +81,7 @@ object StudioMaterial {
             parent.viewTreeObserver.addOnPreDrawListener(effect)
         }
         effect.config=config
+        bannerMatte(view)?.let { StudioBaseline.visibility(it,true) }
         (view as? ViewGroup)?.let { host->(0 until host.childCount).map{host.getChildAt(it)}.filterIsInstance<BlurView>().filter{it!==effect.blur}.forEach{StudioBaseline.visibility(it,true)} }
         // Preserve MaterialButton's own ripple and shape; only its fill becomes transparent.
         if(view is MaterialCardView)view.setCardBackgroundColor(Color.TRANSPARENT)

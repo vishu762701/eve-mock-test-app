@@ -21,11 +21,21 @@ object StudioVisual {
     private fun alpha(color: Int, multiplier: Float) = (color and 0xffffff) or ((Color.alpha(color)*multiplier).toInt().coerceIn(0,255) shl 24)
     fun apply(v: View,c: ComponentConfig) {
         val a=c.appearance;val m=c.material;val s=c.states
+        // Home's images and matte draw above the parent background. Edit the visible matte surface.
+        StudioMaterial.bannerMatte(v)?.let { matte ->
+            UiStudioEngine.applyToView(matte, c.copy(
+                id="native_homeBannerMatte",
+                appearance=com.eve.app.data.model.uistudio.AppearanceProperties(backgroundColor=a.backgroundColor),
+                material=m.copy(blurRadius=null), typography=com.eve.app.data.model.uistudio.TypographyProperties(),
+                layout=com.eve.app.data.model.uistudio.LayoutProperties(),
+                animation=com.eve.app.data.model.uistudio.AnimationProperties()))
+        }
         val blur=(m.blurRadius ?: 0)>0 && StudioMaterial.supported(v)
         val fill=UiStudioEngine.parseColorSafe(a.backgroundColor)
-        val tint=UiStudioEngine.parseColorSafe(m.tintColor)
+        val tint=UiStudioEngine.parseColorSafe(m.tintColor) ?: if(m.tintOpacity!=null)
+            if((v.resources.configuration.uiMode and 0x30)==0x20)Color.BLACK else Color.WHITE else null
         val existing=(v as? MaterialCardView)?.cardBackgroundColor?.defaultColor ?: v.backgroundTintList?.defaultColor ?: (v.background?.current as? ColorDrawable)?.color ?: (v.background?.current as? GradientDrawable)?.color?.defaultColor ?: (v.background?.current as? com.google.android.material.shape.MaterialShapeDrawable)?.fillColor?.defaultColor ?: Color.TRANSPARENT
-        val tinted=tint?.let{androidx.core.graphics.ColorUtils.compositeColors(alpha(it,m.tintOpacity ?: 1f),fill ?: existing)} ?: (fill ?: existing)
+        val tinted=tint?.let{androidx.core.graphics.ColorUtils.compositeColors(alpha(it,m.tintOpacity ?: .2f),fill ?: existing)} ?: (fill ?: existing)
         val surface=alpha(tinted,m.materialOpacity ?: 1f)
         val entries=mutableListOf<Pair<IntArray,Int>>()
         val nativeColors=(v as? MaterialCardView)?.cardBackgroundColor ?: v.backgroundTintList
@@ -89,8 +99,13 @@ object StudioVisual {
         if(a.cornerRadius!=null || a.shape!=null) {
             v.outlineProvider=object:ViewOutlineProvider(){override fun getOutline(view:View,outline:Outline){outline.setRoundRect(0,0,view.width,view.height,radius(view,c))}}
             v.clipToOutline=true
-            if(v is MaterialButton && a.shape in listOf("capsule","circle"))v.post { v.cornerRadius=radius(v,c).toInt() }
-            if(v is MaterialCardView && a.shape in listOf("capsule","circle"))v.post { v.radius=radius(v,c) }
+            if(a.shape in listOf("capsule","circle")) {
+                fun updateRadius() {
+                    if(v is MaterialButton)v.cornerRadius=radius(v,c).toInt()
+                    if(v is MaterialCardView)v.radius=radius(v,c)
+                }
+                if(v.width>0 && v.height>0)updateRadius() else v.post { updateRadius() }
+            }
         }
         if(a.highlightColor!=null || (a.strokeWidth ?: 0)>0 && v !is MaterialCardView && v !is MaterialButton) {
             val edge=Edge(c,density)

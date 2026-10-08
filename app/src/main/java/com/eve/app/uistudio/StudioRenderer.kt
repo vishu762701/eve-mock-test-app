@@ -22,10 +22,24 @@ object StudioRenderer {
         val protected get() = StudioPolicy.behaviorProtected(id) // Native structure/actions are owned by the app.
     }
     private val nativeLabels = WeakHashMap<TextView,CharSequence>()
-    private val entered = WeakHashMap<View,Boolean>()
+    private val entered = WeakHashMap<View,AnimationProperties>()
+    private val componentEntrances = WeakHashMap<View,AnimationProperties>()
     private val applied = WeakHashMap<View, ComponentConfig>()
-    private fun fingerprint(v: View): List<Any?> = listOf(v.background,(v as? TextView)?.textColors,(v as? TextView)?.textSize,(v as? TextView)?.typeface,v.elevation,v.paddingLeft,v.paddingTop,v.paddingRight,v.paddingBottom,v.layoutParams?.width,v.layoutParams?.height,v.backgroundTintList,(v as? ImageView)?.imageTintList,(v as? ImageView)?.colorFilter)
+    private fun fingerprint(v: View, config: ComponentConfig?): List<Any?> {
+        val card = v as? com.google.android.material.card.MaterialCardView
+        val button = v as? com.google.android.material.button.MaterialButton
+        val margins = v.layoutParams as? ViewGroup.MarginLayoutParams
+        return listOf(v.background, (v as? TextView)?.textColors, (v as? TextView)?.textSize,
+            (v as? TextView)?.typeface, v.elevation, v.paddingLeft, v.paddingTop, v.paddingRight,
+            v.paddingBottom, v.layoutParams?.width, v.layoutParams?.height,
+            margins?.leftMargin, margins?.topMargin, margins?.rightMargin, margins?.bottomMargin, margins?.marginStart, margins?.marginEnd,
+            StudioInteraction.stableColors(v), config?.appearance?.opacity?.let { UiStudioEngine.stableAlpha(v) },
+            card?.radius, card?.strokeWidth, card?.strokeColorStateList,
+            button?.cornerRadius, button?.strokeWidth, button?.strokeColor, button?.iconTint,
+            (v as? ImageView)?.imageTintList, (v as? ImageView)?.colorFilter)
+    }
     private val aliases = mapOf(
+        "native_path_panelHomeBanner_View_0" to "homeBannerMatte",
         "hero_banner" to "panelHomeBanner", "streak_pill" to "layoutStreakPill", "search_bar" to "btnSearch", "find_test_panel" to "btnSearch",
         "timer_pill" to "timerCapsuleHost", "question_card" to "questionContainer", "question_text" to "tvQuestion",
         "bottom_actions" to "layoutBottomBar", "action_grid" to "layoutBottomBar", "score_card" to "cardResultHero",
@@ -36,7 +50,7 @@ object StudioRenderer {
         val index=if(v.parent is RecyclerView)0 else siblings.indexOf(v).coerceAtLeast(0)
         return "native_path_${parent?.removePrefix("native_") ?: "root"}_${v.javaClass.simpleName}_$index"
     }
-    private fun meaningful(v:View)=v is TextView || v is ImageView || v is ViewGroup && v.background!=null
+    private fun meaningful(v:View)=v is TextView || v is ImageView || v is ViewGroup
     fun elements(root: View): List<Element> {
         val out = mutableListOf<Element>()
         fun walk(v: View, parent: String?, repeated: Boolean, path:String?) {
@@ -63,11 +77,18 @@ object StudioRenderer {
         val inherited = when(e.id) {
             "native_tvStreakSummary" -> "streak_pill"
             "native_circularTimerView" -> "timer_pill"
+            "native_tvScore", "native_tvScorePercentage" -> "score_card"
             "native_btnClear","native_btnMarkReview","native_btnPrev","native_btnNext" -> "action_buttons"
             "native_rbA","native_rbB","native_rbC","native_rbD" -> "option_item"
             else -> null
         }
-        return (keysFor(e.id)+listOfNotNull(inherited)).firstNotNullOfOrNull { components[it] }?.copy(id=e.id)
+        val direct=keysFor(e.id).firstNotNullOfOrNull { components[it] }
+        if(direct!=null)return direct.copy(id=e.id)
+        val source=inherited?.let { components[it] } ?: return null
+        if(inherited=="score_card")return ComponentConfig(id=e.id,typography=source.typography)
+        if(e.id=="native_circularTimerView")return ComponentConfig(id=e.id,typography=source.typography,
+            appearance=AppearanceProperties(strokeColor=source.appearance.strokeColor),states=source.states)
+        return source.copy(id=e.id)
     }
     fun defaults(e: Element) = ComponentConfig(id=e.id, name=e.label, type=when(e.view) {
         is Button -> "button"; is TextView -> "text"; is ImageView -> "image"; else -> "card"
@@ -75,7 +96,12 @@ object StudioRenderer {
 
     fun apply(root: View, screenKey: String, config: UiStudioConfig, sandbox: ((ActionProperties)->Unit)? = null, force: Boolean = false): List<Element> {
         val screen = config.screens[screenKey]
-        if(!force && entered.put(root,true)==null && screen?.animation?.enabled==true) root.post { UiStudioEngine.playEntranceAnimation(root,screen.animation) }
+        if(!force && screen?.animation?.enabled==true && entered[root]!=screen.animation) {
+            entered[root]=screen.animation
+            root.post { UiStudioEngine.playEntranceAnimation(root,screen.animation) }
+        } else if(screen?.animation?.enabled!=true) {
+            if(entered.remove(root)!=null)UiStudioEngine.cancelMotion(root)
+        }
         val backgroundTarget = root.findViewById<View>(com.eve.app.R.id.mainContentContainer) ?: root
         val background = screen?.backgroundColor ?: config.designSystem.appBackground.takeIf { config.designSystem.enabled }
         if (backgroundTarget.id == View.NO_ID) {
@@ -98,29 +124,63 @@ object StudioRenderer {
                 typography=source.typography.copy(textColor=source.typography.textColor ?: globalText), animation=source.animation.copy(enabled=false)
             ) else null
             val previous = applied[e.view]
-            if (safe != null && (safe != previous || force || e.view.getTag(com.eve.app.R.id.studio_render_fingerprint) != fingerprint(e.view))) {
+            if (safe != null && (safe != previous || force || e.view.getTag(com.eve.app.R.id.studio_render_fingerprint) != fingerprint(e.view,safe))) {
+                StudioBaseline.refreshNative(e.view)
                 UiStudioEngine.applyToView(e.view,safe)
                 applied[e.view]=safe
-                if(e.view is com.eve.app.ui.common.CircularTimerView) e.view.setTimerColors(safe.appearance.strokeColor ?: safe.typography.textColor,safe.states.disabledBackgroundColor,safe.appearance.strokeColor,safe.typography.textColor)
-                e.view.setTag(com.eve.app.R.id.studio_render_fingerprint,fingerprint(e.view))
-                if (c?.animation?.enabled == true && previous == null) UiStudioEngine.playEntranceAnimation(e.view,c.animation)
+                if(e.view is com.eve.app.ui.common.CircularTimerView) e.view.setTimerColors(safe.appearance.strokeColor ?: safe.typography.textColor,safe.states.disabledBackgroundColor,safe.appearance.strokeColor,safe.typography.textColor).also { e.view.setStudioTypography(safe.typography) }
+                e.view.setTag(com.eve.app.R.id.studio_render_fingerprint,fingerprint(e.view,safe))
             } else if (safe == null && previous != null && previous.id != "screen") {
+                StudioBaseline.refreshNative(e.view)
                 UiStudioEngine.applyToView(e.view,defaults(e))
-                if(e.view is com.eve.app.ui.common.CircularTimerView)e.view.setTimerColors(null,null,null,null)
+                if(e.view is com.eve.app.ui.common.CircularTimerView)e.view.setTimerColors(null,null,null,null).also { e.view.setStudioTypography(null) }
                 applied.remove(e.view);e.view.setTag(com.eve.app.R.id.studio_render_fingerprint,null)
+            }
+            if(c?.animation?.enabled==true && componentEntrances[e.view]!=c.animation) {
+                componentEntrances[e.view]=c.animation
+                UiStudioEngine.playEntranceAnimation(e.view,c.animation)
+            } else if(c?.animation?.enabled!=true && componentEntrances.remove(e.view)!=null) {
+                UiStudioEngine.cancelMotion(e.view)
             }
             if (e.view is TextView && e.id in setOf("native_tvLogo","native_tvAppName")) {
                 val text = nativeLabels.getOrPut(e.view) { e.view.text }
-                if(config.branding.enabled) {
-                    e.view.text = if(e.id=="native_tvLogo")config.branding.shortName else config.branding.appDisplayName
-                    UiStudioEngine.parseColorSafe(config.branding.brandColor)?.let { e.view.setTextColor(it) }
-                } else if(c?.content?.title != null) e.view.text = c.content.title else e.view.text=text
+                val desired = if(config.branding.enabled) {
+                    if(e.id=="native_tvLogo")config.branding.shortName else config.branding.appDisplayName
+                } else c?.content?.title ?: text
+                if(e.view.text.toString()!=desired.toString())e.view.text=desired
             }
         }
         if (root is ViewGroup && !force) syncInsertions(root,components,sandbox)
         list=elements(root)
         return list
     }
+    /** Publication preflight uses the real layout and adapter views, not the requested type label. */
+    fun unsupported(root: View, screenKey: String, config: UiStudioConfig): List<String> {
+        val list=elements(root)
+        return config.screens[screenKey]?.components.orEmpty().flatMap { (key,c) ->
+            val targets=list.filter { key in keysFor(it.id) || configuration(it,mapOf(key to c))!=null }
+            if(targets.isEmpty()) return@flatMap listOf("$screenKey.$key: no matching production view")
+            targets.flatMap { e ->
+                val errors=mutableListOf<String>()
+                val prefix="$screenKey.$key: Unsupported property"
+                if((c.material.blurRadius ?: 0)>25) errors += "$prefix blur radius above 25; reduce it to the supported range"
+                if((c.material.blurRadius ?: 0)>0 && !StudioMaterial.supported(e.view))
+                    errors += "$prefix backdrop blur; select a containing card/panel or button in a supported parent"
+                val legacyTypographyHost=key in setOf("timer_pill","score_card") && key in keysFor(e.id)
+                if(c.typography!=TypographyProperties() && !legacyTypographyHost && e.view !is TextView && e.view !is com.eve.app.ui.common.CircularTimerView)
+                    errors += "$prefix typography; select the child text element"
+                if(e.view is com.eve.app.ui.common.CircularTimerView && (c.typography.textAlign!=null || c.typography.maxLines!=null))
+                    errors += "$prefix timer alignment/line count; the countdown stays centered on one line"
+                if(c.states.selectedTextColor!=null && e.view !is TextView)
+                    errors += "$prefix selected text color; select the child text element"
+                if(c.appearance.iconTint!=null && e.view !is ImageView && e.view !is com.google.android.material.button.MaterialButton &&
+                    (e.view as? TextView)?.compoundDrawables?.any { it!=null }!=true)
+                    errors += "$prefix icon tint; select the child icon/image"
+                errors
+            }
+        }.distinct()
+    }
+
     private class InsertionViewport(context: android.content.Context): ScrollView(context) {
         override fun onMeasure(widthMeasureSpec: Int,heightMeasureSpec: Int) {
             val available=(rootView.height.takeIf{it>0} ?: resources.displayMetrics.heightPixels)/3

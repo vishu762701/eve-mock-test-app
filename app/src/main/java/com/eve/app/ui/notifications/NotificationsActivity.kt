@@ -43,11 +43,6 @@ class NotificationsActivity : EveBaseActivity() {
         listenToNotifications()
 
         NotificationStore.markAllRead(this)
-        applyUiStudioConfig()
-    }
-
-    private fun applyUiStudioConfig() {
-        com.eve.app.uistudio.StudioRenderer.apply(binding.root, "notifications", com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

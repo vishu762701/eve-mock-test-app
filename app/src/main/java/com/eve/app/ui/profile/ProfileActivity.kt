@@ -159,12 +159,6 @@ class ProfileActivity : EveBaseActivity() {
         binding.switchReminder.setOnCheckedChangeListener { _, isChecked ->
             ReminderScheduler.setEnabled(this, isChecked)
         }
-
-        applyUiStudioConfig()
-    }
-
-    private fun applyUiStudioConfig() {
-        com.eve.app.uistudio.StudioRenderer.apply(binding.root, "profile", com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig)
     }
 
     private fun setupDobPicker() {

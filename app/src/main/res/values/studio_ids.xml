@@ -1,4 +1,5 @@
 <resources>
+    <item name="studio_baseline_rendered" type="id" />
     <item name="studio_material_effect" type="id" />
     <item name="studio_baseline_style" type="id" />
     <item name="studio_render_fingerprint" type="id" />

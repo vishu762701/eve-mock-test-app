@@ -120,11 +120,6 @@ class LoginActivity : EveBaseActivity() {
             }
         }
         playEntranceAnimation()
-        applyUiStudioConfig()
-    }
-
-    private fun applyUiStudioConfig() {
-        com.eve.app.uistudio.StudioRenderer.apply(binding.root, "login", com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig)
     }
 
     private fun playEntranceAnimation() {

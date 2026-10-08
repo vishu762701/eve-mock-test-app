@@ -60,7 +60,10 @@ export function validateStudioPolicy(config: any): string[] {
       if(press!=null && (typeof press!=='number' || !Number.isFinite(press) || press<.85 || press>1))errors.push(`${key}: invalid press scale`);
       if(c.animation?.stateTransitionMs!=null && (!Number.isInteger(c.animation.stateTransitionMs) || c.animation.stateTransitionMs<0 || c.animation.stateTransitionMs>600))errors.push(`${key}: state transition must be 0–600 ms`);
       for(const flag of ['springRelease','hapticFeedback']) if(c.animation?.[flag]!=null && typeof c.animation[flag]!=='boolean')errors.push(`${key}: invalid interaction flag`);
-      if (c.material?.blurRadius != null && (!Number.isInteger(c.material.blurRadius) || c.material.blurRadius < 0 || c.material.blurRadius > 50)) errors.push(`${key}: blur must be 0–50`);
+      if (c.material?.blurRadius != null && (!Number.isInteger(c.material.blurRadius) || c.material.blurRadius < 0 || c.material.blurRadius > 25)) errors.push(`${key}: blur must be 0–25`);
+      if(c.typography?.textStyle!=null && !['normal','bold','italic','bold_italic'].includes(c.typography.textStyle))errors.push(`${key}: unsupported text style`);
+      if(c.typography?.textAlign!=null && !['start','left','center','end','right'].includes(c.typography.textAlign))errors.push(`${key}: unsupported text alignment`);
+      if(c.animation?.interpolator!=null && !['standard','ease_in','ease_out','spring','accelerate','decelerate','overshoot'].includes(c.animation.interpolator))errors.push(`${key}: unsupported response curve`);
       if (c.typography?.fontFamily && !['sans-serif','serif','monospace'].includes(c.typography.fontFamily)) errors.push(`${key}: unsupported font`);
       if (c.animation?.type && !['fade','scale','fade_scale','slide','pop'].includes(c.animation.type)) errors.push(`${key}: unsupported animation`);
       for (const value of [c.material?.materialOpacity,c.material?.tintOpacity,c.appearance?.opacity]) {

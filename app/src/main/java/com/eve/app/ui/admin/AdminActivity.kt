@@ -128,12 +128,7 @@ class AdminActivity : EveBaseActivity() {
             }
             binding.progressBarAdmin.visibility = View.GONE
             setupUi()
-            applyUiStudioConfig()
         }
-    }
-
-    private fun applyUiStudioConfig() {
-        com.eve.app.uistudio.StudioRenderer.apply(binding.root, "admin", com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig)
     }
 
     private fun setupUi() {

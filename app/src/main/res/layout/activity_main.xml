@@ -246,6 +246,7 @@
                 android:overScrollMode="never" />
 
             <View
+                android:id="@+id/homeBannerMatte"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/eve_home_banner_matte"

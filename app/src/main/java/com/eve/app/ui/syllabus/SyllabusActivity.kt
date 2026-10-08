@@ -96,11 +96,6 @@ class SyllabusActivity : EveBaseActivity() {
             filter,
             ContextCompat.RECEIVER_EXPORTED
         )
-        applyUiStudioConfig()
-    }
-
-    private fun applyUiStudioConfig() {
-        com.eve.app.uistudio.StudioRenderer.apply(binding.root, "syllabus", com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig)
     }
 
     override fun onResume() {

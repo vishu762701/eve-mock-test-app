@@ -17,6 +17,7 @@ object StudioInteraction {
         val colors=if(v is com.google.android.material.card.MaterialCardView)v.cardBackgroundColor else v.backgroundTintList
         var lastColor=colors?.getColorForState(v.drawableState,colors.defaultColor)
         var tintAnimator:android.animation.ValueAnimator?=null
+        var renderedColor: Int?=null
         override fun onPreDraw():Boolean {
             val v=target.get() ?: return true
             val desired=colors?.getColorForState(v.drawableState,colors.defaultColor)
@@ -25,6 +26,7 @@ object StudioInteraction {
                 val start=lastColor ?: desired;lastColor=desired
                 tintAnimator=transition(v,start,desired,c.stateTransitionMs){color->
                     val target=target.get() ?: return@transition
+                    renderedColor=color
                     if(target is com.google.android.material.card.MaterialCardView)target.setCardBackgroundColor(color) else target.backgroundTintList=android.content.res.ColorStateList.valueOf(color)
                 }
             }
@@ -44,6 +46,13 @@ object StudioInteraction {
         val scale=Settings.Global.getFloat(v.context.contentResolver,Settings.Global.ANIMATOR_DURATION_SCALE,1f)
         if(duration==0L || scale==0f){apply(to);return null}
         return android.animation.ValueAnimator.ofArgb(from,to).apply{this.duration=duration;addUpdateListener{apply(it.animatedValue as Int)};start()}
+    }
+    // State transitions temporarily install single colors; those are renderer-owned, not a rebind.
+    fun stableColors(v: View): android.content.res.ColorStateList? {
+        val actual=(v as? com.google.android.material.card.MaterialCardView)?.cardBackgroundColor ?: v.backgroundTintList
+        val binding=bindings[v]
+        return if(binding!=null && binding.renderedColor!=null && actual?.defaultColor==binding.renderedColor)
+            binding.colors else actual
     }
     fun clear(v:View){bindings.remove(v)?.let { if(v.viewTreeObserver.isAlive)v.viewTreeObserver.removeOnPreDrawListener(it);it.tintAnimator?.cancel();v.animate().cancel();v.scaleX=it.x;v.scaleY=it.y }}
     fun apply(v:View,c:AnimationProperties){

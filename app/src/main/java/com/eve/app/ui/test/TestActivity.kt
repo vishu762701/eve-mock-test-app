@@ -83,7 +83,6 @@ class TestActivity : EveBaseActivity() {
         binding = ActivityTestBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setupTestActionPills()
-        applyUiStudioConfig()
         binding.shimmerSkeletonTest.skeletonType = com.eve.app.ui.common.ShimmerSkeletonView.TYPE_QUESTION
 
         examId = intent.getStringExtra(Constants.EXTRA_EXAM_ID) ?: ""
@@ -689,7 +688,4 @@ class TestActivity : EveBaseActivity() {
         binding.rvQuestionPalette.scrollToPosition(activePosition)
     }
 
-    private fun applyUiStudioConfig() {
-        com.eve.app.uistudio.StudioRenderer.apply(binding.root, "test", com.eve.app.data.repository.UiStudioRepository.getInstance().currentConfig)
-    }
 }
