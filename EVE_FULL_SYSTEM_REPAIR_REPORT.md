@@ -1,6 +1,6 @@
 # Eve full system repair report
 
-Repository: https://github.com/vishu762701/eve-mock-test-app. Work performed directly on `main`, starting at `4209a4bc1e7ccc1d949d0cc464b85e7710449c40`. Initial working tree was clean. Existing migrations and student records were preserved. Final publication SHA and Actions results are recorded in the delivery response; verification below is updated before publication.
+Repository: https://github.com/vishu762701/eve-mock-test-app. Work performed directly on `main`, starting at `4209a4bc1e7ccc1d949d0cc464b85e7710449c40`. Initial working tree was clean. Existing migrations and student records were preserved. Verified implementation commit: `c105555806011a6b47d92f046755fbb890321bb3`, pushed directly to origin/main and verified with git ls-remote. The final main SHA after this documentation-only verification update is in the delivery response.
 
 ## Verified architecture and failure map
 
@@ -85,3 +85,15 @@ Existing main Worker deployment workflow performs migration then deployment usin
 - Registration, logout, search, profile/media, notification delivery, explanation calls and full Firebase synchronization were source-reviewed, not all executed against live services. No blanket production-ready claim is made.
 
 Local build setup required a full JDK (the supplied Java was a JRE), the system proxy trust store, and a larger JVM code cache for the in-process compiler. These are workspace-only validation settings. Existing AGP8.5.2 compileSdk36/deprecation warnings remain; no warning suppression or skipped test is used to claim success.
+
+## Verified remote publication and CI
+
+- Implementation commit: [c105555806011a6b47d92f046755fbb890321bb3](https://github.com/vishu762701/eve-mock-test-app/commit/c105555806011a6b47d92f046755fbb890321bb3). Clean main working tree; remote SHA matched after push. No feature branch, PR, force push or discarded work.
+- [Build Eve APK run37825972439](https://github.com/vishu762701/eve-mock-test-app/actions/runs/37825972439): **SUCCESS**. Android build, eight actual API35 emulator UI tests (including frozen submission selection), lint/unit checks and APK artifact upload passed. Backend and Firebase Functions jobs passed.
+- [Worker deploy run37825972388](https://github.com/vishu762701/eve-mock-test-app/actions/runs/37825972388): **SUCCESS**. Type checking/tests, remote forward migrations0013–0016 and Worker deployment passed. Worker version `00f341cf-3e66-4f3d-b249-00420aa81a7b`.
+- Executed production smoke checks: public health/content/banners, missing/forged token rejection and anonymous diagnostic rejection passed. Direct post-deploy read-only checks also confirmed public health HTTP200 and admin overview without auth HTTP401.
+- Diagnostic-secret D1 write/storage checks were **SKIPPED** because DIAGNOSTIC_KEY was unavailable to the workflow. Production AI generation was **NOT RUN**, as now truthfully recorded by the smoke script. No authenticated student/admin session or paid Gemini request was executed.
+- Local lint had **zero errors and1525 warnings**, primarily HardcodedText811, SetTextI18n395 and UnusedResources140. Those warnings are not represented as fixed; the generated lint report contains the full list. No lint baseline, error suppression or skipped test was added.
+- Firebase rules and optional callables remain **not deployed**: no authorized Firebase deployment workflow/credential exists in this workspace. Complete authenticated production and device/account smoke verification remains a release requirement.
+
+This final documentation update changes no Android/backend/Functions source or migration. The delivery response links its own final main verification run.
