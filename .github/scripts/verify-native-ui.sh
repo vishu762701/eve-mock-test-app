@@ -33,4 +33,16 @@ done
 [[ "$boot_ready" == "true" ]]
 adb shell input keyevent 82
 [[ "$(adb shell settings get secure navigation_mode | tr -d '\r')" == "0" ]]
-gradle connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.eve.app.ui.RepairRegressionTest#realThemeRecreationPreservesStateAndCapturesBothSystemBarsWithoutOverlays -Pandroid.testInstrumentationRunnerArguments.navigationMode=three-button --stacktrace
+three_button_status=0
+gradle connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.eve.app.ui.RepairRegressionTest#realThemeRecreationPreservesStateAndCapturesBothSystemBarsWithoutOverlays -Pandroid.testInstrumentationRunnerArguments.navigationMode=three-button --stacktrace || three_button_status=$?
+if [[ "$three_button_status" != "0" ]]; then
+  adb shell cmd overlay lookup com.android.systemui com.android.systemui:color/light_mode_icon_color_single_tone > ui-renderings/systemui-light-icon-color.log || true
+  adb shell cmd overlay lookup com.android.systemui com.android.systemui:color/dark_mode_icon_color_single_tone > ui-renderings/systemui-dark-icon-color.log || true
+  if adb shell pm path com.android.deskclock | grep -q '^package:'; then
+    adb shell am start -n com.android.deskclock/.DeskClock > ui-renderings/stock-clock-launch.log || true
+    sleep 2
+    adb shell screencap -p /sdcard/Pictures/eve-approved-ui/stock-clock-three-button-control.png || true
+    adb shell dumpsys window displays | grep -E 'mCurrentFocus|mFocusedApp' > ui-renderings/stock-clock-focus.log || true
+  fi
+fi
+exit "$three_button_status"
