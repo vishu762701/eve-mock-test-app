@@ -74,7 +74,7 @@ examRoutes.get("/", async (c) => {
 
 // GET /api/exams/:id - Single exam details
 examRoutes.get("/:id", async (c) => {
-  const id = c.req.param("id");
+  const id = c.req.param("id") || "";
   const db = c.env.DB;
   const row = await db.prepare("SELECT * FROM exams WHERE id = ?").bind(id).first<ExamRow>();
 
@@ -181,7 +181,7 @@ examRoutes.post("/", requireAdmin, async (c) => {
 
 // PUT /api/exams/:id - Full settings update (Admin)
 examRoutes.put("/:id", requireAdmin, async (c) => {
-  const id = c.req.param("id");
+  const id = c.req.param("id") || "";
   const body = await c.req.json().catch(() => ({}));
   const db = c.env.DB;
 
@@ -308,7 +308,7 @@ examRoutes.put("/:id", requireAdmin, async (c) => {
 
 // PUT /api/exams/:id/image - Update image URL or base64 (Admin)
 examRoutes.put("/:id/image", requireAdmin, async (c) => {
-  const id = c.req.param("id");
+  const id = c.req.param("id") || "";
   const body = await c.req.json().catch(() => ({}));
   const imageUrl = String(body.imageUrl || "").trim();
   const db = c.env.DB;
@@ -319,7 +319,7 @@ examRoutes.put("/:id/image", requireAdmin, async (c) => {
 
 // PUT /api/exams/:id/rename - Rename exam with cascading updates (Admin)
 examRoutes.put("/:id/rename", requireAdmin, async (c) => {
-  const id = c.req.param("id");
+  const id = c.req.param("id") || "";
   const body = await c.req.json().catch(() => ({}));
   const newName = String(body.newName || "").trim();
   const db = c.env.DB;
@@ -341,13 +341,13 @@ examRoutes.put("/:id/rename", requireAdmin, async (c) => {
 
 // DELETE /api/exams/:id - Delete exam and associated test data (Admin)
 examRoutes.get("/:id/deletion-info", requireAdmin, async (c) => {
-  const id = c.req.param("id");
+  const id = c.req.param("id") || "";
   if (!await c.env.DB.prepare("SELECT id FROM exams WHERE id = ?").bind(id).first()) return c.json({ success: false, error: "Record not found" }, 404);
   return c.json({ success: true, data: await deletionInfo(c.env.DB, id, 'exam') });
 });
 
 examRoutes.post('/:id/unpublish-tests', requireAdmin, async (c) => {
-  const id = c.req.param('id');
+  const id = c.req.param('id') || '';
   if (!await c.env.DB.prepare('SELECT id FROM exams WHERE id = ?').bind(id).first()) return c.json({ success: false, error: 'Exam not found' }, 404);
   await c.env.DB.batch([
     c.env.DB.prepare("UPDATE generated_tests SET status = 'paused' WHERE exam_id = ?").bind(id),
@@ -357,7 +357,7 @@ examRoutes.post('/:id/unpublish-tests', requireAdmin, async (c) => {
 });
 
 examRoutes.delete("/:id", requireAdmin, async (c) => {
-  const id = c.req.param("id");
+  const id = c.req.param("id") || "";
   const db = c.env.DB;
 
   if (!await db.prepare("SELECT id FROM exams WHERE id = ?").bind(id).first()) return c.json({ success: false, error: "Record not found" }, 404);
@@ -379,7 +379,7 @@ examRoutes.delete("/:id", requireAdmin, async (c) => {
 
 // POST /api/exams/:id/syllabus - Upload syllabus PDF (Admin)
 examRoutes.post("/:id/syllabus", requireAdmin, async (c) => {
-  const id = c.req.param("id");
+  const id = c.req.param("id") || "";
   const contentType = c.req.header("content-type") || "";
   const db = c.env.DB;
 
@@ -429,7 +429,7 @@ examRoutes.post("/:id/syllabus", requireAdmin, async (c) => {
 
 // DELETE /api/exams/:id/syllabus - Remove syllabus PDF (Admin)
 examRoutes.delete("/:id/syllabus", requireAdmin, async (c) => {
-  const id = c.req.param("id");
+  const id = c.req.param("id") || "";
   const db = c.env.DB;
 
   const exam = await db.prepare("SELECT syllabus_url FROM exams WHERE id = ?").bind(id).first<ExamRow>();

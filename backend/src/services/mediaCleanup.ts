@@ -3,7 +3,7 @@ import { SupabaseStorage } from '../supabase';
 
 /** Run only AFTER the record mutation is confirmed. A cleanup failure must not
  * remove media from a still-live record or be silently reported as complete. */
-export async function cleanupMedia(env: Env, path: string, requestId: string | undefined): Promise<boolean> {
+export async function cleanupMedia(env: Env, path: string, requestId: string | null | undefined): Promise<boolean> {
   try { await new SupabaseStorage(env).deleteFile(path); return true; }
   catch {
     try {

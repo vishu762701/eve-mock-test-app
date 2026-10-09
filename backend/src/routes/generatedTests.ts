@@ -75,7 +75,7 @@ generatedTestRoutes.get("/", async (c) => {
 
 // GET /api/generated-tests/:id - Single generated test details
 generatedTestRoutes.get("/:id", async (c) => {
-  const id = c.req.param("id");
+  const id = c.req.param("id") || "";
   const user = c.get("user");
   const db = c.env.DB;
   const serverNow = Date.now();
@@ -128,7 +128,7 @@ generatedTestRoutes.get("/:id", async (c) => {
 
 // PUT /api/generated-tests/:id/schedule - Schedule test (Admin)
 generatedTestRoutes.put("/:id/schedule", requireAdmin, async (c) => {
-  const id = c.req.param("id");
+  const id = c.req.param("id") || "";
   const body = await c.req.json().catch(() => ({}));
   const availableFrom = Number(body.availableFrom);
 
@@ -143,7 +143,7 @@ generatedTestRoutes.put("/:id/schedule", requireAdmin, async (c) => {
 
 // PUT /api/generated-tests/:id/status - Update test status (Admin)
 generatedTestRoutes.put("/:id/status", requireAdmin, async (c) => {
-  const id = c.req.param("id");
+  const id = c.req.param("id") || "";
   const body = await c.req.json().catch(() => ({}));
   const status = String(body.status || "paused").trim().toLowerCase();
   const db = c.env.DB;
@@ -163,13 +163,13 @@ generatedTestRoutes.put("/:id/status", requireAdmin, async (c) => {
 
 // DELETE /api/generated-tests/:id - Delete generated test (Admin)
 generatedTestRoutes.get("/:id/deletion-info", requireAdmin, async (c) => {
-  const id = c.req.param("id");
+  const id = c.req.param("id") || "";
   if (!await c.env.DB.prepare("SELECT id FROM generated_tests WHERE id = ?").bind(id).first()) return c.json({ success: false, error: "Record not found" }, 404);
   return c.json({ success: true, data: await deletionInfo(c.env.DB, id, 'test') });
 });
 
 generatedTestRoutes.delete("/:id", requireAdmin, async (c) => {
-  const id = c.req.param("id");
+  const id = c.req.param("id") || "";
   const db = c.env.DB;
   if (!await db.prepare("SELECT id FROM generated_tests WHERE id = ?").bind(id).first()) return c.json({ success: false, error: "Record not found" }, 404);
   const dependencies = await deletionInfo(db, id, 'test');

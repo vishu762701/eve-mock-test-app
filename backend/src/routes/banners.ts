@@ -160,7 +160,7 @@ bannerRoutes.post("/", requireAdmin, async (c) => {
 
 // PUT /api/banners/:id/link - Set or clear an existing banner's optional CTA.
 bannerRoutes.put("/:id/link", requireAdmin, async (c) => {
-  const id = c.req.param("id");
+  const id = c.req.param("id") || "";
   const body = await c.req.json().catch(() => ({})) as Record<string, unknown>;
   const link = normalizeBannerLink(body.linkUrl, body.linkLabel);
   if (!link) {
@@ -179,7 +179,7 @@ bannerRoutes.put("/:id/link", requireAdmin, async (c) => {
 
 // DELETE /api/banners/:id - Delete banner and purge file (Admin)
 bannerRoutes.delete("/:id", requireAdmin, async (c) => {
-  const id = c.req.param("id");
+  const id = c.req.param("id") || "";
   const db = c.env.DB;
 
   const banner = await db
@@ -197,7 +197,7 @@ bannerRoutes.delete("/:id", requireAdmin, async (c) => {
 
 // PUT /api/banners/:id/reorder - Swap order with adjacent banner (Admin)
 bannerRoutes.put("/:id/reorder", requireAdmin, async (c) => {
-  const id = c.req.param("id");
+  const id = c.req.param("id") || "";
   const body = await c.req.json().catch(() => ({}));
   const moveUp = Boolean(body.moveUp);
   const db = c.env.DB;
