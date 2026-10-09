@@ -1,3 +1,4 @@
+import { deletionInfo, deleteUnused } from '../services/deletion';
 // ============================================================================
 // AI Generated Tests Management Routes
 // ============================================================================
@@ -161,14 +162,23 @@ generatedTestRoutes.put("/:id/status", requireAdmin, async (c) => {
 });
 
 // DELETE /api/generated-tests/:id - Delete generated test (Admin)
+generatedTestRoutes.get("/:id/deletion-info", requireAdmin, async (c) => {
+  const id = c.req.param("id");
+  if (!await c.env.DB.prepare("SELECT id FROM generated_tests WHERE id = ?").bind(id).first()) return c.json({ success: false, error: "Record not found" }, 404);
+  return c.json({ success: true, data: await deletionInfo(c.env.DB, id, 'test') });
+});
+
 generatedTestRoutes.delete("/:id", requireAdmin, async (c) => {
   const id = c.req.param("id");
   const db = c.env.DB;
-  const used = await db.prepare("SELECT 1 FROM attempts WHERE exam_id = ? OR substr(exam_id, -length(?) - 2) = '__' || ? LIMIT 1").bind(id, id, id).first();
-  if (used) return c.json({ success: false, error: "This test has student attempts. Unpublish it instead." }, 409);
-  const active = await db.prepare("SELECT 1 FROM attempt_sessions WHERE exam_key = ? OR substr(exam_key, -length(?) - 2) = '__' || ? LIMIT 1").bind(id, id, id).first();
-  if (active) return c.json({ success: false, error: "This test has active sessions. Unpublish it instead." }, 409);
-  await db.prepare("DELETE FROM generated_tests WHERE id = ?").bind(id).run();
+  if (!await db.prepare("SELECT id FROM generated_tests WHERE id = ?").bind(id).first()) return c.json({ success: false, error: "Record not found" }, 404);
+  const dependencies = await deletionInfo(db, id, 'test');
+  if (!dependencies.canDelete) return c.json({ success: false, error: dependencies.message, code: dependencies.code, dependencies, requestId: c.res.headers.get('X-Request-ID') }, 409);
+
+  if (!await deleteUnused(db, id, 'test')) {
+    const current = await deletionInfo(db, id, 'test');
+    return c.json({ success: false, error: current.message || 'Record changed. Refresh before retrying.', code: current.code || 'DELETE_RECORD_CHANGED', dependencies: current, requestId: c.res.headers.get('X-Request-ID') }, 409);
+  }
   return c.json({ success: true });
 });
 

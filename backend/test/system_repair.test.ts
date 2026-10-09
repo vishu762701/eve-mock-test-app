@@ -5,6 +5,8 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { Hono } from 'hono';
 import { parseAndValidateQuestions, generateQuestions } from '../src/ai/generator';
 import { generatedTestRoutes } from '../src/routes/generatedTests';
+import { bannerRoutes } from '../src/routes/banners';
+import { examRoutes } from '../src/routes/exams';
 import { attemptRoutes } from '../src/routes/attempts';
 import { adminRoutes } from '../src/routes/admin';
 import { questionRoutes } from '../src/routes/questions';
@@ -20,6 +22,8 @@ class LocalD1 {
   failPattern = '';
   queries = 0;
   batchTail: Promise<void> = Promise.resolve();
+  beforeRun: ((sql: string) => void) | null = null;
+  beforeBatch: (() => void) | null = null;
   constructor() {
     this.sqlite.exec('PRAGMA foreign_keys = ON');
     for (const name of readdirSync(new URL('../migrations/', import.meta.url)).filter((x) => x.endsWith('.sql')).sort()) this.sqlite.exec(readFileSync(new URL(`../migrations/${name}`, import.meta.url), 'utf8'));
@@ -32,7 +36,7 @@ class LocalD1 {
     return { params: [] as any[], bind(...args: any[]) { this.params = args; return this; },
       async first() { await db.batchTail; return db.sqlite.prepare(sql).get(...this.params) ?? null; },
       async all() { await db.batchTail; return { results: db.sqlite.prepare(sql).all(...this.params), success: true }; },
-      async run() { await db.batchTail; return this.execute(); },
+      async run() { await db.batchTail; db.beforeRun?.(sql); return this.execute(); },
       execute() { if (db.failPattern && sql.includes(db.failPattern)) throw new Error('Injected database failure'); const result = db.sqlite.prepare(sql).run(...this.params); return { success: true, meta: { changes: Number(result.changes) } }; },
     };
   }
@@ -40,6 +44,7 @@ class LocalD1 {
     const previous = this.batchTail; let unlock!: () => void;
     this.batchTail = new Promise<void>((resolve) => { unlock = resolve; });
     await previous;
+    this.beforeBatch?.();
     this.sqlite.exec('BEGIN');
     try { const result = []; for (const statement of statements) result.push(statement.execute()); this.sqlite.exec('COMMIT'); return result; }
     catch (e) { this.sqlite.exec('ROLLBACK'); throw e; }
@@ -49,13 +54,13 @@ class LocalD1 {
 }
 const q = (i = 0) => ({ questionText: `Question ${i}`, optionA: 'one', optionB: 'two', optionC: 'three', optionD: 'four', correctAnswer: 'B', explanation: 'Two is correct.' });
 const envFor = (DB: LocalD1) => ({ DB, GEMINI_API_KEY: 'test-only-key', GEMINI_MODEL: 'test-model', GEMINI_FALLBACK_MODELS: 'test-model', FIREBASE_PROJECT_ID: 'test-project' }) as any;
-function harness(db: LocalD1, admin = false) {
+function harness(db: LocalD1, admin = false, overrides: Record<string, unknown> = {}) {
   const app = new Hono();
   app.use('*', operationMonitor);
   app.use('*', async (c, next) => { c.set('user', { uid: 'u', email: 'student@example.com', displayName: 'Student', isAdmin: admin }); await next(); });
-  app.route('/api/questions', questionRoutes as any); app.route('/api/attempts', attemptRoutes as any); app.route('/api/generated-tests', generatedTestRoutes as any); app.route('/api/admin/system', monitoringRoutes as any); app.route('/api/admin', adminRoutes as any);
+  app.route('/api/banners', bannerRoutes as any); app.route('/api/exams', examRoutes as any); app.route('/api/questions', questionRoutes as any); app.route('/api/attempts', attemptRoutes as any); app.route('/api/generated-tests', generatedTestRoutes as any); app.route('/api/admin/system', monitoringRoutes as any); app.route('/api/admin', adminRoutes as any);
   app.onError((_e, c) => c.json({ success: false, error: 'Database operation failed' }, 500));
-  return (path: string, body?: any, method?: string) => app.request(path, { method: method || (body ? 'POST' : 'GET'), headers: { 'Content-Type': 'application/json', 'X-Eve-Client': '2' }, body: body ? JSON.stringify(body) : undefined }, envFor(db));
+  return (path: string, body?: any, method?: string) => app.request(path, { method: method || (body ? 'POST' : 'GET'), headers: { 'Content-Type': 'application/json', 'X-Eve-Client': '2' }, body: body ? JSON.stringify(body) : undefined }, { ...envFor(db), ...overrides });
 }
 function seed(db: LocalD1, n = 3, status = 'published') {
   db.sqlite.prepare('INSERT INTO generated_tests (id, exam_id, exam_name, test_number, title, generated_at, status, question_count, questions_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)').run('test', 'exam', 'Exam', 'Test 1', 'Exam Test 1', Date.now(), status, n, JSON.stringify(Array.from({ length: n }, (_, i) => q(i))));
@@ -337,4 +342,127 @@ test('racing submissions cannot observe uncommitted success when the database fa
   db.failPattern = '';
   assert.equal((await request('/api/attempts/submit', { ...picks(), clientAttemptId: 'one' })).status, 200);
   assert.equal(db.count('attempts'), 1);
+});
+
+test('delete dependencies explain blocked sessions and unpublishing preserves them', async () => {
+ const db = new LocalD1(); seed(db); const admin = harness(db, true);
+ await harness(db)('/api/attempts/start', { examId: 'exam__test' });
+ const preview = await admin('/api/generated-tests/test/deletion-info');
+ assert.equal(preview.status, 200); const info = (await preview.json() as any).data;
+ assert.equal(info.canDelete, false); assert.equal(info.sessions, 1);
+ const blocked = await admin('/api/generated-tests/test', undefined, 'DELETE');
+ assert.equal(blocked.status, 409); assert.equal((await blocked.json() as any).code, 'DELETE_BLOCKED_SESSIONS');
+ assert.equal((await admin('/api/generated-tests/test/status', { status: 'paused' }, 'PUT')).status, 200);
+ assert.equal(db.count('attempt_sessions'), 1); assert.equal(db.count('generated_tests'), 1);
+});
+test('eligible exam deletion is atomic on database failure', async () => {
+ const db = new LocalD1(); seed(db); const admin = harness(db, true);
+ db.failPattern = 'DELETE FROM exams';
+ assert.equal((await admin('/api/exams/exam', undefined, 'DELETE')).status, 500);
+ assert.equal(db.count('exams'), 1); assert.equal(db.count('generated_tests'), 1);
+ db.failPattern = '';
+ assert.equal((await admin('/api/exams/exam', undefined, 'DELETE')).status, 200);
+ assert.equal(db.count('exams'), 0); assert.equal(db.count('generated_tests'), 0);
+});
+test('reattempt preserves history and statistics with a fresh session identity', async () => {
+ const db = new LocalD1(); seed(db); const student = harness(db);
+ const first = (await (await student('/api/attempts/start', { examId: 'exam__test' })).json() as any).data.clientAttemptId;
+ await student('/api/attempts/submit', { ...picks(), clientAttemptId: first });
+ db.sqlite.exec("INSERT OR IGNORE INTO attempt_locks (id, user_id, exam_id, timestamp, source) SELECT 'u_exam__test', 'u', 'exam__test', timestamp, 'mock' FROM attempts LIMIT 1");
+ const answers = db.count('attempt_answers'); const stats = db.sqlite.prepare('SELECT * FROM overall_leaderboard').all();
+ assert.equal((await student('/api/attempts/reset', { examId: 'exam__test' })).status, 200);
+ assert.equal(db.count('attempts'), 1); assert.equal(db.count('attempt_answers'), answers);
+ assert.deepEqual(db.sqlite.prepare('SELECT * FROM overall_leaderboard').all(), stats);
+ const next = (await (await student('/api/attempts/start', { examId: 'exam__test' })).json() as any).data;
+ assert.notEqual(next.clientAttemptId, first); assert.equal(db.count('attempts'), 1);
+});
+
+test('deletion preview and unpublishing reject student access', async () => {
+ const db = new LocalD1(); seed(db); const student = harness(db);
+ for (const path of ['/api/exams/exam/deletion-info', '/api/generated-tests/test/deletion-info']) assert.equal((await student(path)).status, 403);
+ assert.equal((await student('/api/exams/exam/unpublish-tests', {})).status, 403);
+ assert.equal((await student('/api/exams/exam', undefined, 'DELETE')).status, 403);
+});
+test('exam dependencies explain sub-exams and completed history; unpublish never deletes history', async () => {
+ const db = new LocalD1(); seed(db); const admin = harness(db, true);
+ db.sqlite.exec("INSERT INTO exams (id, exam_name, category, time_limit_minutes, question_count, parent_exam_id) VALUES ('child','Child','General',10,3,'exam')");
+ let response = await admin('/api/exams/exam', undefined, 'DELETE');
+ assert.equal(response.status, 409); assert.equal((await response.json() as any).code, 'DELETE_BLOCKED_SUB_EXAMS');
+ const student = harness(db);
+ const started = (await (await student('/api/attempts/start', { examId: 'exam__test' })).json() as any).data;
+ assert.equal((await student('/api/attempts/submit', { ...picks(), clientAttemptId: started.clientAttemptId })).status, 200);
+ response = await admin('/api/exams/exam', undefined, 'DELETE');
+ assert.equal(response.status, 409); const data = await response.json() as any;
+ assert.equal(data.code, 'DELETE_BLOCKED_ATTEMPTS'); assert.ok(data.dependencies.attempts > 0);
+ assert.equal((await admin('/api/exams/exam/unpublish-tests', {})).status, 200);
+ assert.equal(db.count('attempts'), 1); assert.equal(db.count('attempt_answers'), 3);
+ assert.equal(db.sqlite.prepare("SELECT status FROM generated_tests").get()!.status, 'paused');
+});
+test('legacy reattempt endpoint protects ongoing work, other users and the three-attempt limit', async () => {
+ const db = new LocalD1(); seed(db); const student = harness(db);
+ await student('/api/attempts/start', { examId: 'exam__test' });
+ assert.equal((await student('/api/attempts/reset', { examId: 'exam__test' })).status, 409);
+ assert.equal(db.count('attempt_sessions'), 1);
+ for (let i = 0; i < 3; i++) {
+  const start = (await (await student('/api/attempts/start', { examId: 'exam__test' })).json() as any).data;
+  assert.equal((await student('/api/attempts/submit', { ...picks(), clientAttemptId: start.clientAttemptId })).status, 200);
+  assert.equal((await student('/api/attempts/exam/exam__test', undefined, 'DELETE')).status, 200);
+ }
+ assert.equal(db.count('attempts'), 3);
+ assert.equal((await student('/api/attempts/start', { examId: 'exam__test' })).status, 409);
+});
+
+test('a concurrent session blocks every statement of exam deletion', async () => {
+ const db = new LocalD1(); seed(db);
+ db.beforeBatch = () => {
+  db.beforeBatch = null;
+  db.sqlite.exec("INSERT INTO attempt_sessions (id,user_id,exam_key,started_at,time_limit_seconds) VALUES ('concurrent','u','exam__test',1,600)");
+ };
+ const response = await harness(db, true)('/api/exams/exam', undefined, 'DELETE');
+ assert.equal(response.status, 409); assert.equal((await response.json() as any).code, 'DELETE_BLOCKED_SESSIONS');
+ assert.equal(db.count('exams'), 1); assert.equal(db.count('generated_tests'), 1); assert.equal(db.count('attempt_sessions'), 1);
+});
+test('a concurrently removed test cannot create an orphan or report a successful start', async () => {
+ const db = new LocalD1(); seed(db);
+ db.beforeRun = (sql) => {
+  if (sql.includes('INSERT OR IGNORE INTO attempt_sessions')) {
+   db.beforeRun = null; db.sqlite.exec("DELETE FROM generated_tests WHERE id = 'test'");
+  }
+ };
+ const response = await harness(db)('/api/attempts/start', { examId: 'exam__test' });
+ assert.equal(response.status, 404); assert.equal((await response.json() as any).code, 'TEST_REMOVED');
+ assert.equal(db.count('attempt_sessions'), 0);
+});
+
+test('media deletion never removes storage before a failed database write', async () => {
+ const original = globalThis.fetch;
+ try {
+  for (const kind of ['syllabus','banner']) {
+   const db = new LocalD1(); let storageDeletes = 0;
+   globalThis.fetch = async () => { storageDeletes++; return new Response('{}', { status: 200 }); };
+   const admin = harness(db, true, { SUPABASE_PROJECT_URL: 'https://isolated.invalid', SUPABASE_BUCKET_NAME: 'eve-media', SUPABASE_SERVICE_ROLE_KEY: 'test-only-key' });
+   db.sqlite.exec("UPDATE exams SET syllabus_url = 'https://isolated.invalid/storage/v1/object/public/eve-media/syllabus.pdf' WHERE id = 'exam'");
+   db.sqlite.exec("INSERT INTO home_banners (id,image_url,storage_path,uploaded_at) VALUES ('banner','https://isolated.invalid/banner.jpg','banners/banner.jpg',1)");
+   db.failPattern = kind === 'syllabus' ? 'UPDATE exams' : 'DELETE FROM home_banners';
+   const path = kind === 'syllabus' ? '/api/exams/exam/syllabus' : '/api/banners/banner';
+   assert.equal((await admin(path, undefined, 'DELETE')).status, 500);
+   assert.equal(storageDeletes, 0, kind + ' storage was deleted before D1 confirmation');
+   assert.equal(db.count('exams'), 1); assert.equal(db.count('home_banners'), 1);
+  }
+ } finally { globalThis.fetch = original; }
+});
+
+test('incomplete media cleanup is reported and recorded without sensitive paths', async () => {
+ const db = new LocalD1();
+ db.sqlite.exec("INSERT INTO home_banners (id,image_url,storage_path,uploaded_at) VALUES ('banner','https://isolated.invalid/banner.jpg','banners/banner.jpg',1)");
+ const original = globalThis.fetch; globalThis.fetch = async () => new Response('{}', { status: 503 });
+ try {
+  const response = await harness(db, true, { SUPABASE_PROJECT_URL: 'https://isolated.invalid', SUPABASE_BUCKET_NAME: 'eve-media', SUPABASE_SERVICE_ROLE_KEY: 'test-only-key' })('/api/banners/banner', undefined, 'DELETE');
+  assert.equal(response.status, 200); const result = await response.json() as any;
+  assert.equal(result.success, true); assert.match(result.message, /cleanup was not completed/);
+  assert.equal(db.count('home_banners'), 0);
+  const event = db.sqlite.prepare('SELECT * FROM operation_events').get()!;
+  assert.equal(event.category, 'MEDIA_CLEANUP_INCOMPLETE'); assert.equal(event.retryable, 0);
+  assert.ok(!JSON.stringify(event).includes('banner.jpg')); assert.ok(!JSON.stringify(event).includes('test-only-key'));
+ } finally { globalThis.fetch = original; }
 });

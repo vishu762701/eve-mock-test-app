@@ -1,3 +1,5 @@
+import { cleanupMedia } from '../services/mediaCleanup';
+import { deletionInfo, deleteUnused } from '../services/deletion';
 // ============================================================================
 // Exam Management Routes
 // ============================================================================
@@ -338,38 +340,39 @@ examRoutes.put("/:id/rename", requireAdmin, async (c) => {
 });
 
 // DELETE /api/exams/:id - Delete exam and associated test data (Admin)
+examRoutes.get("/:id/deletion-info", requireAdmin, async (c) => {
+  const id = c.req.param("id");
+  if (!await c.env.DB.prepare("SELECT id FROM exams WHERE id = ?").bind(id).first()) return c.json({ success: false, error: "Record not found" }, 404);
+  return c.json({ success: true, data: await deletionInfo(c.env.DB, id, 'exam') });
+});
+
+examRoutes.post('/:id/unpublish-tests', requireAdmin, async (c) => {
+  const id = c.req.param('id');
+  if (!await c.env.DB.prepare('SELECT id FROM exams WHERE id = ?').bind(id).first()) return c.json({ success: false, error: 'Exam not found' }, 404);
+  await c.env.DB.batch([
+    c.env.DB.prepare("UPDATE generated_tests SET status = 'paused' WHERE exam_id = ?").bind(id),
+    c.env.DB.prepare('UPDATE exams SET auto_generation_enabled = 0 WHERE id = ?').bind(id),
+  ]);
+  return c.json({ success: true, message: 'Tests unpublished and automatic generation disabled. History and ongoing sessions preserved.' });
+});
+
 examRoutes.delete("/:id", requireAdmin, async (c) => {
   const id = c.req.param("id");
   const db = c.env.DB;
 
-  const used = await db.prepare("SELECT 1 FROM attempts WHERE exam_id = ? OR substr(exam_id, 1, length(?) + 2) = ? || '__' LIMIT 1").bind(id, id, id).first();
-  if (used) return c.json({ success: false, error: "This exam has student attempts and cannot be deleted. Unpublish its tests instead." }, 409);
+  if (!await db.prepare("SELECT id FROM exams WHERE id = ?").bind(id).first()) return c.json({ success: false, error: "Record not found" }, 404);
+  const dependencies = await deletionInfo(db, id, 'exam');
+  if (!dependencies.canDelete) return c.json({ success: false, error: dependencies.message, code: dependencies.code, dependencies, requestId: c.res.headers.get('X-Request-ID') }, 409);
 
-  const active = await db.prepare("SELECT 1 FROM attempt_sessions WHERE exam_key = ? OR substr(exam_key, 1, length(?) + 2) = ? || '__' LIMIT 1").bind(id, id, id).first();
-  if (active) return c.json({ success: false, error: "This exam has active student sessions. Unpublish its tests instead." }, 409);
-
-  const hasSubExams = await db.prepare("SELECT 1 FROM exams WHERE parent_exam_id = ? LIMIT 1").bind(id).first();
-  if (hasSubExams) {
-    return c.json({ success: false, error: "This exam has sub-exams. Delete them first." }, 409);
-  }
-
-  // Retrieve syllabus URL to cleanup Supabase Storage if present
   const exam = await db.prepare("SELECT syllabus_url FROM exams WHERE id = ?").bind(id).first<ExamRow>();
-  if (exam && exam.syllabus_url) {
-    try {
-      const storage = new SupabaseStorage(c.env);
-      const urlParts = exam.syllabus_url.split("/eve-media/");
-      if (urlParts.length > 1) {
-        await storage.deleteFile(urlParts[1]);
-      }
-    } catch (_e) {}
+  if (!await deleteUnused(db, id, 'exam')) {
+    const current = await deletionInfo(db, id, 'exam');
+    return c.json({ success: false, error: current.message || 'Record changed. Refresh before retrying.', code: current.code || 'DELETE_RECORD_CHANGED', dependencies: current, requestId: c.res.headers.get('X-Request-ID') }, 409);
   }
-
-  await db.batch([
-    db.prepare("DELETE FROM questions WHERE exam_id = ?").bind(id),
-    db.prepare("DELETE FROM generated_tests WHERE exam_id = ?").bind(id),
-    db.prepare("DELETE FROM exams WHERE id = ?").bind(id),
-  ]);
+  const path = exam?.syllabus_url?.split('/eve-media/')[1];
+  if (path && !await cleanupMedia(c.env, path, c.res.headers.get('X-Request-ID'))) {
+    return c.json({ success: true, message: 'Exam deleted. Media cleanup was not completed; check System Monitor.' });
+  }
 
   return c.json({ success: true });
 });
@@ -430,20 +433,11 @@ examRoutes.delete("/:id/syllabus", requireAdmin, async (c) => {
   const db = c.env.DB;
 
   const exam = await db.prepare("SELECT syllabus_url FROM exams WHERE id = ?").bind(id).first<ExamRow>();
-  if (exam && exam.syllabus_url) {
-    try {
-      const storage = new SupabaseStorage(c.env);
-      const urlParts = exam.syllabus_url.split("/eve-media/");
-      if (urlParts.length > 1) {
-        await storage.deleteFile(urlParts[1]);
-      }
-    } catch (_e) {}
+  if (!exam) return c.json({ success: false, error: 'Exam not found' }, 404);
+  await db.prepare("UPDATE exams SET syllabus_url = '', syllabus_file_name = '' WHERE id = ?").bind(id).run();
+  const path = exam.syllabus_url?.split('/eve-media/')[1];
+  if (path && !await cleanupMedia(c.env, path, c.res.headers.get('X-Request-ID'))) {
+    return c.json({ success: true, message: 'Syllabus removed from the exam. Media cleanup was not completed; check System Monitor.' });
   }
-
-  await db
-    .prepare("UPDATE exams SET syllabus_url = '', syllabus_file_name = '' WHERE id = ?")
-    .bind(id)
-    .run();
-
   return c.json({ success: true });
 });

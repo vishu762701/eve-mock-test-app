@@ -1,3 +1,4 @@
+import { cleanupMedia } from '../services/mediaCleanup';
 // ============================================================================
 // Home Promotional Banners (Supabase Media Integration)
 // ============================================================================
@@ -186,14 +187,11 @@ bannerRoutes.delete("/:id", requireAdmin, async (c) => {
     .bind(id)
     .first<HomeBannerRow>();
 
-  if (banner && banner.storage_path) {
-    try {
-      const storage = new SupabaseStorage(c.env);
-      await storage.deleteFile(banner.storage_path);
-    } catch (_e) {}
-  }
-
+  if (!banner) return c.json({ success: false, error: 'Banner not found' }, 404);
   await db.prepare("DELETE FROM home_banners WHERE id = ?").bind(id).run();
+  if (banner.storage_path && !await cleanupMedia(c.env, banner.storage_path, c.res.headers.get('X-Request-ID'))) {
+    return c.json({ success: true, message: 'Banner removed. Media cleanup was not completed; check System Monitor.' });
+  }
   return c.json({ success: true });
 });
 
