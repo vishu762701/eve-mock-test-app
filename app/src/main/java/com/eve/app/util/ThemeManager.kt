@@ -153,9 +153,10 @@ object ThemeManager {
     }
 
     fun trace(stage: String, view: View? = null, id: Long = currentTransitionId) {
-        if (BuildConfig.DEBUG) eventObserverForTest?.invoke(stage, id, view)
-        val activity = view?.let { findActivity(it.context) }
+        val activity = view?.let { findActivity(it.context) } ?: listOf(sourceActivityRef?.get(), targetActivityRef?.get())
+            .firstOrNull { it != null && it.window.decorView === view }
         logDebug("event=$stage id=$id bounds=${view?.width}x${view?.height} position=${view?.left},${view?.top} attached=${view?.isAttachedToWindow} laidOut=${view?.isLaidOut} finishing=${activity?.isFinishing} destroyed=${activity?.isDestroyed} focus=${view?.hasWindowFocus()}")
+        if (BuildConfig.DEBUG) eventObserverForTest?.invoke(stage, id, view)
     }
 
     fun isThemeRecreation(activity: Activity, savedState: Bundle?): Boolean {
@@ -287,7 +288,7 @@ object ThemeManager {
                     logDebug("Old Activity stopped during recreate (expected)")
                     return
                 }
-                if (activity.javaClass.name == holder.activityClassName) {
+                if (activity === targetActivityRef?.get()) {
                     logDebug("Activity stopped during transition (${activity.javaClass.simpleName}) -> cleaning up safely")
                     detachAllOverlays(activity)
                     cleanupPending("activity_stopped")
@@ -309,7 +310,7 @@ object ThemeManager {
                     detachAllOverlays(activity)
                     return
                 }
-                if (activity.javaClass.name == holder.activityClassName) {
+                if (activity === targetActivityRef?.get()) {
                     logDebug("Activity destroyed -> cleaning up overlay")
                     detachAllOverlays(activity)
                     cleanupPending("activity_destroyed")
@@ -1008,8 +1009,8 @@ object ThemeManager {
         anim.start()
         // The protection stays above both layers until a hardware frame containing the
         // native reveal has been submitted. start() alone is not a render fence.
-        ThemeFrameCoordinator.afterFrame(decorView, valid = { currentTransitionId == holder.transitionId }) {
-            if (currentTransitionId != holder.transitionId || currentAnimator !== anim) return@afterFrame
+        ThemeFrameCoordinator.afterCurrentFrame(decorView, valid = { currentTransitionId == holder.transitionId }) {
+            if (currentTransitionId != holder.transitionId || currentAnimator !== anim) return@afterCurrentFrame
             trace("protection_cover_removal", protection, holder.transitionId)
             (protection as? ImageView)?.setImageDrawable(null)
             decorView.removeView(protection)

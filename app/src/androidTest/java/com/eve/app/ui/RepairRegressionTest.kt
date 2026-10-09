@@ -357,6 +357,8 @@ class RepairRegressionTest {
                     assertEquals(phaseStartDark, prefs.getBoolean(com.eve.app.util.ThemeManager.KEY_DARK_MODE, !phaseStartDark))
                     assertEquals(initialMode, AppCompatDelegate.getDefaultNightMode())
 
+                    val handoffStages = java.util.concurrent.CopyOnWriteArrayList<String>()
+                    com.eve.app.util.ThemeManager.setEventObserverForTest { stage, _, _ -> handoffStages.add(stage) }
                     // Complete capture and verify the app settles in targetDark
                     com.eve.app.util.ThemeManager.setCaptureInterceptorForTest(null)
                     val commitAction = pendingCommit.getAndSet(null)
@@ -380,6 +382,9 @@ class RepairRegressionTest {
                         if (!ready) Thread.sleep(50)
                     }
                     assertTrue("App did not settle in target theme ($diag)", ready)
+                    assertTrue("RenderThread reveal never handed off its cover: $handoffStages", "protection_cover_removal" in handoffStages)
+                    assertTrue(handoffStages.indexOf("protection_cover_removal") < handoffStages.indexOf("cleanup:animation_complete"))
+                    com.eve.app.util.ThemeManager.setEventObserverForTest(null)
 
                     scenario.onActivity { act ->
                         assertEquals(0, act.window.attributes.flags and android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
@@ -446,6 +451,7 @@ class RepairRegressionTest {
             }
         } finally {
             com.eve.app.util.ThemeManager.setCaptureInterceptorForTest(null)
+            com.eve.app.util.ThemeManager.setEventObserverForTest(null)
             instrumentation.runOnMainSync {
                 if (initialHasPref) {
                     prefs.edit().putBoolean(com.eve.app.util.ThemeManager.KEY_DARK_MODE, initialPref).commit()
@@ -487,6 +493,9 @@ class RepairRegressionTest {
                         manager.setEventObserverForTest { stage, id, view ->
                             events.add(stage)
                             eventIds[stage] = id
+                            if (stage.startsWith("popup_blur_update:") && "popup_work_cancelled" in events) {
+                                failures.add("Blur changed after popup cancellation: $stage")
+                            }
                             if (popupPhase == "running" && !runningTapped && stage.startsWith("popup_blur_update:") &&
                                 (stage.substringAfter(':').toIntOrNull() ?: 0) > 1) {
                                 // Tap in the animator's frame, before returning to instrumentation.
@@ -496,9 +505,6 @@ class RepairRegressionTest {
                                 popup.contentView.findViewById<View>(R.id.cardTheme).performClick()
                                 popup.contentView.findViewById<View>(R.id.cardTheme).performClick()
                                 blurRunning.countDown()
-                            }
-                            if (stage.startsWith("popup_blur_update:") && "popup_work_cancelled" in events) {
-                                failures.add("Blur changed after popup cancellation: $stage")
                             }
                             if (stage == "target_layers_ready" || stage == "protection_cover_removal") {
                                 val decor = view?.rootView as? android.view.ViewGroup
