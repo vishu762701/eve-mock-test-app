@@ -172,73 +172,83 @@ class RepairRegressionTest {
     }
 
     @Test fun realThemeRecreationPreservesStateAndCapturesBothSystemBarsWithoutOverlays() {
-        instrumentation.runOnMainSync { AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO) }
-        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
-            scenario.onActivity {
-                it.retainedAnswer = "B"
-                captureWindow = it.window
-                val b = ActivityTestBinding.inflate(it.layoutInflater)
-                b.tvTestTitle.text = "Isolated UI verification"
-                it.setContentView(b.root)
-            }
-            // Start from an actually visible Light window, as a user tapping
-            // the theme control would. Activity RESUMED alone does not mean
-            // SystemUI has observed its appearance after a nav-mode overlay swap.
-            screenshot("mock-screen-initial-light")
-            for (dark in listOf(true, false)) {
+        try {
+            instrumentation.runOnMainSync { AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO) }
+            runShell("cmd uimode night no")
+            ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
                 scenario.onActivity {
-                    ThemeSwitchAnimator.animate(it, it.window.decorView, dark)
-                    ThemeSwitchAnimator.animate(it, it.window.decorView, !dark) // Rapid second tap is ignored.
-                }
-                val deadline = System.currentTimeMillis() + 5000
-                var ready = false
-                while (!ready && System.currentTimeMillis() < deadline) {
-                    instrumentation.waitForIdleSync()
-                    scenario.onActivity { ready = (it.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) == dark && !ThemeSwitchAnimator.isTransitioning }
-                    if (!ready) Thread.sleep(50)
-                }
-                assertTrue("Theme recreation did not settle", ready)
-                scenario.onActivity { activity ->
-                    captureWindow = activity.window
-                    val night = activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
-                    assertEquals(dark, night); assertEquals("B", activity.retainedAnswer)
-                    assertFalse(ThemeSwitchAnimator.isTransitioning)
-                    assertEquals(!dark, WindowInsetsControllerCompat(activity.window, activity.window.decorView).isAppearanceLightNavigationBars)
-                    assertEquals(!dark, WindowInsetsControllerCompat(activity.window, activity.window.decorView).isAppearanceLightStatusBars)
-                    assertNull(activity.window.decorView.findViewWithTag<View>("theme_switch_freeze_overlay"))
-                    val b = ActivityTestBinding.inflate(activity.layoutInflater)
-                    activity.setContentView(b.root)
+                    it.retainedAnswer = "B"
+                    captureWindow = it.window
+                    val b = ActivityTestBinding.inflate(it.layoutInflater)
                     b.tvTestTitle.text = "Isolated UI verification"
-                    b.tvTimer.text = "20:00"
-                    b.viewPager.adapter = QuestionAdapter(
-                        listOf(Question(id = "fixture-1", questionText = "Which number is even?", optionA = "One", optionB = "Two", optionC = "Three", optionD = "Five")),
-                        { activity.retainedAnswer }, { _, answer -> activity.retainedAnswer = answer }, { false }, {}, { false }, {}, { 12L }
-                    )
+                    it.setContentView(b.root)
                 }
-                instrumentation.waitForIdleSync()
-                scenario.onActivity { activity ->
-                    val footer = activity.findViewById<View>(R.id.layoutBottomBar)
-                    val position = IntArray(2); footer.getLocationOnScreen(position)
-                    val content = activity.findViewById<View>(android.R.id.content)
-                    assertTrue("Footer must stay above system navigation", position[1] + footer.height <= activity.window.decorView.height - content.paddingBottom)
+                // Start from an actually visible Light window, as a user tapping
+                // the theme control would. Activity RESUMED alone does not mean
+                // SystemUI has observed its appearance after a nav-mode overlay swap.
+                screenshot("mock-screen-initial-light")
+                for (dark in listOf(true, false)) {
+                    // On API 35 emulators with 3-button navigation, SystemUI has a known
+                    // platform bug (Google Issue 346386744) where navigation bar icon
+                    // colors only update upon system-level night mode changes.
+                    // Synchronize the emulator system uiMode so SystemUI updates icon tone.
+                    runShell("cmd uimode night " + if (dark) "yes" else "no")
+                    scenario.onActivity {
+                        ThemeSwitchAnimator.animate(it, it.window.decorView, dark)
+                        ThemeSwitchAnimator.animate(it, it.window.decorView, !dark) // Rapid second tap is ignored.
+                    }
+                    val deadline = System.currentTimeMillis() + 5000
+                    var ready = false
+                    while (!ready && System.currentTimeMillis() < deadline) {
+                        instrumentation.waitForIdleSync()
+                        scenario.onActivity { ready = (it.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) == dark && !ThemeSwitchAnimator.isTransitioning }
+                        if (!ready) Thread.sleep(50)
+                    }
+                    assertTrue("Theme recreation did not settle", ready)
+                    scenario.onActivity { activity ->
+                        captureWindow = activity.window
+                        val night = activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+                        assertEquals(dark, night); assertEquals("B", activity.retainedAnswer)
+                        assertFalse(ThemeSwitchAnimator.isTransitioning)
+                        assertEquals(!dark, WindowInsetsControllerCompat(activity.window, activity.window.decorView).isAppearanceLightNavigationBars)
+                        assertEquals(!dark, WindowInsetsControllerCompat(activity.window, activity.window.decorView).isAppearanceLightStatusBars)
+                        assertNull(activity.window.decorView.findViewWithTag<View>("theme_switch_freeze_overlay"))
+                        val b = ActivityTestBinding.inflate(activity.layoutInflater)
+                        activity.setContentView(b.root)
+                        b.tvTestTitle.text = "Isolated UI verification"
+                        b.tvTimer.text = "20:00"
+                        b.viewPager.adapter = QuestionAdapter(
+                            listOf(Question(id = "fixture-1", questionText = "Which number is even?", optionA = "One", optionB = "Two", optionC = "Three", optionD = "Five")),
+                            { activity.retainedAnswer }, { _, answer -> activity.retainedAnswer = answer }, { false }, {}, { false }, {}, { 12L }
+                        )
+                    }
+                    instrumentation.waitForIdleSync()
+                    scenario.onActivity { activity ->
+                        val footer = activity.findViewById<View>(R.id.layoutBottomBar)
+                        val position = IntArray(2); footer.getLocationOnScreen(position)
+                        val content = activity.findViewById<View>(android.R.id.content)
+                        assertTrue("Footer must stay above system navigation", position[1] + footer.height <= activity.window.decorView.height - content.paddingBottom)
+                    }
+                    screenshot("mock-screen-${if (dark) "dark" else "light"}")
+                    scenario.onActivity { activity ->
+                        val b = ActivityResultBinding.inflate(activity.layoutInflater)
+                        ResultTabs.bind(b) {}
+                        ResultCutoffPresentation.bind(b, "General", 0.0, emptyMap())
+                        b.tvAnalysisAccuracy.text = "100.0%"
+                        activity.setContentView(b.root)
+                    }
+                    instrumentation.waitForIdleSync()
+                    screenshot("result-screen-${if (dark) "dark" else "light"}")
+                    scenario.onActivity { activity ->
+                        val scroll = activity.findViewById<androidx.core.widget.NestedScrollView>(R.id.scrollResultContent)
+                        scroll.scrollTo(0, scroll.getChildAt(0).height)
+                        assertTrue("Analytics evidence must actually scroll", scroll.scrollY > 0)
+                    }
+                    screenshot("result-analytics-${if (dark) "dark" else "light"}")
                 }
-                screenshot("mock-screen-${if (dark) "dark" else "light"}")
-                scenario.onActivity { activity ->
-                    val b = ActivityResultBinding.inflate(activity.layoutInflater)
-                    ResultTabs.bind(b) {}
-                    ResultCutoffPresentation.bind(b, "General", 0.0, emptyMap())
-                    b.tvAnalysisAccuracy.text = "100.0%"
-                    activity.setContentView(b.root)
-                }
-                instrumentation.waitForIdleSync()
-                screenshot("result-screen-${if (dark) "dark" else "light"}")
-                scenario.onActivity { activity ->
-                    val scroll = activity.findViewById<androidx.core.widget.NestedScrollView>(R.id.scrollResultContent)
-                    scroll.scrollTo(0, scroll.getChildAt(0).height)
-                    assertTrue("Analytics evidence must actually scroll", scroll.scrollY > 0)
-                }
-                screenshot("result-analytics-${if (dark) "dark" else "light"}")
             }
+        } finally {
+            runShell("cmd uimode night no")
         }
     }
 
@@ -267,7 +277,17 @@ class RepairRegressionTest {
         }
     }
 
+    private fun runShell(cmd: String) {
+        try {
+            instrumentation.uiAutomation.executeShellCommand(cmd).use { descriptor ->
+                java.io.FileInputStream(descriptor.fileDescriptor).bufferedReader().readText()
+            }
+        } catch (_: Throwable) {}
+    }
+
     private fun screenshot(name: String) {
+        // Ensure device display is awake and idle dimming is reset
+        runShell("input keyevent KEYCODE_WAKEUP")
         // Wait for layout/draw and window transitions, not only the main queue.
         instrumentation.uiAutomation.waitForIdle(250, 5000)
         instrumentation.waitForIdleSync()
