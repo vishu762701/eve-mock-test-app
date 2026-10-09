@@ -54,7 +54,8 @@ class AdminDeletionRegressionTest {
                 AdminDeleteFlow(activity, api).confirmRemoval("banner:original", "Banner",
                     { repository.deleteBanner("original").getOrThrow() }, { refreshed.incrementAndGet(); Unit })
             }
-            onView(withText("Delete")).perform(click())
+            waitForDialog("Delete")
+            onView(withText("Delete")).inRoot(isDialog()).perform(click())
             val deadline = System.currentTimeMillis() + 5000
             while (refreshed.get() == 0 && System.currentTimeMillis() < deadline) Thread.sleep(50)
             assertEquals(1, refreshed.get())
