@@ -28,7 +28,15 @@ adb shell wm density > ui-renderings/display-density.log
 adb shell cmd overlay enable-exclusive --category "com.android.internal.systemui.navbar.$overlay"
 adb shell input keyevent KEYCODE_WAKEUP
 adb shell wm dismiss-keyguard
-actual_mode="$(adb shell settings get secure navigation_mode | tr -d '\r')"
+# OverlayManager returns before SystemUI updates the secure setting. Run #228
+# read 2 immediately, then captured 0 in its exit diagnostics. Wait for the
+# requested state, with a hard bound; never run under the wrong mode.
+actual_mode=""
+for attempt in $(seq 1 30); do
+  actual_mode="$(adb shell settings get secure navigation_mode | tr -d '\r')"
+  [[ "$actual_mode" == "$expected_mode" ]] && break
+  sleep 1
+done
 if [[ "$actual_mode" != "$expected_mode" ]]; then
   echo "Navigation configuration failed: expected $expected_mode, observed $actual_mode" >&2
   exit 1

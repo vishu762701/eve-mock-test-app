@@ -278,11 +278,12 @@ class ApprovedUiRenderingTest {
             val p = ItemPaletteCircleBinding.bind(ph.itemView)
             assertEquals(dp(38), p.cardCircle.layoutParams.width)
             assertEquals(dp(38), p.cardCircle.layoutParams.height)
-            assertEquals(19f * density, p.cardCircle.radius, 0.01f)
+            assertEquals(dp(38) / 2f, p.cardCircle.radius, 0.01f)
             assertEquals(dp(1), p.cardCircle.strokeWidth)
             assertEquals(color("#888888"), p.cardCircle.strokeColor)
-            assertEquals(dp(4), p.root.paddingLeft)
-            assertEquals(dp(4), p.root.paddingRight)
+            // Palette spacing rounds its total 8dp once, then distributes pixels.
+            assertEquals(dp(8) / 2, p.root.paddingLeft)
+            assertEquals(dp(8) - dp(8) / 2, p.root.paddingRight)
             sp(p.tvCircleNumber, 12)
             val expected = when (state) {
                 PaletteState.ANSWERED -> color("#34C759")

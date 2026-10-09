@@ -1,0 +1,10 @@
+Job113665256786, 2026-10-09T04:11:16.3056756Z:
+Navigation configuration failed: expected 0, observed 2
+
+Artifact11595047891 collected during cleanup:
+navigation-mode.log:
+0
+
+google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.043/12960925:userdebug/dev-keys
+Physical density: 420
+Physical size: 1080x1920

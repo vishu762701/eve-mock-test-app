@@ -9,7 +9,7 @@ SCRIPT = Path(__file__).resolve().parents[1] / 'verify-native-ui.sh'
 
 
 class NativeUiRunnerTest(unittest.TestCase):
-    def run_script(self, mode, status=0, observed=None):
+    def run_script(self, mode, status=0, observed=None, pending_reads=0):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             log = root / 'commands.log'
@@ -17,7 +17,11 @@ class NativeUiRunnerTest(unittest.TestCase):
                 'adb': '''#!/bin/bash
 printf 'adb %s\\n' "$*" >> "$COMMAND_LOG"
 case "$*" in
-  'shell settings get secure navigation_mode') echo "$OBSERVED_MODE" ;;
+  'shell settings get secure navigation_mode')
+    count=0
+    [[ ! -f "$READ_COUNT" ]] || read -r count < "$READ_COUNT"
+    echo "$((count + 1))" > "$READ_COUNT"
+    if (( count < PENDING_READS )); then echo 2; else echo "$OBSERVED_MODE"; fi ;;
   'shell pm path com.android.deskclock') exit 1 ;;
 esac
 ''',
@@ -25,13 +29,15 @@ esac
 printf 'gradle %s\\n' "$*" >> "$COMMAND_LOG"
 exit "$GRADLE_STATUS"
 ''',
+                'sleep': '#!/bin/bash\nexit 0\n',
             }.items():
                 file = root / name
                 file.write_text(body)
                 file.chmod(0o755)
             env = dict(os.environ, PATH=f'{root}:{os.environ["PATH"]}', COMMAND_LOG=str(log),
                        OBSERVED_MODE=str(observed if observed is not None else (2 if mode == 'gesture' else 0)),
-                       GRADLE_STATUS=str(status))
+                       GRADLE_STATUS=str(status), PENDING_READS=str(pending_reads),
+                       READ_COUNT=str(root / 'read-count'))
             result = subprocess.run(['bash', str(SCRIPT), mode], cwd=root, env=env,
                                     capture_output=True, text=True)
             commands = log.read_text()
@@ -63,6 +69,12 @@ exit "$GRADLE_STATUS"
         self.assertEqual(1, result.returncode)
         self.assertIn('Navigation configuration failed', result.stderr)
         self.assertNotIn('gradle connected', commands)
+
+    def test_asynchronous_mode_change_settles_before_running_tests(self):
+        result, commands, _ = self.run_script('three-button', pending_reads=2)
+        self.assertEqual(0, result.returncode, result.stderr)
+        before_gradle = commands.split('gradle connectedDebugAndroidTest')[0]
+        self.assertEqual(3, before_gradle.count('shell settings get secure navigation_mode'))
 
     def test_invalid_mode_fails_and_collects_diagnostics(self):
         result, commands, _ = self.run_script('invalid')
