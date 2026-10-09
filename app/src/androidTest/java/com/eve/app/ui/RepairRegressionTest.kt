@@ -293,7 +293,16 @@ class RepairRegressionTest {
             var windowState = ""
             instrumentation.runOnMainSync {
                 val window = captureWindow!!
-                windowState = "focus=${window.decorView.hasWindowFocus()} appearance=${window.insetsController?.systemBarsAppearance} legacy=${window.decorView.systemUiVisibility} navigation=${ViewCompat.getRootWindowInsets(window.decorView)?.getInsets(WindowInsetsCompat.Type.navigationBars())}"
+                windowState = "focus=${window.decorView.hasWindowFocus()} appearance=${window.insetsController?.systemBarsAppearance} flags=${window.attributes.flags.toUInt().toString(16)} legacy=${window.decorView.systemUiVisibility} navigation=${ViewCompat.getRootWindowInsets(window.decorView)?.getInsets(WindowInsetsCompat.Type.navigationBars())}"
+            }
+            if (contrastingPixels <= 10) {
+                try {
+                    instrumentation.uiAutomation.executeShellCommand("dumpsys activity service SystemUIService").use { descriptor ->
+                        val state = java.io.FileInputStream(descriptor.fileDescriptor).bufferedReader().readText()
+                        val fields = Regex("appearance|darkIntensity|mNavigationLight|mHasLightNavigationBar|mNavigationBarMode|mForce.*Scrim", RegexOption.IGNORE_CASE)
+                        android.util.Log.e("SystemBarHelper", state.lineSequence().filter { fields.containsMatchIn(it) }.take(50).joinToString("\n"))
+                    }
+                } catch (e: Exception) { android.util.Log.e("SystemBarHelper", "Native SystemUI diagnostics unavailable: ${e.javaClass.simpleName}") }
             }
             assertTrue("System navigation indicator must actually contrast in $name/$mode; pixels=$contrastingPixels; $windowState", contrastingPixels > 10)
         }
