@@ -34,6 +34,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class RepairRegressionTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
+    private var captureWindow: android.view.Window? = null
 
     @Test fun persistedAnswersClearAndResumeOnlyTheCorrectOwnerExamAndAttempt() {
         val store = com.eve.app.data.local.TestSessionStore(instrumentation.targetContext)
@@ -188,6 +189,7 @@ class RepairRegressionTest {
                 }
                 assertTrue("Theme recreation did not settle", ready)
                 scenario.onActivity { activity ->
+                    captureWindow = activity.window
                     val night = activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
                     assertEquals(dark, night); assertEquals("B", activity.retainedAnswer)
                     assertFalse(ThemeSwitchAnimator.isTransitioning)
@@ -269,6 +271,7 @@ class RepairRegressionTest {
         val resolver = instrumentation.targetContext.contentResolver
         val uri = resolver.insert(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)!!
         val bitmap = instrumentation.uiAutomation.takeScreenshot() ?: error("No emulator screenshot")
+        resolver.openOutputStream(uri)!!.use { assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)) }
         if (name.startsWith("mock-screen")) {
             val dark = name.contains("dark")
             val rows = if (mode == "three-button") 30 else 12
@@ -277,9 +280,13 @@ class RepairRegressionTest {
                 val color = bitmap.getPixel(x, y)
                 if (androidx.core.graphics.ColorUtils.calculateContrast(color, if (dark) Color.BLACK else Color.WHITE) >= 3.0) contrastingPixels++
             }
-            assertTrue("System navigation indicator must actually contrast in $name/$mode", contrastingPixels > 10)
+            var windowState = ""
+            instrumentation.runOnMainSync {
+                val window = captureWindow!!
+                windowState = "focus=${window.decorView.hasWindowFocus()} appearance=${window.insetsController?.systemBarsAppearance} legacy=${window.decorView.systemUiVisibility} navigation=${ViewCompat.getRootWindowInsets(window.decorView)?.getInsets(WindowInsetsCompat.Type.navigationBars())}"
+            }
+            assertTrue("System navigation indicator must actually contrast in $name/$mode; pixels=$contrastingPixels; $windowState", contrastingPixels > 10)
         }
-        resolver.openOutputStream(uri)!!.use { assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)) }
         bitmap.recycle()
     }
 }

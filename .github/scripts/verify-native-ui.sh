@@ -4,6 +4,9 @@ collect_evidence() {
   mkdir -p ui-renderings
   adb pull /sdcard/Pictures/eve-approved-ui ui-renderings/ || true
   adb logcat -d -s AndroidRuntime ThemeSwitchAnimator SystemBarHelper > ui-renderings/safe-runtime.log || true
+  adb shell dumpsys window windows | rg 'mCurrentFocus|mFocusedApp|mAppearance|appearance=|mNavBarColor|mNavigationBarColor' > ui-renderings/window-appearance.log || true
+  adb shell dumpsys activity service com.android.systemui/.SystemUIService | rg -i 'appearance|darkIntensity|lightBar|navigationMode|navBarColor|lightNavigation|navigationLight|navigationBarMode' > ui-renderings/systemui-appearance.log || true
+  adb shell settings get secure navigation_mode > ui-renderings/navigation-mode.log || true
 }
 trap collect_evidence EXIT
 adb shell cmd overlay enable-exclusive --category com.android.internal.systemui.navbar.gestural
