@@ -41,7 +41,8 @@ class ApprovedUiRenderingTest {
     private val density get() = context.resources.displayMetrics.density
     private fun dp(value: Int) = (value * density + 0.5f).toInt()
     private fun sp(view: android.widget.TextView, value: Int) =
-        assertEquals(value.toFloat(), view.textSize / context.resources.displayMetrics.scaledDensity, 0.01f)
+        assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP,
+            value.toFloat(), context.resources.displayMetrics), view.textSize, 0.51f)
     private val foreground get() = if (dark) Color.WHITE else Color.BLACK
     private val background get() = if (dark) Color.BLACK else Color.WHITE
     private fun color(value: String) = Color.parseColor(value)

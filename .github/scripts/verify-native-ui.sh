@@ -11,7 +11,8 @@ collect_evidence() {
 }
 trap collect_evidence EXIT
 adb shell cmd overlay enable-exclusive --category com.android.internal.systemui.navbar.gestural
-gradle connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=com.eve.app.ui -Pandroid.testInstrumentationRunnerArguments.navigationMode=gesture --stacktrace
+gesture_status=0
+gradle connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=com.eve.app.ui -Pandroid.testInstrumentationRunnerArguments.navigationMode=gesture --stacktrace || gesture_status=$?
 mkdir -p ui-renderings
 cp -R app/build/reports/androidTests ui-renderings/gesture-android-tests
 cp -R app/build/outputs/androidTest-results ui-renderings/gesture-test-results
@@ -45,4 +46,4 @@ if [[ "$three_button_status" != "0" ]]; then
     adb shell dumpsys window displays | grep -E 'mCurrentFocus|mFocusedApp' > ui-renderings/stock-clock-focus.log || true
   fi
 fi
-exit "$three_button_status"
+if [[ "$gesture_status" != "0" || "$three_button_status" != "0" ]]; then exit 1; fi

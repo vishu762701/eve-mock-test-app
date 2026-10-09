@@ -108,10 +108,12 @@ class ApprovedUiFunctionalTest {
                 val selectedState = intArrayOf(android.R.attr.state_selected)
                 assertEquals(Color.parseColor("#FFCC00"), actions.btnMarkReview.backgroundTintList!!.getColorForState(selectedState, 0))
                 assertEquals(Color.BLACK, actions.btnMarkReview.textColors.getColorForState(selectedState, 0))
-                assertEquals(16f, b.tvQuestion.textSize / context.resources.displayMetrics.scaledDensity, 0.01f)
-                assertEquals(14f, b.rbA.textSize / context.resources.displayMetrics.scaledDensity, 0.01f)
+                assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP, 16f,
+                    context.resources.displayMetrics), b.tvQuestion.textSize, 0.51f)
+                assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP, 14f,
+                    context.resources.displayMetrics), b.rbA.textSize, 0.51f)
                 assertEquals(1.5f, b.tvQuestion.lineSpacingMultiplier, 0.01f)
-                assertEquals((56f * context.resources.displayMetrics.density).toInt(), b.rbA.minHeight)
+                assertEquals((56f * context.resources.displayMetrics.density + 0.5f).toInt(), b.rbA.minHeight)
                 // A selected fill must not paint over the approved 2dp indicator border.
                 b.rbA.isChecked = true
                 b.rbA.jumpDrawablesToCurrentState()
@@ -151,7 +153,7 @@ class ApprovedUiFunctionalTest {
                 adapter.onBindViewHolder(holder, 0)
                 assertEquals(Color.parseColor(color), b.cardCircle.cardBackgroundColor.defaultColor)
                 assertEquals(b.cardCircle.layoutParams.width, b.cardCircle.layoutParams.height)
-                assertEquals((38f * context.resources.displayMetrics.density).toInt(), b.cardCircle.layoutParams.width)
+                assertEquals((38f * context.resources.displayMetrics.density + 0.5f).toInt(), b.cardCircle.layoutParams.width)
                 b.root.performClick()
                 assertEquals(0, selected)
             }
