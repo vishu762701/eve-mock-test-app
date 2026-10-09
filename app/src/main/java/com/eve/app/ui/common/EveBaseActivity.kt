@@ -28,4 +28,9 @@ abstract class EveBaseActivity : AppCompatActivity() {
             recreate()
         }
     }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) com.eve.app.util.SystemBarHelper.syncSystemBars(this)
+    }
 }

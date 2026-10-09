@@ -84,13 +84,21 @@ object SystemBarHelper {
 
         val isDarkAppearance = activity.resources.configuration.uiMode and
             android.content.res.Configuration.UI_MODE_NIGHT_MASK == android.content.res.Configuration.UI_MODE_NIGHT_YES
-        val controller = WindowInsetsControllerCompat(window, decorView)
-        controller.isAppearanceLightStatusBars = !isDarkAppearance
-        controller.isAppearanceLightNavigationBars = !isDarkAppearance
-        window.statusBarColor = ContextCompat.getColor(activity, R.color.eve_bg)
-        window.navigationBarColor = ContextCompat.getColor(activity, R.color.eve_canvas)
+        val background = ContextCompat.getColor(activity, R.color.eve_bg)
+        if (android.os.Build.VERSION.SDK_INT >= 35) {
+            // Android 15 derives forced navigation appearance from the window
+            // background under enforced edge-to-edge. The regular light-icon
+            // flag alone cannot correct a stale light window background.
+            window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(background))
+        } else {
+            window.statusBarColor = background
+            window.navigationBarColor = ContextCompat.getColor(activity, R.color.eve_canvas)
+        }
         if (android.os.Build.VERSION.SDK_INT >= 29) {
             window.isNavigationBarContrastEnforced = false
         }
+        val controller = WindowInsetsControllerCompat(window, decorView)
+        controller.isAppearanceLightStatusBars = !isDarkAppearance
+        controller.isAppearanceLightNavigationBars = !isDarkAppearance
     }
 }
