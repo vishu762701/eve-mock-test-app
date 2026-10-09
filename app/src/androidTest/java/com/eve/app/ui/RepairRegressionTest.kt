@@ -174,7 +174,17 @@ class RepairRegressionTest {
     @Test fun realThemeRecreationPreservesStateAndCapturesBothSystemBarsWithoutOverlays() {
         instrumentation.runOnMainSync { AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO) }
         ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
-            scenario.onActivity { it.retainedAnswer = "B" }
+            scenario.onActivity {
+                it.retainedAnswer = "B"
+                captureWindow = it.window
+                val b = ActivityTestBinding.inflate(it.layoutInflater)
+                b.tvTestTitle.text = "Isolated UI verification"
+                it.setContentView(b.root)
+            }
+            // Start from an actually visible Light window, as a user tapping
+            // the theme control would. Activity RESUMED alone does not mean
+            // SystemUI has observed its appearance after a nav-mode overlay swap.
+            screenshot("mock-screen-initial-light")
             for (dark in listOf(true, false)) {
                 scenario.onActivity {
                     ThemeSwitchAnimator.animate(it, it.window.decorView, dark)
