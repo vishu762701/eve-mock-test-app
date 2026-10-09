@@ -219,6 +219,11 @@ class RepairRegressionTest {
                 }
                 instrumentation.waitForIdleSync()
                 screenshot("result-screen-${if (dark) "dark" else "light"}")
+                scenario.onActivity { activity ->
+                    activity.findViewById<androidx.core.widget.NestedScrollView>(R.id.scrollResultContent)
+                        .fullScroll(View.FOCUS_DOWN)
+                }
+                screenshot("result-analytics-${if (dark) "dark" else "light"}")
             }
         }
     }
@@ -249,6 +254,8 @@ class RepairRegressionTest {
     }
 
     private fun screenshot(name: String) {
+        // Wait for layout/draw and window transitions, not only the main queue.
+        instrumentation.uiAutomation.waitForIdle(250, 5000)
         val mode = InstrumentationRegistry.getArguments().getString("navigationMode", "default")
         val values = android.content.ContentValues().apply {
             put(android.provider.MediaStore.Images.Media.DISPLAY_NAME, "$name-$mode.png")

@@ -8,6 +8,8 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.matcher.RootMatchers.isDialog
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.eve.app.data.remote.EveApiService
 import com.eve.app.ui.admin.AdminDeleteFlow
@@ -88,14 +90,18 @@ class AdminDeletionRegressionTest {
                     flow.confirm("exam-1", "Exam", true, refresh)
                     flow.confirm("exam-1", "Exam", true, refresh)
                 }
+                // Retrofit preflight is asynchronous. Do not let Espresso pick the
+                // activity root just before the dialog takes its window focus.
+                val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
                 val previewDeadline = System.currentTimeMillis() + 5000
                 var visible = false
                 while (!visible && System.currentTimeMillis() < previewDeadline) {
-                    try { onView(withText("Delete")).check(matches(isDisplayed())); visible = true }
-                    catch (_: androidx.test.espresso.NoMatchingViewException) { Thread.sleep(50) }
+                    val root = automation.rootInActiveWindow
+                    visible = root?.findAccessibilityNodeInfosByText("Delete")?.any { it.text?.toString() == "Delete" } == true
+                    if (!visible) Thread.sleep(50)
                 }
                 assertTrue("Deletion confirmation did not appear", visible)
-                onView(withText("Delete")).perform(click())
+                onView(withText("Delete")).inRoot(isDialog()).check(matches(isDisplayed())).perform(click())
                 scenario.onActivity {
                     assertEquals("Keep the record until server confirmation", View.VISIBLE, record.visibility)
                     flow.confirm("exam-1", "Exam", true, refresh)
