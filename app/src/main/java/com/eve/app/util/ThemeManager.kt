@@ -28,6 +28,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.WindowManager
+import android.view.animation.PathInterpolator
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageButton
@@ -77,7 +78,7 @@ object ThemeManager {
     }
 
     val isTransitioning: Boolean
-        get() = ThemeSwitchAnimator.isTransitioning || transitioning
+        get() = transitioning
 
     private fun logDebug(message: String) {
         if (BuildConfig.DEBUG) {
@@ -89,7 +90,6 @@ object ThemeManager {
         val app = (context as? Application) ?: (context.applicationContext as? Application)
         app?.let { 
             ensureLifecycleRegistered(it)
-            ThemeSwitchAnimator.ensureLifecycleRegistered(it)
         }
 
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -154,6 +154,7 @@ object ThemeManager {
                     logDebug("New Activity created under theme change -> Attaching full-screen pre-overlay")
                     activity.overridePendingTransition(0, 0)
                     attachStaticOverlayImmediately(activity, holder.bitmap)
+                    SystemBarHelper.syncSystemBars(activity)
                 }
             }
 
@@ -169,6 +170,7 @@ object ThemeManager {
                     activity.overridePendingTransition(0, 0)
                     waitForNewThemeRenderAndReveal(activity, holder)
                 }
+                SystemBarHelper.syncSystemBars(activity)
             }
 
             override fun onActivityPaused(activity: Activity) {}
@@ -282,7 +284,7 @@ object ThemeManager {
         decorView.invalidate()
     }
 
-    private fun cleanupPending(reason: String = "unknown") {
+    fun cleanupPending(reason: String = "unknown") {
         logDebug("cleanupPending triggered (reason: $reason)")
         mainHandler.removeCallbacks(timeoutRunnable)
 
@@ -306,6 +308,11 @@ object ThemeManager {
         val bmp = pendingSnapshot?.bitmap
         pendingSnapshot = null
         transitioning = false
+
+        val finalActivity = target ?: source
+        if (finalActivity != null) {
+            SystemBarHelper.syncSystemBars(finalActivity)
+        }
 
         if (bmp != null && !bmp.isRecycled) {
             try {
@@ -469,7 +476,7 @@ object ThemeManager {
         }
 
         activity.overridePendingTransition(0, 0)
-        mainHandler.postDelayed(timeoutRunnable, 3500)
+        mainHandler.postDelayed(timeoutRunnable, 2000L)
 
         logDebug("Applying new theme mode via AppCompatDelegate...")
         if (applyAction != null) {
@@ -651,13 +658,17 @@ object ThemeManager {
 
             animator = ValueAnimator.ofFloat(0f, maxRadius).apply {
                 duration = 400L // 400ms duration per specification
-                interpolator = FastOutSlowInInterpolator() // Telegram-exact cubic bezier curve
+                interpolator = PathInterpolator(0.455f, 0.03f, 0.515f, 0.955f) // Telegram easeInOutQuad
                 addUpdateListener { va ->
                     currentRadius = va.animatedValue as Float
                     invalidate()
                 }
                 addListener(object : AnimatorListenerAdapter() {
                     override fun onAnimationEnd(animation: Animator) {
+                        onCompleteCallback?.invoke()
+                        onCompleteCallback = null
+                    }
+                    override fun onAnimationCancel(animation: Animator) {
                         onCompleteCallback?.invoke()
                         onCompleteCallback = null
                     }
