@@ -273,4 +273,20 @@ class ThemeSwitchAnimatorTest {
         assertEquals(957, cx)
         assertEquals(207, cy)
     }
+
+    @Test
+    fun testTelegramThemeEasing_startEndAndMonotonicity() {
+        assertEquals(0f, TelegramThemeEasing.getInterpolation(0f), 0.001f)
+        assertEquals(1f, TelegramThemeEasing.getInterpolation(1f), 0.001f)
+
+        // Monotonic progression
+        var last = 0f
+        for (i in 1..10) {
+            val t = i / 10f
+            val interpolated = TelegramThemeEasing.getInterpolation(t)
+            assertTrue("Interpolator must be strictly monotonic", interpolated >= last)
+            last = interpolated
+        }
+        assertEquals(1f, last, 0.001f)
+    }
 }

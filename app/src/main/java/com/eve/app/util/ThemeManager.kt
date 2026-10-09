@@ -25,11 +25,10 @@ import android.provider.Settings
 import android.util.Log
 import android.view.PixelCopy
 import android.view.View
+import android.view.ViewAnimationUtils
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.WindowManager
-import android.view.animation.PathInterpolator
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -43,12 +42,12 @@ import kotlin.math.max
 
 /**
  * ThemeManager: Controls Light <-> Dark theme switching with Telegram-style circular reveal.
- * Solves all known flicker causes:
- * 1. Synchronous/PixelCopy bitmap capture complete BEFORE theme change begins.
- * 2. Static full-screen overlay attached to DecorView during recreation (covers status & nav bar).
- * 3. Frame synchronization via OnPreDrawListener waits until new theme renders underneath.
- * 4. Expanding circular reveal (0 -> maxRadius) centered at exact tap/button coordinates.
- * 5. Full lifecycle cleanup and rapid-tap protection.
+ * Faithful port of Telegram's Day/Night theme switch:
+ * - Upstream: org.telegram.ui.LaunchActivity
+ * - Day -> Night: circular reveal animates new live dark content expanding outward over old light screenshot.
+ * - Night -> Day: circular reveal animates old dark screenshot shrinking inward over new live light content.
+ * - ViewAnimationUtils.createCircularReveal native implementation with TelegramThemeEasing (400ms).
+ * - Multi-transaction identity, asynchronous PixelCopy safety, and transition-aware system bar sync.
  */
 object ThemeManager {
 
@@ -57,20 +56,24 @@ object ThemeManager {
     private const val KEY_DARK_MODE = "key_dark_mode"
 
     private data class SnapshotHolder(
+        val transitionId: Long,
         val bitmap: Bitmap,
         val originX: Float,
         val originY: Float,
+        val isDarkModeTarget: Boolean,
         val oldActivityId: Int,
         val activityClassName: String,
         val captureTimestamp: Long
     )
 
+    private var currentTransitionId = 0L
     private var pendingSnapshot: SnapshotHolder? = null
     private var sourceActivityRef: WeakReference<Activity>? = null
     private var targetActivityRef: WeakReference<Activity>? = null
     private var isLifecycleRegistered = false
     private var transitioning = false
-    private var themeSwitchOverlay: ThemeSwitchOverlayView? = null
+    private var currentThemeSwitchOverlay: ImageView? = null
+    private var currentAnimator: Animator? = null
     private val mainHandler = Handler(Looper.getMainLooper())
     private val timeoutRunnable = Runnable {
         logDebug("Timeout reached, cleaning up pending transition")
@@ -215,27 +218,37 @@ object ThemeManager {
         try {
             val decorView = activity.window?.decorView as? ViewGroup ?: return
 
-            // 1. Find and remove ALL views tagged "pre_reveal_overlay"
-            var preOverlay: View?
-            do {
-                preOverlay = decorView.findViewWithTag<View>("pre_reveal_overlay")
-                if (preOverlay != null) {
-                    (preOverlay as? ImageView)?.setImageDrawable(null)
-                    decorView.removeView(preOverlay)
-                    logDebug("Removed pre_reveal_overlay from ${activity.javaClass.simpleName}")
-                }
-            } while (preOverlay != null)
+            // 1. Find and remove ALL views tagged "pre_reveal_overlay" or "theme_switch_freeze_overlay"
+            val tags = listOf("pre_reveal_overlay", "theme_switch_freeze_overlay")
+            for (tag in tags) {
+                var overlay: View?
+                do {
+                    overlay = decorView.findViewWithTag<View>(tag)
+                    if (overlay != null) {
+                        (overlay as? ImageView)?.setImageDrawable(null)
+                        decorView.removeView(overlay)
+                        logDebug("Removed $tag from ${activity.javaClass.simpleName}")
+                    }
+                } while (overlay != null)
+            }
 
-            // 2. Remove and cancel themeSwitchOverlay if attached
-            themeSwitchOverlay?.let { overlay ->
-                if (overlay.parent == decorView || overlay.parent != null) {
-                    overlay.cancelAnimation()
-                    (overlay.parent as? ViewGroup)?.removeView(overlay)
-                    logDebug("Removed themeSwitchOverlay from ${activity.javaClass.simpleName}")
+            // 2. Remove currentThemeSwitchOverlay ONLY if attached to THIS activity's decorView
+            currentThemeSwitchOverlay?.let { overlay ->
+                if (overlay.parent === decorView) {
+                    overlay.setImageDrawable(null)
+                    decorView.removeView(overlay)
+                    logDebug("Removed currentThemeSwitchOverlay from ${activity.javaClass.simpleName}")
                 }
             }
 
-            // 3. Clear window touch-blocking flag to prevent UI lockup
+            // 3. Cancel animator safely without re-entry
+            currentAnimator?.let { anim ->
+                currentAnimator = null
+                anim.removeAllListeners()
+                anim.cancel()
+            }
+
+            // 4. Clear window touch-blocking flag to prevent UI lockup
             activity.window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
         } catch (t: Throwable) {
             logDebug("Error during detachAllOverlays: ${t.message}")
@@ -266,13 +279,19 @@ object ThemeManager {
             return
         }
 
+        val expectedTransitionId = holder.transitionId
         decorView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {
                 if (decorView.viewTreeObserver.isAlive) {
                     decorView.viewTreeObserver.removeOnPreDrawListener(this)
                 }
-                if (pendingSnapshot == null || holder.bitmap.isRecycled || activity.isFinishing || activity.isDestroyed) {
-                    logDebug("Aborting reveal: transition was cancelled, bitmap recycled, or activity finishing")
+                if (pendingSnapshot?.transitionId != expectedTransitionId ||
+                    currentTransitionId != expectedTransitionId ||
+                    holder.bitmap.isRecycled ||
+                    activity.isFinishing ||
+                    activity.isDestroyed
+                ) {
+                    logDebug("Aborting reveal: transition was cancelled, ID mismatch, bitmap recycled, or activity finishing")
                     cleanupPending("preDraw_cancelled_or_recycled")
                     return true
                 }
@@ -288,6 +307,12 @@ object ThemeManager {
         logDebug("cleanupPending triggered (reason: $reason)")
         mainHandler.removeCallbacks(timeoutRunnable)
 
+        currentAnimator?.let { anim ->
+            currentAnimator = null
+            anim.removeAllListeners()
+            anim.cancel()
+        }
+
         // Step 1: Detach and clear all overlays from both source and target activities before bitmap recycle
         val source = sourceActivityRef?.get()
         val target = targetActivityRef?.get()
@@ -296,14 +321,9 @@ object ThemeManager {
         sourceActivityRef = null
         targetActivityRef = null
 
-        // Step 2: Ensure themeSwitchOverlay animation is cancelled and references cleared
-        themeSwitchOverlay?.let { overlay ->
-            overlay.cancelAnimation()
-            (overlay.parent as? ViewGroup)?.removeView(overlay)
-            themeSwitchOverlay = null
-        }
+        currentThemeSwitchOverlay = null
 
-        // Step 3: Now that all views referencing the bitmap have been removed from the
+        // Step 2: Now that all views referencing the bitmap have been removed from the
         // view hierarchy and their ImageDrawables cleared, it is safe to recycle the bitmap.
         val bmp = pendingSnapshot?.bitmap
         pendingSnapshot = null
@@ -311,7 +331,8 @@ object ThemeManager {
 
         val finalActivity = target ?: source
         if (finalActivity != null) {
-            SystemBarHelper.syncSystemBars(finalActivity)
+            finalActivity.window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+            SystemBarHelper.syncSystemBars(finalActivity, force = true)
         }
 
         if (bmp != null && !bmp.isRecycled) {
@@ -329,7 +350,13 @@ object ThemeManager {
      * from the exact interaction coordinates (originX, originY).
      * Standard Android SDK only, 400ms duration, AccelerateDecelerateInterpolator.
      */
-    fun toggleWithCircularReveal(activity: Activity, originX: Int, originY: Int, applyAction: Runnable? = null) {
+    fun toggleWithCircularReveal(
+        activity: Activity,
+        originX: Int,
+        originY: Int,
+        isDarkModeTarget: Boolean = !isDarkMode(activity),
+        applyAction: Runnable? = null
+    ) {
         if (transitioning) {
             logDebug("Rapid tap blocked: transition already in progress")
             return
@@ -365,38 +392,55 @@ object ThemeManager {
             return
         }
 
-        logDebug("Theme toggle initiated at ($originX, $originY). Capturing bitmap...")
+        // Lock transitions IMMEDIATELY so rapid taps cannot start concurrent captures
+        transitioning = true
+        val transitionId = ++currentTransitionId
+
+        logDebug("Theme toggle initiated at ($originX, $originY) [transitionId: $transitionId, targetDark: $isDarkModeTarget]. Capturing bitmap...")
         ensureLifecycleRegistered(activity.application)
 
         // Capture static snapshot: PixelCopy on API 26+ with synchronous Canvas fallback
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            var bitmap: Bitmap? = null
+            var timeoutRunnable: Runnable? = null
             try {
-                val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
                 val window = activity.window
                 var pixelCopyDone = false
-                val pixelCopyTimeout = Runnable {
-                    if (!pixelCopyDone) {
+                val scheduledTimeout = Runnable {
+                    if (!pixelCopyDone && currentTransitionId == transitionId) {
                         pixelCopyDone = true
                         logDebug("PixelCopy timed out -> fallback to Canvas draw")
-                        fallbackSynchronousCaptureAndToggle(activity, decorView, originX.toFloat(), originY.toFloat(), applyAction)
+                        if (!bitmap.isRecycled) {
+                            try { bitmap.recycle() } catch (_: Throwable) {}
+                        }
+                        fallbackSynchronousCaptureAndToggle(transitionId, activity, decorView, originX.toFloat(), originY.toFloat(), isDarkModeTarget, applyAction)
                     }
                 }
-                mainHandler.postDelayed(pixelCopyTimeout, 120)
+                timeoutRunnable = scheduledTimeout
+                mainHandler.postDelayed(scheduledTimeout, 120)
 
                 PixelCopy.request(
                     window,
                     Rect(0, 0, width, height),
                     bitmap,
                     { copyResult ->
-                        mainHandler.removeCallbacks(pixelCopyTimeout)
-                        if (!pixelCopyDone) {
+                        mainHandler.removeCallbacks(scheduledTimeout)
+                        if (!pixelCopyDone && currentTransitionId == transitionId) {
                             pixelCopyDone = true
                             if (copyResult == PixelCopy.SUCCESS) {
                                 logDebug("PixelCopy capture SUCCESS")
-                                commitRevealTransition(activity, bitmap, originX.toFloat(), originY.toFloat(), applyAction)
+                                commitRevealTransition(transitionId, activity, bitmap, originX.toFloat(), originY.toFloat(), isDarkModeTarget, applyAction)
                             } else {
                                 logDebug("PixelCopy failed with code $copyResult -> fallback to Canvas draw")
-                                fallbackSynchronousCaptureAndToggle(activity, decorView, originX.toFloat(), originY.toFloat(), applyAction)
+                                if (!bitmap.isRecycled) {
+                                    try { bitmap.recycle() } catch (_: Throwable) {}
+                                }
+                                fallbackSynchronousCaptureAndToggle(transitionId, activity, decorView, originX.toFloat(), originY.toFloat(), isDarkModeTarget, applyAction)
+                            }
+                        } else {
+                            if (!bitmap.isRecycled) {
+                                try { bitmap.recycle() } catch (_: Throwable) {}
                             }
                         }
                     },
@@ -405,19 +449,30 @@ object ThemeManager {
                 return
             } catch (t: Throwable) {
                 logDebug("PixelCopy exception: ${t.message} -> fallback to Canvas draw")
+                timeoutRunnable?.let { mainHandler.removeCallbacks(it) }
+                if (bitmap != null && !bitmap.isRecycled) {
+                    try { bitmap.recycle() } catch (_: Throwable) {}
+                }
             }
         }
 
-        fallbackSynchronousCaptureAndToggle(activity, decorView, originX.toFloat(), originY.toFloat(), applyAction)
+        fallbackSynchronousCaptureAndToggle(transitionId, activity, decorView, originX.toFloat(), originY.toFloat(), isDarkModeTarget, applyAction)
     }
 
     private fun fallbackSynchronousCaptureAndToggle(
+        transitionId: Long,
         activity: Activity,
         decorView: ViewGroup,
         originX: Float,
         originY: Float,
+        isDarkModeTarget: Boolean,
         applyAction: Runnable? = null
     ) {
+        if (currentTransitionId != transitionId) {
+            logDebug("Fallback capture ignored: transition ID mismatch")
+            return
+        }
+
         val bitmap = try {
             val bmp = Bitmap.createBitmap(decorView.width, decorView.height, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bmp)
@@ -430,6 +485,7 @@ object ThemeManager {
         }
 
         if (bitmap == null) {
+            transitioning = false
             if (applyAction != null) {
                 applyAction.run()
             } else {
@@ -438,22 +494,32 @@ object ThemeManager {
             return
         }
 
-        commitRevealTransition(activity, bitmap, originX, originY, applyAction)
+        commitRevealTransition(transitionId, activity, bitmap, originX, originY, isDarkModeTarget, applyAction)
     }
 
     private fun commitRevealTransition(
+        transitionId: Long,
         activity: Activity,
         bitmap: Bitmap,
         originX: Float,
         originY: Float,
+        isDarkModeTarget: Boolean,
         applyAction: Runnable? = null
     ) {
-        transitioning = true
+        if (currentTransitionId != transitionId) {
+            if (!bitmap.isRecycled) {
+                try { bitmap.recycle() } catch (_: Throwable) {}
+            }
+            return
+        }
+
         sourceActivityRef = WeakReference(activity)
         pendingSnapshot = SnapshotHolder(
+            transitionId = transitionId,
             bitmap = bitmap,
             originX = originX,
             originY = originY,
+            isDarkModeTarget = isDarkModeTarget,
             oldActivityId = System.identityHashCode(activity),
             activityClassName = activity.javaClass.name,
             captureTimestamp = SystemClock.uptimeMillis()
@@ -510,12 +576,40 @@ object ThemeManager {
         val activity = findActivity(rootView.context)
         if (activity != null) {
             val goingDark = !ThemeSwitchAnimator.isDarkMode(activity)
-            ThemeSwitchAnimator.animateAt(activity, touchX, touchY, goingDark)
+            toggleWithCircularReveal(
+                activity = activity,
+                originX = touchX,
+                originY = touchY,
+                isDarkModeTarget = goingDark,
+                applyAction = applyNewThemeAction ?: Runnable {
+                    ThemeSwitchAnimator.switch(activity, goingDark)
+                }
+            )
         } else {
             applyNewThemeAction?.run()
         }
     }
 
+    /**
+     * Exact Telegram circular reveal implementation.
+     * Upstream reference:
+     * - TMessagesProj/src/main/java/org/telegram/ui/LaunchActivity.java
+     *
+     * Layer placement & animation:
+     * DAY -> NIGHT (toDark = true):
+     * - Old light screenshot underneath (themeSwitchImageView added at index 0 of decorView).
+     * - New live dark content above it (at index 1).
+     * - ViewAnimationUtils.createCircularReveal animates the NEW LIVE CONTENT (0 -> finalRadius).
+     * - Outside the circle remains the old light screenshot.
+     *
+     * NIGHT -> DAY (toDark = false):
+     * - New live light content underneath (at index 0).
+     * - Old dark screenshot above it (themeSwitchImageView added on top).
+     * - ViewAnimationUtils.createCircularReveal animates the OLD SCREENSHOT (finalRadius -> 0).
+     * - Inside the shrinking circle remains the old dark screenshot.
+     *
+     * Easing: TelegramThemeEasing (400ms duration).
+     */
     private fun triggerCircularReveal(activity: Activity, holder: SnapshotHolder) {
         val bitmap = holder.bitmap
 
@@ -536,38 +630,7 @@ object ThemeManager {
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
         )
 
-        val decorLoc = IntArray(2)
-        decorView.getLocationOnScreen(decorLoc)
-        val cx = holder.originX - decorLoc[0]
-        val cy = holder.originY - decorLoc[1]
-
-        val w = decorView.width.toFloat()
-        val h = decorView.height.toFloat()
-
-        // Dynamic radius calculation: distance from origin to farthest of 4 corners
-        val d1 = hypot(cx.toDouble(), cy.toDouble())
-        val d2 = hypot((w - cx).toDouble(), cy.toDouble())
-        val d3 = hypot(cx.toDouble(), (h - cy).toDouble())
-        val d4 = hypot((w - cx).toDouble(), (h - cy).toDouble())
-        val maxRadius = max(max(d1, d2), max(d3, d4)).toFloat()
-
-        val overlay = ThemeSwitchOverlayView(activity).apply {
-            setSnapshot(bitmap)
-            visibility = View.VISIBLE
-        }
-        themeSwitchOverlay = overlay
-
-        // Clean up any stale overlay parent to prevent IllegalStateException
-        (overlay.parent as? ViewGroup)?.removeView(overlay)
-        decorView.addView(
-            overlay,
-            FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
-        )
-
-        // Remove the temporary pre-overlay now that ThemeSwitchOverlayView is in place
+        // Remove any temporary pre-overlay from this decorView
         var preOverlay: View?
         do {
             preOverlay = decorView.findViewWithTag<View>("pre_reveal_overlay")
@@ -577,17 +640,107 @@ object ThemeManager {
             }
         } while (preOverlay != null)
 
-        overlay.post {
-            if (activity.isFinishing || activity.isDestroyed) {
+        val toDark = holder.isDarkModeTarget
+        val themeSwitchImageView = ImageView(activity).apply {
+            tag = "theme_switch_freeze_overlay"
+            setImageBitmap(bitmap)
+            scaleType = ImageView.ScaleType.FIT_XY
+            fitsSystemWindows = false
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+        }
+        currentThemeSwitchOverlay = themeSwitchImageView
+
+        // Telegram layer placement:
+        // if (toDark) frameLayout.addView(themeSwitchImageView, 0)
+        // else frameLayout.addView(themeSwitchImageView, 1)
+        if (toDark) {
+            decorView.addView(themeSwitchImageView, 0)
+        } else {
+            decorView.addView(themeSwitchImageView)
+        }
+
+        // Target view to animate with ViewAnimationUtils.createCircularReveal:
+        // DAY -> NIGHT: live content is animated from 0 to finalRadius
+        // NIGHT -> DAY: old screenshot (themeSwitchImageView) is animated from finalRadius to 0
+        val targetView: View = if (toDark) {
+            if (decorView.childCount > 1) decorView.getChildAt(1)
+            else decorView.findViewById<View>(android.R.id.content) ?: themeSwitchImageView
+        } else {
+            themeSwitchImageView
+        }
+
+        targetView.post {
+            if (activity.isFinishing || activity.isDestroyed || currentTransitionId != holder.transitionId) {
                 cleanupPending("activity_finishing_before_anim_start")
                 return@post
             }
-            overlay.startReveal(cx, cy, maxRadius) {
-                logDebug("Reveal animation completed -> cleaning up pending transition")
-                overlay.visibility = View.GONE
-                (overlay.parent as? ViewGroup)?.removeView(overlay)
-                cleanupPending("animation_complete")
+
+            val targetLoc = IntArray(2)
+            targetView.getLocationOnScreen(targetLoc)
+            val revealCx = (holder.originX - targetLoc[0]).toInt()
+            val revealCy = (holder.originY - targetLoc[1]).toInt()
+
+            val w = targetView.width.toFloat()
+            val h = targetView.height.toFloat()
+            val finalRadius = ThemeSwitchAnimator.calculateMaxRadius(
+                revealCx.toFloat(),
+                revealCy.toFloat(),
+                w,
+                h
+            )
+
+            val startRadius = if (toDark) 0f else finalRadius
+            val endRadius = if (toDark) finalRadius else 0f
+
+            val anim = try {
+                ViewAnimationUtils.createCircularReveal(
+                    targetView,
+                    revealCx,
+                    revealCy,
+                    startRadius,
+                    endRadius
+                )
+            } catch (t: Throwable) {
+                logDebug("createCircularReveal error: ${t.message} -> fallback cleanup")
+                cleanupPending("reveal_creation_error")
+                return@post
             }
+
+            anim.duration = 400L
+            anim.interpolator = TelegramThemeEasing
+
+            var completed = false
+            val finishAction = Runnable {
+                if (!completed) {
+                    completed = true
+                    logDebug("Circular reveal completed -> cleaning up")
+                    if (themeSwitchImageView.parent === decorView) {
+                        themeSwitchImageView.setImageDrawable(null)
+                        decorView.removeView(themeSwitchImageView)
+                    }
+                    if (currentThemeSwitchOverlay === themeSwitchImageView) {
+                        currentThemeSwitchOverlay = null
+                    }
+                    currentAnimator = null
+                    cleanupPending("animation_complete")
+                }
+            }
+
+            anim.addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    finishAction.run()
+                }
+
+                override fun onAnimationCancel(animation: Animator) {
+                    finishAction.run()
+                }
+            })
+
+            currentAnimator = anim
+            anim.start()
         }
     }
 
@@ -612,95 +765,6 @@ object ThemeManager {
             } else {
                 toggleWithCircularReveal(button)
             }
-        }
-    }
-
-    /**
-     * Telegram exact Day/Night theme-switch overlay.
-     * Displays captured snapshot of old theme and punches an expanding anti-aliased circular
-     * hole centered at the exact tap/switch origin (originX, originY) from 0 to maxRadius,
-     * revealing the new theme underneath using hardware-layer PorterDuff.Mode.CLEAR masking
-     * and cubic bezier easing (FastOutSlowInInterpolator, 400ms).
-     */
-    private class ThemeSwitchOverlayView(context: Context) : View(context) {
-
-        private var snapshotBitmap: Bitmap? = null
-        private var originX: Float = 0f
-        private var originY: Float = 0f
-        private var currentRadius: Float = 0f
-        private var animator: ValueAnimator? = null
-        private val dstRect = RectF()
-        private var onCompleteCallback: (() -> Unit)? = null
-
-        private val bitmapPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
-        private val clearPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
-        }
-
-        init {
-            fitsSystemWindows = false
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-        }
-
-        fun setSnapshot(bitmap: Bitmap) {
-            snapshotBitmap = bitmap
-            invalidate()
-        }
-
-        fun startReveal(cx: Float, cy: Float, maxRadius: Float, onComplete: () -> Unit) {
-            originX = cx
-            originY = cy
-            currentRadius = 0f
-            onCompleteCallback = onComplete
-
-            animator = ValueAnimator.ofFloat(0f, maxRadius).apply {
-                duration = 400L // 400ms duration per specification
-                interpolator = PathInterpolator(0.455f, 0.03f, 0.515f, 0.955f) // Telegram easeInOutQuad
-                addUpdateListener { va ->
-                    currentRadius = va.animatedValue as Float
-                    invalidate()
-                }
-                addListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator) {
-                        onCompleteCallback?.invoke()
-                        onCompleteCallback = null
-                    }
-                    override fun onAnimationCancel(animation: Animator) {
-                        onCompleteCallback?.invoke()
-                        onCompleteCallback = null
-                    }
-                })
-                start()
-            }
-        }
-
-        override fun onDraw(canvas: Canvas) {
-            val bmp = snapshotBitmap ?: return
-            if (bmp.isRecycled) return
-
-            dstRect.set(0f, 0f, width.toFloat(), height.toFloat())
-
-            if (currentRadius <= 0f) {
-                // Initial static frame: display old theme snapshot
-                canvas.drawBitmap(bmp, null, dstRect, bitmapPaint)
-            } else {
-                // Telegram exact technique: off-screen layer with PorterDuff.Mode.CLEAR
-                // Produces perfectly anti-aliased sub-pixel circular hole revealing new theme
-                val saveCount = canvas.saveLayer(0f, 0f, width.toFloat(), height.toFloat(), null)
-                canvas.drawBitmap(bmp, null, dstRect, bitmapPaint)
-                canvas.drawCircle(originX, originY, currentRadius, clearPaint)
-                canvas.restoreToCount(saveCount)
-            }
-        }
-
-        fun cancelAnimation() {
-            animator?.cancel()
-            animator = null
-            snapshotBitmap = null
-            onCompleteCallback = null
         }
     }
 }

@@ -24,7 +24,9 @@ object SystemBarHelper {
         app.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
                 applySystemBarInsets(activity)
-                syncSystemBars(activity)
+                if (!ThemeManager.isTransitioning) {
+                    syncSystemBars(activity)
+                }
             }
 
             override fun onActivityStarted(activity: Activity) {
@@ -33,7 +35,9 @@ object SystemBarHelper {
 
             override fun onActivityResumed(activity: Activity) {
                 applySystemBarInsets(activity)
-                syncSystemBars(activity)
+                if (!ThemeManager.isTransitioning) {
+                    syncSystemBars(activity)
+                }
             }
 
             override fun onActivityPaused(activity: Activity) {}
@@ -78,7 +82,10 @@ object SystemBarHelper {
      * Keeps status bar background and icon appearance synchronized with the visible theme,
      * without resolving target-theme colors from old activity resources.
      */
-    fun syncSystemBars(activity: Activity) {
+    fun syncSystemBars(activity: Activity, force: Boolean = false) {
+        if (!force && ThemeManager.isTransitioning) {
+            return
+        }
         val window = activity.window ?: return
         val decorView = window.decorView
 

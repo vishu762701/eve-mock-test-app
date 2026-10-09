@@ -65,7 +65,7 @@ object ThemeSwitchAnimator {
         clickHeight: Int = 48,
         staticIconView: View? = null
     ) {
-        ThemeManager.toggleWithCircularReveal(activity, clickScreenX, clickScreenY) {
+        ThemeManager.toggleWithCircularReveal(activity, clickScreenX, clickScreenY, isDarkModeTarget) {
             switch(activity, isDarkModeTarget)
         }
     }
