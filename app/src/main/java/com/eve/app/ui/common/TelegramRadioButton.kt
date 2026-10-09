@@ -113,8 +113,24 @@ class TelegramRadioButton @JvmOverloads constructor(
         val wasChecked = isChecked
         super.setChecked(checked)
         if (wasChecked != checked) {
-            animateCheckProgress(if (checked) 1f else 0f)
+            if (useApprovedTestStyle && !checked) {
+                // An unchecked card must never retain a fading checked dot on
+                // its already-unchecked background during rapid selection.
+                jumpDrawablesToCurrentState()
+            } else animateCheckProgress(if (checked) 1f else 0f)
         }
+    }
+
+    override fun jumpDrawablesToCurrentState() {
+        super.jumpDrawablesToCurrentState()
+        checkAnimator?.cancel()
+        checkAnimator = null
+        checkProgress = if (isChecked) 1f else 0f
+        animate().cancel()
+        scaleX = 1f
+        scaleY = 1f
+        alpha = 1f
+        invalidate()
     }
 
     /** Native Test-only appearance; Admin answer editors keep their existing style. */
@@ -221,6 +237,6 @@ class TelegramRadioButton @JvmOverloads constructor(
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        checkAnimator?.cancel()
+        jumpDrawablesToCurrentState()
     }
 }

@@ -79,3 +79,14 @@ Continue designing Result Screen individual box colors with a stable, simple edi
 
 ## HOW TO CONTINUE IN A NEW CHAT
 Attach this file and, when repository-specific verification or implementation is needed, attach the latest Android repository ZIP. Ask assistant to read the handoff and distinguish APPROVED from PENDING. Start at Result Screen colors, preserve Home and Mock Test approvals, and do not edit ZIP until explicit permission.
+
+## Functional repair authorization — 2026-10-09
+The user explicitly authorized root-cause repairs and functional alignment,
+clipping/readability and inset corrections in the connected repository. This
+supersedes the earlier blanket ZIP-edit restriction for this task only.
+Mock Test approved colors, dimensions, shapes, borders and text sizes stay
+locked. Result layout now adapts to available width/font scale while preserving
+existing styling and calculations. These alignment repairs do not approve
+pending Result colors, radii, shadows, gradients, glass or a broader redesign.
+The unreliable bitmap reveal was replaced with one AppCompat theme recreation,
+as explicitly permitted by the repair request. No new premium styling is approved.

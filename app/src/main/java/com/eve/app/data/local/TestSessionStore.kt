@@ -29,12 +29,12 @@ class TestSessionStore(private val context: Context) {
         prefs.edit().putString("${session.userId}:${session.attemptKey}", json).apply()
     }
 
-    fun getSession(attemptKey: String): TestSession? {
-        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return null
+    fun getSession(attemptKey: String, ownerUid: String? = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid): TestSession? {
+        val uid = ownerUid?.takeIf { it.isNotBlank() } ?: return null
         val json = prefs.getString("$uid:$attemptKey", null) ?: prefs.getString(attemptKey, null) ?: return null
         return try {
             val session = gson.fromJson(json, TestSession::class.java)
-            session.takeIf { it.userId.isNotBlank() && it.userId == uid }
+            session.takeIf { it.userId.isNotBlank() && it.userId == uid && it.attemptKey == attemptKey }
         } catch (_: Exception) {
             null
         }

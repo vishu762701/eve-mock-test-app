@@ -25,3 +25,25 @@ Refresh and pagination use a single loading guard with cancellation cleanup; ret
 ## Deployment
 
 Forward D1 migrations0013–0016 must precede Worker rollout. Deploy through the existing repository main workflow; install the updated Android build to access the new screen. Firebase rule/callable changes are separate and require authorized Firebase deployment. Tests exercise actual overview, monitor, retry, pagination, privacy and degraded-health handlers; live authenticated dashboard and device smoke checks remain release verification requirements.
+
+## 2026-10-09 deletion reliability update
+All three exam/generated-test management entry points share `AdminDeleteFlow`.
+New admin-only GET `/api/exams/:id/deletion-info` and
+`/api/generated-tests/:id/deletion-info` return aggregate dependency counts and
+structured blocking reasons without student identifiers. Eligible records use
+an irreversible confirmation and server-confirmed deletion; Undo never recreates
+an exam. Failed operations keep the original list and offer safe request-ID copy.
+For protected tests, the existing paused status is the Unpublish action.
+For exams, POST `/api/exams/:id/unpublish-tests` pauses their generated tests and
+disables automatic generation, preserving attempts, active/paused sessions and
+question bank records. This is unpublishing, not a new archive feature; a later
+manual generation can create another test. Both operations require server-side
+admin authorization. No retention policy or student-history deletion is added.
+
+Banner, syllabus, poll and feedback-post deletes now use the guarded confirmation
+or existing confirmed-action variant. Repository Result failures are unwrapped,
+with honest failure feedback rather than silently refreshing as if successful.
+Media cleanup follows D1 confirmation; incomplete cleanup returns a visible
+notice and a safe `media_cleanup` diagnostic entry in existing System Monitor,
+with30-day retention. It has no automatic Retry because no safe cleanup payload
+is retained. No credentials, media paths or student answers are logged.

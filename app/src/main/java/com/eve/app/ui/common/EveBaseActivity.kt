@@ -16,7 +16,9 @@ abstract class EveBaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         FontManager.apply(this)
         activityFontVersion = FontManager.fontVersion
+        androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
+        com.eve.app.util.SystemBarHelper.syncSystemBars(this)
     }
 
     override fun onResume() {

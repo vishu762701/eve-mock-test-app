@@ -38,6 +38,6 @@ class TestStateSurvivalTest {
         val actFile = findProjectFile("src/main/java/com/eve/app/ui/test/TestActivity.kt")
         val content = actFile.readText()
         assertTrue("TestActivity must call viewModel.writeToBundle", content.contains("viewModel.writeToBundle(outState"))
-        assertTrue("TestActivity must call viewModel.restoreFromBundle", content.contains("viewModel.restoreFromBundle(savedInstanceState)"))
+        assertTrue("TestActivity must call viewModel.restoreFromBundle", content.contains("viewModel.restoreFromBundle(savedInstanceState,"))
     }
 }

@@ -17,7 +17,6 @@ import com.eve.app.data.repository.ExamRepository
 import com.eve.app.databinding.ActivityManageExistingExamsBinding
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.AppBulletin
-import com.eve.app.util.AppUndoBar
 import com.eve.app.util.EmptyStateAnimationHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
@@ -69,17 +68,21 @@ class ManageExistingExamsActivity : EveBaseActivity() {
         outState.putBoolean("key_empty_played", hasEmptyPlayed)
     }
 
+    private var listLoadJob: kotlinx.coroutines.Job? = null
+
     private fun loadExams() {
         binding.shimmerSkeletonExams.visibility = View.VISIBLE
         binding.emptyGroup.visibility = View.GONE
 
-        lifecycleScope.launch {
+        listLoadJob?.cancel()
+        listLoadJob = lifecycleScope.launch {
             try {
                 val exams = examRepo.getExams()
                 val attemptsMap = try {
                     val analyticsRes = api.getExamAnalytics()
                     analyticsRes.data?.associate { it.examId to it.attemptCount } ?: emptyMap()
-                } catch (_: Exception) {
+                } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+                catch (_: Exception) {
                     emptyMap()
                 }
 
@@ -93,7 +96,8 @@ class ManageExistingExamsActivity : EveBaseActivity() {
 
                 binding.shimmerSkeletonExams.visibility = View.GONE
                 filterExams(binding.etSearchExam.text?.toString().orEmpty())
-            } catch (e: Exception) {
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            catch (e: Exception) {
                 binding.shimmerSkeletonExams.visibility = View.GONE
                 AppBulletin.showError(this@ManageExistingExamsActivity, "Failed to load exams: ${e.toUserFriendlyMessage()}")
             }
@@ -144,56 +148,9 @@ class ManageExistingExamsActivity : EveBaseActivity() {
         startActivity(intent)
     }
 
+    private val deleteFlow by lazy { AdminDeleteFlow(this) }
+
     private fun confirmDeleteExam(exam: Exam) {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Delete Exam?")
-            .setMessage("Are you sure? This cannot be undone. All tests and questions for '${exam.examName}' will be permanently deleted.")
-            .setPositiveButton("Delete") { _, _ ->
-                val previousList = adapter.currentList.toMutableList()
-                val updated = previousList.filter { it.exam.id != exam.id }
-                adapter.submitList(updated)
-
-                lifecycleScope.launch {
-                    try {
-                        examRepo.deleteExam(exam.id)
-                    } catch (e: Exception) {
-                        AppBulletin.showError(this@ManageExistingExamsActivity, "Failed to delete: ${e.message}")
-                    }
-                }
-
-                AppUndoBar.show(
-                    context = this@ManageExistingExamsActivity,
-                    message = "Exam '${exam.examName}' deleted",
-                    timeLeftMs = AppUndoBar.TIME_IMPORTANT,
-                    onUndo = {
-                        adapter.submitList(previousList)
-                        lifecycleScope.launch {
-                            try {
-                                examRepo.addExam(
-                                    name = exam.examName,
-                                    minutes = exam.timeLimitMinutes,
-                                    category = exam.category,
-                                    testNumber = exam.testNumber,
-                                    questionCount = exam.questionCount,
-                                    autoGenEnabled = exam.autoGenerationEnabled,
-                                    autoGenTime = exam.autoGenTime,
-                                    timezone = exam.timezone,
-                                    generationPrompt = exam.generationPrompt,
-                                    imageUrl = exam.imageUrl,
-                                    negativeMarkingText = exam.negativeMarkingText,
-                                    negativeMarkingValue = exam.negativeMarkingValue,
-                                    parentExamId = exam.parentExamId
-                                )
-                                loadExams()
-                                AppBulletin.showSuccess(this@ManageExistingExamsActivity, "Exam restored")
-                            } catch (e: Exception) {
-                                AppBulletin.showError(this@ManageExistingExamsActivity, "Failed to restore: ${e.message}")
-                            }
-                        }
-                    }
-                )
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+        deleteFlow.confirm(exam.id, exam.examName, exam = true) { loadExams() }
     }
 }

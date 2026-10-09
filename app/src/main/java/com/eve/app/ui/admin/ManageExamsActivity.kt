@@ -846,6 +846,8 @@ class ManageExamsActivity : EveBaseActivity() {
             .show()
     }
 
+    private var listLoadJob: kotlinx.coroutines.Job? = null
+
     private fun loadGeneratedTestsForExam() {
         if (currentExamId.isBlank()) {
             genTestAdapter.submit(emptyList())
@@ -858,7 +860,8 @@ class ManageExamsActivity : EveBaseActivity() {
         binding.progressBarGenTests.visibility = View.VISIBLE
         binding.tvNoGenTests.visibility = View.GONE
 
-        lifecycleScope.launch {
+        listLoadJob?.cancel()
+        listLoadJob = lifecycleScope.launch {
             try {
                 val tests = examRepo.getGeneratedTests(currentExamId)
                 binding.progressBarGenTests.visibility = View.GONE
@@ -869,7 +872,8 @@ class ManageExamsActivity : EveBaseActivity() {
                 } else {
                     binding.tvNoGenTests.visibility = View.GONE
                 }
-            } catch (e: Exception) {
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            catch (e: Exception) {
                 binding.progressBarGenTests.visibility = View.GONE
                 binding.tvNoGenTests.visibility = View.VISIBLE
                 binding.tvNoGenTests.text = "Error loading tests: ${e.toUserFriendlyMessage()}"
@@ -933,25 +937,10 @@ class ManageExamsActivity : EveBaseActivity() {
             .show()
     }
 
+    private val deleteFlow by lazy { AdminDeleteFlow(this) }
+
     private fun confirmDeleteTest(test: GeneratedTest) {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Delete Generated Test?")
-            .setMessage("Are you sure you want to permanently delete '${test.displayTitle}'? This batch of questions will be removed.")
-            .setPositiveButton("Delete") { _, _ ->
-                binding.progressBarGenTests.visibility = View.VISIBLE
-                lifecycleScope.launch {
-                    try {
-                        examRepo.deleteGeneratedTest(test.id)
-                        AppBulletin.showSuccess(this@ManageExamsActivity, "Test batch deleted")
-                        loadGeneratedTestsForExam()
-                    } catch (e: Exception) {
-                        binding.progressBarGenTests.visibility = View.GONE
-                        AppBulletin.showError(this@ManageExamsActivity, "Failed to delete: ${e.toUserFriendlyMessage()}")
-                    }
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+        deleteFlow.confirm(test.id, test.displayTitle, exam = false) { loadGeneratedTestsForExam() }
     }
 
     private fun getSelectedPublishMode(): String {

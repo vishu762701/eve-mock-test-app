@@ -73,11 +73,12 @@ class HomeBannerRepository(
         }
     }
 
-    suspend fun deleteBanner(bannerId: String): Result<Unit> = runCatching {
+    suspend fun deleteBanner(bannerId: String): Result<String?> = runCatching {
         val res = api.deleteBanner(bannerId)
         if (!res.success) {
             throw IllegalStateException(res.error ?: "Failed to delete banner")
         }
+        res.message
     }
 
     suspend fun reorderBanner(bannerId: String, moveUp: Boolean): Result<Unit> = runCatching {

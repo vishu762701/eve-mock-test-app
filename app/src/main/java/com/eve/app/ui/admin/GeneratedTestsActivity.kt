@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.View
 import com.eve.app.R
 import com.eve.app.util.AppBulletin
-import com.eve.app.util.AppUndoBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -110,9 +109,12 @@ class GeneratedTestsActivity : EveBaseActivity() {
         outState.putBoolean("key_empty_played", hasEmptyPlayed)
     }
 
+    private var listLoadJob: kotlinx.coroutines.Job? = null
+
     private fun loadTests() {
         binding.progressBar.visibility = View.VISIBLE
-        lifecycleScope.launch {
+        listLoadJob?.cancel()
+        listLoadJob = lifecycleScope.launch {
             try {
                 val tests = examRepo.getGeneratedTests()
                 binding.progressBar.visibility = View.GONE
@@ -127,7 +129,8 @@ class GeneratedTestsActivity : EveBaseActivity() {
                 } else {
                     com.eve.app.util.EmptyStateAnimationHelper.stopEmptyState(binding.lottieEmpty)
                 }
-            } catch (e: Exception) {
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
                 AppBulletin.showError(
                     this@GeneratedTestsActivity,
@@ -193,43 +196,9 @@ class GeneratedTestsActivity : EveBaseActivity() {
             .show()
     }
 
-    private fun confirmDelete(test: GeneratedTest) {
-        AlertDialog.Builder(this)
-            .setTitle("Delete Generated Test")
-            .setMessage("Are you sure you want to permanently delete this test?")
-            .setPositiveButton("Delete") { _, _ ->
-                val originalList = adapter.getItems().toMutableList()
-                val filtered = originalList.filter { it.id != test.id }
-                adapter.submit(filtered)
-                binding.emptyGroup.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+    private val deleteFlow by lazy { AdminDeleteFlow(this) }
 
-                AppUndoBar.show(
-                    context = this@GeneratedTestsActivity,
-                    message = "Test deleted",
-                    timeLeftMs = AppUndoBar.TIME_IMPORTANT,
-                    onUndo = {
-                        adapter.submit(originalList)
-                        binding.emptyGroup.visibility = if (originalList.isEmpty()) View.VISIBLE else View.GONE
-                        AppBulletin.show(this@GeneratedTestsActivity, "Delete cancelled")
-                    },
-                    onExecuteDelete = {
-                        lifecycleScope.launch {
-                            try {
-                                examRepo.deleteGeneratedTest(test.id)
-                                loadTests()
-                            } catch (e: Exception) {
-                                adapter.submit(originalList)
-                                binding.emptyGroup.visibility = if (originalList.isEmpty()) View.VISIBLE else View.GONE
-                                AppBulletin.showError(
-                                    this@GeneratedTestsActivity,
-                                    "Failed to delete: ${e.localizedMessage}"
-                                )
-                            }
-                        }
-                    }
-                )
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+    private fun confirmDelete(test: GeneratedTest) {
+        deleteFlow.confirm(test.id, test.displayTitle, exam = false) { loadTests() }
     }
 }

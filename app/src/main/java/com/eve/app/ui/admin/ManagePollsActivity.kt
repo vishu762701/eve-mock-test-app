@@ -11,7 +11,6 @@ import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.ImageButton
 import com.eve.app.util.AppBulletin
-import com.eve.app.util.AppUndoBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -107,48 +106,10 @@ class ManagePollsActivity : EveBaseActivity() {
         }
     }
 
-    private fun confirmDeletePoll(poll: Poll) {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Delete Poll?")
-            .setMessage("Are you sure you want to permanently delete this poll and all its votes?")
-            .setPositiveButton("Delete") { _, _ ->
-                val originalList = adapter.getItems().toMutableList()
-                val filtered = originalList.filter { it.id != poll.id }
-                adapter.submitList(filtered)
-                if (filtered.isEmpty()) {
-                    binding.emptyStateView.show(
-                        title = "No polls created yet",
-                        message = "Tap '+ New Poll' to create your first community poll."
-                    )
-                } else {
-                    binding.emptyStateView.hide()
-                }
+    private val deleteFlow by lazy { AdminDeleteFlow(this) }
 
-                AppUndoBar.show(
-                    context = this@ManagePollsActivity,
-                    message = "Poll deleted",
-                    timeLeftMs = AppUndoBar.TIME_IMPORTANT,
-                    onUndo = {
-                        adapter.submitList(originalList)
-                        binding.emptyStateView.hide()
-                        AppBulletin.show(this@ManagePollsActivity, "Delete cancelled")
-                    },
-                    onExecuteDelete = {
-                        lifecycleScope.launch {
-                            try {
-                                pollRepository.deletePoll(poll.id)
-                                loadPolls()
-                            } catch (e: Exception) {
-                                adapter.submitList(originalList)
-                                binding.emptyStateView.hide()
-                                AppBulletin.showError(this@ManagePollsActivity, "Failed to delete: ${e.message}")
-                            }
-                        }
-                    }
-                )
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+    private fun confirmDeletePoll(poll: Poll) {
+        deleteFlow.confirmRemoval("poll:${poll.id}", "Poll and its votes", { pollRepository.deletePoll(poll.id); null }) { loadPolls() }
     }
 
     private fun showCreatePollDialog() {

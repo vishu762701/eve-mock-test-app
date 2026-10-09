@@ -16,7 +16,6 @@ import android.text.Editable
 import android.text.TextWatcher
 import com.eve.app.data.repository.FloatingLinkRepository
 import com.eve.app.util.AppBulletin
-import com.eve.app.util.AppUndoBar
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -896,32 +895,10 @@ class AdminActivity : EveBaseActivity() {
         }
     }
 
+    private val deleteFlow by lazy { AdminDeleteFlow(this) }
+
     private fun confirmDeleteBanner(banner: HomeBanner, onDeleted: () -> Unit) {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Delete Home Banner?")
-            .setMessage("This will remove this banner from the student Home screen carousel immediately.")
-            .setPositiveButton("Delete") { _, _ ->
-                AppUndoBar.show(
-                    context = this@AdminActivity,
-                    message = "Banner deleted",
-                    timeLeftMs = AppUndoBar.TIME_IMPORTANT,
-                    onUndo = {
-                        AppBulletin.show(this@AdminActivity, "Delete cancelled")
-                    },
-                    onExecuteDelete = {
-                        lifecycleScope.launch {
-                            try {
-                                bannerRepo.deleteBanner(banner.id)
-                                onDeleted()
-                            } catch (e: Exception) {
-                                AppBulletin.showError(this@AdminActivity, "Failed to delete: ${e.localizedMessage}")
-                            }
-                        }
-                    }
-                )
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+        deleteFlow.confirmRemoval("banner:${banner.id}", "Banner", { bannerRepo.deleteBanner(banner.id).getOrThrow() }, onDeleted)
     }
 
     private fun showFloatingLinkDialog() {
@@ -1088,23 +1065,12 @@ class AdminActivity : EveBaseActivity() {
                             .setTitle("Delete Post?")
                             .setMessage("Delete '${post.title}' from Home screen? All its student replies will also be permanently deleted.")
                             .setPositiveButton("Delete") { _, _ ->
-                                AppUndoBar.show(
-                                    context = this@AdminActivity,
-                                    message = "Post '${post.title}' deleted",
-                                    timeLeftMs = AppUndoBar.TIME_IMPORTANT,
-                                    onUndo = {
-                                        AppBulletin.show(this@AdminActivity, "Delete cancelled")
-                                    },
-                                    onExecuteDelete = {
-                                        lifecycleScope.launch {
-                                            feedbackRepo.deleteFeedbackPost(post.id)
-                                            auditLogRepo.recordLog(
-                                                AdminAuditLog.ACTION_FEEDBACK_POST_DELETED,
-                                                "Deleted feedback post '${post.title}'"
-                                            )
-                                        }
-                                    }
-                                )
+                                deleteFlow.removeConfirmed("feedback:${post.id}", {
+                                    feedbackRepo.deleteFeedbackPost(post.id).getOrThrow()
+                                    // Audit logging is independent of the confirmed deletion.
+                                    lifecycleScope.launch { auditLogRepo.recordLog(AdminAuditLog.ACTION_FEEDBACK_POST_DELETED, "Deleted feedback post '${post.title}'") }
+                                    null
+                                })
                             }
                             .setNegativeButton("Cancel", null)
                             .show()
@@ -1223,23 +1189,12 @@ class AdminActivity : EveBaseActivity() {
                 .setMessage("Delete '${post.title}' from Home screen? All its student replies will also be permanently deleted.")
                 .setPositiveButton("Delete") { _, _ ->
                     dialog.dismiss()
-                    AppUndoBar.show(
-                        context = this@AdminActivity,
-                        message = "Post '${post.title}' deleted",
-                        timeLeftMs = AppUndoBar.TIME_IMPORTANT,
-                        onUndo = {
-                            AppBulletin.show(this@AdminActivity, "Delete cancelled")
-                        },
-                        onExecuteDelete = {
-                            lifecycleScope.launch {
-                                feedbackRepo.deleteFeedbackPost(post.id)
-                                auditLogRepo.recordLog(
-                                    AdminAuditLog.ACTION_FEEDBACK_POST_DELETED,
-                                    "Deleted feedback post '${post.title}'"
-                                )
-                            }
-                        }
-                    )
+                    deleteFlow.removeConfirmed("feedback:${post.id}", {
+                                    feedbackRepo.deleteFeedbackPost(post.id).getOrThrow()
+                                    // Audit logging is independent of the confirmed deletion.
+                                    lifecycleScope.launch { auditLogRepo.recordLog(AdminAuditLog.ACTION_FEEDBACK_POST_DELETED, "Deleted feedback post '${post.title}'") }
+                                    null
+                                })
                 }
                 .setNegativeButton("Cancel", null)
                 .show()

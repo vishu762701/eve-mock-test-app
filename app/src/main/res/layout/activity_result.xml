@@ -261,18 +261,18 @@
                     </LinearLayout>
 
                     <!-- 4-Tile Row: Equal width & height, generous padding, autosizing text -->
-                    <LinearLayout
+                    <com.eve.app.ui.result.ResultStatisticsGrid
                         android:id="@+id/rowOverviewStatisticsTiles"
                         android:layout_width="match_parent"
-                        android:layout_height="76dp"
+                        android:layout_height="wrap_content"
                         android:baselineAligned="false"
                         android:orientation="horizontal">
 
                         <!-- Tile 1: Right -->
                         <LinearLayout
                             android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:minHeight="76dp"
                             android:layout_marginEnd="8dp"
                             android:background="@drawable/bg_tile_right"
                             android:gravity="center"
@@ -286,12 +286,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-bold"
                                 android:gravity="center"
-                                android:maxLines="1"
-                                android:singleLine="true"
-                                app:autoSizeTextType="uniform"
-                                app:autoSizeMinTextSize="13sp"
-                                app:autoSizeMaxTextSize="20sp"
-                                app:autoSizeStepGranularity="1sp"
+                                android:textSize="20sp"
                                 android:text="0"
                                 android:textColor="@color/eve_tile_right_text" />
 
@@ -301,12 +296,7 @@
                                 android:layout_marginTop="4dp"
                                 android:fontFamily="sans-serif-medium"
                                 android:gravity="center"
-                                android:maxLines="1"
-                                android:singleLine="true"
-                                app:autoSizeTextType="uniform"
-                                app:autoSizeMinTextSize="9sp"
-                                app:autoSizeMaxTextSize="12sp"
-                                app:autoSizeStepGranularity="1sp"
+                                android:textSize="12sp"
                                 android:text="Right"
                                 android:textColor="@color/eve_tile_right_text" />
                         </LinearLayout>
@@ -314,8 +304,8 @@
                         <!-- Tile 2: Wrong -->
                         <LinearLayout
                             android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:minHeight="76dp"
                             android:layout_marginEnd="8dp"
                             android:background="@drawable/bg_tile_wrong"
                             android:gravity="center"
@@ -329,12 +319,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-bold"
                                 android:gravity="center"
-                                android:maxLines="1"
-                                android:singleLine="true"
-                                app:autoSizeTextType="uniform"
-                                app:autoSizeMinTextSize="13sp"
-                                app:autoSizeMaxTextSize="20sp"
-                                app:autoSizeStepGranularity="1sp"
+                                android:textSize="20sp"
                                 android:text="0"
                                 android:textColor="@color/eve_tile_wrong_text" />
 
@@ -344,12 +329,7 @@
                                 android:layout_marginTop="4dp"
                                 android:fontFamily="sans-serif-medium"
                                 android:gravity="center"
-                                android:maxLines="1"
-                                android:singleLine="true"
-                                app:autoSizeTextType="uniform"
-                                app:autoSizeMinTextSize="9sp"
-                                app:autoSizeMaxTextSize="12sp"
-                                app:autoSizeStepGranularity="1sp"
+                                android:textSize="12sp"
                                 android:text="Wrong"
                                 android:textColor="@color/eve_tile_wrong_text" />
                         </LinearLayout>
@@ -357,8 +337,8 @@
                         <!-- Tile 3: Unattempted -->
                         <LinearLayout
                             android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:minHeight="76dp"
                             android:layout_marginEnd="8dp"
                             android:background="@drawable/bg_tile_unattempted"
                             android:gravity="center"
@@ -372,12 +352,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-bold"
                                 android:gravity="center"
-                                android:maxLines="1"
-                                android:singleLine="true"
-                                app:autoSizeTextType="uniform"
-                                app:autoSizeMinTextSize="13sp"
-                                app:autoSizeMaxTextSize="20sp"
-                                app:autoSizeStepGranularity="1sp"
+                                android:textSize="20sp"
                                 android:text="0"
                                 android:textColor="@color/eve_text" />
 
@@ -387,12 +362,7 @@
                                 android:layout_marginTop="4dp"
                                 android:fontFamily="sans-serif-medium"
                                 android:gravity="center"
-                                android:maxLines="1"
-                                android:singleLine="true"
-                                app:autoSizeTextType="uniform"
-                                app:autoSizeMinTextSize="9sp"
-                                app:autoSizeMaxTextSize="12sp"
-                                app:autoSizeStepGranularity="1sp"
+                                android:textSize="12sp"
                                 android:text="Unattempted"
                                 android:textColor="@color/eve_text_secondary" />
                         </LinearLayout>
@@ -400,8 +370,8 @@
                         <!-- Tile 4: Accuracy -->
                         <LinearLayout
                             android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:minHeight="76dp"
                             android:background="@drawable/bg_tile_medium"
                             android:gravity="center"
                             android:orientation="vertical"
@@ -414,12 +384,6 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-bold"
                                 android:gravity="center"
-                                android:maxLines="1"
-                                android:singleLine="true"
-                                app:autoSizeTextType="uniform"
-                                app:autoSizeMinTextSize="13sp"
-                                app:autoSizeMaxTextSize="20sp"
-                                app:autoSizeStepGranularity="1sp"
                                 android:text="--%"
                                 android:textColor="@color/eve_tile_medium_text" />
 
@@ -429,16 +393,11 @@
                                 android:layout_marginTop="4dp"
                                 android:fontFamily="sans-serif-medium"
                                 android:gravity="center"
-                                android:maxLines="1"
-                                android:singleLine="true"
-                                app:autoSizeTextType="uniform"
-                                app:autoSizeMinTextSize="9sp"
-                                app:autoSizeMaxTextSize="12sp"
-                                app:autoSizeStepGranularity="1sp"
+                                android:textSize="12sp"
                                 android:text="Accuracy"
                                 android:textColor="@color/eve_tile_medium_text" />
                         </LinearLayout>
-                    </LinearLayout>
+                    </com.eve.app.ui.result.ResultStatisticsGrid>
 
                     <!-- Block 3: Performance Summary (Header + Card) -->
                     <LinearLayout
@@ -483,7 +442,7 @@
                         app:strokeColor="@color/eve_separator"
                         app:strokeWidth="@dimen/eve_stroke_hairline">
 
-                        <LinearLayout
+                        <com.eve.app.ui.result.ResponsiveResultRow
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:baselineAligned="false"
@@ -508,7 +467,7 @@
                                     android:paddingVertical="8dp">
 
                                     <TextView
-                                        android:layout_width="wrap_content"
+                                        android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:fontFamily="sans-serif-medium"
                                         android:text="Overall Rank"
@@ -517,7 +476,7 @@
 
                                     <TextView
                                         android:id="@+id/tvRank"
-                                        android:layout_width="wrap_content"
+                                        android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:layout_marginTop="2dp"
                                         android:fontFamily="sans-serif-bold"
@@ -535,7 +494,7 @@
                                     android:paddingVertical="8dp">
 
                                     <TextView
-                                        android:layout_width="wrap_content"
+                                        android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:fontFamily="sans-serif-medium"
                                         android:text="Percentile Score"
@@ -544,7 +503,7 @@
 
                                     <TextView
                                         android:id="@+id/tvPercentile"
-                                        android:layout_width="wrap_content"
+                                        android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:layout_marginTop="2dp"
                                         android:fontFamily="sans-serif-bold"
@@ -573,7 +532,7 @@
                                     android:paddingVertical="8dp">
 
                                     <TextView
-                                        android:layout_width="wrap_content"
+                                        android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:fontFamily="sans-serif-medium"
                                         android:text="Batch Performance"
@@ -585,9 +544,7 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:layout_marginTop="2dp"
-                                        android:ellipsize="end"
                                         android:fontFamily="sans-serif"
-                                        android:maxLines="1"
                                         android:text="Topper: -- • Avg: --"
                                         android:textColor="@color/eve_text_secondary"
                                         android:textSize="12sp" />
@@ -603,7 +560,7 @@
                                     android:paddingVertical="8dp">
 
                                     <TextView
-                                        android:layout_width="wrap_content"
+                                        android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:fontFamily="sans-serif-medium"
                                         android:text="Historical Best &amp; Avg"
@@ -615,15 +572,13 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:layout_marginTop="2dp"
-                                        android:ellipsize="end"
                                         android:fontFamily="sans-serif"
-                                        android:maxLines="1"
                                         android:text="-- / --"
                                         android:textColor="@color/eve_text_secondary"
                                         android:textSize="12sp" />
                                 </LinearLayout>
                             </LinearLayout>
-                        </LinearLayout>
+                        </com.eve.app.ui.result.ResponsiveResultRow>
                     </com.google.android.material.card.MaterialCardView>
 
                     <!-- Block 4: Cutoff Summary -->
@@ -654,10 +609,10 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:gravity="center_vertical"
-                                    android:orientation="horizontal">
+                                    android:orientation="vertical">
 
                                     <TextView
-                                        android:layout_width="wrap_content"
+                                        android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:fontFamily="sans-serif-medium"
                                         android:text="Selected Category:"
@@ -666,7 +621,7 @@
 
                                     <TextView
                                         android:id="@+id/tvCutoffSelectedCategory"
-                                        android:layout_width="wrap_content"
+                                        android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:layout_marginStart="8dp"
                                         android:minHeight="38dp"
@@ -691,7 +646,7 @@
 
                                     <TextView
                                         android:id="@+id/tvCutoffVerdict"
-                                        android:layout_width="wrap_content"
+                                        android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/bg_tile_surface2"
                                         android:fontFamily="sans-serif-medium"
@@ -720,7 +675,7 @@
                                         android:orientation="vertical">
 
                                         <TextView
-                                            android:layout_width="wrap_content"
+                                            android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
                                             android:fontFamily="sans-serif-medium"
                                             android:text="Required Cutoff"
@@ -729,7 +684,7 @@
 
                                         <TextView
                                             android:id="@+id/tvCutoffValue"
-                                            android:layout_width="wrap_content"
+                                            android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
                                             android:layout_marginTop="3dp"
                                             android:fontFamily="sans-serif-bold"
@@ -745,7 +700,7 @@
                                         android:orientation="vertical">
 
                                         <TextView
-                                            android:layout_width="wrap_content"
+                                            android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
                                             android:fontFamily="sans-serif-medium"
                                             android:text="Your Score"
@@ -754,7 +709,7 @@
 
                                         <TextView
                                             android:id="@+id/tvCutoffScore"
-                                            android:layout_width="wrap_content"
+                                            android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
                                             android:layout_marginTop="3dp"
                                             android:fontFamily="sans-serif-bold"
@@ -769,10 +724,8 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="10dp"
-                                    android:ellipsize="end"
                                     android:fontFamily="sans-serif"
                                     android:lineSpacingExtra="2dp"
-                                    android:maxLines="3"
                                     android:text="Qualification verdict message."
                                     android:textColor="@color/eve_text_secondary"
                                     android:textSize="13sp" />
@@ -823,7 +776,7 @@
                         app:strokeColor="@color/eve_separator"
                         app:strokeWidth="@dimen/eve_stroke_hairline">
 
-                        <LinearLayout
+                        <com.eve.app.ui.result.ResponsiveResultRow
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:baselineAligned="false"
@@ -839,7 +792,7 @@
                                 android:layout_marginEnd="14dp" />
 
                             <!-- 3 Mini Stats -->
-                            <LinearLayout
+                            <com.eve.app.ui.result.ResponsiveResultRow
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
@@ -937,8 +890,8 @@
                                         android:textColor="@color/eve_text_secondary"
                                         android:textSize="12sp" />
                                 </LinearLayout>
-                            </LinearLayout>
-                        </LinearLayout>
+                            </com.eve.app.ui.result.ResponsiveResultRow>
+                        </com.eve.app.ui.result.ResponsiveResultRow>
                     </com.google.android.material.card.MaterialCardView>
 
                 </LinearLayout>

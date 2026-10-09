@@ -48,7 +48,13 @@ class QuestionAdapter(
         private var currentAnimator: ValueAnimator? = null
         private var suppressSelectionCallbacks = false
         init {
-            listOf(b.rbA, b.rbB, b.rbC, b.rbD).forEach { it.enableApprovedTestStyle() }
+            // View IDs repeat on every page. The ViewModel is the only answer
+            // state owner; Android hierarchy restoration must not check a page.
+            b.rgOptions.isSaveEnabled = false
+            listOf(b.rbA, b.rbB, b.rbC, b.rbD).forEach {
+                it.isSaveEnabled = false
+                it.enableApprovedTestStyle()
+            }
         }
 
         fun updateTimer(seconds: Long) {
@@ -195,6 +201,7 @@ class QuestionAdapter(
                 "C" -> b.rbC.isChecked = true
                 "D" -> b.rbD.isChecked = true
             }
+            resetOptionAnimations()
             b.rgOptions.setOnCheckedChangeListener { _, checkedId ->
                 if (suppressSelectionCallbacks) return@setOnCheckedChangeListener
                 if (!canSelect()) {
@@ -207,6 +214,7 @@ class QuestionAdapter(
                         "D" -> b.rbD.isChecked = true
                     }
                     suppressSelectionCallbacks = false
+                    resetOptionAnimations()
                     return@setOnCheckedChangeListener
                 }
                 val letter = when (checkedId) {
@@ -229,9 +237,14 @@ class QuestionAdapter(
             suppressSelectionCallbacks = true
             try {
                 b.rgOptions.clearCheck()
+                resetOptionAnimations()
             } finally {
                 suppressSelectionCallbacks = false
             }
+        }
+
+        private fun resetOptionAnimations() {
+            listOf(b.rbA, b.rbB, b.rbC, b.rbD).forEach { it.jumpDrawablesToCurrentState() }
         }
     }
 

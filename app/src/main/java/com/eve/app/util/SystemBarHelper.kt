@@ -16,7 +16,7 @@ import com.eve.app.R
  * - Content starts directly below the system status bar.
  * - Prevents headers, titles, profile avatars, tabs, and action buttons from being clipped or overlapping status bar icons.
  * - Dynamically adapts to notch, hole-punch cutouts, rotation, and Android 15 edge-to-edge enforcement.
- * - Synchronizes status bar / navigation bar appearance during theme switches with zero flash or glitch.
+ * - Matches system-bar appearance to each activity’s visible theme.
  */
 object SystemBarHelper {
 
@@ -56,13 +56,19 @@ object SystemBarHelper {
         }
     }
 
-    private fun setupInsetsListener(view: View) {
+    internal fun setupInsetsListener(view: View) {
+        if (view.getTag(R.id.eve_system_insets_installed) == true) return
+        view.setTag(R.id.eve_system_insets_installed, true)
+        val left = view.paddingLeft
+        val top = view.paddingTop
+        val right = view.paddingRight
+        val bottom = view.paddingBottom
         ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
-            val statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars())
-            if (v.paddingTop != statusBars.top) {
-                v.setPadding(0, statusBars.top, 0, 0)
-            }
-            insets
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+            v.setPadding(left + bars.left, top + bars.top, right + bars.right, bottom + bars.bottom)
+            // The content container handled these edges. Keep child listeners,
+            // but don't make them add the same navigation padding a second time.
+            insets.inset(bars.left, bars.top, bars.right, bars.bottom)
         }
         ViewCompat.requestApplyInsets(view)
     }
@@ -70,32 +76,21 @@ object SystemBarHelper {
     /**
      * Centralized system-bar appearance updater.
      * Keeps status bar background and icon appearance synchronized with the visible theme,
-     * preventing any flash, wrong background, or transient icon glitch during transitions.
+     * without resolving target-theme colors from old activity resources.
      */
     fun syncSystemBars(activity: Activity) {
         val window = activity.window ?: return
         val decorView = window.decorView
 
-        val activeState = ThemeSwitchAnimator.getActiveTransitionState()
-
-        // Match the target appearance immediately so the status bar and notch never linger in the old theme
-        val isDarkAppearance = activeState?.isDarkModeTarget ?: ThemeSwitchAnimator.isDarkMode(activity)
-
+        val isDarkAppearance = activity.resources.configuration.uiMode and
+            android.content.res.Configuration.UI_MODE_NIGHT_MASK == android.content.res.Configuration.UI_MODE_NIGHT_YES
         val controller = WindowInsetsControllerCompat(window, decorView)
         controller.isAppearanceLightStatusBars = !isDarkAppearance
         controller.isAppearanceLightNavigationBars = !isDarkAppearance
-
-        try {
-            val statusBarColor = ContextCompat.getColor(
-                activity,
-                if (isDarkAppearance) R.color.eve_header_ink else R.color.eve_bg
-            )
-            val navBarColor = ContextCompat.getColor(
-                activity,
-                if (isDarkAppearance) R.color.eve_canvas else R.color.eve_canvas
-            )
-            window.statusBarColor = statusBarColor
-            window.navigationBarColor = navBarColor
-        } catch (_: Exception) {}
+        window.statusBarColor = ContextCompat.getColor(activity, R.color.eve_bg)
+        window.navigationBarColor = ContextCompat.getColor(activity, R.color.eve_canvas)
+        if (android.os.Build.VERSION.SDK_INT >= 29) {
+            window.isNavigationBarContrastEnforced = false
+        }
     }
 }

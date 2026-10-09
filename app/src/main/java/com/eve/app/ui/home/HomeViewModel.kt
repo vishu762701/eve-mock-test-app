@@ -256,8 +256,13 @@ class HomeViewModel : ViewModel() {
 
     fun deleteFeedbackPost(postId: String) {
         viewModelScope.launch(coroutineExceptionHandler) {
-            feedbackRepo.deleteFeedbackPost(postId)
+            deleteFeedbackPostConfirmed(postId)
         }
+    }
+
+    suspend fun deleteFeedbackPostConfirmed(postId: String) {
+        feedbackRepo.deleteFeedbackPost(postId).getOrThrow()
+        _feedbackPosts.value = _feedbackPosts.value.filterNot { it.id == postId }
     }
 
     fun selectCategory(category: String) { _selectedCategory.value = category }

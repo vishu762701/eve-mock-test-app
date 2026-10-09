@@ -84,7 +84,7 @@ class MasterRedesignContinuationTest {
     }
 
     @Test
-    fun testLockedTelegramThemeToggleRemainsUntouched() {
+    fun testThemeSwitchUsesSingleRecreationWithoutBitmapOverlay() {
         val themeAnimatorFile = File("src/main/java/com/eve/app/util/ThemeSwitchAnimator.kt")
         val themeManagerFile = File("src/main/java/com/eve/app/util/ThemeManager.kt")
 
@@ -92,6 +92,8 @@ class MasterRedesignContinuationTest {
         assertTrue("ThemeManager must exist", themeManagerFile.exists())
 
         val animatorCode = themeAnimatorFile.readText()
-        assertTrue("Circular reveal logic must remain in ThemeSwitchAnimator", animatorCode.contains("ViewAnimationUtils.createCircularReveal"))
+        assertFalse("Captured system bars must not overlay the new theme", animatorCode.contains("PixelCopy"))
+        assertFalse("Theme switching must not block all touch input", animatorCode.contains("FLAG_NOT_TOUCHABLE"))
+        assertFalse("AppCompat owns recreation", animatorCode.contains("activity.recreate()"))
     }
 }

@@ -150,9 +150,10 @@ class ExamRepository(
         if (!res.success) throw Exception(res.error ?: "Failed to rename exam")
     }
 
-    suspend fun deleteExam(examId: String) {
+    suspend fun deleteExam(examId: String): String? {
         val res = api.deleteExam(examId)
         if (!res.success) throw Exception(res.error ?: "Failed to delete exam")
+        return res.message
     }
 
     suspend fun updateExam(exam: Exam) {
@@ -220,9 +221,10 @@ class ExamRepository(
         return res.data.syllabusUrl
     }
 
-    suspend fun removeSyllabusPdf(examId: String, syllabusUrl: String) {
+    suspend fun removeSyllabusPdf(examId: String, syllabusUrl: String): String? {
         val res = api.removeSyllabus(examId)
         if (!res.success) throw Exception(res.error ?: "Failed to remove syllabus")
+        return res.message
     }
 
     suspend fun addQuestion(q: Question) {

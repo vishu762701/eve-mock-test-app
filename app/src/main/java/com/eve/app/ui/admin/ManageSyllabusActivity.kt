@@ -329,26 +329,10 @@ class ManageSyllabusActivity : EveBaseActivity() {
             .show()
     }
 
+    private val deleteFlow by lazy { AdminDeleteFlow(this) }
+
     private fun confirmDeleteSyllabus(exam: Exam) {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Delete Syllabus?")
-            .setMessage("Are you sure you want to permanently delete the syllabus for \"${exam.examName}\"? Students will no longer be able to view or download it.")
-            .setPositiveButton("Delete") { _, _ ->
-                binding.progressBarTop.visibility = View.VISIBLE
-                lifecycleScope.launch {
-                    try {
-                        examRepo.removeSyllabusPdf(exam.id, exam.syllabusUrl)
-                        binding.progressBarTop.visibility = View.GONE
-                        AppBulletin.showSuccess(this@ManageSyllabusActivity, "Syllabus removed")
-                        loadExamsAndSyllabuses()
-                    } catch (e: Exception) {
-                        binding.progressBarTop.visibility = View.GONE
-                        AppBulletin.showError(this@ManageSyllabusActivity, "Delete failed: ${e.localizedMessage}")
-                    }
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+        deleteFlow.confirmRemoval("syllabus:${exam.id}", "Syllabus", { examRepo.removeSyllabusPdf(exam.id, exam.syllabusUrl) }) { loadExamsAndSyllabuses() }
     }
 
 }

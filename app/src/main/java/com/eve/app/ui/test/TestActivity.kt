@@ -86,7 +86,7 @@ class TestActivity : EveBaseActivity() {
         val testId = intent.getStringExtra(Constants.EXTRA_TEST_ID).orEmpty()
 
         if (savedInstanceState != null) {
-            viewModel.restoreFromBundle(savedInstanceState)
+            viewModel.restoreFromBundle(savedInstanceState, if (testId.isNotBlank() && !examId.contains(com.eve.app.util.AttemptKey.SEP)) com.eve.app.util.AttemptKey.forTest(examId, testId) else examId)
         }
 
         val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
@@ -119,9 +119,9 @@ class TestActivity : EveBaseActivity() {
         }
         binding.rvQuestionPalette.adapter = paletteAdapter
 
+        val baseBottomPadding = binding.layoutBottomBar.paddingBottom
         ViewCompat.setOnApplyWindowInsetsListener(binding.layoutBottomBar) { view, insets ->
             val navBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
-            val baseBottomPadding = (12 * resources.displayMetrics.density).toInt()
             view.setPadding(
                 view.paddingLeft,
                 view.paddingTop,
@@ -149,6 +149,7 @@ class TestActivity : EveBaseActivity() {
             if (submitted || viewModel.timeUp.value == true) return@setOnClickListener
             val current = binding.viewPager.currentItem
             viewModel.setAnswer(current, "")
+            viewModel.saveCurrentSession(examId, current)
             updatePalette(current)
             val rv = binding.viewPager.getChildAt(0) as? androidx.recyclerview.widget.RecyclerView
             val vh = rv?.findViewHolderForAdapterPosition(current) as? QuestionAdapter.VH
@@ -347,6 +348,7 @@ class TestActivity : EveBaseActivity() {
                             if (!submitted && !viewModel.timeUp.value) {
                                 viewModel.setAnswer(pos, letter)
                                 viewModel.markVisited(pos)
+                                viewModel.saveCurrentSession(examId, pos)
                                 updatePalette(pos)
                             }
                         },

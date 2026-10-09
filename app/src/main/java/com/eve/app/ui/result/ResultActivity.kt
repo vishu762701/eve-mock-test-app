@@ -717,39 +717,7 @@ class ResultActivity : EveBaseActivity() {
     }
 
     private fun updateCutoffUI() {
-        // Update Hero Card
-        binding.tvCutoffSelectedCategory.text = selectedCutoffCategory
-        val cutoff = examCutoffs[selectedCutoffCategory]
-        val scoreStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format(java.util.Locale.US, "%.2f", currentScore)
-        binding.tvCutoffScore.text = "Score: $scoreStr"
-
-        if (cutoff != null && cutoff > 0) {
-            val cutoffStr = if (cutoff % 1.0 == 0.0) cutoff.toInt().toString() else cutoff.toString()
-            binding.tvCutoffValue.text = "Cutoff: $cutoffStr"
-            if (currentScore >= cutoff) {
-                binding.tvCutoffVerdict.text = "Qualified ✓"
-                binding.tvCutoffVerdict.setBackgroundResource(R.drawable.bg_tile_right)
-                binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.eve_tile_right_text))
-                val diff = currentScore - cutoff
-                binding.tvCutoffRelationship.text = if (diff >= 0.05) {
-                    "You cleared the $selectedCutoffCategory cutoff mark by +${String.format(java.util.Locale.US, "%.1f", diff)} marks."
-                } else {
-                    "You achieved the exact qualifying score for $selectedCutoffCategory."
-                }
-            } else {
-                binding.tvCutoffVerdict.text = "Not Qualified ✗"
-                binding.tvCutoffVerdict.setBackgroundResource(R.drawable.bg_tile_wrong)
-                binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.eve_tile_wrong_text))
-                val diff = cutoff - currentScore
-                binding.tvCutoffRelationship.text = "You are ${String.format(java.util.Locale.US, "%.1f", diff)} marks below the $selectedCutoffCategory cutoff threshold."
-            }
-        } else {
-            binding.tvCutoffValue.text = "Cutoff: Not Configured"
-            binding.tvCutoffVerdict.text = "No Cutoff Set"
-            binding.tvCutoffVerdict.setBackgroundResource(R.drawable.bg_tile_surface2)
-            binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(this, R.color.eve_text_secondary))
-            binding.tvCutoffRelationship.text = "No qualifying cutoff mark is configured for the $selectedCutoffCategory category."
-        }
+        ResultCutoffPresentation.bind(binding, selectedCutoffCategory, currentScore, examCutoffs)
     }
 
     private fun showReattemptDialog(examId: String, examName: String) {
@@ -766,9 +734,9 @@ class ResultActivity : EveBaseActivity() {
 
             val dialog = MaterialAlertDialogBuilder(this@ResultActivity)
                 .setTitle("Reattempt this test?")
-                .setMessage("Your previous result for \"$examName\" (score, answers and rank) will be permanently deleted and replaced by your new attempt. This cannot be undone.")
+                .setMessage("A new attempt starts with no selected answers. Your previous result and history are preserved.")
                 .setNegativeButton("Cancel", null)
-                .setPositiveButton("Clear & Reattempt", null)
+                .setPositiveButton("Reattempt", null)
                 .create()
 
             dialog.setOnShowListener {
@@ -785,6 +753,7 @@ class ResultActivity : EveBaseActivity() {
                         try {
                             val response = ApiClient.apiService.resetAttemptPost(mapOf("examId" to examId))
                             if (response.success) {
+                                com.eve.app.data.local.TestSessionStore(this@ResultActivity).clearSession(examId)
                                 ResultDataHolder.clear()
                                 HomeViewModel.markAttemptCleared(examId)
                                 val timeLimit = if (intent.hasExtra(Constants.EXTRA_TIME_LIMIT)) {
@@ -807,36 +776,15 @@ class ResultActivity : EveBaseActivity() {
                             } else {
                                 confirmBtn.isEnabled = true
                                 cancelBtn.isEnabled = true
-                                confirmBtn.text = "Clear & Reattempt"
+                                confirmBtn.text = "Reattempt"
                                 AppBulletin.showError(this@ResultActivity, response.error ?: "Failed to reset attempt")
                             }
-                        } catch (e: Exception) {
-                            if (!com.eve.app.util.NetworkUtil.isOnline(this@ResultActivity)) {
-                                ResultDataHolder.clear()
-                                HomeViewModel.markAttemptCleared(examId)
-                                val timeLimit = if (intent.hasExtra(Constants.EXTRA_TIME_LIMIT)) {
-                                    intent.getIntExtra(Constants.EXTRA_TIME_LIMIT, 60)
-                                } else {
-                                    try {
-                                        examRepo.getExam(AttemptKey.sourceExamId(examId))?.timeLimitMinutes ?: 60
-                                    } catch (_: Exception) { 60 }
-                                }
-                                val category = intent.getStringExtra(Constants.EXTRA_EXAM_CATEGORY).orEmpty()
-                                val testIntent = Intent(this@ResultActivity, TestActivity::class.java).apply {
-                                    putExtra(Constants.EXTRA_EXAM_ID, examId)
-                                    putExtra(Constants.EXTRA_EXAM_NAME, examName)
-                                    putExtra(Constants.EXTRA_EXAM_CATEGORY, category)
-                                    putExtra(Constants.EXTRA_TIME_LIMIT, timeLimit)
-                                }
-                                dialog.dismiss()
-                                startActivity(testIntent)
-                                finish()
-                            } else {
-                                confirmBtn.isEnabled = true
-                                cancelBtn.isEnabled = true
-                                confirmBtn.text = "Clear & Reattempt"
-                                AppBulletin.showError(this@ResultActivity, e.toUserFriendlyMessage())
-                            }
+                        } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+                        catch (e: Exception) {
+                            confirmBtn.isEnabled = true
+                            cancelBtn.isEnabled = true
+                            confirmBtn.text = "Reattempt"
+                            AppBulletin.showError(this@ResultActivity, e.toUserFriendlyMessage(false))
                         }
                     }
                 }

@@ -1,0 +1,8 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- Native fixture host exists only in debug builds. No authenticated
+             production screens or backend authorization are bypassed. -->
+        <activity android:name="com.eve.app.ui.RepairVerificationActivity"
+            android:exported="false" android:theme="@style/Theme.Eve" />
+    </application>
+</manifest>

@@ -125,7 +125,7 @@ class TestViewModel : ViewModel() {
                 }
 
                 val sessionStore = com.eve.app.data.local.TestSessionStore(com.eve.app.EveApplication.instance)
-                var existingSession = sessionStore.getSession(effectiveExamId)
+                var existingSession = sessionStore.getSession(effectiveExamId, currentUserId)
                 if (existingSession != null) {
                     restoredQuestionIndex = existingSession.currentQuestionIndex
                     if (existingSession.clientAttemptId.isNotBlank()) clientAttemptId = existingSession.clientAttemptId
@@ -147,7 +147,10 @@ class TestViewModel : ViewModel() {
                                 _questions.value = UiState.Error("This saved test was already submitted. Open History for the confirmed result, or Retry to start a new attempt.")
                                 return@launch
                             }
-                            d.clientAttemptId?.takeIf { it.isNotBlank() }?.let { clientAttemptId = it }
+                            d.clientAttemptId?.takeIf { it.isNotBlank() }?.let {
+                                if (clientAttemptId != it) { answers.clear(); timeTaken.clear(); visited.clear(); marked.clear(); restoredQuestionIndex = 0 }
+                                clientAttemptId = it
+                            }
                             initialStartedAt = d.startedAt
                             initialTimeLimitSeconds = d.timeLimitSeconds
                             if (d.remainingSeconds != null && d.remainingSeconds >= 0) {
@@ -272,7 +275,7 @@ class TestViewModel : ViewModel() {
 
                 if (isStandardMock && user != null && currentExamId != effectiveExamId) {
                     // A plain exam can resolve to its latest generated test; start that exact key.
-                    existingSession = sessionStore.getSession(currentExamId)
+                    existingSession = sessionStore.getSession(currentExamId, currentUserId)
                     val startResponse = com.eve.app.data.remote.ApiClient.api.startAttempt(mapOf("examId" to currentExamId, "resumeAttemptId" to existingSession?.clientAttemptId.orEmpty()))
                     val session = startResponse.data
                     check(startResponse.success && session != null) { startResponse.error ?: "Could not start this test" }
@@ -285,14 +288,18 @@ class TestViewModel : ViewModel() {
                     initialStartedAt = session.startedAt
                     initialTimeLimitSeconds = session.timeLimitSeconds
                     remainingSec = session.remainingSeconds ?: session.timeLimitSeconds
-                    existingSession = sessionStore.getSession(currentExamId)
-                    session.clientAttemptId?.takeIf { it.isNotBlank() }?.let { clientAttemptId = it }
+                    existingSession = sessionStore.getSession(currentExamId, currentUserId)
+                    session.clientAttemptId?.takeIf { it.isNotBlank() }?.let {
+                        if (clientAttemptId != it) { answers.clear(); timeTaken.clear(); visited.clear(); marked.clear(); restoredQuestionIndex = 0 }
+                        clientAttemptId = it
+                    }
                 }
                 val restoredSession = existingSession
-                if (restoredSession != null) {
+                if (com.eve.app.data.local.TestSessionPolicy.canRestore(restoredSession, currentUserId, currentExamId, clientAttemptId)) {
+                    checkNotNull(restoredSession)
                     list.forEachIndexed { idx, q ->
                         val sel = restoredSession.answers[q.id]
-                        if (!sel.isNullOrEmpty()) answers[idx] = sel
+                        if (sel in listOf("A", "B", "C", "D")) answers[idx] = sel!!
                         val time = restoredSession.questionTimes[q.id]
                         if (time != null && time > 0) timeTaken[idx] = time
                         if (restoredSession.visitedQuestions.contains(q.id)) visited.add(idx)
@@ -536,10 +543,12 @@ class TestViewModel : ViewModel() {
         bundle.putLong("key_remaining_seconds", _remainingSeconds.value)
         bundle.putString("key_client_attempt_id", clientAttemptId)
         bundle.putString("key_attempt_owner", currentUserId)
+        bundle.putString("key_exam_key", currentExamId)
         bundle.putInt("key_current_q_index", currentIndex)
     }
 
-    fun restoreFromBundle(bundle: android.os.Bundle) {
+    fun restoreFromBundle(bundle: android.os.Bundle, requestedExamKey: String) {
+        if (bundle.getString("key_exam_key") != requestedExamKey) return
         if (!com.eve.app.util.SubmissionRetryPolicy.ownsSubmission(bundle.getString("key_attempt_owner"), FirebaseAuth.getInstance().currentUser?.uid)) return
         val answersKeys = bundle.getIntArray("key_answers_keys")
         val answersVals = bundle.getStringArray("key_answers_vals")

@@ -233,6 +233,15 @@ interface EveApiService {
     @DELETE("api/exams/{id}")
     suspend fun deleteExam(@Path("id") id: String): ApiResponse<Unit>
 
+    @GET("api/exams/{id}/deletion-info")
+    suspend fun examDeletionInfo(@Path("id") id: String): ApiResponse<com.eve.app.data.model.DeletionInfo>
+
+    @GET("api/generated-tests/{id}/deletion-info")
+    suspend fun testDeletionInfo(@Path("id") id: String): ApiResponse<com.eve.app.data.model.DeletionInfo>
+
+    @POST("api/exams/{id}/unpublish-tests")
+    suspend fun unpublishExamTests(@Path("id") id: String): ApiResponse<Unit>
+
     @POST("api/exams/{id}/syllabus")
     suspend fun uploadSyllabus(
         @Path("id") id: String,

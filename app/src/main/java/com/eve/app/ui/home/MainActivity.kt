@@ -657,6 +657,8 @@ class MainActivity : EveBaseActivity() {
         startActivity(intent)
     }
 
+    private val adminDeleteFlow by lazy { com.eve.app.ui.admin.AdminDeleteFlow(this) }
+
     private fun handleFeedbackPostLongClick(post: com.eve.app.data.model.FeedbackPost) {
         val email = FirebaseAuth.getInstance().currentUser?.email
         lifecycleScope.launch(lifecycleExceptionHandler) {
@@ -665,17 +667,7 @@ class MainActivity : EveBaseActivity() {
                     .setTitle("Delete Feedback Post?")
                     .setMessage("Are you sure you want to delete '${post.title}'?")
                     .setPositiveButton("Delete") { _, _ ->
-                        com.eve.app.util.AppUndoBar.show(
-                            context = this@MainActivity,
-                            message = "Post '${post.title}' deleted",
-                            timeLeftMs = com.eve.app.util.AppUndoBar.TIME_IMPORTANT,
-                            onUndo = {
-                                com.eve.app.util.AppBulletin.show(this@MainActivity, "Delete cancelled")
-                            },
-                            onExecuteDelete = {
-                                viewModel.deleteFeedbackPost(post.id)
-                            }
-                        )
+                        adminDeleteFlow.removeConfirmed("feedback:${post.id}", { viewModel.deleteFeedbackPostConfirmed(post.id); null })
                     }
                     .setNegativeButton("Cancel", null)
                     .show()
@@ -1092,9 +1084,9 @@ class MainActivity : EveBaseActivity() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
         com.eve.app.data.repository.PremiumRepository.clearCacheForLogout(uid, this)
         FirebaseAuth.getInstance().signOut()
-        val gso = com.google.android.gms.auth.api.signin.GoogleSignInOptions.Builder(
-            com.google.android.gms.auth.api.signin.GoogleSignInOptions.DEFAULT_SIGN_IN
-        ).build()
+        val gso = com.google.android.gms.auth.api.signin.GoogleSignInOptions
+            .Builder(com.google.android.gms.auth.api.signin.GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .build()
         com.google.android.gms.auth.api.signin.GoogleSignIn.getClient(this, gso).signOut()
         goToLogin()
     }
