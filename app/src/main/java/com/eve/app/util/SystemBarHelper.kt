@@ -90,6 +90,10 @@ object SystemBarHelper {
             // background under enforced edge-to-edge. The regular light-icon
             // flag alone cannot correct a stale light window background.
             window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(background))
+            // PhoneWindow's public setter also clears Android 15's forced-light
+            // navigation appearance. Use transparent for enforced edge-to-edge;
+            // setting an already-forced opaque color can return without clearing it.
+            window.navigationBarColor = android.graphics.Color.TRANSPARENT
         } else {
             window.statusBarColor = background
             window.navigationBarColor = ContextCompat.getColor(activity, R.color.eve_canvas)
