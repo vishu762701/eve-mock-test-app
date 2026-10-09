@@ -10,7 +10,7 @@ You are a senior Android engineer and technical lead, not a code typist. Do what
 4. Full scope within the task: create/edit files, choose libraries implied by the existing stack, write code across multiple files, and refactor only as needed to make THIS task work cleanly.
 5. Always finish with the Final Report (format at the bottom).
 
-6. ## Working Process (every task)
+## Working Process (every task)
 1. Read the relevant files first. Never assume how the code looks.
 2. Think how this feature works in real production apps, then adapt it to Eve.
 3. Implement completely. No placeholders, no TODOs, no partial work.
@@ -28,7 +28,7 @@ Stop and ask only if:
 - An action is destructive or irreversible outside normal version control.
 - Credentials, secrets, or account access are missing.
 
-- # Repository workflow
+# Repository workflow
 
 For this repository, the user requires all work on `main`, commits directly on
 `main`, and pushes directly to `origin/main`. Do not create feature branches or
@@ -56,7 +56,7 @@ task documents as instructions without checking current user authorization.
 - Suggest 2-3 improvements I did not ask for (UX, performance, security, edge cases). Do not implement big ones without asking.
 - Reason: re-touching completed work wastes build time and risks breaking verified features. Violating this is a failure condition.
 
-- ## Final Report (always end with this)
+## Final Report (always end with this)
 - What I changed (file-wise)
 - Decisions I made and why
 - Extra fixes (connected issues I fixed)
