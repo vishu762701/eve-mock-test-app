@@ -53,8 +53,8 @@ import kotlin.math.max
 object ThemeManager {
 
     private const val TAG = "ThemeManager"
-    private const val PREFS = "eve_prefs"
-    private const val KEY_DARK_MODE = "key_dark_mode"
+    const val PREFS = "eve_prefs"
+    const val KEY_DARK_MODE = "key_dark_mode"
 
     private data class SnapshotHolder(
         val transitionId: Long,
@@ -81,8 +81,33 @@ object ThemeManager {
     private var currentThemeSwitchOverlay: ImageView? = null
     private var currentAnimator: Animator? = null
     private val mainHandler = Handler(Looper.getMainLooper())
+
+    @Volatile
+    private var captureInterceptorForTest: ((commitAction: Runnable) -> Unit)? = null
+
+    fun setCaptureInterceptorForTest(interceptor: ((commitAction: Runnable) -> Unit)?) {
+        captureInterceptorForTest = interceptor
+    }
+
     private val timeoutRunnable = Runnable {
-        logDebug("Timeout reached, cleaning up pending transition")
+        val target = targetActivityRef?.get()
+        val source = sourceActivityRef?.get()
+        val act = target ?: source
+        val targetDark = pendingSnapshot?.isDarkModeTarget
+        val actualUiModeDark = act?.let {
+            (it.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        }
+        val savedPref = act?.getSharedPreferences(PREFS, Context.MODE_PRIVATE)?.let {
+            if (it.contains(KEY_DARK_MODE)) it.getBoolean(KEY_DARK_MODE, false) else null
+        }
+        val delegateMode = AppCompatDelegate.getDefaultNightMode()
+        val actState = when {
+            act == null -> "null"
+            act.isDestroyed -> "destroyed"
+            act.isFinishing -> "finishing"
+            else -> "alive"
+        }
+        logDebug("Timeout reached [transitionId: $currentTransitionId, requestedTarget: $targetDark, actualUiModeDark: $actualUiModeDark, savedPref: $savedPref, delegateMode: $delegateMode, transitioning: $transitioning, activityState: $actState]. Cleaning up pending transition.")
         cleanupPending("timeout")
     }
 
@@ -396,15 +421,28 @@ object ThemeManager {
         isDarkModeTarget: Boolean = !isDarkMode(activity),
         applyAction: Runnable? = null
     ) {
-        if (isDarkMode(activity) == isDarkModeTarget) {
-            logDebug("Same-target toggle requested: already in target theme")
-            applyThemeTarget(activity, isDarkModeTarget)
-            applyAction?.run()
+        // 1. REJECT if transition is active FIRST.
+        // No same-target check, no preference mutations, no delegate calls, no callback execution.
+        if (transitioning) {
+            logDebug("Rapid tap blocked: transition already in progress")
             return
         }
 
-        if (transitioning) {
-            logDebug("Rapid tap blocked: transition already in progress")
+        // 2. SAME-TARGET CHECK: Check if Activity's effective uiMode is ALREADY matching target
+        val currentUiDark = (activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        if (currentUiDark == isDarkModeTarget) {
+            logDebug("Same-target toggle requested: Activity already settled in target theme ($isDarkModeTarget)")
+            // Reconcile saved preference and delegate mode to be consistent without recreation
+            val targetDelegateMode = if (isDarkModeTarget) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+            activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                .putBoolean(KEY_DARK_MODE, isDarkModeTarget)
+                .apply()
+            if (AppCompatDelegate.getDefaultNightMode() != targetDelegateMode) {
+                AppCompatDelegate.setDefaultNightMode(targetDelegateMode)
+            }
+            if (applyAction != null) {
+                applyAction.run()
+            }
             return
         }
 
@@ -522,8 +560,13 @@ object ThemeManager {
             return
         }
 
+        if (activity.isFinishing || activity.isDestroyed) {
+            logDebug("Activity finishing or destroyed during fallback capture -> cleaning up transition")
+            cleanupPending("fallback_activity_finishing")
+            return
+        }
+
         val bitmap = try {
-            if (activity.isFinishing || activity.isDestroyed) return
             val bmp = Bitmap.createBitmap(decorView.width, decorView.height, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bmp)
             decorView.draw(canvas)
@@ -535,7 +578,8 @@ object ThemeManager {
         }
 
         if (bitmap == null) {
-            transitioning = false
+            logDebug("Fallback capture produced null bitmap -> instant toggle fallback")
+            cleanupPending("fallback_null_bitmap")
             if (applyAction != null) {
                 applyAction.run()
             } else {
@@ -556,10 +600,47 @@ object ThemeManager {
         isDarkModeTarget: Boolean,
         applyAction: Runnable? = null
     ) {
+        val commitAction = Runnable {
+            commitRevealTransitionInternal(
+                transitionId = transitionId,
+                activity = activity,
+                bitmap = bitmap,
+                originX = originX,
+                originY = originY,
+                isDarkModeTarget = isDarkModeTarget,
+                applyAction = applyAction
+            )
+        }
+        val interceptor = captureInterceptorForTest
+        if (interceptor != null) {
+            interceptor.invoke(commitAction)
+        } else {
+            commitAction.run()
+        }
+    }
+
+    private fun commitRevealTransitionInternal(
+        transitionId: Long,
+        activity: Activity,
+        bitmap: Bitmap,
+        originX: Float,
+        originY: Float,
+        isDarkModeTarget: Boolean,
+        applyAction: Runnable? = null
+    ) {
         if (currentTransitionId != transitionId) {
             if (!bitmap.isRecycled) {
                 try { bitmap.recycle() } catch (_: Throwable) {}
             }
+            return
+        }
+
+        if (activity.isFinishing || activity.isDestroyed) {
+            logDebug("Activity finishing or destroyed during commitRevealTransition -> cleaning up")
+            if (!bitmap.isRecycled) {
+                try { bitmap.recycle() } catch (_: Throwable) {}
+            }
+            cleanupPending("commit_activity_finishing")
             return
         }
 
@@ -693,8 +774,6 @@ object ThemeManager {
         touchLockInstalled = true
 
         val targetBg = ContextCompat.getColor(activity, R.color.eve_bg)
-        val origStatusBarColor = activity.window.statusBarColor
-        val origNavBarColor = activity.window.navigationBarColor
 
         // Make window background and system bars transparent so the content root's background
         // spans behind the status and navigation bar areas throughout the circular reveal
@@ -707,34 +786,68 @@ object ThemeManager {
         contentRoot.setBackgroundColor(targetBg)
 
         val toDark = holder.isDarkModeTarget
-        val themeSwitchImageView = ImageView(activity).apply {
-            tag = "theme_switch_freeze_overlay"
-            setImageBitmap(bitmap)
-            scaleType = ImageView.ScaleType.FIT_XY
-            fitsSystemWindows = false
-            layoutParams = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
+
+        // Reuse existing static overlay attached during Activity creation to eliminate startup layout flicker
+        val overlay = (decorView.findViewWithTag<View>("pre_reveal_overlay") as? ImageView)
+            ?: (decorView.findViewWithTag<View>("theme_switch_freeze_overlay") as? ImageView)
+            ?: ImageView(activity).apply {
+                setImageBitmap(bitmap)
+                scaleType = ImageView.ScaleType.FIT_XY
+                fitsSystemWindows = false
+                layoutParams = FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT
+                )
+                decorView.addView(this)
+            }
+
+        overlay.tag = "theme_switch_freeze_overlay"
+        if (overlay.drawable == null && !bitmap.isRecycled) {
+            overlay.setImageBitmap(bitmap)
         }
-        currentThemeSwitchOverlay = themeSwitchImageView
+        currentThemeSwitchOverlay = overlay
 
         // Telegram layer placement:
-        // if (toDark) frameLayout.addView(themeSwitchImageView, 0)
-        // else frameLayout.addView(themeSwitchImageView, 1)
+        // Day -> Night: live dark contentRoot expands on top of old light screenshot (overlay placed at index 0)
+        // Night -> Day: old dark screenshot (overlay) shrinks on top of live light contentRoot
         if (toDark) {
-            decorView.addView(themeSwitchImageView, 0)
+            if (overlay.parent === decorView) {
+                decorView.removeView(overlay)
+            }
+            decorView.addView(overlay, 0)
+            overlay.measure(
+                View.MeasureSpec.makeMeasureSpec(decorView.width, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(decorView.height, View.MeasureSpec.EXACTLY)
+            )
+            overlay.layout(0, 0, decorView.width, decorView.height)
         } else {
-            decorView.addView(themeSwitchImageView)
+            if (overlay.parent !== decorView) {
+                decorView.addView(overlay)
+            }
+            overlay.bringToFront()
+            overlay.measure(
+                View.MeasureSpec.makeMeasureSpec(decorView.width, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(decorView.height, View.MeasureSpec.EXACTLY)
+            )
+            overlay.layout(0, 0, decorView.width, decorView.height)
+        }
+
+        // Clean up any stale duplicate overlays if present
+        for (i in decorView.childCount - 1 downTo 0) {
+            val child = decorView.getChildAt(i)
+            if (child !== overlay && (child.tag == "pre_reveal_overlay" || child.tag == "theme_switch_freeze_overlay")) {
+                (child as? ImageView)?.setImageDrawable(null)
+                decorView.removeViewAt(i)
+            }
         }
 
         // Target view to animate with ViewAnimationUtils.createCircularReveal:
         // DAY -> NIGHT: live contentRoot is animated from 0 to finalRadius (revealing dark status, content, and nav bar)
-        // NIGHT -> DAY: old screenshot (themeSwitchImageView) is animated from finalRadius to 0 (shrinking over light content)
+        // NIGHT -> DAY: old screenshot (overlay) is animated from finalRadius to 0 (shrinking over light content)
         val targetView: View = if (toDark) {
             contentRoot
         } else {
-            themeSwitchImageView
+            overlay
         }
 
         val targetLoc = IntArray(2)
@@ -764,8 +877,6 @@ object ThemeManager {
             )
         } catch (t: Throwable) {
             logDebug("createCircularReveal error: ${t.message} -> fallback cleanup")
-            activity.window.statusBarColor = origStatusBarColor
-            activity.window.navigationBarColor = origNavBarColor
             cleanupPending("reveal_creation_error")
             return
         }
@@ -778,17 +889,15 @@ object ThemeManager {
             if (!completed) {
                 completed = true
                 logDebug("Circular reveal completed -> cleaning up")
-                if (themeSwitchImageView.parent === decorView) {
-                    themeSwitchImageView.setImageDrawable(null)
-                    decorView.removeView(themeSwitchImageView)
+                if (overlay.parent === decorView) {
+                    overlay.setImageDrawable(null)
+                    decorView.removeView(overlay)
                 }
-                if (currentThemeSwitchOverlay === themeSwitchImageView) {
+                if (currentThemeSwitchOverlay === overlay) {
                     currentThemeSwitchOverlay = null
                 }
                 currentAnimator = null
                 currentAnimatorActivityRef = null
-                activity.window.statusBarColor = origStatusBarColor
-                activity.window.navigationBarColor = origNavBarColor
                 cleanupPending("animation_complete")
             }
         }
@@ -807,16 +916,6 @@ object ThemeManager {
         currentAnimatorActivityRef = WeakReference(activity)
         // Start animator synchronously inside onPreDraw before current frame renders to prevent 1-frame flash
         anim.start()
-
-        // Now remove pre_reveal_overlay since the clip is active on targetView
-        var preOverlay: View?
-        do {
-            preOverlay = decorView.findViewWithTag<View>("pre_reveal_overlay")
-            if (preOverlay != null) {
-                (preOverlay as? ImageView)?.setImageDrawable(null)
-                decorView.removeView(preOverlay)
-            }
-        } while (preOverlay != null)
     }
 
     fun setupToggleButton(context: Context, button: ImageButton) {

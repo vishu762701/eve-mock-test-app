@@ -26,6 +26,13 @@ object ThemeSwitchAnimator {
         get() = inTransitionForTest || ThemeManager.isTransitioning
 
     fun isDarkMode(context: Context): Boolean {
+        var current: Context? = context
+        while (current is android.content.ContextWrapper) {
+            if (current is Activity) {
+                return current.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+            }
+            current = current.baseContext
+        }
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         return if (prefs.contains(KEY_DARK_MODE)) {
             prefs.getBoolean(KEY_DARK_MODE, false)

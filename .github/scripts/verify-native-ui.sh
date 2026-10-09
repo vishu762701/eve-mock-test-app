@@ -3,7 +3,7 @@ set -euo pipefail
 collect_evidence() {
   mkdir -p ui-renderings
   adb pull /sdcard/Pictures/eve-approved-ui ui-renderings/ || true
-  adb logcat -d -s AndroidRuntime ThemeSwitchAnimator SystemBarHelper > ui-renderings/safe-runtime.log || true
+  adb logcat -d -s AndroidRuntime ThemeSwitchAnimator ThemeManager SystemBarHelper > ui-renderings/safe-runtime.log || true
   # The hosted runner has grep but does not include ripgrep.
   adb shell dumpsys window windows | grep -E 'mCurrentFocus|mFocusedApp|mAppearance|appearance=|mNavBarColor|mNavigationBarColor' > ui-renderings/window-appearance.log || true
   adb shell dumpsys activity service SystemUIService | grep -Ei 'appearance|darkIntensity|lightBar|navigationMode|navBarColor|lightNavigation|navigationLight|navigationBarMode|mForce.*Scrim' > ui-renderings/systemui-appearance.log || true

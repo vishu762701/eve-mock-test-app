@@ -199,12 +199,19 @@ class RepairRegressionTest {
                     }
                     val deadline = System.currentTimeMillis() + 5000
                     var ready = false
+                    var failureDiag = ""
                     while (!ready && System.currentTimeMillis() < deadline) {
                         instrumentation.waitForIdleSync()
-                        scenario.onActivity { ready = (it.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) == dark && !ThemeSwitchAnimator.isTransitioning }
+                        scenario.onActivity { act ->
+                            val actualUiDark = (act.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+                            ready = actualUiDark == dark && !ThemeSwitchAnimator.isTransitioning
+                            val p = act.getSharedPreferences(com.eve.app.util.ThemeManager.PREFS, 0)
+                            val prefVal = if (p.contains(com.eve.app.util.ThemeManager.KEY_DARK_MODE)) p.getBoolean(com.eve.app.util.ThemeManager.KEY_DARK_MODE, false) else null
+                            failureDiag = "requestedTarget=$dark, actualUiMode=$actualUiDark, savedPref=$prefVal, delegateMode=${AppCompatDelegate.getDefaultNightMode()}, transitioning=${ThemeSwitchAnimator.isTransitioning}, activityState=${if (act.isDestroyed) "destroyed" else if (act.isFinishing) "finishing" else "alive"}"
+                        }
                         if (!ready) Thread.sleep(50)
                     }
-                    assertTrue("Theme recreation did not settle", ready)
+                    assertTrue("Theme recreation did not settle ($failureDiag)", ready)
                     scenario.onActivity { activity ->
                         captureWindow = activity.window
                         val night = activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
@@ -273,6 +280,147 @@ class RepairRegressionTest {
                 assertEquals(0, it.window.attributes.flags and android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
                 assertNull(it.window.decorView.findViewWithTag<View>("theme_switch_freeze_overlay"))
                 it.requestedOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            }
+        }
+    }
+
+    @Test fun rapidOppositeRequestDuringPendingCaptureIsRejectedAndFirstTargetSettles() {
+        val targetContext = instrumentation.targetContext
+        val prefs = targetContext.getSharedPreferences(com.eve.app.util.ThemeManager.PREFS, 0)
+        val initialHasPref = prefs.contains(com.eve.app.util.ThemeManager.KEY_DARK_MODE)
+        val initialPref = prefs.getBoolean(com.eve.app.util.ThemeManager.KEY_DARK_MODE, false)
+        val initialDelegate = AppCompatDelegate.getDefaultNightMode()
+
+        try {
+            // Symmetrical production path testing:
+            // Phase 1: Light -> Dark with rapid Light request rejected while capture is held pending
+            // Phase 2: Dark -> Light with rapid Dark request rejected while capture is held pending
+            for (phaseStartDark in listOf(false, true)) {
+                val targetDark = !phaseStartDark
+                val initialMode = if (phaseStartDark) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+                instrumentation.runOnMainSync {
+                    prefs.edit().putBoolean(com.eve.app.util.ThemeManager.KEY_DARK_MODE, phaseStartDark).commit()
+                    AppCompatDelegate.setDefaultNightMode(initialMode)
+                }
+
+                ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+                    // Verify initial activity settled in phaseStartDark
+                    scenario.onActivity { act ->
+                        val currentDark = (act.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+                        assertEquals("Activity must start in expected phase uiMode", phaseStartDark, currentDark)
+                    }
+
+                    val captureLatch = java.util.concurrent.CountDownLatch(1)
+                    val releaseLatch = java.util.concurrent.CountDownLatch(1)
+                    val pendingCommit = java.util.concurrent.atomic.AtomicReference<Runnable>()
+
+                    com.eve.app.util.ThemeManager.setCaptureInterceptorForTest { commitAction ->
+                        pendingCommit.set(commitAction)
+                        captureLatch.countDown()
+                        releaseLatch.await(5, java.util.concurrent.TimeUnit.SECONDS)
+                    }
+
+                    var secondCallbackFired = false
+                    scenario.onActivity { act ->
+                        // Request target theme
+                        ThemeSwitchAnimator.animate(act, act.window.decorView, targetDark)
+                    }
+
+                    // Await capture in progress
+                    assertTrue("Capture did not intercept within deadline", captureLatch.await(3, java.util.concurrent.TimeUnit.SECONDS))
+                    assertTrue("Transition must be active while capture is pending", ThemeSwitchAnimator.isTransitioning)
+
+                    // While capture is held pending, fire rapid opposite request with a callback
+                    scenario.onActivity { act ->
+                        com.eve.app.util.ThemeManager.toggleWithCircularReveal(act, 100, 100, isDarkModeTarget = phaseStartDark) {
+                            secondCallbackFired = true
+                        }
+                    }
+
+                    // Confirm the second request made NO preference, delegate, or callback changes
+                    assertFalse("Second callback must NOT fire while transition is active", secondCallbackFired)
+                    assertEquals("Active target must remain the first request's target", targetDark, com.eve.app.util.ThemeManager.activeTargetIsDark)
+
+                    // Complete capture and verify the app settles in targetDark
+                    releaseLatch.countDown()
+                    instrumentation.runOnMainSync {
+                        pendingCommit.get()?.run()
+                    }
+
+                    var ready = false
+                    val deadline = System.currentTimeMillis() + 8000
+                    var diag = ""
+                    while (!ready && System.currentTimeMillis() < deadline) {
+                        instrumentation.waitForIdleSync()
+                        scenario.onActivity { act ->
+                            val currentDark = (act.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+                            ready = currentDark == targetDark && !ThemeSwitchAnimator.isTransitioning
+                            diag = "targetDark=$targetDark, currentDark=$currentDark, isTransitioning=${ThemeSwitchAnimator.isTransitioning}, actState=${if (act.isDestroyed) "destroyed" else if (act.isFinishing) "finishing" else "alive"}"
+                        }
+                        if (!ready) Thread.sleep(50)
+                    }
+                    assertTrue("App did not settle in target theme ($diag)", ready)
+
+                    scenario.onActivity { act ->
+                        assertEquals(0, act.window.attributes.flags and android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+                        assertNull(act.window.decorView.findViewWithTag<View>("theme_switch_freeze_overlay"))
+                        assertNull(act.window.decorView.findViewWithTag<View>("pre_reveal_overlay"))
+                        assertEquals(targetDark, prefs.getBoolean(com.eve.app.util.ThemeManager.KEY_DARK_MODE, !targetDark))
+                    }
+                }
+            }
+
+            // Cover same-target requests separately: requesting already-settled theme causes no transition
+            com.eve.app.util.ThemeManager.setCaptureInterceptorForTest(null)
+            instrumentation.runOnMainSync {
+                prefs.edit().putBoolean(com.eve.app.util.ThemeManager.KEY_DARK_MODE, false).commit()
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+            ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+                var sameTargetCallbackRan = false
+                scenario.onActivity { act ->
+                    val currentDark = (act.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+                    assertFalse(currentDark)
+                    com.eve.app.util.ThemeManager.toggleWithCircularReveal(act, 50, 50, isDarkModeTarget = false) {
+                        sameTargetCallbackRan = true
+                    }
+                }
+                assertTrue(sameTargetCallbackRan)
+                assertFalse(ThemeSwitchAnimator.isTransitioning)
+            }
+
+            // Cover preference/resource mismatch separately: preference says Dark, but Activity resource is Light
+            instrumentation.runOnMainSync {
+                prefs.edit().putBoolean(com.eve.app.util.ThemeManager.KEY_DARK_MODE, true).commit() // Out of sync
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+            ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+                scenario.onActivity { act ->
+                    val currentDark = (act.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+                    assertFalse("Activity resource must be Light despite mismatched preference", currentDark)
+                    // Requesting Dark should NOT be treated as same-target because actual uiMode is Light
+                    ThemeSwitchAnimator.animate(act, act.window.decorView, true)
+                }
+                var settled = false
+                val deadline = System.currentTimeMillis() + 8000
+                while (!settled && System.currentTimeMillis() < deadline) {
+                    instrumentation.waitForIdleSync()
+                    scenario.onActivity { act ->
+                        settled = (act.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) && !ThemeSwitchAnimator.isTransitioning
+                    }
+                    if (!settled) Thread.sleep(50)
+                }
+                assertTrue("Mismatched preference was correctly reconciled and Activity transitioned to Dark", settled)
+            }
+        } finally {
+            com.eve.app.util.ThemeManager.setCaptureInterceptorForTest(null)
+            instrumentation.runOnMainSync {
+                if (initialHasPref) {
+                    prefs.edit().putBoolean(com.eve.app.util.ThemeManager.KEY_DARK_MODE, initialPref).commit()
+                } else {
+                    prefs.edit().remove(com.eve.app.util.ThemeManager.KEY_DARK_MODE).commit()
+                }
+                AppCompatDelegate.setDefaultNightMode(initialDelegate)
             }
         }
     }
