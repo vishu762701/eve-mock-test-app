@@ -1,101 +1,70 @@
-# EVE MOCK TEST APP — PERMANENT REPOSITORY SOURCE OF TRUTH
+# EVE MOCK TEST APP — SOURCE OF TRUTH
 
-> **Status:** Active & Authoritative  
-> **Last Verified:** 2026-10-09  
-> **Canonical Path:** `/data/data/com.termux/files/home/eve-mock-test-app`  
-> **Remote Origin:** `git@github.com:vishu762701/eve-mock-test-app.git`  
-> **Tracking Branch:** `main`  
-> **Verified Head Commit:** `48ced071e2dedf760758643443973b291d4e796e`  
+> Purpose: stable map of the project (identity, architecture, invariants).
+> It contains NO transient status. Never write commit hashes, test counts, or "verified on <date>" here.
 
----
+## 0. How to use this file
+- Read this file before starting any task.
+- Working rules (workflow, scope, reporting) live in `AGENTS.md` / `GEMINI.md`. If anything here conflicts with them or with the current user prompt, the current user prompt wins, then AGENTS.md / GEMINI.md, then this file.
+- If this file and the actual code disagree, trust the code, and report the mismatch under "Noticed but not touched (outside scope)" in the Final Report.
+- Never claim state from memory or from older chats. Inspect real files, run `git status` and `git log -1`, and run the relevant checks.
 
-## 1. Canonical Repository Identity
+## 1. Repository identity
+- Remote origin: `git@github.com:vishu762701/eve-mock-test-app.git`
+- Branch: `main` only (see AGENTS.md "Repository workflow").
+- GitHub Actions workflow: "Build Eve APK".
+- Local Termux path (only when working inside Termux): `/data/data/com.termux/files/home/eve-mock-test-app`. This is the single authoritative local copy.
 
-This directory (`/data/data/com.termux/files/home/eve-mock-test-app`) is the **single authoritative repository** for the EVE Mock Test Application. All active development, bug fixes, UI redesigns, builds, and commits must take place exclusively inside this tree.
-
-### Workspace Disambiguation (Permanent Warning)
-In the Termux home environment (`/data/data/com.termux/files/home`), several other directories exist. They must **never** be confused with or used in place of this repository:
-
-| Directory | Type / Purpose | Rule for Agents & Developers |
+### Termux workspace warning (only applies when working inside Termux home)
+| Directory | What it is | Rule |
 | :--- | :--- | :--- |
-| `~/eve-mock-test-app` | **Canonical Repository** (`origin/main`) | **SOLE SOURCE OF TRUTH**. Perform all work here. |
-| `~/Eve` | Stale clone (commit `131ca40`, Phase 9) | **DO NOT USE**. Outdated by dozens of releases. |
-| `~/EvePlayer` | Different Project (`EvePlayer` media player app) | **DO NOT TOUCH**. Completely different product. |
-| `~/EveBuild` | EvePlayer build scratch directory | **DO NOT TOUCH**. |
-| `~/EvePlayer_backup_before_v4` | EvePlayer backup directory | **DO NOT TOUCH**. |
-| `~/eve_new` | Untracked temporary directory | **DO NOT USE**. |
-| `~/evefix` | Untracked temporary directory | **DO NOT USE**. |
+| `~/eve-mock-test-app` | Canonical repository | Do all work here |
+| `~/Eve` | Stale clone (old phase) | Do not use |
+| `~/EvePlayer`, `~/EveBuild`, `~/EvePlayer_backup_before_v4` | A different product (EvePlayer media player) | Do not touch |
+| `~/eve_new`, `~/evefix` | Untracked temp directories | Do not use |
 
----
+## 2. Architecture and module boundaries
 
-## 2. Architecture & Module Boundaries
+### A. Native Android client (`app/`)
+- Technology: Kotlin, AndroidX, Material 3, ViewBinding, MVVM.
+- Test engine: `TestActivity.kt`, `CircularTimerView.kt`, `QuestionFitHelper.kt` (rigid no-scroll test viewport, 2x2 action button grid, question palette, Hindi/English font sizing, server-evaluated submissions).
+- Result and analytics: `ResultActivity.kt`, `ResultDetailActivity.kt` (single-screen summary cards, Statistics, Performance, Analytics, Review tab with isolated scroll, Leaderboard).
+- Home and discovery: `MainActivity.kt`, `HomePanelWashDrawable.kt` (light pastel wash grid, dark surface parity, single rotating banner surface, cached streak pill with looping flame).
+- Theme and transitions: `ThemeSwitchAnimator.kt`, `SystemBarHelper.kt`, `ThemeManager.kt` (Telegram-style circular reveal Day/Night animation, status/nav bar icon sync).
+- EVE UI Studio (`UiStudioActivity.kt`, `UiStudioRegistry.kt`, `UiStudioEngine.kt`): RETIRED. Do not extend or redesign it. Retain historical migrations and production data.
 
-The system is organized into three distinct, coupled layers:
+### B. Cloudflare Worker backend (`backend/`)
+- Technology: TypeScript, Hono, Cloudflare Workers.
+- API base URL: `https://eve-backend.anyqueairdrop.workers.dev/`
+- Database: Cloudflare D1 (`schema.sql`, incremental migrations in `backend/migrations/`).
+- Media storage: Supabase Storage (banner images, exam question media).
+- Authentication: Firebase Auth ID token verification via `/api/auth/me`.
+- Answer integrity: during active tests, answers are hidden for non-admin students (`hideAnswers`, checked via the `X-Eve-Client` header). Score evaluation, negative marking, attempt deduplication (`clientAttemptId`) and rank calculation happen on the server (`POST /api/attempts/submit`). Admin endpoints require an authenticated admin email.
 
-### A. Native Android Client (`:app` / `app/`)
-* **Technology:** Kotlin, AndroidX, Material 3, ViewBinding, MVVM.
-* **Core Domains:**
-  * **Test Engine:** `TestActivity.kt`, `CircularTimerView.kt`, `QuestionFitHelper.kt` (rigid no-scroll test viewport, 2x2 action button grid, question palette, multi-lingual Hindi/English font sizing, server-evaluated submissions).
-  * **Result & Analytics:** `ResultActivity.kt`, `ResultDetailActivity.kt` (single-screen dashboard summary cards, Statistics, Performance, Analytics, Review tab with isolated scroll, Leaderboard).
-  * **Home & Discovery:** `MainActivity.kt`, `HomePanelWashDrawable.kt` (light pastel wash grid, dark surface parity, single rotating banner surface, cached streak pill with subtle looping flame).
-  * **EVE UI Studio (Visual App Builder):** `UiStudioActivity.kt`, `UiStudioRegistry.kt`, `UiStudioEngine.kt` (50/50 split canvas, authentic phone chrome, 8 screen renderers, 13 typed runtime adapters, undo/redo, draft persistence, versioned atomic publishing).
-  * **Theme & Transitions:** `ThemeSwitchAnimator.kt`, `SystemBarHelper.kt`, `ThemeManager.kt` (Telegram-style circular reveal Day/Night animation, immersive status/nav bar icon synchronization).
-* **Color System Invariants:**
-  * **Light Backgrounds:** Pure `#FFFFFF`.
-  * **Dark Backgrounds:** Pure `#101117` / `#000000`.
-  * **Semantic Tokens (Never Decorative):**
-    * Right / Answered: Light fill `#C9F0B8` / text `#1F6B3A`; Dark fill `#293B27` / text `#7FE3A5`.
-    * Wrong: Light fill `#FFC1BB` / text `#9B2C26`; Dark fill `#602625` / text `#FF9A92`.
-    * Medium / Accuracy / Marked: Light fill `#FEE3AA` / text `#7A4F00`; Dark fill `#634416` / text `#F2C26B`.
-  * **Strict Ban:** Lime color `#E3FF3B` is strictly prohibited everywhere across `app/` and `backend/`.
+### C. Firebase and security rules (`firestore.rules`, `functions/`)
+- `firestore.rules` enforces admin write authorization through `isAdmin()`.
+- Admin email sync: the hardcoded admin emails must stay identical in `Constants.ADMIN_EMAILS` (`app/src/main/java/com/eve/app/util/Constants.kt`) and in `isHardcodedAdmin()` (`firestore.rules`). Those two files are the only source of the list. Do not copy the emails into docs.
+- Lockfile rule: `functions/package-lock.json` is untracked and ignored. Never stage, commit, overwrite or delete it.
 
-### B. Cloudflare Worker Backend (`backend/`)
-* **Technology:** TypeScript, Hono framework, running on Cloudflare Workers.
-* **API Base URL:** `https://eve-backend.anyqueairdrop.workers.dev/`
-* **Relational Database:** Cloudflare D1 SQLite database (`schema.sql`, incremental migrations in `backend/migrations/`).
-* **Media & Object Storage:** Supabase Storage (banner image assets, exam question media).
-* **Authentication:** Firebase Auth ID Token verification via `/api/auth/me`.
-* **Security & Answer Integrity:**
-  * During active tests, answers are hidden for non-admin students (`hideAnswers`, checked via `X-Eve-Client` header).
-  * Test score evaluation, negative marking, attempt deduplication (`clientAttemptId`), and rank calculations are performed authoritatively on the server (`POST /api/attempts/submit`).
-  * Admin endpoints require authenticated admin email authorization.
+## 3. Permanent invariants (never break these)
+1. Color system:
+   - Light backgrounds: pure `#FFFFFF`. Dark backgrounds: pure `#101117` / `#000000`.
+   - Semantic tokens (never decorative):
+     - Right / Answered: light fill `#C9F0B8`, text `#1F6B3A`; dark fill `#293B27`, text `#7FE3A5`.
+     - Wrong: light fill `#FFC1BB`, text `#9B2C26`; dark fill `#602625`, text `#FF9A92`.
+     - Medium / Accuracy / Marked: light fill `#FEE3AA`, text `#7A4F00`; dark fill `#634416`, text `#F2C26B`.
+   - Lime `#E3FF3B` is banned everywhere in `app/` and `backend/`.
+2. The Telegram-style circular reveal Day/Night transition must never be degraded.
+3. Server-side test timer, question layout fitting, and submit mechanics must never be replaced by client-only logic.
+4. Blur is applied only to chrome/surfaces through a matte `BlurView`, never over text, images, or Lottie animations.
+5. Test scoring, ranking, and answer visibility stay server-authoritative.
 
-### C. Firebase & Security Rules (`firestore.rules`, `functions/`)
-* **Firestore Rules:** `firestore.rules` enforces admin write authorization via `isAdmin()`.
-* **Admin Email Synchronization:** The 4 hardcoded admin emails must remain strictly synchronized between `Constants.ADMIN_EMAILS` in `app/src/main/java/com/eve/app/util/Constants.kt` and `isHardcodedAdmin()` in `firestore.rules`:
-  1. `pronlike9@gmail.com`
-  2. `own.keni@gmail.com`
-  3. `anyqueairdrop@gmail.com`
-  4. `ghatisarkar56@gmail.com`
-* **Lockfile Rule:** `functions/package-lock.json` is untracked and ignored. Never stage, commit, or overwrite it.
+## 4. Verification (run for the layer you changed; both if the change spans both)
+- Android: `./gradlew testDebugUnitTest` and `./gradlew assembleDebug`.
+- Backend (inside `backend/`): `npm test` and `npm run build`.
+- Always also run `git diff --check`, and check the GitHub Actions result after pushing.
+- Report exact commands and results. Do not copy results into this file.
 
----
-
-## 3. Permanent Operational Guardrails
-
-Every agent, developer, and session operating on this repository must abide by the following rules:
-
-1. **GitHub is the Single Source of Truth:**
-   Always pull and push to `origin/main` (`git@github.com:vishu762701/eve-mock-test-app.git`). Never maintain conflicting detached local branches.
-2. **Verify State First:**
-   Never assume a task or fix discussed in a previous chat session succeeded. Always inspect real files, run `git status`, check `git log -1`, and execute the relevant test suites before declaring state.
-3. **Dual Verification Requirement:**
-   Before marking any major task complete:
-   * **Android Client:** `./gradlew testDebugUnitTest` and `./gradlew assembleDebug` must compile and pass cleanly.
-   * **Backend:** `npm test` and `npm run build` inside `backend/` must pass cleanly (all 80+ tests).
-4. **Strict Scope Discipline:**
-   Only modify files explicitly required for the active prompt or task. Never re-touch, refactor, or "clean up" completed, verified modules from past tasks.
-5. **Preserve Core Invariants:**
-   * Telegram-style circular reveal Day/Night transition must never be degraded.
-   * Server-side test timer countdown, question layout fitting, and submit mechanics must never be replaced by client-only logic.
-   * Blur must only be applied to chrome/surfaces via matte `BlurView`, never over text, images, or Lottie animations.
-
----
-
-## 4. Current Verification Record (Verified 2026-10-09)
-
-* **Git Tree:** Clean, synced with `origin/main` at `48ced07`.
-* **Android Unit Tests:** **PASSED** (226 tests, 0 failures via `./gradlew testDebugUnitTest`).
-* **Android Debug Build:** **PASSED** (Clean APK output via `./gradlew assembleDebug`).
-* **Backend Unit Tests:** **PASSED** (80/80 tests passing via `npm test` in `backend/`).
-* **Backend Build:** **PASSED** (Clean TypeScript compilation).
+## 5. Keeping this file accurate
+- Update this file only when architecture, module boundaries, or invariants change as part of the task.
+- Never add transient status (commit hashes, test counts, dates, "currently working on").
