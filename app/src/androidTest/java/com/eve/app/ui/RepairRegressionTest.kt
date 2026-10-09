@@ -275,8 +275,7 @@ class RepairRegressionTest {
             var contrastingPixels = 0
             for (y in bitmap.height - rows until bitmap.height) for (x in 0 until bitmap.width) {
                 val color = bitmap.getPixel(x, y)
-                if (dark && Color.red(color) > 200 && Color.green(color) > 200 && Color.blue(color) > 200 ||
-                    !dark && Color.red(color) < 100 && Color.green(color) < 100 && Color.blue(color) < 100) contrastingPixels++
+                if (androidx.core.graphics.ColorUtils.calculateContrast(color, if (dark) Color.BLACK else Color.WHITE) >= 3.0) contrastingPixels++
             }
             assertTrue("System navigation indicator must actually contrast in $name/$mode", contrastingPixels > 10)
         }
