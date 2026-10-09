@@ -1,8 +1,9 @@
 # Eve final repair verification — 2026-10-09
 
 ## Status
-Implementation and local validation completed; native emulator CI is pending. This file will record
-actual emulator/CI/deployment results after the main commit. No new ZIP or user
+Scoped implementation and local validation passed. Native gesture checks passed;
+three-button contrast is still failing and under diagnosis. The full task is
+not claimed complete. Actual CI/deployment results and remaining limits follow. No new ZIP or user
 screenshot was attached; comparison with that exact build remains unavailable.
 Starting main revision: e1a3a79814b29097bfdde7b78ded4e46d8901038.
 
@@ -43,7 +44,7 @@ end-to-end timer/network behavior. No production student data is modified.
 - Final Android assembleDebug/testDebugUnitTest/assembleDebugAndroidTest/lintDebug:
   BUILD SUCCESSFUL in9m13s.196 tests,0 failures/errors; lint0 errors and1525
   warnings. The formatting error in the touched logout builder was corrected.
-- Worker dry-run validation and read-only production checks: pending.
+- Worker dry-run validation passed; read-only health returned200 and missing-token admin access401. See safe request IDs below.
 - Two intermediate Android instrumentation compiles failed because source edits
   added classes after the production task snapshot. They are not reported as
   passed; a settled-tree validation is required.
@@ -116,7 +117,7 @@ the final settled-tree build was restarted rather than marked passed.
 Backend scoped commit `017d447bd3263eca9d63603ec92d59c7e281438f` was pushed directly
 to origin/main and verified with git ls-remote. 121 backend tests and Worker dry-run passed before that push. The typecheck
 actually failed: its yielded output was not collected, and a following test
-command masked the exit status. This is corrected below. Android changes remain under validation;
+command masked the exit status. This is corrected below. Android changes were subsequently built and pushed;
 this scoped backend push is not a claim that the entire task is complete.
 
 
@@ -136,7 +137,7 @@ A concurrent origin/main commit1b67018 updated AGENTS.md. Direct push was reject
 local Android changes. New operating/scope/final-report instructions were read.
 Merge commit f7d0c781ea390b7631b6a31487acdd885807016f includes the strict-type fix
 and was pushed/verified remotely. Fail-fast local TypeScript checking and all121
-backend tests passed after the correction. Deployment CI is being checked.
+backend tests passed after the correction. Corrective deployment CI succeeded, as recorded below.
 
 ### Connected extra fixes
 Feedback-post deletion also ignored Result.failure in Home/Admin paths. The
@@ -195,3 +196,169 @@ JUnit XML totals28 suites,196 tests,0 failures,0 errors. Lint XML totals0 errors
 1525 warnings. No lint suppression or exception-swallowing fix was introduced.
 Both app and instrumentation APKs compiled. Native tests are not marked passed
 until the pushed-commit emulator workflow actually executes them.
+
+
+### First native run and test synchronization correction
+Code commit43d4c58d3b9d47422d2300237a67ad112ea371f1 was pushed/verified on main.
+Run37870654344 executed16 API35 gesture-navigation tests:15 passed,1 failed.
+The deletion regression called Espresso before asynchronous preflight had opened
+the confirmation dialog; Espresso selected the base activity just as it lost
+focus (`RootViewWithoutFocusException`, AdminDeletionRegressionTest.kt:94).
+Commit069840994c62be26d8fcf7688c122c0d1569ec86 waits for the visible accessibility
+dialog and explicitly targets its root. The complete scenarios are retained;
+no assertion was removed. Three-button execution was blocked by that first
+suite failure and is not counted as passed.
+The first native artifact was downloaded and its four full-screen gesture
+Mock/Result PNGs visually inspected. Result statistics labels fit in two columns
+and selected options show the approved green in both themes. Scrolled analytics
+captures and render-idle synchronization were added for the next run. Native
+results will be finalized after run37871263268 completes.
+
+
+Run37871263268 again executed16 tests with15 passing; the remaining focus race
+was at the later HTTP409 error-body assertion, not the preflight assertion.
+Commit4d3fd8a64ea4e0e2ea14a01d7bd803a0b66b010e synchronizes both kinds of dialog
+and explicitly targets every error-dialog assertion. It also asserts status-bar
+icon appearance and actual positive scroll position before analytics capture.
+The prior attempted analytics image was not scrolled and is not used as
+analytics evidence. Both failed workflow results remain visible on GitHub.
+
+The user delegated selection of the test environment. Existing configured
+Firebase/Worker infrastructure and isolated fixtures were selected to avoid
+creating paid services or manipulating production student records. That choice
+does not supply a signed-in test identity. Authenticated live testing remains
+blocked by missing account access, not by a request for another preference.
+
+
+Run37871777964 passed all three jobs, including16 gesture native tests and one
+three-button theme test. Screenshot review then found two evidence weaknesses:
+the attempted analytics capture was still at the top, and the dark three-button
+icons were dim despite the reported appearance flag. This passing run is not
+claimed as complete visual acceptance. Commit79a08aa5cd45a4f56a0c6a865455a82ddc414cae
+waits for SystemUI rendering/tint to settle and asserts actual contrasting pixels
+in the navigation area. Final screenshots must be inspected after that run.
+
+
+Run37872294394 failed the new pixel assertion on Light gesture navigation:
+the initial arbitrary RGB<100 threshold rejected Android's gray gesture pill.
+Commit04914087bc554e32c6bf9416510f4ecdd78ab2fa uses WCAG relative-luminance
+contrast>=3:1 against the visible black/white navigation background instead.
+Dim dark-theme three-button icons remain below that requirement and will fail.
+The delayed dark analytics screenshot was actually scrolled and visually
+inspected:100.0%, Attempted and Accuracy are readable; the unconfigured cutoff
+explains that qualification cannot be determined. No misleading top-only
+analytics capture is presented as that evidence.
+
+
+Run37872711338 passed16 gesture tests but failed the measured dark three-button
+contrast assertion. This is a verified rendered failure, not waived as a test
+problem. Android15 framework source shows DecorView.setWindowBackground can
+set APPEARANCE_FORCE_LIGHT_NAVIGATION_BARS independently of the ordinary flag.
+The helper now synchronizes the visible window background for API35+, avoids
+obsolete bar-color setters there, sets appearance after background/contrast
+configuration, and reapplies when the app window obtains focus. Older APIs retain
+bar-color handling. Commit2b2f7be8335c5e23641d1ab22d6213a47bd87a0e was pushed and
+verified on main; native pixel tests must pass before visual acceptance. Framework
+source evidence: android.googlesource.com/platform/frameworks/base/+/refs/heads/android15-release/core/java/com/android/internal/policy/DecorView.java
+(setWindowBackground) and PhoneWindow.java (setNavigationBarColor).
+
+
+Run37873302479 still failed dark three-button contrast after all16 gesture tests
+passed. The background/focus change alone was insufficient and is not reported
+as a visual fix. Local full Android verification for2b2f7be passed in5m48s.
+PhoneWindow.setNavigationBarColor explicitly clears FORCE_LIGHT_NAVIGATION_BARS,
+but can return early when the same opaque color is already forced. API35+ now
+uses the standard transparent edge-to-edge navigation color over the matching
+window background; no hidden API, contrast scrim, alternate-color toggle or
+weakened pixel requirement was introduced. Commit3d05b044f9b583d94fb3d626ed7a97146d2176c5
+was pushed/verified. Rendered contrast must still be verified by its workflow.
+
+
+Run37873931200 again passed16 gesture tests and failed dark three-button
+contrast. Transparent/background/focus handling is not yet proven to resolve
+this failure. The Android framework forced-appearance explanation is a
+source-supported hypothesis, not a measured emulator root cause. Diagnostic
+commit14843415d81715afc61826f78b04ada0a082a4bf preserves failed PNGs and captures
+focused-window appearance/insets and bounded SystemUI state before further
+changes. The3:1 test requirement remains unchanged.
+
+
+Diagnostic run37874462085 measured focused Eve window=true, appearance=0,
+legacy flags=0, navigation insets=48px and secure navigation_mode=0 while the
+three-button screenshot remained dim. Thus the ordinary and forced application
+appearance bits were clear at capture; the forced-bit hypothesis does not
+explain this persistent test failure. SystemUI/window dump filters returned
+empty data after teardown and are not treated as verified SystemUI health.
+The regression immediately toggled a just-launched activity after a navigation
+overlay swap, before an initial Light frame had been observed. Commitda1df60aa3d3aca55a4a4d86cc0cfc95f2f409e2
+renders/captures the Light window before the actual Light->Dark->Light actions,
+keeping the same3:1 contrast assertion. This setup explanation remains under
+verification rather than being reported as the final root cause in advance.
+
+Read-only connectivity with Android's OkHttp4.12.0 user agent returned200 from
+the configured Worker/api/health; request IDaba3b9dc-9f51-4ef4-8ca2-e05d5d0ab5c2.
+The earlier Python edge403 does not reproduce for that user agent. This is not
+a signed-in generation/submission test.
+
+
+Run37875096645 still failed the same three-button condition after an initial
+Light frame. That setup hypothesis is not reported resolved. The empty SystemUI
+files were explained by hosted-runner `rg: command not found`; grep is available
+and replaces that filter in665998a760e6d5fe5a138cc9959a7f0ec5d31742. A bounded
+SystemUI capture now runs while the failed app window remains focused. This is
+verification infrastructure repair; the actual contrast assertion is unchanged.
+
+
+Run37875535770 was blocked earlier by a banner confirmation focus race
+(AdminDeletionRegressionTest.kt:57). Commit7bf5b8dbc2c965561f225c369a1826dda00b84b2
+adds the same visible-dialog wait and explicit dialog root before that click.
+The three-button phase did not execute and is not counted as passed. Hosted
+diagnostics now use grep because ripgrep is absent.
+
+
+Run37876181142 captured the state while the failed app window was focused:
+appearance=0, flags=80810100 (draws system-bar backgrounds), legacy=0,
+navigation inset48px. SystemUI simultaneously reported mNavigationLight=false,
+mHasLightNavigationBar=false, mDarkIntensity=0 and no force-for-scrim flags,
+but the three-button PNG remained dim. This disproves an app appearance-bit
+mismatch as the remaining cause. Commitbd388d8aef5c37a55edb16c3677a9e8bdc2298e6
+boots the emulator into its selected three-button mode before running the
+same rendered3:1 theme regression, isolating live navigation-overlay renderer
+state. Reboot is confined to the disposable CI emulator, not production devices.
+No application-color workaround or weakened assertion was introduced. Its
+result remains pending until actual execution.
+
+
+Run37876832512 still reproduced the three-button failure after a verified reboot
+into navigation_mode=0, disproving hot-swap alone as the explanation.
+Commitc01925269f07bc2e9387b365af27180fa4a4f3cd adds a read-only stock Clock
+control screenshot on failure and runtime SystemUI light/dark-color lookup.
+The test failure status remains nonzero; the control never substitutes for a pass.
+
+Parallel comparison uses the official Google APIs API35 image (d603820) and an
+explicit Pixel2 phone profile (bf1916c2e9bce254a29c7b265c3e44fb83f33548), matching
+the Firebase/Google application environment. Navigation pixel checks use actual
+WindowInsets navigation bounds at any density instead of fixed12/30 pixel rows,
+retaining the3:1 requirement. Original AOSP evidence remains retained and is not
+claimed resolved merely by selecting another image.
+
+
+AOSP stock Clock control launched successfully and focus was verified on
+com.android.deskclock/.DeskClock. Its dark-blue screen also showed the same dim
+three-button indicators; SystemUI reported navigationLight=false/darkIntensity=0
+for that independent app. Runtime color lookup returned light=#ffffffff and
+dark=#99000000. This is evidence that the remaining generic-image rendering
+problem occurs outside Eve too; it is not waived as an Eve success.
+
+Pixel2 run37878483545 stopped on older approved-design test rounding assumptions:
+14sp rendered37px (14.095238sp at2.625density);38dp correctly rounded to100px
+while a test truncated to99;13sp rounded to34px. Commitbf1622a21f4866bf1507da12f63d0c27be373bf0
+compares against Android's SP conversion with half-physical-pixel rounding
+tolerance and rounds integer dimensions as Android does. Approved app fonts,
+colors and sizes did not change. Both navigation suites now execute independently
+and the overall workflow fails if either returns nonzero.
+
+
+## CI #227 evidence correction
+
+See [EVE_CI_NATIVE_VERIFICATION_REPORT.md](EVE_CI_NATIVE_VERIFICATION_REPORT.md) for the focused #209–#227 investigation. An unchanged #227 rerun reproduced the spacing assertion and SystemUI ANR. The retrieved Light and Dark three-button screenshots contain a system ANR dialog; the app is not focused. These captures cannot prove an app navigation-color defect. Earlier candidate explanations above remain historical, unverified hypotheses. This continuation changes CI/tests only and preserves production UI.

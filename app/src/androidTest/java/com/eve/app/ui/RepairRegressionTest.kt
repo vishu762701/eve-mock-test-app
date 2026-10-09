@@ -286,12 +286,23 @@ class RepairRegressionTest {
             val dark = name.contains("dark")
             var rows = 0
             var windowState = ""
+            var focused = false
             instrumentation.runOnMainSync {
                 val window = captureWindow!!
                 val navigation = ViewCompat.getRootWindowInsets(window.decorView)?.getInsets(WindowInsetsCompat.Type.navigationBars())
                 rows = navigation?.bottom ?: 0
+                focused = window.decorView.hasWindowFocus()
                 windowState = "focus=${window.decorView.hasWindowFocus()} appearance=${window.insetsController?.systemBarsAppearance} flags=${window.attributes.flags.toUInt().toString(16)} legacy=${window.decorView.systemUiVisibility} navigation=$navigation"
             }
+            // Run #227 captured a SystemUI ANR dialog, which dims the whole app.
+            // Keep the screenshot and fail explicitly; never dismiss/skip the
+            // dialog or report its dimmed pixels as an application tint defect.
+            val activeRoot = instrumentation.uiAutomation.rootInActiveWindow
+            val systemAnr = activeRoot?.findAccessibilityNodeInfosByViewId("android:id/aerr_app_info")
+                ?.any { it.text?.contains("System UI", ignoreCase = true) == true } == true ||
+                activeRoot?.findAccessibilityNodeInfosByText("System UI isn't responding")?.isNotEmpty() == true
+            assertFalse("EMULATOR_SYSTEM_UI_ANR: $name/$mode; see saved screenshot; $windowState", systemAnr)
+            assertTrue("CAPTURE_WINDOW_NOT_FOCUSED: $name/$mode; another window obscures the app; see saved screenshot; $windowState", focused)
             assertTrue("Navigation bounds unavailable for $name/$mode; $windowState", rows in 1..bitmap.height)
             var contrastingPixels = 0
             for (y in bitmap.height - rows until bitmap.height) for (x in 0 until bitmap.width) {

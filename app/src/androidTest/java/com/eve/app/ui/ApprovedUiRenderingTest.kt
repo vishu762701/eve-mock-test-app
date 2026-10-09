@@ -103,6 +103,13 @@ class ApprovedUiRenderingTest {
             assertEquals(pixels(12), q.rbA.paddingTop)
             assertEquals(pixels(12), q.rbA.paddingRight)
             assertEquals(pixels(44), q.rbA.paddingLeft)
+            // XML resolves each 4dp/6dp margin separately at fractional density.
+            val footer = ActivityTestBinding.inflate(LayoutInflater.from(scaledContext))
+            fun margins(button: View) = (button.parent as View).layoutParams as ViewGroup.MarginLayoutParams
+            assertEquals(pixels(4), margins(footer.btnClear).marginEnd)
+            assertEquals(pixels(4), margins(footer.btnMarkReview).marginStart)
+            assertEquals(pixels(6), margins(footer.btnPrev).marginEnd)
+            assertEquals(pixels(6), margins(footer.btnNext).marginStart)
         }
     }
 
@@ -206,8 +213,9 @@ class ApprovedUiRenderingTest {
             val a = first.parent as View; val c = second.parent as View
             return c.left - a.right
         }
-        assertEquals(dp(8), gap(b.btnClear, b.btnMarkReview))
-        assertEquals(dp(12), gap(b.btnPrev, b.btnNext))
+        // Two independently rounded XML margins, not one combined dimension.
+        assertEquals(dp(4) + dp(4), gap(b.btnClear, b.btnMarkReview))
+        assertEquals(dp(6) + dp(6), gap(b.btnPrev, b.btnNext))
         val navigationRow = b.btnPrev.parent.parent as View
         val actionRow = b.btnClear.parent.parent as View
         assertEquals(dp(20), navigationRow.top - actionRow.bottom)

@@ -65,3 +65,18 @@ follows confirmed D1 mutation, reports incomplete cleanup and stores a safe
 bounded diagnostic event. Banner/syllabus UI uses honest guarded confirmation
 and unwraps Result. Clear/answer taps previously waited for the five-second
 periodic session save; they now save immediately, preserving clear state.
+
+
+## Runtime verification discovered during repair
+API35 native tests exposed dim Dark three-button indicators even with a focused
+Eve window reporting appearance=0, legacy flags=0 and48px navigation insets.
+Gesture contrast and all other16-test-suite checks pass, but the three-button
+condition remains unresolved pending SystemUI-state diagnosis. Source-supported
+forced-background and unsettled-initial-frame explanations were investigated
+but are not claimed verified root causes of this persistent failure. Exact
+failed runs and candidate changes are recorded in the final verification report.
+
+
+## CI #227 evidence correction
+
+See [EVE_CI_NATIVE_VERIFICATION_REPORT.md](EVE_CI_NATIVE_VERIFICATION_REPORT.md) for the focused #209–#227 investigation. An unchanged #227 rerun reproduced the spacing assertion and SystemUI ANR. The retrieved Light and Dark three-button screenshots contain a system ANR dialog; the app is not focused. These captures cannot prove an app navigation-color defect. Earlier candidate explanations above remain historical, unverified hypotheses. This continuation changes CI/tests only and preserves production UI.
