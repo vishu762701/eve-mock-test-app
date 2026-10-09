@@ -115,6 +115,9 @@ object ThemeManager {
     val isTransitioning: Boolean
         get() = transitioning
 
+    val activeTransitionId: Long
+        get() = currentTransitionId
+
     val activeTargetIsDark: Boolean?
         get() = activeTransitionTargetDark ?: pendingSnapshot?.isDarkModeTarget
 
@@ -430,17 +433,25 @@ object ThemeManager {
             return
         }
 
-        // 2. SAME-TARGET CHECK: Check if Activity's effective uiMode is ALREADY matching target
+        // 2. SAME-TARGET CHECK: Check if Activity and delegate are ALREADY settled in target theme
+        val targetDelegateMode = if (isDarkModeTarget) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+        val currentDelegateMode = AppCompatDelegate.getDefaultNightMode()
         val currentUiDark = (activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-        if (currentUiDark == isDarkModeTarget) {
+        val prefs = activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val savedPref = if (prefs.contains(KEY_DARK_MODE)) prefs.getBoolean(KEY_DARK_MODE, false) else null
+
+        // Settled ONLY when the Activity uiMode matches target, the delegate matches target,
+        // and any saved preference matches (or is null).
+        // If the system uiMode happens to match due to an external command (e.g. cmd uimode),
+        // but the app delegate is still in the opposing mode, the app is NOT settled in target.
+        val isAlreadySettled = currentUiDark == isDarkModeTarget &&
+                currentDelegateMode == targetDelegateMode &&
+                (savedPref == null || savedPref == isDarkModeTarget)
+
+        if (isAlreadySettled) {
             logDebug("Same-target toggle requested: Activity already settled in target theme ($isDarkModeTarget)")
-            // Reconcile saved preference and delegate mode to be consistent without recreation
-            val targetDelegateMode = if (isDarkModeTarget) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
-            activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
-                .putBoolean(KEY_DARK_MODE, isDarkModeTarget)
-                .apply()
-            if (AppCompatDelegate.getDefaultNightMode() != targetDelegateMode) {
-                AppCompatDelegate.setDefaultNightMode(targetDelegateMode)
+            if (savedPref != isDarkModeTarget) {
+                prefs.edit().putBoolean(KEY_DARK_MODE, isDarkModeTarget).apply()
             }
             if (applyAction != null) {
                 applyAction.run()

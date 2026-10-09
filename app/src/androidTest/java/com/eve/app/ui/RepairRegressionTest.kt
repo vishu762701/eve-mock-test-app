@@ -207,7 +207,7 @@ class RepairRegressionTest {
                             ready = actualUiDark == dark && !ThemeSwitchAnimator.isTransitioning
                             val p = act.getSharedPreferences(com.eve.app.util.ThemeManager.PREFS, 0)
                             val prefVal = if (p.contains(com.eve.app.util.ThemeManager.KEY_DARK_MODE)) p.getBoolean(com.eve.app.util.ThemeManager.KEY_DARK_MODE, false) else null
-                            failureDiag = "requestedTarget=$dark, actualUiMode=$actualUiDark, savedPref=$prefVal, delegateMode=${AppCompatDelegate.getDefaultNightMode()}, transitioning=${ThemeSwitchAnimator.isTransitioning}, activityState=${if (act.isDestroyed) "destroyed" else if (act.isFinishing) "finishing" else "alive"}"
+                            failureDiag = "requestedTarget=$dark, actualUiMode=$actualUiDark, savedPref=$prefVal, delegateMode=${AppCompatDelegate.getDefaultNightMode()}, transitioning=${ThemeSwitchAnimator.isTransitioning}, transactionId=${com.eve.app.util.ThemeManager.activeTransitionId}, activityState=${if (act.isDestroyed) "destroyed" else if (act.isFinishing) "finishing" else "alive"}"
                         }
                         if (!ready) Thread.sleep(50)
                     }
@@ -304,11 +304,27 @@ class RepairRegressionTest {
                 }
 
                 ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
-                    // Verify initial activity settled in phaseStartDark
                     scenario.onActivity { act ->
-                        val currentDark = (act.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-                        assertEquals("Activity must start in expected phase uiMode", phaseStartDark, currentDark)
+                        act.retainedAnswer = "B"
+                        val b = ActivityTestBinding.inflate(act.layoutInflater)
+                        b.tvTestTitle.text = "Rapid tap regression"
+                        act.setContentView(b.root)
                     }
+                    instrumentation.waitForIdleSync()
+
+                    // Verify initial activity settled in phaseStartDark and window is measured
+                    var measured = false
+                    val mDeadline = System.currentTimeMillis() + 3000
+                    while (!measured && System.currentTimeMillis() < mDeadline) {
+                        instrumentation.waitForIdleSync()
+                        scenario.onActivity { act ->
+                            val currentDark = (act.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+                            assertEquals("Activity must start in expected phase uiMode", phaseStartDark, currentDark)
+                            measured = act.window.decorView.width > 0 && act.window.decorView.height > 0
+                        }
+                        if (!measured) Thread.sleep(20)
+                    }
+                    assertTrue("Window must be measured before theme switch animation", measured)
 
                     val captureLatch = java.util.concurrent.CountDownLatch(1)
                     val pendingCommit = java.util.concurrent.atomic.AtomicReference<Runnable?>()
@@ -357,7 +373,9 @@ class RepairRegressionTest {
                         scenario.onActivity { act ->
                             val currentDark = (act.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
                             ready = currentDark == targetDark && !ThemeSwitchAnimator.isTransitioning
-                            diag = "targetDark=$targetDark, currentDark=$currentDark, isTransitioning=${ThemeSwitchAnimator.isTransitioning}, actState=${if (act.isDestroyed) "destroyed" else if (act.isFinishing) "finishing" else "alive"}"
+                            val p = act.getSharedPreferences(com.eve.app.util.ThemeManager.PREFS, 0)
+                            val prefVal = if (p.contains(com.eve.app.util.ThemeManager.KEY_DARK_MODE)) p.getBoolean(com.eve.app.util.ThemeManager.KEY_DARK_MODE, false) else null
+                            diag = "targetDark=$targetDark, currentDark=$currentDark, savedPref=$prefVal, delegateMode=${AppCompatDelegate.getDefaultNightMode()}, isTransitioning=${ThemeSwitchAnimator.isTransitioning}, transactionId=${com.eve.app.util.ThemeManager.activeTransitionId}, actState=${if (act.isDestroyed) "destroyed" else if (act.isFinishing) "finishing" else "alive"}"
                         }
                         if (!ready) Thread.sleep(50)
                     }
@@ -379,6 +397,12 @@ class RepairRegressionTest {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             }
             ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+                scenario.onActivity { act ->
+                    val b = ActivityTestBinding.inflate(act.layoutInflater)
+                    b.tvTestTitle.text = "Same-target regression"
+                    act.setContentView(b.root)
+                }
+                instrumentation.waitForIdleSync()
                 var sameTargetCallbackRan = false
                 scenario.onActivity { act ->
                     val currentDark = (act.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
@@ -397,6 +421,12 @@ class RepairRegressionTest {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             }
             ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+                scenario.onActivity { act ->
+                    val b = ActivityTestBinding.inflate(act.layoutInflater)
+                    b.tvTestTitle.text = "Mismatch regression"
+                    act.setContentView(b.root)
+                }
+                instrumentation.waitForIdleSync()
                 scenario.onActivity { act ->
                     val currentDark = (act.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
                     assertFalse("Activity resource must be Light despite mismatched preference", currentDark)
