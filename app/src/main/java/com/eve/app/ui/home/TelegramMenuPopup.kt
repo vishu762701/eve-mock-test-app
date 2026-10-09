@@ -117,7 +117,7 @@ class TelegramMenuPopup(
                     }
                 }
                 anchor.addOnAttachStateChangeListener(detach)
-                ThemeFrameCoordinator.afterFrame(anchor.rootView, ready = { !popupRoot.isAttachedToWindow },
+                ThemeFrameCoordinator.afterFrame(anchor.rootView, ready = { !popupRoot.isAttachedToWindow && anchor.hasWindowFocus() },
                     valid = { ThemeManager.ownsPopupHandoff(handoffOwner) }) {
                     anchor.removeOnAttachStateChangeListener(detach)
                     if (!ThemeManager.releasePopupHandoff(handoffOwner)) return@afterFrame

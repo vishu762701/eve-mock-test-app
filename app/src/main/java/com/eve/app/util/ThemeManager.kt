@@ -753,7 +753,7 @@ object ThemeManager {
             } == true
         }, valid = { currentTransitionId == transitionId }) {
             if (currentTransitionId != transitionId) return@afterFrame
-            if (activity.isDestroyed || activity.isFinishing || !activity.hasWindowFocus() ||
+            if (activity.isDestroyed || activity.isFinishing ||
                 sourceDecor.width != width || sourceDecor.height != height ||
                 activity.resources.configuration.orientation != orientation) {
                 cleanupPending("source_not_visible"); return@afterFrame

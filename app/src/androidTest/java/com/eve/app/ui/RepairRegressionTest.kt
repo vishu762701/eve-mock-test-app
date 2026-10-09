@@ -481,12 +481,22 @@ class RepairRegressionTest {
                     val blurRunning = java.util.concurrent.CountDownLatch(1)
                     val failures = java.util.concurrent.CopyOnWriteArrayList<String>()
                     var calls = 0
+                    var runningTapped = false
                     lateinit var popup: com.eve.app.ui.home.TelegramMenuPopup
                     instrumentation.runOnMainSync {
                         manager.setEventObserverForTest { stage, id, view ->
                             events.add(stage)
                             eventIds[stage] = id
-                            if (stage.startsWith("popup_blur_update:") && (stage.substringAfter(':').toIntOrNull() ?: 0) > 1) blurRunning.countDown()
+                            if (popupPhase == "running" && !runningTapped && stage.startsWith("popup_blur_update:") &&
+                                (stage.substringAfter(':').toIntOrNull() ?: 0) > 1) {
+                                // Tap in the animator's frame, before returning to instrumentation.
+                                // ActivityScenario.onActivity waits for idle and can miss this interval.
+                                runningTapped = true
+                                if (popup.contentView.alpha >= 1f) failures.add("Entrance settled before its first blur frame")
+                                popup.contentView.findViewById<View>(R.id.cardTheme).performClick()
+                                popup.contentView.findViewById<View>(R.id.cardTheme).performClick()
+                                blurRunning.countDown()
+                            }
                             if (stage.startsWith("popup_blur_update:") && "popup_work_cancelled" in events) {
                                 failures.add("Blur changed after popup cancellation: $stage")
                             }
@@ -530,15 +540,12 @@ class RepairRegressionTest {
                                 assertTrue(manager.isTransitioning)
                             }
                         }
-                        if (popupPhase != "pending") {
-                            if (popupPhase == "running") {
-                                assertTrue("Entrance blur never started", blurRunning.await(2, java.util.concurrent.TimeUnit.SECONDS))
-                            } else {
-                                // Test-only wait for the documented 220ms entrance; production has no delay.
-                                Thread.sleep(300)
-                            }
+                        if (popupPhase == "running") {
+                            assertTrue("Entrance blur never started", blurRunning.await(2, java.util.concurrent.TimeUnit.SECONDS))
+                        } else if (popupPhase == "settled") {
+                            // Test-only wait for the documented 220ms entrance; production has no delay.
+                            Thread.sleep(300)
                             scenario.onActivity {
-                                if (popupPhase == "running") assertTrue("Entrance settled before the running-animation tap", popup.contentView.alpha < 1f)
                                 popup.contentView.findViewById<View>(R.id.cardTheme).performClick()
                                 popup.contentView.findViewById<View>(R.id.cardTheme).performClick()
                             }
