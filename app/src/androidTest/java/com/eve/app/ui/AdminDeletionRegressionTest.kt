@@ -31,6 +31,16 @@ import java.util.concurrent.TimeUnit
 /** Production dialogs + Retrofit contracts; responses are isolated fixtures. */
 @RunWith(AndroidJUnit4::class)
 class AdminDeletionRegressionTest {
+    private fun waitForDialog(text: String) {
+        val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        val deadline = System.currentTimeMillis() + 5000
+        while (System.currentTimeMillis() < deadline) {
+            if (automation.rootInActiveWindow?.findAccessibilityNodeInfosByText(text)
+                    ?.any { it.text?.toString() == text } == true) return
+            Thread.sleep(50)
+        }
+        fail("Dialog did not appear: $text")
+    }
     @Test fun bannerRepositoryFailureIsUnwrappedAndNeverAnnouncedAsDeleted() {
         val api = Retrofit.Builder().baseUrl("https://isolated.invalid/")
             .client(OkHttpClient.Builder().addInterceptor { chain ->
@@ -48,9 +58,10 @@ class AdminDeletionRegressionTest {
             val deadline = System.currentTimeMillis() + 5000
             while (refreshed.get() == 0 && System.currentTimeMillis() < deadline) Thread.sleep(50)
             assertEquals(1, refreshed.get())
-            onView(withText("Operation could not be completed")).check(matches(isDisplayed()))
-            onView(withText("Undo")).check(doesNotExist())
-            onView(withText("OK")).perform(click())
+            waitForDialog("Operation could not be completed")
+            onView(withText("Operation could not be completed")).inRoot(isDialog()).check(matches(isDisplayed()))
+            onView(withText("Undo")).inRoot(isDialog()).check(doesNotExist())
+            onView(withText("OK")).inRoot(isDialog()).perform(click())
         }
     }
 
@@ -92,15 +103,7 @@ class AdminDeletionRegressionTest {
                 }
                 // Retrofit preflight is asynchronous. Do not let Espresso pick the
                 // activity root just before the dialog takes its window focus.
-                val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
-                val previewDeadline = System.currentTimeMillis() + 5000
-                var visible = false
-                while (!visible && System.currentTimeMillis() < previewDeadline) {
-                    val root = automation.rootInActiveWindow
-                    visible = root?.findAccessibilityNodeInfosByText("Delete")?.any { it.text?.toString() == "Delete" } == true
-                    if (!visible) Thread.sleep(50)
-                }
-                assertTrue("Deletion confirmation did not appear", visible)
+                waitForDialog("Delete")
                 onView(withText("Delete")).inRoot(isDialog()).check(matches(isDisplayed())).perform(click())
                 scenario.onActivity {
                     assertEquals("Keep the record until server confirmation", View.VISIBLE, record.visibility)
@@ -111,12 +114,14 @@ class AdminDeletionRegressionTest {
                 while (refreshes.get() == 0 && System.currentTimeMillis() < deadline) Thread.sleep(50)
                 assertEquals(1, refreshes.get()); assertEquals(1, deletes.get()); assertEquals(0, creates.get())
                 scenario.onActivity { assertEquals(if (status == 200) View.GONE else View.VISIBLE, record.visibility) }
-                onView(withText("Undo")).check(doesNotExist())
+                if (status != 200) waitForDialog("Operation could not be completed")
+                if (status == 200) onView(withText("Undo")).check(doesNotExist())
+                else onView(withText("Undo")).inRoot(isDialog()).check(doesNotExist())
                 if (status == 409) {
-                    onView(withSubstring("Unpublish tests instead")).check(matches(isDisplayed()))
-                    onView(withText("Copy request ID")).check(matches(isDisplayed()))
+                    onView(withSubstring("Unpublish tests instead")).inRoot(isDialog()).check(matches(isDisplayed()))
+                    onView(withText("Copy request ID")).inRoot(isDialog()).check(matches(isDisplayed()))
                 }
-                if (status != 200) onView(withText("OK")).perform(click())
+                if (status != 200) onView(withText("OK")).inRoot(isDialog()).perform(click())
             }
         }
     }

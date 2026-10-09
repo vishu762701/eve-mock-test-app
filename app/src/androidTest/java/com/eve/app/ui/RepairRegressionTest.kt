@@ -192,6 +192,7 @@ class RepairRegressionTest {
                     assertEquals(dark, night); assertEquals("B", activity.retainedAnswer)
                     assertFalse(ThemeSwitchAnimator.isTransitioning)
                     assertEquals(!dark, WindowInsetsControllerCompat(activity.window, activity.window.decorView).isAppearanceLightNavigationBars)
+                    assertEquals(!dark, WindowInsetsControllerCompat(activity.window, activity.window.decorView).isAppearanceLightStatusBars)
                     assertNull(activity.window.decorView.findViewWithTag<View>("theme_switch_freeze_overlay"))
                     val b = ActivityTestBinding.inflate(activity.layoutInflater)
                     activity.setContentView(b.root)
@@ -220,8 +221,9 @@ class RepairRegressionTest {
                 instrumentation.waitForIdleSync()
                 screenshot("result-screen-${if (dark) "dark" else "light"}")
                 scenario.onActivity { activity ->
-                    activity.findViewById<androidx.core.widget.NestedScrollView>(R.id.scrollResultContent)
-                        .fullScroll(View.FOCUS_DOWN)
+                    val scroll = activity.findViewById<androidx.core.widget.NestedScrollView>(R.id.scrollResultContent)
+                    scroll.scrollTo(0, scroll.getChildAt(0).height)
+                    assertTrue("Analytics evidence must actually scroll", scroll.scrollY > 0)
                 }
                 screenshot("result-analytics-${if (dark) "dark" else "light"}")
             }
