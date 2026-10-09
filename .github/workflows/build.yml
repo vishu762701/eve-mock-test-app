@@ -59,6 +59,7 @@ jobs:
         with:
           api-level: 35
           arch: x86_64
+          target: google_apis
           disable-animations: false
           script: bash .github/scripts/verify-native-ui.sh
       - uses: actions/upload-artifact@v4
