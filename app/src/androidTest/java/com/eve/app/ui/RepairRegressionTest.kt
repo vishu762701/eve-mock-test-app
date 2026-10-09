@@ -311,16 +311,13 @@ class RepairRegressionTest {
                     }
 
                     val captureLatch = java.util.concurrent.CountDownLatch(1)
-                    val releaseLatch = java.util.concurrent.CountDownLatch(1)
-                    val pendingCommit = java.util.concurrent.atomic.AtomicReference<Runnable>()
+                    val pendingCommit = java.util.concurrent.atomic.AtomicReference<Runnable?>()
 
                     com.eve.app.util.ThemeManager.setCaptureInterceptorForTest { commitAction ->
                         pendingCommit.set(commitAction)
                         captureLatch.countDown()
-                        releaseLatch.await(5, java.util.concurrent.TimeUnit.SECONDS)
                     }
 
-                    var secondCallbackFired = false
                     scenario.onActivity { act ->
                         // Request target theme
                         ThemeSwitchAnimator.animate(act, act.window.decorView, targetDark)
@@ -331,6 +328,7 @@ class RepairRegressionTest {
                     assertTrue("Transition must be active while capture is pending", ThemeSwitchAnimator.isTransitioning)
 
                     // While capture is held pending, fire rapid opposite request with a callback
+                    var secondCallbackFired = false
                     scenario.onActivity { act ->
                         com.eve.app.util.ThemeManager.toggleWithCircularReveal(act, 100, 100, isDarkModeTarget = phaseStartDark) {
                             secondCallbackFired = true
@@ -340,11 +338,15 @@ class RepairRegressionTest {
                     // Confirm the second request made NO preference, delegate, or callback changes
                     assertFalse("Second callback must NOT fire while transition is active", secondCallbackFired)
                     assertEquals("Active target must remain the first request's target", targetDark, com.eve.app.util.ThemeManager.activeTargetIsDark)
+                    assertEquals(phaseStartDark, prefs.getBoolean(com.eve.app.util.ThemeManager.KEY_DARK_MODE, !phaseStartDark))
+                    assertEquals(initialMode, AppCompatDelegate.getDefaultNightMode())
 
                     // Complete capture and verify the app settles in targetDark
-                    releaseLatch.countDown()
-                    instrumentation.runOnMainSync {
-                        pendingCommit.get()?.run()
+                    com.eve.app.util.ThemeManager.setCaptureInterceptorForTest(null)
+                    val commitAction = pendingCommit.getAndSet(null)
+                    assertNotNull("Held commit action must be present", commitAction)
+                    scenario.onActivity {
+                        commitAction!!.run()
                     }
 
                     var ready = false

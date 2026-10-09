@@ -77,6 +77,7 @@ object ThemeManager {
     private var currentAnimatorActivityRef: WeakReference<Activity>? = null
     private var isLifecycleRegistered = false
     private var transitioning = false
+    private var activeTransitionTargetDark: Boolean? = null
     private var touchLockInstalled = false
     private var currentThemeSwitchOverlay: ImageView? = null
     private var currentAnimator: Animator? = null
@@ -93,7 +94,7 @@ object ThemeManager {
         val target = targetActivityRef?.get()
         val source = sourceActivityRef?.get()
         val act = target ?: source
-        val targetDark = pendingSnapshot?.isDarkModeTarget
+        val targetDark = pendingSnapshot?.isDarkModeTarget ?: activeTransitionTargetDark
         val actualUiModeDark = act?.let {
             (it.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
         }
@@ -115,7 +116,7 @@ object ThemeManager {
         get() = transitioning
 
     val activeTargetIsDark: Boolean?
-        get() = pendingSnapshot?.isDarkModeTarget
+        get() = activeTransitionTargetDark ?: pendingSnapshot?.isDarkModeTarget
 
     private fun logDebug(message: String) {
         if (BuildConfig.DEBUG) {
@@ -389,6 +390,7 @@ object ThemeManager {
         val bmp = pendingSnapshot?.bitmap
         pendingSnapshot = null
         transitioning = false
+        activeTransitionTargetDark = null
 
         val finalActivity = target ?: source
         if (finalActivity != null) {
@@ -478,6 +480,7 @@ object ThemeManager {
 
         // Lock transitions IMMEDIATELY so rapid taps cannot start concurrent captures
         transitioning = true
+        activeTransitionTargetDark = isDarkModeTarget
         val transitionId = ++currentTransitionId
 
         logDebug("Theme toggle initiated at ($originX, $originY) [transitionId: $transitionId, targetDark: $isDarkModeTarget]. Capturing bitmap...")
@@ -774,6 +777,8 @@ object ThemeManager {
         touchLockInstalled = true
 
         val targetBg = ContextCompat.getColor(activity, R.color.eve_bg)
+        val origStatusBarColor = activity.window.statusBarColor
+        val origNavBarColor = activity.window.navigationBarColor
 
         // Make window background and system bars transparent so the content root's background
         // spans behind the status and navigation bar areas throughout the circular reveal
@@ -786,68 +791,34 @@ object ThemeManager {
         contentRoot.setBackgroundColor(targetBg)
 
         val toDark = holder.isDarkModeTarget
-
-        // Reuse existing static overlay attached during Activity creation to eliminate startup layout flicker
-        val overlay = (decorView.findViewWithTag<View>("pre_reveal_overlay") as? ImageView)
-            ?: (decorView.findViewWithTag<View>("theme_switch_freeze_overlay") as? ImageView)
-            ?: ImageView(activity).apply {
-                setImageBitmap(bitmap)
-                scaleType = ImageView.ScaleType.FIT_XY
-                fitsSystemWindows = false
-                layoutParams = FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT
-                )
-                decorView.addView(this)
-            }
-
-        overlay.tag = "theme_switch_freeze_overlay"
-        if (overlay.drawable == null && !bitmap.isRecycled) {
-            overlay.setImageBitmap(bitmap)
+        val themeSwitchImageView = ImageView(activity).apply {
+            tag = "theme_switch_freeze_overlay"
+            setImageBitmap(bitmap)
+            scaleType = ImageView.ScaleType.FIT_XY
+            fitsSystemWindows = false
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
         }
-        currentThemeSwitchOverlay = overlay
+        currentThemeSwitchOverlay = themeSwitchImageView
 
         // Telegram layer placement:
-        // Day -> Night: live dark contentRoot expands on top of old light screenshot (overlay placed at index 0)
-        // Night -> Day: old dark screenshot (overlay) shrinks on top of live light contentRoot
+        // if (toDark) frameLayout.addView(themeSwitchImageView, 0)
+        // else frameLayout.addView(themeSwitchImageView, 1)
         if (toDark) {
-            if (overlay.parent === decorView) {
-                decorView.removeView(overlay)
-            }
-            decorView.addView(overlay, 0)
-            overlay.measure(
-                View.MeasureSpec.makeMeasureSpec(decorView.width, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(decorView.height, View.MeasureSpec.EXACTLY)
-            )
-            overlay.layout(0, 0, decorView.width, decorView.height)
+            decorView.addView(themeSwitchImageView, 0)
         } else {
-            if (overlay.parent !== decorView) {
-                decorView.addView(overlay)
-            }
-            overlay.bringToFront()
-            overlay.measure(
-                View.MeasureSpec.makeMeasureSpec(decorView.width, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(decorView.height, View.MeasureSpec.EXACTLY)
-            )
-            overlay.layout(0, 0, decorView.width, decorView.height)
-        }
-
-        // Clean up any stale duplicate overlays if present
-        for (i in decorView.childCount - 1 downTo 0) {
-            val child = decorView.getChildAt(i)
-            if (child !== overlay && (child.tag == "pre_reveal_overlay" || child.tag == "theme_switch_freeze_overlay")) {
-                (child as? ImageView)?.setImageDrawable(null)
-                decorView.removeViewAt(i)
-            }
+            decorView.addView(themeSwitchImageView)
         }
 
         // Target view to animate with ViewAnimationUtils.createCircularReveal:
         // DAY -> NIGHT: live contentRoot is animated from 0 to finalRadius (revealing dark status, content, and nav bar)
-        // NIGHT -> DAY: old screenshot (overlay) is animated from finalRadius to 0 (shrinking over light content)
+        // NIGHT -> DAY: old screenshot (themeSwitchImageView) is animated from finalRadius to 0 (shrinking over light content)
         val targetView: View = if (toDark) {
             contentRoot
         } else {
-            overlay
+            themeSwitchImageView
         }
 
         val targetLoc = IntArray(2)
@@ -877,6 +848,8 @@ object ThemeManager {
             )
         } catch (t: Throwable) {
             logDebug("createCircularReveal error: ${t.message} -> fallback cleanup")
+            activity.window.statusBarColor = origStatusBarColor
+            activity.window.navigationBarColor = origNavBarColor
             cleanupPending("reveal_creation_error")
             return
         }
@@ -889,15 +862,17 @@ object ThemeManager {
             if (!completed) {
                 completed = true
                 logDebug("Circular reveal completed -> cleaning up")
-                if (overlay.parent === decorView) {
-                    overlay.setImageDrawable(null)
-                    decorView.removeView(overlay)
+                if (themeSwitchImageView.parent === decorView) {
+                    themeSwitchImageView.setImageDrawable(null)
+                    decorView.removeView(themeSwitchImageView)
                 }
-                if (currentThemeSwitchOverlay === overlay) {
+                if (currentThemeSwitchOverlay === themeSwitchImageView) {
                     currentThemeSwitchOverlay = null
                 }
                 currentAnimator = null
                 currentAnimatorActivityRef = null
+                activity.window.statusBarColor = origStatusBarColor
+                activity.window.navigationBarColor = origNavBarColor
                 cleanupPending("animation_complete")
             }
         }
@@ -916,6 +891,16 @@ object ThemeManager {
         currentAnimatorActivityRef = WeakReference(activity)
         // Start animator synchronously inside onPreDraw before current frame renders to prevent 1-frame flash
         anim.start()
+
+        // Now remove pre_reveal_overlay since the clip is active on targetView
+        var preOverlay: View?
+        do {
+            preOverlay = decorView.findViewWithTag<View>("pre_reveal_overlay")
+            if (preOverlay != null) {
+                (preOverlay as? ImageView)?.setImageDrawable(null)
+                decorView.removeView(preOverlay)
+            }
+        } while (preOverlay != null)
     }
 
     fun setupToggleButton(context: Context, button: ImageButton) {
