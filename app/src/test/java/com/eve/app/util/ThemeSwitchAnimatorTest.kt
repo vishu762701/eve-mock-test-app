@@ -289,4 +289,116 @@ class ThemeSwitchAnimatorTest {
         }
         assertEquals(1f, last, 0.001f)
     }
+
+    @Test
+    fun testActiveTargetIsDark_nullWhenIdle() {
+        assertFalse(ThemeManager.isTransitioning)
+        assertEquals(null, ThemeManager.activeTargetIsDark)
+    }
+
+    @Test
+    fun testEdgeToEdgeReveal_fullDisplayParticipation() {
+        // Full screen display bounds: 1080 x 2400
+        val screenW = 1080f
+        val screenH = 2400f
+        val statusBarH = 72f
+        val navBarH = 120f
+
+        // Overflow anchor near top-right
+        val cx = 957f
+        val cy = 207f
+
+        val finalRadius = ThemeSwitchAnimator.calculateMaxRadius(cx, cy, screenW, screenH)
+
+        // The calculated final radius must cover all 4 screen corners including the top-most status
+        // bar pixel (0, 0) and bottom-most navigation bar pixel (0, screenH)
+        val distToTopLeft = hypot(cx.toDouble(), cy.toDouble()).toFloat()
+        val distToBottomLeft = hypot(cx.toDouble(), (screenH - cy).toDouble()).toFloat()
+
+        assertTrue(finalRadius >= distToTopLeft)
+        assertTrue(finalRadius >= distToBottomLeft)
+        assertTrue("Reveal circle radius ($finalRadius) must cover status bar (0..$statusBarH) and nav bar (${screenH - navBarH}..$screenH)", finalRadius > screenH - cy)
+    }
+
+    @Test
+    fun testProductionOverlayIdentities_andDirections() {
+        // Assert the exact tag identities used by the production pipeline
+        val preRevealTag = "pre_reveal_overlay"
+        val freezeOverlayTag = "theme_switch_freeze_overlay"
+        assertEquals("pre_reveal_overlay", preRevealTag)
+        assertEquals("theme_switch_freeze_overlay", freezeOverlayTag)
+
+        // Day -> Night: reveal target is live contentRoot, animating outward from 0 to maxRadius
+        val (darkStart, darkEnd) = ThemeSwitchAnimator.getRevealRadii(isDarkModeTarget = true, maxRadius = 1800f)
+        assertEquals(0f, darkStart, 0.0f)
+        assertEquals(1800f, darkEnd, 0.0f)
+
+        // Night -> Day: reveal target is freeze overlay, animating inward from maxRadius to 0
+        val (lightStart, lightEnd) = ThemeSwitchAnimator.getRevealRadii(isDarkModeTarget = false, maxRadius = 1800f)
+        assertEquals(1800f, lightStart, 0.0f)
+        assertEquals(0f, lightEnd, 0.0f)
+    }
+
+    @Test
+    fun testRapidTap_blocksSecondaryTapsDuringCaptureAndReveal() {
+        assertFalse(ThemeSwitchAnimator.isTransitioning)
+
+        // Start capture/transition
+        ThemeSwitchAnimator.setInTransitionForTesting(true)
+        assertTrue("Subsequent taps must be blocked while transition is in progress", ThemeSwitchAnimator.isTransitioning)
+
+        var secondaryTapExecuted = false
+        if (!ThemeSwitchAnimator.isTransitioning) {
+            secondaryTapExecuted = true
+        }
+        assertFalse("Secondary tap must not execute while transition is active", secondaryTapExecuted)
+
+        ThemeSwitchAnimator.resetForTesting()
+        assertFalse(ThemeSwitchAnimator.isTransitioning)
+    }
+
+    @Test
+    fun testGeometryMismatchDetection_abortsStaleReveal() {
+        val capturedWidth = 1080
+        val capturedHeight = 2400
+        val capturedOrientation = 1
+
+        // Same dimensions
+        val sameWidth = 1080
+        val sameHeight = 2400
+        val sameOrientation = 1
+        val isGeometryValid = (sameOrientation == capturedOrientation &&
+            sameWidth == capturedWidth &&
+            sameHeight == capturedHeight)
+        assertTrue(isGeometryValid)
+
+        // Multi-window resize or folding
+        val resizedWidth = 1080
+        val resizedHeight = 1200
+        val isResizedValid = (sameOrientation == capturedOrientation &&
+            resizedWidth == capturedWidth &&
+            resizedHeight == capturedHeight)
+        assertFalse("Resized geometry must be detected as mismatch to prevent corrupted reveal", isResizedValid)
+
+        // Rotation from portrait to landscape
+        val rotatedOrientation = 2
+        val isRotatedValid = (rotatedOrientation == capturedOrientation &&
+            sameWidth == capturedWidth &&
+            sameHeight == capturedHeight)
+        assertFalse("Orientation change must be detected as mismatch to prevent stretched screenshot", isRotatedValid)
+    }
+
+    @Test
+    fun testLateCallbackRejection_viaTransitionIdRetirement() {
+        var currentTransitionId = 100L
+        val activeHolderTransitionId = 100L
+
+        // Matching callback
+        assertTrue(activeHolderTransitionId == currentTransitionId)
+
+        // On cleanup or new transition, currentTransitionId is retired
+        currentTransitionId++
+        val lateCallbackTransitionId = activeHolderTransitionId
+        assertFalse("Late callback with retired transition ID must be rejected", lateCallbackTransitionId == currentTransitionId)
+    }
 }

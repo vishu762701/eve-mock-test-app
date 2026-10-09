@@ -34,6 +34,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
 import com.eve.app.BuildConfig
 import com.eve.app.R
 import java.lang.ref.WeakReference
@@ -63,15 +64,20 @@ object ThemeManager {
         val isDarkModeTarget: Boolean,
         val oldActivityId: Int,
         val activityClassName: String,
-        val captureTimestamp: Long
+        val captureTimestamp: Long,
+        val capturedWidth: Int,
+        val capturedHeight: Int,
+        val orientation: Int
     )
 
     private var currentTransitionId = 0L
     private var pendingSnapshot: SnapshotHolder? = null
     private var sourceActivityRef: WeakReference<Activity>? = null
     private var targetActivityRef: WeakReference<Activity>? = null
+    private var currentAnimatorActivityRef: WeakReference<Activity>? = null
     private var isLifecycleRegistered = false
     private var transitioning = false
+    private var touchLockInstalled = false
     private var currentThemeSwitchOverlay: ImageView? = null
     private var currentAnimator: Animator? = null
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -82,6 +88,9 @@ object ThemeManager {
 
     val isTransitioning: Boolean
         get() = transitioning
+
+    val activeTargetIsDark: Boolean?
+        get() = pendingSnapshot?.isDarkModeTarget
 
     private fun logDebug(message: String) {
         if (BuildConfig.DEBUG) {
@@ -113,12 +122,15 @@ object ThemeManager {
     }
 
     fun toggle(context: Context) {
-        val goingDark = !isDarkMode(context)
+        applyThemeTarget(context, !isDarkMode(context))
+    }
+
+    fun applyThemeTarget(context: Context, isDarkModeTarget: Boolean) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
-            .putBoolean(KEY_DARK_MODE, goingDark)
+            .putBoolean(KEY_DARK_MODE, isDarkModeTarget)
             .apply()
         AppCompatDelegate.setDefaultNightMode(
-            if (goingDark) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+            if (isDarkModeTarget) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
         )
     }
 
@@ -241,15 +253,20 @@ object ThemeManager {
                 }
             }
 
-            // 3. Cancel animator safely without re-entry
-            currentAnimator?.let { anim ->
-                currentAnimator = null
-                anim.removeAllListeners()
-                anim.cancel()
+            // 3. Cancel animator safely without re-entry ONLY if owned by this activity
+            if (currentAnimatorActivityRef?.get() === activity) {
+                currentAnimator?.let { anim ->
+                    currentAnimator = null
+                    anim.removeAllListeners()
+                    anim.cancel()
+                }
+                currentAnimatorActivityRef = null
             }
 
-            // 4. Clear window touch-blocking flag to prevent UI lockup
-            activity.window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+            // 4. Clear window touch-blocking flag if installed by transition
+            if (touchLockInstalled) {
+                activity.window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+            }
         } catch (t: Throwable) {
             logDebug("Error during detachAllOverlays: ${t.message}")
         }
@@ -271,6 +288,7 @@ object ThemeManager {
             )
         }
         decorView.addView(overlay)
+        overlay.bringToFront()
     }
 
     private fun waitForNewThemeRenderAndReveal(activity: Activity, holder: SnapshotHolder) {
@@ -279,6 +297,8 @@ object ThemeManager {
             return
         }
 
+        decorView.findViewWithTag<View>("pre_reveal_overlay")?.bringToFront()
+
         val expectedTransitionId = holder.transitionId
         decorView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {
@@ -286,13 +306,25 @@ object ThemeManager {
                     decorView.viewTreeObserver.removeOnPreDrawListener(this)
                 }
                 if (pendingSnapshot?.transitionId != expectedTransitionId ||
-                    currentTransitionId != expectedTransitionId ||
-                    holder.bitmap.isRecycled ||
-                    activity.isFinishing ||
-                    activity.isDestroyed
+                    currentTransitionId != expectedTransitionId
                 ) {
-                    logDebug("Aborting reveal: transition was cancelled, ID mismatch, bitmap recycled, or activity finishing")
+                    logDebug("Stale preDraw callback detected (ID mismatch) -> ignoring without calling global cleanup")
+                    detachAllOverlays(activity)
+                    return true
+                }
+                if (holder.bitmap.isRecycled || activity.isFinishing || activity.isDestroyed) {
+                    logDebug("Aborting reveal: bitmap recycled or activity finishing")
+                    detachAllOverlays(activity)
                     cleanupPending("preDraw_cancelled_or_recycled")
+                    return true
+                }
+                if (activity.resources.configuration.orientation != holder.orientation ||
+                    decorView.width != holder.capturedWidth ||
+                    decorView.height != holder.capturedHeight
+                ) {
+                    logDebug("Aborting reveal: geometry or orientation changed during recreate")
+                    detachAllOverlays(activity)
+                    cleanupPending("preDraw_geometry_mismatch")
                     return true
                 }
                 logDebug("New theme preDraw confirmed -> Launching circular reveal animation")
@@ -307,11 +339,15 @@ object ThemeManager {
         logDebug("cleanupPending triggered (reason: $reason)")
         mainHandler.removeCallbacks(timeoutRunnable)
 
+        // Invalidate and retire transition ID to reject late callbacks
+        ++currentTransitionId
+
         currentAnimator?.let { anim ->
             currentAnimator = null
             anim.removeAllListeners()
             anim.cancel()
         }
+        currentAnimatorActivityRef = null
 
         // Step 1: Detach and clear all overlays from both source and target activities before bitmap recycle
         val source = sourceActivityRef?.get()
@@ -331,7 +367,10 @@ object ThemeManager {
 
         val finalActivity = target ?: source
         if (finalActivity != null) {
-            finalActivity.window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+            if (touchLockInstalled) {
+                finalActivity.window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+                touchLockInstalled = false
+            }
             SystemBarHelper.syncSystemBars(finalActivity, force = true)
         }
 
@@ -357,6 +396,13 @@ object ThemeManager {
         isDarkModeTarget: Boolean = !isDarkMode(activity),
         applyAction: Runnable? = null
     ) {
+        if (isDarkMode(activity) == isDarkModeTarget) {
+            logDebug("Same-target toggle requested: already in target theme")
+            applyThemeTarget(activity, isDarkModeTarget)
+            applyAction?.run()
+            return
+        }
+
         if (transitioning) {
             logDebug("Rapid tap blocked: transition already in progress")
             return
@@ -367,7 +413,7 @@ object ThemeManager {
             if (applyAction != null) {
                 applyAction.run()
             } else {
-                toggle(activity)
+                applyThemeTarget(activity, isDarkModeTarget)
             }
             return
         }
@@ -376,7 +422,7 @@ object ThemeManager {
             if (applyAction != null) {
                 applyAction.run()
             } else {
-                toggle(activity)
+                applyThemeTarget(activity, isDarkModeTarget)
             }
             return
         }
@@ -387,7 +433,7 @@ object ThemeManager {
             if (applyAction != null) {
                 applyAction.run()
             } else {
-                toggle(activity)
+                applyThemeTarget(activity, isDarkModeTarget)
             }
             return
         }
@@ -407,13 +453,11 @@ object ThemeManager {
                 bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
                 val window = activity.window
                 var pixelCopyDone = false
+                var pixelCopyTimedOut = false
                 val scheduledTimeout = Runnable {
                     if (!pixelCopyDone && currentTransitionId == transitionId) {
-                        pixelCopyDone = true
-                        logDebug("PixelCopy timed out -> fallback to Canvas draw")
-                        if (!bitmap.isRecycled) {
-                            try { bitmap.recycle() } catch (_: Throwable) {}
-                        }
+                        pixelCopyTimedOut = true
+                        logDebug("PixelCopy timed out -> fallback to Canvas draw without premature recycling")
                         fallbackSynchronousCaptureAndToggle(transitionId, activity, decorView, originX.toFloat(), originY.toFloat(), isDarkModeTarget, applyAction)
                     }
                 }
@@ -426,19 +470,24 @@ object ThemeManager {
                     bitmap,
                     { copyResult ->
                         mainHandler.removeCallbacks(scheduledTimeout)
-                        if (!pixelCopyDone && currentTransitionId == transitionId) {
+                        if (!pixelCopyTimedOut && !pixelCopyDone && currentTransitionId == transitionId) {
                             pixelCopyDone = true
+                            if (activity.isFinishing || activity.isDestroyed) {
+                                logDebug("Activity finishing during PixelCopy completion -> aborting")
+                                try { bitmap.recycle() } catch (_: Throwable) {}
+                                cleanupPending("activity_finishing_during_capture")
+                                return@request
+                            }
                             if (copyResult == PixelCopy.SUCCESS) {
                                 logDebug("PixelCopy capture SUCCESS")
                                 commitRevealTransition(transitionId, activity, bitmap, originX.toFloat(), originY.toFloat(), isDarkModeTarget, applyAction)
                             } else {
                                 logDebug("PixelCopy failed with code $copyResult -> fallback to Canvas draw")
-                                if (!bitmap.isRecycled) {
-                                    try { bitmap.recycle() } catch (_: Throwable) {}
-                                }
+                                try { bitmap.recycle() } catch (_: Throwable) {}
                                 fallbackSynchronousCaptureAndToggle(transitionId, activity, decorView, originX.toFloat(), originY.toFloat(), isDarkModeTarget, applyAction)
                             }
                         } else {
+                            // Native write completed after timeout or cancellation; now safe to recycle bitmap
                             if (!bitmap.isRecycled) {
                                 try { bitmap.recycle() } catch (_: Throwable) {}
                             }
@@ -474,6 +523,7 @@ object ThemeManager {
         }
 
         val bitmap = try {
+            if (activity.isFinishing || activity.isDestroyed) return
             val bmp = Bitmap.createBitmap(decorView.width, decorView.height, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bmp)
             decorView.draw(canvas)
@@ -489,7 +539,7 @@ object ThemeManager {
             if (applyAction != null) {
                 applyAction.run()
             } else {
-                toggle(activity)
+                applyThemeTarget(activity, isDarkModeTarget)
             }
             return
         }
@@ -513,6 +563,10 @@ object ThemeManager {
             return
         }
 
+        val orientation = activity.resources.configuration.orientation
+        val width = bitmap.width
+        val height = bitmap.height
+
         sourceActivityRef = WeakReference(activity)
         pendingSnapshot = SnapshotHolder(
             transitionId = transitionId,
@@ -522,7 +576,10 @@ object ThemeManager {
             isDarkModeTarget = isDarkModeTarget,
             oldActivityId = System.identityHashCode(activity),
             activityClassName = activity.javaClass.name,
-            captureTimestamp = SystemClock.uptimeMillis()
+            captureTimestamp = SystemClock.uptimeMillis(),
+            capturedWidth = width,
+            capturedHeight = height,
+            orientation = orientation
         )
 
         // Add pre-overlay on old screen immediately to prevent any 1-frame gap
@@ -542,13 +599,17 @@ object ThemeManager {
         }
 
         activity.overridePendingTransition(0, 0)
+        if (Build.VERSION.SDK_INT >= 34) {
+            activity.overrideActivityTransition(Activity.OVERRIDE_TRANSITION_OPEN, 0, 0)
+            activity.overrideActivityTransition(Activity.OVERRIDE_TRANSITION_CLOSE, 0, 0)
+        }
         mainHandler.postDelayed(timeoutRunnable, 2000L)
 
         logDebug("Applying new theme mode via AppCompatDelegate...")
         if (applyAction != null) {
             applyAction.run()
         } else {
-            toggle(activity)
+            applyThemeTarget(activity, isDarkModeTarget)
         }
     }
 
@@ -629,16 +690,21 @@ object ThemeManager {
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
         )
+        touchLockInstalled = true
 
-        // Remove any temporary pre-overlay from this decorView
-        var preOverlay: View?
-        do {
-            preOverlay = decorView.findViewWithTag<View>("pre_reveal_overlay")
-            if (preOverlay != null) {
-                (preOverlay as? ImageView)?.setImageDrawable(null)
-                decorView.removeView(preOverlay)
-            }
-        } while (preOverlay != null)
+        val targetBg = ContextCompat.getColor(activity, R.color.eve_bg)
+        val origStatusBarColor = activity.window.statusBarColor
+        val origNavBarColor = activity.window.navigationBarColor
+
+        // Make window background and system bars transparent so the content root's background
+        // spans behind the status and navigation bar areas throughout the circular reveal
+        activity.window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(targetBg))
+        activity.window.statusBarColor = android.graphics.Color.TRANSPARENT
+        activity.window.navigationBarColor = android.graphics.Color.TRANSPARENT
+
+        val contentRoot: View = decorView.findViewById<View>(androidx.appcompat.R.id.action_bar_root)
+            ?: if (decorView.childCount > 0) decorView.getChildAt(0) else decorView
+        contentRoot.setBackgroundColor(targetBg)
 
         val toDark = holder.isDarkModeTarget
         val themeSwitchImageView = ImageView(activity).apply {
@@ -663,85 +729,94 @@ object ThemeManager {
         }
 
         // Target view to animate with ViewAnimationUtils.createCircularReveal:
-        // DAY -> NIGHT: live content is animated from 0 to finalRadius
-        // NIGHT -> DAY: old screenshot (themeSwitchImageView) is animated from finalRadius to 0
+        // DAY -> NIGHT: live contentRoot is animated from 0 to finalRadius (revealing dark status, content, and nav bar)
+        // NIGHT -> DAY: old screenshot (themeSwitchImageView) is animated from finalRadius to 0 (shrinking over light content)
         val targetView: View = if (toDark) {
-            if (decorView.childCount > 1) decorView.getChildAt(1)
-            else decorView.findViewById<View>(android.R.id.content) ?: themeSwitchImageView
+            contentRoot
         } else {
             themeSwitchImageView
         }
 
-        targetView.post {
-            if (activity.isFinishing || activity.isDestroyed || currentTransitionId != holder.transitionId) {
-                cleanupPending("activity_finishing_before_anim_start")
-                return@post
-            }
+        val targetLoc = IntArray(2)
+        targetView.getLocationOnScreen(targetLoc)
+        val revealCx = (holder.originX - targetLoc[0]).toInt()
+        val revealCy = (holder.originY - targetLoc[1]).toInt()
 
-            val targetLoc = IntArray(2)
-            targetView.getLocationOnScreen(targetLoc)
-            val revealCx = (holder.originX - targetLoc[0]).toInt()
-            val revealCy = (holder.originY - targetLoc[1]).toInt()
+        val w = if (targetView.width > 0) targetView.width.toFloat() else decorView.width.toFloat()
+        val h = if (targetView.height > 0) targetView.height.toFloat() else decorView.height.toFloat()
+        val finalRadius = ThemeSwitchAnimator.calculateMaxRadius(
+            revealCx.toFloat(),
+            revealCy.toFloat(),
+            w,
+            h
+        )
 
-            val w = targetView.width.toFloat()
-            val h = targetView.height.toFloat()
-            val finalRadius = ThemeSwitchAnimator.calculateMaxRadius(
-                revealCx.toFloat(),
-                revealCy.toFloat(),
-                w,
-                h
+        val startRadius = if (toDark) 0f else finalRadius
+        val endRadius = if (toDark) finalRadius else 0f
+
+        val anim = try {
+            ViewAnimationUtils.createCircularReveal(
+                targetView,
+                revealCx,
+                revealCy,
+                startRadius,
+                endRadius
             )
-
-            val startRadius = if (toDark) 0f else finalRadius
-            val endRadius = if (toDark) finalRadius else 0f
-
-            val anim = try {
-                ViewAnimationUtils.createCircularReveal(
-                    targetView,
-                    revealCx,
-                    revealCy,
-                    startRadius,
-                    endRadius
-                )
-            } catch (t: Throwable) {
-                logDebug("createCircularReveal error: ${t.message} -> fallback cleanup")
-                cleanupPending("reveal_creation_error")
-                return@post
-            }
-
-            anim.duration = 400L
-            anim.interpolator = TelegramThemeEasing
-
-            var completed = false
-            val finishAction = Runnable {
-                if (!completed) {
-                    completed = true
-                    logDebug("Circular reveal completed -> cleaning up")
-                    if (themeSwitchImageView.parent === decorView) {
-                        themeSwitchImageView.setImageDrawable(null)
-                        decorView.removeView(themeSwitchImageView)
-                    }
-                    if (currentThemeSwitchOverlay === themeSwitchImageView) {
-                        currentThemeSwitchOverlay = null
-                    }
-                    currentAnimator = null
-                    cleanupPending("animation_complete")
-                }
-            }
-
-            anim.addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    finishAction.run()
-                }
-
-                override fun onAnimationCancel(animation: Animator) {
-                    finishAction.run()
-                }
-            })
-
-            currentAnimator = anim
-            anim.start()
+        } catch (t: Throwable) {
+            logDebug("createCircularReveal error: ${t.message} -> fallback cleanup")
+            activity.window.statusBarColor = origStatusBarColor
+            activity.window.navigationBarColor = origNavBarColor
+            cleanupPending("reveal_creation_error")
+            return
         }
+
+        anim.duration = 400L
+        anim.interpolator = TelegramThemeEasing
+
+        var completed = false
+        val finishAction = Runnable {
+            if (!completed) {
+                completed = true
+                logDebug("Circular reveal completed -> cleaning up")
+                if (themeSwitchImageView.parent === decorView) {
+                    themeSwitchImageView.setImageDrawable(null)
+                    decorView.removeView(themeSwitchImageView)
+                }
+                if (currentThemeSwitchOverlay === themeSwitchImageView) {
+                    currentThemeSwitchOverlay = null
+                }
+                currentAnimator = null
+                currentAnimatorActivityRef = null
+                activity.window.statusBarColor = origStatusBarColor
+                activity.window.navigationBarColor = origNavBarColor
+                cleanupPending("animation_complete")
+            }
+        }
+
+        anim.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator) {
+                finishAction.run()
+            }
+
+            override fun onAnimationCancel(animation: Animator) {
+                finishAction.run()
+            }
+        })
+
+        currentAnimator = anim
+        currentAnimatorActivityRef = WeakReference(activity)
+        // Start animator synchronously inside onPreDraw before current frame renders to prevent 1-frame flash
+        anim.start()
+
+        // Now remove pre_reveal_overlay since the clip is active on targetView
+        var preOverlay: View?
+        do {
+            preOverlay = decorView.findViewWithTag<View>("pre_reveal_overlay")
+            if (preOverlay != null) {
+                (preOverlay as? ImageView)?.setImageDrawable(null)
+                decorView.removeView(preOverlay)
+            }
+        } while (preOverlay != null)
     }
 
     fun setupToggleButton(context: Context, button: ImageButton) {

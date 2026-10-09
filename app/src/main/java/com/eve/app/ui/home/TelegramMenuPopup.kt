@@ -99,7 +99,9 @@ class TelegramMenuPopup(
                 GlassmorphismHelper.removeWindowBlur(binding.root, animate = false)
                 super.dismiss()
                 anchor.post {
-                    onThemeToggle(cx, cy, iconW, iconH)
+                    anchor.postOnAnimation {
+                        onThemeToggle(cx, cy, iconW, iconH)
+                    }
                 }
             } catch (t: Throwable) {
                 android.util.Log.e("ThemeClickDiag", "EXCEPTION in cardTheme onClick", t)

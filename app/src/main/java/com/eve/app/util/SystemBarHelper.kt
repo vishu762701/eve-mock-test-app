@@ -24,9 +24,7 @@ object SystemBarHelper {
         app.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
                 applySystemBarInsets(activity)
-                if (!ThemeManager.isTransitioning) {
-                    syncSystemBars(activity)
-                }
+                syncSystemBars(activity)
             }
 
             override fun onActivityStarted(activity: Activity) {
@@ -35,9 +33,7 @@ object SystemBarHelper {
 
             override fun onActivityResumed(activity: Activity) {
                 applySystemBarInsets(activity)
-                if (!ThemeManager.isTransitioning) {
-                    syncSystemBars(activity)
-                }
+                syncSystemBars(activity)
             }
 
             override fun onActivityPaused(activity: Activity) {}
@@ -83,20 +79,20 @@ object SystemBarHelper {
      * without resolving target-theme colors from old activity resources.
      */
     fun syncSystemBars(activity: Activity, force: Boolean = false) {
-        if (!force && ThemeManager.isTransitioning) {
-            return
-        }
         val window = activity.window ?: return
         val decorView = window.decorView
 
         val isDarkAppearance = activity.resources.configuration.uiMode and
             android.content.res.Configuration.UI_MODE_NIGHT_MASK == android.content.res.Configuration.UI_MODE_NIGHT_YES
         val background = ContextCompat.getColor(activity, R.color.eve_bg)
+
+        // Always set window background to match eve_bg (prevents default white window background on Samsung/API < 35)
+        window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(background))
+
         if (android.os.Build.VERSION.SDK_INT >= 35) {
             // Android 15 derives forced navigation appearance from the window
             // background under enforced edge-to-edge. The regular light-icon
             // flag alone cannot correct a stale light window background.
-            window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(background))
             // PhoneWindow's public setter also clears Android 15's forced-light
             // navigation appearance. Use transparent for enforced edge-to-edge;
             // setting an already-forced opaque color can return without clearing it.
@@ -109,7 +105,14 @@ object SystemBarHelper {
             window.isNavigationBarContrastEnforced = false
         }
         val controller = WindowInsetsControllerCompat(window, decorView)
-        controller.isAppearanceLightStatusBars = !isDarkAppearance
-        controller.isAppearanceLightNavigationBars = !isDarkAppearance
+        val activeTargetIsDark = ThemeManager.activeTargetIsDark
+        val iconDark = if (ThemeManager.isTransitioning && !force && activeTargetIsDark != null) {
+            // While pre_reveal_overlay is showing the old screen snapshot, keep icons matching that appearance
+            !activeTargetIsDark
+        } else {
+            isDarkAppearance
+        }
+        controller.isAppearanceLightStatusBars = !iconDark
+        controller.isAppearanceLightNavigationBars = !iconDark
     }
 }
