@@ -7,15 +7,14 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import com.eve.app.R
 import com.eve.app.databinding.PopupTelegramMenuBinding
 import com.eve.app.util.FastBlurHelper
 import com.eve.app.util.GlassmorphismHelper
+import com.eve.app.util.ThemeFrameCoordinator
 import com.eve.app.util.ThemeManager
 import com.eve.app.util.ThemeSwitchAnimator
 import com.eve.app.util.TelegramPopupHelper
@@ -33,6 +32,8 @@ class TelegramMenuPopup(
 
     private val binding: PopupTelegramMenuBinding =
         PopupTelegramMenuBinding.inflate(LayoutInflater.from(context))
+    private val ordinaryAnimationStyle = animationStyle
+    private val ordinaryExitTransition = exitTransition
     private var isDismissing = false
     private var anchorViewRef: View? = null
     private var blurBitmap: Bitmap? = null
@@ -50,6 +51,8 @@ class TelegramMenuPopup(
         setupListeners()
 
         setOnDismissListener {
+            TelegramPopupHelper.cancel(binding.root)
+            GlassmorphismHelper.removeWindowBlur(binding.root, animate = false)
             binding.ivGlassBlurBackground.setImageDrawable(null)
             blurBitmap = null
         }
@@ -75,15 +78,12 @@ class TelegramMenuPopup(
             binding.cardTheme.performClick()
         }
 
-        binding.cardTheme.setOnClickListener { v ->
+        binding.cardTheme.setOnClickListener {
             try {
-                if (ThemeSwitchAnimator.isTransitioning) {
+                if (isDismissing || !isShowing || ThemeSwitchAnimator.isTransitioning) {
                     android.util.Log.w("ThemeClickDiag", "Ignored click: ThemeSwitchAnimator.isTransitioning is true")
                     return@setOnClickListener
                 }
-                val isDark = ThemeSwitchAnimator.isDarkMode(context)
-                binding.ivThemeIcon.setImageResource(if (isDark) R.drawable.ic_theme_moon else R.drawable.ic_theme_sun)
-
                 val anchor = anchorViewRef
                 if (anchor == null) {
                     android.util.Log.e("ThemeOrigin", "anchorViewRef is null, cannot start theme reveal")
@@ -96,10 +96,35 @@ class TelegramMenuPopup(
                 val cx = loc[0] + iconW / 2
                 val cy = loc[1] + iconH / 2
 
+                val handoffOwner = ThemeManager.reservePopupHandoff() ?: return@setOnClickListener
+                isDismissing = true
+                val handoffId = ThemeManager.activeTransitionId + 1
+                ThemeManager.trace("tap_accepted", anchor, handoffId)
+                TelegramPopupHelper.cancel(binding.root)
                 GlassmorphismHelper.removeWindowBlur(binding.root, animate = false)
+                val popupRoot = binding.root.rootView
+                animationStyle = 0
+                exitTransition = null
                 super.dismiss()
-                anchor.post {
-                    anchor.postOnAnimation {
+                ThemeManager.trace("popup_work_cancelled", anchor, handoffId)
+                // PopupWindow removes its window immediately; the host must submit a
+                // clean frame after that detach before ThemeManager requests PixelCopy.
+                val detach = object : View.OnAttachStateChangeListener {
+                    override fun onViewAttachedToWindow(v: View) {}
+                    override fun onViewDetachedFromWindow(v: View) {
+                        ThemeManager.releasePopupHandoff(handoffOwner)
+                        v.removeOnAttachStateChangeListener(this)
+                    }
+                }
+                anchor.addOnAttachStateChangeListener(detach)
+                ThemeFrameCoordinator.afterFrame(anchor.rootView, ready = { !popupRoot.isAttachedToWindow },
+                    valid = { ThemeManager.ownsPopupHandoff(handoffOwner) }) {
+                    anchor.removeOnAttachStateChangeListener(detach)
+                    if (!ThemeManager.releasePopupHandoff(handoffOwner)) return@afterFrame
+                    val activity = context as? Activity
+                    if (anchor.isAttachedToWindow && activity != null && !activity.isFinishing &&
+                        !activity.isDestroyed && activity.hasWindowFocus()) {
+                        ThemeManager.trace("clean_host_frame", anchor, handoffId)
                         onThemeToggle(cx, cy, iconW, iconH)
                     }
                 }
@@ -130,6 +155,8 @@ class TelegramMenuPopup(
     fun show(anchorView: View) {
         if (isShowing) return
         isDismissing = false
+        animationStyle = ordinaryAnimationStyle
+        exitTransition = ordinaryExitTransition
         anchorViewRef = anchorView
         setupThemeCard()
 

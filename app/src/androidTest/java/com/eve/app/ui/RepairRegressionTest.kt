@@ -457,6 +457,282 @@ class RepairRegressionTest {
         }
     }
 
+    @Test fun productionPopupHandoffHasMeasuredLayersAndOwnedCancellationInBothDirections() {
+        val manager = com.eve.app.util.ThemeManager
+        val prefs = instrumentation.targetContext.getSharedPreferences(manager.PREFS, 0)
+        val initialMode = AppCompatDelegate.getDefaultNightMode()
+        val hadPref = prefs.contains(manager.KEY_DARK_MODE)
+        val oldPref = prefs.getBoolean(manager.KEY_DARK_MODE, false)
+        try {
+            for (startDark in listOf(false, true)) for (popupPhase in listOf("pending", "running", "settled")) {
+                instrumentation.runOnMainSync {
+                    manager.cleanupPending("popup_fixture_setup")
+                    prefs.edit().putBoolean(manager.KEY_DARK_MODE, startDark).commit()
+                    AppCompatDelegate.setDefaultNightMode(if (startDark) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
+                }
+                ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+                    scenario.onActivity { it.showLoadedHomeFixture() }
+                    instrumentation.waitForIdleSync()
+                    scenario.onActivity { (it.homeBinding!!.rvExams.layoutManager as androidx.recyclerview.widget.LinearLayoutManager).scrollToPositionWithOffset(15, 0) }
+                    instrumentation.waitForIdleSync()
+                    val events = java.util.concurrent.CopyOnWriteArrayList<String>()
+                    val eventIds = java.util.concurrent.ConcurrentHashMap<String, Long>()
+                    val complete = java.util.concurrent.CountDownLatch(1)
+                    val blurRunning = java.util.concurrent.CountDownLatch(1)
+                    val failures = java.util.concurrent.CopyOnWriteArrayList<String>()
+                    var calls = 0
+                    lateinit var popup: com.eve.app.ui.home.TelegramMenuPopup
+                    instrumentation.runOnMainSync {
+                        manager.setEventObserverForTest { stage, id, view ->
+                            events.add(stage)
+                            eventIds[stage] = id
+                            if (stage.startsWith("popup_blur_update:") && (stage.substringAfter(':').toIntOrNull() ?: 0) > 1) blurRunning.countDown()
+                            if (stage.startsWith("popup_blur_update:") && "popup_work_cancelled" in events) {
+                                failures.add("Blur changed after popup cancellation: $stage")
+                            }
+                            if (stage == "target_layers_ready" || stage == "protection_cover_removal") {
+                                val decor = view?.rootView as? android.view.ViewGroup
+                                val cover = decor?.findViewWithTag<View>("pre_reveal_overlay")
+                                val snapshot = decor?.findViewWithTag<View>("theme_switch_freeze_overlay")
+                                if (cover == null || snapshot == null || !snapshot.isLaidOut ||
+                                    snapshot.width != decor.width || snapshot.height != decor.height ||
+                                    snapshot.left != 0 || snapshot.top != 0) failures.add("Unprotected or unmeasured layers at $stage")
+                            }
+                            if (stage == "cleanup:animation_complete") complete.countDown()
+                        }
+                    }
+                    runShell("mkdir -p /sdcard/Pictures/eve-approved-ui")
+                    val direction = if (startDark) "night-day" else "day-night"
+                    val mode = InstrumentationRegistry.getArguments().getString("navigationMode", "default")
+                    val recordingPath = "/sdcard/Pictures/eve-approved-ui/popup-$direction-$popupPhase-$mode.mp4"
+                    val recording = instrumentation.uiAutomation.executeShellCommand("screenrecord --time-limit 15 $recordingPath")
+                    try {
+                        // Wait for the muxer to write captured frames before accepting the tap.
+                        val recordingDeadline = System.currentTimeMillis() + 4000
+                        var recordingReady = false
+                        while (!recordingReady && System.currentTimeMillis() < recordingDeadline) {
+                            instrumentation.uiAutomation.executeShellCommand("stat -c %s $recordingPath").use { fd ->
+                                recordingReady = (java.io.FileInputStream(fd.fileDescriptor).bufferedReader().readText().trim().toLongOrNull() ?: 0L) > 1024L
+                            }
+                            if (!recordingReady) Thread.sleep(20)
+                        }
+                        assertTrue("Hardware recording did not start", recordingReady)
+                        instrumentation.runOnMainSync { manager.trace("recording_started") }
+                        scenario.onActivity { act ->
+                            popup = com.eve.app.ui.home.TelegramMenuPopup(act,
+                                onThemeToggle = { x, y, w, h -> calls++; ThemeSwitchAnimator.animateAt(act, x, y, !startDark, w, h) },
+                                onHistory = {}, onBookmarks = {}, onTopic = {}, onPyq = {}, onLogout = {})
+                            popup.show(act.homeBinding!!.btnOverflow)
+                            if (popupPhase == "pending") {
+                                // Same turn: entrance setup is still queued, and blur work must be canceled.
+                                popup.contentView.findViewById<View>(R.id.cardTheme).performClick()
+                                popup.contentView.findViewById<View>(R.id.cardTheme).performClick()
+                                assertTrue(manager.isTransitioning)
+                            }
+                        }
+                        if (popupPhase != "pending") {
+                            if (popupPhase == "running") {
+                                assertTrue("Entrance blur never started", blurRunning.await(2, java.util.concurrent.TimeUnit.SECONDS))
+                            } else {
+                                // Test-only wait for the documented 220ms entrance; production has no delay.
+                                Thread.sleep(300)
+                            }
+                            scenario.onActivity {
+                                if (popupPhase == "running") assertTrue("Entrance settled before the running-animation tap", popup.contentView.alpha < 1f)
+                                popup.contentView.findViewById<View>(R.id.cardTheme).performClick()
+                                popup.contentView.findViewById<View>(R.id.cardTheme).performClick()
+                            }
+                        }
+                        assertTrue("Reveal did not complete: $events", complete.await(6, java.util.concurrent.TimeUnit.SECONDS))
+                        instrumentation.waitForIdleSync()
+                        assertEquals(1, calls)
+                        assertTrue(failures.toString(), failures.isEmpty())
+                        val required = listOf("tap_accepted", "popup_work_cancelled", "clean_host_frame", "capture_requested",
+                            "capture_completed", "source_cover_ready", "theme_application", "target_layers_ready",
+                            "native_reveal_start", "protection_cover_removal", "cleanup:animation_complete")
+                        assertTrue("Missing events: $events", events.containsAll(required))
+                        assertEquals(required, events.filter { it in required })
+                        assertTrue("Expected hardware frame fences: $events", events.count { it == "hardware_frame_committed" } >= 3)
+                        assertEquals("Handoff stages changed ownership", 1, required.map { eventIds[it] }.toSet().size)
+                        scenario.onActivity { act ->
+                            assertTrue("Theme identity was unavailable after super.onCreate", act.themeRecreationDetected)
+                            assertFalse(popup.isShowing)
+                            assertFalse(popup.contentView.isAttachedToWindow)
+                            assertEquals(1f, act.homeBinding!!.rvExams.alpha)
+                            val lm = act.homeBinding!!.rvExams.layoutManager as androidx.recyclerview.widget.LinearLayoutManager
+                            assertEquals("Scrolled content moved on recreation", 15, lm.findFirstVisibleItemPosition())
+                            assertNull(act.window.decorView.findViewWithTag<View>("pre_reveal_overlay"))
+                        }
+                    } finally {
+                        runShell("pkill -2 screenrecord")
+                        recording.close()
+                        instrumentation.runOnMainSync { manager.setEventObserverForTest(null) }
+                    }
+                }
+            }
+        } finally {
+            instrumentation.runOnMainSync {
+                manager.setEventObserverForTest(null)
+                manager.cleanupPending("popup_fixture_done")
+                val editor = prefs.edit()
+                if (hadPref) editor.putBoolean(manager.KEY_DARK_MODE, oldPref) else editor.remove(manager.KEY_DARK_MODE)
+                editor.commit()
+                AppCompatDelegate.setDefaultNightMode(initialMode)
+            }
+        }
+    }
+
+    @Test fun ordinarySavedStateRecreationDoesNotClaimThemeIdentity() {
+        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            scenario.onActivity { assertFalse(it.themeRecreationDetected) }
+            scenario.recreate()
+            scenario.onActivity { assertFalse(it.themeRecreationDetected) }
+        }
+    }
+
+    @Test fun backgroundDuringCaptureRetiresPreparationWithoutApplyingItsLateCommit() {
+        val manager = com.eve.app.util.ThemeManager
+        val captured = java.util.concurrent.CountDownLatch(1)
+        val held = java.util.concurrent.atomic.AtomicReference<Runnable>()
+        try {
+            instrumentation.runOnMainSync {
+                manager.cleanupPending("background_fixture_setup")
+                ThemeSwitchAnimator.persistThemePreference(instrumentation.targetContext, false)
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                manager.setCaptureInterceptorForTest { held.set(it); captured.countDown() }
+            }
+            ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+                instrumentation.waitForIdleSync()
+                scenario.onActivity { ThemeSwitchAnimator.animate(it, it.window.decorView, true) }
+                assertTrue(captured.await(3, java.util.concurrent.TimeUnit.SECONDS))
+                scenario.moveToState(androidx.lifecycle.Lifecycle.State.CREATED)
+                instrumentation.runOnMainSync {
+                    assertFalse(manager.isTransitioning)
+                    held.getAndSet(null)!!.run()
+                    assertEquals(AppCompatDelegate.MODE_NIGHT_NO, AppCompatDelegate.getDefaultNightMode())
+                }
+                scenario.moveToState(androidx.lifecycle.Lifecycle.State.RESUMED)
+                scenario.onActivity {
+                    assertNull(it.window.decorView.findViewWithTag<View>("pre_reveal_overlay"))
+                    assertEquals(0, it.window.attributes.flags and android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+                }
+            }
+        } finally {
+            instrumentation.runOnMainSync { manager.setCaptureInterceptorForTest(null); manager.cleanupPending("background_fixture_done") }
+        }
+    }
+
+    @Test fun animationsDisabledStillSettlesBothThemesWithoutTransitionLayers() {
+        val context = instrumentation.targetContext
+        val scale = android.provider.Settings.Global.getFloat(context.contentResolver, android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
+        try {
+            runShell("settings put global animator_duration_scale 0")
+            assertEquals(0f, android.provider.Settings.Global.getFloat(context.contentResolver, android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 1f))
+            instrumentation.runOnMainSync {
+                ThemeSwitchAnimator.persistThemePreference(context, false)
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+            ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+                for (dark in listOf(true, false)) {
+                    scenario.onActivity { ThemeSwitchAnimator.animate(it, it.window.decorView, dark) }
+                    var ready = false
+                    val deadline = System.currentTimeMillis() + 4000
+                    while (!ready && System.currentTimeMillis() < deadline) {
+                        instrumentation.waitForIdleSync()
+                        scenario.onActivity {
+                            ready = ((it.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES) == dark
+                            assertFalse(ThemeSwitchAnimator.isTransitioning)
+                            assertNull(it.window.decorView.findViewWithTag<View>("pre_reveal_overlay"))
+                            assertNull(it.window.decorView.findViewWithTag<View>("theme_switch_freeze_overlay"))
+                        }
+                        if (!ready) Thread.sleep(20)
+                    }
+                    assertTrue("Disabled-animation fallback did not settle", ready)
+                }
+            }
+        } finally { runShell("settings put global animator_duration_scale $scale") }
+    }
+
+    @Test fun staleTargetPreparationCannotRemoveNextTransactionsSourceCover() {
+        val manager = com.eve.app.util.ThemeManager
+        val pending = java.util.concurrent.atomic.AtomicReference<Runnable>()
+        val intercepted = java.util.concurrent.CountDownLatch(1)
+        val checked = java.util.concurrent.CountDownLatch(1)
+        val finished = java.util.concurrent.CountDownLatch(1)
+        val errors = java.util.concurrent.CopyOnWriteArrayList<String>()
+        try {
+            instrumentation.runOnMainSync {
+                manager.cleanupPending("stale_fixture_setup")
+                ThemeSwitchAnimator.persistThemePreference(instrumentation.targetContext, false)
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                manager.setPreparationInterceptorForTest { pending.set(it); intercepted.countDown() }
+            }
+            ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+                instrumentation.waitForIdleSync()
+                scenario.onActivity { ThemeSwitchAnimator.animate(it, it.window.decorView, true) }
+                assertTrue(intercepted.await(4, java.util.concurrent.TimeUnit.SECONDS))
+                scenario.onActivity { act ->
+                    manager.cleanupPending("retire_held_preparation")
+                    manager.setPreparationInterceptorForTest(null)
+                    manager.setEventObserverForTest { stage, _, view ->
+                        if (stage == "source_cover_ready") {
+                            val cover = view!!.findViewWithTag<View>("pre_reveal_overlay")
+                            pending.getAndSet(null)?.run()
+                            if (cover == null || cover !== view.findViewWithTag<View>("pre_reveal_overlay")) errors.add("Stale callback removed a newer cover")
+                            checked.countDown()
+                        }
+                        if (stage == "cleanup:animation_complete") finished.countDown()
+                    }
+                    ThemeSwitchAnimator.animate(act, act.window.decorView, false)
+                }
+                assertTrue(checked.await(4, java.util.concurrent.TimeUnit.SECONDS))
+                assertTrue(errors.toString(), errors.isEmpty())
+                assertTrue(finished.await(4, java.util.concurrent.TimeUnit.SECONDS))
+            }
+        } finally {
+            instrumentation.runOnMainSync {
+                manager.setPreparationInterceptorForTest(null)
+                manager.setEventObserverForTest(null)
+                manager.cleanupPending("stale_fixture_done")
+                ThemeSwitchAnimator.persistThemePreference(instrumentation.targetContext, false)
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+        }
+    }
+
+    @Test fun canceledPopupWorkCannotRestoreBlurOrEntranceOnFollowingFrames() {
+        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            lateinit var view: View
+            val frames = java.util.concurrent.CountDownLatch(1)
+            scenario.onActivity { act ->
+                val popup = android.widget.PopupWindow(act).apply {
+                    contentView = FrameLayout(act)
+                    width = 200; height = 200
+                    setBackgroundDrawable(android.graphics.drawable.ColorDrawable(Color.WHITE))
+                }
+                popup.showAtLocation(act.window.decorView, android.view.Gravity.CENTER, 0, 0)
+                view = popup.contentView
+                com.eve.app.util.GlassmorphismHelper.applyWindowBlur(view)
+                com.eve.app.util.TelegramPopupHelper.animateEntrance(view)
+                com.eve.app.util.GlassmorphismHelper.removeWindowBlur(view, false)
+                com.eve.app.util.TelegramPopupHelper.cancel(view)
+                view.alpha = 0.73f; view.scaleX = 0.91f
+                view.postOnAnimation {
+                    view.postOnAnimation {
+                        assertEquals(0.73f, view.alpha)
+                        assertEquals(0.91f, view.scaleX)
+                        if (android.os.Build.VERSION.SDK_INT >= 31) {
+                            assertEquals(0, (view.rootView.layoutParams as android.view.WindowManager.LayoutParams).blurBehindRadius)
+                        }
+                        popup.dismiss()
+                        frames.countDown()
+                    }
+                }
+            }
+            assertTrue("Canceled work test did not draw", frames.await(3, java.util.concurrent.TimeUnit.SECONDS))
+        }
+    }
+
     private fun runShell(cmd: String) {
         try {
             instrumentation.uiAutomation.executeShellCommand(cmd).use { descriptor ->

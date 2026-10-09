@@ -29,6 +29,15 @@ object ShimmerHelper {
             .start()
     }
 
+    fun showContentImmediately(shimmerView: View, contentView: View) {
+        shimmerView.animate().withEndAction(null).cancel()
+        contentView.animate().withEndAction(null).cancel()
+        shimmerView.visibility = View.GONE
+        shimmerView.alpha = 1f
+        contentView.visibility = View.VISIBLE
+        contentView.alpha = 1f
+    }
+
     fun showShimmer(shimmerView: View?, contentView: View?) {
         shimmerView?.alpha = 1f
         shimmerView?.visibility = View.VISIBLE

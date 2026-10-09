@@ -111,6 +111,8 @@ class MainActivity : EveBaseActivity() {
 
     private var isSearchActive = false
     private var currentSearchQuery = ""
+    private var restoreThemeContent = false
+    private var themeListState: android.os.Parcelable? = null
     private var lastLoadedItems: List<HomeListItem> = emptyList()
     private var searchDebounceJob: Job? = null
 
@@ -245,6 +247,12 @@ class MainActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        restoreThemeContent = com.eve.app.util.ThemeManager.isThemeRecreation(this, savedInstanceState) &&
+            viewModel.state.value is UiState.Success
+        if (restoreThemeContent) {
+            @Suppress("DEPRECATION")
+            themeListState = savedInstanceState?.getParcelable("theme_home_list_state")
+        }
         hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
 
         val user = FirebaseAuth.getInstance().currentUser
@@ -306,6 +314,7 @@ class MainActivity : EveBaseActivity() {
 
         // Telegram-style overflow menu setup
         binding.btnOverflow.setOnClickListener { anchor ->
+            if (ThemeSwitchAnimator.isTransitioning) return@setOnClickListener
             TelegramMenuPopup(
                 context = this,
                 onThemeToggle = { cx, cy, iconWidth, iconHeight ->
@@ -360,6 +369,10 @@ class MainActivity : EveBaseActivity() {
 
         binding.rvExams.layoutManager = LinearLayoutManager(this)
         binding.rvExams.adapter = adapter
+        if (restoreThemeContent) {
+            binding.rvExams.layoutAnimation = null
+            render(viewModel.state.value)
+        }
 
         Log.e("EVE_STARTUP", "stage: setupFloatingAirplane")
         setupFloatingAirplane()
@@ -956,6 +969,9 @@ class MainActivity : EveBaseActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("key_empty_played", hasEmptyPlayed)
+        if (::binding.isInitialized) {
+            outState.putParcelable("theme_home_list_state", binding.rvExams.layoutManager?.onSaveInstanceState())
+        }
     }
 
     private fun loadProfilePhoto(user: com.google.firebase.auth.FirebaseUser) {
@@ -999,6 +1015,9 @@ class MainActivity : EveBaseActivity() {
                     binding.rvExams.visibility = View.VISIBLE
                     binding.messageGroup.visibility = View.GONE
                 } else {
+                    if (binding.rvExams.layoutAnimation == null) {
+                        binding.rvExams.layoutAnimation = android.view.animation.AnimationUtils.loadLayoutAnimation(this, R.anim.layout_enter)
+                    }
                     binding.shimmerSkeletonHome.visibility = View.VISIBLE
                     binding.rvExams.visibility = View.GONE
                     binding.progressGroup.visibility = View.GONE
@@ -1013,7 +1032,16 @@ class MainActivity : EveBaseActivity() {
                 lastLoadedItems = data.items
                 renderChips(data.categories, data.selectedCategory)
                 applyCurrentList()
-                com.eve.app.util.ShimmerHelper.crossFade(binding.shimmerSkeletonHome, binding.rvExams)
+                if (restoreThemeContent) {
+                    com.eve.app.util.ShimmerHelper.showContentImmediately(binding.shimmerSkeletonHome, binding.rvExams)
+                    binding.rvExams.layoutManager?.onRestoreInstanceState(themeListState)
+                    themeListState = null
+                    restoreThemeContent = false
+                    // Keep the XML layout entrance suppressed for this restored content.
+                    // Setting a controller again schedules another entrance on the next layout.
+                } else {
+                    com.eve.app.util.ShimmerHelper.crossFade(binding.shimmerSkeletonHome, binding.rvExams)
+                }
                 binding.chipGroupCategory.visibility =
                     if (data.categories.size <= 1 || isSearchActive) View.GONE else View.VISIBLE
 

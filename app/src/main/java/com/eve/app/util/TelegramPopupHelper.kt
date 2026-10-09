@@ -10,9 +10,23 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator
  * and reverse scale (1.0 -> 0.8) + fade-out on exit.
  */
 object TelegramPopupHelper {
+    private val pending = java.util.WeakHashMap<View, Runnable>()
+    private val detachListener = object : View.OnAttachStateChangeListener {
+        override fun onViewAttachedToWindow(v: View) {}
+        override fun onViewDetachedFromWindow(v: View) { cancel(v) }
+    }
+
+    fun cancel(view: View) {
+        pending.remove(view)?.let(view::removeCallbacks)
+        view.animate().withEndAction(null).cancel()
+        view.removeOnAttachStateChangeListener(detachListener)
+    }
 
     fun animateEntrance(contentView: View, anchorView: View? = null, onStart: (() -> Unit)? = null) {
-        contentView.post {
+        cancel(contentView)
+        contentView.addOnAttachStateChangeListener(detachListener)
+        val setup = Runnable {
+            if (pending.remove(contentView) == null || !contentView.isAttachedToWindow) return@Runnable
             val pw = contentView.width.toFloat()
             val ph = contentView.height.toFloat()
 
@@ -46,9 +60,13 @@ object TelegramPopupHelper {
                 .setInterpolator(OvershootInterpolator(1.1f))
                 .start()
         }
+        pending[contentView] = setup
+        contentView.post(setup)
     }
 
     fun animateExit(contentView: View, onEnd: () -> Unit) {
+        cancel(contentView)
+        contentView.addOnAttachStateChangeListener(detachListener)
         contentView.animate()
             .scaleX(0.8f)
             .scaleY(0.8f)

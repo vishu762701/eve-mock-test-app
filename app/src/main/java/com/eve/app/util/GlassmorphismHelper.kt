@@ -7,81 +7,78 @@ import android.view.View
 import android.view.WindowManager
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 
-/**
- * Task C: Premium Glassmorphism / Frosted Glass Effect utility.
- * Applies hardware-accelerated WindowManager blur-behind on Android 12+ (API 31+)
- * with smooth animated blur-in on open and blur-out on close.
- * Provides graceful fallback for API < 31.
- */
+/** Window-local ownership prevents an obsolete entrance from restoring dismissed blur. */
 object GlassmorphismHelper {
-
     const val DEFAULT_BLUR_RADIUS = 80
+    private class Work : View.OnAttachStateChangeListener {
+        var setup: Runnable? = null
+        var animator: ValueAnimator? = null
+        override fun onViewAttachedToWindow(v: View) {}
+        override fun onViewDetachedFromWindow(v: View) { cancel(v) }
+    }
+    private val work = java.util.WeakHashMap<View, Work>()
 
-    fun applyWindowBlur(view: View, blurRadius: Int = DEFAULT_BLUR_RADIUS, animate: Boolean = true) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            view.post {
-                try {
-                    val root = view.rootView
-                    val lp = root.layoutParams as? WindowManager.LayoutParams ?: return@post
-                    val wm = view.context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager ?: return@post
-
-                    lp.flags = (lp.flags or WindowManager.LayoutParams.FLAG_BLUR_BEHIND) and
-                            WindowManager.LayoutParams.FLAG_DIM_BEHIND.inv()
-                    lp.dimAmount = 0.0f
-
-                    if (animate) {
-                        lp.blurBehindRadius = 1
-                        wm.updateViewLayout(root, lp)
-
-                        ValueAnimator.ofInt(1, blurRadius).apply {
-                            duration = 200L
-                            interpolator = FastOutSlowInInterpolator()
-                            addUpdateListener { va ->
-                                try {
-                                    lp.blurBehindRadius = va.animatedValue as Int
-                                    wm.updateViewLayout(root, lp)
-                                } catch (_: Throwable) { }
-                            }
-                            start()
-                        }
-                    } else {
-                        lp.blurBehindRadius = blurRadius
-                        wm.updateViewLayout(root, lp)
-                    }
-                } catch (_: Throwable) {
-                    // Safe fallback
-                }
-            }
+    private fun cancel(view: View) {
+        work.remove(view)?.let {
+            it.setup?.let(view::removeCallbacks)
+            it.animator?.removeAllUpdateListeners()
+            it.animator?.cancel()
+            view.removeOnAttachStateChangeListener(it)
         }
     }
 
-    fun removeWindowBlur(view: View, animate: Boolean = true) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            try {
-                val root = view.rootView
-                val lp = root.layoutParams as? WindowManager.LayoutParams ?: return
-                val wm = view.context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager ?: return
-                val currentRadius = lp.blurBehindRadius
+    private fun update(view: View, owner: Work, radius: Int) {
+        if (Build.VERSION.SDK_INT < 31 || work[view] !== owner || !view.isAttachedToWindow) return
+        try {
+            val root = view.rootView
+            val lp = root.layoutParams as? WindowManager.LayoutParams ?: return
+            val wm = view.context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager ?: return
+            lp.flags = (lp.flags or WindowManager.LayoutParams.FLAG_BLUR_BEHIND) and
+                WindowManager.LayoutParams.FLAG_DIM_BEHIND.inv()
+            lp.dimAmount = 0f
+            lp.blurBehindRadius = radius
+            wm.updateViewLayout(root, lp)
+            ThemeManager.trace("popup_blur_update:$radius", view)
+        } catch (_: Exception) { /* Window may have detached between validation and update. */ }
+    }
 
-                if (animate && currentRadius > 0) {
-                    ValueAnimator.ofInt(currentRadius, 0).apply {
-                        duration = 150L
-                        interpolator = FastOutSlowInInterpolator()
-                        addUpdateListener { va ->
-                            try {
-                                lp.blurBehindRadius = va.animatedValue as Int
-                                wm.updateViewLayout(root, lp)
-                            } catch (_: Throwable) { }
-                        }
-                        start()
-                    }
-                } else {
-                    lp.blurBehindRadius = 0
-                    wm.updateViewLayout(root, lp)
+    private fun own(view: View): Work {
+        cancel(view)
+        return Work().also { work[view] = it; view.addOnAttachStateChangeListener(it) }
+    }
+
+    fun applyWindowBlur(view: View, blurRadius: Int = DEFAULT_BLUR_RADIUS, animate: Boolean = true) {
+        if (Build.VERSION.SDK_INT < 31) return
+        val owner = own(view)
+        owner.setup = Runnable {
+            if (work[view] !== owner || !view.isAttachedToWindow) return@Runnable
+            owner.setup = null
+            if (animate) {
+                update(view, owner, 1)
+                owner.animator = ValueAnimator.ofInt(1, blurRadius).apply {
+                    duration = 200L
+                    interpolator = FastOutSlowInInterpolator()
+                    addUpdateListener { update(view, owner, it.animatedValue as Int) }
+                    start()
                 }
-            } catch (_: Throwable) {
-                // Safe fallback
+            } else update(view, owner, blurRadius)
+        }.also { view.post(it) }
+    }
+
+    fun removeWindowBlur(view: View, animate: Boolean = true) {
+        if (Build.VERSION.SDK_INT < 31) return
+        val owner = own(view) // Cancel both posted setup and any running entrance first.
+        val radius = (view.rootView.layoutParams as? WindowManager.LayoutParams)?.blurBehindRadius ?: 0
+        if (animate && radius > 0 && view.isAttachedToWindow) {
+            owner.animator = ValueAnimator.ofInt(radius, 0).apply {
+                duration = 150L
+                interpolator = FastOutSlowInInterpolator()
+                addUpdateListener { update(view, owner, it.animatedValue as Int) }
+                start()
             }
+        } else {
+            update(view, owner, 0)
+            cancel(view)
         }
     }
 }
