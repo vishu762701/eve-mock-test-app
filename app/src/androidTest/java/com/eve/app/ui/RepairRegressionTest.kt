@@ -258,6 +258,8 @@ class RepairRegressionTest {
     private fun screenshot(name: String) {
         // Wait for layout/draw and window transitions, not only the main queue.
         instrumentation.uiAutomation.waitForIdle(250, 5000)
+        instrumentation.waitForIdleSync()
+        Thread.sleep(1000) // SystemUI tint animations run outside the app's main queue.
         val mode = InstrumentationRegistry.getArguments().getString("navigationMode", "default")
         val values = android.content.ContentValues().apply {
             put(android.provider.MediaStore.Images.Media.DISPLAY_NAME, "$name-$mode.png")
@@ -267,6 +269,17 @@ class RepairRegressionTest {
         val resolver = instrumentation.targetContext.contentResolver
         val uri = resolver.insert(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)!!
         val bitmap = instrumentation.uiAutomation.takeScreenshot() ?: error("No emulator screenshot")
+        if (name.startsWith("mock-screen")) {
+            val dark = name.contains("dark")
+            val rows = if (mode == "three-button") 30 else 12
+            var contrastingPixels = 0
+            for (y in bitmap.height - rows until bitmap.height) for (x in 0 until bitmap.width) {
+                val color = bitmap.getPixel(x, y)
+                if (dark && Color.red(color) > 200 && Color.green(color) > 200 && Color.blue(color) > 200 ||
+                    !dark && Color.red(color) < 100 && Color.green(color) < 100 && Color.blue(color) < 100) contrastingPixels++
+            }
+            assertTrue("System navigation indicator must actually contrast in $name/$mode", contrastingPixels > 10)
+        }
         resolver.openOutputStream(uri)!!.use { assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)) }
         bitmap.recycle()
     }
