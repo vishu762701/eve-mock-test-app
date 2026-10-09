@@ -284,16 +284,19 @@ class RepairRegressionTest {
         resolver.openOutputStream(uri)!!.use { assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)) }
         if (name.startsWith("mock-screen")) {
             val dark = name.contains("dark")
-            val rows = if (mode == "three-button") 30 else 12
+            var rows = 0
+            var windowState = ""
+            instrumentation.runOnMainSync {
+                val window = captureWindow!!
+                val navigation = ViewCompat.getRootWindowInsets(window.decorView)?.getInsets(WindowInsetsCompat.Type.navigationBars())
+                rows = navigation?.bottom ?: 0
+                windowState = "focus=${window.decorView.hasWindowFocus()} appearance=${window.insetsController?.systemBarsAppearance} flags=${window.attributes.flags.toUInt().toString(16)} legacy=${window.decorView.systemUiVisibility} navigation=$navigation"
+            }
+            assertTrue("Navigation bounds unavailable for $name/$mode; $windowState", rows in 1..bitmap.height)
             var contrastingPixels = 0
             for (y in bitmap.height - rows until bitmap.height) for (x in 0 until bitmap.width) {
                 val color = bitmap.getPixel(x, y)
                 if (androidx.core.graphics.ColorUtils.calculateContrast(color, if (dark) Color.BLACK else Color.WHITE) >= 3.0) contrastingPixels++
-            }
-            var windowState = ""
-            instrumentation.runOnMainSync {
-                val window = captureWindow!!
-                windowState = "focus=${window.decorView.hasWindowFocus()} appearance=${window.insetsController?.systemBarsAppearance} flags=${window.attributes.flags.toUInt().toString(16)} legacy=${window.decorView.systemUiVisibility} navigation=${ViewCompat.getRootWindowInsets(window.decorView)?.getInsets(WindowInsetsCompat.Type.navigationBars())}"
             }
             if (contrastingPixels <= 10) {
                 try {
