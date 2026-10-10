@@ -30,6 +30,7 @@ import org.junit.runner.RunWith
 /** Production inflation and binding across phone/tablet widths and accessibility text. */
 @RunWith(AndroidJUnit4::class)
 class ManualUiSpecificationTest {
+    @androidx.test.filters.SdkSuppress(minSdkVersion = 29)
     @Test fun expandedCategoryTouchRegionsActivatePillsInBothThemes() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         androidx.test.core.app.ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
@@ -64,6 +65,41 @@ class ManualUiSpecificationTest {
                 // View posts performClick on the UI handler. Let the attached window process it.
                 instrumentation.waitForIdleSync()
                 assertTrue("48dp delegated target must activate the visible pill in theme $night", clicked.get())
+                lateinit var bounds: android.graphics.Rect
+                var ink = 0
+                scenario.onActivity {
+                    val chip = home.chipGroupCategory.getChildAt(0) as Chip
+                    val position = IntArray(2).also { chip.getLocationOnScreen(it) }
+                    val inset = Math.round(8f * chip.resources.displayMetrics.density)
+                    bounds = android.graphics.Rect(position[0] + inset, position[1] + inset,
+                        position[0] + chip.width - inset, position[1] + chip.height - inset)
+                    ink = chip.currentTextColor
+                }
+                val committed = java.util.concurrent.CountDownLatch(1)
+                scenario.onActivity {
+                    home.root.viewTreeObserver.registerFrameCommitCallback { committed.countDown() }
+                    home.root.invalidate()
+                }
+                assertTrue("Attached Home frame must commit", committed.await(5, java.util.concurrent.TimeUnit.SECONDS))
+                val screenshot = instrumentation.uiAutomation.takeScreenshot()
+                assertNotNull("Attached Home hardware screenshot must be available", screenshot)
+                screenshot!!.let { bitmap ->
+                    try {
+                        var inkPixels = 0
+                        for (y in bounds.top until bounds.bottom) for (x in bounds.left until bounds.right) {
+                            if (bitmap.getPixel(x, y) == ink) inkPixels++
+                        }
+                        val values = android.content.ContentValues().apply {
+                            put(android.provider.MediaStore.Images.Media.DISPLAY_NAME, "home-attached-${if (night == Configuration.UI_MODE_NIGHT_YES) "dark" else "light"}.png")
+                            put(android.provider.MediaStore.Images.Media.MIME_TYPE, "image/png")
+                            put(android.provider.MediaStore.Images.Media.RELATIVE_PATH, "Pictures/eve-approved-ui")
+                        }
+                        val resolver = instrumentation.targetContext.contentResolver
+                        val uri = resolver.insert(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)!!
+                        resolver.openOutputStream(uri)!!.use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+                        assertTrue("Category label must visibly render in theme $night (inkPixels=$inkPixels, bounds=$bounds)", inkPixels >= 10)
+                    } finally { bitmap.recycle() }
+                }
             }
         }
     }
@@ -144,7 +180,7 @@ class ManualUiSpecificationTest {
                             assertEquals(dp(12), tile.top - grid.getChildAt(i - grid.columnCount).bottom)
                         }
                         val surface = tile.background as GradientDrawable
-                        assertEquals(35f * density, surface.cornerRadius, 0.01f)
+                        assertEquals(dp(35).toFloat(), surface.cornerRadius, 0.01f)
                     }
                     repeat(12) { index ->
                         result.tabLayoutResult.getTabAt(index % 3)!!.select()

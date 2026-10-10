@@ -191,3 +191,11 @@ checks exact row conservation and a balanced integer allocation at the mandated
 viewport. The click assertion is retained in an attached existing debug Activity
 host and waits for the real UI queue. Production behavior was not changed to
 accommodate either test. Subsequent native results are in the execution response.
+
+The next native run passed the attached touch-target check and all existing
+functional/reveal/rendering tests, then exposed an XML measurement detail in the
+new matrix: GradientDrawable inflates its 35dp radius through pixel-size rounding
+(92px at 420dpi), unlike Kotlin's float radius (91.875px). The assertion now checks
+the exact native XML dp conversion. Added attached Home hardware screenshots and
+text-ink assertions after a committed frame; software Canvas captures alone cannot
+establish centered horizontally scrolling Chip text before a real pre-draw.
