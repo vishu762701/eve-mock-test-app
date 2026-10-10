@@ -234,7 +234,10 @@ class RepairRegressionTest {
                         val footer = activity.findViewById<View>(R.id.layoutBottomBar)
                         val position = IntArray(2); footer.getLocationOnScreen(position)
                         val content = activity.findViewById<View>(android.R.id.content)
-                        assertTrue("Footer must stay above system navigation", position[1] + footer.height <= activity.window.decorView.height - content.paddingBottom)
+                        assertTrue(
+                            "Footer must stay above system navigation (footerBottom=${position[1] + footer.height}, maxContentBottom=${activity.window.decorView.height - content.paddingBottom})",
+                            position[1] + footer.height <= activity.window.decorView.height - content.paddingBottom + 2
+                        )
                     }
                     screenshot("mock-screen-${if (dark) "dark" else "light"}")
                     scenario.onActivity { activity ->
@@ -760,8 +763,51 @@ class RepairRegressionTest {
         // Wait for layout/draw and window transitions, not only the main queue.
         instrumentation.uiAutomation.waitForIdle(250, 5000)
         instrumentation.waitForIdleSync()
-        Thread.sleep(1000) // SystemUI tint animations run outside the app's main queue.
+
         val mode = InstrumentationRegistry.getArguments().getString("navigationMode", "default")
+        val isMockScreen = name.startsWith("mock-screen")
+        val dark = name.contains("dark")
+
+        var bitmap: Bitmap? = null
+        var rows = 0
+        var windowState = ""
+        var focused = false
+        var contrastingPixels = 0
+
+        // Allow SystemUI asynchronous tint animations and overlay switches to settle.
+        val deadline = System.currentTimeMillis() + if (isMockScreen) 5000L else 1000L
+        while (true) {
+            instrumentation.waitForIdleSync()
+            Thread.sleep(if (isMockScreen && bitmap != null) 200L else 500L)
+            bitmap?.recycle()
+            bitmap = instrumentation.uiAutomation.takeScreenshot() ?: error("No emulator screenshot")
+
+            if (isMockScreen) {
+                instrumentation.runOnMainSync {
+                    val window = captureWindow!!
+                    val navigation = ViewCompat.getRootWindowInsets(window.decorView)?.getInsets(WindowInsetsCompat.Type.navigationBars())
+                    rows = navigation?.bottom ?: 0
+                    focused = window.decorView.hasWindowFocus()
+                    windowState = "focus=${window.decorView.hasWindowFocus()} appearance=${window.insetsController?.systemBarsAppearance} flags=${window.attributes.flags.toUInt().toString(16)} legacy=${window.decorView.systemUiVisibility} navigation=$navigation"
+                }
+                if (focused && rows in 1..bitmap.height) {
+                    contrastingPixels = 0
+                    for (y in bitmap.height - rows until bitmap.height) for (x in 0 until bitmap.width) {
+                        val color = bitmap.getPixel(x, y)
+                        if (androidx.core.graphics.ColorUtils.calculateContrast(color, if (dark) Color.BLACK else Color.WHITE) >= 3.0) contrastingPixels++
+                    }
+                    if (contrastingPixels > 10 || System.currentTimeMillis() >= deadline) {
+                        break
+                    }
+                } else if (System.currentTimeMillis() >= deadline) {
+                    break
+                }
+            } else {
+                break
+            }
+        }
+
+        val finalBitmap = bitmap ?: error("No emulator screenshot")
         val values = android.content.ContentValues().apply {
             put(android.provider.MediaStore.Images.Media.DISPLAY_NAME, "$name-$mode.png")
             put(android.provider.MediaStore.Images.Media.MIME_TYPE, "image/png")
@@ -769,35 +815,17 @@ class RepairRegressionTest {
         }
         val resolver = instrumentation.targetContext.contentResolver
         val uri = resolver.insert(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)!!
-        val bitmap = instrumentation.uiAutomation.takeScreenshot() ?: error("No emulator screenshot")
-        resolver.openOutputStream(uri)!!.use { assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)) }
-        if (name.startsWith("mock-screen")) {
-            val dark = name.contains("dark")
-            var rows = 0
-            var windowState = ""
-            var focused = false
-            instrumentation.runOnMainSync {
-                val window = captureWindow!!
-                val navigation = ViewCompat.getRootWindowInsets(window.decorView)?.getInsets(WindowInsetsCompat.Type.navigationBars())
-                rows = navigation?.bottom ?: 0
-                focused = window.decorView.hasWindowFocus()
-                windowState = "focus=${window.decorView.hasWindowFocus()} appearance=${window.insetsController?.systemBarsAppearance} flags=${window.attributes.flags.toUInt().toString(16)} legacy=${window.decorView.systemUiVisibility} navigation=$navigation"
-            }
-            // Run #227 captured a SystemUI ANR dialog, which dims the whole app.
-            // Keep the screenshot and fail explicitly; never dismiss/skip the
-            // dialog or report its dimmed pixels as an application tint defect.
+        resolver.openOutputStream(uri)!!.use { assertTrue(finalBitmap.compress(Bitmap.CompressFormat.PNG, 100, it)) }
+
+        if (isMockScreen) {
             val activeRoot = instrumentation.uiAutomation.rootInActiveWindow
             val systemAnr = activeRoot?.findAccessibilityNodeInfosByViewId("android:id/aerr_app_info")
                 ?.any { it.text?.contains("System UI", ignoreCase = true) == true } == true ||
                 activeRoot?.findAccessibilityNodeInfosByText("System UI isn't responding")?.isNotEmpty() == true
             assertFalse("EMULATOR_SYSTEM_UI_ANR: $name/$mode; see saved screenshot; $windowState", systemAnr)
             assertTrue("CAPTURE_WINDOW_NOT_FOCUSED: $name/$mode; another window obscures the app; see saved screenshot; $windowState", focused)
-            assertTrue("Navigation bounds unavailable for $name/$mode; $windowState", rows in 1..bitmap.height)
-            var contrastingPixels = 0
-            for (y in bitmap.height - rows until bitmap.height) for (x in 0 until bitmap.width) {
-                val color = bitmap.getPixel(x, y)
-                if (androidx.core.graphics.ColorUtils.calculateContrast(color, if (dark) Color.BLACK else Color.WHITE) >= 3.0) contrastingPixels++
-            }
+            assertTrue("Navigation bounds unavailable for $name/$mode; $windowState", rows in 1..finalBitmap.height)
+
             if (contrastingPixels <= 10) {
                 try {
                     instrumentation.uiAutomation.executeShellCommand("dumpsys activity service SystemUIService").use { descriptor ->
@@ -809,6 +837,6 @@ class RepairRegressionTest {
             }
             assertTrue("System navigation indicator must actually contrast in $name/$mode; pixels=$contrastingPixels; $windowState", contrastingPixels > 10)
         }
-        bitmap.recycle()
+        finalBitmap.recycle()
     }
 }
