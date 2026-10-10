@@ -4,6 +4,6 @@
     <corners android:radius="@dimen/eve_radius_tile" />
     <solid android:color="@color/eve_stat_mini_bg" />
     <stroke
-        android:width="@dimen/eve_stroke_hairline"
-        android:color="@color/eve_separator" />
+        android:width="1dp"
+        android:color="@color/eve_shape_border" />
 </shape>

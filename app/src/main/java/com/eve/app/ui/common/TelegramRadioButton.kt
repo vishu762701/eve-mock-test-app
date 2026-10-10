@@ -77,14 +77,14 @@ class TelegramRadioButton @JvmOverloads constructor(
             shape = GradientDrawable.RECTANGLE
             cornerRadius = cornerPx
             setColor(ContextCompat.getColor(context, R.color.eve_option_selected_bg))
-            setStroke((1.5f * density).toInt(), ContextCompat.getColor(context, R.color.eve_option_selected_stroke))
+            setStroke(Math.round(density).coerceAtLeast(1), ContextCompat.getColor(context, R.color.eve_shape_border))
         }
 
         val uncheckedBg = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadius = cornerPx
             setColor(ContextCompat.getColor(context, R.color.eve_card_bg))
-            setStroke((0.5f * density).toInt().coerceAtLeast(1), ContextCompat.getColor(context, R.color.eve_separator))
+            setStroke(Math.round(density).coerceAtLeast(1), ContextCompat.getColor(context, R.color.eve_shape_border))
         }
 
         val contentStateList = StateListDrawable().apply {
@@ -137,7 +137,7 @@ class TelegramRadioButton @JvmOverloads constructor(
     fun enableApprovedTestStyle() {
         useApprovedTestStyle = true
         fun surface(color: Int) = GradientDrawable().apply {
-            cornerRadius = 12f * density
+            cornerRadius = 16f * density
             setColor(ContextCompat.getColor(context, color))
         }
         background = StateListDrawable().apply {
@@ -150,7 +150,7 @@ class TelegramRadioButton @JvmOverloads constructor(
             intArrayOf(Color.BLACK, ContextCompat.getColor(context, R.color.eve_test_foreground))
         ))
         minHeight = Math.round(56f * density)
-        setPadding(Math.round(44f * density), Math.round(12f * density),
+        setPaddingRelative(Math.round(44f * density), Math.round(12f * density),
             Math.round(12f * density), Math.round(12f * density))
         invalidate()
     }
@@ -214,7 +214,8 @@ class TelegramRadioButton @JvmOverloads constructor(
         ringPaint.color = if (useApprovedTestStyle) unselectedColor else currentRingColor
         dotPaint.color = selectedColor
 
-        val cx = (if (useApprovedTestStyle) 22f else 16f) * density
+        val start = (if (useApprovedTestStyle) 22f else 16f) * density
+        val cx = if (useApprovedTestStyle && layoutDirection == android.view.View.LAYOUT_DIRECTION_RTL) width - start else start
         val cy = height / 2f
 
         // Draw outer ring

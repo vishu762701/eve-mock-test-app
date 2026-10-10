@@ -52,8 +52,8 @@ class LeaderboardAdapter(
             b.root.setCardBackgroundColor(
                 ContextCompat.getColor(ctx, R.color.eve_surface)
             )
-            b.root.strokeColor = ContextCompat.getColor(ctx, if (isMe) R.color.eve_text else R.color.eve_border)
-            b.root.strokeWidth = if (isMe) (1.5f * ctx.resources.displayMetrics.density).toInt() else (1f * ctx.resources.displayMetrics.density).toInt()
+            b.root.strokeColor = ContextCompat.getColor(ctx, R.color.eve_shape_border)
+            b.root.strokeWidth = Math.round(ctx.resources.displayMetrics.density).coerceAtLeast(1)
         }
     }
 

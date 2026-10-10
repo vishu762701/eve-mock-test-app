@@ -59,7 +59,7 @@
                 app:cardBackgroundColor="@color/eve_card_bg"
                 app:cardCornerRadius="@dimen/eve_radius_card"
                 app:cardElevation="0dp"
-                app:strokeColor="@color/eve_stroke"
+                app:strokeColor="@color/eve_shape_border"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
@@ -116,7 +116,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:hint="Maintenance Message">
+                        android:hint="Maintenance Message"
+                        app:boxStrokeColor="@color/selector_shape_border"
+                        app:boxStrokeErrorColor="@color/selector_shape_border"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="1dp">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etMaintenanceMessage"
@@ -132,7 +136,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:hint="Minimum Supported Version Code">
+                        android:hint="Minimum Supported Version Code"
+                        app:boxStrokeColor="@color/selector_shape_border"
+                        app:boxStrokeErrorColor="@color/selector_shape_border"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="1dp">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etMinVersionCode"
@@ -217,7 +225,7 @@
                 app:cardBackgroundColor="@color/eve_card_bg"
                 app:cardCornerRadius="@dimen/eve_radius_card"
                 app:cardElevation="0dp"
-                app:strokeColor="@color/eve_stroke"
+                app:strokeColor="@color/eve_shape_border"
                 app:strokeWidth="1dp">
 
                 <LinearLayout

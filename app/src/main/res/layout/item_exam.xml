@@ -13,8 +13,8 @@
     app:cardCornerRadius="15dp"
     app:cardElevation="0dp"
     app:rippleColor="@color/eve_primary"
-    app:strokeColor="@color/eve_separator"
-    app:strokeWidth="@dimen/eve_stroke_hairline">
+    app:strokeColor="@color/eve_shape_border"
+    app:strokeWidth="1dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -31,7 +31,7 @@
             app:cardCornerRadius="28dp"
             app:cardElevation="0dp"
             app:rippleColor="@android:color/transparent"
-            app:strokeColor="@color/eve_exam_icon_tile_border"
+            app:strokeColor="@color/eve_shape_border"
             app:strokeWidth="1dp">
 
             <com.google.android.material.imageview.ShapeableImageView

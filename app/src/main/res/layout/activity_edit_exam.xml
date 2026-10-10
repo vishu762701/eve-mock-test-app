@@ -61,7 +61,7 @@
                 app:cardBackgroundColor="@color/eve_card_bg"
                 app:cardCornerRadius="@dimen/eve_radius_card"
                 app:cardElevation="0dp"
-                app:strokeColor="@color/eve_stroke"
+                app:strokeColor="@color/eve_shape_border"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
@@ -82,7 +82,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:hint="Exam Name">
+                        android:hint="Exam Name"
+                        app:boxStrokeColor="@color/selector_shape_border"
+                        app:boxStrokeErrorColor="@color/selector_shape_border"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="1dp">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etExamName"
@@ -96,7 +100,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:hint="Time Limit (minutes)">
+                        android:hint="Time Limit (minutes)"
+                        app:boxStrokeColor="@color/selector_shape_border"
+                        app:boxStrokeErrorColor="@color/selector_shape_border"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="1dp">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etExamMinutes"
@@ -139,7 +147,11 @@
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="4dp"
                             android:layout_weight="1"
-                            android:hint="General">
+                            android:hint="General"
+                            app:boxStrokeColor="@color/selector_shape_border"
+                            app:boxStrokeErrorColor="@color/selector_shape_border"
+                            app:boxStrokeWidth="1dp"
+                            app:boxStrokeWidthFocused="1dp">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etCutoffGeneral"
@@ -154,7 +166,11 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="4dp"
                             android:layout_weight="1"
-                            android:hint="OBC">
+                            android:hint="OBC"
+                            app:boxStrokeColor="@color/selector_shape_border"
+                            app:boxStrokeErrorColor="@color/selector_shape_border"
+                            app:boxStrokeWidth="1dp"
+                            app:boxStrokeWidthFocused="1dp">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etCutoffObc"
@@ -176,7 +192,11 @@
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="4dp"
                             android:layout_weight="1"
-                            android:hint="SC">
+                            android:hint="SC"
+                            app:boxStrokeColor="@color/selector_shape_border"
+                            app:boxStrokeErrorColor="@color/selector_shape_border"
+                            app:boxStrokeWidth="1dp"
+                            app:boxStrokeWidthFocused="1dp">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etCutoffSc"
@@ -191,7 +211,11 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="4dp"
                             android:layout_weight="1"
-                            android:hint="ST">
+                            android:hint="ST"
+                            app:boxStrokeColor="@color/selector_shape_border"
+                            app:boxStrokeErrorColor="@color/selector_shape_border"
+                            app:boxStrokeWidth="1dp"
+                            app:boxStrokeWidthFocused="1dp">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etCutoffSt"
@@ -206,7 +230,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
-                        android:hint="EWS Cutoff">
+                        android:hint="EWS Cutoff"
+                        app:boxStrokeColor="@color/selector_shape_border"
+                        app:boxStrokeErrorColor="@color/selector_shape_border"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="1dp">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etCutoffEws"
@@ -233,7 +261,7 @@
                 app:cardBackgroundColor="@color/eve_card_bg"
                 app:cardCornerRadius="@dimen/eve_radius_card"
                 app:cardElevation="0dp"
-                app:strokeColor="@color/eve_stroke"
+                app:strokeColor="@color/eve_shape_border"
                 app:strokeWidth="1dp">
 
                 <LinearLayout

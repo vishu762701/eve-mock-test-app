@@ -10,7 +10,7 @@
     app:cardBackgroundColor="@color/eve_card_bg"
     app:cardCornerRadius="28dp"
     app:cardElevation="0dp"
-    app:strokeColor="@color/eve_stroke"
+    app:strokeColor="@color/eve_shape_border"
     app:strokeWidth="1dp">
 
     <LinearLayout
@@ -292,7 +292,7 @@
             app:iconGravity="textStart"
             app:iconPadding="8dp"
             app:iconTint="?attr/colorOnSurface"
-            app:strokeColor="@color/eve_stroke"
+            app:strokeColor="@color/eve_shape_border"
             app:strokeWidth="1dp" />
 
         <!-- Solution Container (Expanded Inline on Demand) -->

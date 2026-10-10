@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Decorative shape outlines only; never use for separators or artwork. -->
+    <color name="eve_shape_border">#FFFFFFFF</color>
+</resources>

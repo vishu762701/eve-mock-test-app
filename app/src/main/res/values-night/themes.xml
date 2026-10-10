@@ -32,6 +32,7 @@
         <item name="textAppearanceLabelSmall">@style/TextAppearance.Eve.M3.LabelSmall</item>
         <item name="materialButtonStyle">@style/Widget.Eve.Button</item>
         <item name="textInputStyle">@style/Widget.Eve.TextInput.Filled</item>
+        <item name="chipStyle">@style/Widget.Eve.AssistChip</item>
         <item name="materialCardViewStyle">@style/Widget.Eve.Card</item>
         <item name="bottomSheetDialogTheme">@style/Theme.Eve.BottomSheetDialog</item>
         <item name="popupMenuStyle">@style/Widget.Eve.PopupMenu</item>

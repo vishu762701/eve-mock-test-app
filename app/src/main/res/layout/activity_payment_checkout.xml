@@ -66,7 +66,7 @@
                 app:cardBackgroundColor="@color/eve_surface"
                 app:cardCornerRadius="@dimen/eve_radius_card"
                 app:cardElevation="0dp"
-                app:strokeColor="@color/eve_stroke"
+                app:strokeColor="@color/eve_shape_border"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
@@ -140,7 +140,7 @@
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
                     app:contentPadding="12dp"
-                    app:strokeColor="@color/eve_stroke"
+                    app:strokeColor="@color/eve_shape_border"
                     app:strokeWidth="1dp">
 
                     <ImageView
@@ -285,7 +285,7 @@
                 android:text="⚡ Simulate Sandbox Payment (Test Verification)"
                 android:textColor="@color/eve_status_warning"
                 android:textSize="12sp"
-                app:strokeColor="@color/eve_status_warning" />
+                app:strokeColor="@color/eve_shape_border" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

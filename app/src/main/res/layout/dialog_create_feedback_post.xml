@@ -28,7 +28,10 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:hint="Post Title *"
-        app:boxStrokeColor="@color/eve_primary">
+        app:boxStrokeColor="@color/selector_shape_border"
+        app:boxStrokeErrorColor="@color/selector_shape_border"
+        app:boxStrokeWidth="1dp"
+        app:boxStrokeWidthFocused="1dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etPostTitle"
@@ -46,7 +49,10 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:hint="Message / Prompt *"
-        app:boxStrokeColor="@color/eve_primary">
+        app:boxStrokeColor="@color/selector_shape_border"
+        app:boxStrokeErrorColor="@color/selector_shape_border"
+        app:boxStrokeWidth="1dp"
+        app:boxStrokeWidthFocused="1dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etPostMessage"

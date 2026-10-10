@@ -57,16 +57,16 @@ class MistakesAdapter(
                 binding.btnMarkLearned.text = "Learned ✓"
                 binding.btnMarkLearned.setTextColor(ContextCompat.getColor(itemView.context, R.color.eve_status_success))
                 binding.btnMarkLearned.strokeColor = ColorStateList.valueOf(
-                    ContextCompat.getColor(itemView.context, R.color.eve_status_success)
+                    ContextCompat.getColor(itemView.context, R.color.eve_shape_border)
                 )
-                binding.root.alpha = 0.65f
+                binding.layoutExplanation.alpha = 0.65f
             } else {
                 binding.btnMarkLearned.text = "Mark as learned"
                 binding.btnMarkLearned.setTextColor(ContextCompat.getColor(itemView.context, R.color.eve_text))
                 binding.btnMarkLearned.strokeColor = ColorStateList.valueOf(
-                    ContextCompat.getColor(itemView.context, R.color.eve_stroke)
+                    ContextCompat.getColor(itemView.context, R.color.eve_shape_border)
                 )
-                binding.root.alpha = 1.0f
+                binding.layoutExplanation.alpha = 1.0f
             }
 
             binding.btnMarkLearned.setOnClickListener {

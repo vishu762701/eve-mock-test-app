@@ -13,8 +13,8 @@
     app:cardBackgroundColor="@color/eve_glass_card_fill"
     app:cardCornerRadius="@dimen/eve_radius_card"
     app:cardElevation="0dp"
-    app:strokeColor="@color/eve_separator"
-    app:strokeWidth="@dimen/eve_stroke_hairline">
+    app:strokeColor="@color/eve_shape_border"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"

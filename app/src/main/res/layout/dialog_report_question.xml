@@ -124,7 +124,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:hint="Details (Optional)">
+            android:hint="Details (Optional)"
+            app:boxStrokeColor="@color/selector_shape_border"
+            app:boxStrokeErrorColor="@color/selector_shape_border"
+            app:boxStrokeWidth="1dp"
+            app:boxStrokeWidthFocused="1dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etReportComment"

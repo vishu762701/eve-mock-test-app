@@ -52,7 +52,7 @@
             app:cardBackgroundColor="@color/eve_card_bg"
             app:cardCornerRadius="@dimen/eve_radius_card"
             app:cardElevation="0dp"
-            app:strokeColor="@color/eve_stroke"
+            app:strokeColor="@color/eve_shape_border"
             app:strokeWidth="1dp">
 
             <ImageView

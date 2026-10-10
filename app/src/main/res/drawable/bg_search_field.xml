@@ -4,6 +4,6 @@
     <solid android:color="@color/eve_input_fill" />
     <corners android:radius="16dp" />
     <stroke
-        android:width="@dimen/eve_stroke_hairline"
-        android:color="@color/eve_input_stroke" />
+        android:width="1dp"
+        android:color="@color/eve_shape_border" />
 </shape>

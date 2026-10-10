@@ -43,7 +43,7 @@
     <dimen name="eve_screen_padding_horizontal">20dp</dimen>
     <dimen name="eve_card_padding_inner">16dp</dimen>
     <dimen name="eve_list_item_spacing">12dp</dimen>
-    <dimen name="eve_home_banner_height">152dp</dimen>
+    <dimen name="eve_home_banner_height">160dp</dimen>
     <dimen name="eve_thin_material_blur_radius">12dp</dimen>
     <dimen name="target_exam_chip_icon_size">22dp</dimen>
 </resources>

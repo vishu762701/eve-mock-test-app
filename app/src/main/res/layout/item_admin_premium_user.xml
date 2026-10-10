@@ -8,7 +8,7 @@
     app:cardBackgroundColor="@color/eve_surface"
     app:cardCornerRadius="@dimen/eve_radius_card"
     app:cardElevation="0dp"
-    app:strokeColor="@color/eve_stroke"
+    app:strokeColor="@color/eve_shape_border"
     app:strokeWidth="1dp">
 
     <LinearLayout
@@ -84,7 +84,7 @@
                 android:text="Revoke"
                 android:textColor="@color/eve_status_error"
                 android:textSize="12sp"
-                app:strokeColor="@color/eve_status_error" />
+                app:strokeColor="@color/eve_shape_border" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

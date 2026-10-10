@@ -235,7 +235,8 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/eve_home_banner_height"
             android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp"
             android:background="@android:color/transparent"
             android:clipChildren="true"
             android:clipToPadding="true"
@@ -262,20 +263,25 @@
                 android:clickable="false"
                 android:focusable="false" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnHomeBannerCta"
-                style="@style/Widget.Eve.Button.Neutral"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_gravity="bottom|end"
-                android:layout_margin="12dp"
-                android:contentDescription="Open Home banner link"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:minHeight="40dp"
-                android:paddingHorizontal="14dp"
-                android:textSize="14sp"
-                android:visibility="gone" />
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="12dp">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnHomeBannerCta"
+                    style="@style/Widget.Eve.Button.Neutral"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_gravity="bottom|end"
+                    android:paddingVertical="0dp"
+                    android:contentDescription="Open Home banner link"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:minHeight="40dp"
+                    android:paddingHorizontal="14dp"
+                    android:textSize="15sp"
+                    android:visibility="gone" />
+            </FrameLayout>
         </FrameLayout>
 
         <LinearLayout
@@ -327,7 +333,7 @@
             android:paddingBottom="8dp"
             android:scrollbars="none">
 
-            <com.google.android.material.chip.ChipGroup
+            <com.eve.app.ui.home.HomeCategoryChipGroup
                 android:id="@+id/chipGroupCategory"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

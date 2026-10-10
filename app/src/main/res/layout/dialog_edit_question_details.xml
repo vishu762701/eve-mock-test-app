@@ -15,7 +15,11 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Question Text">
+            android:hint="Question Text"
+            app:boxStrokeColor="@color/selector_shape_border"
+            app:boxStrokeErrorColor="@color/selector_shape_border"
+            app:boxStrokeWidth="1dp"
+            app:boxStrokeWidthFocused="1dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etQuestionText"
@@ -31,7 +35,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:hint="Option A">
+            android:hint="Option A"
+            app:boxStrokeColor="@color/selector_shape_border"
+            app:boxStrokeErrorColor="@color/selector_shape_border"
+            app:boxStrokeWidth="1dp"
+            app:boxStrokeWidthFocused="1dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etOptionA"
@@ -44,7 +52,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:hint="Option B">
+            android:hint="Option B"
+            app:boxStrokeColor="@color/selector_shape_border"
+            app:boxStrokeErrorColor="@color/selector_shape_border"
+            app:boxStrokeWidth="1dp"
+            app:boxStrokeWidthFocused="1dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etOptionB"
@@ -57,7 +69,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:hint="Option C">
+            android:hint="Option C"
+            app:boxStrokeColor="@color/selector_shape_border"
+            app:boxStrokeErrorColor="@color/selector_shape_border"
+            app:boxStrokeWidth="1dp"
+            app:boxStrokeWidthFocused="1dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etOptionC"
@@ -70,7 +86,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:hint="Option D">
+            android:hint="Option D"
+            app:boxStrokeColor="@color/selector_shape_border"
+            app:boxStrokeErrorColor="@color/selector_shape_border"
+            app:boxStrokeWidth="1dp"
+            app:boxStrokeWidthFocused="1dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etOptionD"
@@ -161,7 +181,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:hint="Explanation (Key Points format)">
+            android:hint="Explanation (Key Points format)"
+            app:boxStrokeColor="@color/selector_shape_border"
+            app:boxStrokeErrorColor="@color/selector_shape_border"
+            app:boxStrokeWidth="1dp"
+            app:boxStrokeWidthFocused="1dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etExplanation"
@@ -178,7 +202,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:hint="Topic (Optional)">
+            android:hint="Topic (Optional)"
+            app:boxStrokeColor="@color/selector_shape_border"
+            app:boxStrokeErrorColor="@color/selector_shape_border"
+            app:boxStrokeWidth="1dp"
+            app:boxStrokeWidthFocused="1dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etTopic"

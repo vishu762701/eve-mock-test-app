@@ -8,8 +8,8 @@
     app:cardBackgroundColor="@color/eve_card_bg"
     app:cardCornerRadius="@dimen/eve_radius_card"
     app:cardElevation="0dp"
-    app:strokeColor="@color/eve_separator"
-    app:strokeWidth="@dimen/eve_stroke_hairline">
+    app:strokeColor="@color/eve_shape_border"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -52,7 +52,7 @@
                 android:stateListAnimator="@animator/press_scale"
                 android:text="Mark as learned"
                 android:textSize="14sp"
-                app:strokeColor="@color/eve_stroke" />
+                app:strokeColor="@color/eve_shape_border" />
         </LinearLayout>
 
         <!-- Question Text -->

@@ -3,6 +3,6 @@
     android:shape="oval">
     <solid android:color="@color/eve_fill_tertiary" />
     <stroke
-        android:width="@dimen/eve_stroke_hairline"
-        android:color="@color/eve_separator" />
+        android:width="1dp"
+        android:color="@color/eve_shape_border" />
 </shape>

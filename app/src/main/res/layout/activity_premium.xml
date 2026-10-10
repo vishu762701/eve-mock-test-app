@@ -134,7 +134,7 @@
                         app:cardBackgroundColor="@color/eve_surface"
                         app:cardCornerRadius="@dimen/eve_radius_card"
                         app:cardElevation="0dp"
-                        app:strokeColor="@color/eve_stroke"
+                        app:strokeColor="@color/eve_shape_border"
                         app:strokeWidth="1dp">
 
                         <LinearLayout
@@ -168,7 +168,7 @@
                         app:cardBackgroundColor="@color/eve_surface_variant"
                         app:cardCornerRadius="@dimen/eve_radius_card"
                         app:cardElevation="0dp"
-                        app:strokeColor="@color/eve_stroke"
+                        app:strokeColor="@color/eve_shape_border"
                         app:strokeWidth="1dp">
 
                         <LinearLayout
@@ -231,8 +231,8 @@
                         app:cardBackgroundColor="@color/eve_status_warning_container"
                         app:cardCornerRadius="@dimen/eve_radius_card"
                         app:cardElevation="0dp"
-                        app:strokeColor="@color/eve_status_warning"
-                        app:strokeWidth="1.5dp">
+                        app:strokeColor="@color/eve_shape_border"
+                        app:strokeWidth="1dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -288,7 +288,7 @@
                         app:cardBackgroundColor="@color/eve_surface"
                         app:cardCornerRadius="@dimen/eve_radius_card"
                         app:cardElevation="0dp"
-                        app:strokeColor="@color/eve_stroke"
+                        app:strokeColor="@color/eve_shape_border"
                         app:strokeWidth="1dp">
 
                         <LinearLayout

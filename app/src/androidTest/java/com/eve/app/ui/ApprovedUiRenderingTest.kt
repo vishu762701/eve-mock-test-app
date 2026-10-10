@@ -46,7 +46,7 @@ class ApprovedUiRenderingTest {
     private val foreground get() = if (dark) Color.WHITE else Color.BLACK
     private val background get() = if (dark) Color.BLACK else Color.WHITE
     private fun color(value: String) = Color.parseColor(value)
-    private fun measure(view: View, width: Int = 390, height: Int = 844) {
+    private fun measure(view: View, width: Int = 360, height: Int = 844) {
         repeat(2) {
             view.measure(View.MeasureSpec.makeMeasureSpec(dp(width), View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(dp(height), View.MeasureSpec.EXACTLY))
@@ -148,7 +148,7 @@ class ApprovedUiRenderingTest {
         var clicked = false
         categories.forEach { category ->
             val chip = HomeAppearance.categoryChip(context, category, "All") { clicked = true }
-            assertEquals(23f * density, chip.chipCornerRadius, 0.01f)
+            assertEquals(20f * density, chip.chipCornerRadius, 0.01f)
             b.chipGroupCategory.addView(chip)
         }
         b.chipGroupCategory.getChildAt(1).performClick()
@@ -163,7 +163,7 @@ class ApprovedUiRenderingTest {
         measure(b.root)
         val outline = Outline()
         b.panelHomeBanner.outlineProvider.getOutline(b.panelHomeBanner, outline)
-        assertEquals(36f * density, outline.radius, 0.01f)
+        assertEquals(16f * density, outline.radius, 0.01f)
         assertTrue(b.panelHomeBanner.clipToOutline)
         save(b.root, "home")
     }
@@ -174,7 +174,7 @@ class ApprovedUiRenderingTest {
         assertEquals(dp(16), view.paddingStart)
         assertEquals(dp(16), view.paddingEnd)
         assertEquals(dp(stroke), view.strokeWidth)
-        assertEquals(color("#888888"), view.strokeColor!!.defaultColor)
+        assertEquals(foreground, view.strokeColor!!.defaultColor)
         assertEquals(foreground, view.backgroundTintList!!.defaultColor)
         assertEquals(background, view.currentTextColor)
         assertEquals(0f, view.elevation, 0.01f)
@@ -237,7 +237,7 @@ class ApprovedUiRenderingTest {
         val holder = adapter.onCreateViewHolder(FrameLayout(context), 0)
         adapter.onBindViewHolder(holder, 0)
         val q = ItemQuestionBinding.bind(holder.itemView)
-        measure(q.root, 390, 590)
+        measure(q.root, 360, 590)
         assertNull(q.questionContainer.background)
         assertNull(q.tvQuestion.background)
         sp(q.tvQuestion, 16)
@@ -257,7 +257,7 @@ class ApprovedUiRenderingTest {
             assertEquals(dp(44), option.paddingLeft) // 12 inset + 20 indicator + 12 text gap
             if (index < 3) assertEquals(dp(10), options[index + 1].top - option.bottom)
             val surface = (option.background as StateListDrawable).current as GradientDrawable
-            assertEquals(12f * density, surface.cornerRadius, 0.01f)
+            assertEquals(16f * density, surface.cornerRadius, 0.01f)
             assertEquals(if (option.isChecked) color("#34C759") else context.getColor(R.color.eve_test_option_bg), surface.color!!.defaultColor)
         }
         assertEquals(if (dark) color("#111111") else color("#F3F3F5"), context.getColor(R.color.eve_test_option_bg))
@@ -280,7 +280,7 @@ class ApprovedUiRenderingTest {
             assertEquals(dp(38), p.cardCircle.layoutParams.height)
             assertEquals(dp(38) / 2f, p.cardCircle.radius, 0.01f)
             assertEquals(dp(1), p.cardCircle.strokeWidth)
-            assertEquals(color("#888888"), p.cardCircle.strokeColor)
+            assertEquals(foreground, p.cardCircle.strokeColor)
             // Palette spacing rounds its total 8dp once, then distributes pixels.
             assertEquals(dp(8) / 2, p.root.paddingLeft)
             assertEquals(dp(8) - dp(8) / 2, p.root.paddingRight)

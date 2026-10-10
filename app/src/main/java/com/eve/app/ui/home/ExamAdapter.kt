@@ -60,8 +60,8 @@ class ExamAdapter(
         init {
             val ctx = b.root.context
             b.examIconContainer.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_exam_icon_tile_bg))
-            b.examIconContainer.strokeColor = androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_exam_icon_tile_border)
-            b.examIconContainer.strokeWidth = (1 * ctx.resources.displayMetrics.density).toInt()
+            b.examIconContainer.strokeColor = androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_shape_border)
+            b.examIconContainer.strokeWidth = Math.round(ctx.resources.displayMetrics.density).coerceAtLeast(1)
         }
 
         fun bind(exam: Exam, attempted: Boolean, isPinned: Boolean, attempt: com.eve.app.data.model.TestAttempt?, position: Int) {
@@ -79,8 +79,8 @@ class ExamAdapter(
 
             val ctx = b.root.context
             b.root.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_glass_card_fill))
-            b.root.strokeColor = androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_glass_card_hairline)
-            b.root.strokeWidth = (1 * ctx.resources.displayMetrics.density).toInt()
+            b.root.strokeColor = androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_shape_border)
+            b.root.strokeWidth = Math.round(ctx.resources.displayMetrics.density).coerceAtLeast(1)
             b.tvExamName.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_text))
             if (attempted) {
                 b.tvExamTime.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_tile_right_text))
@@ -89,7 +89,7 @@ class ExamAdapter(
             }
             val categoryTint = com.eve.app.util.ExamCategoryTintHelper.getTintForCategory(exam.categoryOrOther)
             b.examIconContainer.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, categoryTint.bgRes))
-            b.examIconContainer.strokeColor = androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_exam_icon_tile_border)
+            b.examIconContainer.strokeColor = androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_shape_border)
             b.ivExamImage.setColorFilter(androidx.core.content.ContextCompat.getColor(ctx, categoryTint.fgRes))
 
             val hasLogo = exam.imageUrl.isNotBlank()

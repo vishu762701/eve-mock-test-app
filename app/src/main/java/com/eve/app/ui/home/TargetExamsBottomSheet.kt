@@ -58,12 +58,8 @@ object TargetExamsBottomSheet {
                         androidx.core.content.ContextCompat.getColor(activity, com.eve.app.R.color.eve_surface_2)
                     )
                 )
-                chipStrokeColor = android.content.res.ColorStateList(
-                    arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
-                    intArrayOf(
-                        androidx.core.content.ContextCompat.getColor(activity, com.eve.app.R.color.eve_lilac_stroke),
-                        androidx.core.content.ContextCompat.getColor(activity, com.eve.app.R.color.eve_border)
-                    )
+                chipStrokeColor = android.content.res.ColorStateList.valueOf(
+                    androidx.core.content.ContextCompat.getColor(activity, com.eve.app.R.color.eve_shape_border)
                 )
                 chipStrokeWidth = resources.displayMetrics.density * 1f
                 setTextColor(

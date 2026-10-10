@@ -12,7 +12,7 @@
     app:cardCornerRadius="@dimen/eve_radius_card"
     app:cardElevation="0dp"
     app:rippleColor="@color/eve_primary"
-    app:strokeColor="@color/eve_stroke"
+    app:strokeColor="@color/eve_shape_border"
     app:strokeWidth="1dp">
 
     <LinearLayout

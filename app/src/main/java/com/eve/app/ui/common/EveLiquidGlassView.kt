@@ -57,7 +57,7 @@ class EveLiquidGlassView @JvmOverloads constructor(
 
     private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
-        strokeWidth = 0.5f * density
+        strokeWidth = density
     }
 
     private val highlightPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -91,11 +91,16 @@ class EveLiquidGlassView @JvmOverloads constructor(
     }
 
     private val squirclePath = Path()
+    private val borderPath = Path()
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         rectF.set(0f, 0f, w.toFloat(), h.toFloat())
         com.eve.app.util.SquircleHelper.buildSquirclePath(squirclePath, w.toFloat(), h.toFloat(), cornerRadiusPx)
+        com.eve.app.util.SquircleHelper.buildSquirclePath(borderPath,
+            (w - density).coerceAtLeast(0f), (h - density).coerceAtLeast(0f),
+            (cornerRadiusPx - density / 2f).coerceAtLeast(0f))
+        borderPath.offset(density / 2f, density / 2f)
         updateHighlightPath(w.toFloat(), h.toFloat())
         updateOutline()
     }
@@ -103,7 +108,7 @@ class EveLiquidGlassView @JvmOverloads constructor(
     private fun updateHighlightPath(w: Float, h: Float) {
         highlightPath.reset()
         if (w <= 0 || h <= 0) return
-        val inset = strokePaint.strokeWidth
+        val inset = strokePaint.strokeWidth * 2f
         val r = cornerRadiusPx
         // Top edge arc highlight (starts at left curve end, goes across top, ends at right curve)
         highlightPath.moveTo(inset, r)
@@ -124,12 +129,9 @@ class EveLiquidGlassView @JvmOverloads constructor(
         canvas.drawPath(squirclePath, fillPaint)
 
         // 2. Optical Hairline Rim
-        strokePaint.color = if (isDark) {
-            Color.argb(38, 255, 255, 255) // 15% white rim
-        } else {
-            Color.argb(31, 0, 0, 0) // 12% dark rim
-        }
-        canvas.drawPath(squirclePath, strokePaint)
+        strokePaint.color = ContextCompat.getColor(context, R.color.eve_shape_border)
+        // Draw entirely inside the clip, so no half-width rim is lost.
+        canvas.drawPath(borderPath, strokePaint)
 
         // 3. Specular Top Highlight
         if (hasHighlight) {

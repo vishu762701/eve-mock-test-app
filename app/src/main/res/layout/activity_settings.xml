@@ -80,8 +80,8 @@
                 app:cardBackgroundColor="@color/eve_card_bg"
                 app:cardCornerRadius="@dimen/eve_radius_tile"
                 app:cardElevation="0dp"
-                app:strokeColor="@color/eve_separator"
-                app:strokeWidth="@dimen/eve_stroke_hairline">
+                app:strokeColor="@color/eve_shape_border"
+                app:strokeWidth="1dp">
 
                 <!-- Font Row -->
                 <LinearLayout
@@ -162,8 +162,8 @@
                 app:cardBackgroundColor="@color/eve_card_bg"
                 app:cardCornerRadius="@dimen/eve_radius_tile"
                 app:cardElevation="0dp"
-                app:strokeColor="@color/eve_separator"
-                app:strokeWidth="@dimen/eve_stroke_hairline">
+                app:strokeColor="@color/eve_shape_border"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -439,8 +439,8 @@
                 app:cardBackgroundColor="@color/eve_card_bg"
                 app:cardCornerRadius="@dimen/eve_radius_tile"
                 app:cardElevation="0dp"
-                app:strokeColor="@color/eve_separator"
-                app:strokeWidth="@dimen/eve_stroke_hairline">
+                app:strokeColor="@color/eve_shape_border"
+                app:strokeWidth="1dp">
 
                 <!-- Delete Account Row -->
                 <LinearLayout

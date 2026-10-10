@@ -108,7 +108,7 @@
                     app:cardBackgroundColor="@color/eve_surface"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_stroke"
+                    app:strokeColor="@color/eve_shape_border"
                     app:strokeWidth="1dp">
 
                     <LinearLayout
@@ -136,7 +136,11 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:hint="Plan Name">
+                            android:hint="Plan Name"
+                            app:boxStrokeColor="@color/selector_shape_border"
+                            app:boxStrokeErrorColor="@color/selector_shape_border"
+                            app:boxStrokeWidth="1dp"
+                            app:boxStrokeWidthFocused="1dp">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etPlanName"
@@ -150,7 +154,11 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:hint="Price (INR)">
+                            android:hint="Price (INR)"
+                            app:boxStrokeColor="@color/selector_shape_border"
+                            app:boxStrokeErrorColor="@color/selector_shape_border"
+                            app:boxStrokeWidth="1dp"
+                            app:boxStrokeWidthFocused="1dp">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etPriceInr"
@@ -172,7 +180,11 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:hint="Duration in Days (e.g. 7, 30, 90, 365)">
+                            android:hint="Duration in Days (e.g. 7, 30, 90, 365)"
+                            app:boxStrokeColor="@color/selector_shape_border"
+                            app:boxStrokeErrorColor="@color/selector_shape_border"
+                            app:boxStrokeWidth="1dp"
+                            app:boxStrokeWidthFocused="1dp">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etDurationDays"
@@ -186,7 +198,11 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:hint="Student Description">
+                            android:hint="Student Description"
+                            app:boxStrokeColor="@color/selector_shape_border"
+                            app:boxStrokeErrorColor="@color/selector_shape_border"
+                            app:boxStrokeWidth="1dp"
+                            app:boxStrokeWidthFocused="1dp">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etDescription"
@@ -201,7 +217,11 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:hint="Benefits (one per line)">
+                            android:hint="Benefits (one per line)"
+                            app:boxStrokeColor="@color/selector_shape_border"
+                            app:boxStrokeErrorColor="@color/selector_shape_border"
+                            app:boxStrokeWidth="1dp"
+                            app:boxStrokeWidthFocused="1dp">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etBenefits"
@@ -221,7 +241,7 @@
                     app:cardBackgroundColor="@color/eve_surface"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_stroke"
+                    app:strokeColor="@color/eve_shape_border"
                     app:strokeWidth="1dp">
 
                     <LinearLayout
@@ -256,7 +276,11 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:hint="Payment Session Expiry (Minutes)">
+                            android:hint="Payment Session Expiry (Minutes)"
+                            app:boxStrokeColor="@color/selector_shape_border"
+                            app:boxStrokeErrorColor="@color/selector_shape_border"
+                            app:boxStrokeWidth="1dp"
+                            app:boxStrokeWidthFocused="1dp">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etSessionExpiry"
@@ -270,7 +294,11 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:hint="Merchant UPI VPA (e.g. evemocktest@upi)">
+                            android:hint="Merchant UPI VPA (e.g. evemocktest@upi)"
+                            app:boxStrokeColor="@color/selector_shape_border"
+                            app:boxStrokeErrorColor="@color/selector_shape_border"
+                            app:boxStrokeWidth="1dp"
+                            app:boxStrokeWidthFocused="1dp">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etMerchantVpa"

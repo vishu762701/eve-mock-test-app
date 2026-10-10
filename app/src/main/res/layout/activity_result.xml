@@ -119,7 +119,8 @@
             app:tabPaddingEnd="4dp"
             app:tabRippleColor="@null"
             app:tabSelectedTextColor="@color/eve_result_tab_selected_text"
-            app:tabTextAppearance="@style/TextAppearance.Eve.TabSegment"
+            android:padding="4dp"
+            app:tabTextAppearance="@style/TextAppearance.Eve.ResultTabSegment"
             app:tabTextColor="@color/eve_result_tab_text">
 
             <com.google.android.material.tabs.TabItem
@@ -272,13 +273,12 @@
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:minHeight="76dp"
-                            android:layout_marginEnd="8dp"
-                            android:background="@drawable/bg_tile_right"
+                            android:minHeight="116dp"
+                            android:layout_marginEnd="12dp"
+                            android:background="@drawable/bg_result_metric_right"
                             android:gravity="center"
                             android:orientation="vertical"
-                            android:paddingHorizontal="6dp"
-                            android:paddingVertical="10dp">
+                            android:padding="14dp">
 
                             <TextView
                                 android:id="@+id/tvCorrectCount"
@@ -286,7 +286,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-bold"
                                 android:gravity="center"
-                                android:textSize="20sp"
+                                android:textSize="12sp"
                                 android:text="0"
                                 android:textColor="@color/eve_tile_right_text" />
 
@@ -305,13 +305,12 @@
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:minHeight="76dp"
-                            android:layout_marginEnd="8dp"
-                            android:background="@drawable/bg_tile_wrong"
+                            android:minHeight="116dp"
+                            android:layout_marginEnd="12dp"
+                            android:background="@drawable/bg_result_metric_wrong"
                             android:gravity="center"
                             android:orientation="vertical"
-                            android:paddingHorizontal="6dp"
-                            android:paddingVertical="10dp">
+                            android:padding="14dp">
 
                             <TextView
                                 android:id="@+id/tvWrongCount"
@@ -319,7 +318,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-bold"
                                 android:gravity="center"
-                                android:textSize="20sp"
+                                android:textSize="12sp"
                                 android:text="0"
                                 android:textColor="@color/eve_tile_wrong_text" />
 
@@ -338,13 +337,12 @@
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:minHeight="76dp"
-                            android:layout_marginEnd="8dp"
-                            android:background="@drawable/bg_tile_unattempted"
+                            android:minHeight="116dp"
+                            android:layout_marginEnd="12dp"
+                            android:background="@drawable/bg_result_metric_unattempted"
                             android:gravity="center"
                             android:orientation="vertical"
-                            android:paddingHorizontal="6dp"
-                            android:paddingVertical="10dp">
+                            android:padding="14dp">
 
                             <TextView
                                 android:id="@+id/tvUnattemptedCount"
@@ -352,7 +350,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-bold"
                                 android:gravity="center"
-                                android:textSize="20sp"
+                                android:textSize="12sp"
                                 android:text="0"
                                 android:textColor="@color/eve_text" />
 
@@ -371,15 +369,15 @@
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:minHeight="76dp"
-                            android:background="@drawable/bg_tile_medium"
+                            android:minHeight="116dp"
+                            android:background="@drawable/bg_result_metric_medium"
                             android:gravity="center"
                             android:orientation="vertical"
-                            android:paddingHorizontal="6dp"
-                            android:paddingVertical="10dp">
+                            android:padding="14dp">
 
                             <TextView
                                 android:id="@+id/tvAccuracy"
+                                android:textSize="12sp"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-bold"
@@ -441,8 +439,8 @@
                         app:cardBackgroundColor="@color/eve_card_bg"
                         app:cardCornerRadius="28dp"
                         app:cardElevation="0dp"
-                        app:strokeColor="@color/eve_separator"
-                        app:strokeWidth="@dimen/eve_stroke_hairline">
+                        app:strokeColor="@color/eve_shape_border"
+                        app:strokeWidth="1dp">
 
                         <com.eve.app.ui.result.ResponsiveResultRow
                             android:layout_width="match_parent"
@@ -602,8 +600,8 @@
                             app:cardBackgroundColor="@color/eve_card_bg"
                             app:cardCornerRadius="@dimen/eve_radius_card"
                             app:cardElevation="0dp"
-                            app:strokeColor="@color/eve_separator"
-                            app:strokeWidth="@dimen/eve_stroke_hairline">
+                            app:strokeColor="@color/eve_shape_border"
+                            app:strokeWidth="1dp">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -779,8 +777,8 @@
                         app:cardBackgroundColor="@color/eve_card_bg"
                         app:cardCornerRadius="@dimen/eve_radius_card"
                         app:cardElevation="0dp"
-                        app:strokeColor="@color/eve_separator"
-                        app:strokeWidth="@dimen/eve_stroke_hairline">
+                        app:strokeColor="@color/eve_shape_border"
+                        app:strokeWidth="1dp">
 
                         <com.eve.app.ui.result.ResponsiveResultRow
                             android:layout_width="match_parent"
@@ -1124,8 +1122,8 @@
                         app:cardBackgroundColor="@color/eve_premium_container"
                         app:cardCornerRadius="@dimen/eve_radius_card"
                         app:cardElevation="0dp"
-                        app:strokeColor="@color/eve_separator"
-                        app:strokeWidth="@dimen/eve_stroke_hairline">
+                        app:strokeColor="@color/eve_shape_border"
+                        app:strokeWidth="1dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
