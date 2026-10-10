@@ -674,7 +674,9 @@ class ManageExamsActivity : EveBaseActivity() {
 
     private fun updateTimePickerState(enabled: Boolean) {
         binding.btnPickTime.isEnabled = enabled
-        binding.btnPickTime.alpha = if (enabled) 1.0f else 0.5f
+        binding.btnPickTime.alpha = 1f
+        val labelColor = androidx.core.content.ContextCompat.getColor(this, R.color.eve_text)
+        binding.btnPickTime.setTextColor(androidx.core.graphics.ColorUtils.setAlphaComponent(labelColor, if (enabled) 255 else 128))
     }
 
     private fun showTimePicker() {

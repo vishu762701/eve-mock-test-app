@@ -43,14 +43,16 @@ class PostRepliesAdapter(
             }
             binding.tvReplyTime.text = timeText
 
+            // Dimming the whole View would also make its decorative outline translucent.
+            binding.btnMarkRead.alpha = 1f
+            val labelColor = androidx.core.content.ContextCompat.getColor(binding.root.context, com.eve.app.R.color.eve_text)
+            binding.btnMarkRead.setTextColor(androidx.core.graphics.ColorUtils.setAlphaComponent(labelColor, if (item.read) 128 else 255))
             if (item.read) {
                 binding.btnMarkRead.text = "Read"
                 binding.btnMarkRead.isEnabled = false
-                binding.btnMarkRead.alpha = 0.5f
             } else {
                 binding.btnMarkRead.text = "Mark Read"
                 binding.btnMarkRead.isEnabled = true
-                binding.btnMarkRead.alpha = 1.0f
                 binding.btnMarkRead.setOnClickListener {
                     val pos = bindingAdapterPosition
                     if (pos != RecyclerView.NO_POSITION) {

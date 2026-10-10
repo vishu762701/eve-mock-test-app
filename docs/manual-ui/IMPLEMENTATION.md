@@ -208,3 +208,11 @@ asynchronously recreated the source Activity during app capture, correctly causi
 its documented navigation mode and wait for system accessibility/UI idle before
 starting app capture there. All state/reveal/system-bar assertions remain intact;
 production theme code is unchanged. Final rerun results are in the execution report.
+
+A final View-alpha audit found two additional disabled outlined controls: Admin
+reply Mark Read (`PostRepliesAdapter`) and the exam time picker
+(`ManageExamsActivity`). Their 0.5 View alpha would fade an otherwise opaque
+stroke. Both now retain alpha 1 with the same half-opacity disabled label instead;
+enabled/click behavior remains unchanged. Native reply holder tests exercise
+read→unread→read recycling and assert 1dp opaque outlines with dimmed labels.
+Borderless download/reorder/delete-icon alpha and transition fades remain unchanged.
