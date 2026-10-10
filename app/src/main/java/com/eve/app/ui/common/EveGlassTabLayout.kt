@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
+import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.tabs.TabLayout
 import com.eve.app.R
@@ -34,6 +35,18 @@ class EveGlassTabLayout @JvmOverloads constructor(
             override fun onTabUnselected(tab: Tab?) {}
             override fun onTabReselected(tab: Tab?) {}
         })
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        if (tabMode == MODE_FIXED && childCount == 1) {
+            // Material 1.12 forces the fixed strip to the outer width, ignoring
+            // horizontal padding. Keep the last capsule inside the Result track.
+            val strip = getChildAt(0)
+            val contentWidth = (measuredWidth - paddingLeft - paddingRight).coerceAtLeast(0)
+            strip.measure(View.MeasureSpec.makeMeasureSpec(contentWidth, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(strip.measuredHeight, View.MeasureSpec.EXACTLY))
+        }
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {

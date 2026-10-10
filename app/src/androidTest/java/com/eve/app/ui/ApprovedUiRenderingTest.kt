@@ -339,9 +339,15 @@ class ApprovedUiRenderingTest {
             assertEquals(index, b.tabLayoutResult.selectedTabPosition)
             sections.forEachIndexed { position, view -> assertEquals(if (position == index) View.VISIBLE else View.GONE, view.visibility) }
             bitmap(b.tabLayoutResult).useBitmap { image ->
+                val strip = b.tabLayoutResult.getChildAt(0) as ViewGroup
+                assertEquals(image.width - b.tabLayoutResult.paddingLeft - b.tabLayoutResult.paddingRight, strip.width)
                 val x = ((index + 0.5f) * image.width / 3).toInt()
                 assertEquals("Selected pill must render for $name in dark=$dark", foreground, image.getPixel(x, dp(8)))
                 assertEquals(if (dark) color("#171717") else color("#F1F1F3"), image.getPixel(image.width / 2, dp(1)))
+                val cornerX = b.tabLayoutResult.paddingLeft + strip.getChildAt(index).right - dp(3) - dp(1)
+                assertEquals("Selected $name pill must retain its rounded right corner",
+                    if (dark) color("#171717") else color("#F1F1F3"),
+                    image.getPixel(cornerX, b.tabLayoutResult.paddingTop + dp(1)))
             }
             val colors = b.tabLayoutResult.tabTextColors!!
             assertEquals(background, colors.getColorForState(intArrayOf(android.R.attr.state_selected), 0))

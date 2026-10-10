@@ -235,3 +235,13 @@ UiModeManager configuration propagation can outlive that idle point. The workaro
 now runs after the app reveal has settled and before verifying/capturing system-bar
 appearance. It cannot replace the source during app capture, and all original
 reveal, retained-answer, overlay cleanup and bar-appearance assertions remain.
+
+Visual inspection of the Leaderboard-selected reference capture exposed a genuine
+padding regression: Material 1.12 TabLayout.onMeasure forces its fixed strip to
+the outer width, ignoring horizontal padding, clipping the last pill. The existing
+`EveGlassTabLayout` (used exclusively by Result) now remeasures its fixed strip to
+width minus horizontal padding after Material measurement. Same ID, clipping,
+press compression, haptics and elastic indicator are retained. Added actual strip
+bounds and selected right-corner pixel assertions for all three tabs in both themes,
+plus the complete responsive matrix. This preserves the full 4dp track inset
+without horizontal overflow.

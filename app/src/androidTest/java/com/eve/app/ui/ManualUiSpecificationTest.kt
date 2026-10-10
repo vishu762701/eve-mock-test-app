@@ -165,6 +165,10 @@ class ManualUiSpecificationTest {
                     if (font == 1f) assertEquals(dp(44), result.tabLayoutResult.height)
                     assertEquals(dp(4), result.tabLayoutResult.paddingTop)
                     assertEquals(dp(4), result.tabLayoutResult.paddingStart)
+                    val tabStrip = result.tabLayoutResult.getChildAt(0) as ViewGroup
+                    assertEquals(result.tabLayoutResult.width - result.tabLayoutResult.paddingLeft - result.tabLayoutResult.paddingRight,
+                        tabStrip.width)
+                    assertEquals(tabStrip.width, tabStrip.getChildAt(tabStrip.childCount - 1).right)
                     val grid = result.rowOverviewStatisticsTiles
                     assertEquals(if (width < 384) 1 else if (width < 566) 2 else 4, grid.columnCount)
                     for (i in 0 until grid.childCount) {
