@@ -15,13 +15,8 @@ object HomeAppearance {
         values.distinct().sortedWith(compareBy<String> { it != "Other" }.thenBy { it })
 
     fun clipBanner(view: View) {
-        val radius = 18f * view.resources.displayMetrics.density
-        view.outlineProvider = object : ViewOutlineProvider() {
-            override fun getOutline(view: View, outline: Outline) {
-                outline.setRoundRect(0, 0, view.width, view.height, radius)
-            }
-        }
-        view.clipToOutline = true
+        val radius = 36f * view.resources.displayMetrics.density
+        com.eve.app.util.SquircleHelper.applySquircleOutline(view, radius)
     }
 
     fun categoryChip(context: Context, category: String, selected: String, onSelect: () -> Unit): Chip =
@@ -29,12 +24,15 @@ object HomeAppearance {
             text = category
             isCheckable = true
             isChecked = category == selected
-            chipCornerRadius = 50f * resources.displayMetrics.density
+            chipCornerRadius = 23f * resources.displayMetrics.density
             chipStrokeWidth = resources.displayMetrics.density
             chipStrokeColor = ContextCompat.getColorStateList(context, R.color.selector_category_chip_stroke)
             chipBackgroundColor = ContextCompat.getColorStateList(context, R.color.selector_category_chip_bg)
             setTextColor(ContextCompat.getColorStateList(context, R.color.selector_category_chip_text))
             isCheckedIconVisible = false
+            minWidth = (90f * resources.displayMetrics.density + 0.5f).toInt()
+            minHeight = (46f * resources.displayMetrics.density + 0.5f).toInt()
+            textAlignment = View.TEXT_ALIGNMENT_CENTER
             setOnClickListener { onSelect() }
         }
 }

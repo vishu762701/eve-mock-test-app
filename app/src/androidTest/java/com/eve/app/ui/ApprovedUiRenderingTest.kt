@@ -106,8 +106,8 @@ class ApprovedUiRenderingTest {
             // XML resolves each 4dp/6dp margin separately at fractional density.
             val footer = ActivityTestBinding.inflate(LayoutInflater.from(scaledContext))
             fun margins(button: View) = (button.parent as View).layoutParams as ViewGroup.MarginLayoutParams
-            assertEquals(pixels(4), margins(footer.btnClear).marginEnd)
-            assertEquals(pixels(4), margins(footer.btnMarkReview).marginStart)
+            assertEquals(pixels(6), margins(footer.btnClear).marginEnd)
+            assertEquals(pixels(6), margins(footer.btnMarkReview).marginStart)
             assertEquals(pixels(6), margins(footer.btnPrev).marginEnd)
             assertEquals(pixels(6), margins(footer.btnNext).marginStart)
         }
@@ -135,8 +135,8 @@ class ApprovedUiRenderingTest {
         assertEquals(background, context.getColor(R.color.eve_canvas))
         listOf(b.btnSearch, b.btnNotification, b.btnOverflow).forEach { bare(it) }
         assertEquals(Color.TRANSPARENT, ((b.btnNotification.parent as View).background as ColorDrawable).color)
-        assertEquals(dp(40), b.ivProfile.layoutParams.width)
-        assertEquals(dp(40), b.ivProfile.layoutParams.height)
+        assertEquals(dp(48), b.ivProfile.layoutParams.width)
+        assertEquals(dp(48), b.ivProfile.layoutParams.height)
         assertEquals(View.GONE, b.cardFloatingAirplane.visibility)
         b.tvWelcome.text = "Hi, Student"
         b.panelHomeBanner.visibility = View.VISIBLE
@@ -148,7 +148,7 @@ class ApprovedUiRenderingTest {
         var clicked = false
         categories.forEach { category ->
             val chip = HomeAppearance.categoryChip(context, category, "All") { clicked = true }
-            assertEquals(50f * density, chip.chipCornerRadius, 0.01f)
+            assertEquals(23f * density, chip.chipCornerRadius, 0.01f)
             b.chipGroupCategory.addView(chip)
         }
         b.chipGroupCategory.getChildAt(1).performClick()
@@ -159,11 +159,11 @@ class ApprovedUiRenderingTest {
         b.rvExams.adapter = adapter
         val holder = adapter.onCreateViewHolder(FrameLayout(context), adapter.getItemViewType(0))
         adapter.onBindViewHolder(holder, 0)
-        assertEquals(8f * density, ItemExamBinding.bind(holder.itemView).root.radius, 0.01f)
+        assertEquals(15f * density, ItemExamBinding.bind(holder.itemView).root.radius, 0.01f)
         measure(b.root)
         val outline = Outline()
         b.panelHomeBanner.outlineProvider.getOutline(b.panelHomeBanner, outline)
-        assertEquals(18f * density, outline.radius, 0.01f)
+        assertEquals(36f * density, outline.radius, 0.01f)
         assertTrue(b.panelHomeBanner.clipToOutline)
         save(b.root, "home")
     }
@@ -178,7 +178,7 @@ class ApprovedUiRenderingTest {
         assertEquals(foreground, view.backgroundTintList!!.defaultColor)
         assertEquals(background, view.currentTextColor)
         assertEquals(0f, view.elevation, 0.01f)
-        assertEquals(dp(50), view.cornerRadius)
+        assertEquals(dp(24), view.cornerRadius)
     }
 
     private fun verifyMock() {
@@ -201,8 +201,8 @@ class ApprovedUiRenderingTest {
             0 -> PaletteState.ANSWERED; 1 -> PaletteState.MARKED; else -> PaletteState.UNATTEMPTED }, it == 0) })
         b.rvQuestionPalette.adapter = palette
         measure(b.root)
-        button(b.btnClear, 44, 13, 1)
-        button(b.btnMarkReview, 44, 13, 1)
+        button(b.btnClear, 48, 13, 1)
+        button(b.btnMarkReview, 48, 13, 1)
         button(b.btnPrev, 48, 14, 1)
         button(b.btnNext, 48, 14, 0)
         assertEquals(b.btnPrev.width, b.btnNext.width)
@@ -214,7 +214,7 @@ class ApprovedUiRenderingTest {
             return c.left - a.right
         }
         // Two independently rounded XML margins, not one combined dimension.
-        assertEquals(dp(4) + dp(4), gap(b.btnClear, b.btnMarkReview))
+        assertEquals(dp(6) + dp(6), gap(b.btnClear, b.btnMarkReview))
         assertEquals(dp(6) + dp(6), gap(b.btnPrev, b.btnNext))
         val navigationRow = b.btnPrev.parent.parent as View
         val actionRow = b.btnClear.parent.parent as View

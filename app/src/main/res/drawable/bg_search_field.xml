@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <solid android:color="@color/eve_surface_variant" />
+    <solid android:color="@color/eve_input_fill" />
+    <corners android:radius="16dp" />
     <stroke
         android:width="@dimen/eve_stroke_hairline"
-        android:color="@color/eve_separator" />
-    <corners android:radius="10dp" />
+        android:color="@color/eve_input_stroke" />
 </shape>

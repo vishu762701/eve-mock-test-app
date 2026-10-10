@@ -36,12 +36,12 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingHorizontal="20dp">
+                android:paddingHorizontal="16dp">
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/ivProfile"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:background="@drawable/bg_circle_translucent"
                     android:contentDescription="Profile"
                     android:padding="8dp"
@@ -152,7 +152,7 @@
             android:background="@color/eve_header_ink"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingHorizontal="14dp"
+            android:paddingHorizontal="16dp"
             android:visibility="gone">
 
             <ImageButton
@@ -166,22 +166,31 @@
                 android:src="@drawable/ic_back"
                 app:tint="@color/eve_header_ink_icon" />
 
-            <EditText
-                android:id="@+id/etSearch"
+            <LinearLayout
+                android:id="@+id/layoutSearchFieldContainer"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginStart="6dp"
-                android:layout_marginEnd="6dp"
+                android:layout_height="45dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:layout_weight="1"
-                android:background="@null"
-                android:fontFamily="sans-serif"
-                android:hint="Search exams..."
-                android:imeOptions="actionSearch"
-                android:inputType="text"
-                android:maxLines="1"
-                android:textColor="@color/eve_header_ink_text"
-                android:textColorHint="@color/eve_header_ink_secondary"
-                android:textSize="16sp" />
+                android:background="@drawable/bg_search_field"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp">
+
+                <EditText
+                    android:id="@+id/etSearch"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:fontFamily="sans-serif"
+                    android:hint="Search exams..."
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:textColor="@color/eve_header_ink_text"
+                    android:textColorHint="@color/eve_header_ink_secondary"
+                    android:textSize="15sp" />
+            </LinearLayout>
 
             <ImageButton
                 android:id="@+id/btnClearSearch"
@@ -304,9 +313,10 @@
             android:id="@+id/btnAdmin"
             style="@style/Widget.Eve.Button.Neutral"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
+            android:layout_height="66dp"
+            android:layout_marginHorizontal="16dp"
             android:layout_marginTop="12dp"
+            app:cornerRadius="18dp"
             android:text="Admin Dashboard"
             android:visibility="gone" />
 
@@ -321,8 +331,8 @@
                 android:id="@+id/chipGroupCategory"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 app:chipSpacingHorizontal="8dp"
                 app:singleLine="true"
                 app:singleSelection="true" />
@@ -339,7 +349,7 @@
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:layoutAnimation="@anim/layout_enter"
-                android:paddingHorizontal="20dp"
+                android:paddingHorizontal="16dp"
                 android:paddingBottom="96dp" />
 
         <!-- Upgrade 3: Telegram-style shimmer skeleton placeholder (LoadingDrawable pattern) -->

@@ -90,9 +90,12 @@ class EveLiquidGlassView @JvmOverloads constructor(
         clipToOutline = true
     }
 
+    private val squirclePath = Path()
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         rectF.set(0f, 0f, w.toFloat(), h.toFloat())
+        com.eve.app.util.SquircleHelper.buildSquirclePath(squirclePath, w.toFloat(), h.toFloat(), cornerRadiusPx)
         updateHighlightPath(w.toFloat(), h.toFloat())
         updateOutline()
     }
@@ -118,7 +121,7 @@ class EveLiquidGlassView @JvmOverloads constructor(
         } else {
             Color.argb(230, 255, 255, 255) // ~90% #FFFFFF
         }
-        canvas.drawRoundRect(rectF, cornerRadiusPx, cornerRadiusPx, fillPaint)
+        canvas.drawPath(squirclePath, fillPaint)
 
         // 2. Optical Hairline Rim
         strokePaint.color = if (isDark) {
@@ -126,14 +129,7 @@ class EveLiquidGlassView @JvmOverloads constructor(
         } else {
             Color.argb(31, 0, 0, 0) // 12% dark rim
         }
-        val halfStroke = strokePaint.strokeWidth / 2f
-        val strokeRect = RectF(
-            rectF.left + halfStroke,
-            rectF.top + halfStroke,
-            rectF.right - halfStroke,
-            rectF.bottom - halfStroke
-        )
-        canvas.drawRoundRect(strokeRect, cornerRadiusPx, cornerRadiusPx, strokePaint)
+        canvas.drawPath(squirclePath, strokePaint)
 
         // 3. Specular Top Highlight
         if (hasHighlight) {

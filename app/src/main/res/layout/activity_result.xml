@@ -173,9 +173,9 @@
                     <com.eve.app.ui.common.EveLiquidGlassView
                         android:id="@+id/cardResultHero"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        app:eveCornerRadius="@dimen/eve_radius_card"
+                        android:layout_height="124dp"
+                        android:layout_marginBottom="12dp"
+                        app:eveCornerRadius="28dp"
                         app:eveHasHighlight="true"
                         app:eveTactile="false">
 
@@ -433,11 +433,13 @@
                         android:id="@+id/cardPerformanceStanding"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:minHeight="144dp"
+                        android:layout_marginBottom="12dp"
                         android:clickable="true"
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackground"
                         app:cardBackgroundColor="@color/eve_card_bg"
-                        app:cardCornerRadius="@dimen/eve_radius_card"
+                        app:cardCornerRadius="28dp"
                         app:cardElevation="0dp"
                         app:strokeColor="@color/eve_separator"
                         app:strokeWidth="@dimen/eve_stroke_hairline">
@@ -525,39 +527,43 @@
                                     android:id="@+id/pillBatchPerformance"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
+                                    android:minHeight="40dp"
                                     android:layout_marginBottom="8dp"
                                     android:background="@drawable/bg_soft_pill"
+                                    android:gravity="center_vertical"
                                     android:orientation="vertical"
-                                    android:paddingHorizontal="12dp"
-                                    android:paddingVertical="8dp">
+                                    android:paddingHorizontal="10dp"
+                                    android:paddingVertical="4dp">
 
                                     <TextView
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:fontFamily="sans-serif-medium"
-                                        android:text="Batch Performance"
-                                        android:textColor="@color/eve_text"
-                                        android:textSize="12.5sp" />
+                                         android:layout_width="match_parent"
+                                         android:layout_height="wrap_content"
+                                         android:fontFamily="sans-serif-medium"
+                                         android:text="Batch Performance"
+                                         android:textColor="@color/eve_text"
+                                         android:textSize="12.5sp" />
 
                                     <TextView
-                                        android:id="@+id/tvTopperAvg"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="2dp"
-                                        android:fontFamily="sans-serif"
-                                        android:text="Topper: -- • Avg: --"
-                                        android:textColor="@color/eve_text_secondary"
-                                        android:textSize="12sp" />
+                                         android:id="@+id/tvTopperAvg"
+                                         android:layout_width="match_parent"
+                                         android:layout_height="wrap_content"
+                                         android:layout_marginTop="2dp"
+                                         android:fontFamily="sans-serif"
+                                         android:text="Topper: -- • Avg: --"
+                                         android:textColor="@color/eve_text_secondary"
+                                         android:textSize="12sp" />
                                 </LinearLayout>
 
                                 <LinearLayout
                                     android:id="@+id/pillHistoricalPerformance"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
+                                    android:minHeight="40dp"
                                     android:background="@drawable/bg_soft_pill"
+                                    android:gravity="center_vertical"
                                     android:orientation="vertical"
-                                    android:paddingHorizontal="12dp"
-                                    android:paddingVertical="8dp">
+                                    android:paddingHorizontal="10dp"
+                                    android:paddingVertical="4dp">
 
                                     <TextView
                                         android:layout_width="match_parent"
