@@ -180,3 +180,14 @@ Material layout override exposed by lint was replaced with public layout callbac
 no assertions or lint checks suppressed. Native execution follows the push in
 the existing API 35 gesture/three-button GitHub Actions jobs. Final delivery and
 CI results are reported in the execution response.
+
+## Native verification repair
+
+The first CI run compiled and passed build/lint/JVM/backend gates, but both native
+suites exposed two fixture assumptions: the new 360dp/420dpi navigation row has
+an odd available pixel count (414/415px weighted split), and an unattached View
+cannot synchronously execute its posted click callback. The width assertion now
+checks exact row conservation and a balanced integer allocation at the mandated
+viewport. The click assertion is retained in an attached existing debug Activity
+host and waits for the real UI queue. Production behavior was not changed to
+accommodate either test. Subsequent native results are in the execution response.

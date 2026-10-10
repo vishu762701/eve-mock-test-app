@@ -30,6 +30,44 @@ import org.junit.runner.RunWith
 /** Production inflation and binding across phone/tablet widths and accessibility text. */
 @RunWith(AndroidJUnit4::class)
 class ManualUiSpecificationTest {
+    @Test fun expandedCategoryTouchRegionsActivatePillsInBothThemes() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        androidx.test.core.app.ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            for (night in listOf(Configuration.UI_MODE_NIGHT_NO, Configuration.UI_MODE_NIGHT_YES)) {
+                val clicked = java.util.concurrent.atomic.AtomicBoolean(false)
+                lateinit var home: ActivityMainBinding
+                scenario.onActivity { activity ->
+                    val config = Configuration(activity.resources.configuration).apply {
+                        uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or night
+                        fontScale = 1f
+                    }
+                    val context = ContextThemeWrapper(activity.createConfigurationContext(config), R.style.Theme_Eve)
+                    home = ActivityMainBinding.inflate(LayoutInflater.from(context))
+                    home.chipGroupCategory.addView(HomeAppearance.categoryChip(context, "All", "All") { clicked.set(true) })
+                    activity.setContentView(home.root)
+                }
+                instrumentation.waitForIdleSync()
+                scenario.onActivity {
+                    val group = home.chipGroupCategory
+                    val chip = group.getChildAt(0)
+                    val density = group.resources.displayMetrics.density
+                    assertTrue(chip.isAttachedToWindow)
+                    assertTrue(group.height >= Math.round(48f * density))
+                    assertTrue("Event must be outside the visible pill", chip.top > 1f)
+                    val x = (chip.left + chip.right) / 2f
+                    val now = android.os.SystemClock.uptimeMillis()
+                    for (action in listOf(android.view.MotionEvent.ACTION_DOWN, android.view.MotionEvent.ACTION_UP)) {
+                        val event = android.view.MotionEvent.obtain(now, now, action, x, 1f, 0)
+                        try { assertTrue(group.dispatchTouchEvent(event)) } finally { event.recycle() }
+                    }
+                }
+                // View posts performClick on the UI handler. Let the attached window process it.
+                instrumentation.waitForIdleSync()
+                assertTrue("48dp delegated target must activate the visible pill in theme $night", clicked.get())
+            }
+        }
+    }
+
     @Test fun responsiveGeometryAndThemeReapplication() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         instrumentation.runOnMainSync {
@@ -58,8 +96,6 @@ class ManualUiSpecificationTest {
                     val chips = listOf("All", "Other", "बहुत लंबी हिंदी श्रेणी का नाम", "A category with an exceptionally long accessible label").map {
                         HomeAppearance.categoryChip(context, it, "All") {}
                     }
-                    var delegatedClick = false
-                    chips[0].setOnClickListener { delegatedClick = true }
                     chips.forEach { home.chipGroupCategory.addView(it) }
                     layout(home.root)
                     assertEquals(dp(width - 32), home.panelHomeBanner.width)
@@ -86,13 +122,6 @@ class ManualUiSpecificationTest {
                         assertEquals(chip.text.toString(), chip.contentDescription.toString())
                     }
                     for (i in 1 until chips.size) assertEquals(dp(8), chips[i].left - chips[i-1].right)
-                    val now = android.os.SystemClock.uptimeMillis()
-                    val x = (chips[0].left + chips[0].right) / 2f
-                    for (action in listOf(android.view.MotionEvent.ACTION_DOWN, android.view.MotionEvent.ACTION_UP)) {
-                        val event = android.view.MotionEvent.obtain(now, now, action, x, if (chips[0].height < dp(48)) 1f else chips[0].top + 1f, 0)
-                        try { home.chipGroupCategory.dispatchTouchEvent(event) } finally { event.recycle() }
-                    }
-                    assertTrue("48dp delegated target must activate the visible pill", delegatedClick)
                     val result = ActivityResultBinding.inflate(LayoutInflater.from(context))
                     ResultTabs.bind(result) {}
                     layout(result.root)

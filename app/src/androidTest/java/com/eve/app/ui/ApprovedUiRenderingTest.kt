@@ -205,7 +205,15 @@ class ApprovedUiRenderingTest {
         button(b.btnMarkReview, 48, 13, 1)
         button(b.btnPrev, 48, 14, 1)
         button(b.btnNext, 48, 14, 0)
-        assertEquals(b.btnPrev.width, b.btnNext.width)
+        // At the required 360dp viewport the weighted row can have an odd pixel
+        // available at 420dpi: preserve the total width and split it evenly.
+        val previousHost = b.btnPrev.parent as View
+        val nextHost = b.btnNext.parent as View
+        assertEquals(previousHost.width, b.btnPrev.width)
+        assertEquals(nextHost.width, b.btnNext.width)
+        assertTrue(kotlin.math.abs(previousHost.width - nextHost.width) <= 1)
+        assertEquals((previousHost.parent as View).width,
+            previousHost.width + nextHost.width + (nextHost.left - previousHost.right))
         assertEquals(dp(16), b.layoutBottomBar.paddingStart)
         assertEquals(dp(16), b.layoutBottomBar.paddingEnd)
         assertEquals(dp(20), b.layoutBottomBar.paddingTop)
