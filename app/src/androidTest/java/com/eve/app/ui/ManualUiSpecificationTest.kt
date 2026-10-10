@@ -233,15 +233,23 @@ class ManualUiSpecificationTest {
                     visit(styled)
                     if (font == 1f && width == 360) {
                         val replies = com.eve.app.ui.admin.PostRepliesAdapter({}, {})
-                        val holder = replies.onCreateViewHolder(FrameLayout(context), 0)
-                        val button = com.eve.app.databinding.ItemPostReplyBinding.bind(holder.itemView).btnMarkRead
+                        val replyHolder = replies.onCreateViewHolder(FrameLayout(context), 0)
+                        val button = com.eve.app.databinding.ItemPostReplyBinding.bind(replyHolder.itemView).btnMarkRead
                         for (read in listOf(true, false, true)) {
-                            holder.bind(com.eve.app.data.model.FeedbackPostReply(read = read))
+                            replyHolder.bind(com.eve.app.data.model.FeedbackPostReply(read = read))
                             assertEquals(1f, button.alpha, 0f)
                             assertEquals(!read, button.isEnabled)
                             assertEquals(dp(1), button.strokeWidth)
                             assertEquals(border, button.strokeColor!!.getColorForState(button.drawableState, 0))
                             assertEquals(if (read) 128 else 255, Color.alpha(button.currentTextColor))
+                        }
+                        val toggle = com.google.android.material.materialswitch.MaterialSwitch(context)
+                        for (enabled in listOf(true, false, true)) for (checked in listOf(false, true, false)) {
+                            toggle.isEnabled = enabled
+                            toggle.isChecked = checked
+                            assertEquals(if (checked) Color.TRANSPARENT else border,
+                                toggle.trackDecorationTintList!!.getColorForState(toggle.drawableState, 0))
+                            assertEquals(255, toggle.trackDecorationDrawable!!.alpha)
                         }
                     }
                     val inheritedCard = com.google.android.material.card.MaterialCardView(context)

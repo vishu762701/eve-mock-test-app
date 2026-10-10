@@ -39,6 +39,13 @@ class ManualBorderInventoryTest {
     }
 
     @Test fun exactColorsAndIntentionalBorderlessSurfaces() {
+        val switchOutline = elements(File(res, "drawable/eve_switch_track_outline.xml")).first { it.tagName == "path" }
+        assertEquals("1", switchOutline.getAttribute("android:strokeWidth"))
+        assertEquals("@color/eve_shape_border", switchOutline.getAttribute("android:strokeColor"))
+        val switchStates = elements(File(res, "color/selector_switch_outline.xml")).filter { it.tagName == "item" }
+        assertEquals("@android:color/transparent", switchStates.first().getAttribute("android:color"))
+        assertEquals("true", switchStates.first().getAttribute("android:state_checked"))
+        assertEquals("@color/eve_shape_border", switchStates.last().getAttribute("android:color"))
         for ((qualifier, expected) in listOf("values" to "#FF000000", "values-night" to "#FFFFFFFF")) {
             val color = elements(File(res, "$qualifier/manual_ui_colors.xml")).first { it.getAttribute("name") == "eve_shape_border" }
             assertEquals(expected, color.textContent)

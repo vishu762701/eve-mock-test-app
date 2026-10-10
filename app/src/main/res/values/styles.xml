@@ -194,6 +194,11 @@
         <item name="android:textAllCaps">false</item>
     </style>
 
+    <style name="Widget.Eve.MaterialSwitch" parent="Widget.Material3.CompoundButton.MaterialSwitch">
+        <item name="trackDecoration">@drawable/eve_switch_track_outline</item>
+        <item name="trackDecorationTint">@color/selector_switch_outline</item>
+    </style>
+
     <style name="TextAppearance.Eve.ResultTabSegment" parent="TextAppearance.Eve.TabSegment">
         <item name="android:textSize">13sp</item>
     </style>

@@ -31,6 +31,7 @@
         <item name="textAppearanceLabelMedium">@style/TextAppearance.Eve.M3.LabelMedium</item>
         <item name="textAppearanceLabelSmall">@style/TextAppearance.Eve.M3.LabelSmall</item>
         <item name="materialButtonStyle">@style/Widget.Eve.Button</item>
+        <item name="materialSwitchStyle">@style/Widget.Eve.MaterialSwitch</item>
         <item name="textInputStyle">@style/Widget.Eve.TextInput.Filled</item>
         <item name="chipStyle">@style/Widget.Eve.AssistChip</item>
         <item name="materialCardViewStyle">@style/Widget.Eve.Card</item>

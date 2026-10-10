@@ -188,18 +188,6 @@ class RepairRegressionTest {
                 // SystemUI has observed its appearance after a nav-mode overlay swap.
                 screenshot("mock-screen-initial-light")
                 for (dark in listOf(true, false)) {
-                    // On API 35 emulators with 3-button navigation, SystemUI has a known
-                    // platform bug (Google Issue 346386744) where navigation bar icon
-                    // colors only update upon system-level night mode changes.
-                    // Synchronize the emulator system uiMode so SystemUI updates icon tone.
-                    if (InstrumentationRegistry.getArguments().getString("navigationMode") == "three-button") {
-                        runShell("cmd uimode night " + if (dark) "yes" else "no")
-                        // UiModeManager returns before its configuration recreation finishes.
-                        // Do not start the app capture transaction on an Activity being replaced
-                        // by this emulator-only SystemUI workaround.
-                        instrumentation.uiAutomation.waitForIdle(500, 5000)
-                        instrumentation.waitForIdleSync()
-                    }
                     scenario.onActivity {
                         ThemeSwitchAnimator.animate(it, it.window.decorView, dark)
                         ThemeSwitchAnimator.animate(it, it.window.decorView, !dark) // Rapid second tap is ignored.
@@ -219,6 +207,15 @@ class RepairRegressionTest {
                         if (!ready) Thread.sleep(50)
                     }
                     assertTrue("Theme recreation did not settle ($failureDiag)", ready)
+                    // API 35 three-button SystemUI icon tone requires system night mode
+                    // synchronization (Google Issue 346386744). Do this AFTER the app's
+                    // reveal settles: changing system mode beforehand can asynchronously
+                    // replace the source Activity during its capture preparation.
+                    if (InstrumentationRegistry.getArguments().getString("navigationMode") == "three-button") {
+                        runShell("cmd uimode night " + if (dark) "yes" else "no")
+                        instrumentation.uiAutomation.waitForIdle(500, 5000)
+                        instrumentation.waitForIdleSync()
+                    }
                     scenario.onActivity { activity ->
                         captureWindow = activity.window
                         val night = activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES

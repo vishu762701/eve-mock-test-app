@@ -216,3 +216,22 @@ stroke. Both now retain alpha 1 with the same half-opacity disabled label instea
 enabled/click behavior remains unchanged. Native reply holder tests exercise
 read→unread→read recycling and assert 1dp opaque outlines with dimmed labels.
 Borderless download/reorder/delete-icon alpha and transition fades remain unchanged.
+
+Material 1.12 dependency inspection additionally identified `MaterialSwitch`'s
+unchecked track decoration: a 2dp vector path outline, tinted gray/translucent
+when disabled. This is a control border rather than icon artwork. Both themes
+now inherit `Widget.Eve.MaterialSwitch`, retaining its exact 52×32dp path, native
+thumb/track fills and animation, replacing only outline width with 1dp and
+unchecked/disabled tint with `eve_shape_border`. Checked outlines stay transparent
+as in the library baseline. `eve_switch_track_outline.xml` and
+`selector_switch_outline.xml` are covered by JVM inventory and native inherited
+checked/unchecked/enabled/disabled assertions. Covered MaterialSwitch users:
+Admin, App Config, Manage Premium and manual premium grant dialog. Legacy
+SwitchMaterial artwork has no such decorative outline and remains unchanged.
+
+The gesture suite passed after narrowing the SystemUI workaround. Three-button
+still exposed the same source-recreation race despite accessibility-idle waiting:
+UiModeManager configuration propagation can outlive that idle point. The workaround
+now runs after the app reveal has settled and before verifying/capturing system-bar
+appearance. It cannot replace the source during app capture, and all original
+reveal, retained-answer, overlay cleanup and bar-appearance assertions remain.
