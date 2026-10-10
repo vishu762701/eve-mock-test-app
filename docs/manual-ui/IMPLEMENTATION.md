@@ -199,3 +199,12 @@ new matrix: GradientDrawable inflates its 35dp radius through pixel-size roundin
 the exact native XML dp conversion. Added attached Home hardware screenshots and
 text-ink assertions after a committed frame; software Canvas captures alone cannot
 establish centered horizontally scrolling Chip text before a real pre-draw.
+
+The full matrix and attached Home text check passed in both navigation modes;
+three-button passed all 25 tests. Gesture exposed an existing fixture race: the
+three-button-only SystemUI `cmd uimode` workaround also ran in gesture mode and
+asynchronously recreated the source Activity during app capture, correctly causing
+`source_stopped_during_preparation` cancellation. Restricted that workaround to
+its documented navigation mode and wait for system accessibility/UI idle before
+starting app capture there. All state/reveal/system-bar assertions remain intact;
+production theme code is unchanged. Final rerun results are in the execution report.
