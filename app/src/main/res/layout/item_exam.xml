@@ -95,7 +95,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:fontFamily="sans-serif"
-                android:textColor="@color/eve_text_secondary"
+                android:textColor="@color/eve_recovery_text_secondary"
                 android:textSize="13sp" />
         </LinearLayout>
     </RelativeLayout>

@@ -127,7 +127,7 @@
                     android:fontFamily="sans-serif-medium"
                     android:letterSpacing="0.04"
                     android:text="EVE"
-                    android:textColor="@color/eve_header_ink_secondary"
+                    android:textColor="@color/eve_recovery_text_secondary"
                     android:textSize="12sp" />
 
                 <TextView
