@@ -72,10 +72,19 @@ class DesignRecoveryTest {
                     }
                     val context = ContextThemeWrapper(instrumentation.targetContext.createConfigurationContext(config), R.style.Theme_Eve)
                     val inflater = LayoutInflater.from(context)
-                    val exam = com.eve.app.databinding.ItemExamBinding.inflate(inflater)
-                    assertTrue("Small Home metadata must remain readable in both themes",
-                        androidx.core.graphics.ColorUtils.calculateContrast(exam.tvExamTime.currentTextColor,
-                            context.getColor(R.color.eve_card_bg)) >= 4.5)
+                    val examAdapter = com.eve.app.ui.home.ExamAdapter({ _, _, _ -> })
+                    val examModel = com.eve.app.data.model.Exam(id = "metadata-contrast", examName = "Practice", category = "SSC")
+                    examAdapter.submit(listOf(com.eve.app.ui.home.HomeListItem.ExamRow(examModel, false),
+                        com.eve.app.ui.home.HomeListItem.ExamRow(examModel, true)))
+                    val examHolder = examAdapter.onCreateViewHolder(android.widget.FrameLayout(context), examAdapter.getItemViewType(0))
+                    val exam = com.eve.app.databinding.ItemExamBinding.bind(examHolder.itemView)
+                    for (position in listOf(0, 1, 0)) {
+                        examAdapter.onBindViewHolder(examHolder, position)
+                        assertTrue("Bound and recycled Home metadata must remain readable in both themes",
+                            androidx.core.graphics.ColorUtils.calculateContrast(exam.tvExamTime.currentTextColor,
+                                context.getColor(R.color.eve_card_bg)) >= 4.5)
+                    }
+                    examAdapter.onViewRecycled(examHolder)
                     val d = context.resources.displayMetrics.density
                     fun dp(value: Int) = Math.round(value * d)
                     fun layout(view: View, w: Int = width, h: Int = 1000, mode: Int = View.MeasureSpec.EXACTLY) {
