@@ -149,7 +149,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:textColor="@color/eve_grey"
+                    android:textColor="@color/eve_recovery_text_secondary"
                     android:textSize="13sp"
                     tools:text="student@gmail.com" />
 
@@ -166,7 +166,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="EVE ID: "
-                        android:textColor="@color/eve_grey"
+                        android:textColor="@color/eve_recovery_text_secondary"
                         android:textSize="13sp" />
 
                     <TextView
@@ -192,7 +192,7 @@
                         android:focusable="true"
                         android:padding="15dp"
                         android:src="@drawable/ic_copy"
-                        app:tint="@color/eve_grey" />
+                        app:tint="@color/eve_recovery_text_secondary" />
                 </LinearLayout>
 
                 <com.google.android.material.chip.Chip

@@ -133,10 +133,11 @@
                 <TextView
                     android:id="@+id/tvWelcome"
                     style="@style/TextAppearance.Eve.M3.HeadlineLarge"
+                    android:textSize="28sp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
-                    android:maxLines="2"
+                    android:maxLines="1"
                     android:text="Hi, Student"
                     android:textColor="@color/eve_header_ink_text"
                     android:textStyle="bold" />
@@ -157,8 +158,8 @@
 
             <ImageButton
                 android:id="@+id/btnSearchBack"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="@drawable/bg_circle_translucent"
                 android:stateListAnimator="@animator/press_scale"
                 android:contentDescription="Close search"
@@ -169,7 +170,7 @@
             <LinearLayout
                 android:id="@+id/layoutSearchFieldContainer"
                 android:layout_width="0dp"
-                android:layout_height="45dp"
+                android:layout_height="48dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_weight="1"
@@ -194,8 +195,8 @@
 
             <ImageButton
                 android:id="@+id/btnClearSearch"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="@drawable/bg_circle_translucent"
                 android:stateListAnimator="@animator/press_scale"
                 android:contentDescription="Clear search"
@@ -271,13 +272,13 @@
                     android:id="@+id/btnHomeBannerCta"
                     style="@style/Widget.Eve.Button.Neutral"
                     android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_height="48dp"
                     android:layout_gravity="bottom|end"
                     android:paddingVertical="0dp"
                     android:contentDescription="Open Home banner link"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:minHeight="40dp"
+                    android:minHeight="48dp"
                     android:paddingHorizontal="14dp"
                     android:textSize="15sp"
                     android:visibility="gone" />
@@ -384,7 +385,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:text="Loading exams…"
-                android:textColor="@color/eve_text_secondary"
+                android:textColor="@color/eve_recovery_text_secondary"
                 android:textSize="13sp" />
         </LinearLayout>
 
@@ -423,7 +424,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:gravity="center"
-                android:textColor="@color/eve_text_secondary"
+                android:textColor="@color/eve_recovery_text_secondary"
                 android:textSize="13sp" />
 
             <com.google.android.material.button.MaterialButton
@@ -541,7 +542,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="student@eve.app"
-                android:textColor="@color/eve_text_secondary"
+                android:textColor="@color/eve_recovery_text_secondary"
                 android:textSize="13sp" />
 
             <TextView
@@ -847,7 +848,7 @@
                 android:gravity="center"
                 android:lineSpacingExtra="3dp"
                 android:text="Eve Mock Test is currently undergoing scheduled maintenance. Please check back shortly."
-                android:textColor="@color/eve_text_secondary"
+                android:textColor="@color/eve_recovery_text_secondary"
                 android:textSize="14sp" />
 
             <com.google.android.material.button.MaterialButton
@@ -901,7 +902,7 @@
                 android:gravity="center"
                 android:lineSpacingExtra="3dp"
                 android:text="A newer version of Eve Mock Test is required to continue. Please update to the latest version for improved stability, questions, and security."
-                android:textColor="@color/eve_text_secondary"
+                android:textColor="@color/eve_recovery_text_secondary"
                 android:textSize="14sp" />
 
             <com.google.android.material.button.MaterialButton

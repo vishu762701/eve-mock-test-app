@@ -59,7 +59,7 @@
                     android:layout_marginTop="4dp"
                     android:fontFamily="sans-serif-medium"
                     android:text="Correct"
-                    android:textColor="@color/eve_status_success"
+                    android:textColor="@color/eve_tile_right_text"
                     android:textSize="13sp" />
             </LinearLayout>
             <ImageView
@@ -81,7 +81,7 @@
                 android:padding="12dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_report_flag_premium"
-                app:tint="@color/eve_text_secondary" />
+                app:tint="@color/eve_recovery_text_secondary" />
         </LinearLayout>
 
         <!-- 2. Question Text: Receives Primary Focus -->
@@ -320,7 +320,7 @@
             android:layout_marginTop="6dp"
             android:fontFamily="sans-serif-medium"
             android:lineSpacingExtra="3dp"
-            android:textColor="@color/eve_status_success"
+            android:textColor="@color/eve_tile_right_text"
             android:textSize="15sp" />
 
         <!-- Accuracy Stat Badge (% got this right) -->
@@ -345,7 +345,7 @@
                 android:layout_marginStart="6dp"
                 android:fontFamily="sans-serif-medium"
                 android:text="--% got this right"
-                android:textColor="@color/eve_text_secondary"
+                android:textColor="@color/eve_recovery_text_secondary"
                 android:textSize="13sp" />
         </LinearLayout>
 
@@ -364,7 +364,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="TIME ANALYSIS"
-                android:textColor="@color/eve_premium_text" />
+                android:textColor="@color/eve_recovery_text_secondary" />
 
             <!-- You Row -->
             <LinearLayout
@@ -414,7 +414,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
                     android:text="Avg"
-                    android:textColor="@color/eve_text_secondary"
+                    android:textColor="@color/eve_recovery_text_secondary"
                     android:textSize="13sp" />
 
                 <ProgressBar
@@ -432,7 +432,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
                     android:gravity="end"
-                    android:textColor="@color/eve_text_secondary"
+                    android:textColor="@color/eve_recovery_text_secondary"
                     android:textSize="13sp" />
             </LinearLayout>
 
@@ -541,7 +541,7 @@
                 android:layout_marginStart="6dp"
                 android:fontFamily="sans-serif-medium"
                 android:text="Report an issue with this question"
-                android:textColor="@color/eve_text_secondary"
+                android:textColor="@color/eve_recovery_text_secondary"
                 android:textSize="13.5sp" />
         </LinearLayout>
         </LinearLayout>

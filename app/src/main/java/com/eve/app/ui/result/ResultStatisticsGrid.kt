@@ -7,6 +7,8 @@ import android.widget.GridLayout
 
 /** Equal-width metrics fill the content area. Enlarged text gets fewer, wider columns. */
 class ResultStatisticsGrid @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : GridLayout(context, attrs) {
+    private var configuredColumns = UNDEFINED
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val density = resources.displayMetrics.density
         fun dp(value: Int) = Math.round(value * density)
@@ -20,12 +22,17 @@ class ResultStatisticsGrid @JvmOverloads constructor(context: Context, attrs: At
         }
         val tileWidth = ((available - gap * (columns - 1)) / columns).coerceAtLeast(0)
         val remainder = (available - gap * (columns - 1) - tileWidth * columns).coerceAtLeast(0)
-        // Clear old specs before changing columnCount on a responsive remeasure.
-        for (i in 0 until childCount) (getChildAt(i).layoutParams as LayoutParams).columnSpec = spec(UNDEFINED)
-        columnCount = columns
+        if (configuredColumns != columns) {
+            // setColumnCount validates the cached max index before invalidating it.
+            // Clear explicit specs and reset the axis before a narrower remeasure.
+            for (i in 0 until childCount) (getChildAt(i).layoutParams as LayoutParams).columnSpec = spec(UNDEFINED)
+            columnCount = UNDEFINED
+            columnCount = columns
+            configuredColumns = columns
+        }
         for (i in 0 until childCount) {
             val child = getChildAt(i)
-            child.minimumHeight = dp(96)
+            if (child.minimumHeight != dp(96)) child.minimumHeight = dp(96)
             val p = child.layoutParams as LayoutParams
             p.columnSpec = spec(i % columns)
             p.rowSpec = spec(i / columns, FILL)

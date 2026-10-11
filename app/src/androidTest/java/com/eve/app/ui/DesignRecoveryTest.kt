@@ -60,6 +60,23 @@ class DesignRecoveryTest {
                             text.layout.height <= text.height - text.compoundPaddingTop - text.compoundPaddingBottom)
                         for (line in 0 until text.lineCount) assertEquals(0, text.layout.getEllipsisCount(line))
                     }
+                    val home = com.eve.app.databinding.ActivityMainBinding.inflate(inflater)
+                    home.tvWelcome.text = "Hi, A very long accessible student name"
+                    home.panelHomeBanner.visibility = View.VISIBLE
+                    home.btnAdmin.visibility = View.VISIBLE
+                    home.layoutStreakPill.visibility = View.VISIBLE
+                    home.tvStreakSummary.text = "15-day streak"
+                    home.chipGroupCategory.addView(com.eve.app.ui.home.HomeAppearance.categoryChip(context, "All", "All") {})
+                    home.shimmerSkeletonHome.visibility = View.GONE
+                    home.rvExams.visibility = View.VISIBLE
+                    layout(home.root, width, 640)
+                    assertTrue("Home must retain a usable exam viewport at $width/$font", home.rvExams.height >= dp(48))
+                    // Release looping fixture artwork before the next configuration.
+                    home.flameStreakAnimation.visibility = View.GONE
+                    for (artwork in listOf(home.shimmerSkeletonHome, home.flameStreakAnimation)) {
+                        (artwork.javaClass.getDeclaredField("animator").apply { isAccessible = true }
+                            .get(artwork) as? android.animation.ValueAnimator)?.cancel()
+                    }
                     val result = ActivityResultBinding.inflate(inflater)
                     ResultTabs.bind(result) {}
                     result.btnReattempt.visibility = View.VISIBLE
@@ -116,7 +133,7 @@ class DesignRecoveryTest {
                     review.tvQuestionStatusLabel.text = "Unattempted / उत्तर नहीं दिया"
                     review.ivBookmark.visibility = View.VISIBLE
                     review.tvQ.text = "हिंदी और English ".repeat(20)
-                    layout(review.root, width - 32, 1000, View.MeasureSpec.AT_MOST)
+                    layout(review.root, width - 32, 0, View.MeasureSpec.UNSPECIFIED)
                     readable(review.tvQ); readable(review.tvQuestionNum); readable(review.tvQuestionStatusLabel)
                     assertTrue(review.ivReportQuestion.right <= (review.ivReportQuestion.parent as View).width)
                     assertTrue(review.ivReportQuestion.width >= dp(48))
@@ -144,7 +161,7 @@ class DesignRecoveryTest {
                 val config = Configuration(instrumentation.targetContext.resources.configuration).apply {
                     uiMode = uiMode and Configuration.UI_MODE_NIGHT_MASK.inv() or night
                     fontScale = 1f
-                    setLayoutDirection(java.util.Locale("ar"))
+                    setLayoutDirection(java.util.Locale.forLanguageTag("ar"))
                 }
                 val context = ContextThemeWrapper(instrumentation.targetContext.createConfigurationContext(config), R.style.Theme_Eve)
                 val result = ActivityResultBinding.inflate(LayoutInflater.from(context))
@@ -161,6 +178,12 @@ class DesignRecoveryTest {
                         assertTrue(grid.getChildAt(i).right <= grid.width)
                     }
                 }
+                for (surface in listOf(R.color.eve_recovery_surface, R.color.eve_bg, R.color.eve_card_bg)) {
+                    assertTrue("Secondary labels must meet 4.5:1",
+                        androidx.core.graphics.ColorUtils.calculateContrast(context.getColor(R.color.eve_recovery_text_secondary), context.getColor(surface)) >= 4.5)
+                }
+                assertTrue("Enabled input outlines must be distinguishable from the canvas",
+                    androidx.core.graphics.ColorUtils.calculateContrast(context.getColor(R.color.eve_recovery_input_border), context.getColor(R.color.eve_bg)) >= 3.0)
                 val accent = context.getColor(R.color.eve_recovery_accent)
                 for (background in listOf(R.color.eve_recovery_selected, R.color.eve_card_bg, R.color.eve_bg)) {
                     assertTrue("Interactive labels must meet 4.5:1 in both themes",
@@ -171,8 +194,38 @@ class DesignRecoveryTest {
         }
     }
 
+    @Test fun reviewAnswerBadgesRemainReadableWhenCollapsedExpandedAndRecycled() {
+        instrumentation.runOnMainSync {
+            for (night in listOf(Configuration.UI_MODE_NIGHT_NO, Configuration.UI_MODE_NIGHT_YES)) {
+                val config = Configuration(instrumentation.targetContext.resources.configuration).apply {
+                    uiMode = uiMode and Configuration.UI_MODE_NIGHT_MASK.inv() or night
+                }
+                val context = ContextThemeWrapper(instrumentation.targetContext.createConfigurationContext(config), R.style.Theme_Eve)
+                val adapter = com.eve.app.ui.result.AnswerAdapter()
+                val item = com.eve.app.data.model.AnswerItem(questionId = "recovery-review", number = 1,
+                    questionText = "A review question", selected = "B", selectedText = "Second", correct = "A", correctText = "First",
+                    optionA = "First", optionB = "Second", explanation = "Explanation")
+                adapter.submit(listOf(item))
+                val holder = adapter.onCreateViewHolder(android.widget.FrameLayout(context), 0)
+                val binding = ItemAnswerBinding.bind(holder.itemView)
+                fun contrast(text: TextView, background: Int) {
+                    assertTrue("Review text must remain readable in theme $night",
+                        androidx.core.graphics.ColorUtils.calculateContrast(text.currentTextColor, background) >= 4.5)
+                }
+                for (expanded in listOf(false, true, false)) {
+                    if (expanded) adapter.expandSolution(item.questionId) else adapter.resetExpandedSolutions()
+                    adapter.onBindViewHolder(holder, 0)
+                    val badges = if (expanded) listOf(binding.tvBadgeOptionA, binding.tvBadgeOptionB) else listOf(binding.tvBadgeOptionB)
+                    for (badge in badges) contrast(badge, (badge.background as android.graphics.drawable.GradientDrawable).color!!.defaultColor)
+                    contrast(binding.tvQuestionStatusLabel, context.getColor(R.color.eve_card_bg))
+                    if (expanded) contrast(binding.tvCorrectAnswer, context.getColor(R.color.eve_card_bg))
+                }
+            }
+        }
+    }
+
     @androidx.test.filters.SdkSuppress(minSdkVersion = 29)
-    @Test fun attachedProfileAndSheetRenderAndSaveSelectionInBothThemes() {
+    @Test fun attachedScreensAndSheetRenderAndSaveSelectionInBothThemes() {
         val context = instrumentation.targetContext
         val themePrefs = context.getSharedPreferences(ThemeManager.PREFS, 0)
         val hadTheme = themePrefs.contains(ThemeManager.KEY_DARK_MODE)
@@ -203,6 +256,104 @@ class DesignRecoveryTest {
                     }
                     instrumentation.waitForIdleSync()
                     capture("profile", dark, profile.root, scenario)
+                    lateinit var result: ActivityResultBinding
+                    scenario.onActivity { activity ->
+                        result = ActivityResultBinding.inflate(activity.layoutInflater)
+                        ResultTabs.bind(result) {}
+                        result.tvScore.text = "78 / 100"
+                        result.tvScorePercentage.text = "78.0% Score"
+                        result.tvCorrectCount.text = "82"
+                        result.tvWrongCount.text = "16"
+                        result.tvUnattemptedCount.text = "2"
+                        result.tvAccuracy.text = "83.7%"
+                        result.tvRank.text = "126 / 4,800"
+                        result.tvPercentile.text = "97.4%"
+                        result.tvLeaderboardTabRank.text = "126 / 4,800"
+                        result.tvLeaderboardScoreChip.text = "Score: 78"
+                        result.tvLeaderboardPercentileChip.text = "Percentile: 97.4%"
+                        activity.setContentView(result.root)
+                    }
+                    instrumentation.waitForIdleSync()
+                    capture("result-overview", dark, result.root, scenario)
+                    scenario.onActivity { activity ->
+                        result.tabLayoutResult.getTabAt(1)!!.select()
+                        result.layoutEmptyFilter.visibility = View.GONE
+                        result.rvAnswers.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(activity)
+                        result.rvAnswers.itemAnimator = null
+                        result.rvAnswers.adapter = com.eve.app.ui.result.AnswerAdapter().apply {
+                            val item = com.eve.app.data.model.AnswerItem(questionId = "render-review", number = 1,
+                                questionText = "भारत की राजधानी कौन सी है? / What is the capital of India?",
+                                selected = "B", selectedText = "Mumbai", correct = "A", correctText = "New Delhi",
+                                optionA = "नई दिल्ली / New Delhi", optionB = "मुंबई / Mumbai", optionC = "चेन्नई / Chennai", optionD = "कोलकाता / Kolkata",
+                                explanation = "New Delhi is the capital of India.")
+                            submit(listOf(item))
+                            expandSolution(item.questionId)
+                        }
+                    }
+                    instrumentation.waitForIdleSync()
+                    capture("result-review", dark, result.root, scenario)
+                    scenario.onActivity { result.tabLayoutResult.getTabAt(2)!!.select() }
+                    instrumentation.waitForIdleSync()
+                    capture("result-leaderboard", dark, result.root, scenario)
+                    lateinit var home: com.eve.app.databinding.ActivityMainBinding
+                    scenario.onActivity { activity ->
+                        home = com.eve.app.databinding.ActivityMainBinding.inflate(activity.layoutInflater)
+                        home.tvWelcome.text = "Hi, Aarti"
+                        home.panelHomeBanner.visibility = View.VISIBLE
+                        com.eve.app.ui.home.HomeAppearance.clipBanner(home.panelHomeBanner)
+                        val poster = Bitmap.createBitmap(640, 320, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.rgb(182, 213, 253)) }
+                        val bytes = java.io.ByteArrayOutputStream().also { poster.compress(Bitmap.CompressFormat.PNG, 100, it) }.toByteArray()
+                        poster.recycle()
+                        home.vpHomeBanners.adapter = com.eve.app.ui.home.HomeBannerAdapter().apply {
+                            submitList(listOf(com.eve.app.data.model.HomeBanner(id = "local-render-fixture",
+                                imageUrl = "data:image/png;base64," + android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP))))
+                        }
+                        home.btnHomeBannerCta.visibility = View.VISIBLE
+                        home.btnHomeBannerCta.text = "Explore practice"
+                        home.layoutStreakPill.visibility = View.VISIBLE
+                        home.tvStreakSummary.text = "15-day streak"
+                        home.btnAdmin.visibility = View.VISIBLE
+                        com.eve.app.ui.home.HomeAppearance.categories(listOf("SSC", "Banking", "Other")).forEach { name ->
+                            home.chipGroupCategory.addView(com.eve.app.ui.home.HomeAppearance.categoryChip(activity, name, "All") {})
+                        }
+                        home.shimmerSkeletonHome.visibility = View.GONE
+                        home.rvExams.visibility = View.VISIBLE
+                        home.rvExams.layoutAnimation = null
+                        home.rvExams.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(activity)
+                        home.rvExams.adapter = com.eve.app.ui.home.ExamAdapter({ _, _, _ -> }).apply {
+                            submit(List(4) { i -> com.eve.app.ui.home.HomeListItem.ExamRow(
+                                com.eve.app.data.model.Exam(id = "render-exam-$i", examName = "Practice test ${i + 1}", category = "SSC"), false) })
+                        }
+                        val frame = android.widget.FrameLayout(activity).apply {
+                            setBackgroundColor(activity.getColor(R.color.eve_bg))
+                            addView(home.root, android.widget.FrameLayout.LayoutParams(Math.round(360f * resources.displayMetrics.density),
+                                ViewGroup.LayoutParams.MATCH_PARENT, android.view.Gravity.CENTER_HORIZONTAL))
+                        }
+                        activity.setContentView(frame)
+                    }
+                    instrumentation.waitForIdleSync()
+                    capture("home-360dp", dark, home.root, scenario)
+                    scenario.onActivity {
+                        assertTrue(home.btnHomeBannerCta.height >= Math.round(48f * home.root.resources.displayMetrics.density))
+                        assertTrue(home.rvExams.height >= Math.round(48f * home.root.resources.displayMetrics.density))
+                    }
+                    val bannerPosition = IntArray(2)
+                    var canvasColor = 0
+                    var bannerWidth = 0
+                    var bannerHeight = 0
+                    scenario.onActivity {
+                        home.panelHomeBanner.getLocationOnScreen(bannerPosition)
+                        canvasColor = it.getColor(R.color.eve_bg)
+                        bannerWidth = home.panelHomeBanner.width
+                        bannerHeight = home.panelHomeBanner.height
+                    }
+                    val bannerScreenshot = instrumentation.uiAutomation.takeScreenshot()!!
+                    try {
+                        assertEquals("Banner image must be clipped at its corner", canvasColor,
+                            bannerScreenshot.getPixel(bannerPosition[0] + 1, bannerPosition[1] + 1))
+                        assertNotEquals("The actual pager image must render", canvasColor,
+                            bannerScreenshot.getPixel(bannerPosition[0] + bannerWidth / 2, bannerPosition[1] + bannerHeight / 2))
+                    } finally { bannerScreenshot.recycle() }
                     lateinit var dialog: BottomSheetDialog
                     var saved: Set<String>? = null
                     val exams = List(25) { com.eve.app.data.model.Exam(id = "recovery-fixture-$it", examName = "Target exam $it — प्रतियोगी परीक्षा") }
@@ -219,8 +370,11 @@ class DesignRecoveryTest {
                         root.fullScroll(View.FOCUS_DOWN)
                     }
                     instrumentation.waitForIdleSync()
+                    capture("target-exams-footer", dark, root, scenario)
                     scenario.onActivity {
-                        assertTrue("Footer must be reachable by scrolling", sheet.btnContinue.getGlobalVisibleRect(android.graphics.Rect()))
+                        val visible = android.graphics.Rect()
+                        assertTrue("Footer must be reachable by scrolling", sheet.btnContinue.getGlobalVisibleRect(visible))
+                        assertEquals("Entire Continue button must fit above system navigation", sheet.btnContinue.height, visible.height())
                         sheet.btnContinue.performClick()
                         assertNotNull(saved)
                         assertTrue(saved!!.contains(exams.first { it.examName == (sheet.chipGroupExams.getChildAt(0) as Chip).text.toString() }.id))

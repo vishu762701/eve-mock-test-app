@@ -362,7 +362,7 @@ class ApprovedUiRenderingTest {
             }
             val colors = b.tabLayoutResult.tabTextColors!!
             assertEquals(context.getColor(R.color.eve_recovery_accent), colors.getColorForState(intArrayOf(android.R.attr.state_selected), 0))
-            assertEquals(context.getColor(R.color.eve_text_secondary), colors.defaultColor)
+            assertEquals(context.getColor(R.color.eve_recovery_text_secondary), colors.defaultColor)
             save(b.root, "result-${name.lowercase()}")
         }
     }

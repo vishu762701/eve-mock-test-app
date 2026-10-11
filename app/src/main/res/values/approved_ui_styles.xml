@@ -20,7 +20,7 @@
         <item name="backgroundTint">@color/eve_test_button_bg</item>
         <item name="cornerRadius">24dp</item>
         <item name="strokeWidth">1dp</item>
-        <item name="strokeColor">@color/eve_shape_border</item>
+        <item name="strokeColor">@color/eve_test_shape_border</item>
     </style>
     <style name="Widget.Eve.ApprovedTestNavigation" parent="Widget.Eve.ApprovedTestAction">
         <item name="android:textSize">14sp</item>

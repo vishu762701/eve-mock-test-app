@@ -6,4 +6,6 @@
     <color name="eve_test_shape_border">#FFFFFFFF</color>
     <color name="eve_recovery_accent">#72B2FF</color>
     <color name="eve_recovery_on_accent">#07172C</color>
+    <color name="eve_recovery_text_secondary">#AAB1BD</color>
+    <color name="eve_recovery_input_border">#667284</color>
 </resources>
