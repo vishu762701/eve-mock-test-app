@@ -48,7 +48,8 @@ class SharedDesignSystemTest {
                         button.shapeAppearanceModel.topLeftCornerSize.getCornerSize(bounds), 1f)
                     assertTrue(button.height >= dp(48))
                     assertNotNull("Controls retain native pressed feedback", button.rippleColor)
-                    assertTrue(android.graphics.Color.alpha(button.rippleColor!!.defaultColor) > 0)
+                    assertTrue(android.graphics.Color.alpha(button.rippleColor!!.getColorForState(
+                        intArrayOf(android.R.attr.state_enabled, android.R.attr.state_pressed), 0)) > 0)
                     assertTrue("Enabled control labels meet AA", ColorUtils.calculateContrast(
                         button.currentTextColor, ColorUtils.compositeColors(button.backgroundTintList!!.getColorForState(button.drawableState, 0), context.getColor(R.color.eve_canvas))) >= 4.5)
                 }
