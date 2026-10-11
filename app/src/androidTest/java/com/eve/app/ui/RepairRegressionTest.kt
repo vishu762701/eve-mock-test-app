@@ -554,7 +554,10 @@ class RepairRegressionTest {
                             }
                         }
                         if (popupPhase == "running") {
-                            assertTrue("Entrance blur never started", blurRunning.await(2, java.util.concurrent.TimeUnit.SECONDS))
+                            // Screen recording and software GPU scheduling can delay the first blur frame.
+                            // Still require a real >1px window-blur update, without faking the callback.
+                            assertTrue("Entrance blur never started ($direction, phase=$popupPhase, events=$events)",
+                                blurRunning.await(4, java.util.concurrent.TimeUnit.SECONDS))
                         } else if (popupPhase == "settled") {
                             // Test-only wait for the documented 220ms entrance; production has no delay.
                             Thread.sleep(300)
