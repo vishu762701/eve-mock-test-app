@@ -55,7 +55,7 @@ jobs:
         with:
           gradle-version: 8.7
 
-      - name: Verify native UI runner failure propagation
+      - name: Verify native UI runner and visual evidence contracts
         run: python3 -B -m unittest discover -s .github/scripts/tests -v
 
       - name: Build debug APK
@@ -110,6 +110,15 @@ jobs:
           profile: pixel_2
           disable-animations: false
           script: bash .github/scripts/verify-native-ui.sh ${{ matrix.navigation }}
+      - name: Generate visual gallery and XML review inventory
+        if: always()
+        run: |
+          python3 .github/scripts/eve_visual_review.py --captures ui-renderings --source app/src/main/res --output ui-renderings
+          echo "### Eve Visual Evidence" >> "$GITHUB_STEP_SUMMARY"
+          echo "The native UI artifact contains visual-review.html and visual-review.json alongside fixture screenshots." >> "$GITHUB_STEP_SUMMARY"
+      - name: Enforce complete theme evidence when native tests pass
+        if: success()
+        run: python3 .github/scripts/eve_visual_review.py --captures ui-renderings --source app/src/main/res --output ui-renderings --enforce
       - uses: actions/upload-artifact@v4
         if: always()
         with:
