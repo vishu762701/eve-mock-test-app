@@ -928,7 +928,7 @@
                     android:paddingTop="6dp"
                     android:paddingBottom="4dp">
 
-                    <LinearLayout
+                    <com.eve.app.ui.result.ResponsiveResultRow
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
@@ -936,6 +936,7 @@
                         android:paddingHorizontal="16dp">
 
                         <TextView
+                            android:id="@+id/tvReviewPaletteTitle"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -998,7 +999,7 @@
                                 android:textColor="@color/eve_recovery_text_secondary"
                                 android:textSize="12.5sp" />
                         </LinearLayout>
-                    </LinearLayout>
+                    </com.eve.app.ui.result.ResponsiveResultRow>
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rvResultPalette"

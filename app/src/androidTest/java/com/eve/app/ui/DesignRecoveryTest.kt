@@ -159,6 +159,19 @@ class DesignRecoveryTest {
                     assertTrue(profile.btnChangePhoto.width >= dp(48))
                     assertTrue(profile.btnSaveProfile.height >= dp(48))
                     assertEquals(0, profile.btnAbout.strokeWidth)
+                    result.tabLayoutResult.getTabAt(1)!!.select()
+                    layout(result.root, width, 640)
+                    readable(result.tvReviewPaletteTitle)
+                    assertEquals("Palette heading must not be squeezed by its legend at $width/$font", 1,
+                        result.tvReviewPaletteTitle.lineCount)
+                    val paletteHeader = result.tvReviewPaletteTitle.parent as ViewGroup
+                    val legend = paletteHeader.getChildAt(1) as ViewGroup
+                    for (i in 0 until legend.childCount) {
+                        val label = legend.getChildAt(i)
+                        assertTrue("Palette legend must stay inside its row at $width/$font", label.right <= legend.width)
+                        if (label is TextView) readable(label)
+                    }
+                    assertTrue("Review must retain a usable answer viewport", result.rvAnswers.height >= dp(48))
                     val review = ItemAnswerBinding.inflate(inflater)
                     review.tvQuestionNum.text = "Question 999"
                     review.tvQuestionStatusLabel.text = "Unattempted / उत्तर नहीं दिया"
