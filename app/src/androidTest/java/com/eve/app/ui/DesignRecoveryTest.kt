@@ -86,8 +86,9 @@ class DesignRecoveryTest {
                         }
                     }
                     fun readable(text: TextView) {
-                        assertNotNull(text.resources.getResourceEntryName(text.id), text.layout)
-                        assertTrue("Text height must fit ${text.resources.getResourceEntryName(text.id)} at $width/$font",
+                        val label = if (text.id == View.NO_ID) text.text.toString() else text.resources.getResourceEntryName(text.id)
+                        assertNotNull(label, text.layout)
+                        assertTrue("Text height must fit $label at $width/$font",
                             text.layout.height <= text.height - text.compoundPaddingTop - text.compoundPaddingBottom)
                         for (line in 0 until text.lineCount) assertEquals(0, text.layout.getEllipsisCount(line))
                     }
