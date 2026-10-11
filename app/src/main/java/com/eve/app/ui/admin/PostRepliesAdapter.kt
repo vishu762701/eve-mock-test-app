@@ -45,8 +45,9 @@ class PostRepliesAdapter(
 
             // Dimming the whole View would also make its decorative outline translucent.
             binding.btnMarkRead.alpha = 1f
-            val labelColor = androidx.core.content.ContextCompat.getColor(binding.root.context, com.eve.app.R.color.eve_text)
-            binding.btnMarkRead.setTextColor(androidx.core.graphics.ColorUtils.setAlphaComponent(labelColor, if (item.read) 128 else 255))
+            val labelColor = androidx.core.content.ContextCompat.getColor(binding.root.context,
+                if (item.read) com.eve.app.R.color.eve_disabled_text else com.eve.app.R.color.eve_text)
+            binding.btnMarkRead.setTextColor(labelColor)
             if (item.read) {
                 binding.btnMarkRead.text = "Read"
                 binding.btnMarkRead.isEnabled = false

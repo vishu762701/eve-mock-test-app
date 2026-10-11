@@ -132,7 +132,10 @@ Buttons retain the existing tactile animator and Material ripple; explicit
 disabled colours keep unavailable labels readable. Cards remain content surfaces,
 not additional glass controls.
 
-`values/themes.xml` owns shared M3 colour/typography/widget/dialog definitions.
+`values/themes.xml` owns shared M3 colour/typography/widget/dialog definitions,
+including the complete surface-container hierarchy and tertiary control fallback.
+Disabled Read labels retain their disabled behaviour and use opaque readable text,
+rather than fading text alpha on an outlined control.
 `values-night/themes.xml` supplies appearance-specific window flags and the dark
 bottom-sheet parent. The shared foundation eliminates duplicated Night widget
 styles. Historical Recovery resource names remain compatibility aliases/styles,

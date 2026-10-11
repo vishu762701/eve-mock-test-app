@@ -127,6 +127,7 @@ class ManualUiSpecificationTest {
                     }
                     val border = Color.parseColor(if (night == Configuration.UI_MODE_NIGHT_YES) "#3B3F4A" else "#D9DDE5")
                     assertEquals(border, context.getColor(R.color.eve_shape_border))
+                    val controlOutline = context.getColor(R.color.eve_control_outline)
                     val home = ActivityMainBinding.inflate(LayoutInflater.from(context))
                     home.panelHomeBanner.visibility = View.VISIBLE
                     HomeAppearance.clipBanner(home.panelHomeBanner)
@@ -253,14 +254,17 @@ class ManualUiSpecificationTest {
                             assertEquals(1f, button.alpha, 0f)
                             assertEquals(!read, button.isEnabled)
                             assertEquals(dp(1), button.strokeWidth)
-                            assertEquals(border, button.strokeColor!!.getColorForState(button.drawableState, 0))
-                            assertEquals(if (read) 128 else 255, Color.alpha(button.currentTextColor))
+                            assertEquals(controlOutline, button.strokeColor!!.getColorForState(button.drawableState, 0))
+                            assertEquals(255, Color.alpha(button.currentTextColor))
+                            assertEquals(context.getColor(if (read) R.color.eve_disabled_text else R.color.eve_text), button.currentTextColor)
+                            assertTrue(androidx.core.graphics.ColorUtils.calculateContrast(button.currentTextColor,
+                                context.getColor(R.color.eve_card_bg)) >= 4.5)
                         }
                         val toggle = com.google.android.material.materialswitch.MaterialSwitch(context)
                         for (enabled in listOf(true, false, true)) for (checked in listOf(false, true, false)) {
                             toggle.isEnabled = enabled
                             toggle.isChecked = checked
-                            assertEquals(if (checked) Color.TRANSPARENT else border,
+                            assertEquals(if (checked) Color.TRANSPARENT else controlOutline,
                                 toggle.trackDecorationTintList!!.getColorForState(toggle.drawableState, 0))
                             assertEquals(255, toggle.trackDecorationDrawable!!.alpha)
                         }
@@ -271,7 +275,8 @@ class ManualUiSpecificationTest {
                     val inherited = Chip(context)
                     assertEquals(density, inherited.chipStrokeWidth, 0.01f)
                     for (state in listOf(intArrayOf(), intArrayOf(android.R.attr.state_checked), intArrayOf(-android.R.attr.state_enabled))) {
-                        assertEquals(border, inherited.chipStrokeColor!!.getColorForState(state, 0))
+                        assertEquals(if (state.contains(android.R.attr.state_checked)) Color.TRANSPARENT else controlOutline,
+                            inherited.chipStrokeColor!!.getColorForState(state, 0))
                     }
                     // Offscreen fixtures never receive Android's detach callback. Release their
                     // looping artwork before inflating the next configuration.

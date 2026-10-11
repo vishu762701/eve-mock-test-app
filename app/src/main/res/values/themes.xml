@@ -25,6 +25,17 @@
         <item name="colorSurfaceVariant">@color/eve_secondary_system_background</item>
         <item name="colorSurfaceContainer">@color/eve_secondary_system_background</item>
         <item name="colorSurfaceContainerHigh">@color/eve_tertiary_system_background</item>
+        <item name="colorSurfaceContainerLowest">@color/eve_system_background</item>
+        <item name="colorSurfaceContainerLow">@color/eve_card_bg</item>
+        <item name="colorSurfaceContainerHighest">@color/eve_surface_variant</item>
+        <item name="colorSurfaceBright">@color/eve_tertiary_system_background</item>
+        <item name="colorSurfaceDim">@color/eve_system_grouped_background</item>
+        <item name="android:colorBackground">@color/eve_canvas</item>
+        <item name="colorOnBackground">@color/eve_label_primary</item>
+        <item name="colorTertiary">@color/eve_accent</item>
+        <item name="colorOnTertiary">@color/eve_on_primary</item>
+        <item name="colorTertiaryContainer">@color/eve_accent_container</item>
+        <item name="colorOnTertiaryContainer">@color/eve_on_accent_container</item>
         <item name="colorOutlineVariant">@color/eve_separator</item>
         <item name="colorControlActivated">@color/eve_primary</item>
         <item name="colorControlNormal">@color/eve_label_secondary</item>
