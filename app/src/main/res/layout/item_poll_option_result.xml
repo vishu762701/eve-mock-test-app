@@ -25,7 +25,7 @@
             android:id="@+id/tvOptionPercent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/eve_primary"
+            android:textColor="@color/eve_accent_text"
             android:textSize="13sp"
             tools:text="45%" />
     </LinearLayout>

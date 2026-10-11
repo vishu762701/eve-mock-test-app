@@ -8,4 +8,11 @@
     <declare-styleable name="ResponsiveResultRow">
         <attr name="eveHorizontalBreakpoint" format="dimension" />
     </declare-styleable>
+    <attr name="eveLabelPrimary" format="color" />
+    <attr name="eveLabelSecondary" format="color" />
+    <attr name="eveLabelTertiary" format="color" />
+    <attr name="eveLabelQuaternary" format="color" />
+    <attr name="eveAccentText" format="color" />
+    <attr name="eveControlOutline" format="color" />
+    <attr name="evePrimaryFill" format="color" />
 </resources>

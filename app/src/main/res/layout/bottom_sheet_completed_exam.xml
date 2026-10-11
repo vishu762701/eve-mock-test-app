@@ -43,7 +43,7 @@
         android:text="@string/view_my_result"
         app:icon="@drawable/ic_history"
         app:iconGravity="textStart"
-        app:iconTint="@color/eve_on_primary" />
+        app:iconTint="@color/eve_button_text" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnReattempt"

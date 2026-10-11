@@ -86,7 +86,7 @@
                 android:background="@drawable/bg_category_chip"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="2dp"
-                android:textColor="@color/eve_primary"
+                android:textColor="@color/eve_accent_text"
                 android:textSize="13sp"
                 tools:text="Target: All Users" />
         </LinearLayout>

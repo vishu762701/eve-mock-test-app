@@ -31,7 +31,7 @@
                 android:layout_weight="1"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textColor="@color/eve_primary"
+                android:textColor="@color/eve_accent_text"
                 android:textSize="14sp"
                 tools:text="SSC CGL Tier 1" />
 

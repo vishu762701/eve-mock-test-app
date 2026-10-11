@@ -126,7 +126,7 @@
                                 android:id="@+id/tvEmailValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textColor="@color/eve_primary"
+                                android:textColor="@color/eve_accent_text"
                                 android:textSize="14sp"
                                 tools:text="pronlike9@gmail.com" />
                         </LinearLayout>
@@ -177,7 +177,7 @@
                                 android:id="@+id/tvPhoneValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textColor="@color/eve_primary"
+                                android:textColor="@color/eve_accent_text"
                                 android:textSize="14sp"
                                 tools:text="+91 9876543210" />
                         </LinearLayout>
@@ -228,7 +228,7 @@
                                 android:id="@+id/tvWebsiteValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textColor="@color/eve_primary"
+                                android:textColor="@color/eve_accent_text"
                                 android:textSize="14sp"
                                 tools:text="https://vishu762701.github.io" />
                         </LinearLayout>

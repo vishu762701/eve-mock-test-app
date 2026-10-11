@@ -13,8 +13,10 @@ import com.eve.app.util.FontManager
 abstract class EveBaseActivity : AppCompatActivity() {
 
     private var activityFontVersion: Int = 0
+    private var highContrast = false
     override fun onCreate(savedInstanceState: Bundle?) {
         FontManager.apply(this)
+        highContrast = com.eve.app.util.DesignContrast.apply(this)
         activityFontVersion = FontManager.fontVersion
         androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
@@ -23,7 +25,9 @@ abstract class EveBaseActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (activityFontVersion != FontManager.fontVersion) {
+        if (activityFontVersion != FontManager.fontVersion ||
+            (highContrast != com.eve.app.util.DesignContrast.isHigh(this) &&
+                !com.eve.app.util.ThemeManager.isTransitioning)) {
             activityFontVersion = FontManager.fontVersion
             recreate()
         }

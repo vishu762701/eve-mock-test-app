@@ -122,7 +122,7 @@ class ExamTestsAdapter(
                 item.isResume -> {
                     binding.tvSubtitle.text = item.subtitle
                     binding.tvStatus.text = "Resume"
-                    binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.eve_primary))
+                    binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.eve_accent_text))
                     binding.cardContainer.setOnClickListener {
                         onTestClick(item.test, item.isCompleted)
                     }
@@ -130,7 +130,7 @@ class ExamTestsAdapter(
                 else -> {
                     binding.tvSubtitle.text = item.subtitle
                     binding.tvStatus.text = "Start"
-                    binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.eve_primary))
+                    binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.eve_accent_text))
                     binding.cardContainer.setOnClickListener {
                         onTestClick(item.test, item.isCompleted)
                     }

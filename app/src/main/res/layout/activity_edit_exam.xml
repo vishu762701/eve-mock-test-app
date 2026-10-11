@@ -74,7 +74,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Exam Information"
-                        android:textColor="@color/eve_primary"
+                        android:textColor="@color/eve_accent_text"
                         android:textSize="16sp" />
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -132,7 +132,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:text="Category Cutoffs (Optional)"
-                        android:textColor="@color/eve_primary"
+                        android:textColor="@color/eve_accent_text"
                         android:textSize="14sp" />
 
                     <LinearLayout
@@ -282,7 +282,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Questions (0)"
-                            android:textColor="@color/eve_primary"
+                            android:textColor="@color/eve_accent_text"
                             android:textSize="16sp" />
                     </LinearLayout>
 

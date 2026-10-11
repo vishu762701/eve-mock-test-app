@@ -72,7 +72,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Live Backend Controls"
-                        android:textColor="@color/eve_primary"
+                        android:textColor="@color/eve_accent_text"
                         android:textSize="16sp" />
 
                     <!-- Maintenance Mode Switch -->
@@ -213,7 +213,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
                         android:text="Test AI Connection"
-                        android:textColor="@color/eve_primary" />
+                        android:textColor="@color/eve_accent_text" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -238,7 +238,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Firebase Console Remote Config Guide"
-                        android:textColor="@color/eve_primary"
+                        android:textColor="@color/eve_accent_text"
                         android:textSize="15sp" />
 
                     <TextView

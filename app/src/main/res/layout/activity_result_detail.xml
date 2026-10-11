@@ -127,7 +127,7 @@
                             android:paddingHorizontal="12dp"
                             android:paddingVertical="4dp"
                             android:text="--% Score"
-                            android:textColor="@color/eve_primary"
+                            android:textColor="@color/eve_accent_text"
                             android:textSize="13sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -471,7 +471,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="Percentile: --%"
-                            android:textColor="@color/eve_primary"
+                            android:textColor="@color/eve_accent_text"
                             android:textSize="14sp"
                             android:textStyle="bold" />
 

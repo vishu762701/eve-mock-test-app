@@ -82,7 +82,7 @@
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="8dp"
                 android:text="Select all"
-                android:textColor="@color/eve_primary"
+                android:textColor="@color/eve_accent_text"
                 android:textSize="14sp" />
 
             <ImageButton

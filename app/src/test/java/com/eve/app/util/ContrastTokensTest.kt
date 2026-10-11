@@ -29,11 +29,16 @@ class ContrastTokensTest {
             val node = colorNodes.item(i)
             val name = node.attributes.getNamedItem("name")?.nodeValue
             val value = node.textContent?.trim()
-            if (name != null && value != null && value.startsWith("#")) {
+            if (name != null && value != null && (value.startsWith("#") || value.startsWith("@color/"))) {
                 map[name] = value
             }
         }
-        return map
+        fun resolve(name: String, seen: Set<String> = emptySet()): String {
+            check(name !in seen) { "Cyclic color: $name" }
+            val value = map.getValue(name)
+            return if (value.startsWith("@color/")) resolve(value.removePrefix("@color/"), seen + name) else value
+        }
+        return map.keys.associateWith { resolve(it) }
     }
 
     private fun parseHex(hex: String): Int {
@@ -265,39 +270,19 @@ class ContrastTokensTest {
     }
 
     @Test
-    fun testMonochromeAccentSystem_inLightAndDark() {
-        val lightColors = loadColors("src/main/res/values/colors.xml")
-        val darkColors = loadColors("src/main/res/values-night/colors.xml")
-
-        // Light Mode Monochrome Accents: Black accent surfaces with White text/icons
-        org.junit.Assert.assertEquals("#000000", lightColors["eve_primary"])
-        org.junit.Assert.assertEquals("#FFFFFF", lightColors["eve_on_primary"])
-        org.junit.Assert.assertEquals("#000000", lightColors["eve_button_primary_bg"])
-        org.junit.Assert.assertEquals("#FFFFFF", lightColors["eve_button_primary_text"])
-        org.junit.Assert.assertEquals("#000000", lightColors["eve_chip_selected_bg"])
-        org.junit.Assert.assertEquals("#FFFFFF", lightColors["eve_chip_selected_text"])
-        org.junit.Assert.assertEquals("#000000", lightColors["eve_tab_selected_bg"])
-        org.junit.Assert.assertEquals("#FFFFFF", lightColors["eve_tab_selected_text"])
-        org.junit.Assert.assertEquals("#000000", lightColors["eve_reattempt_bg"])
-        org.junit.Assert.assertEquals("#FFFFFF", lightColors["eve_reattempt_text"])
-
-        // Dark Mode Monochrome Accents: White accent surfaces with Black text/icons
-        org.junit.Assert.assertEquals("#FFFFFF", darkColors["eve_primary"])
-        org.junit.Assert.assertEquals("#000000", darkColors["eve_on_primary"])
-        org.junit.Assert.assertEquals("#FFFFFF", darkColors["eve_button_primary_bg"])
-        org.junit.Assert.assertEquals("#000000", darkColors["eve_button_primary_text"])
-        org.junit.Assert.assertEquals("#FFFFFF", darkColors["eve_chip_selected_bg"])
-        org.junit.Assert.assertEquals("#000000", darkColors["eve_chip_selected_text"])
-        org.junit.Assert.assertEquals("#FFFFFF", darkColors["eve_tab_selected_bg"])
-        org.junit.Assert.assertEquals("#000000", darkColors["eve_tab_selected_text"])
-        org.junit.Assert.assertEquals("#FFFFFF", darkColors["eve_reattempt_bg"])
-        org.junit.Assert.assertEquals("#000000", darkColors["eve_reattempt_text"])
-
-        // Contrast ratio must be 21:1 maximum accessibility contrast
-        val lightMonochromeContrast = contrastRatio(lightColors["eve_on_primary"]!!, lightColors["eve_primary"]!!)
-        val darkMonochromeContrast = contrastRatio(darkColors["eve_on_primary"]!!, darkColors["eve_primary"]!!)
-        assertTrue("Light monochrome accent contrast must be 21.0:1 (was $lightMonochromeContrast)", lightMonochromeContrast >= 20.9)
-        assertTrue("Dark monochrome accent contrast must be 21.0:1 (was $darkMonochromeContrast)", darkMonochromeContrast >= 20.9)
+    fun testAdaptiveBlueControlsHaveReadableText_inLightAndDark() {
+        for (qualifier in listOf("values", "values-night")) {
+            val colors = loadColors("src/main/res/$qualifier/colors.xml")
+            org.junit.Assert.assertEquals(if (qualifier == "values") "#007AFF" else "#0A84FF", colors["eve_system_blue"])
+            for ((fg, bg) in listOf("eve_on_primary" to "eve_primary",
+                "eve_button_primary_text" to "eve_button_primary_bg",
+                "eve_chip_selected_text" to "eve_chip_selected_bg",
+                "eve_tab_selected_text" to "eve_tab_selected_bg",
+                "eve_reattempt_text" to "eve_reattempt_bg")) {
+                val ratio = contrastRatio(colors.getValue(fg), colors.getValue(bg))
+                assertTrue("$qualifier $fg on $bg must be >= 4.5 (was $ratio)", ratio >= 4.5)
+            }
+        }
     }
 
     @Test

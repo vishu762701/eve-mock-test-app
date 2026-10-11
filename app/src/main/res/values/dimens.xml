@@ -5,7 +5,7 @@
     <dimen name="radius_sm">10dp</dimen>
     <dimen name="eve_radius_sm">10dp</dimen>
     <dimen name="eve_radius_tile_small">10dp</dimen>
-    <dimen name="eve_radius_input">10dp</dimen>
+    <dimen name="eve_radius_input">12dp</dimen>
 
     <!-- Medium controls: 14dp -->
     <dimen name="radius_md">14dp</dimen>
@@ -16,14 +16,15 @@
     <dimen name="radius_lg">20dp</dimen>
     <dimen name="eve_radius_lg">20dp</dimen>
     <dimen name="eve_radius_card">20dp</dimen>
-    <dimen name="eve_radius_tile">28dp</dimen>
+    <dimen name="eve_radius_tile">20dp</dimen>
 
     <!-- Large sheets / dialogs: 28dp -->
     <dimen name="radius_xl">28dp</dimen>
     <dimen name="eve_radius_xl">28dp</dimen>
     <dimen name="eve_radius_bottom_sheet">28dp</dimen>
 
-    <!-- Full pills & circles: 999dp -->
+    <!-- XML shape capsules: Android clamps this fallback to half the bounds.
+         Material controls use ShapeAppearance.Eve.Capsule (50%) instead. -->
     <dimen name="eve_radius_button">12dp</dimen>
     <dimen name="eve_radius_pill">999dp</dimen>
 
@@ -46,4 +47,8 @@
     <dimen name="eve_home_banner_height">160dp</dimen>
     <dimen name="eve_thin_material_blur_radius">12dp</dimen>
     <dimen name="target_exam_chip_icon_size">22dp</dimen>
+    <dimen name="eve_radius_menu">16dp</dimen>
+    <dimen name="eve_radius_segment_track">14dp</dimen>
+    <dimen name="eve_radius_segment_child">11dp</dimen>
+    <dimen name="eve_control_min_touch">48dp</dimen>
 </resources>

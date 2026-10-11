@@ -13,7 +13,7 @@ PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
 ANDROID = "{http://schemas.android.com/apk/res/android}"
 APP = "{http://schemas.android.com/apk/res-auto}"
 PAIRS = (
-    "home", "mock-test", "recovery-home-360dp", "recovery-profile",
+    "shared-components", "shared-components-high-contrast", "home", "mock-test", "recovery-home-360dp", "recovery-profile",
     "recovery-result-overview", "recovery-result-review",
     "recovery-result-leaderboard", "recovery-target-exams", "recovery-target-exams-footer",
 )

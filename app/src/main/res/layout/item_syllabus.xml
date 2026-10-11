@@ -31,7 +31,7 @@
                 android:background="@drawable/bg_circle_translucent"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="3dp"
-                android:textColor="@color/eve_primary"
+                android:textColor="@color/eve_accent_text"
                 android:textSize="12sp"
                 tools:text="Banking" />
 
@@ -104,7 +104,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:text="Open"
-                android:textColor="@color/eve_primary"
+                android:textColor="@color/eve_accent_text"
                 android:textSize="13sp"
                 android:visibility="gone" />
         </LinearLayout>

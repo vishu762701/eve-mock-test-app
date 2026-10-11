@@ -76,7 +76,7 @@
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="4dp"
                 android:text="📅 September 2026"
-                android:textColor="@color/eve_primary"
+                android:textColor="@color/eve_accent_text"
                 android:textSize="13sp" />
 
             <!-- Gemini AI Calls Card -->
@@ -109,7 +109,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="0"
-                        android:textColor="@color/eve_primary"
+                        android:textColor="@color/eve_accent_text"
                         android:textSize="32sp" />
 
                     <TextView

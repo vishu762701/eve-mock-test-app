@@ -2,7 +2,7 @@
 <resources>
     <!-- Base text appearance -->
     <style name="TextAppearance.Eve" parent="">
-        <item name="android:textColor">@color/eve_label_primary</item>
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
     </style>
@@ -15,7 +15,7 @@
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
         <item name="android:letterSpacing">-0.02</item>
-        <item name="android:textColor">@color/eve_label_primary</item>
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
     </style>
 
     <style name="TextAppearance.Eve.LargeTitle" parent="TextAppearance.Eve.Display" />
@@ -27,7 +27,7 @@
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
         <item name="android:letterSpacing">-0.015</item>
-        <item name="android:textColor">@color/eve_label_primary</item>
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
     </style>
 
     <!-- Title 2: 22sp, Bold -->
@@ -37,7 +37,7 @@
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
         <item name="android:letterSpacing">-0.01</item>
-        <item name="android:textColor">@color/eve_label_primary</item>
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
     </style>
 
     <!-- Title 3: 20sp, Semibold / Medium -->
@@ -45,7 +45,7 @@
         <item name="android:textSize">20sp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="fontFamily">sans-serif-medium</item>
-        <item name="android:textColor">@color/eve_label_primary</item>
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
     </style>
 
     <!-- Headline: 17sp, Semibold / Medium -->
@@ -53,7 +53,7 @@
         <item name="android:textSize">17sp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="fontFamily">sans-serif-medium</item>
-        <item name="android:textColor">@color/eve_label_primary</item>
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
     </style>
 
     <!-- Title: 22sp, Semibold / Bold -->
@@ -62,7 +62,7 @@
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="fontFamily">sans-serif-medium</item>
         <item name="android:letterSpacing">-0.01</item>
-        <item name="android:textColor">@color/eve_label_primary</item>
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
     </style>
 
     <!-- Body: 17sp, Regular -->
@@ -71,7 +71,7 @@
         <item name="android:textStyle">normal</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
-        <item name="android:textColor">@color/eve_label_primary</item>
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
     </style>
 
     <style name="TextAppearance.Eve.Subhead" parent="TextAppearance.Eve.Subheadline" />
@@ -82,7 +82,7 @@
         <item name="android:textStyle">normal</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
-        <item name="android:textColor">@color/eve_label_primary</item>
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
     </style>
 
     <!-- Subheadline: 15sp, Regular -->
@@ -91,7 +91,7 @@
         <item name="android:textStyle">normal</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
-        <item name="android:textColor">@color/eve_label_secondary</item>
+        <item name="android:textColor">?attr/eveLabelSecondary</item>
     </style>
 
     <!-- Footnote: 13sp, Regular -->
@@ -100,7 +100,7 @@
         <item name="android:textStyle">normal</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
-        <item name="android:textColor">@color/eve_label_secondary</item>
+        <item name="android:textColor">?attr/eveLabelSecondary</item>
     </style>
 
     <!-- Caption: 12sp, Regular (Apple secondaryLabel for high legibility) -->
@@ -109,7 +109,7 @@
         <item name="android:textStyle">normal</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
-        <item name="android:textColor">@color/eve_label_secondary</item>
+        <item name="android:textColor">?attr/eveLabelSecondary</item>
     </style>
 
     <!-- Caption 2: 11sp, Medium (Apple secondaryLabel for high legibility) -->
@@ -117,7 +117,7 @@
         <item name="android:textSize">11sp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="fontFamily">sans-serif-medium</item>
-        <item name="android:textColor">@color/eve_label_secondary</item>
+        <item name="android:textColor">?attr/eveLabelSecondary</item>
     </style>
 
     <!-- Existing Semantic Aliases for backward compatibility -->
@@ -127,7 +127,7 @@
         <item name="android:textStyle">bold</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
-        <item name="android:textColor">@color/eve_label_primary</item>
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
     </style>
 
     <!-- QuestionText: 17sp, Regular, lineSpacingMultiplier 1.25 -->
@@ -135,7 +135,7 @@
         <item name="android:textSize">17sp</item>
         <item name="android:textStyle">normal</item>
         <item name="android:lineSpacingMultiplier">1.25</item>
-        <item name="android:textColor">@color/eve_label_primary</item>
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
     </style>
@@ -145,7 +145,7 @@
         <item name="android:textSize">17sp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="fontFamily">sans-serif-medium</item>
-        <item name="android:textColor">@color/eve_label_primary</item>
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
     </style>
 
     <!-- Button: 15sp, Medium -->
@@ -153,7 +153,7 @@
         <item name="android:textSize">15sp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="fontFamily">sans-serif-medium</item>
-        <item name="android:textColor">@color/eve_label_primary</item>
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
     </style>
 
     <!-- BodySmall: 14sp, Regular -->
@@ -162,7 +162,7 @@
         <item name="android:textStyle">normal</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
-        <item name="android:textColor">@color/eve_label_secondary</item>
+        <item name="android:textColor">?attr/eveLabelSecondary</item>
     </style>
 
     <!-- Overline: 12sp, Medium, ALL CAPS, letterSpacing 0.06 -->
@@ -172,44 +172,51 @@
         <item name="android:letterSpacing">0.06</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="fontFamily">sans-serif-medium</item>
-        <item name="android:textColor">@color/eve_label_secondary</item>
+        <item name="android:textColor">?attr/eveLabelSecondary</item>
     </style>
 
     <style name="TextAppearance.Eve.Overline.Secondary" parent="TextAppearance.Eve.Overline">
-        <item name="android:textColor">@color/eve_label_secondary</item>
+        <item name="android:textColor">?attr/eveLabelSecondary</item>
     </style>
 
     <!-- M3 Typography overrides (Clean sans-serif stack) -->
-    <style name="TextAppearance.Eve.M3.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item><item name="android:textStyle">bold</item></style>
-    <style name="TextAppearance.Eve.M3.DisplayMedium" parent="TextAppearance.Material3.DisplayMedium"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item><item name="android:textStyle">bold</item></style>
-    <style name="TextAppearance.Eve.M3.DisplaySmall" parent="TextAppearance.Material3.DisplaySmall"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item><item name="android:textStyle">bold</item></style>
-    <style name="TextAppearance.Eve.M3.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge"><item name="android:fontFamily">sans-serif-medium</item><item name="fontFamily">sans-serif-medium</item></style>
-    <style name="TextAppearance.Eve.M3.HeadlineMedium" parent="TextAppearance.Material3.HeadlineMedium"><item name="android:fontFamily">sans-serif-medium</item><item name="fontFamily">sans-serif-medium</item></style>
-    <style name="TextAppearance.Eve.M3.HeadlineSmall" parent="TextAppearance.Material3.HeadlineSmall"><item name="android:fontFamily">sans-serif-medium</item><item name="fontFamily">sans-serif-medium</item></style>
-    <style name="TextAppearance.Eve.M3.TitleLarge" parent="TextAppearance.Material3.TitleLarge"><item name="android:fontFamily">sans-serif-medium</item><item name="fontFamily">sans-serif-medium</item></style>
-    <style name="TextAppearance.Eve.M3.TitleMedium" parent="TextAppearance.Material3.TitleMedium"><item name="android:fontFamily">sans-serif-medium</item><item name="fontFamily">sans-serif-medium</item></style>
-    <style name="TextAppearance.Eve.M3.TitleSmall" parent="TextAppearance.Material3.TitleSmall"><item name="android:fontFamily">sans-serif-medium</item><item name="fontFamily">sans-serif-medium</item></style>
-    <style name="TextAppearance.Eve.M3.BodyLarge" parent="TextAppearance.Material3.BodyLarge"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
-    <style name="TextAppearance.Eve.M3.BodyMedium" parent="TextAppearance.Material3.BodyMedium"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
-    <style name="TextAppearance.Eve.M3.BodySmall" parent="TextAppearance.Material3.BodySmall"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
-    <style name="TextAppearance.Eve.M3.LabelLarge" parent="TextAppearance.Material3.LabelLarge"><item name="android:fontFamily">sans-serif-medium</item><item name="fontFamily">sans-serif-medium</item></style>
-    <style name="TextAppearance.Eve.M3.LabelMedium" parent="TextAppearance.Material3.LabelMedium"><item name="android:fontFamily">sans-serif-medium</item><item name="fontFamily">sans-serif-medium</item></style>
-    <style name="TextAppearance.Eve.M3.LabelSmall" parent="TextAppearance.Material3.LabelSmall"><item name="android:fontFamily">sans-serif-medium</item><item name="fontFamily">sans-serif-medium</item></style>
+    <style name="TextAppearance.Eve.M3.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item><item name="android:textStyle">bold</item><item name="android:textColor">?attr/eveLabelPrimary</item></style>
+    <style name="TextAppearance.Eve.M3.DisplayMedium" parent="TextAppearance.Material3.DisplayMedium"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item><item name="android:textStyle">bold</item><item name="android:textColor">?attr/eveLabelPrimary</item></style>
+    <style name="TextAppearance.Eve.M3.DisplaySmall" parent="TextAppearance.Material3.DisplaySmall"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item><item name="android:textStyle">bold</item><item name="android:textColor">?attr/eveLabelPrimary</item></style>
+    <style name="TextAppearance.Eve.M3.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge"><item name="android:fontFamily">sans-serif-medium</item><item name="fontFamily">sans-serif-medium</item><item name="android:textColor">?attr/eveLabelPrimary</item></style>
+    <style name="TextAppearance.Eve.M3.HeadlineMedium" parent="TextAppearance.Material3.HeadlineMedium"><item name="android:fontFamily">sans-serif-medium</item><item name="fontFamily">sans-serif-medium</item><item name="android:textColor">?attr/eveLabelPrimary</item></style>
+    <style name="TextAppearance.Eve.M3.HeadlineSmall" parent="TextAppearance.Material3.HeadlineSmall"><item name="android:fontFamily">sans-serif-medium</item><item name="fontFamily">sans-serif-medium</item><item name="android:textColor">?attr/eveLabelPrimary</item></style>
+    <style name="TextAppearance.Eve.M3.TitleLarge" parent="TextAppearance.Material3.TitleLarge"><item name="android:fontFamily">sans-serif-medium</item><item name="fontFamily">sans-serif-medium</item><item name="android:textColor">?attr/eveLabelPrimary</item></style>
+    <style name="TextAppearance.Eve.M3.TitleMedium" parent="TextAppearance.Material3.TitleMedium"><item name="android:fontFamily">sans-serif-medium</item><item name="fontFamily">sans-serif-medium</item><item name="android:textColor">?attr/eveLabelPrimary</item></style>
+    <style name="TextAppearance.Eve.M3.TitleSmall" parent="TextAppearance.Material3.TitleSmall"><item name="android:fontFamily">sans-serif-medium</item><item name="fontFamily">sans-serif-medium</item><item name="android:textColor">?attr/eveLabelPrimary</item></style>
+    <style name="TextAppearance.Eve.M3.BodyLarge" parent="TextAppearance.Material3.BodyLarge"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item><item name="android:textColor">?attr/eveLabelPrimary</item></style>
+    <style name="TextAppearance.Eve.M3.BodyMedium" parent="TextAppearance.Material3.BodyMedium"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item><item name="android:textColor">?attr/eveLabelPrimary</item></style>
+    <style name="TextAppearance.Eve.M3.BodySmall" parent="TextAppearance.Material3.BodySmall"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item><item name="android:textColor">?attr/eveLabelPrimary</item></style>
+    <style name="TextAppearance.Eve.M3.LabelLarge" parent="TextAppearance.Material3.LabelLarge"><item name="android:fontFamily">sans-serif-medium</item><item name="fontFamily">sans-serif-medium</item><item name="android:textColor">?attr/eveLabelPrimary</item></style>
+    <style name="TextAppearance.Eve.M3.LabelMedium" parent="TextAppearance.Material3.LabelMedium"><item name="android:fontFamily">sans-serif-medium</item><item name="fontFamily">sans-serif-medium</item><item name="android:textColor">?attr/eveLabelPrimary</item></style>
+    <style name="TextAppearance.Eve.M3.LabelSmall" parent="TextAppearance.Material3.LabelSmall"><item name="android:fontFamily">sans-serif-medium</item><item name="fontFamily">sans-serif-medium</item><item name="android:textColor">?attr/eveLabelPrimary</item></style>
 
     <!-- M3 Typography overrides for Device Font (sans-serif) -->
-    <style name="TextAppearance.Eve.DeviceFont.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
-    <style name="TextAppearance.Eve.DeviceFont.DisplayMedium" parent="TextAppearance.Material3.DisplayMedium"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
-    <style name="TextAppearance.Eve.DeviceFont.DisplaySmall" parent="TextAppearance.Material3.DisplaySmall"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
-    <style name="TextAppearance.Eve.DeviceFont.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
-    <style name="TextAppearance.Eve.DeviceFont.HeadlineMedium" parent="TextAppearance.Material3.HeadlineMedium"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
-    <style name="TextAppearance.Eve.DeviceFont.HeadlineSmall" parent="TextAppearance.Material3.HeadlineSmall"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
-    <style name="TextAppearance.Eve.DeviceFont.TitleLarge" parent="TextAppearance.Material3.TitleLarge"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
-    <style name="TextAppearance.Eve.DeviceFont.TitleMedium" parent="TextAppearance.Material3.TitleMedium"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
-    <style name="TextAppearance.Eve.DeviceFont.TitleSmall" parent="TextAppearance.Material3.TitleSmall"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
-    <style name="TextAppearance.Eve.DeviceFont.BodyLarge" parent="TextAppearance.Material3.BodyLarge"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
-    <style name="TextAppearance.Eve.DeviceFont.BodyMedium" parent="TextAppearance.Material3.BodyMedium"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
-    <style name="TextAppearance.Eve.DeviceFont.BodySmall" parent="TextAppearance.Material3.BodySmall"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
-    <style name="TextAppearance.Eve.DeviceFont.LabelLarge" parent="TextAppearance.Material3.LabelLarge"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
-    <style name="TextAppearance.Eve.DeviceFont.LabelMedium" parent="TextAppearance.Material3.LabelMedium"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
-    <style name="TextAppearance.Eve.DeviceFont.LabelSmall" parent="TextAppearance.Material3.LabelSmall"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
+    <style name="TextAppearance.Eve.DeviceFont.DisplayLarge" parent="TextAppearance.Eve.M3.DisplayLarge"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
+    <style name="TextAppearance.Eve.DeviceFont.DisplayMedium" parent="TextAppearance.Eve.M3.DisplayMedium"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
+    <style name="TextAppearance.Eve.DeviceFont.DisplaySmall" parent="TextAppearance.Eve.M3.DisplaySmall"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
+    <style name="TextAppearance.Eve.DeviceFont.HeadlineLarge" parent="TextAppearance.Eve.M3.HeadlineLarge"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
+    <style name="TextAppearance.Eve.DeviceFont.HeadlineMedium" parent="TextAppearance.Eve.M3.HeadlineMedium"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
+    <style name="TextAppearance.Eve.DeviceFont.HeadlineSmall" parent="TextAppearance.Eve.M3.HeadlineSmall"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
+    <style name="TextAppearance.Eve.DeviceFont.TitleLarge" parent="TextAppearance.Eve.M3.TitleLarge"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
+    <style name="TextAppearance.Eve.DeviceFont.TitleMedium" parent="TextAppearance.Eve.M3.TitleMedium"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
+    <style name="TextAppearance.Eve.DeviceFont.TitleSmall" parent="TextAppearance.Eve.M3.TitleSmall"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
+    <style name="TextAppearance.Eve.DeviceFont.BodyLarge" parent="TextAppearance.Eve.M3.BodyLarge"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
+    <style name="TextAppearance.Eve.DeviceFont.BodyMedium" parent="TextAppearance.Eve.M3.BodyMedium"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
+    <style name="TextAppearance.Eve.DeviceFont.BodySmall" parent="TextAppearance.Eve.M3.BodySmall"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
+    <style name="TextAppearance.Eve.DeviceFont.LabelLarge" parent="TextAppearance.Eve.M3.LabelLarge"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
+    <style name="TextAppearance.Eve.DeviceFont.LabelMedium" parent="TextAppearance.Eve.M3.LabelMedium"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
+    <style name="TextAppearance.Eve.DeviceFont.LabelSmall" parent="TextAppearance.Eve.M3.LabelSmall"><item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item></style>
+    <!-- Tertiary is unavailable-item description; quaternary is watermark emphasis only. -->
+    <style name="TextAppearance.Eve.Tertiary" parent="TextAppearance.Eve.Footnote">
+        <item name="android:textColor">?attr/eveLabelTertiary</item>
+    </style>
+    <style name="TextAppearance.Eve.Quaternary" parent="TextAppearance.Eve.Caption">
+        <item name="android:textColor">?attr/eveLabelQuaternary</item>
+    </style>
 </resources>

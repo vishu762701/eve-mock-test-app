@@ -20,7 +20,8 @@ class ManualBorderInventoryTest {
             // Notification/status dot artwork has a contrast halo, not a UI container outline.
             if (file.name != "bg_dot_red.xml") for (node in elements(file).filter { it.tagName == "stroke" }) {
                 assertEquals(file.path, "1dp", node.getAttribute("android:width"))
-                assertEquals(file.path, "@color/eve_shape_border", node.getAttribute("android:color"))
+                val expected = if (file.name == "bg_edit_text_rounded.xml") "@color/eve_control_outline" else "@color/eve_shape_border"
+                assertEquals(file.path, expected, node.getAttribute("android:color"))
                 count++
             }
         }
@@ -45,7 +46,7 @@ class ManualBorderInventoryTest {
         val switchStates = elements(File(res, "color/selector_switch_outline.xml")).filter { it.tagName == "item" }
         assertEquals("@android:color/transparent", switchStates.first().getAttribute("android:color"))
         assertEquals("true", switchStates.first().getAttribute("android:state_checked"))
-        assertEquals("@color/eve_shape_border", switchStates.last().getAttribute("android:color"))
+        assertEquals("@color/eve_control_outline", switchStates.last().getAttribute("android:color"))
         for ((qualifier, expected) in listOf("values" to "#D9DDE5", "values-night" to "#3B3F4A")) {
             val color = elements(File(res, "$qualifier/manual_ui_colors.xml")).first { it.getAttribute("name") == "eve_shape_border" }
             assertEquals(expected, color.textContent)

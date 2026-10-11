@@ -34,7 +34,7 @@
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="3dp"
                 android:text="📢 Feedback"
-                android:textColor="@color/eve_primary"
+                android:textColor="@color/eve_on_accent_container"
                 android:textSize="13sp" />
 
             <View

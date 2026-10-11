@@ -59,7 +59,7 @@
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="2dp"
                 android:text="NEW"
-                android:textColor="@color/eve_on_primary"
+                android:textColor="@color/eve_on_accent_container"
                 android:textSize="13sp"
                 android:visibility="gone"
                 tools:visibility="visible" />

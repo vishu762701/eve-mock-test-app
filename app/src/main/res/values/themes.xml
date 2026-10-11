@@ -7,12 +7,45 @@
 
     <style name="Theme.Eve" parent="Theme.Eve.Base" />
 
-    <style name="Theme.Eve.Base" parent="Theme.Material3.Light.NoActionBar">
+    <style name="Theme.Eve.Base" parent="Theme.Eve.Foundation">
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <style name="Theme.Eve.Foundation" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/eve_primary</item><item name="colorOnPrimary">@color/eve_on_primary</item>
         <item name="colorSecondary">@color/eve_accent</item><item name="colorSurface">@color/eve_surface</item>
-        <item name="colorOnSurface">@color/eve_text</item><item name="colorOutline">@color/eve_stroke</item>
+        <item name="colorOnSurface">@color/eve_text</item><item name="colorOutline">@color/eve_control_outline</item>
+        <item name="colorOnSecondary">@color/eve_on_primary</item>
+        <item name="colorPrimaryContainer">@color/eve_accent_container</item>
+        <item name="colorOnPrimaryContainer">@color/eve_on_accent_container</item>
+        <item name="colorSecondaryContainer">@color/eve_accent_container</item>
+        <item name="colorOnSecondaryContainer">@color/eve_on_accent_container</item>
+        <item name="android:textColorLink">@color/eve_accent_text</item>
+        <item name="colorOnSurfaceVariant">@color/eve_label_secondary</item>
+        <item name="colorSurfaceVariant">@color/eve_secondary_system_background</item>
+        <item name="colorSurfaceContainer">@color/eve_secondary_system_background</item>
+        <item name="colorSurfaceContainerHigh">@color/eve_tertiary_system_background</item>
+        <item name="colorOutlineVariant">@color/eve_separator</item>
+        <item name="colorControlActivated">@color/eve_primary</item>
+        <item name="colorControlNormal">@color/eve_label_secondary</item>
+        <item name="colorControlHighlight">@color/eve_ripple</item>
+        <item name="colorError">@color/eve_red_text</item>
+        <item name="colorOnError">@color/eve_on_primary</item>
+        <item name="colorErrorContainer">@color/eve_red_fill</item>
+        <item name="colorOnErrorContainer">@color/eve_red_text</item>
+        <item name="android:textColorPrimary">@color/eve_label_primary</item>
+        <item name="android:textColorSecondary">@color/eve_label_secondary</item>
+        <item name="android:textColorHint">@color/eve_placeholder_text</item>
+        <item name="eveLabelPrimary">@color/eve_label_primary</item>
+        <item name="eveLabelSecondary">@color/eve_label_secondary</item>
+        <item name="eveLabelTertiary">@color/eve_label_tertiary</item>
+        <item name="eveLabelQuaternary">@color/eve_label_quaternary</item>
+        <item name="eveAccentText">@color/eve_accent_text</item>
+        <item name="evePrimaryFill">@color/eve_primary</item>
+        <item name="eveControlOutline">@color/eve_control_outline</item>
+
         <item name="android:windowBackground">@color/eve_bg</item><item name="android:statusBarColor">@color/eve_bg</item>
-        <item name="android:navigationBarColor">@color/eve_bg</item><item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">@color/eve_bg</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
         <item name="textAppearanceDisplayLarge">@style/TextAppearance.Eve.M3.DisplayLarge</item>
@@ -46,7 +79,7 @@
         <item name="shapeAppearance">@style/ShapeAppearance.Eve.Dialog</item>
         <item name="colorSurface">@color/eve_card_bg</item>
         <item name="android:windowBackground">@drawable/bg_dialog_liquid_glass</item>
-        <item name="buttonBarPositiveButtonStyle">@style/Widget.Eve.Button</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.Eve.TextButton</item>
         <item name="buttonBarNegativeButtonStyle">@style/Widget.Eve.TextButton</item>
     </style>
 
@@ -63,7 +96,7 @@
     </style>
 
     <style name="Widget.Eve.BottomSheet.Modal" parent="Widget.Material3.BottomSheet.Modal">
-        <item name="backgroundTint">@color/eve_surface</item>
+        <item name="backgroundTint">@color/eve_card_bg</item>
         <item name="shapeAppearance">@style/ShapeRoundedBottomSheet</item>
     </style>
 
@@ -113,5 +146,19 @@
 
     <style name="Theme.Eve.Profile" parent="Theme.Eve">
         <item name="android:windowAnimationStyle">@style/Eve.WindowAnimation</item>
+    </style>
+    <!-- Android interpretation: stronger readable roles when system contrast is high. -->
+    <style name="ThemeOverlay.Eve.HighContrast" parent="">
+        <item name="evePrimaryFill">@color/eve_hc_primary</item>
+        <item name="colorPrimary">@color/eve_hc_primary</item>
+        <item name="eveLabelSecondary">@color/eve_hc_secondary</item>
+        <item name="eveLabelTertiary">@color/eve_hc_secondary</item>
+        <item name="eveLabelQuaternary">@color/eve_label_secondary</item>
+        <item name="eveAccentText">@color/eve_hc_accent</item>
+        <item name="eveControlOutline">@color/eve_hc_outline</item>
+        <item name="colorOnSurfaceVariant">@color/eve_hc_secondary</item>
+        <item name="colorOutline">@color/eve_hc_outline</item>
+        <item name="android:textColorSecondary">@color/eve_hc_secondary</item>
+        <item name="android:textColorHint">@color/eve_hc_secondary</item>
     </style>
 </resources>

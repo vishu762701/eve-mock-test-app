@@ -36,7 +36,7 @@
                 android:background="@drawable/bg_category_chip"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="3dp"
-                android:textColor="@color/eve_primary"
+                android:textColor="@color/eve_accent_text"
                 android:textSize="13sp"
                 tools:text="SSC CGL 2024" />
 
@@ -197,7 +197,7 @@
                 android:layout_weight="1"
                 android:fontFamily="sans-serif-medium"
                 android:text="Tap to open in test"
-                android:textColor="@color/eve_primary"
+                android:textColor="@color/eve_accent_text"
                 android:textSize="13.5sp" />
 
             <ImageView

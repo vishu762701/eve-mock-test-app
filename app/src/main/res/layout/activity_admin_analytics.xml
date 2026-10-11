@@ -87,7 +87,7 @@
                 <TextView android:id="@+id/tvSummary" android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:textColor="?attr/colorOnSurface" android:textSize="14sp"/>
                 <TextView android:id="@+id/tvMostAttempted" android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp" android:textColor="@color/eve_primary" android:textSize="15sp" android:textStyle="bold"/>
+                    android:layout_marginTop="12dp" android:textColor="@color/eve_accent_text" android:textSize="15sp" android:textStyle="bold"/>
 
                 <!-- Crash Reports Card -->
                 <com.google.android.material.card.MaterialCardView

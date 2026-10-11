@@ -479,7 +479,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:text="⚡ Generate Test Now (Admin On-Demand)"
-                        android:textColor="@color/eve_primary" />
+                        android:textColor="@color/eve_accent_text" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
