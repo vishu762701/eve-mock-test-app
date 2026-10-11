@@ -224,7 +224,7 @@ class ResultDetailActivity : EveBaseActivity() {
                     text = "${ta.accuracy}% (${ta.correct}/${ta.total})"
                     setTextColor(
                         if (ta.accuracy >= 70.0) ContextCompat.getColor(context, R.color.eve_status_success)
-                        else if (ta.accuracy >= 40.0) ContextCompat.getColor(context, R.color.eve_primary)
+                        else if (ta.accuracy >= 40.0) ContextCompat.getColor(context, R.color.eve_status_warning)
                         else ContextCompat.getColor(context, R.color.eve_status_error)
                     )
                     textSize = 12f

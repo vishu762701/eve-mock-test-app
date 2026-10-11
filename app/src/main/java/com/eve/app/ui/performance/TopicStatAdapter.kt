@@ -27,7 +27,7 @@ class TopicStatAdapter : RecyclerView.Adapter<TopicStatAdapter.VH>() {
 
             val colorRes = when {
                 stat.accuracy >= 70 -> R.color.eve_green
-                stat.accuracy >= 40 -> R.color.eve_accent
+                stat.accuracy >= 40 -> R.color.eve_status_warning
                 else -> R.color.eve_red
             }
             val color = ContextCompat.getColor(b.root.context, colorRes)

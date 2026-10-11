@@ -263,4 +263,90 @@ class ContrastTokensTest {
         assertTrue("Light primary button text-on-fill must be >= 3.0 (was $lightButtonRatio)", lightButtonRatio >= 3.0)
         assertTrue("Dark primary button text-on-fill must be >= 3.0 (was $darkButtonRatio)", darkButtonRatio >= 3.0)
     }
+
+    @Test
+    fun testMonochromeAccentSystem_inLightAndDark() {
+        val lightColors = loadColors("src/main/res/values/colors.xml")
+        val darkColors = loadColors("src/main/res/values-night/colors.xml")
+
+        // Light Mode Monochrome Accents: Black accent surfaces with White text/icons
+        org.junit.Assert.assertEquals("#000000", lightColors["eve_primary"])
+        org.junit.Assert.assertEquals("#FFFFFF", lightColors["eve_on_primary"])
+        org.junit.Assert.assertEquals("#000000", lightColors["eve_button_primary_bg"])
+        org.junit.Assert.assertEquals("#FFFFFF", lightColors["eve_button_primary_text"])
+        org.junit.Assert.assertEquals("#000000", lightColors["eve_chip_selected_bg"])
+        org.junit.Assert.assertEquals("#FFFFFF", lightColors["eve_chip_selected_text"])
+        org.junit.Assert.assertEquals("#000000", lightColors["eve_tab_selected_bg"])
+        org.junit.Assert.assertEquals("#FFFFFF", lightColors["eve_tab_selected_text"])
+        org.junit.Assert.assertEquals("#000000", lightColors["eve_reattempt_bg"])
+        org.junit.Assert.assertEquals("#FFFFFF", lightColors["eve_reattempt_text"])
+
+        // Dark Mode Monochrome Accents: White accent surfaces with Black text/icons
+        org.junit.Assert.assertEquals("#FFFFFF", darkColors["eve_primary"])
+        org.junit.Assert.assertEquals("#000000", darkColors["eve_on_primary"])
+        org.junit.Assert.assertEquals("#FFFFFF", darkColors["eve_button_primary_bg"])
+        org.junit.Assert.assertEquals("#000000", darkColors["eve_button_primary_text"])
+        org.junit.Assert.assertEquals("#FFFFFF", darkColors["eve_chip_selected_bg"])
+        org.junit.Assert.assertEquals("#000000", darkColors["eve_chip_selected_text"])
+        org.junit.Assert.assertEquals("#FFFFFF", darkColors["eve_tab_selected_bg"])
+        org.junit.Assert.assertEquals("#000000", darkColors["eve_tab_selected_text"])
+        org.junit.Assert.assertEquals("#FFFFFF", darkColors["eve_reattempt_bg"])
+        org.junit.Assert.assertEquals("#000000", darkColors["eve_reattempt_text"])
+
+        // Contrast ratio must be 21:1 maximum accessibility contrast
+        val lightMonochromeContrast = contrastRatio(lightColors["eve_on_primary"]!!, lightColors["eve_primary"]!!)
+        val darkMonochromeContrast = contrastRatio(darkColors["eve_on_primary"]!!, darkColors["eve_primary"]!!)
+        assertTrue("Light monochrome accent contrast must be 21.0:1 (was $lightMonochromeContrast)", lightMonochromeContrast >= 20.9)
+        assertTrue("Dark monochrome accent contrast must be 21.0:1 (was $darkMonochromeContrast)", darkMonochromeContrast >= 20.9)
+    }
+
+    @Test
+    fun testAppleSemanticBackgroundHierarchy_inLightAndDark() {
+        val lightColors = loadColors("src/main/res/values/colors.xml")
+        val darkColors = loadColors("src/main/res/values-night/colors.xml")
+
+        // Standard Background Hierarchy
+        org.junit.Assert.assertEquals("#FFFFFF", lightColors["eve_system_background"])
+        org.junit.Assert.assertEquals("#F2F2F7", lightColors["eve_secondary_system_background"])
+        org.junit.Assert.assertEquals("#FFFFFF", lightColors["eve_tertiary_system_background"])
+
+        org.junit.Assert.assertEquals("#000000", darkColors["eve_system_background"])
+        org.junit.Assert.assertEquals("#1C1C1E", darkColors["eve_secondary_system_background"])
+        org.junit.Assert.assertEquals("#2C2C2E", darkColors["eve_tertiary_system_background"])
+
+        // Grouped Background Hierarchy
+        org.junit.Assert.assertEquals("#F2F2F7", lightColors["eve_system_grouped_background"])
+        org.junit.Assert.assertEquals("#FFFFFF", lightColors["eve_secondary_system_grouped_background"])
+        org.junit.Assert.assertEquals("#F2F2F7", lightColors["eve_tertiary_system_grouped_background"])
+
+        org.junit.Assert.assertEquals("#000000", darkColors["eve_system_grouped_background"])
+        org.junit.Assert.assertEquals("#1C1C1E", darkColors["eve_secondary_system_grouped_background"])
+        org.junit.Assert.assertEquals("#2C2C2E", darkColors["eve_tertiary_system_grouped_background"])
+    }
+
+    @Test
+    fun testAppleSemanticTextLegibility_contrastCompliance() {
+        val lightColors = loadColors("src/main/res/values/colors.xml")
+        val darkColors = loadColors("src/main/res/values-night/colors.xml")
+
+        // Light Mode Text Legibility: secondary label >= 4.5:1 on system background & secondary background
+        val lightSecOnSysBg = contrastRatio(lightColors["eve_label_secondary"]!!, lightColors["eve_system_background"]!!)
+        val lightSecOnSecSysBg = contrastRatio(lightColors["eve_label_secondary"]!!, lightColors["eve_secondary_system_background"]!!)
+        assertTrue("Light eve_label_secondary on systemBackground must be >= 4.5:1 (was $lightSecOnSysBg)", lightSecOnSysBg >= 4.5)
+        assertTrue("Light eve_label_secondary on secondarySystemBackground must be >= 4.5:1 (was $lightSecOnSecSysBg)", lightSecOnSecSysBg >= 4.5)
+
+        val lightUnselectedTabRatio = contrastRatio(lightColors["eve_tab_unselected_text"]!!, lightColors["eve_canvas"]!!)
+        assertTrue("Light unselected tab text on canvas must be >= 4.5:1 (was $lightUnselectedTabRatio)", lightUnselectedTabRatio >= 4.5)
+
+        // Dark Mode Text Legibility: secondary label >= 4.5:1 on system background, secondary & tertiary backgrounds
+        val darkSecOnSysBg = contrastRatio(darkColors["eve_label_secondary"]!!, darkColors["eve_system_background"]!!)
+        val darkSecOnSecSysBg = contrastRatio(darkColors["eve_label_secondary"]!!, darkColors["eve_secondary_system_background"]!!)
+        val darkSecOnTerSysBg = contrastRatio(darkColors["eve_label_secondary"]!!, darkColors["eve_tertiary_system_background"]!!)
+        assertTrue("Dark eve_label_secondary on systemBackground must be >= 4.5:1 (was $darkSecOnSysBg)", darkSecOnSysBg >= 4.5)
+        assertTrue("Dark eve_label_secondary on secondarySystemBackground must be >= 4.5:1 (was $darkSecOnSecSysBg)", darkSecOnSecSysBg >= 4.5)
+        assertTrue("Dark eve_label_secondary on tertiarySystemBackground must be >= 4.5:1 (was $darkSecOnTerSysBg)", darkSecOnTerSysBg >= 4.5)
+
+        val darkUnselectedTabRatio = contrastRatio(darkColors["eve_tab_unselected_text"]!!, darkColors["eve_canvas"]!!)
+        assertTrue("Dark unselected tab text on canvas must be >= 4.5:1 (was $darkUnselectedTabRatio)", darkUnselectedTabRatio >= 4.5)
+    }
 }

@@ -103,21 +103,21 @@
         <item name="android:textColor">@color/eve_label_secondary</item>
     </style>
 
-    <!-- Caption: 12sp, Regular -->
+    <!-- Caption: 12sp, Regular (Apple secondaryLabel for high legibility) -->
     <style name="TextAppearance.Eve.Caption" parent="TextAppearance.Eve">
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">normal</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
-        <item name="android:textColor">@color/eve_label_tertiary</item>
+        <item name="android:textColor">@color/eve_label_secondary</item>
     </style>
 
-    <!-- Caption 2: 11sp, Medium -->
+    <!-- Caption 2: 11sp, Medium (Apple secondaryLabel for high legibility) -->
     <style name="TextAppearance.Eve.Caption2" parent="TextAppearance.Eve">
         <item name="android:textSize">11sp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="fontFamily">sans-serif-medium</item>
-        <item name="android:textColor">@color/eve_label_tertiary</item>
+        <item name="android:textColor">@color/eve_label_secondary</item>
     </style>
 
     <!-- Existing Semantic Aliases for backward compatibility -->

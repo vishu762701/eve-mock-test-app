@@ -170,7 +170,7 @@
                         android:layout_height="22dp"
                         android:layout_gravity="center"
                         android:indeterminate="true"
-                        android:indeterminateTint="@color/eve_white"
+                        android:indeterminateTint="@color/eve_button_primary_text"
                         android:visibility="gone" />
                 </FrameLayout>
 
@@ -231,7 +231,7 @@
                         android:layout_height="20dp"
                         android:layout_gravity="center"
                         android:indeterminate="true"
-                        android:indeterminateTint="@color/eve_system_blue"
+                        android:indeterminateTint="@color/eve_primary"
                         android:visibility="gone" />
                 </FrameLayout>
 
@@ -242,7 +242,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
                     android:text="Don't have an account? Sign Up"
-                    android:textColor="@color/eve_system_blue"
+                    android:textColor="@color/eve_primary"
                     android:textSize="14sp" />
             </LinearLayout>
         </FrameLayout>
