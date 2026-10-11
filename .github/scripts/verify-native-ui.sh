@@ -3,6 +3,20 @@ set -euo pipefail
 collect_evidence() {
   mkdir -p ui-renderings
   adb pull /sdcard/Pictures/eve-approved-ui ui-renderings/ || true
+  # Small deterministic shared-style fixtures only. Keep review possible through
+  # decoded job logs when the reviewer cannot reach the artifact storage host.
+  # Never stream live activity screenshots or application data into logs.
+  for appearance in "" "-high-contrast"; do
+    for theme in light dark; do
+      fixture="shared-components${appearance}-${theme}.png"
+      fixture_path="/sdcard/Pictures/eve-approved-ui/$fixture"
+      if adb shell test -f "$fixture_path"; then
+        echo "EVE_DESIGN_PNG_BEGIN $fixture"
+        adb shell base64 "$fixture_path" || true
+        echo "EVE_DESIGN_PNG_END $fixture"
+      fi
+    done
+  done
   adb logcat -d -s AndroidRuntime ThemeSwitchAnimator ThemeManager SystemBarHelper > ui-renderings/safe-runtime.log || true
   # Keep transaction evidence readable even when artifact storage cannot be downloaded.
   cat ui-renderings/safe-runtime.log || true

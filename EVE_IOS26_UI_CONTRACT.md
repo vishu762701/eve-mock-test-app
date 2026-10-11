@@ -166,7 +166,11 @@ not an independent design system.
   Replace the superseded monochrome-only assertion with blue/AA assertions.
 - Native `SharedDesignSystemTest` inflates actual shared widget styles and checks
   capsule geometry, opaque cards, disabled labels, resolved colours and contrast.
-  Capture Day/Night plus increased-contrast component PNGs. Existing tests cover
+  Capture Day/Night plus increased-contrast component PNGs. The runner also emits
+  these four deterministic fixture PNGs as base64 between `EVE_DESIGN_PNG_BEGIN`
+  and `EVE_DESIGN_PNG_END` markers in job logs, for reviewers who cannot reach the
+  artifact storage host. This fallback excludes live activity screenshots and user
+  data. Existing tests cover
   production fixtures, font scales, test integrity, target selection and reveal.
 - Require both gesture and three-button native CI jobs and visual gallery evidence
   enforcement. Review native PNGs; source inspection alone is not visual proof.
