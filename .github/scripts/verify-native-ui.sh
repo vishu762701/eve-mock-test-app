@@ -27,9 +27,14 @@ mkdir -p ui-renderings
 adb shell getprop ro.build.fingerprint > ui-renderings/emulator-fingerprint.log
 adb shell wm size > ui-renderings/display-size.log
 adb shell wm density > ui-renderings/display-density.log
-adb shell cmd overlay enable-exclusive --category "com.android.internal.systemui.navbar.$overlay"
 adb shell input keyevent KEYCODE_WAKEUP
 adb shell wm dismiss-keyguard
+# Keep a stock foreground window while Gradle prepares the APKs. Changing the
+# navigation overlay over a still-starting Pixel Launcher produced external
+# input-dispatch ANRs that obscured every subsequent application capture. Leave
+# Launcher/Quickstep and SystemUI enabled; app ANRs and test failures still fail.
+adb shell am start -W -a android.settings.SETTINGS > ui-renderings/emulator-foreground-setup.log
+adb shell cmd overlay enable-exclusive --category "com.android.internal.systemui.navbar.$overlay"
 # OverlayManager returns before SystemUI updates the secure setting. Run #228
 # read 2 immediately, then captured 0 in its exit diagnostics. Wait for the
 # requested state, with a hard bound; never run under the wrong mode.

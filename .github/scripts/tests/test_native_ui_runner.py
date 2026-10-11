@@ -53,6 +53,11 @@ exit "$GRADLE_STATUS"
                 self.assertIn(f'navigationMode={mode}', commands)
                 self.assertIn('package=com.eve.app.ui', commands)
                 self.assertIn(f'navbar.{overlay}', commands)
+                self.assertLess(commands.index('am start -W -a android.settings.SETTINGS'),
+                                commands.index('shell cmd overlay enable-exclusive'))
+                self.assertLess(commands.index('shell cmd overlay enable-exclusive'),
+                                commands.index('gradle connectedDebugAndroidTest'))
+                self.assertNotIn('force-stop', commands)
                 self.assertNotIn('adb reboot', commands)
                 self.assertIn('adb pull /sdcard/Pictures/eve-approved-ui', commands)
                 self.assertIn('process-failures.log', evidence)
