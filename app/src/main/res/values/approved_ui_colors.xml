@@ -9,7 +9,7 @@
     <color name="eve_test_palette_bg">#EEEEF0</color>
     <color name="eve_test_border">#888888</color>
     <color name="eve_result_tab_track">#F1F1F3</color>
-    <color name="eve_result_tab_selected">#000000</color>
-    <color name="eve_result_tab_selected_text">#FFFFFF</color>
-    <color name="eve_result_tab_text">#000000</color>
+    <color name="eve_result_tab_selected">@color/eve_card_bg</color>
+    <color name="eve_result_tab_selected_text">@color/eve_recovery_accent</color>
+    <color name="eve_result_tab_text">@color/eve_text_secondary</color>
 </resources>

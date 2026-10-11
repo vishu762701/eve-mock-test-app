@@ -64,7 +64,8 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 android:orientation="vertical"
-                android:paddingTop="28dp">
+                android:paddingTop="24dp"
+                android:paddingHorizontal="20dp">
 
                 <FrameLayout
                     android:layout_width="wrap_content"
@@ -82,14 +83,14 @@
 
                     <ImageButton
                         android:id="@+id/btnChangePhoto"
-                        android:layout_width="34dp"
-                        android:layout_height="34dp"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
                         android:layout_gravity="bottom|end"
                         android:background="@drawable/bg_circle_primary"
                         android:stateListAnimator="@animator/press_scale"
                         android:contentDescription="Change photo"
                         android:elevation="2dp"
-                        android:padding="7dp"
+                        android:padding="13dp"
                         android:src="@drawable/ic_camera" />
                 </FrameLayout>
 
@@ -105,13 +106,13 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnCancelPhoto"
-                        style="@style/Widget.Eve.OutlinedButton"
+                        style="@style/Widget.Eve.RecoverySecondary"
                         android:layout_width="wrap_content"
-                        android:layout_height="36dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginEnd="10dp"
                         android:insetTop="0dp"
                         android:insetBottom="0dp"
-                        android:minHeight="0dp"
+                        android:minHeight="48dp"
                         android:paddingHorizontal="16dp"
                         android:paddingVertical="0dp"
                         android:text="Cancel"
@@ -119,12 +120,12 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSavePhoto"
-                        style="@style/Widget.Eve.Button.Primary"
+                        style="@style/Widget.Eve.RecoveryPrimary"
                         android:layout_width="wrap_content"
-                        android:layout_height="36dp"
+                        android:layout_height="wrap_content"
                         android:insetTop="0dp"
                         android:insetBottom="0dp"
-                        android:minHeight="0dp"
+                        android:minHeight="48dp"
                         android:paddingHorizontal="16dp"
                         android:paddingVertical="0dp"
                         android:text="Save"
@@ -133,6 +134,7 @@
 
                 <TextView
                     android:id="@+id/tvName"
+                    android:gravity="center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
@@ -143,6 +145,7 @@
 
                 <TextView
                     android:id="@+id/tvEmail"
+                    android:gravity="center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
@@ -152,7 +155,7 @@
 
                 <LinearLayout
                     android:id="@+id/layoutEveId"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
                     android:gravity="center_vertical"
@@ -168,7 +171,10 @@
 
                     <TextView
                         android:id="@+id/tvEveId"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:maxLines="1"
+                        android:ellipsize="end"
                         android:layout_height="wrap_content"
                         android:textColor="@color/eve_text"
                         android:textSize="13sp"
@@ -177,14 +183,14 @@
 
                     <ImageView
                         android:id="@+id/btnCopyEveId"
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
                         android:layout_marginStart="4dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:clickable="true"
                         android:contentDescription="Copy EVE ID"
                         android:focusable="true"
-                        android:padding="5dp"
+                        android:padding="15dp"
                         android:src="@drawable/ic_copy"
                         app:tint="@color/eve_grey" />
                 </LinearLayout>
@@ -213,7 +219,7 @@
                     app:chipIconTint="@color/eve_premium_text"
                     app:chipBackgroundColor="@color/eve_premium_container"
                     app:chipStrokeColor="@color/eve_shape_border"
-                    app:chipStrokeWidth="1dp" />
+                    app:chipStrokeWidth="0dp" />
             </LinearLayout>
 
             <View
@@ -242,22 +248,17 @@
                 <!-- Name Field -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilName"
-                    style="@style/Widget.Eve.TextInput.Filled"
+                    style="@style/Widget.Eve.RecoveryInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:hint="Full Name"
-                    app:boxBackgroundColor="@color/eve_login_input_bg"
-                    app:boxCornerRadiusBottomEnd="@dimen/eve_radius_tile"
-                    app:boxCornerRadiusBottomStart="@dimen/eve_radius_tile"
-                    app:boxCornerRadiusTopEnd="@dimen/eve_radius_tile"
-                    app:boxCornerRadiusTopStart="@dimen/eve_radius_tile"
-                    app:boxStrokeColor="@color/sl_glass_input_stroke"
-                    app:boxStrokeWidth="@dimen/eve_stroke_hairline"
-                    app:boxStrokeWidthFocused="1dp">
+                    android:hint="Full Name">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etName"
+                        android:background="@null"
+                        android:minHeight="56dp"
+                        android:paddingHorizontal="16dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="textPersonName"
@@ -269,24 +270,19 @@
                 <!-- Date of Birth Field -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilDob"
-                    style="@style/Widget.Eve.TextInput.Filled"
+                    style="@style/Widget.Eve.RecoveryInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:hint="Date of Birth (DD/MM/YYYY)"
-                    app:boxBackgroundColor="@color/eve_login_input_bg"
-                    app:boxCornerRadiusBottomEnd="@dimen/eve_radius_tile"
-                    app:boxCornerRadiusBottomStart="@dimen/eve_radius_tile"
-                    app:boxCornerRadiusTopEnd="@dimen/eve_radius_tile"
-                    app:boxCornerRadiusTopStart="@dimen/eve_radius_tile"
-                    app:boxStrokeColor="@color/sl_glass_input_stroke"
-                    app:boxStrokeWidth="@dimen/eve_stroke_hairline"
-                    app:boxStrokeWidthFocused="1dp"
                     app:endIconDrawable="@drawable/ic_calendar"
                     app:endIconMode="custom">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etDob"
+                        android:background="@null"
+                        android:minHeight="56dp"
+                        android:paddingHorizontal="16dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clickable="true"
@@ -313,11 +309,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
                     app:selectionRequired="true"
-                    app:singleSelection="true">
+                    app:singleSelection="true"
+                    app:chipSpacingHorizontal="8dp"
+                    app:chipSpacingVertical="4dp">
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipGeneral"
-                        style="@style/Widget.Eve.CategoryChip"
+                        style="@style/Widget.Eve.RecoveryChip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
@@ -325,21 +323,21 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipObc"
-                        style="@style/Widget.Eve.CategoryChip"
+                        style="@style/Widget.Eve.RecoveryChip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="OBC" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipSc"
-                        style="@style/Widget.Eve.CategoryChip"
+                        style="@style/Widget.Eve.RecoveryChip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="SC" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipSt"
-                        style="@style/Widget.Eve.CategoryChip"
+                        style="@style/Widget.Eve.RecoveryChip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="ST" />
@@ -348,7 +346,7 @@
                 <!-- Save Profile Details Button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSaveProfile"
-                    style="@style/Widget.Eve.Button"
+                    style="@style/Widget.Eve.RecoveryPrimary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
@@ -389,7 +387,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnEditAbout"
-                style="@style/Widget.Eve.Button"
+                style="@style/Widget.Eve.RecoverySecondary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
@@ -401,7 +399,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAbout"
-                style="@style/Widget.Eve.OutlinedButton"
+                style="@style/Widget.Eve.RecoverySecondary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"

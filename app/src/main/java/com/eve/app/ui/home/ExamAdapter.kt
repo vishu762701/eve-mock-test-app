@@ -61,7 +61,7 @@ class ExamAdapter(
             val ctx = b.root.context
             b.examIconContainer.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_exam_icon_tile_bg))
             b.examIconContainer.strokeColor = androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_shape_border)
-            b.examIconContainer.strokeWidth = Math.round(ctx.resources.displayMetrics.density).coerceAtLeast(1)
+            b.examIconContainer.strokeWidth = 0
         }
 
         fun bind(exam: Exam, attempted: Boolean, isPinned: Boolean, attempt: com.eve.app.data.model.TestAttempt?, position: Int) {
@@ -78,7 +78,7 @@ class ExamAdapter(
             }
 
             val ctx = b.root.context
-            b.root.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_glass_card_fill))
+            b.root.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_card_bg))
             b.root.strokeColor = androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_shape_border)
             b.root.strokeWidth = Math.round(ctx.resources.displayMetrics.density).coerceAtLeast(1)
             b.tvExamName.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_text))

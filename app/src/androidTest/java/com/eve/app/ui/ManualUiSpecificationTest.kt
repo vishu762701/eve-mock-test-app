@@ -124,7 +124,7 @@ class ManualUiSpecificationTest {
                             view.layout(0, 0, view.measuredWidth, view.measuredHeight)
                         }
                     }
-                    val border = if (night == Configuration.UI_MODE_NIGHT_YES) Color.WHITE else Color.BLACK
+                    val border = Color.parseColor(if (night == Configuration.UI_MODE_NIGHT_YES) "#3B3F4A" else "#D9DDE5")
                     assertEquals(border, context.getColor(R.color.eve_shape_border))
                     val home = ActivityMainBinding.inflate(LayoutInflater.from(context))
                     home.panelHomeBanner.visibility = View.VISIBLE
@@ -141,15 +141,16 @@ class ManualUiSpecificationTest {
                     assertEquals(16f * density, outline.radius, 0.01f)
                     assertTrue(home.panelHomeBanner.clipToOutline)
                     if (font == 1f) {
-                        assertEquals(dp(65), chips[0].width)
+                        assertEquals(dp(64), chips[0].width)
                         assertEquals(dp(40), chips[0].height)
                     }
                     for (chip in chips) {
-                        assertEquals(minOf(71f * density, chip.chipMinHeight / 2f), chip.chipCornerRadius, 0.01f)
-                        assertEquals(density, chip.chipStrokeWidth, 0.01f)
+                        assertEquals(chip.chipMinHeight / 2f, chip.chipCornerRadius, 0.01f)
+                        assertEquals(0f, chip.chipStrokeWidth, 0.01f)
                         for (checked in listOf(false, true, false)) {
                             chip.isChecked = checked
-                            assertEquals(border, chip.chipStrokeColor!!.getColorForState(chip.drawableState, 0))
+                            assertEquals(context.getColor(if (checked) R.color.eve_recovery_selected else R.color.eve_recovery_surface),
+                                chip.chipBackgroundColor!!.getColorForState(chip.drawableState, 0))
                         }
                         assertEquals(dp(8), chip.paddingTop)
                         assertEquals(dp(8), chip.paddingBottom)
@@ -170,12 +171,19 @@ class ManualUiSpecificationTest {
                         tabStrip.width)
                     assertEquals(tabStrip.width, tabStrip.getChildAt(tabStrip.childCount - 1).right)
                     val grid = result.rowOverviewStatisticsTiles
-                    assertEquals(if (width < 384) 1 else if (width < 566) 2 else 4, grid.columnCount)
+                    val minimum = Math.round(124f * density * font)
+                    val expectedColumns = when {
+                        grid.width >= minimum * 4 + dp(12) * 3 -> 4
+                        grid.width >= minimum * 2 + dp(12) -> 2
+                        else -> 1
+                    }
+                    assertEquals(expectedColumns, grid.columnCount)
+                    if (font == 1f && width <= 412) assertEquals(2, grid.columnCount)
                     for (i in 0 until grid.childCount) {
                         val tile = grid.getChildAt(i)
-                        assertEquals(dp(170), tile.width)
-                        assertTrue(tile.height >= dp(116))
-                        if (font == 1f) assertEquals(dp(116), tile.height)
+                        assertTrue(kotlin.math.abs(tile.width * grid.columnCount + dp(12) * (grid.columnCount - 1) - grid.width) < grid.columnCount)
+                        assertTrue(tile.height >= dp(96))
+                        if (font == 1f) assertEquals(dp(96), tile.height)
                         assertEquals(dp(14), tile.paddingStart)
                         assertTrue(tile.right <= grid.width)
                         if (i % grid.columnCount != 0) {
@@ -184,7 +192,7 @@ class ManualUiSpecificationTest {
                             assertEquals(dp(12), tile.top - grid.getChildAt(i - grid.columnCount).bottom)
                         }
                         val surface = tile.background as GradientDrawable
-                        assertEquals(dp(35).toFloat(), surface.cornerRadius, 0.01f)
+                        assertEquals(dp(16).toFloat(), surface.cornerRadius, 0.01f)
                     }
                     repeat(12) { index ->
                         result.tabLayoutResult.getTabAt(index % 3)!!.select()

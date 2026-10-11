@@ -23,13 +23,13 @@
 
             <ImageButton
                 android:id="@+id/btnBack"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_marginEnd="8dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:stateListAnimator="@animator/press_scale"
                 android:contentDescription="Back"
-                android:padding="8dp"
+                android:padding="12dp"
                 android:src="@drawable/ic_back"
                 app:tint="@color/eve_text" />
 
@@ -44,7 +44,9 @@
                     style="@style/TextAppearance.Eve.ScreenTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Test Result" />
+                    android:text="Test Result"
+                    android:maxLines="2"
+                    android:ellipsize="end" />
 
                 <TextView
                     android:id="@+id/tvResultSubtitle"
@@ -60,23 +62,23 @@
             <!-- Share Button -->
             <ImageButton
                 android:id="@+id/btnShare"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_marginEnd="8dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:stateListAnimator="@animator/press_scale"
                 android:contentDescription="Share"
-                android:padding="8dp"
+                android:padding="12dp"
                 android:src="@drawable/ic_share"
                 app:tint="@color/eve_text" />
 
-            <!-- Compact Reattempt Pill Button (Placed in header beside Share) -->
+            <!-- Compact 48dp reattempt action with visible refresh icon and accessible label. -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnReattempt"
                 style="@style/Widget.Eve.Button.OrangePill"
-                android:layout_width="wrap_content"
-                android:layout_height="38dp"
-                android:minHeight="38dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:minHeight="48dp"
                 android:minWidth="0dp"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="0dp"
@@ -85,12 +87,15 @@
                 android:gravity="center"
                 android:fontFamily="sans-serif-medium"
                 android:stateListAnimator="@animator/press_scale"
-                android:text="@string/reattempt"
+                android:contentDescription="@string/reattempt"
+                android:tooltipText="@string/reattempt"
+                app:cornerRadius="14dp"
+                app:strokeWidth="0dp"
                 android:textSize="13sp"
                 app:icon="@drawable/ic_refresh"
-                app:iconSize="14dp"
+                app:iconSize="20dp"
                 app:iconGravity="textStart"
-                app:iconPadding="4dp"
+                app:iconPadding="0dp"
                 android:visibility="gone" />
 
             <!-- Legacy IDs preserved in comments for test compatibility: android:id="@+id/layoutActionCluster" android:id="@+id/btnHome" -->
@@ -169,15 +174,15 @@
                     android:paddingTop="12dp"
                     android:paddingBottom="36dp">
 
-                    <!-- Block 1: Centered RESULT Hero Card -->
-                    <!-- Block 1: Centered RESULT Hero Card (Apple Liquid Glass) -->
+                    <!-- Content-measured score hero; clipping and fill share one shape. -->
                     <com.eve.app.ui.common.EveLiquidGlassView
                         android:id="@+id/cardResultHero"
                         android:layout_width="match_parent"
-                        android:layout_height="124dp"
+                        android:layout_height="wrap_content"
+                        android:minHeight="0dp"
                         android:layout_marginBottom="12dp"
-                        app:eveCornerRadius="28dp"
-                        app:eveHasHighlight="true"
+                        app:eveCornerRadius="20dp"
+                        app:eveHasHighlight="false"
                         app:eveTactile="false">
 
                         <LinearLayout
@@ -211,12 +216,12 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="6dp"
-                                android:background="@drawable/bg_stat_mini"
+                                android:background="@drawable/bg_recovery_badge"
                                 android:fontFamily="sans-serif-medium"
                                 android:paddingHorizontal="12dp"
                                 android:paddingVertical="4dp"
                                 android:text="--% Score"
-                                android:textColor="@color/eve_primary"
+                                android:textColor="@color/eve_recovery_accent"
                                 android:textSize="13sp" />
 
                             <TextView
@@ -257,11 +262,11 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-medium"
                             android:text="View Details ›"
-                            android:textColor="@color/eve_primary"
+                            android:textColor="@color/eve_recovery_accent"
                             android:textSize="13sp" />
                     </LinearLayout>
 
-                    <!-- 4-Tile Row: Equal width & height, generous padding, autosizing text -->
+                    <!-- Equal-width responsive metrics; rows expand for accessible text. -->
                     <com.eve.app.ui.result.ResultStatisticsGrid
                         android:id="@+id/rowOverviewStatisticsTiles"
                         android:layout_width="match_parent"
@@ -273,7 +278,7 @@
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:minHeight="116dp"
+                            android:minHeight="96dp"
                             android:layout_marginEnd="12dp"
                             android:background="@drawable/bg_result_metric_right"
                             android:gravity="center"
@@ -286,7 +291,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-bold"
                                 android:gravity="center"
-                                android:textSize="12sp"
+                                android:textSize="24sp"
                                 android:text="0"
                                 android:textColor="@color/eve_tile_right_text" />
 
@@ -296,7 +301,7 @@
                                 android:layout_marginTop="4dp"
                                 android:fontFamily="sans-serif-medium"
                                 android:gravity="center"
-                                android:textSize="12sp"
+                                android:textSize="13sp"
                                 android:text="Right"
                                 android:textColor="@color/eve_tile_right_text" />
                         </LinearLayout>
@@ -305,7 +310,7 @@
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:minHeight="116dp"
+                            android:minHeight="96dp"
                             android:layout_marginEnd="12dp"
                             android:background="@drawable/bg_result_metric_wrong"
                             android:gravity="center"
@@ -318,7 +323,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-bold"
                                 android:gravity="center"
-                                android:textSize="12sp"
+                                android:textSize="24sp"
                                 android:text="0"
                                 android:textColor="@color/eve_tile_wrong_text" />
 
@@ -328,7 +333,7 @@
                                 android:layout_marginTop="4dp"
                                 android:fontFamily="sans-serif-medium"
                                 android:gravity="center"
-                                android:textSize="12sp"
+                                android:textSize="13sp"
                                 android:text="Wrong"
                                 android:textColor="@color/eve_tile_wrong_text" />
                         </LinearLayout>
@@ -337,7 +342,7 @@
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:minHeight="116dp"
+                            android:minHeight="96dp"
                             android:layout_marginEnd="12dp"
                             android:background="@drawable/bg_result_metric_unattempted"
                             android:gravity="center"
@@ -350,7 +355,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-bold"
                                 android:gravity="center"
-                                android:textSize="12sp"
+                                android:textSize="24sp"
                                 android:text="0"
                                 android:textColor="@color/eve_text" />
 
@@ -360,7 +365,7 @@
                                 android:layout_marginTop="4dp"
                                 android:fontFamily="sans-serif-medium"
                                 android:gravity="center"
-                                android:textSize="12sp"
+                                android:textSize="13sp"
                                 android:text="Unattempted"
                                 android:textColor="@color/eve_text_secondary" />
                         </LinearLayout>
@@ -369,7 +374,7 @@
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:minHeight="116dp"
+                            android:minHeight="96dp"
                             android:background="@drawable/bg_result_metric_medium"
                             android:gravity="center"
                             android:orientation="vertical"
@@ -377,7 +382,7 @@
 
                             <TextView
                                 android:id="@+id/tvAccuracy"
-                                android:textSize="12sp"
+                                android:textSize="24sp"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-bold"
@@ -391,7 +396,7 @@
                                 android:layout_marginTop="4dp"
                                 android:fontFamily="sans-serif-medium"
                                 android:gravity="center"
-                                android:textSize="12sp"
+                                android:textSize="13sp"
                                 android:text="Accuracy"
                                 android:textColor="@color/eve_tile_medium_text" />
                         </LinearLayout>
@@ -402,7 +407,7 @@
                         android:id="@+id/headerOverviewPerformance"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="18dp"
+                        android:layout_marginTop="12dp"
                         android:layout_marginBottom="8dp"
                         android:background="?attr/selectableItemBackground"
                         android:clickable="true"
@@ -423,7 +428,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-medium"
                             android:text="View Details ›"
-                            android:textColor="@color/eve_primary"
+                            android:textColor="@color/eve_recovery_accent"
                             android:textSize="13sp" />
                     </LinearLayout>
 
@@ -431,13 +436,13 @@
                         android:id="@+id/cardPerformanceStanding"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:minHeight="144dp"
+                        android:minHeight="0dp"
                         android:layout_marginBottom="12dp"
                         android:clickable="true"
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackground"
                         app:cardBackgroundColor="@color/eve_card_bg"
-                        app:cardCornerRadius="28dp"
+                        app:cardCornerRadius="20dp"
                         app:cardElevation="0dp"
                         app:strokeColor="@color/eve_shape_border"
                         app:strokeWidth="1dp">
@@ -461,7 +466,7 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:layout_marginBottom="8dp"
-                                    android:background="@drawable/bg_tile_surface2"
+                                    android:background="@drawable/bg_recovery_inset"
                                     android:orientation="vertical"
                                     android:paddingHorizontal="12dp"
                                     android:paddingVertical="8dp">
@@ -488,7 +493,7 @@
                                 <LinearLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:background="@drawable/bg_tile_surface2"
+                                    android:background="@drawable/bg_recovery_inset"
                                     android:orientation="vertical"
                                     android:paddingHorizontal="12dp"
                                     android:paddingVertical="8dp">
@@ -527,7 +532,7 @@
                                     android:layout_height="wrap_content"
                                     android:minHeight="40dp"
                                     android:layout_marginBottom="8dp"
-                                    android:background="@drawable/bg_soft_pill"
+                                    android:background="@drawable/bg_recovery_inset"
                                     android:gravity="center_vertical"
                                     android:orientation="vertical"
                                     android:paddingHorizontal="10dp"
@@ -557,7 +562,7 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:minHeight="40dp"
-                                    android:background="@drawable/bg_soft_pill"
+                                    android:background="@drawable/bg_recovery_inset"
                                     android:gravity="center_vertical"
                                     android:orientation="vertical"
                                     android:paddingHorizontal="10dp"
@@ -590,7 +595,7 @@
                         android:id="@+id/sectionCutoff"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="18dp"
+                        android:layout_marginTop="12dp"
                         android:orientation="vertical">
 
                         <com.google.android.material.card.MaterialCardView
@@ -598,7 +603,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             app:cardBackgroundColor="@color/eve_card_bg"
-                            app:cardCornerRadius="@dimen/eve_radius_card"
+                            app:cardCornerRadius="20dp"
                             app:cardElevation="0dp"
                             app:strokeColor="@color/eve_shape_border"
                             app:strokeWidth="1dp">
@@ -627,9 +632,9 @@
                                         android:id="@+id/tvCutoffSelectedCategory"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
-                                        android:layout_marginStart="8dp"
-                                        android:minHeight="38dp"
-                                        android:background="@drawable/bg_category_dropdown_pill"
+                                        android:layout_marginTop="8dp"
+                                        android:minHeight="48dp"
+                                        android:background="@drawable/bg_recovery_inset"
                                         android:clickable="true"
                                         android:focusable="true"
                                         android:gravity="center_vertical"
@@ -652,7 +657,7 @@
                                         android:id="@+id/tvCutoffVerdict"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
-                                        android:background="@drawable/bg_tile_surface2"
+                                        android:background="@drawable/bg_recovery_inset"
                                         android:fontFamily="sans-serif-medium"
                                         android:paddingHorizontal="10dp"
                                         android:paddingVertical="4dp"
@@ -742,7 +747,7 @@
                         android:id="@+id/headerOverviewAnalytics"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="18dp"
+                        android:layout_marginTop="12dp"
                         android:layout_marginBottom="8dp"
                         android:background="?attr/selectableItemBackground"
                         android:clickable="true"
@@ -763,7 +768,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-medium"
                             android:text="View Details ›"
-                            android:textColor="@color/eve_primary"
+                            android:textColor="@color/eve_recovery_accent"
                             android:textSize="13sp" />
                     </LinearLayout>
 
@@ -775,7 +780,7 @@
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackground"
                         app:cardBackgroundColor="@color/eve_card_bg"
-                        app:cardCornerRadius="@dimen/eve_radius_card"
+                        app:cardCornerRadius="20dp"
                         app:cardElevation="0dp"
                         app:strokeColor="@color/eve_shape_border"
                         app:strokeWidth="1dp">
@@ -786,7 +791,8 @@
                             android:baselineAligned="false"
                             android:gravity="center_vertical"
                             android:orientation="horizontal"
-                            android:padding="16dp">
+                            android:padding="16dp"
+                            app:eveHorizontalBreakpoint="366dp">
 
                             <!-- Semicircle Gauge -->
                             <com.eve.app.ui.result.SemiCircleGaugeView
@@ -808,7 +814,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
                                     android:layout_marginEnd="6dp"
-                                    android:background="@drawable/bg_tile_surface2"
+                                    android:background="@drawable/bg_recovery_inset"
                                     android:gravity="center"
                                     android:orientation="vertical"
                                     android:padding="8dp">
@@ -839,7 +845,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
                                     android:layout_marginEnd="6dp"
-                                    android:background="@drawable/bg_tile_surface2"
+                                    android:background="@drawable/bg_recovery_inset"
                                     android:gravity="center"
                                     android:orientation="vertical"
                                     android:padding="8dp">
@@ -869,7 +875,7 @@
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
-                                    android:background="@drawable/bg_tile_surface2"
+                                    android:background="@drawable/bg_recovery_inset"
                                     android:gravity="center"
                                     android:orientation="vertical"
                                     android:padding="8dp">
@@ -1119,8 +1125,8 @@
                         android:id="@+id/cardLeaderboardHero"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:cardBackgroundColor="@color/eve_premium_container"
-                        app:cardCornerRadius="@dimen/eve_radius_card"
+                        app:cardBackgroundColor="@color/eve_card_bg"
+                        app:cardCornerRadius="20dp"
                         app:cardElevation="0dp"
                         app:strokeColor="@color/eve_shape_border"
                         app:strokeWidth="1dp">
@@ -1130,11 +1136,11 @@
                             android:layout_height="wrap_content"
                             android:gravity="center_horizontal"
                             android:orientation="vertical"
-                            android:padding="24dp">
+                            android:padding="20dp">
 
                             <FrameLayout
-                                android:layout_width="64dp"
-                                android:layout_height="64dp"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
                                 android:background="@drawable/bg_circle_badge">
 
                                 <ImageView
@@ -1153,7 +1159,7 @@
                                 android:layout_marginTop="16dp"
                                 android:text="-- / --"
                                 android:textColor="@color/eve_text"
-                                android:textSize="32sp"
+                                android:textSize="28sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -1166,7 +1172,7 @@
                                 android:textColor="@color/eve_text_secondary"
                                 android:textSize="14sp" />
 
-                            <LinearLayout
+                            <com.eve.app.ui.result.ResponsiveResultRow
                                 android:id="@+id/layoutLeaderboardChips"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -1179,7 +1185,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginEnd="8dp"
-                                    android:background="@drawable/bg_stat_mini"
+                                    android:background="@drawable/bg_recovery_badge"
                                     android:paddingHorizontal="12dp"
                                     android:paddingVertical="@dimen/eve_space_4"
                                     android:text="Score: --"
@@ -1191,21 +1197,21 @@
                                     android:id="@+id/tvLeaderboardPercentileChip"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:background="@drawable/bg_stat_mini"
+                                    android:background="@drawable/bg_recovery_badge"
                                     android:paddingHorizontal="12dp"
                                     android:paddingVertical="@dimen/eve_space_4"
                                     android:text="Percentile: --%"
                                     android:textColor="@color/eve_text"
                                     android:textSize="12sp"
                                     android:textStyle="bold" />
-                            </LinearLayout>
+                            </com.eve.app.ui.result.ResponsiveResultRow>
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btnOpenLeaderboard"
-                                style="@style/Widget.Eve.Button.Primary"
+                                style="@style/Widget.Eve.RecoveryPrimary"
                                 android:layout_width="match_parent"
-                                android:layout_height="48dp"
-                                android:layout_marginTop="24dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="20dp"
                                 android:minHeight="48dp"
                                 android:text="View Full Leaderboard"
                                 app:icon="@drawable/ic_trophy"

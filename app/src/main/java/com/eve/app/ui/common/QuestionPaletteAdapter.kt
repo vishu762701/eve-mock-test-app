@@ -134,7 +134,7 @@ class QuestionPaletteAdapter(
                 b.tvCircleNumber.setTextColor(if (fill == R.color.eve_test_selected || fill == R.color.eve_test_review) android.graphics.Color.BLACK
                     else if (fill == R.color.eve_test_option_bg) ContextCompat.getColor(ctx, R.color.eve_test_foreground) else textColor)
                 b.cardCircle.strokeWidth = Math.round(density).coerceAtLeast(1)
-                b.cardCircle.strokeColor = ContextCompat.getColor(ctx, R.color.eve_shape_border)
+                b.cardCircle.strokeColor = ContextCompat.getColor(ctx, R.color.eve_test_shape_border)
                 // Active position must not erase answer/review state or add an extra outline.
                 b.tvCircleNumber.typeface = android.graphics.Typeface.create(
                     "sans-serif", if (item.isActive) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)

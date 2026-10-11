@@ -1,5 +1,11 @@
 # Approved UI implementation audit
 
+Current authority: the 2026-10-11 Autonomous UI Design Recovery request explicitly
+approves responsive corrections to Home, Profile, all Result tabs, Target Exams and
+shared surfaces. It supersedes the old manual numeric requirements and global harsh
+outlines below. Previous audit sections remain historical verification evidence.
+The test engine and permanent color/behavior invariants remain protected.
+
 Source of approval: `EVE_MASTER_DESIGN_HANDOFF.md` and the user's final numerical
 specifications. Home and Mock settings and the Result segmented tabs are approved.
 Other Result card styling and Full Leaderboard redesigns remain unapproved.

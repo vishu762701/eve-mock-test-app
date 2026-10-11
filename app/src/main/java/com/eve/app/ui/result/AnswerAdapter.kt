@@ -109,7 +109,7 @@ class AnswerAdapter(
                             layout.setBackgroundResource(R.drawable.bg_option_review_correct)
                             badge.setBackgroundResource(R.drawable.bg_option_badge_correct)
                             badge.setTextColor(ContextCompat.getColor(ctx, android.R.color.white))
-                            textView.setTextColor(ContextCompat.getColor(ctx, R.color.eve_status_success))
+                            textView.setTextColor(ContextCompat.getColor(ctx, R.color.eve_tile_right_text))
                             statusIv.visibility = View.VISIBLE
                             statusIv.setImageResource(R.drawable.ic_check_circle)
                             statusIv.imageTintList = android.content.res.ColorStateList.valueOf(
@@ -120,7 +120,7 @@ class AnswerAdapter(
                             layout.setBackgroundResource(R.drawable.bg_option_review_wrong)
                             badge.setBackgroundResource(R.drawable.bg_option_badge_wrong)
                             badge.setTextColor(ContextCompat.getColor(ctx, android.R.color.white))
-                            textView.setTextColor(ContextCompat.getColor(ctx, R.color.eve_status_error))
+                            textView.setTextColor(ContextCompat.getColor(ctx, R.color.eve_tile_wrong_text))
                             statusIv.visibility = View.VISIBLE
                             statusIv.setImageResource(R.drawable.ic_close)
                             statusIv.imageTintList = android.content.res.ColorStateList.valueOf(

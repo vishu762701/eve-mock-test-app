@@ -55,10 +55,8 @@ class LottieContainersNoDecorationTest {
         )
 
         val cornerRadius = container.getAttribute("app:cardCornerRadius")
-        assertTrue(
-            "examIconContainer cornerRadius must be 28dp or 16dp (was '$cornerRadius')",
-            cornerRadius == "28dp" || cornerRadius == "16dp"
-        )
+        assertEquals("14dp", cornerRadius)
+        assertEquals("Icon tile must not add a nested outline", "0dp", container.getAttribute("app:strokeWidth"))
 
         val elevation = container.getAttribute("app:cardElevation")
         assertTrue(

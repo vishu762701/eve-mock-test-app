@@ -24,7 +24,7 @@ class ManualBorderInventoryTest {
                 count++
             }
         }
-        assertTrue("Inventory must include active shape outlines", count >= 27)
+        assertTrue("Inventory must include active shape outlines", count >= 20)
     }
 
     @Test fun explicitLayoutOutlinesPreserveZeroStrokeExceptions() {
@@ -46,7 +46,7 @@ class ManualBorderInventoryTest {
         assertEquals("@android:color/transparent", switchStates.first().getAttribute("android:color"))
         assertEquals("true", switchStates.first().getAttribute("android:state_checked"))
         assertEquals("@color/eve_shape_border", switchStates.last().getAttribute("android:color"))
-        for ((qualifier, expected) in listOf("values" to "#FF000000", "values-night" to "#FFFFFFFF")) {
+        for ((qualifier, expected) in listOf("values" to "#D9DDE5", "values-night" to "#3B3F4A")) {
             val color = elements(File(res, "$qualifier/manual_ui_colors.xml")).first { it.getAttribute("name") == "eve_shape_border" }
             assertEquals(expected, color.textContent)
         }

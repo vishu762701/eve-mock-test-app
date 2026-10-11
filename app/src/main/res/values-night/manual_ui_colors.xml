@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Decorative shape outlines only; never use for separators or artwork. -->
-    <color name="eve_shape_border">#FFFFFFFF</color>
+    <!-- Subtle decorative outlines; focus, selection and semantic artwork use dedicated tokens. -->
+    <color name="eve_shape_border">#3B3F4A</color>
 </resources>

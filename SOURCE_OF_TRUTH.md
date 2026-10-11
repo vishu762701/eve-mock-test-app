@@ -9,6 +9,20 @@
 - If this file and the actual code disagree, trust the code, and report the mismatch under "Noticed but not touched (outside scope)" in the Final Report.
 - Never claim state from memory or from older chats. Inspect real files, run `git status` and `git log -1`, and run the relevant checks.
 
+## Current UI design authority (2026-10-11)
+
+The user's Autonomous UI Design Recovery request supersedes previous manual dimensions
+and universal black/white decorative strokes on Home, Profile, Result (all three tabs),
+Target Exams, and directly shared surface components. Older numerical UI audit sections
+are historical evidence, not current design constraints. Behavior, permanent canvas and
+semantic colors, test engine geometry/submission, and circular theme reveal remain invariant.
+
+The active treatment uses content-measured score cards, equal-width responsive metric
+columns (two on normal phone widths, four when space permits, fewer at larger font scales),
+one rounded rectangle for score fill/outline/clipping, subtle decorative outline tokens,
+blue selection/focus accents, and scrollable, width-bounded Target Exams content. Test palette
+outlines retain their established appearance through `eve_test_shape_border`.
+
 ## 1. Repository identity
 - Remote origin: `git@github.com:vishu762701/eve-mock-test-app.git`
 - Branch: `main` only (see AGENTS.md "Repository workflow").

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="eve_recovery_surface">#20232C</color>
+    <color name="eve_recovery_selected">#142B49</color>
+    <!-- Keep the established test palette appearance separate from decorative surfaces. -->
+    <color name="eve_test_shape_border">#FFFFFFFF</color>
+    <color name="eve_recovery_accent">#72B2FF</color>
+    <color name="eve_recovery_on_accent">#07172C</color>
+</resources>

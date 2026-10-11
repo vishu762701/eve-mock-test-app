@@ -3,12 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="188dp"
+    android:minHeight="0dp"
     android:layout_marginHorizontal="0dp"
     android:layout_marginTop="0dp"
     android:layout_marginBottom="12dp"
     app:cardBackgroundColor="@color/eve_card_bg"
-    app:cardCornerRadius="28dp"
+    app:cardCornerRadius="20dp"
     app:cardElevation="0dp"
     app:strokeColor="@color/eve_shape_border"
     app:strokeWidth="1dp">
@@ -19,76 +19,69 @@
         android:orientation="vertical"
         android:padding="14dp">
 
-        <!-- 1. Question Number + Status + Header Actions -->
+        <!-- A flexible label column leaves both header actions reachable at large text sizes. -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal">
-
-            <ImageView
-                android:id="@+id/ivStatusCircle"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:contentDescription="Question status"
-                android:src="@drawable/ic_status_circle_right" />
-
-            <TextView
-                android:id="@+id/tvQuestionNum"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:fontFamily="sans-serif-medium"
-                android:text="Question 1"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="15sp" />
-
-            <TextView
-                android:id="@+id/tvQuestionStatusLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_stat_mini"
-                android:fontFamily="sans-serif-medium"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="2dp"
-                android:text="Correct"
-                android:textColor="@color/eve_status_success"
-                android:textSize="13.5sp" />
-
-            <View
+            <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:id="@+id/ivStatusCircle"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:contentDescription="Question status"
+                        android:src="@drawable/ic_status_circle_right" />
+                    <TextView
+                        android:id="@+id/tvQuestionNum"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="Question 1"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="14sp" />
+                </LinearLayout>
+                <TextView
+                    android:id="@+id/tvQuestionStatusLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Correct"
+                    android:textColor="@color/eve_status_success"
+                    android:textSize="13sp" />
+            </LinearLayout>
             <ImageView
                 android:id="@+id/ivBookmark"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:contentDescription="Bookmarked"
-                android:padding="8dp"
+                android:padding="12dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_star_bookmark_filled"
                 android:visibility="gone" />
-
-            <!-- Question Report Action Button (48dp touch target) -->
-            <FrameLayout
+            <ImageView
+                android:id="@+id/ivReportQuestion"
                 android:layout_width="48dp"
-                android:layout_height="48dp">
-
-                <ImageView
-                    android:id="@+id/ivReportQuestion"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:layout_gravity="center"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:stateListAnimator="@animator/press_scale"
-                    android:contentDescription="Report this question"
-                    android:padding="6dp"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/ic_report_flag_premium"
-                    app:tint="@color/eve_text_secondary" />
-            </FrameLayout>
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:stateListAnimator="@animator/press_scale"
+                android:contentDescription="Report this question"
+                android:padding="12dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_report_flag_premium"
+                app:tint="@color/eve_text_secondary" />
         </LinearLayout>
 
         <!-- 2. Question Text: Receives Primary Focus -->
@@ -362,7 +355,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="@drawable/bg_stat_mini"
+            android:background="@drawable/bg_recovery_inset"
             android:orientation="vertical"
             android:padding="12dp">
 

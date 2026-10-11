@@ -324,6 +324,17 @@ class ApprovedUiRenderingTest {
     private fun verifyResult() {
         val b = ActivityResultBinding.inflate(LayoutInflater.from(context))
         ResultTabs.bind(b) {}
+        b.tvScore.text = "78 / 100"
+        b.tvScorePercentage.text = "78.0% Score"
+        b.tvCorrectCount.text = "82"
+        b.tvWrongCount.text = "16"
+        b.tvUnattemptedCount.text = "2"
+        b.tvAccuracy.text = "83.7%"
+        b.tvRank.text = "126 / 4,800"
+        b.tvPercentile.text = "97.4%"
+        b.tvLeaderboardTabRank.text = "126 / 4,800"
+        b.tvLeaderboardScoreChip.text = "Score: 78"
+        b.tvLeaderboardPercentileChip.text = "Percentile: 97.4%"
         val margins = b.tabLayoutResult.layoutParams as ViewGroup.MarginLayoutParams
         assertEquals(dp(16), margins.marginStart)
         assertEquals(dp(16), margins.marginEnd)
@@ -342,7 +353,7 @@ class ApprovedUiRenderingTest {
                 val strip = b.tabLayoutResult.getChildAt(0) as ViewGroup
                 assertEquals(image.width - b.tabLayoutResult.paddingLeft - b.tabLayoutResult.paddingRight, strip.width)
                 val x = ((index + 0.5f) * image.width / 3).toInt()
-                assertEquals("Selected pill must render for $name in dark=$dark", foreground, image.getPixel(x, dp(8)))
+                assertEquals("Selected pill must render for $name in dark=$dark", context.getColor(R.color.eve_result_tab_selected), image.getPixel(x, dp(8)))
                 assertEquals(if (dark) color("#171717") else color("#F1F1F3"), image.getPixel(image.width / 2, dp(1)))
                 val cornerX = b.tabLayoutResult.paddingLeft + strip.getChildAt(index).right - dp(3) - dp(1)
                 assertEquals("Selected $name pill must retain its rounded right corner",
@@ -350,8 +361,8 @@ class ApprovedUiRenderingTest {
                     image.getPixel(cornerX, b.tabLayoutResult.paddingTop + dp(1)))
             }
             val colors = b.tabLayoutResult.tabTextColors!!
-            assertEquals(background, colors.getColorForState(intArrayOf(android.R.attr.state_selected), 0))
-            assertEquals(foreground, colors.defaultColor)
+            assertEquals(context.getColor(R.color.eve_recovery_accent), colors.getColorForState(intArrayOf(android.R.attr.state_selected), 0))
+            assertEquals(context.getColor(R.color.eve_text_secondary), colors.defaultColor)
             save(b.root, "result-${name.lowercase()}")
         }
     }

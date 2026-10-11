@@ -1,9 +1,7 @@
 package com.eve.app.ui.home
 
 import android.content.Context
-import android.graphics.Outline
 import android.view.View
-import android.view.ViewOutlineProvider
 import androidx.core.content.ContextCompat
 import com.eve.app.R
 import com.eve.app.util.Constants
@@ -25,24 +23,24 @@ object HomeAppearance {
             isCheckable = true
             isChecked = category == selected
             val density = resources.displayMetrics.density
-            // A 71dp requested radius resolves to a capsule at half the height.
-            chipStrokeWidth = density
+            // Categories are content-sized pills with a separate 48dp delegated touch target.
+            chipStrokeWidth = 0f
             chipStrokeColor = ContextCompat.getColorStateList(context, R.color.eve_shape_border)
-            chipBackgroundColor = ContextCompat.getColorStateList(context, R.color.selector_category_chip_bg)
-            setTextColor(ContextCompat.getColorStateList(context, R.color.selector_category_chip_text))
+            chipBackgroundColor = ContextCompat.getColorStateList(context, R.color.selector_recovery_chip_bg)
+            setTextColor(ContextCompat.getColorStateList(context, R.color.selector_recovery_chip_text))
             isCheckedIconVisible = false
             setEnsureMinTouchTargetSize(false) // parent delegates a 48dp touch region
             textSize = 13f
-            chipStartPadding = 8f * density
-            chipEndPadding = 8f * density
+            chipStartPadding = 12f * density
+            chipEndPadding = 12f * density
             textStartPadding = 0f
             textEndPadding = 0f
             setPaddingRelative(paddingStart, Math.round(8f * density), paddingEnd, Math.round(8f * density))
             chipMinHeight = maxOf(40f * density, paint.fontMetrics.run { bottom - top } + 16f * density)
-            chipCornerRadius = minOf(71f * density, chipMinHeight / 2f)
-            minWidth = Math.round(65f * density)
+            chipCornerRadius = chipMinHeight / 2f
+            minWidth = Math.round(64f * density)
             minHeight = Math.round(chipMinHeight)
-            maxWidth = Math.round(maxOf(65, resources.configuration.screenWidthDp - 32) * density)
+            maxWidth = Math.round(maxOf(64, resources.configuration.screenWidthDp - 32) * density)
             ellipsize = android.text.TextUtils.TruncateAt.END
             contentDescription = category
             textAlignment = View.TEXT_ALIGNMENT_CENTER

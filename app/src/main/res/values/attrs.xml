@@ -5,4 +5,7 @@
         <attr name="eveHasHighlight" format="boolean" />
         <attr name="eveTactile" format="boolean" />
     </declare-styleable>
+    <declare-styleable name="ResponsiveResultRow">
+        <attr name="eveHorizontalBreakpoint" format="dimension" />
+    </declare-styleable>
 </resources>

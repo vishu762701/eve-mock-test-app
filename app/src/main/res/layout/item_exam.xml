@@ -9,7 +9,7 @@
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground"
     android:stateListAnimator="@animator/press_scale"
-    app:cardBackgroundColor="@color/eve_glass_card_fill"
+    app:cardBackgroundColor="@color/eve_card_bg"
     app:cardCornerRadius="15dp"
     app:cardElevation="0dp"
     app:rippleColor="@color/eve_primary"
@@ -19,20 +19,20 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="6dp">
+        android:padding="12dp">
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/examIconContainer"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             app:cardBackgroundColor="@color/eve_exam_icon_tile_bg"
-            app:cardCornerRadius="28dp"
+            app:cardCornerRadius="14dp"
             app:cardElevation="0dp"
             app:rippleColor="@android:color/transparent"
             app:strokeColor="@color/eve_shape_border"
-            app:strokeWidth="1dp">
+            app:strokeWidth="0dp">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/ivExamImage"
@@ -86,7 +86,7 @@
                 android:fontFamily="sans-serif-medium"
                 android:maxLines="2"
                 android:textColor="@color/eve_text"
-                android:textSize="17sp"
+                android:textSize="16sp"
                 android:textStyle="bold" />
 
             <TextView

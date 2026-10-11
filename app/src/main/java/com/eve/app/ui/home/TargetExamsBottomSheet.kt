@@ -24,12 +24,39 @@ object TargetExamsBottomSheet {
         return prefs.getBoolean(KEY_ONBOARDING_DONE, false)
     }
 
+    /** Shared production chip creation: readable at large text, bounded label, full accessible name. */
+    fun examChip(context: Context, name: String, checked: Boolean): Chip =
+        Chip(context, null, com.google.android.material.R.attr.chipStyle).apply {
+            id = android.view.View.generateViewId()
+            text = name
+            contentDescription = name
+            isCheckable = true
+            isChecked = checked
+            setCheckedIconResource(com.eve.app.R.drawable.ic_target_exam_checked)
+            checkedIconTint = androidx.core.content.ContextCompat.getColorStateList(context, com.eve.app.R.color.eve_recovery_accent)
+            isCheckedIconVisible = true
+            textSize = 14f
+            typeface = android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL)
+            val density = resources.displayMetrics.density
+            chipMinHeight = maxOf(40f * density, paint.fontMetrics.run { bottom - top } + 20f * density)
+            chipCornerRadius = 12f * density
+            chipStrokeWidth = 0f
+            chipBackgroundColor = androidx.core.content.ContextCompat.getColorStateList(context, com.eve.app.R.color.selector_recovery_chip_bg)
+            setTextColor(androidx.core.content.ContextCompat.getColorStateList(context, com.eve.app.R.color.selector_recovery_chip_text))
+            chipStartPadding = 12f * density
+            chipEndPadding = 12f * density
+            setEnsureMinTouchTargetSize(true)
+            maxWidth = (Math.round(minOf(resources.configuration.screenWidthDp, 640) * density) -
+                2 * Math.round(20f * density)).coerceAtLeast(Math.round(48f * density))
+            ellipsize = android.text.TextUtils.TruncateAt.END
+        }
+
     fun show(
         activity: AppCompatActivity,
         exams: List<Exam>,
         onSaved: (Set<String>) -> Unit = {}
-    ) {
-        val dialog = BottomSheetDialog(activity)
+    ): BottomSheetDialog {
+        val dialog = BottomSheetDialog(activity, com.eve.app.R.style.Theme_Eve_RecoverySheet)
         val binding = BottomSheetTargetExamsBinding.inflate(LayoutInflater.from(activity))
         dialog.setContentView(binding.root)
 
@@ -40,38 +67,7 @@ object TargetExamsBottomSheet {
         val chipMap = mutableMapOf<Int, String>()
 
         mainExams.forEach { exam ->
-            val chip = Chip(activity).apply {
-                text = exam.examName
-                isCheckable = true
-                isChecked = currentTargets.contains(exam.id)
-                setCheckedIconResource(com.eve.app.R.drawable.ic_target_exam_checked)
-                checkedIconTint = null
-                chipIconSize = resources.getDimension(com.eve.app.R.dimen.target_exam_chip_icon_size)
-                isCheckedIconVisible = true
-                typeface = androidx.core.content.res.ResourcesCompat.getFont(activity, com.eve.app.R.font.poppins_medium)
-                textSize = 14f
-                chipMinHeight = resources.displayMetrics.density * 38f
-                chipBackgroundColor = android.content.res.ColorStateList(
-                    arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
-                    intArrayOf(
-                        androidx.core.content.ContextCompat.getColor(activity, com.eve.app.R.color.eve_lilac_subtle),
-                        androidx.core.content.ContextCompat.getColor(activity, com.eve.app.R.color.eve_surface_2)
-                    )
-                )
-                chipStrokeColor = android.content.res.ColorStateList.valueOf(
-                    androidx.core.content.ContextCompat.getColor(activity, com.eve.app.R.color.eve_shape_border)
-                )
-                chipStrokeWidth = resources.displayMetrics.density * 1f
-                setTextColor(
-                    android.content.res.ColorStateList(
-                        arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
-                        intArrayOf(
-                            androidx.core.content.ContextCompat.getColor(activity, com.eve.app.R.color.eve_lilac_text),
-                            androidx.core.content.ContextCompat.getColor(activity, com.eve.app.R.color.eve_text)
-                        )
-                    )
-                )
-            }
+            val chip = examChip(activity, exam.examName, currentTargets.contains(exam.id))
             binding.chipGroupExams.addView(chip)
             chipMap[chip.id] = exam.id
         }
@@ -97,6 +93,12 @@ object TargetExamsBottomSheet {
             dialog.dismiss()
         }
 
+        val density = activity.resources.displayMetrics.density
+        dialog.behavior.maxWidth = Math.round(640f * density)
+        dialog.behavior.maxHeight = Math.round(activity.resources.displayMetrics.heightPixels * 0.9f)
+        dialog.behavior.skipCollapsed = true
         dialog.show()
+        dialog.behavior.state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
+        return dialog
     }
 }
