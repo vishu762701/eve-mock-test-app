@@ -133,7 +133,11 @@ parent's center. Do not apply that equation to unrelated side-by-side controls.
 Material fill and clipping use one shape model. Retain borders for focus,
 selection and readability. Never stack an XML outline over a Material outline.
 Buttons retain the existing tactile animator and Material ripple; explicit
-disabled colours keep unavailable labels readable. Cards remain content surfaces,
+disabled foregrounds keep all button roles readable. Historical Lilac/Orange
+button names inherit Soft/Primary states rather than overriding them with static
+colours. Filled reattempt actions omit an unnecessary decorative outline; outlined
+actions retain their functional border. Focused field hints and Material error
+labels use accessible text roles, independently of reference accent/status hues. Cards remain content surfaces,
 not additional glass controls.
 
 `values/themes.xml` owns shared M3 colour/typography/widget/dialog definitions,

@@ -33,7 +33,7 @@
     <com.google.android.material.button.MaterialButton android:id="@+id/fixtureDisabled"
         style="@style/Widget.Eve.Button.Primary" android:layout_width="match_parent" android:layout_height="wrap_content"
         android:layout_marginTop="8dp" android:text="Unavailable action" android:enabled="false" />
-    <com.google.android.material.textfield.TextInputLayout style="@style/Widget.Eve.TextInput.Filled"
+    <com.google.android.material.textfield.TextInputLayout android:id="@+id/fixtureField" style="@style/Widget.Eve.TextInput.Filled"
         android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp"
         android:hint="Search practice tests">
         <com.google.android.material.textfield.TextInputEditText android:layout_width="match_parent"

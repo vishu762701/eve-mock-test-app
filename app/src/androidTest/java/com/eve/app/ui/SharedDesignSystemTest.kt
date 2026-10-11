@@ -61,6 +61,19 @@ class SharedDesignSystemTest {
                 assertTrue(ColorUtils.calculateContrast(secondary.currentTextColor, context.getColor(R.color.eve_canvas)) >= 4.5)
                 assertEquals(context.getColor(R.color.eve_on_primary), buttons[0].currentTextColor)
                 assertEquals(context.getColor(if (high) R.color.eve_hc_primary else R.color.eve_primary), buttons[0].backgroundTintList!!.defaultColor)
+                for (button in buttons) {
+                    button.isEnabled = false
+                    assertEquals(context.getColor(R.color.eve_disabled_text), button.currentTextColor)
+                    val fill = ColorUtils.compositeColors(button.backgroundTintList!!.getColorForState(button.drawableState, 0),
+                        context.getColor(R.color.eve_canvas))
+                    assertTrue("Every disabled button label remains readable", ColorUtils.calculateContrast(button.currentTextColor, fill) >= 4.5)
+                    button.isEnabled = true
+                }
+                val field = root.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.fixtureField)
+                val expectedAccent = context.getColor(if (high) R.color.eve_hc_accent else R.color.eve_accent_text)
+                assertEquals(expectedAccent, field.hintTextColor!!.defaultColor)
+                assertTrue(ColorUtils.calculateContrast(field.hintTextColor!!.defaultColor,
+                    context.getColor(R.color.eve_input_fill)) >= 4.5)
                 assertEquals(context.getColor(R.color.eve_card_bg), card.cardBackgroundColor.defaultColor)
                 assertEquals(dp(20).toFloat(), card.radius, 1f)
                 assertTrue(ColorUtils.calculateContrast(disabled.currentTextColor,

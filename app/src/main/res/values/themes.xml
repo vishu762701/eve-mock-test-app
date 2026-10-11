@@ -40,10 +40,10 @@
         <item name="colorControlActivated">@color/eve_primary</item>
         <item name="colorControlNormal">@color/eve_label_secondary</item>
         <item name="colorControlHighlight">@color/eve_ripple</item>
-        <item name="colorError">@color/eve_red_text</item>
+        <item name="colorError">@color/eve_status_error_text</item>
         <item name="colorOnError">@color/eve_on_primary</item>
         <item name="colorErrorContainer">@color/eve_red_fill</item>
-        <item name="colorOnErrorContainer">@color/eve_red_text</item>
+        <item name="colorOnErrorContainer">@color/eve_status_error_text</item>
         <item name="android:textColorPrimary">@color/eve_label_primary</item>
         <item name="android:textColorSecondary">@color/eve_label_secondary</item>
         <item name="android:textColorHint">@color/eve_placeholder_text</item>

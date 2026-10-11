@@ -16,7 +16,7 @@
         <item name="fontFamily">sans-serif-medium</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="backgroundTint">@color/selector_eve_button_neutral</item>
-        <item name="android:textColor">@color/eve_button_text</item>
+        <item name="android:textColor">@color/selector_eve_neutral_text</item>
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Eve.Capsule</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
@@ -33,33 +33,26 @@
 
     <style name="Widget.Eve.Button.Neutral" parent="Widget.Eve.Button">
         <item name="backgroundTint">@color/selector_eve_button_neutral</item>
-        <item name="android:textColor">@color/eve_button_neutral_text</item>
-        <item name="iconTint">@color/eve_button_neutral_text</item>
+        <item name="android:textColor">@color/selector_eve_neutral_text</item>
+        <item name="iconTint">@color/selector_eve_neutral_text</item>
     </style>
 
     <style name="Widget.Eve.Button.Soft" parent="Widget.Eve.Button">
         <item name="backgroundTint">@color/selector_eve_button_soft</item>
-        <item name="android:textColor">@color/eve_button_soft_text</item>
-        <item name="iconTint">@color/eve_button_soft_text</item>
+        <item name="android:textColor">@color/selector_eve_accent_text</item>
+        <item name="iconTint">@color/selector_eve_accent_text</item>
     </style>
 
 
-    <style name="Widget.Eve.Button.LilacPill" parent="Widget.Eve.Button">
-        <item name="backgroundTint">@color/eve_chip_hi_bg</item>
-        <item name="android:textColor">@color/eve_chip_hi_text</item>
-        <item name="iconTint">@color/eve_chip_hi_text</item>
+    <style name="Widget.Eve.Button.LilacPill" parent="Widget.Eve.Button.Soft">
         <item name="android:minHeight">40dp</item>
         <item name="android:textSize">13sp</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
     </style>
 
-    <style name="Widget.Eve.Button.OrangePill" parent="Widget.Eve.Button">
-        <item name="backgroundTint">@color/eve_reattempt_bg</item>
-        <item name="android:textColor">@color/eve_reattempt_text</item>
-        <item name="iconTint">@color/eve_reattempt_text</item>
-        <item name="strokeColor">@color/eve_shape_border</item>
-        <item name="strokeWidth">1dp</item>
+    <style name="Widget.Eve.Button.OrangePill" parent="Widget.Eve.Button.Primary">
+        <item name="strokeWidth">0dp</item>
         <item name="android:minHeight">36dp</item>
         <item name="android:textSize">12.5sp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
@@ -68,12 +61,8 @@
         <item name="android:insetBottom">0dp</item>
     </style>
 
-    <style name="Widget.Eve.Button.Orange" parent="Widget.Eve.Button">
-        <item name="backgroundTint">@color/eve_reattempt_bg</item>
-        <item name="android:textColor">@color/eve_reattempt_text</item>
-        <item name="iconTint">@color/eve_reattempt_text</item>
-        <item name="strokeColor">@color/eve_shape_border</item>
-        <item name="strokeWidth">1dp</item>
+    <style name="Widget.Eve.Button.Orange" parent="Widget.Eve.Button.Primary">
+        <item name="strokeWidth">0dp</item>
         <item name="android:minHeight">@dimen/eve_control_min_touch</item>
         <item name="android:textSize">14sp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
@@ -92,7 +81,8 @@
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Eve.Capsule</item>
         <item name="strokeWidth">1dp</item>
         <item name="strokeColor">?attr/eveControlOutline</item>
-        <item name="android:textColor">?attr/eveAccentText</item>
+        <item name="android:textColor">@color/selector_eve_accent_text</item>
+        <item name="iconTint">@color/selector_eve_accent_text</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
     </style>
@@ -101,6 +91,7 @@
 
     <style name="Widget.Eve.TextInput.Filled" parent="Widget.Material3.TextInputLayout.FilledBox">
         <item name="boxBackgroundColor">@color/eve_input_fill</item>
+        <item name="hintTextColor">?attr/eveAccentText</item>
         <item name="boxStrokeColor">@color/selector_eve_input_stroke</item>
         <item name="boxStrokeWidth">1dp</item>
         <item name="boxStrokeWidthFocused">2dp</item>
@@ -112,6 +103,7 @@
 
     <style name="Widget.Eve.TextInput.Filled.ExposedDropdownMenu" parent="Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu">
         <item name="boxBackgroundColor">@color/eve_input_fill</item>
+        <item name="hintTextColor">?attr/eveAccentText</item>
         <item name="boxStrokeColor">@color/selector_eve_input_stroke</item>
         <item name="boxStrokeWidth">1dp</item>
         <item name="boxStrokeWidthFocused">2dp</item>
@@ -131,7 +123,8 @@
         <item name="android:paddingBottom">0dp</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
-        <item name="android:textColor">@color/eve_destructive_text</item>
+        <item name="android:textColor">@color/selector_eve_destructive_text</item>
+        <item name="iconTint">@color/selector_eve_destructive_text</item>
         <item name="android:textSize">13sp</item>
         <item name="android:textStyle">normal</item>
         <item name="strokeColor">@color/eve_shape_border</item>
@@ -146,7 +139,8 @@
         <item name="fontFamily">sans-serif-medium</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Eve.Capsule</item>
-        <item name="android:textColor">?attr/eveAccentText</item>
+        <item name="android:textColor">@color/selector_eve_accent_text</item>
+        <item name="iconTint">@color/selector_eve_accent_text</item>
     </style>
 
     <!-- Cards: 20dp radius, 0.5dp subtle border, soft elevation in light, 0dp in dark -->
