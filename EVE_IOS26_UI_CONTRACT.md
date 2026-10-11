@@ -71,7 +71,11 @@ checking contrast. Use opaque input and content surfaces where readability needs
 predictability. A separator is not a functional focus outline.
 
 General error and offline-banner text use readable foregrounds on their existing
-status containers; their semantic test status colours remain untouched.
+status containers; their semantic test status colours remain untouched. Generic
+admin state badges use `eve_status_success_text` / `eve_status_error_text`, rather
+than reference status hues as small text. `eve_status_warning_text` supplies the
+matching readable warning foreground. These aliases reuse existing meaningful
+status foregrounds and do not turn status colours into interactive accents.
 
 Small coloured text and primary filled-button roles are **accessibility-adjusted
 Android equivalents**. White on reference #007AFF is only approximately 4.02:1;

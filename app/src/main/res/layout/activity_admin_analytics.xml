@@ -135,7 +135,7 @@
                                 android:paddingHorizontal="8dp"
                                 android:paddingVertical="2dp"
                                 android:text="Crashlytics Active"
-                                android:textColor="@color/eve_green"
+                                android:textColor="@color/eve_status_success_text"
                                 android:textSize="13sp" />
                         </LinearLayout>
 
@@ -151,7 +151,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="99.8%"
-                                android:textColor="@color/eve_green"
+                                android:textColor="@color/eve_status_success_text"
                                 android:textSize="26sp" />
 
                             <LinearLayout

@@ -57,7 +57,7 @@
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="2dp"
                     android:text="Active"
-                    android:textColor="@color/eve_green"
+                    android:textColor="@color/eve_status_success_text"
                     android:textSize="13sp" />
             </LinearLayout>
 

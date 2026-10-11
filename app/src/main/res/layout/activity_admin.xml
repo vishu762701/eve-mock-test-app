@@ -464,7 +464,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="—"
-                                    android:textColor="@color/eve_green"
+                                    android:textColor="@color/eve_status_success_text"
                                     android:textSize="22sp" />
 
                                 <TextView
@@ -795,7 +795,7 @@
                                 android:paddingHorizontal="8dp"
                                 android:paddingVertical="3dp"
                                 android:text="Active"
-                                android:textColor="@color/eve_green"
+                                android:textColor="@color/eve_status_success_text"
                                 android:textSize="13sp" />
                         </LinearLayout>
 
@@ -917,7 +917,7 @@
                                 android:paddingHorizontal="8dp"
                                 android:paddingVertical="3dp"
                                 android:text="OFF (Live)"
-                                android:textColor="@color/eve_green"
+                                android:textColor="@color/eve_status_success_text"
                                 android:textSize="13sp" />
                         </LinearLayout>
 

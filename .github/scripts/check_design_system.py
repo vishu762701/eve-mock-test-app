@@ -49,7 +49,7 @@ def verify():
                    'eve_input_fill','eve_recovery_surface']
     for theme in ['values','values-night']:
         c = colors(theme)
-        for fg in ['eve_label_primary','eve_label_secondary','eve_label_tertiary','eve_label_quaternary','eve_placeholder_text','eve_accent_text','eve_destructive_text']:
+        for fg in ['eve_label_primary','eve_label_secondary','eve_label_tertiary','eve_label_quaternary','eve_placeholder_text','eve_accent_text','eve_destructive_text','eve_status_success_text','eve_status_error_text','eve_status_warning_text']:
             for bg in backgrounds:
                 rows.append((theme,fg,bg,contrast(c[fg],c[bg],c['eve_canvas']),4.5))
         for fg,bg in [('eve_on_primary','eve_primary'),('eve_on_primary','eve_hc_primary'),('eve_button_soft_text','eve_button_soft_bg'),

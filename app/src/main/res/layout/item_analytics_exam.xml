@@ -81,7 +81,7 @@
             android:paddingHorizontal="8dp"
             android:paddingVertical="3dp"
             android:text="⚠️ 0 Attempts - Needs Promotion"
-            android:textColor="@color/eve_red"
+            android:textColor="@color/eve_status_error_text"
             android:textSize="13sp" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

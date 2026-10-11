@@ -285,4 +285,8 @@
     <color name="eve_hc_outline">#484850</color>
     <color name="eve_destructive_text">#96211C</color>
     <color name="eve_hc_primary">#004A99</color>
+    <!-- Readable state labels; reference status hues and protected test tokens stay intact. -->
+    <color name="eve_status_success_text">@color/eve_green_text</color>
+    <color name="eve_status_error_text">@color/eve_destructive_text</color>
+    <color name="eve_status_warning_text">@color/eve_tile_medium_text</color>
 </resources>

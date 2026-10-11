@@ -42,7 +42,7 @@
                 android:background="@drawable/bg_category_chip"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="3dp"
-                android:textColor="@color/eve_red"
+                android:textColor="@color/eve_status_error_text"
                 android:textSize="12sp"
                 tools:text="🚩 3 flags" />
         </LinearLayout>
