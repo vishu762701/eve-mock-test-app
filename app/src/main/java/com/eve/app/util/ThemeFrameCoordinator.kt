@@ -17,7 +17,13 @@ internal object ThemeFrameCoordinator {
                 if (!valid()) { remove(); return true }
                 if (!view.isAttachedToWindow || !view.isLaidOut || !ready()) return true
                 remove()
-                afterCurrentFrame(view, valid, action)
+                afterCurrentFrame(view, valid) {
+                    // Focus/readiness can change between pre-draw and the hardware
+                    // fence (for example while dismissing a PopupWindow). Keep the
+                    // handoff owned and wait for another ready frame instead of
+                    // consuming its callback against an obscured host.
+                    if (ready()) action() else afterFrame(view, ready, valid, action)
+                }
                 return true
             }
             override fun onViewDetachedFromWindow(v: View) { remove() }

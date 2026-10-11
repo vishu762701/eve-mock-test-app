@@ -34,6 +34,33 @@ import org.junit.runner.RunWith
 class DesignRecoveryTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
 
+    @androidx.test.filters.SdkSuppress(minSdkVersion = 29)
+    @Test fun themeFrameRevalidatesReadinessAfterHardwareCommit() {
+        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            val phase = java.util.concurrent.atomic.AtomicInteger(0)
+            val lostReadiness = java.util.concurrent.CountDownLatch(1)
+            val complete = java.util.concurrent.CountDownLatch(1)
+            val calls = java.util.concurrent.atomic.AtomicInteger(0)
+            scenario.onActivity { activity ->
+                val root = android.widget.FrameLayout(activity)
+                activity.setContentView(root)
+                com.eve.app.util.ThemeFrameCoordinator.afterFrame(root, ready = {
+                    when {
+                        phase.compareAndSet(0, 1) -> true // Ready at pre-draw, then lost before commit.
+                        phase.get() == 1 -> { lostReadiness.countDown(); false }
+                        else -> true
+                    }
+                }) { calls.incrementAndGet(); complete.countDown() }
+            }
+            assertTrue("The committed frame must recheck readiness", lostReadiness.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            assertEquals("An obscured host must not consume its handoff", 0, calls.get())
+            scenario.onActivity { phase.set(2); it.window.decorView.invalidate() }
+            assertTrue("Restoring readiness must finish on a fresh committed frame", complete.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            instrumentation.waitForIdleSync()
+            assertEquals("Handoff must run once", 1, calls.get())
+        }
+    }
+
     @Test fun expandingContentAndShapesStayInsideTheirContainers() {
         instrumentation.runOnMainSync {
             for (night in listOf(Configuration.UI_MODE_NIGHT_NO, Configuration.UI_MODE_NIGHT_YES)) {
@@ -253,6 +280,10 @@ class DesignRecoveryTest {
                         profile.tvEveId.text = "EV-ABC123"
                         profile.etName.setText("Aarti Sharma")
                         profile.etDob.setText("12/06/2001")
+                        // Match ProfilePhotoManager's native fallback without requiring a signed-in account.
+                        profile.ivProfilePhoto.background = null
+                        profile.ivProfilePhoto.setPadding(0, 0, 0, 0)
+                        profile.ivProfilePhoto.setImageDrawable(com.eve.app.util.AvatarDrawable.create("Aarti Sharma", "recovery-fixture"))
                     }
                     instrumentation.waitForIdleSync()
                     capture("profile", dark, profile.root, scenario)
@@ -299,6 +330,10 @@ class DesignRecoveryTest {
                     scenario.onActivity { activity ->
                         home = com.eve.app.databinding.ActivityMainBinding.inflate(activity.layoutInflater)
                         home.tvWelcome.text = "Hi, Aarti"
+                        val iconColor = activity.getColor(R.color.eve_header_ink_icon)
+                        home.btnNotification.addValueCallback(com.airbnb.lottie.model.KeyPath("**"), com.airbnb.lottie.LottieProperty.COLOR_FILTER) {
+                            android.graphics.PorterDuffColorFilter(iconColor, android.graphics.PorterDuff.Mode.SRC_ATOP)
+                        }
                         home.panelHomeBanner.visibility = View.VISIBLE
                         com.eve.app.ui.home.HomeAppearance.clipBanner(home.panelHomeBanner)
                         val poster = Bitmap.createBitmap(640, 320, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.rgb(182, 213, 253)) }
