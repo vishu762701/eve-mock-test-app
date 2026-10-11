@@ -56,6 +56,7 @@ def verify():
                       ('eve_disabled_text','eve_disabled_fill'),('eve_error_text','eve_error_bg'),('eve_offline_text','eve_offline_bg'),('eve_recovery_accent','eve_recovery_selected'),
                       ('eve_hc_accent','eve_accent_container'),('eve_hc_secondary','eve_input_fill')]:
             rows.append((theme,fg,bg,contrast(c[fg],c[bg],c['eve_canvas']),4.5))
+        rows.append((theme,'eve_white','eve_primary',contrast(c['eve_white'],c['eve_primary'],c['eve_canvas']),3.))
         for bg in backgrounds:
             rows.append((theme,'eve_control_outline',bg,contrast(c['eve_control_outline'],c[bg],c['eve_canvas']),3.))
         assert c['eve_canvas'] == ('#FFFFFF' if theme == 'values' else '#000000')

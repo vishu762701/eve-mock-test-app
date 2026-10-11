@@ -39,6 +39,11 @@ class SharedDesignSystemTest {
                     R.id.fixtureSoft, R.id.fixtureOutlined).map { root.findViewById<MaterialButton>(it) }
                 val disabled = root.findViewById<MaterialButton>(R.id.fixtureDisabled)
                 val card = root.findViewById<MaterialCardView>(R.id.fixtureCard)
+                val toggle = root.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(R.id.fixtureToggle)
+                val thumb = toggle.thumbTintList!!.getColorForState(toggle.drawableState, 0)
+                val track = toggle.trackTintList!!.getColorForState(toggle.drawableState, 0)
+                assertEquals(context.getColor(R.color.eve_white), thumb)
+                assertTrue("The graphical switch handle meets 3:1", ColorUtils.calculateContrast(thumb, track) >= 3.0)
                 root.measure(View.MeasureSpec.makeMeasureSpec(dp(393), View.MeasureSpec.EXACTLY),
                     View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
                 root.layout(0, 0, root.measuredWidth, root.measuredHeight)

@@ -39,7 +39,7 @@
         <com.google.android.material.textfield.TextInputEditText android:layout_width="match_parent"
             android:layout_height="wrap_content" android:text="General knowledge" android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
-    <com.google.android.material.materialswitch.MaterialSwitch android:layout_width="match_parent"
+    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/fixtureToggle" android:layout_width="match_parent"
         android:layout_height="56dp" android:text="Study reminders" android:checked="true" />
     <com.google.android.material.card.MaterialCardView android:id="@+id/fixtureCard" style="@style/Widget.Eve.Card"
         android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp">

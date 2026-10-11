@@ -121,7 +121,7 @@ supported. Do not force shared body sizing into the fixed test viewport.
 | Segmented track / child | 14dp parent; 3dp inset and 11dp child; avoid capsule child in a pinched fixed-radius track |
 | Sheet / dialog | Fixed 28dp; sheet top corners only, dialog all corners; keep actual functional glass chrome |
 | Popup menu | Fixed 16dp, opaque readable surface and one subtle outline |
-| Switch | Checked blue track and on-accent thumb; neutral unchecked track; dedicated outline and disabled mapping |
+| Switch | Checked blue track and white graphical thumb (at least 3:1); neutral unchecked track; dedicated outline and disabled mapping |
 
 Concentric example: a 28dp container with a 16dp inset input yields a 12dp inner
 radius. Use `max(0, parentRadius - inset)` when the child actually shares the
