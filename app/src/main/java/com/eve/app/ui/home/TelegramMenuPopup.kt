@@ -117,13 +117,13 @@ class TelegramMenuPopup(
                     }
                 }
                 anchor.addOnAttachStateChangeListener(detach)
-                ThemeFrameCoordinator.afterFrame(anchor.rootView, ready = { !popupRoot.isAttachedToWindow && anchor.hasWindowFocus() },
+                ThemeFrameCoordinator.afterFrame(anchor.rootView, ready = { !popupRoot.isAttachedToWindow && (anchor.hasWindowFocus() || (context as? Activity)?.hasWindowFocus() == true) },
                     valid = { ThemeManager.ownsPopupHandoff(handoffOwner) }) {
                     anchor.removeOnAttachStateChangeListener(detach)
                     if (!ThemeManager.releasePopupHandoff(handoffOwner)) return@afterFrame
                     val activity = context as? Activity
                     if (anchor.isAttachedToWindow && activity != null && !activity.isFinishing &&
-                        !activity.isDestroyed && activity.hasWindowFocus()) {
+                        !activity.isDestroyed && (anchor.hasWindowFocus() || activity.hasWindowFocus())) {
                         ThemeManager.trace("clean_host_frame", anchor, handoffId)
                         onThemeToggle(cx, cy, iconW, iconH)
                     }

@@ -1,11 +1,13 @@
 """Host-side contract tests: UI failures must remain failures and retain evidence."""
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import tempfile
 import unittest
 
 SCRIPT = Path(__file__).resolve().parents[1] / 'verify-native-ui.sh'
+BASH = shutil.which('bash') or '/bin/bash'
 
 
 class NativeUiRunnerTest(unittest.TestCase):
@@ -14,7 +16,7 @@ class NativeUiRunnerTest(unittest.TestCase):
             root = Path(directory)
             log = root / 'commands.log'
             for name, body in {
-                'adb': '''#!/bin/bash
+                'adb': f'''#!{BASH}
 printf 'adb %s\\n' "$*" >> "$COMMAND_LOG"
 case "$*" in
   'shell settings get secure navigation_mode')
@@ -25,11 +27,11 @@ case "$*" in
   'shell pm path com.android.deskclock') exit 1 ;;
 esac
 ''',
-                'gradle': '''#!/bin/bash
+                'gradle': f'''#!{BASH}
 printf 'gradle %s\\n' "$*" >> "$COMMAND_LOG"
 exit "$GRADLE_STATUS"
 ''',
-                'sleep': '#!/bin/bash\nexit 0\n',
+                'sleep': f'#!{BASH}\nexit 0\n',
             }.items():
                 file = root / name
                 file.write_text(body)

@@ -30,6 +30,21 @@ class RepairVerificationActivity : EveBaseActivity() {
         b.rvExams.layoutManager?.onRestoreInstanceState(listState)
     }
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true)
+            setTurnScreenOn(true)
+        }
+        @Suppress("DEPRECATION")
+        window.addFlags(
+            android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
+            android.view.WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
+            android.view.WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+            android.view.WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+        )
+        val keyguard = getSystemService(android.app.KeyguardManager::class.java)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            keyguard?.requestDismissKeyguard(this, null)
+        }
         super.onCreate(savedInstanceState)
         themeRecreationDetected = com.eve.app.util.ThemeManager.isThemeRecreation(this, savedInstanceState)
         retainedAnswer = savedInstanceState?.getString("answer").orEmpty()
@@ -37,6 +52,13 @@ class RepairVerificationActivity : EveBaseActivity() {
             @Suppress("DEPRECATION")
             showLoadedHomeFixture(savedInstanceState.getParcelable("fixture_scroll"))
         } else setContentView(FrameLayout(this))
+    }
+
+    override fun onResume() {
+        super.onResume()
+        window.decorView.post {
+            window.decorView.requestFocus()
+        }
     }
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString("answer", retainedAnswer)

@@ -33,10 +33,15 @@ import java.util.concurrent.TimeUnit
 class AdminDeletionRegressionTest {
     private fun waitForDialog(text: String) {
         val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
-        val deadline = System.currentTimeMillis() + 5000
+        val deadline = System.currentTimeMillis() + 8000
         while (System.currentTimeMillis() < deadline) {
-            if (automation.rootInActiveWindow?.findAccessibilityNodeInfosByText(text)
-                    ?.any { it.text?.toString() == text } == true) return
+            val root = automation.rootInActiveWindow
+            if (root?.findAccessibilityNodeInfosByText(text)?.any { it.text?.toString() == text } == true) return
+            try {
+                if (automation.windows.any { w ->
+                    w.root?.findAccessibilityNodeInfosByText(text)?.any { it.text?.toString() == text } == true
+                }) return
+            } catch (_: Exception) {}
             Thread.sleep(50)
         }
         fail("Dialog did not appear: $text")

@@ -81,6 +81,7 @@ class ManualUiSpecificationTest {
                     home.root.invalidate()
                 }
                 assertTrue("Attached Home frame must commit", committed.await(5, java.util.concurrent.TimeUnit.SECONDS))
+                instrumentation.waitForIdleSync()
                 val screenshot = instrumentation.uiAutomation.takeScreenshot()
                 assertNotNull("Attached Home hardware screenshot must be available", screenshot)
                 screenshot!!.let { bitmap ->

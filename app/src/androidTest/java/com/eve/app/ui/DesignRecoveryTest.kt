@@ -409,6 +409,7 @@ class DesignRecoveryTest {
                         bannerWidth = home.panelHomeBanner.width
                         bannerHeight = home.panelHomeBanner.height
                     }
+                    instrumentation.waitForIdleSync()
                     val bannerScreenshot = instrumentation.uiAutomation.takeScreenshot()!!
                     try {
                         assertEquals("Banner image must be clipped at its corner", canvasColor,

@@ -797,6 +797,14 @@ class RepairRegressionTest {
                     focused = window.decorView.hasWindowFocus()
                     windowState = "focus=${window.decorView.hasWindowFocus()} appearance=${window.insetsController?.systemBarsAppearance} flags=${window.attributes.flags.toUInt().toString(16)} legacy=${window.decorView.systemUiVisibility} navigation=$navigation"
                 }
+                if (!focused) {
+                    runShell("input keyevent KEYCODE_WAKEUP")
+                    runShell("wm dismiss-keyguard")
+                    instrumentation.runOnMainSync {
+                        captureWindow?.decorView?.requestFocus()
+                        focused = captureWindow?.decorView?.hasWindowFocus() ?: false
+                    }
+                }
                 if (focused && rows in 1..bitmap.height) {
                     contrastingPixels = 0
                     for (y in bitmap.height - rows until bitmap.height) for (x in 0 until bitmap.width) {

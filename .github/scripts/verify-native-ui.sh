@@ -27,6 +27,13 @@ mkdir -p ui-renderings
 adb shell getprop ro.build.fingerprint > ui-renderings/emulator-fingerprint.log
 adb shell wm size > ui-renderings/display-size.log
 adb shell wm density > ui-renderings/display-density.log
+adb shell settings put system screen_off_timeout 2147483647
+adb shell settings put global stay_on_while_plugged_in 7
+adb shell settings put secure lockscreen.disabled 1
+adb shell settings put secure user_setup_complete 1
+adb shell settings put global device_provisioned 1
+adb shell settings put secure gesture_setup_complete 1
+adb shell settings put secure system_navigation_keys_migrated 1
 adb shell input keyevent KEYCODE_WAKEUP
 adb shell wm dismiss-keyguard
 # Keep a stock foreground window while Gradle prepares the APKs. Changing the
@@ -48,6 +55,8 @@ if [[ "$actual_mode" != "$expected_mode" ]]; then
   echo "Navigation configuration failed: expected $expected_mode, observed $actual_mode" >&2
   exit 1
 fi
+adb shell input keyevent KEYCODE_WAKEUP
+adb shell wm dismiss-keyguard
 status=0
 gradle connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=com.eve.app.ui "-Pandroid.testInstrumentationRunnerArguments.navigationMode=$mode" --stacktrace || status=$?
 if [[ "$status" != "0" ]]; then
