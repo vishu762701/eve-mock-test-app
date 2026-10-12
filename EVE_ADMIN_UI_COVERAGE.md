@@ -39,4 +39,5 @@ The admin reconstruction brings administrative and shared surfaces into complete
 - Unit tests: `./gradlew testDebugUnitTest`: **BUILD SUCCESSFUL** (209 unit tests passed).
 - Debug APK packaging: `./gradlew assembleDebug`: **BUILD SUCCESSFUL**.
 - Android Lint analysis: `./gradlew lintDebug`: **BUILD SUCCESSFUL** (0 lint errors).
+- Native UI verification: `connectedDebugAndroidTest` verified all approved UI behavior, contrast, and visual review gallery evidence on Android 35 emulator.
 - Patch formatting: `git diff --check`: passed with 0 errors.
