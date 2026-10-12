@@ -1145,6 +1145,7 @@ class MainActivity : EveBaseActivity() {
     private fun setupDrawer(user: com.google.firebase.auth.FirebaseUser) {
         updateDrawerHeader(user)
 
+        val isDark = ThemeManager.isDarkMode(this)
         // Frosted glass translucent scrim allowing underlying content to remain sharp and visible outside drawer
         val scrimColor = ContextCompat.getColor(this, R.color.eve_drawer_scrim)
         binding.drawerLayout.setScrimColor(scrimColor)
