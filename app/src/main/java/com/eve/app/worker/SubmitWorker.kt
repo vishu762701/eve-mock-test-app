@@ -143,34 +143,11 @@ class SubmitWorker(
                 .setInputData(workDataOf(KEY_CLIENT_ATTEMPT_ID to clientAttemptId))
                 .build()
 
-            val workManager = WorkManager.getInstance(context)
-            val decision = try {
-                val infos = workManager.getWorkInfosForUniqueWork("submit_$clientAttemptId")
-                    .get(1000, TimeUnit.MILLISECONDS)
-                SubmissionRetryPolicy.decideWorkScheduling(infos.map { it.state })
-            } catch (_: Exception) {
-                // If checking work state fails or times out, safely defer to KEEP to avoid canceling active work
-                workManager.enqueueUniqueWork("submit_$clientAttemptId", ExistingWorkPolicy.KEEP, workRequest)
-                return
-            }
-
-            when (decision) {
-                SubmissionRetryPolicy.WorkSchedulingDecision.DO_NOTHING -> {
-                    // An existing worker is actively ENQUEUED, RUNNING, or BLOCKED, or has already SUCCEEDED.
-                    // Preserve existing state: do not cancel running work and do not re-enqueue completed work!
-                    return
-                }
-                SubmissionRetryPolicy.WorkSchedulingDecision.RECOVER_FAILED,
-                SubmissionRetryPolicy.WorkSchedulingDecision.ENQUEUE_NEW -> {
-                    // Prior work has finished with FAILED or CANCELLED, or does not exist yet.
-                    // Replace with a fresh request to allow recovery of failed attempts.
-                    workManager.enqueueUniqueWork(
-                        "submit_$clientAttemptId",
-                        ExistingWorkPolicy.REPLACE,
-                        workRequest
-                    )
-                }
-            }
+            WorkManager.getInstance(context).enqueueUniqueWork(
+                "submit_$clientAttemptId",
+                ExistingWorkPolicy.KEEP,
+                workRequest
+            )
         }
 
         fun enqueueAllPending(context: Context) {
