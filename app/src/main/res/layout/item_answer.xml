@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    style="@style/Widget.Eve.Card.Group"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="0dp"
     android:layout_marginHorizontal="0dp"
     android:layout_marginTop="0dp"
-    android:layout_marginBottom="12dp"
-    app:cardBackgroundColor="@color/eve_card_bg"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="0dp"
-    app:strokeColor="@color/eve_shape_border"
-    app:strokeWidth="1dp">
+    android:layout_marginBottom="12dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -92,7 +89,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:lineSpacingMultiplier="1.25"
-            android:textColor="@color/eve_text"
+            android:textColor="?attr/eveLabelPrimary"
             android:textSize="18sp" />
 
         <!-- Review Options Container (Shows complete question with options) -->
@@ -122,7 +119,7 @@
                     android:fontFamily="sans-serif-bold"
                     android:gravity="center"
                     android:text="A"
-                    android:textColor="@color/eve_text"
+                    android:textColor="?attr/eveLabelPrimary"
                     android:textSize="13sp" />
 
                 <TextView
@@ -163,7 +160,7 @@
                     android:fontFamily="sans-serif-bold"
                     android:gravity="center"
                     android:text="B"
-                    android:textColor="@color/eve_text"
+                    android:textColor="?attr/eveLabelPrimary"
                     android:textSize="13sp" />
 
                 <TextView
@@ -204,7 +201,7 @@
                     android:fontFamily="sans-serif-bold"
                     android:gravity="center"
                     android:text="C"
-                    android:textColor="@color/eve_text"
+                    android:textColor="?attr/eveLabelPrimary"
                     android:textSize="13sp" />
 
                 <TextView
@@ -245,7 +242,7 @@
                     android:fontFamily="sans-serif-bold"
                     android:gravity="center"
                     android:text="D"
-                    android:textColor="@color/eve_text"
+                    android:textColor="?attr/eveLabelPrimary"
                     android:textSize="13sp" />
 
                 <TextView
@@ -271,22 +268,18 @@
         <!-- View Solution Button (Initial Review State: Question First, Solution on Demand) -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnViewSolution"
-            style="@style/Widget.Eve.Button.Outlined"
+            style="@style/Widget.Eve.Button.Soft"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
             android:minHeight="48dp"
             android:layout_marginTop="12dp"
             android:text="View Solution"
-            android:textColor="?attr/colorOnSurface"
             android:textSize="15sp"
             android:fontFamily="sans-serif-medium"
-            app:cornerRadius="@dimen/eve_radius_pill"
             app:icon="@drawable/ic_visibility"
             app:iconGravity="textStart"
             app:iconPadding="8dp"
-            app:iconTint="?attr/colorOnSurface"
-            app:strokeColor="@color/eve_shape_border"
-            app:strokeWidth="1dp" />
+            android:paddingVertical="8dp" />
 
         <!-- Solution Container (Expanded Inline on Demand) -->
         <LinearLayout
@@ -310,7 +303,8 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
             android:lineSpacingExtra="3dp"
-            android:textSize="15sp" />
+            android:textSize="15sp"
+            android:textColor="?attr/eveLabelPrimary" />
 
         <!-- 4. Correct Answer -->
         <TextView
@@ -336,7 +330,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="📊"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                android:textColor="?attr/eveLabelPrimary" />
 
             <TextView
                 android:id="@+id/tvAccuracyStat"
@@ -345,7 +340,7 @@
                 android:layout_marginStart="6dp"
                 android:fontFamily="sans-serif-medium"
                 android:text="--% got this right"
-                android:textColor="@color/eve_recovery_text_secondary"
+                android:textColor="?attr/eveLabelSecondary"
                 android:textSize="13sp" />
         </LinearLayout>
 
@@ -364,7 +359,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="TIME ANALYSIS"
-                android:textColor="@color/eve_recovery_text_secondary" />
+                android:textColor="?attr/eveLabelSecondary" />
 
             <!-- You Row -->
             <LinearLayout
@@ -414,7 +409,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
                     android:text="Avg"
-                    android:textColor="@color/eve_recovery_text_secondary"
+                    android:textColor="?attr/eveLabelSecondary"
                     android:textSize="13sp" />
 
                 <ProgressBar
@@ -432,7 +427,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
                     android:gravity="end"
-                    android:textColor="@color/eve_recovery_text_secondary"
+                    android:textColor="?attr/eveLabelSecondary"
                     android:textSize="13sp" />
             </LinearLayout>
 
@@ -443,7 +438,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:fontFamily="sans-serif"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                android:textColor="?attr/eveLabelPrimary" />
         </LinearLayout>
 
         <!-- 6. Explanation / Solution Section -->
@@ -526,7 +522,8 @@
             android:focusable="true"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingVertical="4dp">
+            android:paddingVertical="4dp"
+            android:minHeight="48dp">
 
             <ImageView
                 android:layout_width="14dp"
@@ -541,7 +538,7 @@
                 android:layout_marginStart="6dp"
                 android:fontFamily="sans-serif-medium"
                 android:text="Report an issue with this question"
-                android:textColor="@color/eve_recovery_text_secondary"
+                android:textColor="?attr/eveLabelSecondary"
                 android:textSize="13.5sp" />
         </LinearLayout>
         </LinearLayout>

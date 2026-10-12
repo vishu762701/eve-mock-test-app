@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -20,7 +21,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Choose Payment Method"
-        android:textColor="@color/eve_text"
+        android:textColor="?attr/eveLabelPrimary"
         android:textSize="18sp" />
 
     <TextView
@@ -28,23 +29,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
-        android:textColor="@color/eve_text_secondary"
+        android:textColor="?attr/eveLabelSecondary"
         android:textSize="13sp"
         tools:text="Select how you want to pay ₹99" />
 
     <!-- Method 1: QR Code -->
     <com.google.android.material.card.MaterialCardView
+        style="@style/Widget.Eve.Card.Inset"
         android:id="@+id/cardMethodQr"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:clickable="true"
-        android:focusable="true"
-        app:cardBackgroundColor="@color/eve_surface"
-        app:cardCornerRadius="@dimen/eve_radius_tile"
-        app:cardElevation="0dp"
-        app:strokeColor="@color/eve_shape_border"
-        app:strokeWidth="1dp">
+        android:focusable="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -70,14 +67,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="QR Code"
-                    android:textColor="@color/eve_text"
+                    android:textColor="?attr/eveLabelPrimary"
                     android:textSize="15sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Scan dynamic QR with any UPI app"
-                    android:textColor="@color/eve_text_secondary"
+                    android:textColor="?attr/eveLabelSecondary"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -91,17 +88,13 @@
 
     <!-- Method 2: UPI Intent -->
     <com.google.android.material.card.MaterialCardView
+        style="@style/Widget.Eve.Card.Inset"
         android:id="@+id/cardMethodUpi"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:clickable="true"
-        android:focusable="true"
-        app:cardBackgroundColor="@color/eve_surface"
-        app:cardCornerRadius="@dimen/eve_radius_tile"
-        app:cardElevation="0dp"
-        app:strokeColor="@color/eve_shape_border"
-        app:strokeWidth="1dp">
+        android:focusable="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -127,14 +120,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="UPI Apps"
-                    android:textColor="@color/eve_text"
+                    android:textColor="?attr/eveLabelPrimary"
                     android:textSize="15sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Pay directly via GPay, PhonePe, Paytm"
-                    android:textColor="@color/eve_text_secondary"
+                    android:textColor="?attr/eveLabelSecondary"
                     android:textSize="12sp" />
             </LinearLayout>
 

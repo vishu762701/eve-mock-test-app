@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/eve_background">
+    android:background="@color/eve_canvas">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -29,11 +30,6 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:layout_marginBottom="12dp"
-            app:boxCornerRadiusBottomEnd="14dp"
-            app:boxCornerRadiusBottomStart="14dp"
-            app:boxCornerRadiusTopEnd="14dp"
-            app:boxCornerRadiusTopStart="14dp"
-            app:boxStrokeColor="@color/eve_primary"
             app:hintEnabled="false"
             app:startIconDrawable="@drawable/ic_search"
             app:startIconTint="@color/eve_text_secondary">
@@ -41,22 +37,24 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etSearch"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="wrap_content"
                 android:hint="Search syllabus by exam..."
                 android:imeOptions="actionSearch"
                 android:inputType="text"
                 android:maxLines="1"
-                android:paddingVertical="0dp"
-                android:textColor="@color/eve_text"
-                android:textColorHint="@color/eve_text_secondary"
-                android:textSize="14sp" />
+                android:paddingVertical="12dp"
+                android:textColor="?attr/eveLabelPrimary"
+                android:textColorHint="@color/eve_placeholder_text"
+                android:textSize="14sp"
+                android:minHeight="56dp" />
         </com.google.android.material.textfield.TextInputLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:background="@color/eve_system_grouped_background">
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipeRefresh"
@@ -69,7 +67,8 @@
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:paddingVertical="8dp"
-                tools:listitem="@layout/item_syllabus" />
+                tools:listitem="@layout/item_syllabus"
+                android:background="@color/eve_system_grouped_background" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <ProgressBar

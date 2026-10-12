@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/eve_bg"
+    android:background="@color/eve_canvas"
     android:orientation="vertical">
 
     <!-- Apple-style Top Navigation Bar -->
@@ -19,14 +20,14 @@
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="@drawable/bg_circle_translucent"
             android:stateListAnimator="@animator/press_scale"
             android:contentDescription="Back"
-            android:padding="8dp"
+            android:padding="12dp"
             android:src="@drawable/ic_back"
-            app:tint="@color/eve_text" />
+            app:tint="@color/eve_accent_text" />
 
         <TextView
             style="@style/TextAppearance.Eve.ScreenTitle"
@@ -36,7 +37,8 @@
             android:fontFamily="sans-serif-bold"
             android:paddingStart="12dp"
             android:text="Settings"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            android:textColor="?attr/eveLabelPrimary" />
     </LinearLayout>
 
     <View
@@ -49,8 +51,10 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:fillViewport="true"
-        android:overScrollMode="never"
-        android:scrollbars="none">
+        android:overScrollMode="ifContentScrolls"
+        android:scrollbars="none"
+        android:clipToPadding="false"
+        android:background="@color/eve_system_grouped_background">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -74,14 +78,10 @@
                 android:textSize="13sp" />
 
             <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Eve.Card.Group"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                app:cardBackgroundColor="@color/eve_card_bg"
-                app:cardCornerRadius="@dimen/eve_radius_tile"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/eve_shape_border"
-                app:strokeWidth="1dp">
+                android:layout_marginHorizontal="16dp">
 
                 <!-- Font Row -->
                 <LinearLayout
@@ -119,7 +119,8 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif"
                             android:text="Font"
-                            android:textSize="15sp" />
+                            android:textSize="15sp"
+                            android:textColor="?attr/eveLabelPrimary" />
 
                         <TextView
                             android:id="@+id/tvFontValue"
@@ -156,14 +157,10 @@
                 android:textSize="13sp" />
 
             <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Eve.Card.Group"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                app:cardBackgroundColor="@color/eve_card_bg"
-                app:cardCornerRadius="@dimen/eve_radius_tile"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/eve_shape_border"
-                app:strokeWidth="1dp">
+                android:layout_marginHorizontal="16dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -191,7 +188,7 @@
                             android:contentDescription="Reminder"
                             android:padding="5dp"
                             android:src="@drawable/ic_bell"
-                            app:tint="@color/eve_system_orange" />
+                            app:tint="@color/eve_status_warning_text" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -206,7 +203,8 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif"
                                 android:text="Daily Practice Reminder"
-                                android:textSize="15sp" />
+                                android:textSize="15sp"
+                                android:textColor="?attr/eveLabelPrimary" />
 
                             <TextView
                                 style="@style/TextAppearance.Eve.Caption"
@@ -222,8 +220,8 @@
                             android:id="@+id/switchReminder"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            app:thumbTint="@color/eve_white"
-                            app:trackTint="@color/eve_system_green" />
+                            app:thumbTint="@color/selector_eve_switch_thumb"
+                            app:trackTint="@color/selector_eve_switch_track" />
                     </LinearLayout>
 
                     <!-- Hairline Inset Divider -->
@@ -254,7 +252,7 @@
                             android:contentDescription="Daily Goal"
                             android:padding="5dp"
                             android:src="@drawable/ic_trophy"
-                            app:tint="@color/eve_system_yellow" />
+                            app:tint="@color/eve_status_warning_text" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -269,7 +267,8 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif"
                                 android:text="Daily Goal"
-                                android:textSize="15sp" />
+                                android:textSize="15sp"
+                                android:textColor="?attr/eveLabelPrimary" />
 
                             <TextView
                                 android:id="@+id/tvDailyGoalValue"
@@ -317,7 +316,7 @@
                             android:contentDescription="My Exams"
                             android:padding="5dp"
                             android:src="@drawable/ic_topic"
-                            app:tint="@color/eve_system_purple" />
+                            app:tint="@color/eve_accent_text" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -332,7 +331,8 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif"
                                 android:text="My Exams"
-                                android:textSize="15sp" />
+                                android:textSize="15sp"
+                                android:textColor="?attr/eveLabelPrimary" />
 
                             <TextView
                                 style="@style/TextAppearance.Eve.Caption"
@@ -394,7 +394,8 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif"
                                 android:text="App Language"
-                                android:textSize="15sp" />
+                                android:textSize="15sp"
+                                android:textColor="?attr/eveLabelPrimary" />
 
                             <TextView
                                 android:id="@+id/tvLanguageValue"
@@ -433,14 +434,10 @@
                 android:textSize="13sp" />
 
             <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Eve.Card.Group"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                app:cardBackgroundColor="@color/eve_card_bg"
-                app:cardCornerRadius="@dimen/eve_radius_tile"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/eve_shape_border"
-                app:strokeWidth="1dp">
+                android:layout_marginHorizontal="16dp">
 
                 <!-- Delete Account Row -->
                 <LinearLayout
@@ -478,7 +475,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif"
                             android:text="Delete Account"
-                            android:textColor="@color/eve_system_red"
+                            android:textColor="@color/eve_destructive_text"
                             android:textSize="15sp" />
 
                         <TextView

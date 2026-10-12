@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/eve_bg"
+    android:background="@color/eve_canvas"
     android:orientation="vertical">
 
     <!-- Top App Bar / Header -->
@@ -19,14 +20,14 @@
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_marginEnd="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:background="@drawable/bg_circle_translucent"
             android:contentDescription="Back"
-            android:padding="8dp"
+            android:padding="12dp"
             android:src="@drawable/ic_back"
-            app:tint="@color/eve_text" />
+            app:tint="@color/eve_accent_text" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -39,7 +40,8 @@
                 style="@style/TextAppearance.Eve.ScreenTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Details" />
+                android:text="Details"
+                android:textColor="?attr/eveLabelPrimary" />
 
             <TextView
                 android:id="@+id/tvDetailSubtitle"
@@ -47,7 +49,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:fontFamily="sans-serif"
-                android:textColor="@color/eve_text_secondary"
+                android:textColor="?attr/eveLabelSecondary"
                 android:textSize="13sp"
                 android:visibility="gone" />
         </LinearLayout>
@@ -64,7 +66,9 @@
         android:layout_height="match_parent"
         android:clipToPadding="false"
         android:fillViewport="true"
-        android:paddingBottom="24dp">
+        android:paddingBottom="24dp"
+        android:overScrollMode="ifContentScrolls"
+        android:background="@color/eve_system_grouped_background">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -84,14 +88,10 @@
 
                 <!-- Score Overview Card -->
                 <com.google.android.material.card.MaterialCardView
+                    style="@style/Widget.Eve.Card.Group"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:cardBackgroundColor="@color/eve_card_bg"
-                    app:cardCornerRadius="@dimen/eve_radius_card"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_shape_border"
-                    app:strokeWidth="1dp">
+                    android:layout_marginBottom="16dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -106,7 +106,7 @@
                             android:layout_height="wrap_content"
                             android:letterSpacing="0.06"
                             android:text="TOTAL SCORE ACHIEVED"
-                            android:textColor="@color/eve_text_secondary"
+                            android:textColor="?attr/eveLabelSecondary"
                             android:textSize="11sp" />
 
                         <TextView
@@ -134,14 +134,10 @@
 
                 <!-- Marks Breakdown Card -->
                 <com.google.android.material.card.MaterialCardView
+                    style="@style/Widget.Eve.Card.Group"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:cardBackgroundColor="@color/eve_card_bg"
-                    app:cardCornerRadius="@dimen/eve_radius_card"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_shape_border"
-                    app:strokeWidth="1dp">
+                    android:layout_marginBottom="16dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -154,10 +150,11 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="12dp"
-                            android:text="Marking Scheme Breakdown" />
+                            android:text="Marking Scheme Breakdown"
+                            android:textColor="?attr/eveLabelPrimary" />
 
                         <!-- Correct Gain -->
-                        <LinearLayout
+                        <com.eve.app.ui.result.ResponsiveResultRow
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical"
@@ -170,7 +167,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="Correct Answers (+1.00 each)"
-                                android:textColor="@color/eve_text"
+                                android:textColor="?attr/eveLabelPrimary"
                                 android:textSize="13sp" />
 
                             <TextView
@@ -178,10 +175,10 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="+0.00"
-                                android:textColor="@color/eve_status_success"
+                                android:textColor="@color/eve_status_success_text"
                                 android:textSize="14sp"
                                 android:textStyle="bold" />
-                        </LinearLayout>
+                        </com.eve.app.ui.result.ResponsiveResultRow>
 
                         <View
                             android:layout_width="match_parent"
@@ -189,7 +186,7 @@
                             android:background="@color/eve_stroke" />
 
                         <!-- Wrong Deduction -->
-                        <LinearLayout
+                        <com.eve.app.ui.result.ResponsiveResultRow
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical"
@@ -202,7 +199,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="Negative Marking Deduction"
-                                android:textColor="@color/eve_text"
+                                android:textColor="?attr/eveLabelPrimary"
                                 android:textSize="13sp" />
 
                             <TextView
@@ -210,10 +207,10 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="-0.00"
-                                android:textColor="@color/eve_status_error"
+                                android:textColor="@color/eve_status_error_text"
                                 android:textSize="14sp"
                                 android:textStyle="bold" />
-                        </LinearLayout>
+                        </com.eve.app.ui.result.ResponsiveResultRow>
 
                         <View
                             android:layout_width="match_parent"
@@ -221,7 +218,7 @@
                             android:background="@color/eve_stroke" />
 
                         <!-- Unattempted -->
-                        <LinearLayout
+                        <com.eve.app.ui.result.ResponsiveResultRow
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical"
@@ -234,7 +231,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="Unattempted Questions"
-                                android:textColor="@color/eve_text"
+                                android:textColor="?attr/eveLabelPrimary"
                                 android:textSize="13sp" />
 
                             <TextView
@@ -242,10 +239,10 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0"
-                                android:textColor="@color/eve_text_secondary"
+                                android:textColor="?attr/eveLabelSecondary"
                                 android:textSize="14sp"
                                 android:textStyle="bold" />
-                        </LinearLayout>
+                        </com.eve.app.ui.result.ResponsiveResultRow>
 
                         <View
                             android:layout_width="match_parent"
@@ -253,7 +250,7 @@
                             android:background="@color/eve_stroke" />
 
                         <!-- Net Score -->
-                        <LinearLayout
+                        <com.eve.app.ui.result.ResponsiveResultRow
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical"
@@ -266,7 +263,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="Final Net Score"
-                                android:textColor="@color/eve_text"
+                                android:textColor="?attr/eveLabelPrimary"
                                 android:textSize="14sp"
                                 android:textStyle="bold" />
 
@@ -278,7 +275,7 @@
                                 android:textColor="?attr/colorOnSurface"
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
-                        </LinearLayout>
+                        </com.eve.app.ui.result.ResponsiveResultRow>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -288,9 +285,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
-                    android:text="Question Summary" />
+                    android:text="Question Summary"
+                    android:textColor="?attr/eveLabelPrimary" />
 
-                <LinearLayout
+                <com.eve.app.ui.result.ResultStatisticsGrid
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:baselineAligned="false"
@@ -299,8 +297,8 @@
                     <!-- Right -->
                     <LinearLayout
                         android:layout_width="0dp"
-                        android:layout_height="80dp"
-                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:minHeight="96dp"
                         android:layout_marginEnd="8dp"
                         android:background="@drawable/bg_tile_right"
                         android:gravity="center"
@@ -328,8 +326,8 @@
                     <!-- Wrong -->
                     <LinearLayout
                         android:layout_width="0dp"
-                        android:layout_height="80dp"
-                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:minHeight="96dp"
                         android:layout_marginEnd="8dp"
                         android:background="@drawable/bg_tile_wrong"
                         android:gravity="center"
@@ -357,8 +355,8 @@
                     <!-- Unattempted -->
                     <LinearLayout
                         android:layout_width="0dp"
-                        android:layout_height="80dp"
-                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:minHeight="96dp"
                         android:layout_marginEnd="8dp"
                         android:background="@drawable/bg_tile_unattempted"
                         android:gravity="center"
@@ -370,7 +368,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0"
-                            android:textColor="@color/eve_text"
+                            android:textColor="?attr/eveLabelPrimary"
                             android:textSize="20sp"
                             android:textStyle="bold" />
 
@@ -379,15 +377,15 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="Unattempted"
-                            android:textColor="@color/eve_text_secondary"
+                            android:textColor="?attr/eveLabelSecondary"
                             android:textSize="12sp" />
                     </LinearLayout>
 
                     <!-- Accuracy -->
                     <LinearLayout
                         android:layout_width="0dp"
-                        android:layout_height="80dp"
-                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:minHeight="96dp"
                         android:background="@drawable/bg_tile_medium"
                         android:gravity="center"
                         android:orientation="vertical"
@@ -410,7 +408,7 @@
                             android:textColor="@color/eve_tile_medium_text"
                             android:textSize="12sp" />
                     </LinearLayout>
-                </LinearLayout>
+                </com.eve.app.ui.result.ResultStatisticsGrid>
             </LinearLayout>
 
             <!-- ========================================================== -->
@@ -425,14 +423,10 @@
 
                 <!-- Standing Hero Card -->
                 <com.google.android.material.card.MaterialCardView
+                    style="@style/Widget.Eve.Card.Group"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:cardBackgroundColor="@color/eve_card_bg"
-                    app:cardCornerRadius="@dimen/eve_radius_card"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_shape_border"
-                    app:strokeWidth="1dp">
+                    android:layout_marginBottom="16dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -461,7 +455,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
                             android:text="#-- / --"
-                            android:textColor="@color/eve_text"
+                            android:textColor="?attr/eveLabelPrimary"
                             android:textSize="28sp"
                             android:textStyle="bold" />
 
@@ -482,21 +476,17 @@
                             android:layout_marginTop="8dp"
                             android:gravity="center"
                             android:text="Rank calculated across all candidates."
-                            android:textColor="@color/eve_text_secondary"
+                            android:textColor="?attr/eveLabelSecondary"
                             android:textSize="12sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
                 <!-- Batch Comparison Card -->
                 <com.google.android.material.card.MaterialCardView
+                    style="@style/Widget.Eve.Card.Group"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:cardBackgroundColor="@color/eve_card_bg"
-                    app:cardCornerRadius="@dimen/eve_radius_card"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_shape_border"
-                    app:strokeWidth="1dp">
+                    android:layout_marginBottom="16dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -509,9 +499,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="12dp"
-                            android:text="Batch Comparison" />
+                            android:text="Batch Comparison"
+                            android:textColor="?attr/eveLabelPrimary" />
 
-                        <LinearLayout
+                        <com.eve.app.ui.result.ResponsiveResultRow
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:baselineAligned="false"
@@ -532,7 +523,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Your Score"
-                                    android:textColor="@color/eve_text_secondary"
+                                    android:textColor="?attr/eveLabelSecondary"
                                     android:textSize="12.5sp" />
 
                                 <TextView
@@ -541,7 +532,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="4dp"
                                     android:text="--"
-                                    android:textColor="@color/eve_text"
+                                    android:textColor="?attr/eveLabelPrimary"
                                     android:textSize="18sp"
                                     android:textStyle="bold" />
                             </LinearLayout>
@@ -561,7 +552,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Batch Average"
-                                    android:textColor="@color/eve_text_secondary"
+                                    android:textColor="?attr/eveLabelSecondary"
                                     android:textSize="12.5sp" />
 
                                 <TextView
@@ -570,7 +561,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="4dp"
                                     android:text="--"
-                                    android:textColor="@color/eve_text"
+                                    android:textColor="?attr/eveLabelPrimary"
                                     android:textSize="18sp"
                                     android:textStyle="bold" />
                             </LinearLayout>
@@ -589,7 +580,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Topper Score"
-                                    android:textColor="@color/eve_text_secondary"
+                                    android:textColor="?attr/eveLabelSecondary"
                                     android:textSize="12.5sp" />
 
                                 <TextView
@@ -602,19 +593,15 @@
                                     android:textSize="18sp"
                                     android:textStyle="bold" />
                             </LinearLayout>
-                        </LinearLayout>
+                        </com.eve.app.ui.result.ResponsiveResultRow>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
                 <!-- Ranking Explanation -->
                 <com.google.android.material.card.MaterialCardView
+                    style="@style/Widget.Eve.Card.Group"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/eve_card_bg"
-                    app:cardCornerRadius="@dimen/eve_radius_card"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_shape_border"
-                    app:strokeWidth="1dp">
+                    android:layout_height="wrap_content">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -627,14 +614,15 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="8dp"
-                            android:text="How Standing Is Calculated" />
+                            android:text="How Standing Is Calculated"
+                            android:textColor="?attr/eveLabelPrimary" />
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:lineSpacingExtra="3dp"
                             android:text="• Rank is assigned based on total net marks achieved.\n• In case of ties, higher accuracy and lower negative markings determine the higher standing.\n• Percentile indicates the percentage of all exam takers who scored below your total score."
-                            android:textColor="@color/eve_text_secondary"
+                            android:textColor="?attr/eveLabelSecondary"
                             android:textSize="13sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -652,15 +640,11 @@
 
                 <!-- Topic Accuracy Breakdown Card (Weakest First) -->
                 <com.google.android.material.card.MaterialCardView
+                    style="@style/Widget.Eve.Card.Group"
                     android:id="@+id/cardTopicAccuracy"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:cardBackgroundColor="@color/eve_card_bg"
-                    app:cardCornerRadius="@dimen/eve_radius_card"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_shape_border"
-                    app:strokeWidth="1dp">
+                    android:layout_marginBottom="16dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -672,7 +656,8 @@
                             style="@style/TextAppearance.Eve.Heading"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Topic-wise Accuracy (Weakest First)" />
+                            android:text="Topic-wise Accuracy (Weakest First)"
+                            android:textColor="?attr/eveLabelPrimary" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -680,7 +665,7 @@
                             android:layout_marginTop="2dp"
                             android:layout_marginBottom="12dp"
                             android:text="Focus on weaker topics to maximize score gains"
-                            android:textColor="@color/eve_text_secondary"
+                            android:textColor="?attr/eveLabelSecondary"
                             android:textSize="12sp" />
 
                         <LinearLayout
@@ -693,25 +678,22 @@
                             android:id="@+id/btnPracticeWeakest"
                             style="@style/Widget.Eve.Button.OrangePill"
                             android:layout_width="match_parent"
-                            android:layout_height="48dp"
+                            android:layout_height="wrap_content"
                             android:layout_marginTop="16dp"
                             android:minHeight="48dp"
                             android:text="Practice Weakest Topic"
-                            android:visibility="gone" />
+                            android:visibility="gone"
+                            android:paddingVertical="8dp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
                 <!-- Question Pace Chart Card -->
                 <com.google.android.material.card.MaterialCardView
+                    style="@style/Widget.Eve.Card.Group"
                     android:id="@+id/cardTimePerQuestion"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:cardBackgroundColor="@color/eve_card_bg"
-                    app:cardCornerRadius="@dimen/eve_radius_card"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_shape_border"
-                    app:strokeWidth="1dp">
+                    android:layout_marginBottom="16dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -723,7 +705,8 @@
                             style="@style/TextAppearance.Eve.Heading"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Time Per Question Pace Chart" />
+                            android:text="Time Per Question Pace Chart"
+                            android:textColor="?attr/eveLabelPrimary" />
 
                         <TextView
                             android:id="@+id/tvChartDetail"
@@ -732,7 +715,7 @@
                             android:layout_marginTop="4dp"
                             android:layout_marginBottom="12dp"
                             android:text="Tap a bar to inspect time taken"
-                            android:textColor="@color/eve_text_secondary"
+                            android:textColor="?attr/eveLabelSecondary"
                             android:textSize="13sp" />
 
                         <HorizontalScrollView
@@ -750,14 +733,10 @@
 
                 <!-- Slowest Questions Card -->
                 <com.google.android.material.card.MaterialCardView
+                    style="@style/Widget.Eve.Card.Group"
                     android:id="@+id/cardSlowestQuestions"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/eve_card_bg"
-                    app:cardCornerRadius="@dimen/eve_radius_card"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_shape_border"
-                    app:strokeWidth="1dp">
+                    android:layout_height="wrap_content">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -769,7 +748,8 @@
                             style="@style/TextAppearance.Eve.Heading"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Slowest Questions" />
+                            android:text="Slowest Questions"
+                            android:textColor="?attr/eveLabelPrimary" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -777,7 +757,7 @@
                             android:layout_marginTop="2dp"
                             android:layout_marginBottom="12dp"
                             android:text="Questions where most time was spent"
-                            android:textColor="@color/eve_text_secondary"
+                            android:textColor="?attr/eveLabelSecondary"
                             android:textSize="12sp" />
 
                         <LinearLayout

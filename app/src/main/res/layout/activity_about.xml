@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/eve_canvas">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,11 +22,11 @@
             android:id="@+id/btnBack"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:background="@drawable/bg_circle_translucent"
             android:contentDescription="Back"
             android:padding="12dp"
             android:src="@drawable/ic_back"
-            app:tint="@color/eve_text" />
+            app:tint="@color/eve_accent_text" />
 
         <TextView
             style="@style/TextAppearance.Eve.ScreenTitle"
@@ -35,7 +37,7 @@
             android:maxLines="1"
             android:paddingStart="4dp"
             android:text="About"
-            android:textColor="@color/eve_text" />
+            android:textColor="?attr/eveLabelPrimary" />
     </LinearLayout>
 
     <View
@@ -43,6 +45,16 @@
         android:layout_height="1dp"
         android:background="@color/eve_stroke" />
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:clipToPadding="false">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -71,7 +83,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:textColor="@color/eve_grey"
+            android:textColor="?attr/eveLabelSecondary"
             android:textSize="13sp"
             tools:text="Version 1.0" />
     </LinearLayout>
@@ -181,4 +193,6 @@
             android:textSize="15sp" />
     </LinearLayout>
 
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

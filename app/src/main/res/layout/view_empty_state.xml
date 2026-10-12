@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layoutEmptyRoot"
     android:layout_width="match_parent"
@@ -25,7 +26,7 @@
         android:layout_marginTop="@dimen/eve_space_16"
         android:gravity="center"
         android:text="No files found"
-        android:textColor="@color/eve_text"
+        android:textColor="?attr/eveLabelPrimary"
         android:textStyle="bold" />
 
     <TextView
@@ -35,7 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/eve_space_8"
         android:gravity="center"
-        android:textColor="@color/eve_text_secondary"
+        android:textColor="?attr/eveLabelSecondary"
         android:visibility="gone" />
 
 </LinearLayout>

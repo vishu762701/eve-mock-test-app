@@ -73,7 +73,7 @@ class SyllabusAdapter(
             } else {
                 binding.tvFileName.text = "Syllabus coming soon"
                 binding.btnDownload.isEnabled = false
-                binding.btnDownload.alpha = 0.5f
+                binding.btnDownload.alpha = 1.0f
                 binding.btnDownload.text = "Coming Soon"
                 binding.pbDownloading.visibility = View.GONE
                 binding.btnOpen.visibility = View.GONE

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -26,12 +27,12 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginEnd="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="@drawable/bg_circle_translucent"
                 android:stateListAnimator="@animator/press_scale"
                 android:contentDescription="Back"
                 android:padding="12dp"
                 android:src="@drawable/ic_back"
-                app:tint="@color/eve_text" />
+                app:tint="@color/eve_accent_text" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -46,7 +47,8 @@
                     android:layout_height="wrap_content"
                     android:text="Test Result"
                     android:maxLines="2"
-                    android:ellipsize="end" />
+                    android:ellipsize="end"
+                    android:textColor="?attr/eveLabelPrimary" />
 
                 <TextView
                     android:id="@+id/tvResultSubtitle"
@@ -54,7 +56,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:fontFamily="sans-serif"
-                    android:textColor="@color/eve_recovery_text_secondary"
+                    android:textColor="?attr/eveLabelSecondary"
                     android:textSize="13sp"
                     android:visibility="gone" />
             </LinearLayout>
@@ -65,23 +67,23 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginEnd="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="@drawable/bg_circle_translucent"
                 android:stateListAnimator="@animator/press_scale"
                 android:contentDescription="Share"
                 android:padding="12dp"
                 android:src="@drawable/ic_share"
-                app:tint="@color/eve_text" />
+                app:tint="@color/eve_accent_text" />
 
             <!-- Compact 48dp reattempt action with visible refresh icon and accessible label. -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnReattempt"
                 style="@style/Widget.Eve.Button.OrangePill"
                 android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_height="wrap_content"
                 android:minHeight="48dp"
                 android:minWidth="0dp"
                 android:paddingHorizontal="12dp"
-                android:paddingVertical="0dp"
+                android:paddingVertical="8dp"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
                 android:gravity="center"
@@ -89,8 +91,6 @@
                 android:stateListAnimator="@animator/press_scale"
                 android:contentDescription="@string/reattempt"
                 android:tooltipText="@string/reattempt"
-                app:cornerRadius="14dp"
-                app:strokeWidth="0dp"
                 android:textSize="13sp"
                 app:icon="@drawable/ic_refresh"
                 app:iconSize="20dp"
@@ -149,7 +149,8 @@
             android:id="@+id/layoutResultContentContainer"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:background="@color/eve_system_grouped_background">
 
             <!-- ========================================================== -->
             <!-- SECTION 1: OVERVIEW (Tab 1)                                -->
@@ -163,7 +164,8 @@
                 android:fillViewport="true"
                 android:overScrollMode="ifContentScrolls"
                 android:scrollbars="vertical"
-                android:visibility="visible">
+                android:visibility="visible"
+                android:background="@color/eve_system_grouped_background">
 
                 <LinearLayout
                     android:id="@+id/sectionOverview"
@@ -200,7 +202,7 @@
                                 android:fontFamily="sans-serif-medium"
                                 android:letterSpacing="0.08"
                                 android:text="TOTAL SCORE"
-                                android:textColor="@color/eve_recovery_text_secondary"
+                                android:textColor="?attr/eveLabelSecondary"
                                 android:textSize="12sp" />
 
                             <TextView
@@ -222,7 +224,7 @@
                                 android:paddingHorizontal="12dp"
                                 android:paddingVertical="4dp"
                                 android:text="--% Score"
-                                android:textColor="@color/eve_recovery_accent"
+                                android:textColor="?attr/eveAccentText"
                                 android:textSize="13sp" />
 
                             <TextView
@@ -232,7 +234,7 @@
                                 android:layout_marginTop="6dp"
                                 android:fontFamily="sans-serif"
                                 android:gravity="center"
-                                android:textColor="@color/eve_recovery_text_secondary"
+                                android:textColor="?attr/eveLabelSecondary"
                                 android:textSize="12sp"
                                 android:visibility="gone" />
                         </LinearLayout>
@@ -256,14 +258,15 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Statistics" />
+                            android:text="Statistics"
+                            android:textColor="?attr/eveLabelPrimary" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-medium"
                             android:text="View Details ›"
-                            android:textColor="@color/eve_recovery_accent"
+                            android:textColor="?attr/eveAccentText"
                             android:textSize="13sp" />
                     </LinearLayout>
 
@@ -358,7 +361,7 @@
                                 android:gravity="center"
                                 android:textSize="24sp"
                                 android:text="0"
-                                android:textColor="@color/eve_text" />
+                                android:textColor="?attr/eveLabelPrimary" />
 
                             <TextView
                                 android:layout_width="match_parent"
@@ -368,7 +371,7 @@
                                 android:gravity="center"
                                 android:textSize="13sp"
                                 android:text="Unattempted"
-                                android:textColor="@color/eve_recovery_text_secondary" />
+                                android:textColor="?attr/eveLabelSecondary" />
                         </LinearLayout>
 
                         <!-- Tile 4: Accuracy -->
@@ -422,31 +425,27 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Performance Standing" />
+                            android:text="Performance Standing"
+                            android:textColor="?attr/eveLabelPrimary" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-medium"
                             android:text="View Details ›"
-                            android:textColor="@color/eve_recovery_accent"
+                            android:textColor="?attr/eveAccentText"
                             android:textSize="13sp" />
                     </LinearLayout>
 
                     <com.google.android.material.card.MaterialCardView
+                        style="@style/Widget.Eve.Card.Group"
                         android:id="@+id/cardPerformanceStanding"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:minHeight="0dp"
                         android:layout_marginBottom="12dp"
                         android:clickable="true"
-                        android:focusable="true"
-                        android:foreground="?attr/selectableItemBackground"
-                        app:cardBackgroundColor="@color/eve_card_bg"
-                        app:cardCornerRadius="20dp"
-                        app:cardElevation="0dp"
-                        app:strokeColor="@color/eve_shape_border"
-                        app:strokeWidth="1dp">
+                        android:focusable="true">
 
                         <com.eve.app.ui.result.ResponsiveResultRow
                             android:layout_width="match_parent"
@@ -477,7 +476,7 @@
                                         android:layout_height="wrap_content"
                                         android:fontFamily="sans-serif-medium"
                                         android:text="Overall Rank"
-                                        android:textColor="@color/eve_recovery_text_secondary"
+                                        android:textColor="?attr/eveLabelSecondary"
                                         android:textSize="12.5sp" />
 
                                     <TextView
@@ -487,7 +486,7 @@
                                         android:layout_marginTop="2dp"
                                         android:fontFamily="sans-serif-bold"
                                         android:text="-- / --"
-                                        android:textColor="@color/eve_text"
+                                        android:textColor="?attr/eveLabelPrimary"
                                         android:textSize="15sp" />
                                 </LinearLayout>
 
@@ -504,7 +503,7 @@
                                         android:layout_height="wrap_content"
                                         android:fontFamily="sans-serif-medium"
                                         android:text="Percentile Score"
-                                        android:textColor="@color/eve_recovery_text_secondary"
+                                        android:textColor="?attr/eveLabelSecondary"
                                         android:textSize="12.5sp" />
 
                                     <TextView
@@ -514,7 +513,7 @@
                                         android:layout_marginTop="2dp"
                                         android:fontFamily="sans-serif-bold"
                                         android:text="--%"
-                                        android:textColor="@color/eve_text"
+                                        android:textColor="?attr/eveLabelPrimary"
                                         android:textSize="15sp" />
                                 </LinearLayout>
                             </LinearLayout>
@@ -540,22 +539,22 @@
                                     android:paddingVertical="4dp">
 
                                     <TextView
-                                         android:layout_width="match_parent"
-                                         android:layout_height="wrap_content"
-                                         android:fontFamily="sans-serif-medium"
-                                         android:text="Batch Performance"
-                                         android:textColor="@color/eve_text"
-                                         android:textSize="12.5sp" />
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:fontFamily="sans-serif-medium"
+                                        android:text="Batch Performance"
+                                        android:textColor="?attr/eveLabelPrimary"
+                                        android:textSize="12.5sp" />
 
                                     <TextView
-                                         android:id="@+id/tvTopperAvg"
-                                         android:layout_width="match_parent"
-                                         android:layout_height="wrap_content"
-                                         android:layout_marginTop="2dp"
-                                         android:fontFamily="sans-serif"
-                                         android:text="Topper: -- • Avg: --"
-                                         android:textColor="@color/eve_recovery_text_secondary"
-                                         android:textSize="12sp" />
+                                        android:id="@+id/tvTopperAvg"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="2dp"
+                                        android:fontFamily="sans-serif"
+                                        android:text="Topper: -- • Avg: --"
+                                        android:textColor="?attr/eveLabelSecondary"
+                                        android:textSize="12sp" />
                                 </LinearLayout>
 
                                 <LinearLayout
@@ -574,7 +573,7 @@
                                         android:layout_height="wrap_content"
                                         android:fontFamily="sans-serif-medium"
                                         android:text="Historical Best &amp; Avg"
-                                        android:textColor="@color/eve_text"
+                                        android:textColor="?attr/eveLabelPrimary"
                                         android:textSize="12.5sp" />
 
                                     <TextView
@@ -584,7 +583,7 @@
                                         android:layout_marginTop="2dp"
                                         android:fontFamily="sans-serif"
                                         android:text="-- / --"
-                                        android:textColor="@color/eve_recovery_text_secondary"
+                                        android:textColor="?attr/eveLabelSecondary"
                                         android:textSize="12sp" />
                                 </LinearLayout>
                             </LinearLayout>
@@ -600,14 +599,10 @@
                         android:orientation="vertical">
 
                         <com.google.android.material.card.MaterialCardView
+                            style="@style/Widget.Eve.Card.Group"
                             android:id="@+id/cardCutoffVerdict"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:cardBackgroundColor="@color/eve_card_bg"
-                            app:cardCornerRadius="20dp"
-                            app:cardElevation="0dp"
-                            app:strokeColor="@color/eve_shape_border"
-                            app:strokeWidth="1dp">
+                            android:layout_height="wrap_content">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -626,7 +621,7 @@
                                         android:layout_height="wrap_content"
                                         android:fontFamily="sans-serif-medium"
                                         android:text="Selected Category:"
-                                        android:textColor="@color/eve_recovery_text_secondary"
+                                        android:textColor="?attr/eveLabelSecondary"
                                         android:textSize="12sp" />
 
                                     <TextView
@@ -642,7 +637,7 @@
                                         android:paddingHorizontal="12dp"
                                         android:paddingVertical="6dp"
                                         android:text="General"
-                                        android:textColor="@color/eve_text"
+                                        android:textColor="?attr/eveLabelPrimary"
                                         android:textSize="12sp"
                                         android:fontFamily="sans-serif-medium"
                                         app:drawableEndCompat="@drawable/ic_chevron_down"
@@ -663,7 +658,7 @@
                                         android:paddingHorizontal="10dp"
                                         android:paddingVertical="4dp"
                                         android:text="Checking..."
-                                        android:textColor="@color/eve_recovery_text_secondary"
+                                        android:textColor="?attr/eveLabelSecondary"
                                         android:textSize="12sp" />
                                 </LinearLayout>
 
@@ -689,7 +684,7 @@
                                             android:layout_height="wrap_content"
                                             android:fontFamily="sans-serif-medium"
                                             android:text="Required Cutoff"
-                                            android:textColor="@color/eve_recovery_text_secondary"
+                                            android:textColor="?attr/eveLabelSecondary"
                                             android:textSize="12.5sp" />
 
                                         <TextView
@@ -714,7 +709,7 @@
                                             android:layout_height="wrap_content"
                                             android:fontFamily="sans-serif-medium"
                                             android:text="Your Score"
-                                            android:textColor="@color/eve_recovery_text_secondary"
+                                            android:textColor="?attr/eveLabelSecondary"
                                             android:textSize="12.5sp" />
 
                                         <TextView
@@ -737,7 +732,7 @@
                                     android:fontFamily="sans-serif"
                                     android:lineSpacingExtra="2dp"
                                     android:text="Qualification verdict message."
-                                    android:textColor="@color/eve_recovery_text_secondary"
+                                    android:textColor="?attr/eveLabelSecondary"
                                     android:textSize="13sp" />
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
@@ -762,29 +757,25 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Analytics &amp; Insights" />
+                            android:text="Analytics &amp; Insights"
+                            android:textColor="?attr/eveLabelPrimary" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-medium"
                             android:text="View Details ›"
-                            android:textColor="@color/eve_recovery_accent"
+                            android:textColor="?attr/eveAccentText"
                             android:textSize="13sp" />
                     </LinearLayout>
 
                     <com.google.android.material.card.MaterialCardView
+                        style="@style/Widget.Eve.Card.Group"
                         android:id="@+id/cardOverviewAnalytics"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clickable="true"
-                        android:focusable="true"
-                        android:foreground="?attr/selectableItemBackground"
-                        app:cardBackgroundColor="@color/eve_card_bg"
-                        app:cardCornerRadius="20dp"
-                        app:cardElevation="0dp"
-                        app:strokeColor="@color/eve_shape_border"
-                        app:strokeWidth="1dp">
+                        android:focusable="true">
 
                         <com.eve.app.ui.result.ResponsiveResultRow
                             android:layout_width="match_parent"
@@ -827,7 +818,7 @@
                                         android:fontFamily="sans-serif-bold"
                                         android:gravity="center"
                                         android:text="0%"
-                                        android:textColor="@color/eve_text"
+                                        android:textColor="?attr/eveLabelPrimary"
                                         android:textSize="14sp" />
 
                                     <TextView
@@ -837,7 +828,7 @@
                                         android:fontFamily="sans-serif-medium"
                                         android:gravity="center"
                                         android:text="Attempted"
-                                        android:textColor="@color/eve_recovery_text_secondary"
+                                        android:textColor="?attr/eveLabelSecondary"
                                         android:textSize="12sp" />
                                 </LinearLayout>
 
@@ -868,7 +859,7 @@
                                         android:fontFamily="sans-serif-medium"
                                         android:gravity="center"
                                         android:text="Accuracy"
-                                        android:textColor="@color/eve_recovery_text_secondary"
+                                        android:textColor="?attr/eveLabelSecondary"
                                         android:textSize="12sp" />
                                 </LinearLayout>
 
@@ -888,7 +879,7 @@
                                         android:fontFamily="sans-serif-bold"
                                         android:gravity="center"
                                         android:text="0s"
-                                        android:textColor="@color/eve_text"
+                                        android:textColor="?attr/eveLabelPrimary"
                                         android:textSize="14sp" />
 
                                     <TextView
@@ -898,7 +889,7 @@
                                         android:fontFamily="sans-serif-medium"
                                         android:gravity="center"
                                         android:text="Avg / Q"
-                                        android:textColor="@color/eve_recovery_text_secondary"
+                                        android:textColor="?attr/eveLabelSecondary"
                                         android:textSize="12sp" />
                                 </LinearLayout>
                             </com.eve.app.ui.result.ResponsiveResultRow>
@@ -966,7 +957,7 @@
                                 android:layout_marginEnd="8dp"
                                 android:fontFamily="sans-serif-medium"
                                 android:text="Right"
-                                android:textColor="@color/eve_recovery_text_secondary"
+                                android:textColor="?attr/eveLabelSecondary"
                                 android:textSize="12.5sp" />
 
                             <!-- Wrong Dot -->
@@ -982,7 +973,7 @@
                                 android:layout_marginEnd="8dp"
                                 android:fontFamily="sans-serif-medium"
                                 android:text="Wrong"
-                                android:textColor="@color/eve_recovery_text_secondary"
+                                android:textColor="?attr/eveLabelSecondary"
                                 android:textSize="12.5sp" />
 
                             <!-- Skipped Dot -->
@@ -997,7 +988,7 @@
                                 android:layout_marginStart="4dp"
                                 android:fontFamily="sans-serif-medium"
                                 android:text="Skipped"
-                                android:textColor="@color/eve_recovery_text_secondary"
+                                android:textColor="?attr/eveLabelSecondary"
                                 android:textSize="12.5sp" />
                         </LinearLayout>
                     </com.eve.app.ui.result.ResponsiveResultRow>
@@ -1063,7 +1054,8 @@
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1">
+                    android:layout_weight="1"
+                    android:background="@color/eve_system_grouped_background">
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rvAnswers"
@@ -1100,7 +1092,7 @@
                             android:layout_marginTop="6dp"
                             android:gravity="center"
                             android:text="Select another filter above or tap any question on the palette."
-                            android:textColor="@color/eve_recovery_text_secondary"
+                            android:textColor="?attr/eveLabelSecondary"
                             android:textSize="13sp" />
                     </LinearLayout>
                 </FrameLayout>
@@ -1115,7 +1107,9 @@
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:fillViewport="true"
-                android:visibility="gone">
+                android:visibility="gone"
+                android:overScrollMode="ifContentScrolls"
+                android:background="@color/eve_system_grouped_background">
 
                 <LinearLayout
                     android:id="@+id/sectionLeaderboard"
@@ -1125,14 +1119,10 @@
                     android:padding="16dp">
 
                     <com.google.android.material.card.MaterialCardView
+                        style="@style/Widget.Eve.Card.Group"
                         android:id="@+id/cardLeaderboardHero"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:cardBackgroundColor="@color/eve_card_bg"
-                        app:cardCornerRadius="20dp"
-                        app:cardElevation="0dp"
-                        app:strokeColor="@color/eve_shape_border"
-                        app:strokeWidth="1dp">
+                        android:layout_height="wrap_content">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -1161,7 +1151,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="16dp"
                                 android:text="-- / --"
-                                android:textColor="@color/eve_text"
+                                android:textColor="?attr/eveLabelPrimary"
                                 android:textSize="28sp"
                                 android:textStyle="bold" />
 
@@ -1172,7 +1162,7 @@
                                 android:layout_marginTop="4dp"
                                 android:gravity="center"
                                 android:text="See how you rank against all students who took this exam."
-                                android:textColor="@color/eve_recovery_text_secondary"
+                                android:textColor="?attr/eveLabelSecondary"
                                 android:textSize="14sp" />
 
                             <com.eve.app.ui.result.ResponsiveResultRow
@@ -1192,7 +1182,7 @@
                                     android:paddingHorizontal="12dp"
                                     android:paddingVertical="@dimen/eve_space_4"
                                     android:text="Score: --"
-                                    android:textColor="@color/eve_text"
+                                    android:textColor="?attr/eveLabelPrimary"
                                     android:textSize="12sp"
                                     android:textStyle="bold" />
 
@@ -1204,7 +1194,7 @@
                                     android:paddingHorizontal="12dp"
                                     android:paddingVertical="@dimen/eve_space_4"
                                     android:text="Percentile: --%"
-                                    android:textColor="@color/eve_text"
+                                    android:textColor="?attr/eveLabelPrimary"
                                     android:textSize="12sp"
                                     android:textStyle="bold" />
                             </com.eve.app.ui.result.ResponsiveResultRow>

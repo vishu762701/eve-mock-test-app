@@ -39,7 +39,7 @@ object ExamCategoryTintHelper {
             clean.contains("teaching") || clean.contains("ctet") || clean.contains("state") -> PALETTE[3] // Rose
             clean.contains("upsc") || clean.contains("civil") -> PALETTE[5] // Teal
             else -> {
-                val index = abs(clean.hashCode()) % PALETTE.size
+                val index = Math.floorMod(clean.hashCode(), PALETTE.size)
                 PALETTE[index]
             }
         }

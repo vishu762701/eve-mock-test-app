@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/eve_canvas">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,11 +21,11 @@
             android:id="@+id/btnBack"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:background="@drawable/bg_circle_translucent"
             android:contentDescription="Back"
             android:padding="12dp"
             android:src="@drawable/ic_back"
-            app:tint="@color/eve_text" />
+            app:tint="@color/eve_accent_text" />
 
         <TextView
             android:id="@+id/tvExamName"
@@ -35,7 +37,7 @@
             android:maxLines="1"
             android:paddingStart="4dp"
             android:text="Leaderboard"
-            android:textColor="@color/eve_text" />
+            android:textColor="?attr/eveLabelPrimary" />
     </LinearLayout>
 
     <View
@@ -44,18 +46,14 @@
         android:background="@color/eve_stroke" />
 
     <com.google.android.material.card.MaterialCardView
+        style="@style/Widget.Eve.Card.Group"
         android:id="@+id/cardYourRank"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="12dp"
         android:layout_marginBottom="12dp"
-        android:visibility="gone"
-        app:cardBackgroundColor="@color/eve_surface"
-        app:cardCornerRadius="@dimen/eve_radius_card"
-        app:cardElevation="0dp"
-        app:strokeColor="@color/eve_shape_border"
-        app:strokeWidth="1dp">
+        android:visibility="gone">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -76,7 +74,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:textColor="@color/eve_text"
+                    android:textColor="?attr/eveLabelPrimary"
                     android:textSize="15sp"
                     android:textStyle="bold" />
             </FrameLayout>
@@ -94,7 +92,7 @@
                     android:layout_height="wrap_content"
                     android:letterSpacing="0.08"
                     android:text="YOUR RANK"
-                    android:textColor="@color/eve_text_secondary"
+                    android:textColor="?attr/eveLabelSecondary"
                     android:textSize="11sp"
                     android:textStyle="bold" />
 
@@ -103,7 +101,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
-                    android:textColor="@color/eve_text"
+                    android:textColor="?attr/eveLabelPrimary"
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
@@ -112,7 +110,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:textColor="@color/eve_text_secondary"
+                    android:textColor="?attr/eveLabelSecondary"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -123,7 +121,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:gravity="end"
-                android:textColor="@color/eve_text"
+                android:textColor="?attr/eveLabelPrimary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -141,7 +139,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Top Scorers"
-            android:textColor="@color/eve_text"
+            android:textColor="?attr/eveLabelPrimary"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -150,14 +148,15 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:text="Highest scores across all participants"
-            android:textColor="@color/eve_text_secondary"
+            android:textColor="?attr/eveLabelSecondary"
             android:textSize="12sp" />
     </LinearLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:background="@color/eve_system_grouped_background">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvLeaderboard"
@@ -165,9 +164,10 @@
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:layoutAnimation="@anim/layout_enter"
-            android:paddingHorizontal="8dp"
-            android:paddingTop="4dp"
-            android:paddingBottom="16dp" />
+            android:paddingHorizontal="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="24dp"
+            android:background="@color/eve_system_grouped_background" />
 
         <LinearLayout
             android:id="@+id/progressGroup"
@@ -187,7 +187,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:text="Loading leaderboard…"
-                android:textColor="@color/eve_grey"
+                android:textColor="?attr/eveLabelSecondary"
                 android:textSize="13sp" />
         </LinearLayout>
 
@@ -226,7 +226,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:gravity="center"
-                android:textColor="@color/eve_grey"
+                android:textColor="?attr/eveLabelSecondary"
                 android:textSize="13sp" />
 
             <com.google.android.material.button.MaterialButton

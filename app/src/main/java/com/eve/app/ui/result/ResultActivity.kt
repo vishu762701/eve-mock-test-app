@@ -699,7 +699,7 @@ class ResultActivity : EveBaseActivity() {
                 item.tvSub.setTextColor(
                     ContextCompat.getColor(
                         this,
-                        if (qualified) R.color.eve_status_success else R.color.eve_status_error
+                        if (qualified) R.color.eve_status_success_text else R.color.eve_status_error_text
                     )
                 )
             } else {
@@ -742,7 +742,7 @@ class ResultActivity : EveBaseActivity() {
             dialog.setOnShowListener {
                 val confirmBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 val cancelBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-                confirmBtn.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.eve_status_error))
+                confirmBtn.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.eve_status_error_text))
 
                 confirmBtn.setOnClickListener {
                     confirmBtn.isEnabled = false

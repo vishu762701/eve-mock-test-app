@@ -190,3 +190,19 @@ not an independent design system.
   Apple rendering or production authentication/network verification.
 - Review the full diff, `git diff --check`, safely reconcile remote main, push without
   force, then confirm exact remote SHA and Actions conclusions.
+
+## Student-screen application (Task 2)
+
+See [EVE_STUDENT_UI_COVERAGE.md](EVE_STUDENT_UI_COVERAGE.md) for the production
+Activity/layout/adapter trace, changed/retained decisions, capture names and
+verification limits. `Widget.Eve.Card.Group`, `.Content` and `.Inset` reuse this
+foundation for grouped rows, standard content and nested surfaces; they do not
+create another palette. Focusable outlined forms use the canonical 12dp field
+shape and 1dp/2dp idle/focus boundary. Practice/PYQ use shared measured actions and
+year capsules. Analytics rows use the production `ResultAnalysisRows` binder in
+both the Activity and native evidence, including narrow/enlarged-font reflow.
+
+The student evidence gate requires both themes for every major presentation path,
+additional large-font and scrolled captures, and existing full-window navigation,
+reveal and protected test regression evidence. Fixture data cannot verify live
+account, payment, downloaded image or external-app states.

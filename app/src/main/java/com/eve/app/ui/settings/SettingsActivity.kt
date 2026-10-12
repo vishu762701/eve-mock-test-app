@@ -234,12 +234,14 @@ class SettingsActivity : EveBaseActivity() {
         val builder = AlertDialog.Builder(this)
         val layout = android.widget.LinearLayout(this).apply {
             orientation = android.widget.LinearLayout.HORIZONTAL
-            setPadding(48, 48, 48, 48)
+            val space = (24 * resources.displayMetrics.density).toInt()
+            setPadding(space, space, space, space)
             gravity = android.view.Gravity.CENTER_VERTICAL
             addView(ProgressBar(this@SettingsActivity))
             addView(TextView(this@SettingsActivity).apply {
                 text = msg
-                setPadding(32, 0, 0, 0)
+                setPadding((16 * resources.displayMetrics.density).toInt(), 0, 0, 0)
+                setTextColor(androidx.core.content.ContextCompat.getColor(context, com.eve.app.R.color.eve_text))
                 textSize = 15f
             })
         }

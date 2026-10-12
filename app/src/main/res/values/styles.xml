@@ -275,4 +275,29 @@
         <item name="android:minWidth">48dp</item><item name="android:padding">12dp</item>
         <item name="iconPadding">0dp</item><item name="iconGravity">textStart</item>
     </style>
+    <style name="Widget.Eve.AssistChip.Inset" parent="Widget.Eve.RecoveryChip">
+        <item name="chipBackgroundColor">@color/selector_eve_inset_chip_bg</item>
+    </style>
+    <style name="Widget.Eve.Card.Group" parent="Widget.Eve.Card">
+        <item name="cardBackgroundColor">@color/eve_secondary_system_grouped_background</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+    <style name="Widget.Eve.Card.Inset" parent="Widget.Eve.Card.Group">
+        <item name="cardBackgroundColor">@color/eve_tertiary_system_grouped_background</item>
+    </style>
+    <style name="Widget.Eve.Card.Content" parent="Widget.Eve.Card.Group">
+        <item name="cardBackgroundColor">@color/eve_secondary_background</item>
+    </style>
+    <style name="Widget.Eve.TextInput.Outlined" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@color/eve_input_fill</item>
+        <item name="boxStrokeColor">@color/selector_eve_input_stroke</item>
+        <item name="boxStrokeErrorColor">@color/eve_destructive_text</item>
+        <item name="hintTextColor">?attr/eveAccentText</item>
+        <item name="boxStrokeWidth">1dp</item><item name="boxStrokeWidthFocused">2dp</item>
+        <item name="boxCornerRadiusTopStart">@dimen/eve_radius_input</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/eve_radius_input</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/eve_radius_input</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/eve_radius_input</item>
+    </style>
 </resources>

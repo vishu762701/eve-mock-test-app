@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawerLayout"
@@ -65,7 +66,7 @@
                     android:contentDescription="Search exams"
                     android:padding="14dp"
                     android:src="@drawable/ic_search"
-                    app:tint="@color/eve_header_ink_icon" />
+                    app:tint="@color/eve_primary" />
 
                 <!-- Bell (Notifications) Icon -->
                 <FrameLayout
@@ -109,7 +110,7 @@
                     android:contentDescription="@string/home_menu"
                     android:padding="14dp"
                     android:src="@drawable/ic_more_vert"
-                    app:tint="@color/eve_header_ink_icon" />
+                    app:tint="@color/eve_primary" />
             </LinearLayout>
 
             <!-- Row 2: tiny 'Eve' label above large bold greeting -->
@@ -127,13 +128,13 @@
                     android:fontFamily="sans-serif-medium"
                     android:letterSpacing="0.04"
                     android:text="EVE"
-                    android:textColor="@color/eve_recovery_text_secondary"
+                    android:textColor="?attr/eveLabelSecondary"
                     android:textSize="12sp" />
 
                 <TextView
                     android:id="@+id/tvWelcome"
                     style="@style/TextAppearance.Eve.M3.HeadlineLarge"
-                    android:textSize="28sp"
+                    android:textSize="30sp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
@@ -165,7 +166,7 @@
                 android:contentDescription="Close search"
                 android:padding="10dp"
                 android:src="@drawable/ic_back"
-                app:tint="@color/eve_header_ink_icon" />
+                app:tint="@color/eve_primary" />
 
             <LinearLayout
                 android:id="@+id/layoutSearchFieldContainer"
@@ -189,7 +190,7 @@
                     android:inputType="text"
                     android:maxLines="1"
                     android:textColor="@color/eve_header_ink_text"
-                    android:textColorHint="@color/eve_header_ink_secondary"
+                    android:textColorHint="@color/eve_placeholder_text"
                     android:textSize="15sp" />
             </LinearLayout>
 
@@ -202,7 +203,7 @@
                 android:contentDescription="Clear search"
                 android:padding="11dp"
                 android:src="@drawable/ic_close"
-                app:tint="@color/eve_header_ink_icon"
+                app:tint="@color/eve_primary"
                 android:visibility="gone" />
         </LinearLayout>
     </FrameLayout>
@@ -272,9 +273,9 @@
                     android:id="@+id/btnHomeBannerCta"
                     style="@style/Widget.Eve.Button.Neutral"
                     android:layout_width="wrap_content"
-                    android:layout_height="48dp"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="bottom|end"
-                    android:paddingVertical="0dp"
+                    android:paddingVertical="8dp"
                     android:contentDescription="Open Home banner link"
                     android:ellipsize="end"
                     android:maxLines="1"
@@ -311,7 +312,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-medium"
                 android:gravity="center_vertical"
-                android:textColor="@color/eve_text"
+                android:textColor="?attr/eveLabelPrimary"
                 android:textSize="14sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -324,7 +325,6 @@
             android:minHeight="52dp"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="12dp"
-            app:cornerRadius="14dp"
             android:text="Admin Dashboard"
             android:visibility="gone" />
 
@@ -385,7 +385,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:text="Loading exams…"
-                android:textColor="@color/eve_recovery_text_secondary"
+                android:textColor="?attr/eveLabelSecondary"
                 android:textSize="13sp" />
         </LinearLayout>
 
@@ -414,7 +414,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:gravity="center"
-                android:textColor="@color/eve_text"
+                android:textColor="?attr/eveLabelPrimary"
                 android:textSize="17sp"
                 android:textStyle="bold" />
 
@@ -424,7 +424,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:gravity="center"
-                android:textColor="@color/eve_recovery_text_secondary"
+                android:textColor="?attr/eveLabelSecondary"
                 android:textSize="13sp" />
 
             <com.google.android.material.button.MaterialButton
@@ -532,7 +532,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
                 android:text="Student"
-                android:textColor="@color/eve_text"
+                android:textColor="?attr/eveLabelPrimary"
                 android:textSize="17sp"
                 android:textStyle="bold" />
 
@@ -542,7 +542,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="student@eve.app"
-                android:textColor="@color/eve_recovery_text_secondary"
+                android:textColor="?attr/eveLabelSecondary"
                 android:textSize="13sp" />
 
             <TextView
@@ -550,7 +550,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:textColor="@color/eve_status_success"
+                android:textColor="@color/eve_status_success_text"
                 android:textSize="12sp"
                 android:visibility="gone" />
         </LinearLayout>
@@ -574,7 +574,7 @@
             <LinearLayout
                 android:id="@+id/layoutDrawerProfile"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="wrap_content"
                 android:layout_marginHorizontal="8dp"
                 android:background="@drawable/bg_drawer_item_selector"
                 android:stateListAnimator="@animator/press_scale"
@@ -582,7 +582,9 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingHorizontal="16dp">
+                android:paddingHorizontal="16dp"
+                android:minHeight="52dp"
+                android:paddingVertical="14dp">
 
                 <ImageView
                     android:layout_width="24dp"
@@ -597,7 +599,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
                     android:text="Profile"
-                    android:textColor="@color/eve_text"
+                    android:textColor="?attr/eveLabelPrimary"
                     android:textSize="15sp" />
             </LinearLayout>
 
@@ -605,7 +607,7 @@
             <LinearLayout
                 android:id="@+id/layoutDrawerPremium"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="wrap_content"
                 android:layout_marginHorizontal="8dp"
                 android:background="@drawable/bg_drawer_item_selector"
                 android:stateListAnimator="@animator/press_scale"
@@ -615,7 +617,9 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingHorizontal="16dp">
+                android:paddingHorizontal="16dp"
+                android:minHeight="52dp"
+                android:paddingVertical="14dp">
 
                 <FrameLayout
                     android:layout_width="36dp"
@@ -645,7 +649,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="14dp"
                     android:text="Premium"
-                    android:textColor="@color/eve_text"
+                    android:textColor="?attr/eveLabelPrimary"
                     android:textSize="15sp" />
             </LinearLayout>
 
@@ -653,7 +657,7 @@
             <LinearLayout
                 android:id="@+id/layoutDrawerPerformance"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="wrap_content"
                 android:layout_marginHorizontal="8dp"
                 android:background="@drawable/bg_drawer_item_selector"
                 android:stateListAnimator="@animator/press_scale"
@@ -661,7 +665,9 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingHorizontal="16dp">
+                android:paddingHorizontal="16dp"
+                android:minHeight="52dp"
+                android:paddingVertical="14dp">
 
                 <ImageView
                     android:layout_width="24dp"
@@ -676,7 +682,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
                     android:text="Performance"
-                    android:textColor="@color/eve_text"
+                    android:textColor="?attr/eveLabelPrimary"
                     android:textSize="15sp" />
             </LinearLayout>
 
@@ -684,7 +690,7 @@
             <LinearLayout
                 android:id="@+id/layoutDrawerLeaderboard"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="wrap_content"
                 android:layout_marginHorizontal="8dp"
                 android:background="@drawable/bg_drawer_item_selector"
                 android:stateListAnimator="@animator/press_scale"
@@ -692,7 +698,9 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingHorizontal="16dp">
+                android:paddingHorizontal="16dp"
+                android:minHeight="52dp"
+                android:paddingVertical="14dp">
 
                 <ImageView
                     android:layout_width="24dp"
@@ -707,7 +715,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
                     android:text="Overall Leaderboard"
-                    android:textColor="@color/eve_text"
+                    android:textColor="?attr/eveLabelPrimary"
                     android:textSize="15sp" />
             </LinearLayout>
 
@@ -715,7 +723,7 @@
             <LinearLayout
                 android:id="@+id/layoutDrawerSyllabus"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="wrap_content"
                 android:layout_marginHorizontal="8dp"
                 android:background="@drawable/bg_drawer_item_selector"
                 android:stateListAnimator="@animator/press_scale"
@@ -723,7 +731,9 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingHorizontal="16dp">
+                android:paddingHorizontal="16dp"
+                android:minHeight="52dp"
+                android:paddingVertical="14dp">
 
                 <ImageView
                     android:layout_width="24dp"
@@ -738,7 +748,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
                     android:text="Syllabus"
-                    android:textColor="@color/eve_text"
+                    android:textColor="?attr/eveLabelPrimary"
                     android:textSize="15sp" />
             </LinearLayout>
 
@@ -746,7 +756,7 @@
             <LinearLayout
                 android:id="@+id/layoutDrawerAbout"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="wrap_content"
                 android:layout_marginHorizontal="8dp"
                 android:background="@drawable/bg_drawer_item_selector"
                 android:stateListAnimator="@animator/press_scale"
@@ -754,7 +764,9 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingHorizontal="16dp">
+                android:paddingHorizontal="16dp"
+                android:minHeight="52dp"
+                android:paddingVertical="14dp">
 
                 <ImageView
                     android:layout_width="24dp"
@@ -769,7 +781,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
                     android:text="About"
-                    android:textColor="@color/eve_text"
+                    android:textColor="?attr/eveLabelPrimary"
                     android:textSize="15sp" />
             </LinearLayout>
 
@@ -777,7 +789,7 @@
             <LinearLayout
                 android:id="@+id/layoutDrawerSettings"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="wrap_content"
                 android:layout_marginHorizontal="8dp"
                 android:background="@drawable/bg_drawer_item_selector"
                 android:stateListAnimator="@animator/press_scale"
@@ -785,7 +797,9 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingHorizontal="16dp">
+                android:paddingHorizontal="16dp"
+                android:minHeight="52dp"
+                android:paddingVertical="14dp">
 
                 <ImageView
                     android:layout_width="24dp"
@@ -800,7 +814,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
                     android:text="Settings"
-                    android:textColor="@color/eve_text"
+                    android:textColor="?attr/eveLabelPrimary"
                     android:textSize="15sp" />
             </LinearLayout>
         </LinearLayout>
@@ -837,7 +851,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:text="Scheduled Maintenance"
-                android:textColor="@color/eve_text"
+                android:textColor="?attr/eveLabelPrimary"
                 android:textSize="20sp" />
 
             <TextView
@@ -848,7 +862,7 @@
                 android:gravity="center"
                 android:lineSpacingExtra="3dp"
                 android:text="Eve Mock Test is currently undergoing scheduled maintenance. Please check back shortly."
-                android:textColor="@color/eve_recovery_text_secondary"
+                android:textColor="?attr/eveLabelSecondary"
                 android:textSize="14sp" />
 
             <com.google.android.material.button.MaterialButton
@@ -891,7 +905,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:text="Update Required"
-                android:textColor="@color/eve_text"
+                android:textColor="?attr/eveLabelPrimary"
                 android:textSize="20sp" />
 
             <TextView
@@ -902,16 +916,17 @@
                 android:gravity="center"
                 android:lineSpacingExtra="3dp"
                 android:text="A newer version of Eve Mock Test is required to continue. Please update to the latest version for improved stability, questions, and security."
-                android:textColor="@color/eve_recovery_text_secondary"
+                android:textColor="?attr/eveLabelSecondary"
                 android:textSize="14sp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnForceUpdateNow"
-                style="@style/Widget.Eve.Button"
+                style="@style/Widget.Eve.Button.Primary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Update App Now" />
+                android:text="Update App Now"
+                android:textSize="16sp" />
         </LinearLayout>
     </FrameLayout>
 </androidx.drawerlayout.widget.DrawerLayout>

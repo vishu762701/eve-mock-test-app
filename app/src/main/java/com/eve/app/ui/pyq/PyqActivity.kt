@@ -66,7 +66,7 @@ class PyqActivity : EveBaseActivity() {
                 exams = state.data
                 binding.spExam.adapter = ArrayAdapter(
                     this,
-                    android.R.layout.simple_spinner_dropdown_item,
+                    com.eve.app.R.layout.item_exam_dropdown,
                     exams.map { it.examName }
                 )
                 if (exams.isEmpty()) {
@@ -106,7 +106,7 @@ class PyqActivity : EveBaseActivity() {
                 val years = sets.groupBy { it.year }.toSortedMap(compareByDescending { it })
                 years.forEach { (year, yearSets) ->
                     val count = yearSets.sumOf { it.questionCount }
-                    binding.chipGroupYears.addView(Chip(this).apply {
+                    binding.chipGroupYears.addView(com.eve.app.ui.common.StudentSelectionControls.year(this).apply {
                         text = "$year • $count Qs"
                         isCheckable = true
                         isChecked = selectedYear == year
@@ -116,8 +116,11 @@ class PyqActivity : EveBaseActivity() {
                         }
                     })
                 }
-                val yearToShow = selectedYear ?: years.keys.first()
+                val yearToShow = selectedYear?.takeIf { it in years } ?: years.keys.first()
                 selectedYear = yearToShow
+                for (i in 0 until binding.chipGroupYears.childCount) {
+                    (binding.chipGroupYears.getChildAt(i) as? Chip)?.isChecked = years.keys.elementAt(i) == yearToShow
+                }
                 renderPapers(yearToShow)
             }
         }
@@ -132,7 +135,7 @@ class PyqActivity : EveBaseActivity() {
         }
         binding.tvPapersLabel.visibility = View.VISIBLE
         yearSets.forEach { set ->
-            binding.chipGroupPapers.addView(Chip(this).apply {
+            binding.chipGroupPapers.addView(com.eve.app.ui.common.StudentSelectionControls.action(this).apply {
                 text = if (set.paper.isBlank()) "Paper • ${set.subtitle}" else "${set.paper} • ${set.subtitle}"
                 isClickable = true
                 setOnClickListener { startPyq(set) }
@@ -142,7 +145,7 @@ class PyqActivity : EveBaseActivity() {
             val combinedCount = yearSets.sumOf { it.questionCount }
             val exam = selectedExam
             if (exam != null) {
-                binding.chipGroupPapers.addView(Chip(this).apply {
+                binding.chipGroupPapers.addView(com.eve.app.ui.common.StudentSelectionControls.action(this).apply {
                     text = "Saare papers • $combinedCount Qs"
                     isClickable = true
                     setOnClickListener {

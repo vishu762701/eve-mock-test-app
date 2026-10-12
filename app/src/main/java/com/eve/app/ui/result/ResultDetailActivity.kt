@@ -2,7 +2,6 @@ package com.eve.app.ui.result
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Typeface
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
@@ -190,53 +189,7 @@ class ResultDetailActivity : EveBaseActivity() {
         binding.layoutTopicList.removeAllViews()
 
         if (topicAccs.isNotEmpty()) {
-            val density = resources.displayMetrics.density
-            for (ta in topicAccs) {
-                val row = LinearLayout(this).apply {
-                    orientation = LinearLayout.VERTICAL
-                    layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    ).apply {
-                        setMargins(0, 0, 0, (10 * density).toInt())
-                    }
-                    background = ContextCompat.getDrawable(context, R.drawable.bg_tile_surface2)
-                    setPadding((12 * density).toInt(), (10 * density).toInt(), (12 * density).toInt(), (10 * density).toInt())
-                }
-
-                val header = LinearLayout(this).apply {
-                    orientation = LinearLayout.HORIZONTAL
-                    layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    )
-                }
-
-                val tvTitle = TextView(this).apply {
-                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-                    text = ta.topic
-                    setTextColor(ContextCompat.getColor(context, R.color.eve_text))
-                    textSize = 13f
-                    typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
-                }
-
-                val tvAcc = TextView(this).apply {
-                    text = "${ta.accuracy}% (${ta.correct}/${ta.total})"
-                    setTextColor(
-                        if (ta.accuracy >= 70.0) ContextCompat.getColor(context, R.color.eve_status_success)
-                        else if (ta.accuracy >= 40.0) ContextCompat.getColor(context, R.color.eve_status_warning)
-                        else ContextCompat.getColor(context, R.color.eve_status_error)
-                    )
-                    textSize = 12f
-                    typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
-                }
-
-                header.addView(tvTitle)
-                header.addView(tvAcc)
-                row.addView(header)
-
-                binding.layoutTopicList.addView(row)
-            }
+            for (ta in topicAccs) binding.layoutTopicList.addView(ResultAnalysisRows.topic(this, ta))
 
             val weakest = topicAccs.first()
             if (weakest.accuracy < 100.0) {
@@ -287,34 +240,7 @@ class ResultDetailActivity : EveBaseActivity() {
         binding.layoutSlowestList.removeAllViews()
 
         if (slowest.isNotEmpty()) {
-            val density = resources.displayMetrics.density
-            for (item in slowest) {
-                val tv = TextView(this).apply {
-                    layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    ).apply {
-                        setMargins(0, 0, 0, (8 * density).toInt())
-                    }
-                    val status = when {
-                        item.isCorrect -> "Correct"
-                        item.isAttempted -> "Wrong"
-                        else -> "Skipped"
-                    }
-                    val statusColor = when {
-                        item.isCorrect -> ContextCompat.getColor(context, R.color.eve_status_success)
-                        item.isAttempted -> ContextCompat.getColor(context, R.color.eve_status_error)
-                        else -> ContextCompat.getColor(context, R.color.eve_text_secondary)
-                    }
-                    text = "Q${item.number}: ${item.timeTakenSeconds}s • $status"
-                    setTextColor(statusColor)
-                    textSize = 13f
-                    typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
-                    background = ContextCompat.getDrawable(context, R.drawable.bg_tile_surface2)
-                    setPadding((12 * density).toInt(), (8 * density).toInt(), (12 * density).toInt(), (8 * density).toInt())
-                }
-                binding.layoutSlowestList.addView(tv)
-            }
+            for (item in slowest) binding.layoutSlowestList.addView(ResultAnalysisRows.slowest(this, item))
         } else {
             val emptyTv = TextView(this).apply {
                 text = "No timed questions recorded."

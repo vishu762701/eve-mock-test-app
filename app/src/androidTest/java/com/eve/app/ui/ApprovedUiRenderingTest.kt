@@ -159,7 +159,7 @@ class ApprovedUiRenderingTest {
         b.rvExams.adapter = adapter
         val holder = adapter.onCreateViewHolder(FrameLayout(context), adapter.getItemViewType(0))
         adapter.onBindViewHolder(holder, 0)
-        assertEquals(15f * density, ItemExamBinding.bind(holder.itemView).root.radius, 0.01f)
+        assertEquals(context.resources.getDimension(R.dimen.eve_radius_card), ItemExamBinding.bind(holder.itemView).root.radius, 0.01f)
         measure(b.root)
         val outline = Outline()
         b.panelHomeBanner.outlineProvider.getOutline(b.panelHomeBanner, outline)
@@ -361,7 +361,7 @@ class ApprovedUiRenderingTest {
                     image.getPixel(cornerX, b.tabLayoutResult.paddingTop + dp(1)))
             }
             val colors = b.tabLayoutResult.tabTextColors!!
-            assertEquals(context.getColor(R.color.eve_recovery_accent), colors.getColorForState(intArrayOf(android.R.attr.state_selected), 0))
+            assertEquals(context.getColor(R.color.eve_result_tab_selected_text), colors.getColorForState(intArrayOf(android.R.attr.state_selected), 0))
             assertEquals(context.getColor(R.color.eve_recovery_text_secondary), colors.defaultColor)
             save(b.root, "result-${name.lowercase()}")
         }

@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/eve_canvas">
 
     <!-- Top App Bar -->
     <LinearLayout
@@ -21,11 +23,11 @@
             android:id="@+id/btnBack"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:background="@drawable/bg_circle_translucent"
             android:contentDescription="Back"
             android:padding="12dp"
             android:src="@drawable/ic_back"
-            app:tint="@color/eve_text" />
+            app:tint="@color/eve_accent_text" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -39,16 +41,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:maxLines="1"
+                android:maxLines="2"
                 android:text="Bookmarked Questions"
-                android:textColor="@color/eve_text" />
+                android:textColor="?attr/eveLabelPrimary" />
 
             <TextView
                 android:id="@+id/tvBookmarkCount"
                 style="@style/TextAppearance.Eve.BodySmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/eve_text_secondary"
+                android:textColor="?attr/eveLabelSecondary"
                 android:visibility="gone"
                 tools:text="3 questions saved"
                 tools:visibility="visible" />
@@ -76,7 +78,8 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:background="@color/eve_system_grouped_background">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvBookmarks"
@@ -85,7 +88,8 @@
             android:clipToPadding="false"
             android:layoutAnimation="@anim/layout_enter"
             android:paddingTop="8dp"
-            android:paddingBottom="16dp" />
+            android:paddingBottom="16dp"
+            android:background="@color/eve_system_grouped_background" />
 
         <LinearLayout
             android:id="@+id/progressGroup"
@@ -105,7 +109,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:text="Loading bookmarks…"
-                android:textColor="@color/eve_grey"
+                android:textColor="?attr/eveLabelSecondary"
                 android:textSize="13sp" />
         </LinearLayout>
 
@@ -135,7 +139,7 @@
                 android:layout_marginTop="12dp"
                 android:gravity="center"
                 android:text="No bookmarks yet"
-                android:textColor="@color/eve_text"
+                android:textColor="?attr/eveLabelPrimary"
                 android:textSize="17sp" />
 
             <TextView
@@ -145,12 +149,12 @@
                 android:layout_marginTop="6dp"
                 android:gravity="center"
                 android:text="Questions bookmarked during tests will appear here for review."
-                android:textColor="@color/eve_text_secondary"
+                android:textColor="?attr/eveLabelSecondary"
                 android:textSize="13sp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRetry"
-                style="@style/Widget.Eve.Button"
+                style="@style/Widget.Eve.Button.Soft"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"

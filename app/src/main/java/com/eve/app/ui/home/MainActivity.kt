@@ -901,13 +901,7 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun setupNotificationBell() {
-        val iconColor = ContextCompat.getColor(this, R.color.eve_header_ink_icon)
-        binding.btnNotification.addValueCallback(
-            com.airbnb.lottie.model.KeyPath("**"),
-            com.airbnb.lottie.LottieProperty.COLOR_FILTER
-        ) {
-            android.graphics.PorterDuffColorFilter(iconColor, android.graphics.PorterDuff.Mode.SRC_ATOP)
-        }
+        HomeAppearance.tintNotificationBell(binding.btnNotification)
         binding.btnNotification.repeatCount = 0
 
         binding.btnNotification.setOnClickListener {

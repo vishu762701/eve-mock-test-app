@@ -12,6 +12,18 @@ object HomeAppearance {
     fun categories(values: List<String>): List<String> = listOf(Constants.CATEGORY_ALL) +
         values.distinct().sortedWith(compareBy<String> { it != "Other" }.thenBy { it })
 
+    fun tintNotificationBell(view: com.airbnb.lottie.LottieAnimationView) {
+        val ink = ContextCompat.getColor(view.context, R.color.eve_primary)
+        fun applyInk() {
+            view.addValueCallback(com.airbnb.lottie.model.KeyPath("**"), com.airbnb.lottie.LottieProperty.COLOR,
+                com.airbnb.lottie.value.LottieValueCallback(ink))
+            view.addValueCallback(com.airbnb.lottie.model.KeyPath("**"), com.airbnb.lottie.LottieProperty.STROKE_COLOR,
+                com.airbnb.lottie.value.LottieValueCallback(ink))
+        }
+        view.addLottieOnCompositionLoadedListener { applyInk() }
+        applyInk()
+    }
+
     fun clipBanner(view: View) {
         val radius = 16f * view.resources.displayMetrics.density
         com.eve.app.util.SquircleHelper.applySquircleOutline(view, radius)

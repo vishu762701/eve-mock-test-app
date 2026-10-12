@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    style="@style/Widget.Eve.Card.Group"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,13 +10,7 @@
     android:layout_marginVertical="@dimen/eve_space_8"
     android:clickable="true"
     android:focusable="true"
-    android:foreground="?attr/selectableItemBackground"
-    android:stateListAnimator="@animator/press_scale"
-    app:cardBackgroundColor="@color/eve_glass_card_fill"
-    app:cardCornerRadius="@dimen/eve_radius_card"
-    app:cardElevation="0dp"
-    app:strokeColor="@color/eve_shape_border"
-    app:strokeWidth="1dp">
+    android:stateListAnimator="@animator/press_scale">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,11 +19,12 @@
         android:padding="16dp">
 
         <!-- Top Row: Exam Tag, Question Number, Topic/PYQ, and Unbookmark Star Button -->
-        <LinearLayout
+        <com.eve.app.ui.result.ResponsiveResultRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            app:eveHorizontalBreakpoint="440dp">
 
             <TextView
                 android:id="@+id/tvExamTag"
@@ -38,7 +35,9 @@
                 android:paddingVertical="3dp"
                 android:textColor="@color/eve_accent_text"
                 android:textSize="13sp"
-                tools:text="SSC CGL 2024" />
+                tools:text="SSC CGL 2024"
+                android:maxLines="2"
+                android:ellipsize="end" />
 
             <TextView
                 android:id="@+id/tvQuestionNumber"
@@ -48,7 +47,7 @@
                 android:background="@drawable/bg_category_chip"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="3dp"
-                android:textColor="@color/eve_text"
+                android:textColor="?attr/eveLabelPrimary"
                 android:textSize="13sp"
                 tools:text="Q3" />
 
@@ -60,11 +59,13 @@
                 android:background="@drawable/bg_category_chip"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="3dp"
-                android:textColor="@color/eve_text_secondary"
+                android:textColor="?attr/eveLabelSecondary"
                 android:textSize="13sp"
                 android:visibility="gone"
                 tools:text="Polity"
-                tools:visibility="visible" />
+                tools:visibility="visible"
+                android:maxLines="2"
+                android:ellipsize="end" />
 
             <View
                 android:layout_width="0dp"
@@ -73,13 +74,14 @@
 
             <ImageButton
                 android:id="@+id/btnBookmark"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Remove Bookmark"
-                android:padding="6dp"
-                android:src="@drawable/ic_star_filled" />
-        </LinearLayout>
+                android:padding="12dp"
+                android:src="@drawable/ic_star_filled"
+                app:tint="@color/eve_status_warning_text" />
+        </com.eve.app.ui.result.ResponsiveResultRow>
 
         <!-- Question Text -->
         <TextView
@@ -110,7 +112,8 @@
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="6dp"
                 android:textSize="15sp"
-                tools:text="A. Berlin" />
+                tools:text="A. Berlin"
+                android:textColor="?attr/eveLabelPrimary" />
 
             <TextView
                 android:id="@+id/tvOptionB"
@@ -121,7 +124,8 @@
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="6dp"
                 android:textSize="15sp"
-                tools:text="B. Madrid" />
+                tools:text="B. Madrid"
+                android:textColor="?attr/eveLabelPrimary" />
 
             <TextView
                 android:id="@+id/tvOptionC"
@@ -132,7 +136,8 @@
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="6dp"
                 android:textSize="15sp"
-                tools:text="C. Paris (Correct)" />
+                tools:text="C. Paris (Correct)"
+                android:textColor="?attr/eveLabelPrimary" />
 
             <TextView
                 android:id="@+id/tvOptionD"
@@ -142,7 +147,8 @@
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="6dp"
                 android:textSize="15sp"
-                tools:text="D. Rome" />
+                tools:text="D. Rome"
+                android:textColor="?attr/eveLabelPrimary" />
         </LinearLayout>
 
         <!-- Toggle Explanation Button -->
@@ -165,11 +171,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:background="@drawable/bg_category_chip"
+            android:background="@drawable/bg_student_inset"
             android:fontFamily="sans-serif"
             android:lineSpacingExtra="3dp"
-            android:padding="10dp"
-            android:textColor="@color/eve_text"
+            android:padding="12dp"
+            android:textColor="?attr/eveLabelPrimary"
             android:textSize="15sp"
             android:visibility="gone"
             tools:text="Paris is the capital and most populous city of France."
@@ -189,7 +195,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:minHeight="48dp">
 
             <TextView
                 android:layout_width="0dp"

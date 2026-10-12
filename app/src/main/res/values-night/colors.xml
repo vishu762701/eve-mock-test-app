@@ -157,13 +157,13 @@
     <color name="eve_category_tint_lilac_bg">#29233D</color>
     <color name="eve_category_tint_lilac_fg">#BF5AF2</color>
     <color name="eve_category_tint_green_bg">#1B2E1D</color>
-    <color name="eve_category_tint_green_fg">#30D158</color>
+    <color name="eve_category_tint_green_fg">@color/eve_status_success_text</color>
     <color name="eve_category_tint_amber_bg">#33240F</color>
-    <color name="eve_category_tint_amber_fg">#FF9F0A</color>
+    <color name="eve_category_tint_amber_fg">@color/eve_status_warning_text</color>
     <color name="eve_category_tint_rose_bg">#361A19</color>
-    <color name="eve_category_tint_rose_fg">#FF453A</color>
+    <color name="eve_category_tint_rose_fg">@color/eve_destructive_text</color>
     <color name="eve_category_tint_blue_bg">#182638</color>
-    <color name="eve_category_tint_blue_fg">#0A84FF</color>
+    <color name="eve_category_tint_blue_fg">@color/eve_accent_text</color>
     <color name="eve_category_tint_teal_bg">#142E2C</color>
     <color name="eve_category_tint_teal_fg">#64D2FF</color>
 

@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:maxHeight="480dp">
+    android:maxHeight="480dp"
+    android:clipToPadding="false"
+    android:overScrollMode="ifContentScrolls">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,7 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Select Issue Category"
-            android:textColor="@color/eve_text"
+            android:textColor="?attr/eveLabelPrimary"
             android:textSize="14sp" />
 
         <TextView
@@ -24,7 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:text="CONTENT ISSUES"
-            android:textColor="@color/eve_premium_text" />
+            android:textColor="@color/eve_text_secondary" />
 
         <RadioGroup
             android:id="@+id/rgReportReason"
@@ -37,28 +40,40 @@
                 android:layout_height="wrap_content"
                 android:checked="true"
                 android:text="Wrong Question"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                android:minHeight="48dp"
+                android:textColor="?attr/eveLabelPrimary"
+                android:buttonTint="@color/selector_eve_checked_control" />
 
             <RadioButton
                 android:id="@+id/rbReasonNoSolution"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="No Solution"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                android:minHeight="48dp"
+                android:textColor="?attr/eveLabelPrimary"
+                android:buttonTint="@color/selector_eve_checked_control" />
 
             <RadioButton
                 android:id="@+id/rbReasonWrongTranslation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Wrong Translation"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                android:minHeight="48dp"
+                android:textColor="?attr/eveLabelPrimary"
+                android:buttonTint="@color/selector_eve_checked_control" />
 
             <RadioButton
                 android:id="@+id/rbReasonOutOfSyllabus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Out of Syllabus"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                android:minHeight="48dp"
+                android:textColor="?attr/eveLabelPrimary"
+                android:buttonTint="@color/selector_eve_checked_control" />
 
             <TextView
                 style="@style/TextAppearance.Eve.Overline"
@@ -66,69 +81,86 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="TECHNICAL ISSUES"
-                android:textColor="@color/eve_premium_text" />
+                android:textColor="@color/eve_text_secondary" />
 
             <RadioButton
                 android:id="@+id/rbReasonNotVisible"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Question and Options not visible"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                android:minHeight="48dp"
+                android:textColor="?attr/eveLabelPrimary"
+                android:buttonTint="@color/selector_eve_checked_control" />
 
             <RadioButton
                 android:id="@+id/rbReasonBlinking"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Blinking Screen Issue"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                android:minHeight="48dp"
+                android:textColor="?attr/eveLabelPrimary"
+                android:buttonTint="@color/selector_eve_checked_control" />
 
             <RadioButton
                 android:id="@+id/rbReasonFormatting"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Formatting Issues"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                android:minHeight="48dp"
+                android:textColor="?attr/eveLabelPrimary"
+                android:buttonTint="@color/selector_eve_checked_control" />
 
             <RadioButton
                 android:id="@+id/rbReasonScroll"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Scroll Not Working"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                android:minHeight="48dp"
+                android:textColor="?attr/eveLabelPrimary"
+                android:buttonTint="@color/selector_eve_checked_control" />
 
             <RadioButton
                 android:id="@+id/rbReasonDarkMode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Dark Mode Issue"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                android:minHeight="48dp"
+                android:textColor="?attr/eveLabelPrimary"
+                android:buttonTint="@color/selector_eve_checked_control" />
 
             <RadioButton
                 android:id="@+id/rbReasonQuestionMissingOptionsVisible"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Question not visible but Options visible"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                android:minHeight="48dp"
+                android:textColor="?attr/eveLabelPrimary"
+                android:buttonTint="@color/selector_eve_checked_control" />
 
             <RadioButton
                 android:id="@+id/rbReasonOther"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Other"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                android:minHeight="48dp"
+                android:textColor="?attr/eveLabelPrimary"
+                android:buttonTint="@color/selector_eve_checked_control" />
         </RadioGroup>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilComment"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/Widget.Eve.TextInput.Outlined"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:hint="Details (Optional)"
-            app:boxStrokeColor="@color/selector_shape_border"
-            app:boxStrokeErrorColor="@color/selector_shape_border"
-            app:boxStrokeWidth="1dp"
-            app:boxStrokeWidthFocused="1dp">
+            android:hint="Details (Optional)">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etReportComment"
@@ -137,7 +169,8 @@
                 android:gravity="top|start"
                 android:inputType="textMultiLine"
                 android:minLines="3"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                android:textColorHint="@color/eve_placeholder_text" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Inline error message (if server error occurs) -->
@@ -146,7 +179,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:textColor="@color/eve_red"
+            android:textColor="@color/eve_status_error_text"
             android:textSize="12sp"
             android:visibility="gone" />
     </LinearLayout>

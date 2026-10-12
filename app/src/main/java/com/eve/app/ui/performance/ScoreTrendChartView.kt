@@ -22,11 +22,13 @@ class ScoreTrendChartView @JvmOverloads constructor(
     attrs: AttributeSet? = null
 ) : View(context, attrs) {
 
+    private val density = resources.displayMetrics.density
+    private val scaledDensity = resources.displayMetrics.scaledDensity
     private var points: List<ScorePoint> = emptyList()
 
     private val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = ContextCompat.getColor(context, com.eve.app.R.color.eve_chart_primary)
-        strokeWidth = 5f
+        strokeWidth = 2f * density
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
         strokeJoin = Paint.Join.ROUND
@@ -41,11 +43,11 @@ class ScoreTrendChartView @JvmOverloads constructor(
     }
     private val gridPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = ContextCompat.getColor(context, com.eve.app.R.color.eve_chart_grid)
-        strokeWidth = 2f
+        strokeWidth = .5f * density
     }
     private val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = ContextCompat.getColor(context, com.eve.app.R.color.eve_chart_label)
-        textSize = 24f
+        textSize = 11f * scaledDensity
         typeface = com.eve.app.util.FontManager.typeface(context, bold = false)
     }
 
@@ -60,10 +62,10 @@ class ScoreTrendChartView @JvmOverloads constructor(
         val h = height.toFloat()
         if (w <= 0f || h <= 0f) return
 
-        val paddingLeft = 56f
-        val paddingRight = 16f
-        val paddingTop = 16f
-        val paddingBottom = 16f
+        val paddingLeft = labelPaint.measureText("100%") + 12f * density
+        val paddingRight = 8f * density
+        val paddingTop = labelPaint.fontSpacing
+        val paddingBottom = labelPaint.fontSpacing
         val chartW = w - paddingLeft - paddingRight
         val chartH = h - paddingTop - paddingBottom
         if (chartW <= 0f || chartH <= 0f) return
@@ -72,14 +74,17 @@ class ScoreTrendChartView @JvmOverloads constructor(
         listOf(0, 25, 50, 75, 100).forEach { v ->
             val y = paddingTop + chartH * (1 - v / 100f)
             canvas.drawLine(paddingLeft, y, w - paddingRight, y, gridPaint)
-            canvas.drawText("$v%", 4f, y + 8f, labelPaint)
+            canvas.drawText("$v%", 0f, y - (labelPaint.ascent() + labelPaint.descent()) / 2f, labelPaint)
         }
 
         if (points.size < 2) {
             val msg = if (points.isEmpty()) "No data available yet"
-            else "At least 2 test attempts are required to show score trend"
+            else "Complete another test to see your trend"
             labelPaint.textAlign = Paint.Align.CENTER
-            canvas.drawText(msg, paddingLeft + chartW / 2, paddingTop + chartH / 2, labelPaint)
+            val text = android.text.StaticLayout.Builder.obtain(msg, 0, msg.length,
+                android.text.TextPaint(labelPaint).apply { textAlign = Paint.Align.LEFT }, chartW.toInt()).setAlignment(android.text.Layout.Alignment.ALIGN_CENTER).build()
+            canvas.save(); canvas.translate(paddingLeft, paddingTop + (chartH - text.height) / 2)
+            text.draw(canvas); canvas.restore()
             labelPaint.textAlign = Paint.Align.LEFT
             return
         }
@@ -110,6 +115,6 @@ class ScoreTrendChartView @JvmOverloads constructor(
         }
         canvas.drawPath(fillPath, fillPaint)
         canvas.drawPath(path, linePaint)
-        points.forEachIndexed { i, p -> canvas.drawCircle(xOf(i), yOf(p.percent), 7f, dotPaint) }
+        points.forEachIndexed { i, p -> canvas.drawCircle(xOf(i), yOf(p.percent), 3f * density, dotPaint) }
     }
 }

@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/eve_canvas">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,11 +21,11 @@
             android:id="@+id/btnBack"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:background="@drawable/bg_circle_translucent"
             android:contentDescription="Back"
             android:padding="12dp"
             android:src="@drawable/ic_back"
-            app:tint="@color/eve_text" />
+            app:tint="@color/eve_accent_text" />
 
         <TextView
             style="@style/TextAppearance.Eve.ScreenTitle"
@@ -34,7 +36,7 @@
             android:maxLines="1"
             android:paddingStart="4dp"
             android:text="Feedback"
-            android:textColor="@color/eve_text" />
+            android:textColor="?attr/eveLabelPrimary" />
     </LinearLayout>
 
     <View
@@ -46,7 +48,9 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        android:overScrollMode="ifContentScrolls">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -67,26 +71,18 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="Let us know about issues, suggestions, or test requests. Type your message below and tap Send."
-                android:textColor="@color/eve_text_secondary"
+                android:textColor="?attr/eveLabelSecondary"
                 android:textSize="14sp" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilFeedback"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.Eve.TextInput.Outlined"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                app:boxCornerRadiusBottomEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusTopStart="12dp"
                 app:counterEnabled="true"
                 app:counterMaxLength="1000"
-                app:hintEnabled="false"
-                app:boxStrokeColor="@color/selector_shape_border"
-                app:boxStrokeErrorColor="@color/selector_shape_border"
-                app:boxStrokeWidth="1dp"
-                app:boxStrokeWidthFocused="1dp">
+                app:hintEnabled="false">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etFeedbackMessage"
@@ -98,7 +94,8 @@
                     android:maxLength="1000"
                     android:minLines="6"
                     android:textColor="?attr/colorOnSurface"
-                    android:textSize="15sp" />
+                    android:textSize="15sp"
+                    android:textColorHint="@color/eve_placeholder_text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <ProgressBar
@@ -111,7 +108,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSendFeedback"
-                style="@style/Widget.Eve.Button"
+                style="@style/Widget.Eve.Button.Primary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"

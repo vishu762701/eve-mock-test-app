@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -18,7 +19,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Select Category"
-        style="@style/TextAppearance.Eve.Heading" />
+        style="@style/TextAppearance.Eve.Heading"
+        android:textColor="?attr/eveLabelPrimary" />
 
     <TextView
         android:layout_width="match_parent"
@@ -26,7 +28,8 @@
         android:layout_marginTop="4dp"
         android:layout_marginBottom="16dp"
         android:text="Compare your result against different cutoff thresholds"
-        style="@style/TextAppearance.Eve.BodySmall" />
+        style="@style/TextAppearance.Eve.BodySmall"
+        android:textColor="?attr/eveLabelPrimary" />
 
     <!-- Row 1: General -->
     <LinearLayout
@@ -51,7 +54,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="General"
-                android:textColor="@color/eve_text"
+                android:textColor="?attr/eveLabelPrimary"
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
@@ -61,7 +64,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="No cutoff configured"
-                android:textColor="@color/eve_text_secondary"
+                android:textColor="?attr/eveLabelSecondary"
                 android:textSize="13sp" />
         </LinearLayout>
 
@@ -71,7 +74,7 @@
             android:layout_height="24dp"
             android:contentDescription="Selected category"
             android:src="@drawable/ic_check_circle"
-            app:tint="@color/eve_premium_text" />
+            app:tint="@color/eve_accent_text" />
     </LinearLayout>
 
     <View
@@ -102,7 +105,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="OBC"
-                android:textColor="@color/eve_text"
+                android:textColor="?attr/eveLabelPrimary"
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
@@ -112,7 +115,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="No cutoff configured"
-                android:textColor="@color/eve_text_secondary"
+                android:textColor="?attr/eveLabelSecondary"
                 android:textSize="13sp" />
         </LinearLayout>
 
@@ -123,7 +126,7 @@
             android:contentDescription="Selected category"
             android:src="@drawable/ic_check_circle"
             android:visibility="invisible"
-            app:tint="@color/eve_premium_text" />
+            app:tint="@color/eve_accent_text" />
     </LinearLayout>
 
     <View
@@ -154,7 +157,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="SC"
-                android:textColor="@color/eve_text"
+                android:textColor="?attr/eveLabelPrimary"
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
@@ -164,7 +167,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="No cutoff configured"
-                android:textColor="@color/eve_text_secondary"
+                android:textColor="?attr/eveLabelSecondary"
                 android:textSize="13sp" />
         </LinearLayout>
 
@@ -175,7 +178,7 @@
             android:contentDescription="Selected category"
             android:src="@drawable/ic_check_circle"
             android:visibility="invisible"
-            app:tint="@color/eve_premium_text" />
+            app:tint="@color/eve_accent_text" />
     </LinearLayout>
 
     <View
@@ -206,7 +209,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="ST"
-                android:textColor="@color/eve_text"
+                android:textColor="?attr/eveLabelPrimary"
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
@@ -216,7 +219,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="No cutoff configured"
-                android:textColor="@color/eve_text_secondary"
+                android:textColor="?attr/eveLabelSecondary"
                 android:textSize="13sp" />
         </LinearLayout>
 
@@ -227,7 +230,7 @@
             android:contentDescription="Selected category"
             android:src="@drawable/ic_check_circle"
             android:visibility="invisible"
-            app:tint="@color/eve_premium_text" />
+            app:tint="@color/eve_accent_text" />
     </LinearLayout>
 
     <View
@@ -258,7 +261,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="EWS"
-                android:textColor="@color/eve_text"
+                android:textColor="?attr/eveLabelPrimary"
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
@@ -268,7 +271,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="No cutoff configured"
-                android:textColor="@color/eve_text_secondary"
+                android:textColor="?attr/eveLabelSecondary"
                 android:textSize="13sp" />
         </LinearLayout>
 
@@ -279,6 +282,6 @@
             android:contentDescription="Selected category"
             android:src="@drawable/ic_check_circle"
             android:visibility="invisible"
-            app:tint="@color/eve_premium_text" />
+            app:tint="@color/eve_accent_text" />
     </LinearLayout>
 </LinearLayout>

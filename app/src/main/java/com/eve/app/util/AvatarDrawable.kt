@@ -15,12 +15,11 @@ import android.graphics.drawable.Drawable
 import androidx.core.content.res.ResourcesCompat
 import com.eve.app.R
 import java.util.Locale
-import kotlin.math.abs
 
 /**
  * Telegram-style Auto-Generated Gradient Avatar (matching AvatarDrawable.java).
  * Deterministically picks a signature Telegram gradient based on user name/ID hash,
- * and renders centered bold initials in white over a circle.
+ * and renders centered bold initials with accessible foreground contrast over a circle.
  */
 class AvatarDrawable(
     private val initials: String,
@@ -56,7 +55,7 @@ class AvatarDrawable(
 
         fun getColorIndex(key: String?): Int {
             if (key.isNullOrBlank()) return 5 // Default blue
-            return abs(key.hashCode()) % GRADIENTS.size
+            return Math.floorMod(key.hashCode(), GRADIENTS.size)
         }
 
         fun create(name: String?, id: String? = null): AvatarDrawable {
@@ -93,7 +92,20 @@ class AvatarDrawable(
         super.onBoundsChange(bounds)
         if (bounds.width() <= 0 || bounds.height() <= 0) return
 
-        val colors = GRADIENTS[colorIndex % GRADIENTS.size]
+        val colors = GRADIENTS[Math.floorMod(colorIndex, GRADIENTS.size)].copyOf()
+        fun minimumContrast(foreground: Int) = colors.minOf { androidx.core.graphics.ColorUtils.calculateContrast(foreground, it) }
+        val whiteContrast = minimumContrast(Color.WHITE)
+        val blackContrast = minimumContrast(Color.BLACK)
+        textPaint.color = if (blackContrast > whiteContrast) Color.BLACK else Color.WHITE
+        if (maxOf(whiteContrast, blackContrast) < 4.5) {
+            // Preserve the identity hue, with an accessible white-label gradient.
+            for (i in colors.indices) {
+                while (androidx.core.graphics.ColorUtils.calculateContrast(Color.WHITE, colors[i]) < 4.5) {
+                    colors[i] = androidx.core.graphics.ColorUtils.blendARGB(colors[i], Color.BLACK, .05f)
+                }
+            }
+            textPaint.color = Color.WHITE
+        }
         bgPaint.shader = LinearGradient(
             bounds.left.toFloat(), bounds.top.toFloat(),
             bounds.right.toFloat(), bounds.bottom.toFloat(),

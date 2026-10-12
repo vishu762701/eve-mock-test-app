@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/eve_bg"
+    android:background="@color/eve_canvas"
     android:orientation="vertical">
 
     <!-- Top Bar -->
@@ -19,13 +20,13 @@
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_circle_translucent"
             android:contentDescription="Back"
-            android:padding="8dp"
+            android:padding="12dp"
             android:src="@drawable/ic_back"
-            app:tint="@color/eve_text" />
+            app:tint="@color/eve_accent_text" />
 
         <TextView
             android:id="@+id/tvTitle"
@@ -36,7 +37,8 @@
             android:layout_weight="1"
             android:ellipsize="end"
             android:maxLines="1"
-            tools:text="Exam Name" />
+            tools:text="Exam Name"
+            android:textColor="?attr/eveLabelPrimary" />
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -54,7 +56,8 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:background="@color/eve_system_grouped_background">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvTests"
@@ -62,7 +65,11 @@
             android:layout_height="match_parent"
             android:layoutAnimation="@anim/layout_enter"
             android:clipToPadding="false"
-            android:padding="@dimen/eve_space_16" />
+            android:padding="@dimen/eve_space_16"
+            android:background="@color/eve_system_grouped_background"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="24dp" />
 
         <TextView
             android:id="@+id/tvEmpty"
@@ -73,7 +80,7 @@
             android:gravity="center"
             android:padding="24dp"
             android:text="No tests available yet."
-            android:textColor="@color/eve_text"
+            android:textColor="?attr/eveLabelPrimary"
             android:textStyle="bold"
             android:visibility="gone" />
     </FrameLayout>

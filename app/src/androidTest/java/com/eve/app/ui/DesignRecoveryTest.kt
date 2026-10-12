@@ -357,10 +357,7 @@ class DesignRecoveryTest {
                     scenario.onActivity { activity ->
                         home = com.eve.app.databinding.ActivityMainBinding.inflate(activity.layoutInflater)
                         home.tvWelcome.text = "Hi, Aarti"
-                        val iconColor = activity.getColor(R.color.eve_header_ink_icon)
-                        home.btnNotification.addValueCallback(com.airbnb.lottie.model.KeyPath("**"), com.airbnb.lottie.LottieProperty.COLOR_FILTER) {
-                            android.graphics.PorterDuffColorFilter(iconColor, android.graphics.PorterDuff.Mode.SRC_ATOP)
-                        }
+                        com.eve.app.ui.home.HomeAppearance.tintNotificationBell(home.btnNotification)
                         home.panelHomeBanner.visibility = View.VISIBLE
                         com.eve.app.ui.home.HomeAppearance.clipBanner(home.panelHomeBanner)
                         val poster = Bitmap.createBitmap(640, 320, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.rgb(182, 213, 253)) }

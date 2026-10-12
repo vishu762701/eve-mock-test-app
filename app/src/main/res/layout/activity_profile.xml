@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/eve_bg"
+    android:background="@color/eve_canvas"
     android:orientation="vertical">
 
     <!-- Top Bar -->
@@ -22,12 +23,12 @@
             android:id="@+id/btnBack"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:background="@drawable/bg_circle_translucent"
             android:stateListAnimator="@animator/press_scale"
             android:contentDescription="Back"
             android:padding="12dp"
             android:src="@drawable/ic_back"
-            app:tint="@color/eve_text" />
+            app:tint="@color/eve_accent_text" />
 
         <TextView
             style="@style/TextAppearance.Eve.ScreenTitle"
@@ -38,7 +39,7 @@
             android:maxLines="1"
             android:paddingStart="4dp"
             android:text="Profile"
-            android:textColor="@color/eve_text" />
+            android:textColor="?attr/eveLabelPrimary" />
     </LinearLayout>
 
     <View
@@ -50,7 +51,9 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        android:overScrollMode="ifContentScrolls">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -91,7 +94,8 @@
                         android:contentDescription="Change photo"
                         android:elevation="2dp"
                         android:padding="13dp"
-                        android:src="@drawable/ic_camera" />
+                        android:src="@drawable/ic_camera"
+                        app:tint="@color/eve_on_primary" />
                 </FrameLayout>
 
                 <!-- Action buttons shown during photo preview -->
@@ -139,7 +143,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
                     android:textColor="?attr/colorOnSurface"
-                    android:textSize="18sp"
+                    android:textSize="22sp"
                     android:textStyle="bold"
                     tools:text="Student" />
 
@@ -149,7 +153,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:textColor="@color/eve_recovery_text_secondary"
+                    android:textColor="?attr/eveLabelSecondary"
                     android:textSize="13sp"
                     tools:text="student@gmail.com" />
 
@@ -166,7 +170,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="EVE ID: "
-                        android:textColor="@color/eve_recovery_text_secondary"
+                        android:textColor="?attr/eveLabelSecondary"
                         android:textSize="13sp" />
 
                     <TextView
@@ -176,7 +180,7 @@
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/eve_text"
+                        android:textColor="?attr/eveLabelPrimary"
                         android:textSize="13sp"
                         android:textStyle="bold"
                         tools:text="EV-ABC123" />
@@ -234,14 +238,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingHorizontal="20dp"
-                android:paddingTop="18dp">
+                android:background="@drawable/bg_student_group"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="18dp"
+                android:padding="16dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Personal Information"
-                    android:textColor="@color/eve_text"
+                    android:textColor="?attr/eveLabelPrimary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -263,8 +269,9 @@
                         android:layout_height="wrap_content"
                         android:inputType="textPersonName"
                         android:maxLines="1"
-                        android:textColor="@color/eve_text"
-                        android:textSize="15sp" />
+                        android:textColor="?attr/eveLabelPrimary"
+                        android:textSize="15sp"
+                        android:textColorHint="@color/eve_placeholder_text" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Date of Birth Field -->
@@ -290,8 +297,9 @@
                         android:focusable="false"
                         android:inputType="none"
                         android:maxLines="1"
-                        android:textColor="@color/eve_text"
-                        android:textSize="15sp" />
+                        android:textColor="?attr/eveLabelPrimary"
+                        android:textSize="15sp"
+                        android:textColorHint="@color/eve_placeholder_text" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Category Field -->
@@ -300,7 +308,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:text="Category"
-                    android:textColor="@color/eve_text"
+                    android:textColor="?attr/eveLabelPrimary"
                     android:textSize="14sp" />
 
                 <com.google.android.material.chip.ChipGroup
@@ -315,7 +323,7 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipGeneral"
-                        style="@style/Widget.Eve.RecoveryChip"
+                        style="@style/Widget.Eve.AssistChip.Inset"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
@@ -323,21 +331,21 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipObc"
-                        style="@style/Widget.Eve.RecoveryChip"
+                        style="@style/Widget.Eve.AssistChip.Inset"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="OBC" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipSc"
-                        style="@style/Widget.Eve.RecoveryChip"
+                        style="@style/Widget.Eve.AssistChip.Inset"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="SC" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipSt"
-                        style="@style/Widget.Eve.RecoveryChip"
+                        style="@style/Widget.Eve.AssistChip.Inset"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="ST" />

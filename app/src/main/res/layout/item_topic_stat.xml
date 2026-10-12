@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -26,7 +27,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:textSize="13sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="?attr/eveLabelPrimary" />
     </LinearLayout>
 
     <ProgressBar
@@ -42,6 +44,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
-        android:textColor="@color/eve_grey"
+        android:textColor="?attr/eveLabelSecondary"
         android:textSize="13sp" />
 </LinearLayout>

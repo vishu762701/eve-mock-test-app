@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_recovery_sheet"
     android:fillViewport="true"
-    android:clipToPadding="false">
+    android:clipToPadding="false"
+    android:overScrollMode="ifContentScrolls">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -28,7 +30,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
             android:text="Which exams are you preparing for?"
-            android:textColor="@color/eve_text"
+            android:textColor="?attr/eveLabelPrimary"
             android:textSize="20sp" />
 
         <TextView
@@ -38,7 +40,7 @@
             android:layout_marginTop="4dp"
             android:fontFamily="sans-serif"
             android:text="Select your target exams to personalize your test feed and recommendations."
-            android:textColor="@color/eve_recovery_text_secondary"
+            android:textColor="?attr/eveLabelSecondary"
             android:textSize="14sp" />
 
         <com.google.android.material.chip.ChipGroup

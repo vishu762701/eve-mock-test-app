@@ -17,7 +17,6 @@ import com.eve.app.databinding.ActivityPracticeBinding
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.Constants
 import com.eve.app.util.UiState
-import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
 
 class PracticeActivity : EveBaseActivity() {
@@ -53,7 +52,7 @@ class PracticeActivity : EveBaseActivity() {
             is UiState.Success -> {
                 binding.progress.visibility = View.GONE
                 exams = state.data
-                binding.spExam.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, exams.map { it.examName })
+                binding.spExam.adapter = ArrayAdapter(this, com.eve.app.R.layout.item_exam_dropdown, exams.map { it.examName })
                 binding.tvMessage.visibility = if (exams.isEmpty()) View.VISIBLE else View.GONE
                 if (exams.isEmpty()) binding.tvMessage.text = "No exams are currently available for practice."
             }
@@ -75,7 +74,7 @@ class PracticeActivity : EveBaseActivity() {
     }
 
     private fun addTopicChip(topic: PracticeTopic) {
-        binding.chipGroupTopics.addView(Chip(this).apply {
+        binding.chipGroupTopics.addView(com.eve.app.ui.common.StudentSelectionControls.action(this).apply {
             text = "${topic.name} • ${topic.questionCount} questions"
             isClickable = true
             setOnClickListener { startPractice(topic) }

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/eve_bg"
+    android:background="@color/eve_canvas"
     android:orientation="vertical">
 
     <!-- Top App Bar -->
@@ -19,12 +20,13 @@
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_circle_translucent"
             android:contentDescription="Back"
             android:src="@drawable/ic_back"
-            app:tint="@color/eve_text" />
+            app:tint="@color/eve_accent_text"
+            android:padding="12dp" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -37,14 +39,15 @@
                 style="@style/TextAppearance.Eve.ScreenTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Mistake Notebook" />
+                android:text="Mistake Notebook"
+                android:textColor="?attr/eveLabelPrimary" />
 
             <TextView
                 android:id="@+id/tvSubtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Review your incorrect and skipped questions"
-                android:textColor="@color/eve_text_secondary"
+                android:textColor="?attr/eveLabelSecondary"
                 android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>
@@ -59,11 +62,11 @@
         android:id="@+id/tvOfflineBanner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_status_error"
+        android:background="@color/eve_offline_bg"
         android:gravity="center"
         android:paddingVertical="6dp"
         android:text="You are offline. Showing cached mistakes."
-        android:textColor="@android:color/white"
+        android:textColor="@color/eve_offline_text"
         android:textSize="12sp"
         android:visibility="gone" />
 
@@ -102,7 +105,9 @@
     <!-- Main Content Area -->
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/eve_system_grouped_background">
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -135,7 +140,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:text="All Caught Up!"
-                android:textColor="@color/eve_text"
+                android:textColor="?attr/eveLabelPrimary"
                 android:textStyle="bold" />
 
             <TextView
@@ -146,7 +151,7 @@
                 android:layout_marginTop="8dp"
                 android:gravity="center"
                 android:text="No mistakes recorded. Questions you answer incorrectly or skip will automatically appear here."
-                android:textColor="@color/eve_text_secondary" />
+                android:textColor="?attr/eveLabelSecondary" />
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
@@ -155,6 +160,7 @@
             android:layout_height="match_parent"
             android:layoutAnimation="@anim/layout_enter"
             android:clipToPadding="false"
-            android:paddingVertical="8dp" />
+            android:paddingVertical="8dp"
+            android:background="@color/eve_system_grouped_background" />
     </FrameLayout>
 </LinearLayout>

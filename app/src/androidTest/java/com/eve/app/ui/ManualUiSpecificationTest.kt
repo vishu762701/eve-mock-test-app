@@ -169,9 +169,21 @@ class ManualUiSpecificationTest {
                     assertEquals(dp(4), result.tabLayoutResult.paddingTop)
                     assertEquals(dp(4), result.tabLayoutResult.paddingStart)
                     val tabStrip = result.tabLayoutResult.getChildAt(0) as ViewGroup
-                    assertEquals(result.tabLayoutResult.width - result.tabLayoutResult.paddingLeft - result.tabLayoutResult.paddingRight,
-                        tabStrip.width)
-                    assertEquals(tabStrip.width, tabStrip.getChildAt(tabStrip.childCount - 1).right)
+                    val available = result.tabLayoutResult.width - result.tabLayoutResult.paddingLeft - result.tabLayoutResult.paddingRight
+                    if (font > 1.2f && width < 600) {
+                        assertEquals(com.google.android.material.tabs.TabLayout.MODE_SCROLLABLE, result.tabLayoutResult.tabMode)
+                        assertTrue("Enlarged labels must scroll without compressing", tabStrip.width >= available)
+                        assertTrue("Content-sized segments stay inside their strip", tabStrip.getChildAt(tabStrip.childCount - 1).right <= tabStrip.width)
+                        for (index in 0 until result.tabLayoutResult.tabCount) {
+                            val tabLabel = result.tabLayoutResult.getTabAt(index)!!.customView as TextView
+                            assertEquals(1, tabLabel.lineCount)
+                            assertEquals("Full enlarged label must fit", 0, tabLabel.layout.getEllipsisCount(0))
+                        }
+                    } else {
+                        assertEquals(com.google.android.material.tabs.TabLayout.MODE_FIXED, result.tabLayoutResult.tabMode)
+                        assertEquals(available, tabStrip.width)
+                        assertEquals(tabStrip.width, tabStrip.getChildAt(tabStrip.childCount - 1).right)
+                    }
                     val grid = result.rowOverviewStatisticsTiles
                     val minimum = Math.round(124f * density * font)
                     val expectedColumns = when {

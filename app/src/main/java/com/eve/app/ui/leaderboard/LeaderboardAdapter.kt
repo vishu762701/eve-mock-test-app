@@ -50,10 +50,10 @@ class LeaderboardAdapter(
             val isMe = currentUserId != null && entry.userId == currentUserId
             b.tvName.text = if (isMe) "${entry.displayName} (You)" else entry.displayName
             b.root.setCardBackgroundColor(
-                ContextCompat.getColor(ctx, R.color.eve_surface)
+                ContextCompat.getColor(ctx, if (isMe) R.color.eve_accent_container else R.color.eve_secondary_system_grouped_background)
             )
             b.root.strokeColor = ContextCompat.getColor(ctx, R.color.eve_shape_border)
-            b.root.strokeWidth = Math.round(ctx.resources.displayMetrics.density).coerceAtLeast(1)
+            b.root.strokeWidth = 0
         }
     }
 

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/eve_bg"
+    android:background="@color/eve_canvas"
     android:orientation="vertical">
 
     <!-- Top Bar -->
@@ -19,21 +20,25 @@
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_circle_translucent"
             android:contentDescription="Back"
-            android:padding="8dp"
+            android:padding="12dp"
             android:src="@drawable/ic_back"
-            app:tint="@color/eve_text" />
+            app:tint="@color/eve_accent_text" />
 
         <TextView
             android:id="@+id/tvHeaderTitle"
             style="@style/TextAppearance.Eve.ScreenTitle"
-            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            tools:text="Privacy Policy" />
+            tools:text="Privacy Policy"
+            android:textColor="?attr/eveLabelPrimary" />
     </LinearLayout>
 
     <ProgressBar
@@ -49,7 +54,9 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="20dp">
+        android:padding="20dp"
+        android:clipToPadding="false"
+        android:overScrollMode="ifContentScrolls">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -60,7 +67,7 @@
                 android:id="@+id/tvTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/eve_text"
+                android:textColor="?attr/eveLabelPrimary"
                 android:textSize="22sp"
                 tools:text="Privacy Policy" />
 
@@ -69,7 +76,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:textColor="@color/eve_text_secondary"
+                android:textColor="?attr/eveLabelSecondary"
                 android:textSize="12sp"
                 tools:text="Last updated: 24 Sep 2026" />
 
@@ -84,15 +91,11 @@
 
                 <!-- Support Email Card -->
                 <com.google.android.material.card.MaterialCardView
+                    style="@style/Widget.Eve.Card.Content"
                     android:id="@+id/cardEmail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    app:cardBackgroundColor="@color/eve_surface"
-                    app:cardCornerRadius="@dimen/eve_radius_card"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_shape_border"
-                    app:strokeWidth="1dp">
+                    android:layout_marginBottom="8dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -119,7 +122,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Support Email"
-                                android:textColor="@color/eve_text_secondary"
+                                android:textColor="?attr/eveLabelSecondary"
                                 android:textSize="13sp" />
 
                             <TextView
@@ -135,15 +138,11 @@
 
                 <!-- Phone Card -->
                 <com.google.android.material.card.MaterialCardView
+                    style="@style/Widget.Eve.Card.Content"
                     android:id="@+id/cardPhone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    app:cardBackgroundColor="@color/eve_surface"
-                    app:cardCornerRadius="@dimen/eve_radius_card"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_shape_border"
-                    app:strokeWidth="1dp">
+                    android:layout_marginBottom="8dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -170,7 +169,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Support Phone"
-                                android:textColor="@color/eve_text_secondary"
+                                android:textColor="?attr/eveLabelSecondary"
                                 android:textSize="13sp" />
 
                             <TextView
@@ -186,15 +185,11 @@
 
                 <!-- Website Card -->
                 <com.google.android.material.card.MaterialCardView
+                    style="@style/Widget.Eve.Card.Content"
                     android:id="@+id/cardWebsite"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    app:cardBackgroundColor="@color/eve_surface"
-                    app:cardCornerRadius="@dimen/eve_radius_card"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_shape_border"
-                    app:strokeWidth="1dp">
+                    android:layout_marginBottom="8dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -221,7 +216,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Official Website"
-                                android:textColor="@color/eve_text_secondary"
+                                android:textColor="?attr/eveLabelSecondary"
                                 android:textSize="13sp" />
 
                             <TextView
@@ -242,7 +237,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:lineSpacingExtra="4dp"
-                android:textColor="@color/eve_text"
+                android:textColor="?attr/eveLabelPrimary"
                 android:textSize="14sp" />
         </LinearLayout>
     </ScrollView>

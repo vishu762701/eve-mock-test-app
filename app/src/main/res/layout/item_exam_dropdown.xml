@@ -1,0 +1,13 @@
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/TextAppearance.Eve.Callout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="56dp"
+    android:gravity="center_vertical"
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="12dp"
+    android:drawableEnd="@drawable/ic_chevron_down"
+    android:drawableTint="@color/eve_accent_text"
+    android:drawablePadding="12dp"
+    android:background="@android:color/transparent" />

@@ -199,7 +199,7 @@ class PaymentCheckoutActivity : EveBaseActivity() {
         binding.cardStatus.visibility = View.VISIBLE
         binding.progressStatus.visibility = View.GONE
         binding.tvStatusText.text = "Payment successful! Premium activated ✓"
-        binding.tvStatusText.setTextColor(getColor(com.eve.app.R.color.eve_status_success))
+        binding.tvStatusText.setTextColor(getColor(com.eve.app.R.color.eve_status_success_text))
 
         lifecycleScope.launch {
             delay(1500)

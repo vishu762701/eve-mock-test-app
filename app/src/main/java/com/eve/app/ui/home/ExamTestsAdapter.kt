@@ -114,7 +114,7 @@ class ExamTestsAdapter(
                 item.isCompleted -> {
                     binding.tvSubtitle.text = item.subtitle
                     binding.tvStatus.text = "Completed"
-                    binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.eve_status_success))
+                    binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.eve_status_success_text))
                     binding.cardContainer.setOnClickListener {
                         onTestClick(item.test, item.isCompleted)
                     }

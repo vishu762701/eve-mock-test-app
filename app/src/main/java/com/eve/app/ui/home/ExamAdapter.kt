@@ -78,9 +78,9 @@ class ExamAdapter(
             }
 
             val ctx = b.root.context
-            b.root.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_card_bg))
+            b.root.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_secondary_background))
             b.root.strokeColor = androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_shape_border)
-            b.root.strokeWidth = Math.round(ctx.resources.displayMetrics.density).coerceAtLeast(1)
+            b.root.strokeWidth = 0
             b.tvExamName.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_text))
             if (attempted) {
                 b.tvExamTime.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_tile_right_text))
@@ -91,6 +91,10 @@ class ExamAdapter(
             b.examIconContainer.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, categoryTint.bgRes))
             b.examIconContainer.strokeColor = androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_shape_border)
             b.ivExamImage.setColorFilter(androidx.core.content.ContextCompat.getColor(ctx, categoryTint.fgRes))
+            val iconColor = androidx.core.content.ContextCompat.getColor(ctx, categoryTint.fgRes)
+            b.lottieExamIcon.addValueCallback(com.airbnb.lottie.model.KeyPath("**"), com.airbnb.lottie.LottieProperty.COLOR_FILTER) {
+                android.graphics.PorterDuffColorFilter(iconColor, android.graphics.PorterDuff.Mode.SRC_ATOP)
+            }
 
             val hasLogo = exam.imageUrl.isNotBlank()
             if (hasLogo) {

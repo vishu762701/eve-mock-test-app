@@ -32,16 +32,16 @@ class QuestionTimeChartView @JvmOverloads constructor(
     private val density = resources.displayMetrics.density
     private val barWidth = 24f * density
     private val barSpacing = 12f * density
-    private val bottomMargin = 28f * density
-    private val topMargin = 24f * density
+    private val bottomMargin = 28f * density * resources.configuration.fontScale.coerceAtLeast(1f)
+    private val topMargin = 24f * density * resources.configuration.fontScale.coerceAtLeast(1f)
 
     private val barPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        textSize = 13f * density
+        textSize = 13f * resources.displayMetrics.scaledDensity
         textAlign = Paint.Align.CENTER
     }
     private val valuePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        textSize = 13f * density
+        textSize = 13f * resources.displayMetrics.scaledDensity
         textAlign = Paint.Align.CENTER
     }
 
@@ -59,8 +59,8 @@ class QuestionTimeChartView @JvmOverloads constructor(
 
     private fun resolveColors() {
         colorNeutral = ContextCompat.getColor(context, R.color.eve_text_secondary)
-        colorSlowest = ContextCompat.getColor(context, R.color.eve_status_error)
-        colorSkipped = ContextCompat.getColor(context, R.color.eve_border)
+        colorSlowest = ContextCompat.getColor(context, R.color.eve_status_error_text)
+        colorSkipped = ContextCompat.getColor(context, R.color.eve_control_outline)
         colorLabel = ContextCompat.getColor(context, R.color.eve_text_secondary)
         colorSelected = ContextCompat.getColor(context, R.color.eve_text)
 

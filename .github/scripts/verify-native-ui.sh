@@ -3,6 +3,7 @@ set -euo pipefail
 collect_evidence() {
   mkdir -p ui-renderings
   adb pull /sdcard/Pictures/eve-approved-ui ui-renderings/ || true
+  adb pull /sdcard/Pictures/eve-student-ui ui-renderings/ || true
   # Small deterministic shared-style fixtures only. Keep review possible through
   # decoded job logs when the reviewer cannot reach the artifact storage host.
   # Never stream live activity screenshots or application data into logs.

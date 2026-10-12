@@ -33,13 +33,13 @@ class SemiCircleGaugeView @JvmOverloads constructor(
 
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textAlign = Paint.Align.CENTER
-        textSize = 15f * density
+        textSize = 15f * resources.displayMetrics.scaledDensity
         isFakeBoldText = true
     }
 
     private val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textAlign = Paint.Align.CENTER
-        textSize = 10f * density
+        textSize = 10f * resources.displayMetrics.scaledDensity
     }
 
     init {

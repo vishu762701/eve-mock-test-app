@@ -15,17 +15,20 @@ class ManualBorderInventoryTest {
     }
 
     @Test fun allDecorativeXmlShapeStrokesUseTheDedicatedStandard() {
-        var count = 0
         res.walkTopDown().filter { it.extension == "xml" && it.parentFile.name.startsWith("drawable") }.forEach { file ->
             // Notification/status dot artwork has a contrast halo, not a UI container outline.
             if (file.name != "bg_dot_red.xml") for (node in elements(file).filter { it.tagName == "stroke" }) {
                 assertEquals(file.path, "1dp", node.getAttribute("android:width"))
                 val expected = if (file.name == "bg_edit_text_rounded.xml") "@color/eve_control_outline" else "@color/eve_shape_border"
                 assertEquals(file.path, expected, node.getAttribute("android:color"))
-                count++
             }
         }
-        assertTrue("Inventory must include active shape outlines", count >= 20)
+        for (name in listOf("bg_edit_text_rounded.xml", "bg_tile_right.xml", "bg_tile_wrong.xml", "bg_tile_medium.xml", "bg_tile_unattempted.xml")) {
+            assertTrue("Functional outline must remain: $name", elements(File(res, "drawable/$name")).any { it.tagName == "stroke" })
+        }
+        for (name in listOf("bg_category_chip.xml", "bg_circle_badge.xml", "bg_circle_translucent.xml", "bg_sheet_bottom.xml", "bg_stat_mini.xml", "bg_streak_pill.xml", "bg_question_timer_chip.xml")) {
+            assertFalse("Approved content surface must remain borderless: $name", elements(File(res, "drawable/$name")).any { it.tagName == "stroke" })
+        }
     }
 
     @Test fun explicitLayoutOutlinesPreserveZeroStrokeExceptions() {

@@ -34,8 +34,8 @@ class HistoryAdapter(
             val ctx = b.root.context
             val color = when {
                 attempt.total == 0 -> R.color.eve_grey
-                attempt.correct >= attempt.total / 2.0 -> R.color.eve_green
-                else -> R.color.eve_red
+                attempt.correct >= attempt.total / 2.0 -> R.color.eve_status_success_text
+                else -> R.color.eve_status_error_text
             }
             b.tvScore.setTextColor(ContextCompat.getColor(ctx, color))
 

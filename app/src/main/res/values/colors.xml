@@ -157,15 +157,15 @@
     <color name="eve_category_tint_lilac_bg">#F4F0FD</color>
     <color name="eve_category_tint_lilac_fg">#5856D6</color>
     <color name="eve_category_tint_green_bg">#E8F8ED</color>
-    <color name="eve_category_tint_green_fg">#34C759</color>
+    <color name="eve_category_tint_green_fg">@color/eve_status_success_text</color>
     <color name="eve_category_tint_amber_bg">#FFF5E5</color>
-    <color name="eve_category_tint_amber_fg">#FF9500</color>
+    <color name="eve_category_tint_amber_fg">@color/eve_status_warning_text</color>
     <color name="eve_category_tint_rose_bg">#FEECEC</color>
-    <color name="eve_category_tint_rose_fg">#FF3B30</color>
+    <color name="eve_category_tint_rose_fg">@color/eve_destructive_text</color>
     <color name="eve_category_tint_blue_bg">#E5F1FF</color>
-    <color name="eve_category_tint_blue_fg">#007AFF</color>
+    <color name="eve_category_tint_blue_fg">@color/eve_accent_text</color>
     <color name="eve_category_tint_teal_bg">#E5F9F6</color>
-    <color name="eve_category_tint_teal_fg">#30B0C7</color>
+    <color name="eve_category_tint_teal_fg">#007987</color>
 
     <!-- Reattempt Pill (Adaptive Blue System) -->
     <color name="eve_reattempt_bg">@color/eve_primary</color>
