@@ -9,6 +9,16 @@
 - Light app background tokens are pure `#FFFFFF`; dark background tokens are pure `#000000`.
 - Test submission remains server-side through `POST /api/attempts/submit`; authentication, scoring, answer persistence, and navigation code were not changed by the Home Banner/Test appearance task.
 
+### EVE Full-App iOS 26 Visual & Functional Release Gate (Task 4) — 2026-10-12
+
+Completed full-app visual and functional quality audit and release gate across all active Android layouts, Activities, and shared components.
+
+- Recounted actual active codebase sources: 95 layouts, 40 registered Activity classes in `AndroidManifest.xml`, 30 adapters, 17 custom views, 127 drawables, 26 color selectors.
+- Repaired `activity_manage_syllabus.xml` to standardize card background and text to canonical Eve design tokens (`@color/eve_card_bg`, `@color/eve_text`).
+- Maintained all protected invariants: Telegram-style circular reveal theme switcher, Mock Test rigid 2x2 grid viewport, server-side scoring deduplication, admin authorization boundaries, Lottie animations, and SVG assets.
+- Complete verification gate: design system check passed (196 contrast pairs, min text 4.51:1), documentation validator passed (28 docs, 0 errors, 0 warnings), script test suite passed (11/11 tests), `./gradlew testDebugUnitTest` passed (209 unit tests), `./gradlew assembleDebug` passed, `./gradlew lintDebug` passed (0 lint errors), `git diff --check` passed (0 formatting errors).
+- Documented complete inventory and audit matrix in `EVE_RELEASE_GATE_REPORT.md`.
+
 ### Focused UI Studio visual continuation — 2026-10-07
 
 Continued the preserved implementation on `codex/ui-studio-functional` from `5b678765907604da0d7baed3435c7cba9261a60b`; fetched main remained `585f8ff91628677732da9fbf7a53c3ea618fa7d0`. Origin is exactly `https://github.com/vishu762701/eve-mock-test-app.git`.

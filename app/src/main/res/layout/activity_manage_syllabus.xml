@@ -78,7 +78,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="16dp"
-                app:cardBackgroundColor="@color/eve_surface"
+                app:cardBackgroundColor="@color/eve_card_bg"
                 app:cardCornerRadius="@dimen/eve_radius_card"
                 app:cardElevation="0dp"
                 app:strokeColor="@color/eve_shape_border"
@@ -94,7 +94,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Add / Upload New Syllabus"
-                        android:textColor="?attr/colorOnSurface"
+                        android:textColor="@color/eve_text"
                         android:textSize="15sp" />
 
                     <TextView

@@ -161,3 +161,18 @@
   - Android Lint analysis: `./gradlew lintDebug` passed with 0 errors.
   - Documentation: `node .github/scripts/verify-docs.mjs` passed (29 documents, 0 errors, 0 warnings).
   - `git diff --check` passed with 0 errors.
+
+## EVE Full-App iOS 26 Visual & Functional Release Gate — Task 4 (2026-10-12)
+
+- [x] **Full Coverage Source Recount:** Inventoried 95 XML layouts (22 student, 17 admin, 14 dialogs/sheets, 37 item layouts, 5 shared components), 40 registered Activities in `AndroidManifest.xml`, 30 adapters, 17 custom views, 127 drawables, and 26 color selectors.
+- [x] **Visual Consistency Repairs:** Standardized `activity_manage_syllabus.xml` card background to `@color/eve_card_bg` and title to `@color/eve_text`.
+- [x] **Token & Contrast Integrity:** Verified all 196 composited semantic color pairs meet WCAG AA contrast (min 4.51:1 text, >= 3.0:1 UI components).
+- [x] **Functional Invariants Protected:** Verified rigid Mock Test viewport and 2x2 action grid, server-side scoring and deduplication, admin authorization boundaries, and Telegram-style circular reveal Day/Night theme switcher (`ThemeSwitchAnimator.kt`, `ThemeManager.kt`, `TelegramMenuPopup.kt`).
+- [x] **Verification Gates Passed:**
+  - `python3 -B .github/scripts/check_design_system.py` passed (196 pairs).
+  - `python3 -B -m unittest discover -s .github/scripts/tests -q` passed (11/11 tests).
+  - `node .github/scripts/verify-docs.mjs` passed (28 docs, 0 errors, 0 warnings).
+  - `./gradlew testDebugUnitTest` passed (209/209 tests).
+  - `./gradlew assembleDebug` passed (Debug APK compiled).
+  - `./gradlew lintDebug` passed (0 lint errors).
+  - `git diff --check` passed with 0 errors.
