@@ -9,6 +9,16 @@
 - Light app background tokens are pure `#FFFFFF`; dark background tokens are pure `#000000`.
 - Test submission remains server-side through `POST /api/attempts/submit`; authentication, scoring, answer persistence, and navigation code were not changed by the Home Banner/Test appearance task.
 
+### EVE Phase 2 of 5: Official iOS 26 Typography Foundation + Home Screen — 2026-10-12
+
+Completed Phase 2 of 5 establishing the official Apple iOS 26 dynamic typography foundation focused strictly on the Home screen and directly associated UI components:
+- Codified the complete 11 Apple iOS 26 text styles in `type.xml` with authoritative font sizes, system weights, line heights, and letter-spacings: Large Title (`34sp`, bold, line height `41sp`), Title 1 (`28sp`, bold, line height `34sp`), Title 2 (`22sp`, bold, line height `28sp`), Title 3 (`20sp`, medium, line height `25sp`), Headline (`17sp`, medium, line height `22sp`), Body (`17sp`, regular, line height `22sp`), Callout (`16sp`, regular, line height `21sp`), Subheadline (`15sp`, regular, line height `20sp`), Footnote (`13sp`, regular, line height `18sp`), Caption 1 (`12sp`, regular, line height `16sp`), Caption 2 (`11sp`, medium, line height `13sp`).
+- Added verified component-specific variants: `Eyebrow` (`12sp`, medium, uppercase tracking 0.04), `Subheadline.Medium` (`15sp`, medium), `Footnote.Medium` (`13sp`, medium), `Caption1.Medium` (`12sp`, medium), and `Search` (`17sp`, regular).
+- Eliminated 100% of hardcoded `android:textSize` instances in `activity_main.xml`, `item_exam.xml`, and `item_category_header.xml`, migrating every element to canonical `TextAppearance.Eve.*` styles.
+- Updated `HomeAppearance.kt` to bind category filter chips to official Footnote Medium (`13sp`, `sans-serif-medium`).
+- Preserved all Phase 1 semantic color tokens, canvas invariants (`#FFFFFF` / `#000000`), circular Telegram theme reveal, Lottie animations, and SVG assets.
+- Added automated JVM test suite `HomeTypographyTest.kt` verifying all 11 text styles, component styles, and XML layout bindings.
+
 ### EVE Phase 1 of 5: Official iOS 26 Semantic Colors + Home Screen — 2026-10-12
 
 Completed Phase 1 of 5 establishing the official Apple iOS 26 dynamic semantic color foundation focused strictly on the Home screen and directly associated UI components:

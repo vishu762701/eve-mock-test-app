@@ -2,12 +2,11 @@
 <TextView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/tvCategoryHeader"
+    style="@style/TextAppearance.Eve.Subheadline.Medium"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginStart="8dp"
     android:layout_marginTop="14dp"
     android:layout_marginEnd="8dp"
     android:layout_marginBottom="4dp"
-    android:textColor="?attr/eveLabelSecondary"
-    android:textSize="15sp"
-    android:textStyle="bold" />
+    android:textColor="?attr/eveLabelSecondary" />

@@ -24,14 +24,14 @@
             android:orientation="horizontal">
 
             <TextView
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_pill_accent"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="3dp"
                 android:text="📢 Feedback"
-                android:textColor="@color/eve_on_accent_container"
-                android:textSize="13sp" />
+                android:textColor="@color/eve_on_accent_container" />
 
             <View
                 android:layout_width="0dp"
@@ -40,28 +40,27 @@
 
             <TextView
                 android:id="@+id/tvFeedbackPostDate"
+                style="@style/TextAppearance.Eve.Caption1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="?attr/eveLabelSecondary"
-                android:textSize="12sp" />
+                android:textColor="?attr/eveLabelSecondary" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/tvFeedbackPostTitle"
+            style="@style/TextAppearance.Eve.Headline"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:textColor="@color/eve_text"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textColor="@color/eve_text" />
 
         <TextView
             android:id="@+id/tvFeedbackPostMessage"
+            style="@style/TextAppearance.Eve.Footnote"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:textColor="?attr/eveLabelSecondary"
-            android:textSize="13sp" />
+            android:textColor="?attr/eveLabelSecondary" />
 
         <!-- Inline Reply Box (Task B, Item 4) -->
         <LinearLayout
@@ -74,6 +73,7 @@
 
             <EditText
                 android:id="@+id/etReplyText"
+                style="@style/TextAppearance.Eve.Footnote"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:minHeight="56dp"
@@ -87,18 +87,17 @@
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="8dp"
                 android:textColor="@color/eve_text"
-                android:textColorHint="@color/eve_placeholder_text"
-                android:textSize="13sp" />
+                android:textColorHint="@color/eve_placeholder_text" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSendReply"
                 style="@style/Widget.Eve.Button.Primary"
+                android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:paddingHorizontal="14dp"
                 android:text="Reply"
-                android:textSize="12sp"
                 android:minHeight="48dp"
                 android:paddingVertical="8dp" />
         </LinearLayout>

@@ -42,7 +42,8 @@ object HomeAppearance {
             setTextColor(ContextCompat.getColorStateList(context, R.color.selector_home_category_chip_text))
             isCheckedIconVisible = false
             setEnsureMinTouchTargetSize(false) // parent delegates a 48dp touch region
-            textSize = 13f
+            setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13f)
+            typeface = android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL)
             chipStartPadding = 12f * density
             chipEndPadding = 12f * density
             textStartPadding = 0f

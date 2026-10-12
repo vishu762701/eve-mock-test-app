@@ -76,23 +76,20 @@
 
             <TextView
                 android:id="@+id/tvExamName"
+                style="@style/TextAppearance.Eve.Headline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:fontFamily="sans-serif-medium"
                 android:maxLines="2"
-                android:textColor="?attr/eveLabelPrimary"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textColor="?attr/eveLabelPrimary" />
 
             <TextView
                 android:id="@+id/tvExamTime"
+                style="@style/TextAppearance.Eve.Footnote"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:fontFamily="sans-serif"
-                android:textColor="?attr/eveLabelSecondary"
-                android:textSize="13sp" />
+                android:textColor="?attr/eveLabelSecondary" />
         </LinearLayout>
     </RelativeLayout>
 </com.google.android.material.card.MaterialCardView>

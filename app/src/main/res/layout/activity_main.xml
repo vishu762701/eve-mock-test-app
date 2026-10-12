@@ -123,25 +123,20 @@
                 android:paddingHorizontal="20dp">
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Eyebrow"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-medium"
-                    android:letterSpacing="0.04"
-                    android:text="EVE"
-                    android:textColor="?attr/eveLabelSecondary"
-                    android:textSize="12sp" />
+                    android:text="EVE" />
 
                 <TextView
                     android:id="@+id/tvWelcome"
-                    style="@style/TextAppearance.Eve.M3.HeadlineLarge"
-                    android:textSize="30sp"
+                    style="@style/TextAppearance.Eve.LargeTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="Hi, Student"
-                    android:textColor="@color/eve_header_ink_text"
-                    android:textStyle="bold" />
+                    android:textColor="@color/eve_header_ink_text" />
             </LinearLayout>
         </LinearLayout>
 
@@ -181,17 +176,14 @@
 
                 <EditText
                     android:id="@+id/etSearch"
+                    style="@style/TextAppearance.Eve.Search"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@null"
-                    android:fontFamily="sans-serif"
                     android:hint="Search exams..."
                     android:imeOptions="actionSearch"
                     android:inputType="text"
-                    android:maxLines="1"
-                    android:textColor="@color/eve_header_ink_text"
-                    android:textColorHint="@color/eve_placeholder_text"
-                    android:textSize="15sp" />
+                    android:maxLines="1" />
             </LinearLayout>
 
             <ImageButton
@@ -220,6 +212,7 @@
 
         <TextView
             android:id="@+id/tvOfflineBanner"
+            style="@style/TextAppearance.Eve.Caption1.Medium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/eve_offline_bg"
@@ -227,8 +220,6 @@
             android:paddingVertical="7dp"
             android:text="@string/offline_banner_text"
             android:textColor="@color/eve_offline_text"
-            android:textSize="12sp"
-            android:textStyle="bold"
             android:visibility="gone" />
 
         <!-- Single Home Banner surface; hidden when no active banners are published. -->
@@ -272,6 +263,7 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnHomeBannerCta"
                     style="@style/Widget.Eve.Button.Neutral"
+                    android:textAppearance="@style/TextAppearance.Eve.Subheadline.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom|end"
@@ -281,7 +273,6 @@
                     android:maxLines="1"
                     android:minHeight="48dp"
                     android:paddingHorizontal="14dp"
-                    android:textSize="15sp"
                     android:visibility="gone" />
             </FrameLayout>
         </FrameLayout>
@@ -308,13 +299,11 @@
 
             <TextView
                 android:id="@+id/tvStreakSummary"
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
                 android:gravity="center_vertical"
-                android:textColor="?attr/eveLabelPrimary"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:textColor="?attr/eveLabelPrimary" />
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
@@ -381,12 +370,12 @@
                 android:layout_height="wrap_content" />
 
             <TextView
+                style="@style/TextAppearance.Eve.Footnote"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:text="Loading exams…"
-                android:textColor="?attr/eveLabelSecondary"
-                android:textSize="13sp" />
+                android:textColor="?attr/eveLabelSecondary" />
         </LinearLayout>
 
         <LinearLayout
@@ -410,22 +399,21 @@
 
             <TextView
                 android:id="@+id/tvMessage"
+                style="@style/TextAppearance.Eve.Title3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:gravity="center"
-                android:textColor="?attr/eveLabelPrimary"
-                android:textSize="17sp"
-                android:textStyle="bold" />
+                android:textColor="?attr/eveLabelPrimary" />
 
             <TextView
                 android:id="@+id/tvMessageSub"
+                style="@style/TextAppearance.Eve.Subheadline"
                 android:layout_width="260dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:gravity="center"
-                android:textColor="?attr/eveLabelSecondary"
-                android:textSize="13sp" />
+                android:textColor="?attr/eveLabelSecondary" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRetry"
@@ -528,30 +516,29 @@
 
             <TextView
                 android:id="@+id/tvDrawerUserName"
+                style="@style/TextAppearance.Eve.Headline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
                 android:text="Student"
-                android:textColor="?attr/eveLabelPrimary"
-                android:textSize="17sp"
-                android:textStyle="bold" />
+                android:textColor="?attr/eveLabelPrimary" />
 
             <TextView
                 android:id="@+id/tvDrawerUserEmail"
+                style="@style/TextAppearance.Eve.Footnote"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="student@eve.app"
-                android:textColor="?attr/eveLabelSecondary"
-                android:textSize="13sp" />
+                android:textColor="?attr/eveLabelSecondary" />
 
             <TextView
                 android:id="@+id/tvDrawerPremiumStatus"
+                style="@style/TextAppearance.Eve.Caption1.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:textColor="@color/eve_status_success_text"
-                android:textSize="12sp"
                 android:visibility="gone" />
         </LinearLayout>
 
@@ -595,12 +582,12 @@
                     app:tint="@color/eve_text" />
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Subheadline.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
                     android:text="Profile"
-                    android:textColor="?attr/eveLabelPrimary"
-                    android:textSize="15sp" />
+                    android:textColor="?attr/eveLabelPrimary" />
             </LinearLayout>
 
             <!-- 2. Premium -->
@@ -645,12 +632,12 @@
                 </FrameLayout>
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Subheadline.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="14dp"
                     android:text="Premium"
-                    android:textColor="?attr/eveLabelPrimary"
-                    android:textSize="15sp" />
+                    android:textColor="?attr/eveLabelPrimary" />
             </LinearLayout>
 
             <!-- 3. Performance -->
@@ -678,12 +665,12 @@
                     app:tint="@color/eve_text" />
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Subheadline.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
                     android:text="Performance"
-                    android:textColor="?attr/eveLabelPrimary"
-                    android:textSize="15sp" />
+                    android:textColor="?attr/eveLabelPrimary" />
             </LinearLayout>
 
             <!-- 3. Overall Leaderboard -->
@@ -711,12 +698,12 @@
                     app:tint="@color/eve_text" />
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Subheadline.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
                     android:text="Overall Leaderboard"
-                    android:textColor="?attr/eveLabelPrimary"
-                    android:textSize="15sp" />
+                    android:textColor="?attr/eveLabelPrimary" />
             </LinearLayout>
 
             <!-- 4. Syllabus -->
@@ -744,12 +731,12 @@
                     app:tint="@color/eve_text" />
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Subheadline.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
                     android:text="Syllabus"
-                    android:textColor="?attr/eveLabelPrimary"
-                    android:textSize="15sp" />
+                    android:textColor="?attr/eveLabelPrimary" />
             </LinearLayout>
 
             <!-- 5. About -->
@@ -777,12 +764,12 @@
                     app:tint="@color/eve_text" />
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Subheadline.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
                     android:text="About"
-                    android:textColor="?attr/eveLabelPrimary"
-                    android:textSize="15sp" />
+                    android:textColor="?attr/eveLabelPrimary" />
             </LinearLayout>
 
             <!-- 6. Settings -->
@@ -810,12 +797,12 @@
                     app:tint="@color/eve_text" />
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Subheadline.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
                     android:text="Settings"
-                    android:textColor="?attr/eveLabelPrimary"
-                    android:textSize="15sp" />
+                    android:textColor="?attr/eveLabelPrimary" />
             </LinearLayout>
         </LinearLayout>
         </LinearLayout>
@@ -847,23 +834,23 @@
                 app:tint="@color/eve_primary" />
 
             <TextView
+                style="@style/TextAppearance.Eve.Title3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:text="Scheduled Maintenance"
-                android:textColor="?attr/eveLabelPrimary"
-                android:textSize="20sp" />
+                android:textColor="?attr/eveLabelPrimary" />
 
             <TextView
                 android:id="@+id/tvMaintenanceMessage"
+                style="@style/TextAppearance.Eve.Subheadline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:gravity="center"
                 android:lineSpacingExtra="3dp"
                 android:text="Eve Mock Test is currently undergoing scheduled maintenance. Please check back shortly."
-                android:textColor="?attr/eveLabelSecondary"
-                android:textSize="14sp" />
+                android:textColor="?attr/eveLabelSecondary" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCheckMaintenanceAgain"
@@ -901,32 +888,32 @@
                 app:tint="@color/eve_primary" />
 
             <TextView
+                style="@style/TextAppearance.Eve.Title3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:text="Update Required"
-                android:textColor="?attr/eveLabelPrimary"
-                android:textSize="20sp" />
+                android:textColor="?attr/eveLabelPrimary" />
 
             <TextView
                 android:id="@+id/tvForceUpdateMessage"
+                style="@style/TextAppearance.Eve.Subheadline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:gravity="center"
                 android:lineSpacingExtra="3dp"
                 android:text="A newer version of Eve Mock Test is required to continue. Please update to the latest version for improved stability, questions, and security."
-                android:textColor="?attr/eveLabelSecondary"
-                android:textSize="14sp" />
+                android:textColor="?attr/eveLabelSecondary" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnForceUpdateNow"
                 style="@style/Widget.Eve.Button.Primary"
+                android:textAppearance="@style/TextAppearance.Eve.Headline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Update App Now"
-                android:textSize="16sp" />
+                android:text="Update App Now" />
         </LinearLayout>
     </FrameLayout>
 </androidx.drawerlayout.widget.DrawerLayout>
