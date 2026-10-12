@@ -90,4 +90,63 @@ class SubmissionRecoveryTest {
         assertFalse("Multiple finished works should not block replacement", SubmissionRetryPolicy.shouldPreserveActiveWork(listOf(true, true)))
         assertFalse("Empty work list should not block replacement", SubmissionRetryPolicy.shouldPreserveActiveWork(emptyList()))
     }
+
+    @Test fun decideWorkSchedulingDistinguishesAllWorkStates() {
+        // 1. Active states (ENQUEUED, RUNNING, BLOCKED) must be preserved (DO_NOTHING)
+        assertEquals(
+            SubmissionRetryPolicy.WorkSchedulingDecision.DO_NOTHING,
+            SubmissionRetryPolicy.decideWorkScheduling(listOf(androidx.work.WorkInfo.State.ENQUEUED))
+        )
+        assertEquals(
+            SubmissionRetryPolicy.WorkSchedulingDecision.DO_NOTHING,
+            SubmissionRetryPolicy.decideWorkScheduling(listOf(androidx.work.WorkInfo.State.RUNNING))
+        )
+        assertEquals(
+            SubmissionRetryPolicy.WorkSchedulingDecision.DO_NOTHING,
+            SubmissionRetryPolicy.decideWorkScheduling(listOf(androidx.work.WorkInfo.State.BLOCKED))
+        )
+
+        // 2. Completed successful state (SUCCEEDED) must NOT be rescheduled (DO_NOTHING)
+        assertEquals(
+            SubmissionRetryPolicy.WorkSchedulingDecision.DO_NOTHING,
+            SubmissionRetryPolicy.decideWorkScheduling(listOf(androidx.work.WorkInfo.State.SUCCEEDED))
+        )
+
+        // 3. Completed failed/cancelled states (FAILED, CANCELLED) must recover (RECOVER_FAILED)
+        assertEquals(
+            SubmissionRetryPolicy.WorkSchedulingDecision.RECOVER_FAILED,
+            SubmissionRetryPolicy.decideWorkScheduling(listOf(androidx.work.WorkInfo.State.FAILED))
+        )
+        assertEquals(
+            SubmissionRetryPolicy.WorkSchedulingDecision.RECOVER_FAILED,
+            SubmissionRetryPolicy.decideWorkScheduling(listOf(androidx.work.WorkInfo.State.CANCELLED))
+        )
+        assertEquals(
+            SubmissionRetryPolicy.WorkSchedulingDecision.RECOVER_FAILED,
+            SubmissionRetryPolicy.decideWorkScheduling(listOf(androidx.work.WorkInfo.State.FAILED, androidx.work.WorkInfo.State.CANCELLED))
+        )
+
+        // 4. Empty list (no prior work) must enqueue fresh work (ENQUEUE_NEW)
+        assertEquals(
+            SubmissionRetryPolicy.WorkSchedulingDecision.ENQUEUE_NEW,
+            SubmissionRetryPolicy.decideWorkScheduling(emptyList())
+        )
+
+        // 5. Mixed states: Active or Succeeded always takes precedence over Failed
+        assertEquals(
+            "Active RUNNING work takes precedence over FAILED",
+            SubmissionRetryPolicy.WorkSchedulingDecision.DO_NOTHING,
+            SubmissionRetryPolicy.decideWorkScheduling(listOf(androidx.work.WorkInfo.State.FAILED, androidx.work.WorkInfo.State.RUNNING))
+        )
+        assertEquals(
+            "SUCCEEDED work takes precedence over FAILED",
+            SubmissionRetryPolicy.WorkSchedulingDecision.DO_NOTHING,
+            SubmissionRetryPolicy.decideWorkScheduling(listOf(androidx.work.WorkInfo.State.FAILED, androidx.work.WorkInfo.State.SUCCEEDED))
+        )
+        assertEquals(
+            "ENQUEUED work takes precedence over FAILED",
+            SubmissionRetryPolicy.WorkSchedulingDecision.DO_NOTHING,
+            SubmissionRetryPolicy.decideWorkScheduling(listOf(androidx.work.WorkInfo.State.FAILED, androidx.work.WorkInfo.State.ENQUEUED))
+        )
+    }
 }
