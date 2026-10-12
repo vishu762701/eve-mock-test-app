@@ -5,8 +5,14 @@ import androidx.work.*
 import com.eve.app.data.local.PendingSubmissionStore
 import com.eve.app.data.remote.ApiClient
 import com.eve.app.util.NotificationHelper
+import com.eve.app.util.SubmissionRetryPolicy
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
 import retrofit2.HttpException
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.resume
 
 class SubmitWorker(
     context: Context,
@@ -18,9 +24,14 @@ class SubmitWorker(
         val store = PendingSubmissionStore(applicationContext)
         val pending = store.get(clientAttemptId) ?: return Result.success()
 
-        val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
-        // Legacy files have no owner: retain them for manual recovery, never replay as another user.
-        if (!com.eve.app.util.SubmissionRetryPolicy.ownsSubmission(pending.userId, currentUser?.uid)) return Result.failure()
+        val currentUser = resolveCurrentUser()
+        val authState = SubmissionRetryPolicy.evaluateAuthState(pending.userId, currentUser?.uid)
+
+        // Only the verified original student can submit this payload.
+        // Never submit under another student's account; retain unowned or mismatched files safely for the original student.
+        if (authState != SubmissionRetryPolicy.AuthState.ELIGIBLE) {
+            return Result.failure()
+        }
 
         val body = mutableMapOf<String, Any>(
             "examId" to pending.examId,
@@ -79,6 +90,34 @@ class SubmitWorker(
         }
     }
 
+    private suspend fun resolveCurrentUser(): FirebaseUser? {
+        val immediate = FirebaseAuth.getInstance().currentUser
+        if (immediate != null) return immediate
+
+        // Allow cold-start Firebase Auth internal credential hydration to complete before evaluating eligibility.
+        return try {
+            withTimeoutOrNull(2000L) {
+                suspendCancellableCoroutine { cont ->
+                    val auth = FirebaseAuth.getInstance()
+                    var listener: FirebaseAuth.AuthStateListener? = null
+                    listener = FirebaseAuth.AuthStateListener { fa ->
+                        val user = fa.currentUser
+                        if (user != null && cont.isActive) {
+                            listener?.let { auth.removeAuthStateListener(it) }
+                            cont.resume(user)
+                        }
+                    }
+                    auth.addAuthStateListener(listener)
+                    cont.invokeOnCancellation {
+                        listener?.let { auth.removeAuthStateListener(it) }
+                    }
+                }
+            } ?: FirebaseAuth.getInstance().currentUser
+        } catch (_: Throwable) {
+            FirebaseAuth.getInstance().currentUser
+        }
+    }
+
     companion object {
         const val KEY_CLIENT_ATTEMPT_ID = "client_attempt_id"
 
@@ -95,7 +134,7 @@ class SubmitWorker(
 
             WorkManager.getInstance(context).enqueueUniqueWork(
                 "submit_$clientAttemptId",
-                ExistingWorkPolicy.KEEP,
+                ExistingWorkPolicy.REPLACE,
                 workRequest
             )
         }

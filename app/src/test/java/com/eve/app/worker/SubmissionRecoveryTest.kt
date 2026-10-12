@@ -33,5 +33,48 @@ class SubmissionRecoveryTest {
     @Test fun legacyJsonWithNoOwnerIsRetainedButCannotAutomaticallySubmit() {
         val legacy = Gson().fromJson("""{"clientAttemptId":"old","examId":"exam","answers":[]}""", PendingSubmission::class.java)
         assertFalse(SubmissionRetryPolicy.ownsSubmission(legacy.userId, "new-login"))
+        assertFalse(SubmissionRetryPolicy.canSubmitNow(legacy.userId, "new-login"))
+        assertEquals(SubmissionRetryPolicy.AuthState.UNOWNED_LEGACY, SubmissionRetryPolicy.evaluateAuthState(legacy.userId, "new-login"))
+    }
+
+    @Test fun evaluateAuthStateDistinguishesAllLifecycleStates() {
+        // 1. Eligible owner: original student matches current Firebase session
+        assertEquals(SubmissionRetryPolicy.AuthState.ELIGIBLE, SubmissionRetryPolicy.evaluateAuthState("student_1", "student_1"))
+        assertTrue(SubmissionRetryPolicy.canSubmitNow("student_1", "student_1"))
+
+        // 2. Signed-out state: currentUid is null or blank while ownerUid is valid
+        assertEquals(SubmissionRetryPolicy.AuthState.SIGNED_OUT, SubmissionRetryPolicy.evaluateAuthState("student_1", null))
+        assertEquals(SubmissionRetryPolicy.AuthState.SIGNED_OUT, SubmissionRetryPolicy.evaluateAuthState("student_1", ""))
+        assertFalse(SubmissionRetryPolicy.canSubmitNow("student_1", null))
+        assertFalse(SubmissionRetryPolicy.canSubmitNow("student_1", ""))
+
+        // 3. Different authenticated user: student B is active, attempt belongs to student A
+        assertEquals(SubmissionRetryPolicy.AuthState.MISMATCHED_USER, SubmissionRetryPolicy.evaluateAuthState("student_A", "student_B"))
+        assertFalse(SubmissionRetryPolicy.canSubmitNow("student_A", "student_B"))
+
+        // 4. Legacy unowned payload: ownerUid is null or blank
+        assertEquals(SubmissionRetryPolicy.AuthState.UNOWNED_LEGACY, SubmissionRetryPolicy.evaluateAuthState(null, "student_1"))
+        assertEquals(SubmissionRetryPolicy.AuthState.UNOWNED_LEGACY, SubmissionRetryPolicy.evaluateAuthState("", "student_1"))
+        assertEquals(SubmissionRetryPolicy.AuthState.UNOWNED_LEGACY, SubmissionRetryPolicy.evaluateAuthState(null, null))
+        assertFalse(SubmissionRetryPolicy.canSubmitNow(null, "student_1"))
+        assertFalse(SubmissionRetryPolicy.canSubmitNow("", "student_1"))
+    }
+
+    @Test fun accountSwitchPreservesPendingAnswersWithoutSubmittingUnderWrongAccount() {
+        val studentAPayload = PendingSubmission(
+            clientAttemptId = "client-uuid-101",
+            examId = "upsc-prelims-gs1",
+            examName = "UPSC Prelims GS 1",
+            category = "Civil Services",
+            answers = listOf(PendingAnswer("q1", 1, "C", false, 45)),
+            userId = "student_A"
+        )
+        // When Student B is logged in, Student A's payload must NOT be submitted
+        assertFalse(SubmissionRetryPolicy.canSubmitNow(studentAPayload.userId, "student_B"))
+        assertEquals(SubmissionRetryPolicy.AuthState.MISMATCHED_USER, SubmissionRetryPolicy.evaluateAuthState(studentAPayload.userId, "student_B"))
+
+        // When Student A logs back in, it becomes immediately ELIGIBLE for submission
+        assertTrue(SubmissionRetryPolicy.canSubmitNow(studentAPayload.userId, "student_A"))
+        assertEquals(SubmissionRetryPolicy.AuthState.ELIGIBLE, SubmissionRetryPolicy.evaluateAuthState(studentAPayload.userId, "student_A"))
     }
 }
