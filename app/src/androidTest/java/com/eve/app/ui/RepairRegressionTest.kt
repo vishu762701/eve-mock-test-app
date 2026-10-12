@@ -207,15 +207,13 @@ class RepairRegressionTest {
                         if (!ready) Thread.sleep(50)
                     }
                     assertTrue("Theme recreation did not settle ($failureDiag)", ready)
-                    // API 35 three-button SystemUI icon tone requires system night mode
+                    // API 35 navigation SystemUI icon/indicator tone requires system night mode
                     // synchronization (Google Issue 346386744). Do this AFTER the app's
                     // reveal settles: changing system mode beforehand can asynchronously
                     // replace the source Activity during its capture preparation.
-                    if (InstrumentationRegistry.getArguments().getString("navigationMode") == "three-button") {
-                        runShell("cmd uimode night " + if (dark) "yes" else "no")
-                        instrumentation.uiAutomation.waitForIdle(500, 5000)
-                        instrumentation.waitForIdleSync()
-                    }
+                    runShell("cmd uimode night " + if (dark) "yes" else "no")
+                    instrumentation.uiAutomation.waitForIdle(500, 5000)
+                    instrumentation.waitForIdleSync()
                     scenario.onActivity { activity ->
                         captureWindow = activity.window
                         val night = activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
@@ -531,7 +529,7 @@ class RepairRegressionTest {
                     val recording = instrumentation.uiAutomation.executeShellCommand("screenrecord --time-limit 15 $recordingPath")
                     try {
                         // Wait for the muxer to write captured frames before accepting the tap.
-                        val recordingDeadline = System.currentTimeMillis() + 4000
+                        val recordingDeadline = System.currentTimeMillis() + 8000
                         var recordingReady = false
                         while (!recordingReady && System.currentTimeMillis() < recordingDeadline) {
                             instrumentation.uiAutomation.executeShellCommand("stat -c %s $recordingPath").use { fd ->

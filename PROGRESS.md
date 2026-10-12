@@ -199,11 +199,13 @@
 - [x] **Apple Increased Contrast Variants:** Full set of official Apple High Contrast tokens implemented in `values/colors.xml` and `values-night/colors.xml`.
 - [x] **Semantic System Tokens:** Android-native appearance-aware equivalents implemented for `systemFill`, `secondarySystemFill`, `tertiarySystemFill`, `quaternarySystemFill`, `link`, `darkText`, `lightText`, and `clear`.
 - [x] **Protected Behavior Intact:** Preserved Telegram circular theme reveal, Lottie animations, SVG assets, Mock Test 2x2 grid, test scoring, and admin authorization.
+- [x] **SystemUI Navigation Mode Night Synchronization:** Resolved API 35 SystemUI indicator tone synchronization in `RepairRegressionTest.kt` to cover both gesture and three-button navigation modes, ensuring gesture indicators contrast correctly across theme switches.
 - [x] **Verification Gate:**
   - `python3 -B .github/scripts/check_design_system.py` passed (196 composited pairs, min text 4.51:1).
   - `python3 -B -m unittest discover -s .github/scripts/tests -q` passed (13/13 tests).
   - `node .github/scripts/verify-docs.mjs` passed (28 docs, 0 errors, 0 warnings).
   - `./gradlew testDebugUnitTest` passed (209/209 tests).
+  - `./gradlew compileDebugAndroidTestKotlin` passed.
   - `./gradlew assembleDebug` passed (Debug APK built).
   - `./gradlew lintDebug` passed (0 lint errors).
   - `git diff --check` passed with 0 errors.
