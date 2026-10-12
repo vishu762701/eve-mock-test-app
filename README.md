@@ -51,7 +51,7 @@ git branch -M main
 git remote add origin <tumhara-repo-url>
 git push -u origin main
 ```
-Push hote hi **Actions** tab me build automatically chalega (`.github/workflows/build.yml`). 2-3 min me green tick aayega → us run ko open karo → neeche **Artifacts → Eve-debug-apk** se APK download karo.
+Push hote hi **Actions** tab me build automatically chalega (`.github/workflows/build.yml`). Android lint/unit, dono Native UI modes, backend aur Firebase Functions ke saare checks pass hone ke baad hi **Eve-debug-apk** artifact upload hoga. Green run open karo → **Artifacts → Eve-debug-apk** se APK download karo.
 
 Agar `google-services.json` daalna bhool gaye to build red ho jayega saaf error ke saath — file daal ke phir se push karna, ya Actions tab se "Re-run jobs".
 

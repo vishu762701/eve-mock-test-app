@@ -13,7 +13,7 @@ Eve must have its own consistent design system. Do not copy source code/assets o
 The Android native tests generate Day/Night production-layout *fixtures* for Home, Test, Profile, Result tabs, Target Exams, system bars and selected interactions. Existing GitHub Actions runs both gesture and three-button emulators. Keep these checks.
 
 ## What this phase adds
-- Automatically generated visual-review.html: offline/mobile-friendly screenshot gallery; download and extract the native-ui artifact to open it.
+- Automatically generated visual-review.html: offline/mobile-friendly screenshot gallery; download and extract the native-ui artifact from a failed or manually dispatched run to open it.
 - visual-review.json: required light/dark coverage, PNG headers/dimensions, capture warnings and source-based review candidates.
 - CI contract: after native tests pass, missing critical screenshot pairs and malformed PNGs fail the native-ui job. Even if the emulator fails, available evidence is packaged.
 - Host-only tests for the report generator.
@@ -21,7 +21,7 @@ The Android native tests generate Day/Night production-layout *fixtures* for Hom
 The XML review queue is **heuristic**: large hardcoded widths, strong strokes, high elevation and excessive radius. These are not automatic defect findings. Custom Kotlin views, hardware blur, animation smoothness, touch interactions, font scaling and authenticated app data still require native/device assessment.
 
 ## Approval-based repair sequence
-1. Open the native-ui artifact, visual gallery, JSON and relevant Kotlin/XML.
+1. For a failed or manually dispatched run, open the native-ui artifact, visual gallery, JSON and relevant Kotlin/XML. For successful push runs, dispatch manually to generate these artifacts.
 2. Take ONE logical component family and document the actual problem in both themes, exact files, severity, alternatives, performance/accessibility trade-offs and expected result.
 3. Propose the best fix to the product owner and obtain approval.
 4. Implement and verify only approved work on main. Compare before/after screenshots, lint, unit tests, native UI tests and Actions status.
