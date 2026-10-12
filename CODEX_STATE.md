@@ -23,7 +23,7 @@ Continued the preserved implementation on `codex/ui-studio-functional` from `5b6
 
 ### Latest UI Studio task — 2026-10-07
 
-Continued the interrupted `MASTER_UI_STUDIO.md` implementation on `codex/ui-studio-functional`, based on fetched `origin/main` / starting HEAD `585f8ff91628677732da9fbf7a53c3ea618fa7d0`. Preserved the recovered working tree and external recovery copies; no reset, clean, force push or remote overwrite.
+Continued the interrupted UI Studio implementation on `codex/ui-studio-functional`, based on fetched `origin/main` / starting HEAD `585f8ff91628677732da9fbf7a53c3ea618fa7d0`. Preserved the recovered working tree and external recovery copies; no reset, clean, force push or remote overwrite.
 
 - Tool-first menu, 39 production-layout workspaces, production adapter fixtures, nested/repeated selection overlay, recoverable draft/session/undo, scoped dynamic insertion and shared published renderer.
 - Functional Android backdrop blur, separate material/item opacity, fonts, shape/states, safe inserted actions, explicit global opt-in and baseline/effect reset. Optical refraction/morphing are explicitly unsupported.
