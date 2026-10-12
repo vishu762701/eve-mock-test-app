@@ -31,4 +31,13 @@ object SubmissionRetryPolicy {
 
     fun canSubmitNow(ownerUid: String?, currentUid: String?): Boolean =
         evaluateAuthState(ownerUid, currentUid) == AuthState.ELIGIBLE
+
+    /**
+     * Determines whether active WorkManager work (ENQUEUED, RUNNING, or BLOCKED) should be preserved.
+     * Returns true if any existing work is not finished, protecting in-flight submissions from being canceled.
+     * Returns false if all existing work has finished (FAILED, CANCELLED, SUCCEEDED) or no work exists,
+     * allowing failed work to be safely re-enqueued.
+     */
+    fun shouldPreserveActiveWork(isFinishedStates: List<Boolean>): Boolean =
+        isFinishedStates.any { isFinished -> !isFinished }
 }

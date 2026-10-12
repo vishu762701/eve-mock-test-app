@@ -94,27 +94,41 @@ class SubmitWorker(
         val immediate = FirebaseAuth.getInstance().currentUser
         if (immediate != null) return immediate
 
+        val auth = FirebaseAuth.getInstance()
+        var authListener: FirebaseAuth.AuthStateListener? = null
+
         // Allow cold-start Firebase Auth internal credential hydration to complete before evaluating eligibility.
         return try {
             withTimeoutOrNull(2000L) {
                 suspendCancellableCoroutine { cont ->
-                    val auth = FirebaseAuth.getInstance()
-                    var listener: FirebaseAuth.AuthStateListener? = null
-                    listener = FirebaseAuth.AuthStateListener { fa ->
+                    val listener = FirebaseAuth.AuthStateListener { fa ->
                         val user = fa.currentUser
                         if (user != null && cont.isActive) {
-                            listener?.let { auth.removeAuthStateListener(it) }
+                            try {
+                                auth.removeAuthStateListener(listener)
+                            } catch (_: Throwable) {}
                             cont.resume(user)
                         }
                     }
+                    authListener = listener
                     auth.addAuthStateListener(listener)
                     cont.invokeOnCancellation {
-                        listener?.let { auth.removeAuthStateListener(it) }
+                        try {
+                            auth.removeAuthStateListener(listener)
+                        } catch (_: Throwable) {}
                     }
                 }
-            } ?: FirebaseAuth.getInstance().currentUser
+            } ?: auth.currentUser
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
         } catch (_: Throwable) {
-            FirebaseAuth.getInstance().currentUser
+            auth.currentUser
+        } finally {
+            authListener?.let {
+                try {
+                    auth.removeAuthStateListener(it)
+                } catch (_: Throwable) {}
+            }
         }
     }
 
@@ -132,7 +146,25 @@ class SubmitWorker(
                 .setInputData(workDataOf(KEY_CLIENT_ATTEMPT_ID to clientAttemptId))
                 .build()
 
-            WorkManager.getInstance(context).enqueueUniqueWork(
+            val workManager = WorkManager.getInstance(context)
+            val hasActiveWork = try {
+                val infos = workManager.getWorkInfosForUniqueWork("submit_$clientAttemptId")
+                    .get(1000, TimeUnit.MILLISECONDS)
+                SubmissionRetryPolicy.shouldPreserveActiveWork(infos.map { it.state.isFinished })
+            } catch (_: Exception) {
+                // If checking work state fails or times out, safely defer to KEEP to avoid canceling active work
+                workManager.enqueueUniqueWork("submit_$clientAttemptId", ExistingWorkPolicy.KEEP, workRequest)
+                return
+            }
+
+            if (hasActiveWork) {
+                // An existing worker is actively ENQUEUED, RUNNING, or BLOCKED. Preserve active work!
+                return
+            }
+
+            // Prior work has finished (FAILED, CANCELLED, or SUCCEEDED) or does not exist.
+            // Replace with a fresh request to allow recovery of failed attempts.
+            workManager.enqueueUniqueWork(
                 "submit_$clientAttemptId",
                 ExistingWorkPolicy.REPLACE,
                 workRequest

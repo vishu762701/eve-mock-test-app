@@ -77,4 +77,17 @@ class SubmissionRecoveryTest {
         assertTrue(SubmissionRetryPolicy.canSubmitNow(studentAPayload.userId, "student_A"))
         assertEquals(SubmissionRetryPolicy.AuthState.ELIGIBLE, SubmissionRetryPolicy.evaluateAuthState(studentAPayload.userId, "student_A"))
     }
+
+    @Test fun activeWorkPreservationProtectsRunningAndEnqueuedTasks() {
+        // Active states (isFinished == false) must be preserved
+        assertTrue("RUNNING work must be preserved", SubmissionRetryPolicy.shouldPreserveActiveWork(listOf(false)))
+        assertTrue("ENQUEUED work must be preserved", SubmissionRetryPolicy.shouldPreserveActiveWork(listOf(false)))
+        assertTrue("Mix of active and finished must be preserved", SubmissionRetryPolicy.shouldPreserveActiveWork(listOf(true, false)))
+
+        // Finished states (isFinished == true) should NOT be preserved; allows recovery with REPLACE
+        assertFalse("FAILED work should not block replacement", SubmissionRetryPolicy.shouldPreserveActiveWork(listOf(true)))
+        assertFalse("CANCELLED work should not block replacement", SubmissionRetryPolicy.shouldPreserveActiveWork(listOf(true)))
+        assertFalse("Multiple finished works should not block replacement", SubmissionRetryPolicy.shouldPreserveActiveWork(listOf(true, true)))
+        assertFalse("Empty work list should not block replacement", SubmissionRetryPolicy.shouldPreserveActiveWork(emptyList()))
+    }
 }
