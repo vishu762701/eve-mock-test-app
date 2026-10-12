@@ -94,7 +94,7 @@
                 android:contentDescription="Delete Selected"
                 android:padding="8dp"
                 android:src="@drawable/ic_delete"
-                app:tint="@color/eve_red" />
+                app:tint="@color/selector_eve_destructive_text" />
         </LinearLayout>
     </FrameLayout>
 
@@ -146,11 +146,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:hint="Notification Title"
-                app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm"
-                app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm"
-                app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm"
-                app:boxCornerRadiusTopStart="@dimen/eve_radius_sm">
+                android:hint="Notification Title">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etTitle"
@@ -170,10 +166,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:hint="Message"
-                app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm"
-                app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm"
-                app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm"
-                app:boxCornerRadiusTopStart="@dimen/eve_radius_sm"
                 app:counterEnabled="true"
                 app:counterMaxLength="500">
 

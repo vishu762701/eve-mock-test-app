@@ -80,21 +80,21 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipToday"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
+                style="@style/Widget.Eve.CategoryChip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Today" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipLast7Days"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
+                style="@style/Widget.Eve.CategoryChip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Last 7 days" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipAllTime"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
+                style="@style/Widget.Eve.CategoryChip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"

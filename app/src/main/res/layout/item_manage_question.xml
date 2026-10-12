@@ -5,8 +5,10 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="0dp"
     android:layout_marginVertical="6dp"
+    app:cardBackgroundColor="@color/eve_card_bg"
     app:cardCornerRadius="@dimen/eve_radius_card"
     app:cardElevation="0dp"
+    app:strokeColor="@color/eve_shape_border"
     app:strokeWidth="1dp">
 
     <LinearLayout
@@ -27,7 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:textColor="@color/eve_green"
+            android:textColor="@color/eve_status_success_text"
             android:textSize="13sp" />
 
         <LinearLayout
@@ -47,10 +49,12 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDelete"
+                style="@style/Widget.Eve.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:backgroundTint="@color/eve_red"
+                android:textColor="@color/selector_eve_destructive_text"
+                app:strokeColor="@color/eve_shape_border"
                 android:text="Delete" />
         </LinearLayout>
     </LinearLayout>

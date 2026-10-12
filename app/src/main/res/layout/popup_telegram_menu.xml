@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:clipToOutline="true"
     app:cardBackgroundColor="@android:color/transparent"
-    app:cardCornerRadius="@dimen/eve_radius_card"
+    app:cardCornerRadius="@dimen/eve_radius_menu"
     app:cardElevation="4dp"
     app:cardMaxElevation="6dp"
     app:cardPreventCornerOverlap="false"
@@ -246,14 +246,14 @@
                     android:background="@android:color/transparent"
                     android:contentDescription="Logout"
                     android:src="@drawable/ic_logout"
-                    app:tint="@color/eve_red" />
+                    app:tint="@color/selector_eve_destructive_text" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
                     android:text="Logout"
-                    android:textColor="@color/eve_red"
+                    android:textColor="@color/selector_eve_destructive_text"
                     android:textSize="15sp" />
             </LinearLayout>
         </LinearLayout>

@@ -78,15 +78,11 @@
                         android:textSize="16sp" />
 
                     <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        style="@style/Widget.Eve.TextInput.Outlined"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:hint="Exam Name"
-                        app:boxStrokeColor="@color/selector_shape_border"
-                        app:boxStrokeErrorColor="@color/selector_shape_border"
-                        app:boxStrokeWidth="1dp"
-                        app:boxStrokeWidthFocused="1dp">
+                        android:hint="Exam Name">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etExamName"
@@ -96,15 +92,11 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        style="@style/Widget.Eve.TextInput.Outlined"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:hint="Time Limit (minutes)"
-                        app:boxStrokeColor="@color/selector_shape_border"
-                        app:boxStrokeErrorColor="@color/selector_shape_border"
-                        app:boxStrokeWidth="1dp"
-                        app:boxStrokeWidthFocused="1dp">
+                        android:hint="Time Limit (minutes)">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etExamMinutes"
@@ -142,16 +134,12 @@
                         android:orientation="horizontal">
 
                         <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            style="@style/Widget.Eve.TextInput.Outlined"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="4dp"
                             android:layout_weight="1"
-                            android:hint="General"
-                            app:boxStrokeColor="@color/selector_shape_border"
-                            app:boxStrokeErrorColor="@color/selector_shape_border"
-                            app:boxStrokeWidth="1dp"
-                            app:boxStrokeWidthFocused="1dp">
+                            android:hint="General">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etCutoffGeneral"
@@ -161,16 +149,12 @@
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            style="@style/Widget.Eve.TextInput.Outlined"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="4dp"
                             android:layout_weight="1"
-                            android:hint="OBC"
-                            app:boxStrokeColor="@color/selector_shape_border"
-                            app:boxStrokeErrorColor="@color/selector_shape_border"
-                            app:boxStrokeWidth="1dp"
-                            app:boxStrokeWidthFocused="1dp">
+                            android:hint="OBC">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etCutoffObc"
@@ -187,16 +171,12 @@
                         android:orientation="horizontal">
 
                         <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            style="@style/Widget.Eve.TextInput.Outlined"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="4dp"
                             android:layout_weight="1"
-                            android:hint="SC"
-                            app:boxStrokeColor="@color/selector_shape_border"
-                            app:boxStrokeErrorColor="@color/selector_shape_border"
-                            app:boxStrokeWidth="1dp"
-                            app:boxStrokeWidthFocused="1dp">
+                            android:hint="SC">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etCutoffSc"
@@ -206,16 +186,12 @@
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            style="@style/Widget.Eve.TextInput.Outlined"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="4dp"
                             android:layout_weight="1"
-                            android:hint="ST"
-                            app:boxStrokeColor="@color/selector_shape_border"
-                            app:boxStrokeErrorColor="@color/selector_shape_border"
-                            app:boxStrokeWidth="1dp"
-                            app:boxStrokeWidthFocused="1dp">
+                            android:hint="ST">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etCutoffSt"
@@ -226,15 +202,11 @@
                     </LinearLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        style="@style/Widget.Eve.TextInput.Outlined"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
-                        android:hint="EWS Cutoff"
-                        app:boxStrokeColor="@color/selector_shape_border"
-                        app:boxStrokeErrorColor="@color/selector_shape_border"
-                        app:boxStrokeWidth="1dp"
-                        app:boxStrokeWidthFocused="1dp">
+                        android:hint="EWS Cutoff">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etCutoffEws"

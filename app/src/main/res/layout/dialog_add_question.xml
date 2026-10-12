@@ -11,14 +11,10 @@
         android:orientation="vertical">
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/Widget.Eve.TextInput.Outlined"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Question Text"
-            app:boxStrokeColor="@color/selector_shape_border"
-            app:boxStrokeErrorColor="@color/selector_shape_border"
-            app:boxStrokeWidth="1dp"
-            app:boxStrokeWidthFocused="1dp">
+            android:hint="Question Text">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etQuestionText"
@@ -29,15 +25,11 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/Widget.Eve.TextInput.Outlined"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:hint="Option A"
-            app:boxStrokeColor="@color/selector_shape_border"
-            app:boxStrokeErrorColor="@color/selector_shape_border"
-            app:boxStrokeWidth="1dp"
-            app:boxStrokeWidthFocused="1dp">
+            android:hint="Option A">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etOptionA"
@@ -46,15 +38,11 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/Widget.Eve.TextInput.Outlined"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:hint="Option B"
-            app:boxStrokeColor="@color/selector_shape_border"
-            app:boxStrokeErrorColor="@color/selector_shape_border"
-            app:boxStrokeWidth="1dp"
-            app:boxStrokeWidthFocused="1dp">
+            android:hint="Option B">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etOptionB"
@@ -63,15 +51,11 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/Widget.Eve.TextInput.Outlined"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:hint="Option C"
-            app:boxStrokeColor="@color/selector_shape_border"
-            app:boxStrokeErrorColor="@color/selector_shape_border"
-            app:boxStrokeWidth="1dp"
-            app:boxStrokeWidthFocused="1dp">
+            android:hint="Option C">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etOptionC"
@@ -80,15 +64,11 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/Widget.Eve.TextInput.Outlined"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:hint="Option D"
-            app:boxStrokeColor="@color/selector_shape_border"
-            app:boxStrokeErrorColor="@color/selector_shape_border"
-            app:boxStrokeWidth="1dp"
-            app:boxStrokeWidthFocused="1dp">
+            android:hint="Option D">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etOptionD"
@@ -141,15 +121,11 @@
         </RadioGroup>
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/Widget.Eve.TextInput.Outlined"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:hint="Explanation (Optional)"
-            app:boxStrokeColor="@color/selector_shape_border"
-            app:boxStrokeErrorColor="@color/selector_shape_border"
-            app:boxStrokeWidth="1dp"
-            app:boxStrokeWidthFocused="1dp">
+            android:hint="Explanation (Optional)">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etExplanation"
@@ -158,15 +134,11 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/Widget.Eve.TextInput.Outlined"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:hint="Topic / Subject Tag (Optional)"
-            app:boxStrokeColor="@color/selector_shape_border"
-            app:boxStrokeErrorColor="@color/selector_shape_border"
-            app:boxStrokeWidth="1dp"
-            app:boxStrokeWidthFocused="1dp">
+            android:hint="Topic / Subject Tag (Optional)">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etTopic"

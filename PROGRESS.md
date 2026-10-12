@@ -144,3 +144,20 @@
   - Backend tests: 79/79 passed (`ui_studio.test.cjs` verifying validation, public empty fallback, authorization rejection, draft save/get, publishing, ETag 304, rollback, and reset).
   - Debug APK built and packaged cleanly via `./gradlew assembleDebug`.
   - `git diff --check` passed with 0 errors.
+
+## EVE Admin and Shared UI Visual Consistency — Task 3 (2026-10-12)
+
+- [x] **Styles & Input Hierarchy:** Added `Widget.Eve.TextInput.Outlined.ExposedDropdownMenu` in `styles.xml`. Replaced all legacy `Widget.MaterialComponents.TextInputLayout.OutlinedBox` instances with `Widget.Eve.TextInput.Outlined` across admin forms (`activity_edit_exam.xml`, `activity_manage_premium.xml`, `activity_app_config.xml`, `dialog_add_question.xml`, `dialog_edit_question_details.xml`, `dialog_manual_grant_premium.xml`, `dialog_create_feedback_post.xml`, `dialog_reply_feedback.xml`).
+- [x] **Switches & Chips:** Replaced legacy `SwitchMaterial` with canonical `MaterialSwitch` in admin screens and dialogs (`activity_manage_exams.xml`, `dialog_create_poll.xml`, `item_generated_test.xml`). Standardized admin filter chips to `Widget.Eve.CategoryChip` (`activity_admin_analytics.xml`, `activity_activity_log.xml`).
+- [x] **Semantic Tokens in Adapters & Activities:** Migrated status badge colors in `AdminActivity.kt`, `AnalyticsExamAdapter.kt`, `PollsAdminAdapter.kt`, and `UserAdminAdapter.kt` to semantic tokens (`R.color.eve_status_error_text`, `R.color.eve_status_warning_text`, `R.color.eve_status_success_text`). Standardized count and metric text colors in `activity_api_usage.xml` and item layouts.
+- [x] **Destructive Actions & Buttons:** Standardized admin delete/remove/revoke actions with `@color/selector_eve_destructive_text` and stroke `@color/eve_shape_border` across admin lists, items, and dialogs (`item_manage_question.xml`, `item_admin_email.xml`, `item_admin_syllabus.xml`, `item_poll_admin.xml`, `item_admin_premium_user.xml`, `item_admin_banner.xml`, `item_feedback_message.xml`, `dialog_post_replies.xml`, `activity_send_notification.xml`, `popup_telegram_menu.xml`).
+- [x] **Surfaces & Cards:** Normalized admin surfaces and cards to `eve_card_bg` and `eve_shape_border`, removing non-standard radii overrides and hardcoded colors.
+- [x] **Shared Components:** Standardized `layout_bulletin.xml` and `layout_undo_bar.xml` card corners to `@dimen/eve_radius_card` (16dp). Standardized `popup_telegram_menu.xml` popup corner radius to `@dimen/eve_radius_menu` (16dp squircle) and logout action to destructive tint.
+- [x] **Protected Constraints Intact:** Maintained business logic, security, authorization, deletion workflows, data density, student-facing UI, and circular reveal theme switching.
+- [x] **Verification & Test Coverage:**
+  - Design system contrast checks: 196 composited semantic pairs passed (min 4.51:1).
+  - Unit tests: `./gradlew testDebugUnitTest` passed (209/209 tests).
+  - Debug APK built cleanly: `./gradlew assembleDebug` passed.
+  - Android Lint analysis: `./gradlew lintDebug` passed with 0 errors.
+  - Documentation: `node .github/scripts/verify-docs.mjs` passed (29 documents, 0 errors, 0 warnings).
+  - `git diff --check` passed with 0 errors.

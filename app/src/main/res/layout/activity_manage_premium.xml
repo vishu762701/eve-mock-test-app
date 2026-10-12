@@ -105,7 +105,7 @@
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/eve_surface"
+                    app:cardBackgroundColor="@color/eve_card_bg"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
                     app:strokeColor="@color/eve_shape_border"
@@ -132,15 +132,11 @@
                             android:text="Enable Premium Purchases" />
 
                         <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            style="@style/Widget.Eve.TextInput.Outlined"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:hint="Plan Name"
-                            app:boxStrokeColor="@color/selector_shape_border"
-                            app:boxStrokeErrorColor="@color/selector_shape_border"
-                            app:boxStrokeWidth="1dp"
-                            app:boxStrokeWidthFocused="1dp">
+                            android:hint="Plan Name">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etPlanName"
@@ -150,15 +146,11 @@
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            style="@style/Widget.Eve.TextInput.Outlined"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:hint="Price (INR)"
-                            app:boxStrokeColor="@color/selector_shape_border"
-                            app:boxStrokeErrorColor="@color/selector_shape_border"
-                            app:boxStrokeWidth="1dp"
-                            app:boxStrokeWidthFocused="1dp">
+                            android:hint="Price (INR)">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etPriceInr"
@@ -176,15 +168,11 @@
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/tilDurationDays"
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            style="@style/Widget.Eve.TextInput.Outlined"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:hint="Duration in Days (e.g. 7, 30, 90, 365)"
-                            app:boxStrokeColor="@color/selector_shape_border"
-                            app:boxStrokeErrorColor="@color/selector_shape_border"
-                            app:boxStrokeWidth="1dp"
-                            app:boxStrokeWidthFocused="1dp">
+                            android:hint="Duration in Days (e.g. 7, 30, 90, 365)">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etDurationDays"
@@ -194,15 +182,11 @@
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            style="@style/Widget.Eve.TextInput.Outlined"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:hint="Student Description"
-                            app:boxStrokeColor="@color/selector_shape_border"
-                            app:boxStrokeErrorColor="@color/selector_shape_border"
-                            app:boxStrokeWidth="1dp"
-                            app:boxStrokeWidthFocused="1dp">
+                            android:hint="Student Description">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etDescription"
@@ -213,15 +197,11 @@
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            style="@style/Widget.Eve.TextInput.Outlined"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:hint="Benefits (one per line)"
-                            app:boxStrokeColor="@color/selector_shape_border"
-                            app:boxStrokeErrorColor="@color/selector_shape_border"
-                            app:boxStrokeWidth="1dp"
-                            app:boxStrokeWidthFocused="1dp">
+                            android:hint="Benefits (one per line)">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etBenefits"
@@ -238,7 +218,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    app:cardBackgroundColor="@color/eve_surface"
+                    app:cardBackgroundColor="@color/eve_card_bg"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
                     app:strokeColor="@color/eve_shape_border"
@@ -272,15 +252,11 @@
                             android:text="Enable UPI Intent Payment" />
 
                         <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            style="@style/Widget.Eve.TextInput.Outlined"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:hint="Payment Session Expiry (Minutes)"
-                            app:boxStrokeColor="@color/selector_shape_border"
-                            app:boxStrokeErrorColor="@color/selector_shape_border"
-                            app:boxStrokeWidth="1dp"
-                            app:boxStrokeWidthFocused="1dp">
+                            android:hint="Payment Session Expiry (Minutes)">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etSessionExpiry"
@@ -290,15 +266,11 @@
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            style="@style/Widget.Eve.TextInput.Outlined"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:hint="Merchant UPI VPA (e.g. evemocktest@upi)"
-                            app:boxStrokeColor="@color/selector_shape_border"
-                            app:boxStrokeErrorColor="@color/selector_shape_border"
-                            app:boxStrokeWidth="1dp"
-                            app:boxStrokeWidthFocused="1dp">
+                            android:hint="Merchant UPI VPA (e.g. evemocktest@upi)">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etMerchantVpa"

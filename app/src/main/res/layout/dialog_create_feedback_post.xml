@@ -23,15 +23,11 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilPostTitle"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        style="@style/Widget.Eve.TextInput.Outlined"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="Post Title *"
-        app:boxStrokeColor="@color/selector_shape_border"
-        app:boxStrokeErrorColor="@color/selector_shape_border"
-        app:boxStrokeWidth="1dp"
-        app:boxStrokeWidthFocused="1dp">
+        android:hint="Post Title *">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etPostTitle"
@@ -44,15 +40,11 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilPostMessage"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        style="@style/Widget.Eve.TextInput.Outlined"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:hint="Message / Prompt *"
-        app:boxStrokeColor="@color/selector_shape_border"
-        app:boxStrokeErrorColor="@color/selector_shape_border"
-        app:boxStrokeWidth="1dp"
-        app:boxStrokeWidthFocused="1dp">
+        android:hint="Message / Prompt *">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etPostMessage"
@@ -73,7 +65,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCancelPost"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/Widget.Eve.TextButton"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"

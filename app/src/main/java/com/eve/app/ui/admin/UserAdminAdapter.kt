@@ -39,12 +39,12 @@ class UserAdminAdapter(
             if (user.disabled) {
                 binding.tvUserStatusBadge.text = "Banned"
                 binding.tvUserStatusBadge.setTextColor(
-                    ContextCompat.getColor(binding.root.context, R.color.eve_red)
+                    ContextCompat.getColor(binding.root.context, R.color.eve_status_error_text)
                 )
             } else {
                 binding.tvUserStatusBadge.text = "Active"
                 binding.tvUserStatusBadge.setTextColor(
-                    ContextCompat.getColor(binding.root.context, R.color.eve_green)
+                    ContextCompat.getColor(binding.root.context, R.color.eve_status_success_text)
                 )
             }
 

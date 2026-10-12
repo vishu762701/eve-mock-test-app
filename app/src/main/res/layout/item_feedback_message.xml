@@ -85,7 +85,7 @@
                 android:contentDescription="Delete message"
                 android:padding="6dp"
                 android:src="@drawable/ic_delete"
-                app:tint="@color/eve_red" />
+                app:tint="@color/selector_eve_destructive_text" />
         </LinearLayout>
 
         <TextView

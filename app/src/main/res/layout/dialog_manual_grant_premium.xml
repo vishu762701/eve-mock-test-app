@@ -7,14 +7,10 @@
     android:padding="20dp">
 
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        style="@style/Widget.Eve.TextInput.Outlined"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="User UID or Email"
-        app:boxStrokeColor="@color/selector_shape_border"
-        app:boxStrokeErrorColor="@color/selector_shape_border"
-        app:boxStrokeWidth="1dp"
-        app:boxStrokeWidthFocused="1dp">
+        android:hint="User UID or Email">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etGrantUser"
@@ -31,15 +27,11 @@
         android:text="Grant Lifetime Access" />
 
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        style="@style/Widget.Eve.TextInput.Outlined"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:hint="Duration in Days"
-        app:boxStrokeColor="@color/selector_shape_border"
-        app:boxStrokeErrorColor="@color/selector_shape_border"
-        app:boxStrokeWidth="1dp"
-        app:boxStrokeWidthFocused="1dp">
+        android:hint="Duration in Days">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etGrantDays"

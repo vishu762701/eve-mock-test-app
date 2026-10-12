@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         app:cardBackgroundColor="@color/eve_bulletin_bg"
-        app:cardCornerRadius="20dp"
+        app:cardCornerRadius="@dimen/eve_radius_card"
         app:cardElevation="0dp"
         app:cardPreventCornerOverlap="false"
         app:cardUseCompatPadding="false"

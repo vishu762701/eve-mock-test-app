@@ -20,6 +20,6 @@
         android:layout_height="wrap_content"
         android:padding="6dp"
         android:text="Remove"
-        android:textColor="@color/eve_red"
+        android:textColor="@color/selector_eve_destructive_text"
         android:textStyle="bold" />
 </LinearLayout>

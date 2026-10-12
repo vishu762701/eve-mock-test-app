@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    app:cardBackgroundColor="@color/eve_surface"
+    app:cardBackgroundColor="@color/eve_card_bg"
     app:cardCornerRadius="@dimen/eve_radius_card"
     app:cardElevation="0dp"
     app:strokeColor="@color/eve_shape_border"
@@ -82,7 +82,7 @@
                 android:layout_height="38dp"
                 android:layout_marginStart="8dp"
                 android:text="Revoke"
-                android:textColor="@color/eve_status_error"
+                android:textColor="@color/selector_eve_destructive_text"
                 android:textSize="12sp"
                 app:strokeColor="@color/eve_shape_border" />
         </LinearLayout>

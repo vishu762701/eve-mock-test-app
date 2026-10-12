@@ -66,7 +66,8 @@
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
             android:text="Delete Post"
-            android:textColor="@color/eve_red" />
+            android:textColor="@color/selector_eve_destructive_text"
+            app:strokeColor="@color/eve_shape_border" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCloseReplies"

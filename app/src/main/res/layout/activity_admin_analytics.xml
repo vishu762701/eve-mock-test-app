@@ -63,21 +63,21 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipLast7Days"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        style="@style/Widget.Eve.CategoryChip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Last 7 days" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipLast30Days"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        style="@style/Widget.Eve.CategoryChip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Last 30 days" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipAllTime"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        style="@style/Widget.Eve.CategoryChip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
@@ -250,13 +250,13 @@
                     android:textSize="16sp" android:textStyle="bold"/>
                 <TextView android:id="@+id/tvWeakSub" android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:layout_marginTop="3dp" android:text="High wrong-rate questions with enough attempts are shown first."
-                    android:textColor="@color/eve_grey" android:textSize="12sp"/>
+                    android:textColor="@color/eve_text_secondary" android:textSize="12sp"/>
                 <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvQuestions" android:layout_width="match_parent"
                     android:layout_height="wrap_content" android:nestedScrollingEnabled="false" android:layout_marginTop="8dp"
                     android:layoutAnimation="@anim/layout_enter"/>
                 <TextView android:id="@+id/tvEmpty" android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:layout_marginTop="20dp" android:text="Analytics are not available yet. Data will appear after students submit tests."
-                    android:textColor="@color/eve_grey" android:textSize="13sp" android:visibility="gone"/>
+                    android:textColor="@color/eve_text_secondary" android:textSize="13sp" android:visibility="gone"/>
             </LinearLayout>
         </ScrollView>
         <ProgressBar android:id="@+id/progress" android:layout_width="wrap_content" android:layout_height="wrap_content"

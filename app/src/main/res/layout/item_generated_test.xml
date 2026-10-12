@@ -6,7 +6,7 @@
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="@dimen/eve_space_8"
     android:stateListAnimator="@animator/press_scale"
-    app:cardBackgroundColor="@color/eve_surface"
+    app:cardBackgroundColor="@color/eve_card_bg"
     app:cardCornerRadius="@dimen/eve_radius_card"
     app:cardElevation="0dp"
     app:strokeColor="@color/eve_shape_border"
@@ -77,7 +77,7 @@
                 android:textColor="@color/eve_text"
                 android:textSize="14sp" />
 
-            <com.google.android.material.switchmaterial.SwitchMaterial
+            <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/switchLive"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -121,7 +121,7 @@
                 android:contentDescription="Delete test"
                 android:padding="8dp"
                 android:src="@drawable/ic_close"
-                app:tint="@color/eve_red" />
+                app:tint="@color/selector_eve_destructive_text" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

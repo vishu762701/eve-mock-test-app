@@ -275,7 +275,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="6dp"
                         android:text="Delete"
-                        android:textColor="@color/eve_red" />
+                        android:textColor="@color/selector_eve_destructive_text"
+                        app:strokeColor="@color/eve_shape_border" />
                 </LinearLayout>
 
                 <!-- 3. Questions in Selected Exam -->
@@ -363,7 +364,7 @@
                     android:layout_height="wrap_content"
                     android:padding="12dp"
                     android:text="No questions uploaded yet"
-                    android:textColor="@color/eve_grey"
+                    android:textColor="@color/eve_text_secondary"
                     android:visibility="gone" />
 
                 <!-- Questions RecyclerView -->
@@ -525,26 +526,33 @@
                     android:layout_marginTop="4dp"
                     android:layout_marginBottom="8dp"
                     android:text="Add new admin emails dynamically without requiring an app update."
-                    android:textColor="@color/eve_grey"
+                    android:textColor="@color/eve_text_secondary"
                     android:textSize="13sp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal">
 
                     <EditText
                         android:id="@+id/etAdminEmail"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="48dp"
                         android:layout_weight="1"
+                        android:background="@drawable/bg_edit_text_rounded"
                         android:hint="new-admin@gmail.com"
-                        android:inputType="textEmailAddress" />
+                        android:inputType="textEmailAddress"
+                        android:paddingHorizontal="12dp"
+                        android:textColor="@color/eve_text"
+                        android:textColorHint="@color/eve_text_secondary"
+                        android:textSize="14sp" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnAddAdmin"
+                        style="@style/Widget.Eve.Button.Primary"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="48dp"
                         android:layout_marginStart="8dp"
                         android:text="Add" />
                 </LinearLayout>
@@ -556,7 +564,7 @@
                     android:layout_marginTop="8dp"
                     android:padding="8dp"
                     android:text="No extra dynamic admins added"
-                    android:textColor="@color/eve_grey"
+                    android:textColor="@color/eve_text_secondary"
                     android:visibility="gone" />
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -587,11 +595,11 @@
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="12dp"
                     android:text="Broadcast Notification (High-Risk)"
-                    android:textColor="@color/eve_red"
+                    android:textColor="@color/selector_eve_destructive_text"
                     app:icon="@drawable/ic_broadcast"
                     app:iconPadding="12dp"
                     app:iconSize="20dp"
-                    app:iconTint="@color/eve_red"
+                    app:iconTint="@color/selector_eve_destructive_text"
                     app:strokeColor="@color/eve_shape_border"
                     app:strokeWidth="1dp" />
 
@@ -791,7 +799,7 @@
                                 android:id="@+id/tvVersionStatusBadge"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:background="@color/eve_surface_variant"
+                                android:background="@drawable/bg_stat_mini"
                                 android:paddingHorizontal="8dp"
                                 android:paddingVertical="3dp"
                                 android:text="Active"
@@ -855,7 +863,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
                             android:text="To enforce an immediate update on older student devices, update 'minimum_supported_version_code' in Firebase Remote Config or using App Config."
-                            android:textColor="@color/eve_grey"
+                            android:textColor="@color/eve_text_secondary"
                             android:textSize="13sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -898,7 +906,7 @@
                                 android:layout_height="24dp"
                                 android:contentDescription="Maintenance Mode"
                                 android:src="@drawable/ic_maintenance"
-                                app:tint="@color/eve_red" />
+                                app:tint="@color/eve_status_error_text" />
 
                             <TextView
                                 android:layout_width="0dp"
@@ -913,7 +921,7 @@
                                 android:id="@+id/tvLiveMaintenanceStatus"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:background="@color/eve_surface_variant"
+                                android:background="@drawable/bg_stat_mini"
                                 android:paddingHorizontal="8dp"
                                 android:paddingVertical="3dp"
                                 android:text="OFF (Live)"
@@ -938,15 +946,11 @@
                             android:textColor="@color/eve_text" />
 
                         <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            style="@style/Widget.Eve.TextInput.Outlined"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:hint="Custom Maintenance Notice Message"
-                            app:boxStrokeColor="@color/selector_shape_border"
-                            app:boxStrokeErrorColor="@color/selector_shape_border"
-                            app:boxStrokeWidth="1dp"
-                            app:boxStrokeWidthFocused="1dp">
+                            android:hint="Custom Maintenance Notice Message">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etMaintenanceMessage"

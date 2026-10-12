@@ -152,7 +152,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="0"
-                        android:textColor="@color/eve_green"
+                        android:textColor="@color/eve_status_success_text"
                         android:textSize="28sp" />
 
                     <TextView
