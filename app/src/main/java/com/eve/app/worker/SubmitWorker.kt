@@ -104,9 +104,6 @@ class SubmitWorker(
                     val listener = FirebaseAuth.AuthStateListener { fa ->
                         val user = fa.currentUser
                         if (user != null && cont.isActive) {
-                            try {
-                                auth.removeAuthStateListener(listener)
-                            } catch (_: Throwable) {}
                             cont.resume(user)
                         }
                     }
