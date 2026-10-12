@@ -81,11 +81,11 @@ class ExamAdapter(
             b.root.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_secondary_background))
             b.root.strokeColor = androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_shape_border)
             b.root.strokeWidth = 0
-            b.tvExamName.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_text))
+            b.tvExamName.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_label_primary))
             if (attempted) {
                 b.tvExamTime.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_tile_right_text))
             } else {
-                b.tvExamTime.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_recovery_text_secondary))
+                b.tvExamTime.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_label_secondary))
             }
             val categoryTint = com.eve.app.util.ExamCategoryTintHelper.getTintForCategory(exam.categoryOrOther)
             b.examIconContainer.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, categoryTint.bgRes))

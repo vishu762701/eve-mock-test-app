@@ -9,7 +9,14 @@
 - Light app background tokens are pure `#FFFFFF`; dark background tokens are pure `#000000`.
 - Test submission remains server-side through `POST /api/attempts/submit`; authentication, scoring, answer persistence, and navigation code were not changed by the Home Banner/Test appearance task.
 
-### EVE Full iOS 26 Color Migration — 2026-10-12
+### EVE Phase 1 of 5: Official iOS 26 Semantic Colors + Home Screen — 2026-10-12
+
+Completed Phase 1 of 5 establishing the official Apple iOS 26 dynamic semantic color foundation focused strictly on the Home screen and directly associated UI components:
+- Standardized Home category filter chips with dedicated Apple semantic selectors (`selector_home_category_chip_bg.xml` and `selector_home_category_chip_text.xml`) mapping checked states to `@color/eve_accent_container` and `@color/eve_accent_text`, and unselected states to `@color/eve_secondary_system_background` and `@color/eve_label_primary`.
+- Standardized `ExamAdapter.kt` exam list item binding to canonical Apple label tokens (`@color/eve_label_primary` for titles and `@color/eve_label_secondary` for unattempted metadata), retaining `@color/eve_tile_right_text` for attempted status.
+- Added adaptive `@color/eve_drawer_scrim` (`#26000000` Light / `#4D000000` Dark) in `colors.xml` and `values-night/colors.xml`, eliminating hardcoded `Color.argb` values in `MainActivity.kt`.
+- Added automated JVM test suite `HomeSemanticColorsTest.kt` verifying all Home semantic color tokens, selector state mappings, and WCAG AA contrast compliance (minimum 4.5:1 text, 3.0:1 UI) in both Light and Dark modes.
+- Preserved all protected invariants: permanent canvas colors (`#FFFFFF` / `#000000`), circular Telegram theme reveal, test engine geometry and scoring, Lottie animations, and SVG assets. Typography changes deferred to Phase 2.
 
 Completed full-app iOS 26 color migration and semantic contrast audit across every layout, adapter, style, and component:
 - Migrated all 58 legacy `?attr/colorOnSurface` layout instances to canonical `@color/eve_text` or `?attr/eveLabelPrimary`.

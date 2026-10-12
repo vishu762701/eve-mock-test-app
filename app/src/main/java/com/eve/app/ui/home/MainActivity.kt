@@ -1146,8 +1146,7 @@ class MainActivity : EveBaseActivity() {
         updateDrawerHeader(user)
 
         // Frosted glass translucent scrim allowing underlying content to remain sharp and visible outside drawer
-        val isDark = ThemeManager.isDarkMode(this)
-        val scrimColor = if (isDark) Color.argb(0x4D, 0, 0, 0) else Color.argb(0x26, 0, 0, 0)
+        val scrimColor = ContextCompat.getColor(this, R.color.eve_drawer_scrim)
         binding.drawerLayout.setScrimColor(scrimColor)
 
         // Clip drawer panel rounded right edge (24dp) so blur background and tint conform to rounded corners

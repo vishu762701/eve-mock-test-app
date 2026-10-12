@@ -38,8 +38,8 @@ object HomeAppearance {
             // Categories are content-sized pills with a separate 48dp delegated touch target.
             chipStrokeWidth = 0f
             chipStrokeColor = ContextCompat.getColorStateList(context, R.color.eve_shape_border)
-            chipBackgroundColor = ContextCompat.getColorStateList(context, R.color.selector_recovery_chip_bg)
-            setTextColor(ContextCompat.getColorStateList(context, R.color.selector_recovery_chip_text))
+            chipBackgroundColor = ContextCompat.getColorStateList(context, R.color.selector_home_category_chip_bg)
+            setTextColor(ContextCompat.getColorStateList(context, R.color.selector_home_category_chip_text))
             isCheckedIconVisible = false
             setEnsureMinTouchTargetSize(false) // parent delegates a 48dp touch region
             textSize = 13f
