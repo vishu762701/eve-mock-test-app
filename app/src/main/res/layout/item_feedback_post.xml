@@ -51,7 +51,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:textColor="?attr/colorOnSurface"
+            android:textColor="@color/eve_text"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -86,7 +86,7 @@
                 android:maxLines="2"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="8dp"
-                android:textColor="?attr/colorOnSurface"
+                android:textColor="@color/eve_text"
                 android:textColorHint="@color/eve_placeholder_text"
                 android:textSize="13sp" />
 

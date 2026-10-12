@@ -211,7 +211,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
                                 android:fontFamily="sans-serif-bold"
-                                android:textColor="?attr/colorOnSurface"
+                                android:textColor="@color/eve_text"
                                 android:textSize="36sp" />
 
                             <TextView
@@ -694,7 +694,7 @@
                                             android:layout_marginTop="3dp"
                                             android:fontFamily="sans-serif-bold"
                                             android:text="Cutoff: --"
-                                            android:textColor="?attr/colorOnSurface"
+                                            android:textColor="@color/eve_text"
                                             android:textSize="15sp" />
                                     </LinearLayout>
 
@@ -719,7 +719,7 @@
                                             android:layout_marginTop="3dp"
                                             android:fontFamily="sans-serif-bold"
                                             android:text="Score: --"
-                                            android:textColor="?attr/colorOnSurface"
+                                            android:textColor="@color/eve_text"
                                             android:textSize="15sp" />
                                     </LinearLayout>
                                 </LinearLayout>
@@ -934,7 +934,7 @@
                             android:layout_weight="1"
                             android:fontFamily="sans-serif-medium"
                             android:text="Question Palette"
-                            android:textColor="?attr/colorOnSurface"
+                            android:textColor="@color/eve_text"
                             android:textSize="14sp" />
 
                         <!-- Palette Legend -->
@@ -1082,7 +1082,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="No questions found"
-                            android:textColor="?attr/colorOnSurface"
+                            android:textColor="@color/eve_text"
                             android:textSize="16sp" />
 
                         <TextView

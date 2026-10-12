@@ -9,6 +9,18 @@
 - Light app background tokens are pure `#FFFFFF`; dark background tokens are pure `#000000`.
 - Test submission remains server-side through `POST /api/attempts/submit`; authentication, scoring, answer persistence, and navigation code were not changed by the Home Banner/Test appearance task.
 
+### EVE Full iOS 26 Color Migration — 2026-10-12
+
+Completed full-app iOS 26 color migration and semantic contrast audit across every layout, adapter, style, and component:
+- Migrated all 58 legacy `?attr/colorOnSurface` layout instances to canonical `@color/eve_text` or `?attr/eveLabelPrimary`.
+- Eliminated low-contrast `@color/eve_grey` (#8E8E93, failing WCAG AA on light backgrounds) in `HistoryAdapter.kt`, `AnswerAdapter.kt`, `item_feedback_message.xml`, and `activity_manage_syllabus.xml` to adaptive high-contrast `@color/eve_text_secondary` (4.8:1+ contrast).
+- Upgraded invisible dividers in `activity_about.xml` from `@color/eve_bg` to hairline `@color/eve_separator`.
+- Upgraded legacy `SwitchMaterial` instances to `MaterialSwitch` with iOS 26 track/thumb selectors (`selector_eve_switch_thumb`, `selector_eve_switch_track`).
+- Replaced system color definitions in `values/colors.xml` and `values-night/colors.xml` with authoritative Apple iOS 26 palette (Red `#FF383C` / `#FF4245`, Orange `#FF8D28` / `#FF9230`, Yellow `#FFCC00` / `#FFD600`, Green `#34C759` / `#30D158`, Mint `#00C8B3` / `#00DAC3`, Teal `#00C3D0` / `#00D2E0`, Cyan `#00C0E8` / `#3CD3FE`, Blue `#0088FF` / `#0091FF`, Indigo `#6155F5` / `#6D7CFF`, Purple `#CB30E0` / `#DB34F2`, Pink `#FF2D55` / `#FF375F`, Brown `#AC7F5E` / `#B78A66`, System Grays 1–6, and official Apple Increased Contrast variants).
+- Implemented Android-native semantic equivalents for `systemFill`, `secondarySystemFill`, `tertiarySystemFill`, `quaternarySystemFill`, `link`, `darkText`, `lightText`, and `clear`.
+- Maintained all protected invariants: Telegram-style circular reveal theme switcher, Mock Test rigid 2x2 grid viewport, server-side scoring deduplication, admin authorization boundaries, Lottie animations, and SVG assets.
+- Complete verification gate: design system check passed (196 contrast pairs, min text 4.51:1), documentation validator passed (28 docs, 0 errors, 0 warnings), script test suite passed (13/13 tests), `./gradlew testDebugUnitTest` passed (209 unit tests), `./gradlew assembleDebug` passed, `./gradlew lintDebug` passed (0 lint errors), `git diff --check` passed (0 formatting errors).
+
 ### EVE Full-App iOS 26 Visual & Functional Release Gate (Task 4) — 2026-10-12
 
 Completed full-app visual and functional quality audit and release gate across all active Android layouts, Activities, and shared components.

@@ -33,7 +33,7 @@ class HistoryAdapter(
 
             val ctx = b.root.context
             val color = when {
-                attempt.total == 0 -> R.color.eve_grey
+                attempt.total == 0 -> R.color.eve_text_secondary
                 attempt.correct >= attempt.total / 2.0 -> R.color.eve_status_success_text
                 else -> R.color.eve_status_error_text
             }

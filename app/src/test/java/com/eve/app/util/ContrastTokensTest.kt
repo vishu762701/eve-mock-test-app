@@ -273,7 +273,7 @@ class ContrastTokensTest {
     fun testAdaptiveBlueControlsHaveReadableText_inLightAndDark() {
         for (qualifier in listOf("values", "values-night")) {
             val colors = loadColors("src/main/res/$qualifier/colors.xml")
-            org.junit.Assert.assertEquals(if (qualifier == "values") "#007AFF" else "#0A84FF", colors["eve_system_blue"])
+            org.junit.Assert.assertEquals(if (qualifier == "values") "#0088FF" else "#0091FF", colors["eve_system_blue"])
             for ((fg, bg) in listOf("eve_on_primary" to "eve_primary",
                 "eve_button_primary_text" to "eve_button_primary_bg",
                 "eve_chip_selected_text" to "eve_chip_selected_bg",

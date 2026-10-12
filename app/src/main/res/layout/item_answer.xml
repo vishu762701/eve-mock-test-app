@@ -46,7 +46,7 @@
                         android:layout_marginStart="8dp"
                         android:fontFamily="sans-serif-medium"
                         android:text="Question 1"
-                        android:textColor="?attr/colorOnSurface"
+                        android:textColor="@color/eve_text"
                         android:textSize="14sp" />
                 </LinearLayout>
                 <TextView
@@ -129,7 +129,7 @@
                     android:layout_marginStart="10dp"
                     android:layout_weight="1"
                     android:fontFamily="sans-serif"
-                    android:textColor="?attr/colorOnSurface"
+                    android:textColor="@color/eve_text"
                     android:textSize="16sp" />
 
                 <ImageView
@@ -170,7 +170,7 @@
                     android:layout_marginStart="10dp"
                     android:layout_weight="1"
                     android:fontFamily="sans-serif"
-                    android:textColor="?attr/colorOnSurface"
+                    android:textColor="@color/eve_text"
                     android:textSize="16sp" />
 
                 <ImageView
@@ -211,7 +211,7 @@
                     android:layout_marginStart="10dp"
                     android:layout_weight="1"
                     android:fontFamily="sans-serif"
-                    android:textColor="?attr/colorOnSurface"
+                    android:textColor="@color/eve_text"
                     android:textSize="16sp" />
 
                 <ImageView
@@ -252,7 +252,7 @@
                     android:layout_marginStart="10dp"
                     android:layout_weight="1"
                     android:fontFamily="sans-serif"
-                    android:textColor="?attr/colorOnSurface"
+                    android:textColor="@color/eve_text"
                     android:textSize="16sp" />
 
                 <ImageView
@@ -374,7 +374,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
                     android:text="You"
-                    android:textColor="?attr/colorOnSurface"
+                    android:textColor="@color/eve_text"
                     android:textSize="13sp" />
 
                 <ProgressBar
@@ -392,7 +392,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
                     android:gravity="end"
-                    android:textColor="?attr/colorOnSurface"
+                    android:textColor="@color/eve_text"
                     android:textSize="13sp" />
             </LinearLayout>
 
@@ -462,7 +462,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-medium"
-                android:textColor="?attr/colorOnSurface"
+                android:textColor="@color/eve_text"
                 android:textSize="15sp" />
 
             <!-- Key Points Header -->
@@ -500,7 +500,7 @@
                 android:layout_marginTop="6dp"
                 android:fontFamily="sans-serif"
                 android:lineSpacingMultiplier="1.25"
-                android:textColor="?attr/colorOnSurface"
+                android:textColor="@color/eve_text"
                 android:textSize="15sp" />
         </LinearLayout>
 

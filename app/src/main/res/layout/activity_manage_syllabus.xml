@@ -149,7 +149,7 @@
                             android:layout_weight="1"
                             android:ellipsize="middle"
                             android:maxLines="1"
-                            android:textColor="?attr/colorOnSurface"
+                            android:textColor="@color/eve_text"
                             android:textSize="13sp"
                             tools:text="sample_syllabus.pdf" />
 
@@ -208,7 +208,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Existing Syllabuses"
-                    android:textColor="?attr/colorOnSurface"
+                    android:textColor="@color/eve_text"
                     android:textSize="16sp" />
 
                 <TextView
@@ -258,14 +258,14 @@
                     android:layout_height="64dp"
                     android:contentDescription="Empty"
                     android:src="@drawable/ic_syllabus"
-                    app:tint="@color/eve_grey" />
+                    app:tint="@color/eve_text_secondary" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:text="No Syllabuses Uploaded"
-                    android:textColor="?attr/colorOnSurface"
+                    android:textColor="@color/eve_text"
                     android:textSize="15sp" />
 
                 <TextView

@@ -114,7 +114,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:textColor="?attr/colorOnSurface"
+                            android:textColor="?attr/eveLabelPrimary"
                             android:textSize="36sp"
                             android:textStyle="bold" />
 
@@ -272,7 +272,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0.00"
-                                android:textColor="?attr/colorOnSurface"
+                                android:textColor="?attr/eveLabelPrimary"
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
                         </com.eve.app.ui.result.ResponsiveResultRow>

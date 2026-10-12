@@ -225,7 +225,7 @@ class AnswerAdapter(
                 val statusColor = ContextCompat.getColor(ctx, comparison.statusColorRes)
                 b.pbTimeYou.progressTintList = android.content.res.ColorStateList.valueOf(statusColor)
                 b.pbTimeAvg.progressTintList = android.content.res.ColorStateList.valueOf(
-                    ContextCompat.getColor(ctx, R.color.eve_grey)
+                    ContextCompat.getColor(ctx, R.color.eve_text_secondary)
                 )
 
                 b.tvTimeYou.text = "${timeSpent}s"

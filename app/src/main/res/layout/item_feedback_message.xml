@@ -38,7 +38,7 @@
                     android:id="@+id/tvSenderName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="?attr/colorOnSurface"
+                    android:textColor="@color/eve_text"
                     android:textSize="15sp"
                     tools:text="Student Name" />
 
@@ -94,7 +94,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:lineSpacingExtra="2dp"
-            android:textColor="?attr/colorOnSurface"
+            android:textColor="@color/eve_text"
             android:textSize="14sp"
             tools:text="This is a feedback message from a student regarding the mock tests." />
 
@@ -104,7 +104,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginTop="8dp"
-            android:textColor="@color/eve_grey"
+            android:textColor="@color/eve_text_secondary"
             android:textSize="13sp"
             tools:text="24 Sep 2026, 06:30 PM" />
     </LinearLayout>

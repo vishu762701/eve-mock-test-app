@@ -32,7 +32,7 @@
             android:id="@+id/tvTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="?attr/colorOnSurface"
+            android:textColor="@color/eve_text"
             android:textSize="15sp"
             android:textStyle="bold"
             tools:text="Naya Exam Available!" />

@@ -176,3 +176,34 @@
   - `./gradlew assembleDebug` passed (Debug APK compiled).
   - `./gradlew lintDebug` passed (0 lint errors).
   - `git diff --check` passed with 0 errors.
+
+## EVE Full iOS 26 Color Migration (2026-10-12)
+
+- [x] **Complete Elimination of Legacy Color Tokens:** Migrated all 58 layout locations referencing `?attr/colorOnSurface` to canonical `@color/eve_text` or `?attr/eveLabelPrimary`.
+- [x] **WCAG AA Contrast Standardization:** Replaced low-contrast `@color/eve_grey` (#8E8E93, failing 4.5:1 on light backgrounds) in `HistoryAdapter.kt`, `AnswerAdapter.kt`, `item_feedback_message.xml`, and `activity_manage_syllabus.xml` with adaptive high-contrast `@color/eve_text_secondary` (4.8:1+ contrast).
+- [x] **Divider & Control Standardization:** Replaced invisible `@color/eve_bg` dividers in `activity_about.xml` with hairline `@color/eve_separator`. Upgraded legacy `SwitchMaterial` instances to canonical `MaterialSwitch` with iOS 26 track/thumb selectors (`selector_eve_switch_thumb`, `selector_eve_switch_track`).
+- [x] **Authoritative Apple iOS 26 Palette (Light / Dark):**
+  - Red: `#FF383C` / `#FF4245`
+  - Orange: `#FF8D28` / `#FF9230`
+  - Yellow: `#FFCC00` / `#FFD600`
+  - Green: `#34C759` / `#30D158`
+  - Mint: `#00C8B3` / `#00DAC3`
+  - Teal: `#00C3D0` / `#00D2E0`
+  - Cyan: `#00C0E8` / `#3CD3FE`
+  - Blue: `#0088FF` / `#0091FF`
+  - Indigo: `#6155F5` / `#6D7CFF`
+  - Purple: `#CB30E0` / `#DB34F2`
+  - Pink: `#FF2D55` / `#FF375F`
+  - Brown: `#AC7F5E` / `#B78A66`
+- [x] **Apple System Grays 1–6 (Light / Dark):** Gray `#8E8E93` / `#8E8E93`, Gray 2 `#AEAEB2` / `#636366`, Gray 3 `#C7C7CC` / `#48484A`, Gray 4 `#D1D1D6` / `#3A3A3C`, Gray 5 `#E5E5EA` / `#2C2C2E`, Gray 6 `#F2F2F7` / `#1C1C1E`.
+- [x] **Apple Increased Contrast Variants:** Full set of official Apple High Contrast tokens implemented in `values/colors.xml` and `values-night/colors.xml`.
+- [x] **Semantic System Tokens:** Android-native appearance-aware equivalents implemented for `systemFill`, `secondarySystemFill`, `tertiarySystemFill`, `quaternarySystemFill`, `link`, `darkText`, `lightText`, and `clear`.
+- [x] **Protected Behavior Intact:** Preserved Telegram circular theme reveal, Lottie animations, SVG assets, Mock Test 2x2 grid, test scoring, and admin authorization.
+- [x] **Verification Gate:**
+  - `python3 -B .github/scripts/check_design_system.py` passed (196 composited pairs, min text 4.51:1).
+  - `python3 -B -m unittest discover -s .github/scripts/tests -q` passed (13/13 tests).
+  - `node .github/scripts/verify-docs.mjs` passed (28 docs, 0 errors, 0 warnings).
+  - `./gradlew testDebugUnitTest` passed (209/209 tests).
+  - `./gradlew assembleDebug` passed (Debug APK built).
+  - `./gradlew lintDebug` passed (0 lint errors).
+  - `git diff --check` passed with 0 errors.

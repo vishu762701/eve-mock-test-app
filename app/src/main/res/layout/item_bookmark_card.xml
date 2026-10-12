@@ -91,7 +91,7 @@
             android:layout_marginTop="@dimen/eve_space_12"
             android:fontFamily="sans-serif"
             android:lineSpacingExtra="3dp"
-            android:textColor="?attr/colorOnSurface"
+            android:textColor="@color/eve_text"
             android:textSize="16sp"
             tools:text="What is the capital of France?" />
 

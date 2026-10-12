@@ -142,7 +142,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
-                    android:textColor="?attr/colorOnSurface"
+                    android:textColor="@color/eve_text"
                     android:textSize="22sp"
                     android:textStyle="bold"
                     tools:text="Student" />
@@ -384,13 +384,15 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Daily Practice Reminder"
-                    android:textColor="?attr/colorOnSurface"
+                    android:textColor="@color/eve_text"
                     android:textSize="15sp" />
 
-                <com.google.android.material.switchmaterial.SwitchMaterial
+                <com.google.android.material.materialswitch.MaterialSwitch
                     android:id="@+id/switchReminder"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    app:thumbTint="@color/selector_eve_switch_thumb"
+                    app:trackTint="@color/selector_eve_switch_track" />
             </LinearLayout>
 
             <com.google.android.material.button.MaterialButton

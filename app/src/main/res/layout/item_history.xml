@@ -22,7 +22,7 @@
             android:id="@+id/tvExamName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="?attr/colorOnSurface"
+            android:textColor="@color/eve_text"
             android:textSize="17sp"
             android:textStyle="bold" />
 

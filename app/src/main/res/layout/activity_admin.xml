@@ -236,7 +236,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="2. Select Exam (to manage questions)"
-                    android:textColor="?attr/colorOnSurface"
+                    android:textColor="@color/eve_text"
                     android:textSize="16sp" />
 
                 <LinearLayout
@@ -285,7 +285,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
                     android:text="3. Questions in Selected Exam"
-                    android:textColor="?attr/colorOnSurface"
+                    android:textColor="@color/eve_text"
                     android:textSize="16sp" />
 
                 <!-- Action Buttons: Manual Single-Question Add + Bulk Upload -->
@@ -517,7 +517,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="28dp"
                     android:text="4. Manage Admins"
-                    android:textColor="?attr/colorOnSurface"
+                    android:textColor="@color/eve_text"
                     android:textSize="16sp" />
 
                 <TextView

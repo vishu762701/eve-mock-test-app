@@ -62,7 +62,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="We value your feedback"
-                android:textColor="?attr/colorOnSurface"
+                android:textColor="@color/eve_text"
                 android:textSize="18sp" />
 
             <TextView
@@ -93,7 +93,7 @@
                     android:inputType="textMultiLine|textCapSentences"
                     android:maxLength="1000"
                     android:minLines="6"
-                    android:textColor="?attr/colorOnSurface"
+                    android:textColor="@color/eve_text"
                     android:textSize="15sp"
                     android:textColorHint="@color/eve_placeholder_text" />
             </com.google.android.material.textfield.TextInputLayout>

@@ -59,7 +59,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:fontFamily="sans-serif"
-            android:textColor="?attr/colorOnSurface"
+            android:textColor="@color/eve_text"
             android:textSize="16sp" />
 
         <!-- Your Answer Box (if answered) -->
@@ -86,7 +86,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:fontFamily="sans-serif"
-                android:textColor="?attr/colorOnSurface"
+                android:textColor="@color/eve_text"
                 android:textSize="15sp" />
         </LinearLayout>
 
@@ -114,7 +114,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:fontFamily="sans-serif"
-                android:textColor="?attr/colorOnSurface"
+                android:textColor="@color/eve_text"
                 android:textSize="15sp" />
         </LinearLayout>
 
