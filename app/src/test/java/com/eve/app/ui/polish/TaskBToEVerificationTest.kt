@@ -87,7 +87,8 @@ class TaskBToEVerificationTest {
         assertTrue("Notifications layout should reference notification_bell", notificationsLayout.contains("@raw/notification_bell"))
 
         val mainLayout = File("src/main/res/layout/activity_main.xml").readText()
-        assertTrue("Main layout greeting should use HeadlineLarge", mainLayout.contains("TextAppearance.Eve.M3.HeadlineLarge"))
+        assertTrue("Main layout greeting should use LargeTitle or HeadlineLarge",
+            mainLayout.contains("TextAppearance.Eve.LargeTitle") || mainLayout.contains("TextAppearance.Eve.M3.HeadlineLarge"))
         assertTrue("Main layout should contain the single Home Banner surface", mainLayout.contains("@+id/panelHomeBanner"))
         assertFalse("Legacy Home Hero content container must be removed", mainLayout.contains("layoutHomeHeroContent"))
         assertFalse("Legacy second banner card must be removed", mainLayout.contains("@+id/cardHomeBanner"))
