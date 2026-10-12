@@ -132,6 +132,8 @@ class SubmitWorker(
     companion object {
         const val KEY_CLIENT_ATTEMPT_ID = "client_attempt_id"
 
+        fun uniqueWorkName(clientAttemptId: String): String = SubmissionRetryPolicy.uniqueWorkName(clientAttemptId)
+
         fun enqueue(context: Context, clientAttemptId: String) {
             val constraints = Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -144,8 +146,8 @@ class SubmitWorker(
                 .build()
 
             WorkManager.getInstance(context).enqueueUniqueWork(
-                "submit_$clientAttemptId",
-                ExistingWorkPolicy.KEEP,
+                uniqueWorkName(clientAttemptId),
+                SubmissionRetryPolicy.UNIQUE_WORK_POLICY,
                 workRequest
             )
         }

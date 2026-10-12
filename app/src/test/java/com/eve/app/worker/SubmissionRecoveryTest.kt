@@ -77,4 +77,21 @@ class SubmissionRecoveryTest {
         assertTrue(SubmissionRetryPolicy.canSubmitNow(studentAPayload.userId, "student_A"))
         assertEquals(SubmissionRetryPolicy.AuthState.ELIGIBLE, SubmissionRetryPolicy.evaluateAuthState(studentAPayload.userId, "student_A"))
     }
+
+    @Test fun schedulingPolicyContractPreservesActiveWorkWithoutCanceling() {
+        // Invariant 1: Policy must be ExistingWorkPolicy.KEEP to preserve in-flight active work and permit terminal re-enqueue
+        assertEquals(
+            "Unique work policy must be ExistingWorkPolicy.KEEP",
+            androidx.work.ExistingWorkPolicy.KEEP,
+            SubmissionRetryPolicy.UNIQUE_WORK_POLICY
+        )
+
+        // Invariant 2: Unique work names must be deterministic and isolated per attempt ID
+        assertEquals("submit_attempt-101", SubmissionRetryPolicy.uniqueWorkName("attempt-101"))
+        assertEquals("submit_attempt-101", SubmitWorker.uniqueWorkName("attempt-101"))
+        assertNotEquals(
+            SubmissionRetryPolicy.uniqueWorkName("attempt-101"),
+            SubmissionRetryPolicy.uniqueWorkName("attempt-102")
+        )
+    }
 }

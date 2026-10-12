@@ -1,5 +1,7 @@
 package com.eve.app.util
 
+import androidx.work.ExistingWorkPolicy
+
 /**
  * Retain answers on every failure; replay only recoverable responses for the original owner.
  * Safely distinguishes:
@@ -17,6 +19,19 @@ object SubmissionRetryPolicy {
         MISMATCHED_USER,
         UNOWNED_LEGACY
     }
+
+    /**
+     * Scheduling policy contract:
+     * ExistingWorkPolicy.KEEP atomically preserves in-flight active work (ENQUEUED, RUNNING, BLOCKED)
+     * without interrupting network uploads, while permitting new work when no unfinished work exists
+     * (including after FAILED or CANCELLED terminal states).
+     */
+    val UNIQUE_WORK_POLICY: ExistingWorkPolicy = ExistingWorkPolicy.KEEP
+
+    /**
+     * Formats deterministic unique work name for an attempt.
+     */
+    fun uniqueWorkName(clientAttemptId: String): String = "submit_$clientAttemptId"
 
     fun shouldRetryHttp(status: Int): Boolean = status == 401 || status == 408 || status == 429 || status in 500..599
 
