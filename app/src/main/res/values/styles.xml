@@ -305,7 +305,8 @@
         <item name="boxStrokeColor">@color/selector_eve_input_stroke</item>
         <item name="boxStrokeErrorColor">@color/eve_destructive_text</item>
         <item name="hintTextColor">?attr/eveAccentText</item>
-        <item name="boxStrokeWidth">1dp</item><item name="boxStrokeWidthFocused">2dp</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidthFocused">2dp</item>
         <item name="boxCornerRadiusTopStart">@dimen/eve_radius_input</item>
         <item name="boxCornerRadiusTopEnd">@dimen/eve_radius_input</item>
         <item name="boxCornerRadiusBottomStart">@dimen/eve_radius_input</item>
