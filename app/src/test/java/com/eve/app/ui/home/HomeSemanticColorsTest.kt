@@ -233,4 +233,27 @@ class HomeSemanticColorsTest {
             assertTrue("$themeName eve_on_primary on eve_primary must be >= 4.5:1 (was $onPrimaryContrast)", onPrimaryContrast >= 4.5)
         }
     }
+
+    @Test
+    fun homeGroupedSurfaceAndExamCardsUseMatchingSemanticRoles() {
+        fun source(path: String): String {
+            val candidates = listOf(File(path), File("app/$path"), File("../app/$path"))
+            return candidates.firstOrNull { it.exists() }?.readText()
+                ?: error("Missing Home file: $path")
+        }
+
+        val sheet = source("src/main/res/drawable/bg_content_sheet.xml")
+        val layout = source("src/main/res/layout/item_exam.xml")
+        val adapter = source("src/main/java/com/eve/app/ui/home/ExamAdapter.kt")
+        assertTrue(sheet.contains("@color/eve_system_grouped_background"))
+        assertTrue(layout.contains("@style/Widget.Eve.Card.Group"))
+        assertTrue(adapter.contains("R.color.eve_secondary_system_grouped_background"))
+
+        val light = loadColors("src/main/res/values/colors.xml")
+        val dark = loadColors("src/main/res/values-night/colors.xml")
+        assertEquals("#F2F2F7", light["eve_system_grouped_background"])
+        assertEquals("#FFFFFF", light["eve_secondary_system_grouped_background"])
+        assertEquals("#000000", dark["eve_system_grouped_background"])
+        assertEquals("#1C1C1E", dark["eve_secondary_system_grouped_background"])
+    }
 }
