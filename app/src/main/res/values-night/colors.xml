@@ -328,7 +328,7 @@
     <color name="eve_hc_accent">#A8D1FF</color>
     <color name="eve_hc_outline">#CBCBD2</color>
     <color name="eve_destructive_text">#FF9A92</color>
-    <color name="eve_hc_primary">#409CFF</color>
+    <color name="eve_hc_primary">#0062CC</color>
     <!-- Readable state labels; reference status hues and protected test tokens stay intact. -->
     <color name="eve_status_success_text">@color/eve_green_text</color>
     <color name="eve_status_error_text">@color/eve_destructive_text</color>
