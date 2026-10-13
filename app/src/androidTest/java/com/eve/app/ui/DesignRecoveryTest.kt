@@ -402,7 +402,7 @@ class DesignRecoveryTest {
                     var bannerHeight = 0
                     scenario.onActivity {
                         home.panelHomeBanner.getLocationOnScreen(bannerPosition)
-                        canvasColor = it.getColor(R.color.eve_bg)
+                        canvasColor = it.getColor(R.color.eve_system_grouped_background)
                         bannerWidth = home.panelHomeBanner.width
                         bannerHeight = home.panelHomeBanner.height
                     }
