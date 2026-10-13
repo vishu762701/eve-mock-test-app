@@ -186,3 +186,16 @@ Phase 5 completes the 5-phase migration to official Apple iOS 26 dynamic typogra
 - **Validation**: HomeSemanticColorsTest source/role contract, native DesignRecoveryTest Home fixture assertions and captures in both modes, build/lint/unit tests, full native gesture and three-button suites, and visual gallery. Do not weaken existing test gates.
 - **Verified platform sources**: Android Developers edge-to-edge views https://developer.android.com/develop/ui/views/layout/edge-to-edge and Android 15 edge-to-edge enforcement https://developer.android.com/codelabs/edge-to-edge.
 
+
+
+## ADR-007: Distinct Home admin and streak pill surfaces on Option A canvas
+
+- **Date**: 2026-10-13
+- **Status**: Approved user-reported visual repair; native release verification required.
+- **Evidence**: The approved Home canvas is Day #F2F2F7 / Night #000000, but the shared Neutral admin button and streak drawable still used Day #E5E5EA / Night #2C2C2E. The user reported insufficient separation on a real Light-mode device.
+- **Decision**: Home's Admin Dashboard button and streak pill use the already-defined secondary grouped content surface (Day #FFFFFF, Night #1C1C1E) plus a subtle 1dp existing `eve_shape_border` outline. Admin overrides its tint in `activity_main.xml` using its own stateful selector, retaining the shared button's disabled fill and neutral text selector. Streak's Home-only drawable keeps the same padding, radius, sizing, text and flame.
+- **Scope**: Home's button XML, exclusive streak drawable, new Home-only admin ColorStateList, Home unit/native assertions and this ADR. No global neutral tokens, admin destination screen, test engine, animation, scoring, theme transition, backend or other layout changes.
+- **Alternatives**: A filled blue Admin button would be more prominent but changes accent hierarchy without user approval. Updating shared `eve_button_neutral_bg` and `eve_streak_pill_bg` would affect other components. The scoped grouped surfaces are the least invasive iOS-style solution.
+- **Verification**: Day/Night Home fixture assertions and screenshot gallery, both native navigation suites, lint and unit tests, debug build and final gated APK publication. The full-window Home background remains unchanged.
+- **Official API**: Android MaterialButton supports `app:backgroundTint`, `app:strokeColor`, and `app:strokeWidth` while keeping its managed ripple/background (https://developer.android.com/reference/com/google/android/material/button/MaterialButton).
+

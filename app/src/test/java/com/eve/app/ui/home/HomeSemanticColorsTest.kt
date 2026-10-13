@@ -278,6 +278,55 @@ class HomeSemanticColorsTest {
     }
 
     @Test
+    fun homeAdminAndStreakControlsStandApartFromTheGroupedCanvasInBothThemes() {
+        fun source(path: String): String {
+            val candidates = listOf(File(path), File("app/$path"), File("../app/$path"))
+            return candidates.firstOrNull { it.exists() }?.readText()
+                ?: error("Missing Home source: $path")
+        }
+
+        val parser = javax.xml.parsers.DocumentBuilderFactory.newInstance().newDocumentBuilder()
+        val home = parser.parse(org.xml.sax.InputSource(java.io.StringReader(
+            source("src/main/res/layout/activity_main.xml")))).documentElement
+        val descendants = home.getElementsByTagName("*")
+        val admin = (0 until descendants.length).map { descendants.item(it) as Element }
+            .single { it.getAttribute("android:id") == "@+id/btnAdmin" }
+
+        // This stateful tint belongs to Home's admin button only, not every neutral button.
+        assertEquals("@style/Widget.Eve.Button.Neutral", admin.getAttribute("style"))
+        assertEquals("@color/selector_home_admin_surface", admin.getAttribute("app:backgroundTint"))
+        assertEquals("@color/eve_shape_border", admin.getAttribute("app:strokeColor"))
+        assertEquals("1dp", admin.getAttribute("app:strokeWidth"))
+        val stateSelector = parser.parse(org.xml.sax.InputSource(java.io.StringReader(
+            source("src/main/res/color/selector_home_admin_surface.xml")))).documentElement
+        val states = stateSelector.getElementsByTagName("item")
+        assertEquals(2, states.length)
+        assertEquals("false", (states.item(0) as Element).getAttribute("android:state_enabled"))
+        assertEquals("@color/eve_disabled_fill", (states.item(0) as Element).getAttribute("android:color"))
+        assertEquals("@color/eve_secondary_system_grouped_background", (states.item(1) as Element).getAttribute("android:color"))
+
+        val pill = parser.parse(org.xml.sax.InputSource(java.io.StringReader(
+            source("src/main/res/drawable/bg_streak_pill.xml")))).documentElement
+        assertEquals("@color/eve_secondary_system_grouped_background",
+            (pill.getElementsByTagName("solid").item(0) as Element).getAttribute("android:color"))
+        val border = pill.getElementsByTagName("stroke").item(0) as Element
+        assertEquals("1dp", border.getAttribute("android:width"))
+        assertEquals("@color/eve_shape_border", border.getAttribute("android:color"))
+        assertEquals("@dimen/eve_radius_pill",
+            (pill.getElementsByTagName("corners").item(0) as Element).getAttribute("android:radius"))
+
+        for ((label, path) in listOf("Day" to "src/main/res/values/colors.xml",
+            "Night" to "src/main/res/values-night/colors.xml")) {
+            val colors = loadColors(path)
+            assertTrue("$label: content surface must differ from grouped canvas",
+                colors["eve_secondary_system_grouped_background"] != colors["eve_system_grouped_background"])
+            val ratio = contrastRatio(colors["eve_button_neutral_text"]!!,
+                colors["eve_secondary_system_grouped_background"]!!)
+            assertTrue("$label: admin text contrast must be >= 4.5:1 (was $ratio)", ratio >= 4.5)
+        }
+    }
+
+    @Test
     fun homeGroupedSurfaceAndExamCardsUseMatchingSemanticRoles() {
         fun source(path: String): String {
             val candidates = listOf(File(path), File("app/$path"), File("../app/$path"))

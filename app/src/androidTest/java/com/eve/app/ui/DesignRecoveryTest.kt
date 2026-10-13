@@ -406,6 +406,16 @@ class DesignRecoveryTest {
                             (home.contentSheet.background as android.graphics.drawable.GradientDrawable).color!!.defaultColor)
                         assertEquals("Home no overlapping sheet", 0,
                             (home.contentSheet.layoutParams as android.widget.LinearLayout.LayoutParams).topMargin)
+                        val groupedCard = activity.getColor(R.color.eve_secondary_system_grouped_background)
+                        assertEquals("Streak pill uses a distinct Home grouped card surface", groupedCard,
+                            (home.layoutStreakPill.background as android.graphics.drawable.GradientDrawable).color!!.defaultColor)
+                        assertEquals("Admin button uses the distinct Home grouped card surface", groupedCard,
+                            home.btnAdmin.backgroundTintList!!.getColorForState(home.btnAdmin.drawableState, 0))
+                        assertEquals("Admin button retains disabled appearance", activity.getColor(R.color.eve_disabled_fill),
+                            home.btnAdmin.backgroundTintList!!.getColorForState(intArrayOf(-android.R.attr.state_enabled), 0))
+                        assertTrue("Admin label must remain readable", home.btnAdmin.currentTextColor != groupedCard)
+                        assertEquals("Home admin outline is a single hairline",
+                            Math.round(activity.resources.displayMetrics.density), home.btnAdmin.strokeWidth)
                         assertTrue(home.btnHomeBannerCta.height >= Math.round(48f * home.root.resources.displayMetrics.density))
                         assertTrue(home.rvExams.height >= Math.round(48f * home.root.resources.displayMetrics.density))
                     }
