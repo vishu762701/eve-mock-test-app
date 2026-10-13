@@ -384,7 +384,7 @@ class DesignRecoveryTest {
                                 com.eve.app.data.model.Exam(id = "render-exam-$i", examName = "Practice test ${i + 1}", category = "SSC"), false) })
                         }
                         val frame = android.widget.FrameLayout(activity).apply {
-                            setBackgroundColor(activity.getColor(R.color.eve_bg))
+                            setBackgroundColor(activity.getColor(R.color.eve_system_grouped_background))
                             addView(home.root, android.widget.FrameLayout.LayoutParams(Math.round(360f * resources.displayMetrics.density),
                                 ViewGroup.LayoutParams.MATCH_PARENT, android.view.Gravity.CENTER_HORIZONTAL))
                         }
@@ -392,7 +392,20 @@ class DesignRecoveryTest {
                     }
                     instrumentation.waitForIdleSync()
                     capture("home-360dp", dark, home.root, scenario)
-                    scenario.onActivity {
+                    scenario.onActivity { activity ->
+                        val canvas = activity.getColor(R.color.eve_system_grouped_background)
+                        assertEquals("Home root", canvas,
+                            (home.root.background as android.graphics.drawable.ColorDrawable).color)
+                        assertEquals("Home content", canvas,
+                            (home.mainContentContainer.background as android.graphics.drawable.ColorDrawable).color)
+                        assertEquals("Home header", canvas,
+                            (home.topBarContainer.background as android.graphics.drawable.ColorDrawable).color)
+                        assertEquals("Home search header", canvas,
+                            (home.searchTopBar.background as android.graphics.drawable.ColorDrawable).color)
+                        assertEquals("Home flat content", canvas,
+                            (home.contentSheet.background as android.graphics.drawable.GradientDrawable).color!!.defaultColor)
+                        assertEquals("Home no overlapping sheet", 0,
+                            (home.contentSheet.layoutParams as android.widget.LinearLayout.LayoutParams).topMargin)
                         assertTrue(home.btnHomeBannerCta.height >= Math.round(48f * home.root.resources.displayMetrics.density))
                         assertTrue(home.rvExams.height >= Math.round(48f * home.root.resources.displayMetrics.density))
                     }

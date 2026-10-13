@@ -5,14 +5,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/eve_system_grouped_background">
 
     <!-- Main Content Container -->
     <LinearLayout
         android:id="@+id/mainContentContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/eve_bg"
+        android:background="@color/eve_system_grouped_background"
         android:orientation="vertical">
 
     <!-- Top Bar Container / Header-Ink Zone -->
@@ -20,7 +21,7 @@
         android:id="@+id/topBarContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_header_ink">
+        android:background="@color/eve_system_grouped_background">
 
         <!-- Normal Top Bar -->
         <LinearLayout
@@ -29,7 +30,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingTop="12dp"
-            android:paddingBottom="20dp">
+            android:paddingBottom="4dp">
 
             <!-- Row 1: avatar left, bare search, bell, overflow right -->
             <LinearLayout
@@ -146,7 +147,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:minHeight="56dp"
-            android:background="@color/eve_header_ink"
+            android:background="@color/eve_system_grouped_background"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingHorizontal="16dp"
@@ -200,13 +201,12 @@
         </LinearLayout>
     </FrameLayout>
 
-    <!-- Content Sheet: 32dp top corners overlapping the header by 24dp -->
+    <!-- Flat Home content continues the grouped canvas without a raised sheet. -->
     <LinearLayout
         android:id="@+id/contentSheet"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="-24dp"
         android:background="@drawable/bg_content_sheet"
         android:orientation="vertical">
 
@@ -813,7 +813,7 @@
         android:id="@+id/maintenanceOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/eve_bg"
+        android:background="@color/eve_system_grouped_background"
         android:clickable="true"
         android:elevation="30dp"
         android:focusable="true"
@@ -867,7 +867,7 @@
         android:id="@+id/forceUpdateOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/eve_bg"
+        android:background="@color/eve_system_grouped_background"
         android:clickable="true"
         android:elevation="30dp"
         android:focusable="true"

@@ -235,6 +235,49 @@ class HomeSemanticColorsTest {
     }
 
     @Test
+    fun homeOptionAUsesOneUninterruptedGroupedCanvas() {
+        fun source(path: String): String {
+            val candidates = listOf(File(path), File("app/$path"), File("../app/$path"))
+            return candidates.firstOrNull { it.exists() }?.readText()
+                ?: error("Missing Home source file: $path")
+        }
+
+        val parser = javax.xml.parsers.DocumentBuilderFactory.newInstance().newDocumentBuilder()
+        val xml = parser.parse(org.xml.sax.InputSource(java.io.StringReader(
+            source("src/main/res/layout/activity_main.xml")))).documentElement
+        fun view(id: String): Element {
+            val descendants = xml.getElementsByTagName("*")
+            for (i in 0 until descendants.length) {
+                val el = descendants.item(i) as Element
+                if (el.getAttribute("android:id") == "@+id/$id") return el
+            }
+            error("Missing Home view: $id")
+        }
+        val grouped = "@color/eve_system_grouped_background"
+        assertEquals(grouped, xml.getAttribute("android:background"))
+        for (id in listOf("mainContentContainer", "topBarContainer", "searchTopBar",
+            "maintenanceOverlay", "forceUpdateOverlay")) {
+            assertEquals("$id should have the full-window Home surface",
+                grouped, view(id).getAttribute("android:background"))
+        }
+        val sheet = view("contentSheet")
+        assertEquals("@drawable/bg_content_sheet", sheet.getAttribute("android:background"))
+        assertEquals("Negative sheet overlap should be removed", "",
+            sheet.getAttribute("android:layout_marginTop"))
+        val sheetDrawable = parser.parse(org.xml.sax.InputSource(java.io.StringReader(
+            source("src/main/res/drawable/bg_content_sheet.xml")))).documentElement
+        assertEquals("Home background must have no rounded sheet corners", 0,
+            sheetDrawable.getElementsByTagName("corners").length)
+        assertEquals(grouped, (sheetDrawable.getElementsByTagName("solid").item(0) as Element)
+            .getAttribute("android:color"))
+        val helper = source("src/main/java/com/eve/app/util/SystemBarHelper.kt")
+        assertTrue(helper.contains("activity is MainActivity"))
+        assertTrue(helper.contains("if (isHome) R.color.eve_system_grouped_background else R.color.eve_bg"))
+        assertTrue(helper.contains("window.navigationBarColor = if (isHome) background else"))
+        assertTrue(helper.contains("activity.findViewById<View>(android.R.id.content)?.setBackgroundColor(background)"))
+    }
+
+    @Test
     fun homeGroupedSurfaceAndExamCardsUseMatchingSemanticRoles() {
         fun source(path: String): String {
             val candidates = listOf(File(path), File("app/$path"), File("../app/$path"))

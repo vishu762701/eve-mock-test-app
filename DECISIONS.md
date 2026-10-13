@@ -175,3 +175,14 @@ Phase 5 completes the 5-phase migration to official Apple iOS 26 dynamic typogra
 - **Verification**: ProfileSettingsLoginTypographyAndColorTest.testProfileScopedGroupedDayNightHierarchy, lint/unit/build, both native navigation modes, and Day/Night Profile screenshots.
 - **Documentation**: Apple HIG Color (https://developer.apple.com/design/human-interface-guidelines/color; JS-required shell in this environment) and existing EVE_IOS26_UI_CONTRACT.md for Android tokens. No claim of native UIKit rendering.
 
+
+## ADR-006: Home full-window grouped background (user-approved Option A)
+
+- **Date**: 2026-10-13
+- **Status**: Accepted; release requires GitHub CI and native Day/Night screenshot verification.
+- **Scope**: Home layout and exclusive flat content drawable, and the MainActivity-only path of SystemBarHelper. No global theme tokens, unrelated screens, protected animations, Lottie, banner content or backend changes.
+- **Decision**: Use the existing grouped token (Day #F2F2F7 / Night #000000) for the full Home window, header (including expanded search), content and Home blocking overlays. Remove the top-corner sheet decoration and -24dp overlap. Reduce unneeded header bottom padding 20dp to 4dp to preserve compact vertical rhythm. Keep grouped exam cards Day white / Night #1C1C1E.
+- **System bar behavior**: For MainActivity only, paint both android.R.id.content inset backing and window background with the grouped token; match the pre-Android-15 status/navigation colors. On Android 15+, leave navigation transparent with the same grouped backing under the insets and retain existing status/navigation icon appearance and Telegram circular reveal synchronization. Other activities continue to use their existing colors.
+- **Validation**: HomeSemanticColorsTest source/role contract, native DesignRecoveryTest Home fixture assertions and captures in both modes, build/lint/unit tests, full native gesture and three-button suites, and visual gallery. Do not weaken existing test gates.
+- **Verified platform sources**: Android Developers edge-to-edge views https://developer.android.com/develop/ui/views/layout/edge-to-edge and Android 15 edge-to-edge enforcement https://developer.android.com/codelabs/edge-to-edge.
+

@@ -9,6 +9,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.eve.app.R
+import com.eve.app.ui.home.MainActivity
 
 /**
  * Global system bar / top inset and appearance handler.
@@ -84,10 +85,16 @@ object SystemBarHelper {
 
         val isDarkAppearance = activity.resources.configuration.uiMode and
             android.content.res.Configuration.UI_MODE_NIGHT_MASK == android.content.res.Configuration.UI_MODE_NIGHT_YES
-        val background = ContextCompat.getColor(activity, R.color.eve_bg)
+        // Home alone uses a grouped full-window canvas. Keep all other activities unchanged.
+        val isHome = activity is MainActivity
+        val background = ContextCompat.getColor(activity,
+            if (isHome) R.color.eve_system_grouped_background else R.color.eve_bg)
 
-        // Always set window background to match eve_bg (prevents default white window background on Samsung/API < 35)
         window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(background))
+        // Draw the same Home color behind the padded status, cutout, and navigation insets.
+        if (isHome) {
+            activity.findViewById<View>(android.R.id.content)?.setBackgroundColor(background)
+        }
 
         if (android.os.Build.VERSION.SDK_INT >= 35) {
             // Android 15 derives forced navigation appearance from the window
@@ -99,7 +106,7 @@ object SystemBarHelper {
             window.navigationBarColor = android.graphics.Color.TRANSPARENT
         } else {
             window.statusBarColor = background
-            window.navigationBarColor = ContextCompat.getColor(activity, R.color.eve_canvas)
+            window.navigationBarColor = if (isHome) background else ContextCompat.getColor(activity, R.color.eve_canvas)
         }
 
         if (android.os.Build.VERSION.SDK_INT >= 29) {
