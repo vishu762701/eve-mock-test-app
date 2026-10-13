@@ -130,7 +130,7 @@ class ApprovedUiRenderingTest {
 
     private fun verifyHome() {
         val b = ActivityMainBinding.inflate(LayoutInflater.from(context))
-        assertEquals(background, (b.mainContentContainer.background as ColorDrawable).color)
+        assertEquals(context.getColor(R.color.eve_system_grouped_background), (b.mainContentContainer.background as ColorDrawable).color)
         assertEquals(background, context.getColor(R.color.eve_bg))
         assertEquals(background, context.getColor(R.color.eve_canvas))
         listOf(b.btnSearch, b.btnNotification, b.btnOverflow).forEach { bare(it) }
