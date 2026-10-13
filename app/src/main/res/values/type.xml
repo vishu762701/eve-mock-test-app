@@ -8,8 +8,8 @@
     </style>
 
     <!-- Apple iOS 26 System Typography Roles (Platform-native sans-serif stack) -->
-    <!-- Large Title: 34sp, Regular (Emphasized: Bold), 41sp line height, +0.012 tracking -->
-    <style name="TextAppearance.Eve.LargeTitle" parent="TextAppearance.Eve">
+    <!-- Display / Large Title: 34sp, Regular (Emphasized: Bold), 41sp line height, +0.012 tracking -->
+    <style name="TextAppearance.Eve.Display" parent="TextAppearance.Eve">
         <item name="android:textSize">34sp</item>
         <item name="android:textStyle">normal</item>
         <item name="android:fontFamily">sans-serif</item>
@@ -19,7 +19,15 @@
         <item name="lineHeight">41sp</item>
     </style>
 
-    <style name="TextAppearance.Eve.Display" parent="TextAppearance.Eve.LargeTitle" />
+    <style name="TextAppearance.Eve.LargeTitle" parent="TextAppearance.Eve.Display">
+        <item name="android:textSize">34sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:letterSpacing">0.012</item>
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+        <item name="lineHeight">41sp</item>
+    </style>
 
     <style name="TextAppearance.Eve.LargeTitle.Bold" parent="TextAppearance.Eve.LargeTitle">
         <item name="android:textStyle">bold</item>

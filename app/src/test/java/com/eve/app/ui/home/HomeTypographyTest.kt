@@ -121,32 +121,32 @@ class HomeTypographyTest {
     fun testAppleIOS26_Standard11TextStyles() {
         val styles = loadStyles("src/main/res/values/type.xml")
 
-        // 1. Large Title: 34sp, Bold, 41sp line height
+        // 1. Large Title: 34sp, Regular (Emphasized: Bold), 41sp line height
         val largeTitle = styles["TextAppearance.Eve.Display"]
         assertNotNull(largeTitle)
         assertEquals("34sp", largeTitle?.textSize)
-        assertEquals("bold", largeTitle?.textStyle)
+        assertEquals("normal", largeTitle?.textStyle)
         assertEquals("41sp", largeTitle?.lineHeight)
 
-        // 2. Title 1: 28sp, Bold, 34sp line height
+        // 2. Title 1: 28sp, Regular (Emphasized: Bold), 34sp line height
         val title1 = styles["TextAppearance.Eve.Title1"]
         assertNotNull(title1)
         assertEquals("28sp", title1?.textSize)
-        assertEquals("bold", title1?.textStyle)
+        assertEquals("normal", title1?.textStyle)
         assertEquals("34sp", title1?.lineHeight)
 
-        // 3. Title 2: 22sp, Bold, 28sp line height
+        // 3. Title 2: 22sp, Regular (Emphasized: Bold), 28sp line height
         val title2 = styles["TextAppearance.Eve.Title2"]
         assertNotNull(title2)
         assertEquals("22sp", title2?.textSize)
-        assertEquals("bold", title2?.textStyle)
+        assertEquals("normal", title2?.textStyle)
         assertEquals("28sp", title2?.lineHeight)
 
-        // 4. Title 3: 20sp, Medium, 25sp line height
+        // 4. Title 3: 20sp, Regular (Emphasized: Semibold), 25sp line height
         val title3 = styles["TextAppearance.Eve.Title3"]
         assertNotNull(title3)
         assertEquals("20sp", title3?.textSize)
-        assertEquals("sans-serif-medium", title3?.fontFamily)
+        assertEquals("sans-serif", title3?.fontFamily)
         assertEquals("25sp", title3?.lineHeight)
 
         // 5. Headline: 17sp, Medium / Semibold, 22sp line height
@@ -191,11 +191,11 @@ class HomeTypographyTest {
         assertEquals("sans-serif", caption1?.fontFamily)
         assertEquals("16sp", caption1?.lineHeight)
 
-        // 11. Caption 2: 11sp, Medium, 13sp line height
+        // 11. Caption 2: 11sp, Regular (Emphasized: Semibold), 13sp line height
         val caption2 = styles["TextAppearance.Eve.Caption2"]
         assertNotNull(caption2)
         assertEquals("11sp", caption2?.textSize)
-        assertEquals("sans-serif-medium", caption2?.fontFamily)
+        assertEquals("sans-serif", caption2?.fontFamily)
         assertEquals("13sp", caption2?.lineHeight)
     }
 
