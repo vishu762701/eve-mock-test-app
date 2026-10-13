@@ -162,3 +162,16 @@ Phase 5 completes the 5-phase migration to official Apple iOS 26 dynamic typogra
    - Protected exam status colors (`eve_tile_right_*`, `eve_tile_wrong_*`, `eve_tile_medium_*`).
    - Server-side scoring and test submission integrity.
    - Minimum 48dp touch targets on interactive controls.
+
+
+## ADR-005: Profile-only grouped form surface (iOS 26 semantic hierarchy)
+
+- **Date**: 2026-10-13
+- **Status**: Accepted, subject to native CI verification
+- **Scope**: Profile screen only. No shared theme tokens, other screens, protected animations, Lottie, or backend changes.
+- **Evidence**: Native Day/Night Profile and Settings fixture screenshots from the GitHub Actions native UI artifact show Profile's previous standard white canvas with gray form card; Settings uses grouped gray canvas with white grouped rows.
+- **Decision**: Reuse the existing semantic grouped background only for the Profile root (Day #F2F2F7, Night #000000), and the Profile-exclusive personal-information card (Day #FFFFFF, Night #1C1C1E). The opaque toolbar stays unchanged. This is an explicit Profile-specific override of the earlier standard-white treatment; canonical global canvas tokens are unchanged.
+- **Why**: Profile is an account form, and this grouped form treatment creates a clear surface hierarchy without altering accent saturation, typography, geometry, interactions, or approved states.
+- **Verification**: ProfileSettingsLoginTypographyAndColorTest.testProfileScopedGroupedDayNightHierarchy, lint/unit/build, both native navigation modes, and Day/Night Profile screenshots.
+- **Documentation**: Apple HIG Color (https://developer.apple.com/design/human-interface-guidelines/color; JS-required shell in this environment) and existing EVE_IOS26_UI_CONTRACT.md for Android tokens. No claim of native UIKit rendering.
+

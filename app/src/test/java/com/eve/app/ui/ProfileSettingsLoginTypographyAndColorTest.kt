@@ -260,4 +260,31 @@ class ProfileSettingsLoginTypographyAndColorTest {
         assertTrue("Dark secondary label on canvas >= 4.5", contrast(darkSecondaryLabel, darkCanvas) >= 4.5)
         assertTrue("Dark destructive text on canvas >= 4.5", contrast(darkDestructiveText, darkCanvas) >= 4.5)
     }
+
+    @Test
+    fun testProfileScopedGroupedDayNightHierarchy() {
+        val profile = loadXml("src/main/res/layout/activity_profile.xml")
+        val formSurface = loadXml("src/main/res/drawable/bg_student_group.xml")
+        val formSolid = formSurface.getElementsByTagName("solid").item(0) as Element
+        assertEquals("@color/eve_system_grouped_background", profile.getAttribute("android:background"))
+        assertEquals("@color/eve_secondary_system_grouped_background", formSolid.getAttribute("android:color"))
+
+        // The Profile toolbar stays on its original opaque canvas.
+        val header = profile.getElementsByTagName("LinearLayout").item(0) as Element
+        assertEquals("@color/eve_bg", header.getAttribute("android:background"))
+
+        fun hex(resourcePath: String, token: String): String {
+            val root = loadXml(resourcePath)
+            val nodes = root.getElementsByTagName("color")
+            for (i in 0 until nodes.length) {
+                val node = nodes.item(i) as Element
+                if (node.getAttribute("name") == token) return node.textContent.trim()
+            }
+            error("Missing semantic token: $token in $resourcePath")
+        }
+        assertEquals("#F2F2F7", hex("src/main/res/values/colors.xml", "eve_system_grouped_background"))
+        assertEquals("#FFFFFF", hex("src/main/res/values/colors.xml", "eve_secondary_system_grouped_background"))
+        assertEquals("#000000", hex("src/main/res/values-night/colors.xml", "eve_system_grouped_background"))
+        assertEquals("#1C1C1E", hex("src/main/res/values-night/colors.xml", "eve_secondary_system_grouped_background"))
+    }
 }
