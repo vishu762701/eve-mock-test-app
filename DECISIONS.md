@@ -69,8 +69,9 @@ Continuing the 5-phase migration, Phase 3 applies the authoritative Apple iOS 26
    - **Primary Action Buttons**: `TextAppearance.Eve.Headline` (`17sp`, medium) for full-width primary submit and save controls.
    - **Secondary & Tertiary Buttons**: `TextAppearance.Eve.Subheadline.Medium` (`15sp`, medium) for social auth and authentication toggle controls.
 
-2. **Adaptive Switch Green**:
-   - Updated `selector_eve_switch_track.xml` checked state to canonical Apple system green (`@color/eve_system_green`, `#34C759` Light / `#30D158` Dark) per iOS 26 switch conventions.
+2. **Switch Track Contrast and Accessibility Compliance**:
+   - Preserved `@color/eve_primary` for `state_checked="true"` in `selector_eve_switch_track.xml`.
+   - Rationale: Under WCAG 2.1 SC 1.4.11 (Non-text Contrast) and the repository's native UI test contract (`SharedDesignSystemTest`), the graphical switch thumb (`#FFFFFF`) against the track must satisfy at least 3.0:1 contrast ratio (`ColorUtils.calculateContrast(thumb, track) >= 3.0`). While Apple HIG mentions system green for iOS devices, on Android `#34C759` against `#FFFFFF` achieves only 2.22:1 contrast. `@color/eve_primary` (`#0088FF`) provides 3.52:1 contrast in Day mode and 3.1:1 in Night mode, strictly satisfying WCAG AA non-text contrast and the EVE design system contract.
 
 3. **Elimination of Hardcoded Text Sizes**:
    - Eliminated 100% of hardcoded `android:textSize` attributes in `activity_profile.xml`, `activity_settings.xml`, `bottom_sheet_font_picker.xml`, and `activity_login.xml`.

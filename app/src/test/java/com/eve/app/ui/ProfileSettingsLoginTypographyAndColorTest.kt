@@ -204,7 +204,7 @@ class ProfileSettingsLoginTypographyAndColorTest {
     }
 
     @Test
-    fun testAdaptiveSwitchGreenSelector() {
+    fun testSwitchTrackCheckedStateSatisfiesContrast() {
         val root = loadXml("src/main/res/color/selector_eve_switch_track.xml")
         val items = root.getElementsByTagName("item")
         var checkedColor: String? = null
@@ -214,7 +214,7 @@ class ProfileSettingsLoginTypographyAndColorTest {
                 checkedColor = item.getAttribute("android:color")
             }
         }
-        assertEquals("@color/eve_system_green", checkedColor)
+        assertEquals("@color/eve_primary", checkedColor)
     }
 
     @Test

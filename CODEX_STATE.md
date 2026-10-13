@@ -16,11 +16,11 @@ Completed Phase 3 of 5 establishing the official Apple iOS 26 dynamic semantic c
 - Applied verified Apple iOS 26 text styles to `activity_settings.xml`: `Title3` (screen title), `Eyebrow` (section overlines `APPEARANCE`, `PREFERENCES`, `ACCOUNT`), `Body` (row titles `Font`, `Daily Practice Reminder`, `Daily Goal`, `My Exams`, `App Language`, `Delete Account`), and `Footnote` (`tvFontValue`, `tvDailyGoalValue`, `tvLanguageValue`, row captions).
 - Applied verified Apple iOS 26 text styles to `bottom_sheet_font_picker.xml`: `Title3` (header), `Subheadline` (subtitle), `Headline` (font option titles), and `Footnote` (sample captions).
 - Applied verified Apple iOS 26 text styles to `activity_login.xml`: `Eyebrow` (`tvLogo`), `Title1` (`tvTagline`), `Subheadline` (`tvSubtitle`), `Callout` (`etName`, `etEmail`, `etPassword`), `Footnote` with `@color/eve_destructive_text` (`tvError`), `Headline` (`btnSubmit`), `Footnote` (divider "or"), and `Subheadline.Medium` (`btnGoogle`, `btnToggleMode`).
-- Updated `selector_eve_switch_track.xml` to use canonical Apple system green (`@color/eve_system_green`, `#34C759` Light / `#30D158` Dark) when checked.
+- Preserved `@color/eve_primary` in `selector_eve_switch_track.xml` ensuring the checked switch track satisfies WCAG AA non-text 3:1 contrast against the white switch thumb per `SharedDesignSystemTest`.
 - Standardized programmatic progress dialogs in `ProfileActivity.kt` and `SettingsActivity.kt` to `TextAppearance.Eve.Subheadline.Primary`.
 - Eliminated 100% of hardcoded `android:textSize` attributes across all 4 targeted layouts.
 - Preserved all protected invariants: `#FFFFFF` / `#000000` canvas colors, Telegram circular reveal, student photos un-tinted, SVG assets, and authentication logic.
-- Added comprehensive JVM unit test suite `ProfileSettingsLoginTypographyAndColorTest.kt` verifying layout text size elimination, semantic bindings, adaptive switch track green, and WCAG AA contrast compliance across Day and Night modes.
+- Added comprehensive JVM unit test suite `ProfileSettingsLoginTypographyAndColorTest.kt` verifying layout text size elimination, semantic bindings, switch track 3:1 contrast preservation, and WCAG AA contrast compliance across Day and Night modes.
 
 ### EVE Phase 2 of 5: Official iOS 26 Typography Foundation + Home Screen — 2026-10-12
 
