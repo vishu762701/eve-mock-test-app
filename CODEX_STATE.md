@@ -12,8 +12,8 @@
 ### EVE Phase 5 of 5: Official iOS 26 Typography & Semantic Colors (Result & Secondary Screens) — 2026-10-13
 
 Completed Phase 5 of 5 migrating all active Result and secondary student-facing screens to the official Apple iOS 26 dynamic typography hierarchy and semantic color system:
-- Standardized Result Hero score display (`tvTotalScore`) to LargeTitle (`36sp`, bold, tabular numbers) and score badge (`tvScorePercentage`) to Footnote.Medium (`13sp`, medium).
-- Standardized Result Statistics metric counts (`tvCorrectCount`, `tvIncorrectCount`, `tvSkippedCount`) to Title2 (`24sp`, bold) and metric labels to Footnote.Medium (`13sp`, medium).
+- Standardized Result Hero score display (`tvScore`, `tvStatHeroScore`) to LargeTitle (`36sp`, bold, tabular numbers) and score badge (`tvScorePercentage`, `tvStatHeroPercentage`) to Footnote.Medium (`13sp`, medium).
+- Standardized Result Statistics metric counts (`tvCorrectCount`, `tvWrongCount`, `tvUnattemptedCount`, `tvAccuracy`, `tvStatRightCount`, `tvStatWrongCount`, etc.) to Title2 (`24sp`, bold) and metric labels to Footnote.Medium (`13sp`, medium).
 - Standardized Result Detail (`activity_result_detail.xml`) headers to Subheadline.Medium (`15sp`, medium), inset labels to Caption1.Medium (`12sp`, medium), inset values to Subheadline.Medium (`15sp`, bold), and action links to Footnote.Medium (`13sp`, medium).
 - Standardized Answer Review items (`item_answer.xml`) question text to Callout (`16sp`, regular), option choice keys A–D to Footnote.Medium (`13sp`, medium), option choice text to Callout (`16sp`, regular), time analysis rows to Footnote.Medium (`13sp`, medium), solution headers to Subheadline.Medium (`15sp`, bold), explanation body to Subheadline (`15sp`, regular), and report actions to Footnote.Medium (`13sp`, medium).
 - Standardized Leaderboard (`activity_leaderboard.xml`, `item_leaderboard.xml`) user ranks and names to Subheadline.Medium (`15sp`, medium), scores to Subheadline (`15sp`, regular), hero rank to Title3 (`20sp`, bold), and empty/loading states to Headline (`17sp`) / Footnote (`13sp`). Strictly preserved existing card geometry and structure without visual redesign.
