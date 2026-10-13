@@ -51,9 +51,28 @@
         <item name="eveLabelSecondary">@color/eve_label_secondary</item>
         <item name="eveLabelTertiary">@color/eve_label_tertiary</item>
         <item name="eveLabelQuaternary">@color/eve_label_quaternary</item>
-        <item name="eveAccentText">@color/eve_accent_text</item>
-        <item name="evePrimaryFill">@color/eve_primary</item>
+        <item name="evePlaceholderText">@color/eve_placeholder_text</item>
+        <item name="eveSystemBackground">@color/eve_system_background</item>
+        <item name="eveSecondarySystemBackground">@color/eve_secondary_system_background</item>
+        <item name="eveTertiarySystemBackground">@color/eve_tertiary_system_background</item>
+        <item name="eveSystemGroupedBackground">@color/eve_system_grouped_background</item>
+        <item name="eveSecondarySystemGroupedBackground">@color/eve_secondary_system_grouped_background</item>
+        <item name="eveTertiarySystemGroupedBackground">@color/eve_tertiary_system_grouped_background</item>
+        <item name="eveSeparator">@color/eve_separator</item>
+        <item name="eveOpaqueSeparator">@color/eve_opaque_separator</item>
         <item name="eveControlOutline">@color/eve_control_outline</item>
+        <item name="eveSystemBlue">@color/eve_system_blue</item>
+        <item name="evePrimaryFill">@color/eve_primary</item>
+        <item name="eveOnPrimary">@color/eve_on_primary</item>
+        <item name="eveAccentText">@color/eve_accent_text</item>
+        <item name="eveAccentContainer">@color/eve_accent_container</item>
+        <item name="eveOnAccentContainer">@color/eve_on_accent_container</item>
+        <item name="eveDestructiveText">@color/eve_destructive_text</item>
+        <item name="eveFillPrimary">@color/eve_fill_primary</item>
+        <item name="eveFillSecondary">@color/eve_fill_secondary</item>
+        <item name="eveFillTertiary">@color/eve_fill_tertiary</item>
+        <item name="eveFillQuaternary">@color/eve_fill_quaternary</item>
+        <item name="eveLink">@color/eve_link</item>
 
         <item name="android:windowBackground">@color/eve_bg</item><item name="android:statusBarColor">@color/eve_bg</item>
         <item name="android:navigationBarColor">@color/eve_bg</item>

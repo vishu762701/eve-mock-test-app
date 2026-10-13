@@ -17,6 +17,11 @@ Ranked by impact on user experience, stability, and design system fidelity per `
 - **Scope**: `activity_result.xml`, `activity_result_detail.xml`, `item_answer.xml`, `item_result_topic.xml`, `item_topic_stat.xml`, `ResultDetailActivity.kt`, `ResultAnalysisRows.kt`, `activity_leaderboard.xml`, `item_leaderboard.xml`, `activity_history.xml`, `item_history.xml`, `activity_syllabus.xml`, `item_syllabus.xml`, `activity_feedback.xml`, `item_feedback_message.xml`, `item_post_reply.xml`, `dialog_create_feedback_post.xml`, `dialog_reply_feedback.xml`, `dialog_report_question.xml`, `activity_about.xml`, `activity_content_display.xml`.
 - **Details**: Full migration of Result (Overview, Statistics, Performance, Analytics, Review), Leaderboard, History, Syllabus, Feedback, and About screens to canonical Apple iOS 26 typography hierarchy and semantic color roles. 100% elimination of hardcoded text sizes across 19 layouts. Leaderboard visual geometry strictly preserved with zero redesign. Comprehensive automated JVM test suite (`ResultAndSecondaryScreensTypographyTest.kt`).
 
+## [COMPLETED] App-wide Apple iOS 26 Dynamic Typography & 26 Colour Roles (All 95 Layouts)
+- **Status**: Completed (2026-10-13)
+- **Scope**: All 95 Android layouts in `app/src/main/res/layout/`, `attrs.xml`, `themes.xml`, `type.xml`, ADR-008 (`DECISIONS.md`), `AppWideTypographyAndColorRolesTest.kt`.
+- **Details**: Full migration of all remaining layouts (student secondary, monetization, core admin dashboard, admin management, admin forms, admin item rows, and admin dialogs). Codified all 26 authoritative Apple iOS colour roles in `attrs.xml` and `themes.xml`. Achieved 100% elimination of hardcoded `android:textSize` attributes project-wide (0 remaining across all 95 layout files). Automated verification suite added in `AppWideTypographyAndColorRolesTest.kt`. Preserved pure `#FFFFFF` / `#000000` canvas, Telegram transitions, test engine, and asset invariants.
+
 ## [P3] Accessibility: Extreme Font Scale (1.78x / 2.0x) Audit
 - **Impact**: Low-Medium
 - **Scope**: Navigation drawer list items in `activity_main.xml` and form layouts.

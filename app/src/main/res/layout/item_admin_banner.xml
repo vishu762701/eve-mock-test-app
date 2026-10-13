@@ -36,30 +36,30 @@
 
             <TextView
                 android:id="@+id/tvBannerOrder"
+                style="@style/TextAppearance.Eve.Admin.ItemTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Banner #1"
-                android:textColor="@color/eve_text"
-                android:textSize="14sp" />
+                android:textColor="@color/eve_text" />
 
             <TextView
                 android:id="@+id/tvBannerDate"
+                style="@style/TextAppearance.Eve.Admin.ItemSubtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="Uploaded today"
-                android:textColor="@color/eve_text_secondary"
-                android:textSize="13sp" />
+                android:textColor="@color/eve_text_secondary" />
 
             <TextView
                 android:id="@+id/tvBannerLink"
+                style="@style/TextAppearance.Eve.Caption1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:textColor="@color/eve_text_secondary"
-                android:textSize="12sp"
                 android:visibility="gone" />
         </LinearLayout>
 
@@ -99,13 +99,13 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDeleteBanner"
             style="@style/Widget.Eve.OutlinedButton"
+            android:textAppearance="@style/TextAppearance.Eve.Footnote.Medium"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:layout_marginStart="6dp"
             android:paddingHorizontal="10dp"
             android:text="Delete"
             android:textColor="@color/selector_eve_destructive_text"
-            app:strokeColor="@color/eve_shape_border"
-            android:textSize="13sp" />
+            app:strokeColor="@color/eve_shape_border" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

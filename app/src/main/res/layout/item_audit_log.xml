@@ -25,13 +25,13 @@
 
             <TextView
                 android:id="@+id/tvActionBadge"
+                style="@style/TextAppearance.Eve.Admin.Badge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_category_chip"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="3dp"
                 android:textColor="@color/eve_accent_text"
-                android:textSize="13sp"
                 tools:text="✨ New Exam" />
 
             <View
@@ -41,29 +41,29 @@
 
             <TextView
                 android:id="@+id/tvTimestamp"
+                style="@style/TextAppearance.Eve.Caption1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/eve_text_secondary"
-                android:textSize="13sp"
                 tools:text="27 Sep 2026, 05:00 PM" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/tvDescription"
+            style="@style/TextAppearance.Eve.Admin.ItemTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:textColor="@color/eve_text"
-            android:textSize="14sp"
             tools:text="Deleted exam: SSC CGL Tier 1" />
 
         <TextView
             android:id="@+id/tvAdminEmail"
+            style="@style/TextAppearance.Eve.Admin.ItemSubtitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textColor="@color/eve_text_secondary"
-            android:textSize="12sp"
             tools:text="Performed by: pronlike9@gmail.com" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

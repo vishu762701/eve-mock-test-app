@@ -25,19 +25,19 @@
 
             <TextView
                 android:id="@+id/tvOrderAmount"
+                style="@style/TextAppearance.Eve.Headline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/eve_text"
-                android:textSize="17sp"
                 tools:text="₹99" />
 
             <TextView
                 android:id="@+id/tvOrderMethod"
+                style="@style/TextAppearance.Eve.Caption1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:textColor="@color/eve_text_secondary"
-                android:textSize="12sp"
                 tools:text="(QR)" />
 
             <View
@@ -47,39 +47,39 @@
 
             <TextView
                 android:id="@+id/tvOrderStatus"
+                style="@style/TextAppearance.Eve.Admin.Badge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="3dp"
-                android:textSize="13sp"
                 tools:text="SUCCESS" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/tvOrderId"
+            style="@style/TextAppearance.Eve.Caption1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textColor="@color/eve_text_secondary"
-            android:textSize="12sp"
             tools:text="Order ID: ORD_1727670000000_ABC" />
 
         <TextView
             android:id="@+id/tvUserEmail"
+            style="@style/TextAppearance.Eve.Admin.ItemSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:textColor="@color/eve_text"
-            android:textSize="13sp"
             tools:text="student@eve.app" />
 
         <TextView
             android:id="@+id/tvOrderDate"
+            style="@style/TextAppearance.Eve.Caption1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textColor="@color/eve_text_secondary"
-            android:textSize="13sp"
             tools:text="Created: 29 Sep 2026, 10:30 PM" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

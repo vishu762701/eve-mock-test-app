@@ -41,11 +41,11 @@
                 android:text="Manage Syllabus" />
 
             <TextView
+                style="@style/TextAppearance.Eve.Caption1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Upload, assign and manage syllabus PDFs"
-                android:textColor="@color/eve_text_secondary"
-                android:textSize="12sp" />
+                android:textColor="@color/eve_text_secondary" />
         </LinearLayout>
 
         <ProgressBar
@@ -91,19 +91,19 @@
                     android:padding="16dp">
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Headline"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Add / Upload New Syllabus"
-                        android:textColor="@color/eve_text"
-                        android:textSize="15sp" />
+                        android:textColor="@color/eve_text" />
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Caption1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:text="Associate a syllabus PDF (max 20MB) with an exam."
-                        android:textColor="@color/eve_text_secondary"
-                        android:textSize="12sp" />
+                        android:textColor="@color/eve_text_secondary" />
 
                     <!-- Step 1: Select Exam -->
                     <com.google.android.material.textfield.TextInputLayout
@@ -115,11 +115,11 @@
                         android:hint="Select Exam">
 
                         <AutoCompleteTextView
+                            style="@style/TextAppearance.Eve.BodySmall"
                             android:id="@+id/actvSelectExam"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="none"
-                            android:textSize="14sp" />
+                            android:inputType="none" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Step 2: Selected PDF info / Choose PDF -->
@@ -142,6 +142,7 @@
                             app:tint="@color/eve_primary" />
 
                         <TextView
+                            style="@style/TextAppearance.Eve.Footnote.Medium"
                             android:id="@+id/tvNewPdfName"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -150,7 +151,6 @@
                             android:ellipsize="middle"
                             android:maxLines="1"
                             android:textColor="@color/eve_text"
-                            android:textSize="13sp"
                             tools:text="sample_syllabus.pdf" />
 
                         <ImageButton
@@ -203,15 +203,16 @@
                 android:orientation="horizontal">
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Headline"
                     android:id="@+id/tvExistingHeader"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Existing Syllabuses"
-                    android:textColor="@color/eve_text"
-                    android:textSize="16sp" />
+                    android:textColor="@color/eve_text" />
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Caption1.Medium"
                     android:id="@+id/tvSyllabusCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -219,7 +220,6 @@
                     android:paddingHorizontal="10dp"
                     android:paddingVertical="3dp"
                     android:textColor="@color/eve_accent_text"
-                    android:textSize="12sp"
                     tools:text="3 Active" />
             </LinearLayout>
 
@@ -235,11 +235,11 @@
                 app:startIconDrawable="@drawable/ic_search">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    style="@style/TextAppearance.Eve.BodySmall"
                     android:id="@+id/etSearch"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:textSize="14sp" />
+                    android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Empty State View -->
@@ -261,21 +261,21 @@
                     app:tint="@color/eve_text_secondary" />
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Headline"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:text="No Syllabuses Uploaded"
-                    android:textColor="@color/eve_text"
-                    android:textSize="15sp" />
+                    android:textColor="@color/eve_text" />
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Caption1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="Choose an exam above to upload and attach its syllabus PDF."
                     android:textAlignment="center"
-                    android:textColor="@color/eve_text_secondary"
-                    android:textSize="12sp" />
+                    android:textColor="@color/eve_text_secondary" />
             </LinearLayout>
 
             <!-- Syllabus RecyclerView -->

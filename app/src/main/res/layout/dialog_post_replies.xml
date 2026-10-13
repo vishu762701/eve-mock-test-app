@@ -8,20 +8,20 @@
 
     <TextView
         android:id="@+id/tvPostRepliesTitle"
+        style="@style/TextAppearance.Eve.Headline"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Replies to Post"
-        android:textColor="@color/eve_text"
-        android:textSize="18sp" />
+        android:textColor="@color/eve_text" />
 
     <TextView
         android:id="@+id/tvPostRepliesSnippet"
+        style="@style/TextAppearance.Eve.Footnote"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:text="Post message preview..."
-        android:textColor="@color/eve_text_secondary"
-        android:textSize="13sp" />
+        android:textColor="@color/eve_text_secondary" />
 
     <ProgressBar
         android:id="@+id/progressBarReplies"
@@ -33,6 +33,7 @@
 
     <TextView
         android:id="@+id/tvNoReplies"
+        style="@style/TextAppearance.Eve.Footnote"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -40,7 +41,6 @@
         android:gravity="center"
         android:text="No replies yet for this post."
         android:textColor="@color/eve_text_secondary"
-        android:textSize="13sp"
         android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView

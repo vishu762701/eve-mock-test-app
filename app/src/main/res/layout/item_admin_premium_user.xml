@@ -25,38 +25,38 @@
 
             <TextView
                 android:id="@+id/tvUserDisplayName"
+                style="@style/TextAppearance.Eve.Admin.ItemTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textColor="@color/eve_text"
-                android:textSize="15sp"
                 tools:text="Student Name" />
 
             <TextView
                 android:id="@+id/tvUserStatusBadge"
+                style="@style/TextAppearance.Eve.Admin.Badge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="3dp"
-                android:textSize="13sp"
                 tools:text="ACTIVE" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/tvUserEmail"
+            style="@style/TextAppearance.Eve.Admin.ItemSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/eve_text_secondary"
-            android:textSize="13sp"
             tools:text="student@gmail.com" />
 
         <TextView
             android:id="@+id/tvPlanAndExpiry"
+            style="@style/TextAppearance.Eve.Caption1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textColor="@color/eve_text"
-            android:textSize="12sp"
             tools:text="Premium Pro • Expires: 29 Oct 2026 (Source: PAYMENT)" />
 
         <!-- Actions Row -->
@@ -70,20 +70,20 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnExtendUser"
                 style="@style/Widget.Eve.OutlinedButton"
+                android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="38dp"
-                android:text="+30 Days"
-                android:textSize="12sp" />
+                android:text="+30 Days" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRevokeUser"
                 style="@style/Widget.Eve.OutlinedButton"
+                android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="38dp"
                 android:layout_marginStart="8dp"
                 android:text="Revoke"
                 android:textColor="@color/selector_eve_destructive_text"
-                android:textSize="12sp"
                 app:strokeColor="@color/eve_shape_border" />
         </LinearLayout>
     </LinearLayout>

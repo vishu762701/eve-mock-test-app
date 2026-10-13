@@ -63,11 +63,11 @@
         android:padding="16dp">
 
         <TextView
+            style="@style/TextAppearance.Eve.Caption1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Read-only activity trail recording exam changes, broadcast dispatch, feedback moderation, and maintenance events."
-            android:textColor="@color/eve_text_secondary"
-            android:textSize="12sp" />
+            android:textColor="@color/eve_text_secondary" />
 
         <!-- Date Filtering Chips -->
         <com.google.android.material.chip.ChipGroup
@@ -123,13 +123,13 @@
 
             <TextView
                 android:id="@+id/tvEmpty"
+                style="@style/TextAppearance.Eve.BodySmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:text="No activity logs recorded for this period."
                 android:textColor="@color/eve_text_secondary"
-                android:textSize="14sp"
                 android:visibility="gone" />
         </FrameLayout>
     </LinearLayout>

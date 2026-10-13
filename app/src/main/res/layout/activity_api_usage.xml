@@ -69,6 +69,7 @@
 
             <!-- Current Month Badge -->
             <TextView
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:id="@+id/tvCurrentMonth"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -76,8 +77,7 @@
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="4dp"
                 android:text="📅 September 2026"
-                android:textColor="@color/eve_accent_text"
-                android:textSize="13sp" />
+                android:textColor="@color/eve_accent_text" />
 
             <!-- Gemini AI Calls Card -->
             <com.google.android.material.card.MaterialCardView
@@ -97,28 +97,28 @@
                     android:padding="16dp">
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Headline"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="✨ Gemini AI Generation Calls"
-                        android:textColor="@color/eve_text"
-                        android:textSize="15sp" />
+                        android:textColor="@color/eve_text" />
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Analytics.MetricValue"
                         android:id="@+id/tvGeminiCallsCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="0"
-                        android:textColor="@color/eve_accent_text"
-                        android:textSize="32sp" />
+                        android:textColor="@color/eve_accent_text" />
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Caption1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="Total AI question generation calls this month (both scheduled auto-gen and manual 'Generate Now'). Resets automatically each calendar month."
-                        android:textColor="@color/eve_text_secondary"
-                        android:textSize="12sp" />
+                        android:textColor="@color/eve_text_secondary" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -140,28 +140,28 @@
                     android:padding="16dp">
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Headline"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="📝 Total Documents Created (Writes Proxy)"
-                        android:textColor="@color/eve_text"
-                        android:textSize="15sp" />
+                        android:textColor="@color/eve_text" />
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Title1"
                         android:id="@+id/tvDocsCreatedCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="0"
-                        android:textColor="@color/eve_status_success_text"
-                        android:textSize="28sp" />
+                        android:textColor="@color/eve_status_success_text" />
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Caption1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="Documents created across exams, questions, broadcasts, and feedback posts this month. Serves as an early indicator for Firestore database write volume."
-                        android:textColor="@color/eve_text_secondary"
-                        android:textSize="12sp" />
+                        android:textColor="@color/eve_text_secondary" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -183,28 +183,28 @@
                     android:padding="16dp">
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Headline"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="👥 Student Test Submissions (Reads Proxy)"
-                        android:textColor="@color/eve_text"
-                        android:textSize="15sp" />
+                        android:textColor="@color/eve_text" />
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Title1"
                         android:id="@+id/tvSubmissionsCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="0"
-                        android:textColor="@color/eve_text"
-                        android:textSize="28sp" />
+                        android:textColor="@color/eve_text" />
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Caption1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="Total completed test attempts submitted by students this month. Correlates directly with student read operations and active engagement."
-                        android:textColor="@color/eve_text_secondary"
-                        android:textSize="12sp" />
+                        android:textColor="@color/eve_text_secondary" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -233,14 +233,14 @@
                         app:tint="@color/eve_primary" />
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Caption1"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
                         android:layout_weight="1"
                         android:lineSpacingExtra="2dp"
                         android:text="Note: Check actual usage and billing in the Google Cloud Console and Firebase Console directly for precise, authoritative numbers. This in-app counter is an approximate early-warning indicator, not a billing source of truth."
-                        android:textColor="@color/eve_text_secondary"
-                        android:textSize="12sp" />
+                        android:textColor="@color/eve_text_secondary" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>

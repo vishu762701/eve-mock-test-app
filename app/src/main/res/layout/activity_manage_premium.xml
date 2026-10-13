@@ -118,11 +118,11 @@
                         android:padding="16dp">
 
                         <TextView
+                            style="@style/TextAppearance.Eve.Admin.CardTitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Premium Plan"
-                            android:textColor="@color/eve_text"
-                            android:textSize="16sp" />
+                            android:textColor="@color/eve_text" />
 
                         <com.google.android.material.materialswitch.MaterialSwitch
                             android:id="@+id/switchEnablePremium"
@@ -231,11 +231,11 @@
                         android:padding="16dp">
 
                         <TextView
+                            style="@style/TextAppearance.Eve.Admin.CardTitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Payment Methods &amp; Expiry"
-                            android:textColor="@color/eve_text"
-                            android:textSize="16sp" />
+                            android:textColor="@color/eve_text" />
 
                         <com.google.android.material.materialswitch.MaterialSwitch
                             android:id="@+id/switchQrEnabled"

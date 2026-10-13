@@ -9,7 +9,21 @@
 - Light app background tokens are pure `#FFFFFF`; dark background tokens are pure `#000000`.
 - Test submission remains server-side through `POST /api/attempts/submit`; authentication, scoring, answer persistence, and navigation code were not changed by the Home Banner/Test appearance task.
 
-### EVE Phase 5 of 5: Official iOS 26 Typography & Semantic Colors (Result & Secondary Screens) — 2026-10-13
+### EVE: App-wide iOS 26 Dynamic Typography & 26 Colour Roles (All 95 Layouts) — 2026-10-13
+
+Completed project-wide rollout of the official Apple iOS 26 dynamic typography hierarchy and complete 26 semantic colour roles across every layout in the project:
+- Codified all 26 authoritative Apple iOS colour role attributes in `attrs.xml` and resolved them to `@color/eve_*` in `Theme.Eve.Foundation` in `themes.xml`:
+  `eveLabelPrimary`, `eveLabelSecondary`, `eveLabelTertiary`, `eveLabelQuaternary`, `evePlaceholderText`, `eveSystemBackground`, `eveSecondarySystemBackground`, `eveTertiarySystemBackground`, `eveSystemGroupedBackground`, `eveSecondarySystemGroupedBackground`, `eveTertiarySystemGroupedBackground`, `eveSeparator`, `eveOpaqueSeparator`, `eveControlOutline`, `eveSystemBlue`, `evePrimaryFill`, `eveOnPrimary`, `eveAccentText`, `eveAccentContainer`, `eveOnAccentContainer`, `eveDestructiveText`, `eveFillPrimary`, `eveFillSecondary`, `eveFillTertiary`, `eveFillQuaternary`, `eveLink`.
+- Codified semantic type styles in `type.xml` parented to canonical Apple iOS 26 typography scale roles: Large Title, Title 1, Title 2, Title 3, Headline, Body, Callout, Subheadline, Footnote, Caption 1, Caption 2, alongside domain-specific hierarchies (`TextAppearance.Eve.Admin.*`, `TextAppearance.Eve.Premium.*`, `TextAppearance.Eve.Analytics.*`, etc.).
+- Achieved 100% elimination of hardcoded `android:textSize` attributes across all 95 layouts in `app/src/main/res/layout/` (0 hardcoded `android:textSize` remaining project-wide).
+- Preserved all protected invariants: `#FFFFFF` / `#000000` canvas colors, Telegram Day/Night circular reveal transition, test engine scoring and attempt deduplication, 2x2 bottom buttons, un-tinted student avatars, and untouched Lottie/SVG assets.
+- Added automated unit test suite `AppWideTypographyAndColorRolesTest.kt` verifying:
+  1. Exactly 95 layouts exist in the project with 0 hardcoded `android:textSize`.
+  2. All 26 Apple iOS color roles are declared in `attrs.xml`.
+  3. All 26 Apple iOS color roles are bound in `Theme.Eve.Foundation` in `themes.xml`.
+  4. Core Apple iOS 26 dynamic typography scale styles exist in `type.xml`.
+- Documented architecture and design decisions in ADR-008 (`DECISIONS.md`).
+
 
 Completed Phase 5 of 5 migrating all active Result and secondary student-facing screens to the official Apple iOS 26 dynamic typography hierarchy and semantic color system:
 - Standardized Result Hero score display (`tvScore`, `tvStatHeroScore`) to LargeTitle (`36sp`, bold, tabular numbers) and score badge (`tvScorePercentage`, `tvStatHeroPercentage`) to Footnote.Medium (`13sp`, medium).

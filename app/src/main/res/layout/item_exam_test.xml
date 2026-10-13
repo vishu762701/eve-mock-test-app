@@ -29,32 +29,30 @@
 
             <TextView
                 android:id="@+id/tvTitle"
+                style="@style/TextAppearance.Eve.Headline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="2"
-                android:textColor="?attr/eveLabelPrimary"
-                android:textSize="16sp"
                 tools:text="Test 1" />
 
             <TextView
                 android:id="@+id/tvSubtitle"
+                style="@style/TextAppearance.Eve.Footnote"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:textColor="?attr/eveLabelSecondary"
-                android:textSize="12sp"
                 tools:text="20 questions • 30 minutes" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/tvStatus"
+            style="@style/TextAppearance.Eve.Footnote.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:gravity="end"
             android:textColor="@color/eve_accent_text"
-            android:textSize="12sp"
             tools:text="Start" />
     </com.eve.app.ui.result.ResponsiveResultRow>
 </com.google.android.material.card.MaterialCardView>

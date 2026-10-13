@@ -18,19 +18,19 @@
         android:background="@drawable/bg_bottom_sheet_drag_handle" />
 
     <TextView
+        style="@style/TextAppearance.Eve.Title3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Choose Payment Method"
-        android:textColor="?attr/eveLabelPrimary"
-        android:textSize="18sp" />
+        android:textColor="?attr/eveLabelPrimary" />
 
     <TextView
+        style="@style/TextAppearance.Eve.Footnote"
         android:id="@+id/tvSheetSubtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
         android:textColor="?attr/eveLabelSecondary"
-        android:textSize="13sp"
         tools:text="Select how you want to pay ₹99" />
 
     <!-- Method 1: QR Code -->
@@ -64,18 +64,18 @@
                 android:orientation="vertical">
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Subheadline.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="QR Code"
-                    android:textColor="?attr/eveLabelPrimary"
-                    android:textSize="15sp" />
+                    android:textColor="?attr/eveLabelPrimary" />
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Caption1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Scan dynamic QR with any UPI app"
-                    android:textColor="?attr/eveLabelSecondary"
-                    android:textSize="12sp" />
+                    android:textColor="?attr/eveLabelSecondary" />
             </LinearLayout>
 
             <ImageView
@@ -117,18 +117,18 @@
                 android:orientation="vertical">
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Subheadline.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="UPI Apps"
-                    android:textColor="?attr/eveLabelPrimary"
-                    android:textSize="15sp" />
+                    android:textColor="?attr/eveLabelPrimary" />
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Caption1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Pay directly via GPay, PhonePe, Paytm"
-                    android:textColor="?attr/eveLabelSecondary"
-                    android:textSize="12sp" />
+                    android:textColor="?attr/eveLabelSecondary" />
             </LinearLayout>
 
             <ImageView

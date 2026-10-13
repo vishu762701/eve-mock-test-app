@@ -79,12 +79,12 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
+            style="@style/TextAppearance.Eve.Footnote.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:text="Correct Answer"
-            android:textColor="@color/eve_text"
-            android:textSize="13sp" />
+            android:textColor="@color/eve_text" />
 
         <RadioGroup
             android:id="@+id/rgCorrectAnswer"
@@ -130,22 +130,22 @@
             android:orientation="horizontal">
 
             <TextView
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Explanation"
-                android:textColor="@color/eve_text"
-                android:textSize="13sp" />
+                android:textColor="@color/eve_text" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnReformatAi"
                 style="@style/Widget.Eve.TextButton"
+                android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:minWidth="0dp"
                 android:text="✨ Reformat with AI"
-                android:textColor="@color/eve_accent_text"
-                android:textSize="12sp" />
+                android:textColor="@color/eve_accent_text" />
         </LinearLayout>
 
         <ProgressBar
@@ -165,12 +165,12 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etExplanation"
+                style="@style/TextAppearance.Eve.Footnote"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="top|start"
                 android:inputType="textMultiLine"
-                android:minLines="3"
-                android:textSize="13sp" />
+                android:minLines="3" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout

@@ -25,15 +25,14 @@
 
     <TextView
         android:id="@+id/tvCompletedScore"
+        style="@style/TextAppearance.Eve.Footnote.Medium"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/eve_space_8"
         android:background="@drawable/bg_tile_right"
-        android:fontFamily="sans-serif-medium"
         android:paddingHorizontal="12dp"
         android:paddingVertical="4dp"
-        android:textColor="@color/eve_tile_right_text"
-        android:textSize="13sp" />
+        android:textColor="@color/eve_tile_right_text" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnViewResult"

@@ -200,3 +200,52 @@ Phase 5 completes the 5-phase migration to official Apple iOS 26 dynamic typogra
 - **Official API**: Android MaterialButton supports `app:backgroundTint`, `app:strokeColor`, and `app:strokeWidth` while keeping its managed ripple/background (https://developer.android.com/reference/com/google/android/material/button/MaterialButton).
 
 - **Dark-mode resource override root cause**: Emulator Day/Night screenshots showed that `drawable-night/bg_streak_pill.xml` forced a completely transparent background and removed pill corners. Android prioritizes that qualifier in Dark mode, which caused the observed native assertion failure. Both drawable resources now have the same semantic grouped fill and borderless capsule geometry; unit assertions cover both configurations.
+
+## ADR-008: App-wide Apple iOS 26 Dynamic Typography Hierarchy and 26 Semantic Colour Roles
+
+- **Date**: 2026-10-13
+- **Status**: Accepted
+- **Author**: Principal Apple Design Systems Engineer, Senior Android Architect
+
+### Context
+Following Phases 1 through 5 of the design modernization, multiple secondary, admin, monetization, tool, and dialog screens across the project still contained hardcoded `android:textSize` values or ad-hoc style references. To achieve 100% adherence to Apple Human Interface Guidelines and ensure complete dynamic accessibility and dark-mode legibility across all 95 layouts in the project, the system codified all 26 authoritative Apple iOS colour roles in `attrs.xml` and `themes.xml` (`Theme.Eve.Foundation`) and codified semantic dynamic type styles parented to the official Apple iOS 26 typography scale.
+
+### Official Documentation References Opened
+- Apple Human Interface Guidelines - Typography: https://developer.apple.com/design/human-interface-guidelines/typography
+- Apple Human Interface Guidelines - Color: https://developer.apple.com/design/human-interface-guidelines/color
+- Apple Developer UIKit UIFont: https://developer.apple.com/documentation/uikit/uifont
+- Apple Developer UIKit UIColor: https://developer.apple.com/documentation/uikit/uicolor
+- Apple Human Interface Guidelines - Accessibility: https://developer.apple.com/design/human-interface-guidelines/accessibility
+
+### Decisions
+1. **Codification of 26 Semantic Colour Roles**:
+   - Codified all 26 official iOS color roles as first-class theme attributes in `attrs.xml` and resolved them to canonical `@color/eve_*` tokens in `Theme.Eve.Foundation` in `themes.xml`:
+     `eveLabelPrimary`, `eveLabelSecondary`, `eveLabelTertiary`, `eveLabelQuaternary`, `evePlaceholderText`, `eveSystemBackground`, `eveSecondarySystemBackground`, `eveTertiarySystemBackground`, `eveSystemGroupedBackground`, `eveSecondarySystemGroupedBackground`, `eveTertiarySystemGroupedBackground`, `eveSeparator`, `eveOpaqueSeparator`, `eveControlOutline`, `eveSystemBlue`, `evePrimaryFill`, `eveOnPrimary`, `eveAccentText`, `eveAccentContainer`, `eveOnAccentContainer`, `eveDestructiveText`, `eveFillPrimary`, `eveFillSecondary`, `eveFillTertiary`, `eveFillQuaternary`, `eveLink`.
+2. **Dynamic Typography Scale Codification**:
+   - Created clean, semantic styles in `type.xml` mapped directly to the Apple iOS 26 typography scale:
+     - Large Title (34sp bold, line height 41sp)
+     - Title 1 (28sp bold, line height 34sp)
+     - Title 2 (22sp bold, line height 28sp)
+     - Title 3 (20sp semibold / regular, line height 24sp)
+     - Headline (17sp semibold, line height 22sp)
+     - Body (17sp regular, line height 22sp)
+     - Callout (16sp regular, line height 21sp)
+     - Subheadline (15sp regular / medium, line height 20sp)
+     - Footnote (13sp regular / medium, line height 18sp)
+     - Caption 1 (12sp regular / medium, line height 16sp)
+     - Caption 2 (11sp regular, line height 13sp)
+     - Semantic domain styles for Admin (`TextAppearance.Eve.Admin.*`), Premium/Monetization (`TextAppearance.Eve.Premium.*`), and Analytics (`TextAppearance.Eve.Analytics.*`).
+3. **100% Elimination of Hardcoded Text Sizes**:
+   - Migrated all remaining layout files across the application, achieving zero hardcoded `android:textSize` attributes across all 95 layout XML files under `app/src/main/res/layout/`.
+4. **Automated Verification**:
+   - Added `AppWideTypographyAndColorRolesTest.kt` verifying:
+     - Exactly 95 layouts exist in the project and 100% of them have 0 `android:textSize` attributes.
+     - All 26 color role attributes are declared in `attrs.xml`.
+     - All 26 color role attributes are bound in `Theme.Eve.Foundation`.
+     - Core Apple iOS 26 type scale roles are present in `type.xml`.
+5. **Invariants Preserved**:
+   - Light canvas `#FFFFFF` and Dark canvas `#000000` strictly preserved.
+   - Telegram Day/Night circular reveal transition and popup menu preserved.
+   - Test engine timing, question scoring, 2x2 grid navigation buttons preserved.
+   - All Lottie and SVG vector assets untouched.
+   - All UI text strictly English.

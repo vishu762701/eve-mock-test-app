@@ -28,19 +28,20 @@
 
             <TextView
                 android:id="@+id/tvExamTag"
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_category_chip"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="3dp"
                 android:textColor="@color/eve_accent_text"
-                android:textSize="13sp"
                 tools:text="SSC CGL 2024"
                 android:maxLines="2"
                 android:ellipsize="end" />
 
             <TextView
                 android:id="@+id/tvQuestionNumber"
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
@@ -48,11 +49,11 @@
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="3dp"
                 android:textColor="?attr/eveLabelPrimary"
-                android:textSize="13sp"
                 tools:text="Q3" />
 
             <TextView
                 android:id="@+id/tvTopicTag"
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
@@ -60,7 +61,6 @@
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="3dp"
                 android:textColor="?attr/eveLabelSecondary"
-                android:textSize="13sp"
                 android:visibility="gone"
                 tools:text="Polity"
                 tools:visibility="visible"
@@ -86,13 +86,12 @@
         <!-- Question Text -->
         <TextView
             android:id="@+id/tvQuestionText"
+            style="@style/TextAppearance.Eve.Callout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/eve_space_12"
-            android:fontFamily="sans-serif"
             android:lineSpacingExtra="3dp"
             android:textColor="@color/eve_text"
-            android:textSize="16sp"
             tools:text="What is the capital of France?" />
 
         <!-- Options Container -->
@@ -105,48 +104,44 @@
 
             <TextView
                 android:id="@+id/tvOptionA"
+                style="@style/TextAppearance.Eve.Subheadline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
-                android:fontFamily="sans-serif"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="6dp"
-                android:textSize="15sp"
                 tools:text="A. Berlin"
                 android:textColor="?attr/eveLabelPrimary" />
 
             <TextView
                 android:id="@+id/tvOptionB"
+                style="@style/TextAppearance.Eve.Subheadline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
-                android:fontFamily="sans-serif"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="6dp"
-                android:textSize="15sp"
                 tools:text="B. Madrid"
                 android:textColor="?attr/eveLabelPrimary" />
 
             <TextView
                 android:id="@+id/tvOptionC"
+                style="@style/TextAppearance.Eve.Subheadline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
-                android:fontFamily="sans-serif"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="6dp"
-                android:textSize="15sp"
                 tools:text="C. Paris (Correct)"
                 android:textColor="?attr/eveLabelPrimary" />
 
             <TextView
                 android:id="@+id/tvOptionD"
+                style="@style/TextAppearance.Eve.Subheadline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="6dp"
-                android:textSize="15sp"
                 tools:text="D. Rome"
                 android:textColor="?attr/eveLabelPrimary" />
         </LinearLayout>
@@ -159,24 +154,20 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:layout_marginStart="-8dp"
-            android:fontFamily="sans-serif-medium"
             android:text="View Explanation"
-            android:textSize="14sp"
             android:visibility="gone"
             tools:visibility="visible" />
 
         <!-- Explanation View -->
         <TextView
             android:id="@+id/tvExplanation"
+            style="@style/TextAppearance.Eve.Result.ExplanationBody"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:background="@drawable/bg_student_inset"
-            android:fontFamily="sans-serif"
             android:lineSpacingExtra="3dp"
             android:padding="12dp"
-            android:textColor="?attr/eveLabelPrimary"
-            android:textSize="15sp"
             android:visibility="gone"
             tools:text="Paris is the capital and most populous city of France."
             tools:visibility="visible" />
@@ -199,13 +190,12 @@
             android:minHeight="48dp">
 
             <TextView
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:fontFamily="sans-serif-medium"
                 android:text="Tap to open in test"
-                android:textColor="@color/eve_accent_text"
-                android:textSize="13.5sp" />
+                android:textColor="@color/eve_accent_text" />
 
             <ImageView
                 android:layout_width="16dp"

@@ -71,11 +71,11 @@
                     android:padding="16dp">
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Headline"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Exam Information"
-                        android:textColor="@color/eve_accent_text"
-                        android:textSize="16sp" />
+                        android:textColor="@color/eve_accent_text" />
 
                     <com.google.android.material.textfield.TextInputLayout
                         style="@style/Widget.Eve.TextInput.Outlined"
@@ -106,12 +106,12 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Caption1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:text="Category"
-                        android:textColor="@color/eve_text_secondary"
-                        android:textSize="12sp" />
+                        android:textColor="@color/eve_text_secondary" />
 
                     <Spinner
                         android:id="@+id/spCategory"
@@ -120,12 +120,12 @@
                         android:layout_marginTop="4dp" />
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Subheadline.Medium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:text="Category Cutoffs (Optional)"
-                        android:textColor="@color/eve_accent_text"
-                        android:textSize="14sp" />
+                        android:textColor="@color/eve_accent_text" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -249,13 +249,13 @@
                         android:orientation="horizontal">
 
                         <TextView
+                            style="@style/TextAppearance.Eve.Headline"
                             android:id="@+id/tvQuestionsHeader"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Questions (0)"
-                            android:textColor="@color/eve_accent_text"
-                            android:textSize="16sp" />
+                            android:textColor="@color/eve_accent_text" />
                     </LinearLayout>
 
                     <!-- Action buttons -->
@@ -268,34 +268,35 @@
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnAddQuestion"
                             style="@style/Widget.Eve.OutlinedButton"
+                            android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginEnd="6dp"
-                            android:text="+ Add Question"
-                            android:textSize="12sp" />
+                            android:text="+ Add Question" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnBulkUpload"
                             style="@style/Widget.Eve.Button"
+                            android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginStart="6dp"
-                            android:text="📥 Bulk Upload"
-                            android:textSize="12sp" />
+                            android:text="📥 Bulk Upload" />
                     </LinearLayout>
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Footnote"
                         android:id="@+id/tvFormatHelp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="Expected format: Question, OptionA, OptionB, OptionC, OptionD, CorrectOption, Explanation"
-                        android:textColor="@color/eve_text_secondary"
-                        android:textSize="13sp" />
+                        android:textColor="@color/eve_text_secondary" />
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Footnote"
                         android:id="@+id/tvNoQuestions"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -304,7 +305,6 @@
                         android:gravity="center"
                         android:text="No questions added yet. Add manually or bulk upload via CSV/Excel."
                         android:textColor="@color/eve_text_secondary"
-                        android:textSize="13sp"
                         android:visibility="gone" />
 
                     <androidx.recyclerview.widget.RecyclerView

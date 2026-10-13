@@ -8,18 +8,18 @@
 
     <TextView
         android:id="@+id/tvEmail"
+        style="@style/TextAppearance.Eve.Admin.ItemTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textColor="@color/eve_text"
-        android:textSize="15sp" />
+        android:textColor="@color/eve_text" />
 
     <TextView
         android:id="@+id/btnRemove"
+        style="@style/TextAppearance.Eve.Footnote.Medium"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="6dp"
         android:text="Remove"
-        android:textColor="@color/selector_eve_destructive_text"
-        android:textStyle="bold" />
+        android:textColor="@color/selector_eve_destructive_text" />
 </LinearLayout>

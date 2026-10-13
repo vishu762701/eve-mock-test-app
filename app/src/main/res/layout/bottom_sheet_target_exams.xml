@@ -26,22 +26,18 @@
 
         <TextView
             android:id="@+id/tvSheetTitle"
+            style="@style/TextAppearance.Eve.Title3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-medium"
-            android:text="Which exams are you preparing for?"
-            android:textColor="?attr/eveLabelPrimary"
-            android:textSize="20sp" />
+            android:text="Which exams are you preparing for?" />
 
         <TextView
             android:id="@+id/tvSheetSubtitle"
+            style="@style/TextAppearance.Eve.Subheadline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:fontFamily="sans-serif"
-            android:text="Select your target exams to personalize your test feed and recommendations."
-            android:textColor="?attr/eveLabelSecondary"
-            android:textSize="14sp" />
+            android:text="Select your target exams to personalize your test feed and recommendations." />
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipGroupExams"

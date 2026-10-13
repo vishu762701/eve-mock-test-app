@@ -37,15 +37,16 @@
                 android:layout_marginEnd="12dp" />
 
             <TextView
+                style="@style/TextAppearance.Eve.BodySmall"
                 android:id="@+id/tvUndoMessage"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:maxWidth="240dp"
-                android:textColor="@color/eve_bulletin_text"
-                android:textSize="14sp" />
+                android:textColor="@color/eve_bulletin_text" />
 
             <TextView
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:id="@+id/btnUndoAction"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -58,7 +59,6 @@
                 android:text="UNDO"
                 android:textAllCaps="true"
                 android:textColor="@color/eve_bulletin_action"
-                android:textSize="13sp"
                 android:textStyle="bold" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

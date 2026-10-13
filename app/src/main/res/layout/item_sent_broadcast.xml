@@ -34,13 +34,13 @@
 
             <TextView
                 android:id="@+id/tvBroadcastTitle"
+                style="@style/TextAppearance.Eve.Admin.ItemTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:textColor="@color/eve_text"
-                android:textSize="15sp"
                 tools:text="Important Exam Update" />
 
             <com.google.android.material.button.MaterialButton
@@ -54,13 +54,13 @@
 
         <TextView
             android:id="@+id/tvBroadcastMessage"
+            style="@style/TextAppearance.Eve.Admin.ItemSubtitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:ellipsize="end"
             android:maxLines="2"
             android:textColor="@color/eve_text_secondary"
-            android:textSize="13sp"
             tools:text="The exam date has been rescheduled to next week. Please check your hall tickets." />
 
         <LinearLayout
@@ -72,22 +72,22 @@
 
             <TextView
                 android:id="@+id/tvBroadcastTime"
+                style="@style/TextAppearance.Eve.Caption1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textColor="@color/eve_text_secondary"
-                android:textSize="13sp"
                 tools:text="24 Sep 2026, 10:30 AM" />
 
             <TextView
                 android:id="@+id/tvBroadcastTarget"
+                style="@style/TextAppearance.Eve.Admin.Badge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_category_chip"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="2dp"
                 android:textColor="@color/eve_accent_text"
-                android:textSize="13sp"
                 tools:text="Target: All Users" />
         </LinearLayout>
     </LinearLayout>

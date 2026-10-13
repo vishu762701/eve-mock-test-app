@@ -51,21 +51,18 @@
             android:orientation="vertical">
 
             <TextView
+                style="@style/TextAppearance.Eve.Headline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="General"
-                android:textColor="?attr/eveLabelPrimary"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:text="General" />
 
             <TextView
                 android:id="@+id/tvSheetSubGeneral"
+                style="@style/TextAppearance.Eve.Footnote"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="No cutoff configured"
-                android:textColor="?attr/eveLabelSecondary"
-                android:textSize="13sp" />
+                android:text="No cutoff configured" />
         </LinearLayout>
 
         <ImageView
@@ -102,21 +99,18 @@
             android:orientation="vertical">
 
             <TextView
+                style="@style/TextAppearance.Eve.Headline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="OBC"
-                android:textColor="?attr/eveLabelPrimary"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:text="OBC" />
 
             <TextView
                 android:id="@+id/tvSheetSubObc"
+                style="@style/TextAppearance.Eve.Footnote"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="No cutoff configured"
-                android:textColor="?attr/eveLabelSecondary"
-                android:textSize="13sp" />
+                android:text="No cutoff configured" />
         </LinearLayout>
 
         <ImageView
@@ -154,21 +148,18 @@
             android:orientation="vertical">
 
             <TextView
+                style="@style/TextAppearance.Eve.Headline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="SC"
-                android:textColor="?attr/eveLabelPrimary"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:text="SC" />
 
             <TextView
                 android:id="@+id/tvSheetSubSc"
+                style="@style/TextAppearance.Eve.Footnote"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="No cutoff configured"
-                android:textColor="?attr/eveLabelSecondary"
-                android:textSize="13sp" />
+                android:text="No cutoff configured" />
         </LinearLayout>
 
         <ImageView
@@ -206,21 +197,18 @@
             android:orientation="vertical">
 
             <TextView
+                style="@style/TextAppearance.Eve.Headline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="ST"
-                android:textColor="?attr/eveLabelPrimary"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:text="ST" />
 
             <TextView
                 android:id="@+id/tvSheetSubSt"
+                style="@style/TextAppearance.Eve.Footnote"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="No cutoff configured"
-                android:textColor="?attr/eveLabelSecondary"
-                android:textSize="13sp" />
+                android:text="No cutoff configured" />
         </LinearLayout>
 
         <ImageView
@@ -258,21 +246,18 @@
             android:orientation="vertical">
 
             <TextView
+                style="@style/TextAppearance.Eve.Headline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="EWS"
-                android:textColor="?attr/eveLabelPrimary"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:text="EWS" />
 
             <TextView
                 android:id="@+id/tvSheetSubEws"
+                style="@style/TextAppearance.Eve.Footnote"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="No cutoff configured"
-                android:textColor="?attr/eveLabelSecondary"
-                android:textSize="13sp" />
+                android:text="No cutoff configured" />
         </LinearLayout>
 
         <ImageView

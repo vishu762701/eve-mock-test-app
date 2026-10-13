@@ -106,13 +106,13 @@
 
                 <!-- CONTENT MANAGEMENT SECTION -->
                 <TextView
+                    style="@style/TextAppearance.Eve.Admin.SectionHeader"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:letterSpacing="0.08"
                     android:text="CONTENT MANAGEMENT"
-                    android:textColor="@color/eve_text_secondary"
-                    android:textSize="13sp" />
+                    android:textColor="@color/eve_text_secondary" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnManageExistingExams"
@@ -233,11 +233,11 @@
 
                 <!-- 2. Select Exam -->
                 <TextView
+                    style="@style/TextAppearance.Eve.Headline"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="2. Select Exam (to manage questions)"
-                    android:textColor="@color/eve_text"
-                    android:textSize="16sp" />
+                    android:textColor="@color/eve_text" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -281,12 +281,12 @@
 
                 <!-- 3. Questions in Selected Exam -->
                 <TextView
+                    style="@style/TextAppearance.Eve.Headline"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
                     android:text="3. Questions in Selected Exam"
-                    android:textColor="@color/eve_text"
-                    android:textSize="16sp" />
+                    android:textColor="@color/eve_text" />
 
                 <!-- Action Buttons: Manual Single-Question Add + Bulk Upload -->
                 <LinearLayout
@@ -341,18 +341,17 @@
                         android:layout_marginTop="16dp"
                         android:gravity="center"
                         android:text="Select an exam above to view its questions"
-                        android:textColor="@color/eve_text"
-                        android:textSize="15sp" />
+                        android:textColor="@color/eve_text" />
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Footnote"
                         android:id="@+id/tvEmptyQuestionsSubtitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:gravity="center"
                         android:text="Choose an exam from the dropdown to manage questions or upload new ones."
-                        android:textColor="@color/eve_text_secondary"
-                        android:textSize="13sp" />
+                        android:textColor="@color/eve_text_secondary" />
 
 
                 </LinearLayout>
@@ -398,12 +397,12 @@
 
                 <!-- 1. USER MANAGEMENT -->
                 <TextView
+                    style="@style/TextAppearance.Eve.Admin.SectionHeader"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:letterSpacing="0.08"
                     android:text="USER MANAGEMENT"
-                    android:textColor="@color/eve_text_secondary"
-                    android:textSize="13sp" />
+                    android:textColor="@color/eve_text_secondary" />
 
                 <!-- Stats Card (Tappable -> Manage Users) -->
                 <com.google.android.material.card.MaterialCardView
@@ -439,19 +438,19 @@
                                 android:orientation="vertical">
 
                                 <TextView
+                                    style="@style/TextAppearance.Eve.Admin.CardValue"
                                     android:id="@+id/tvTotalUsers"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="—"
-                                    android:textColor="@color/eve_text"
-                                    android:textSize="22sp" />
+                                    android:textColor="@color/eve_text" />
 
                                 <TextView
+                                    style="@style/TextAppearance.Eve.Caption1"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Total Signups"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="12sp" />
+                                    android:textColor="@color/eve_text_secondary" />
                             </LinearLayout>
 
                             <LinearLayout
@@ -461,19 +460,19 @@
                                 android:orientation="vertical">
 
                                 <TextView
+                                    style="@style/TextAppearance.Eve.Admin.CardValue"
                                     android:id="@+id/tvOnlineUsers"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="—"
-                                    android:textColor="@color/eve_status_success_text"
-                                    android:textSize="22sp" />
+                                    android:textColor="@color/eve_status_success_text" />
 
                                 <TextView
+                                    style="@style/TextAppearance.Eve.Caption1"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Online Now"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="12sp" />
+                                    android:textColor="@color/eve_text_secondary" />
                             </LinearLayout>
 
                             <ImageButton
@@ -488,12 +487,12 @@
                         </LinearLayout>
 
                         <TextView
+                            style="@style/TextAppearance.Eve.Footnote.Medium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             android:text="Tap to manage users &amp; view test history →"
-                            android:textColor="@color/eve_accent_text"
-                            android:textSize="13sp" />
+                            android:textColor="@color/eve_accent_text" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -513,21 +512,21 @@
 
                 <!-- 4. Manage Admins Section -->
                 <TextView
+                    style="@style/TextAppearance.Eve.Headline"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="28dp"
                     android:text="4. Manage Admins"
-                    android:textColor="@color/eve_text"
-                    android:textSize="16sp" />
+                    android:textColor="@color/eve_text" />
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Footnote"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:layout_marginBottom="8dp"
                     android:text="Add new admin emails dynamically without requiring an app update."
-                    android:textColor="@color/eve_text_secondary"
-                    android:textSize="13sp" />
+                    android:textColor="@color/eve_text_secondary" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -536,6 +535,7 @@
                     android:orientation="horizontal">
 
                     <EditText
+                        style="@style/TextAppearance.Eve.BodySmall"
                         android:id="@+id/etAdminEmail"
                         android:layout_width="0dp"
                         android:layout_height="48dp"
@@ -545,8 +545,7 @@
                         android:inputType="textEmailAddress"
                         android:paddingHorizontal="12dp"
                         android:textColor="@color/eve_text"
-                        android:textColorHint="@color/eve_text_secondary"
-                        android:textSize="14sp" />
+                        android:textColorHint="@color/eve_text_secondary" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnAddAdmin"
@@ -577,13 +576,13 @@
 
                 <!-- COMMUNICATION SECTION -->
                 <TextView
+                    style="@style/TextAppearance.Eve.Admin.SectionHeader"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="28dp"
                     android:letterSpacing="0.08"
                     android:text="COMMUNICATION"
-                    android:textColor="@color/eve_text_secondary"
-                    android:textSize="13sp" />
+                    android:textColor="@color/eve_text_secondary" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSendNotification"
@@ -661,13 +660,13 @@
 
                 <!-- ANALYTICS & MONITORING SECTION -->
                 <TextView
+                    style="@style/TextAppearance.Eve.Admin.SectionHeader"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="28dp"
                     android:letterSpacing="0.08"
                     android:text="ANALYTICS &amp; MONITORING"
-                    android:textColor="@color/eve_text_secondary"
-                    android:textSize="13sp" />
+                    android:textColor="@color/eve_text_secondary" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSystemMonitor"
@@ -749,13 +748,13 @@
 
                 <!-- APP VERSION & BUILD STATUS SECTION -->
                 <TextView
+                    style="@style/TextAppearance.Eve.Admin.SectionHeader"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="28dp"
                     android:letterSpacing="0.08"
                     android:text="APP VERSION &amp; BUILD STATUS"
-                    android:textColor="@color/eve_text_secondary"
-                    android:textSize="13sp" />
+                    android:textColor="@color/eve_text_secondary" />
 
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
@@ -787,15 +786,16 @@
                                 app:tint="@color/eve_primary" />
 
                             <TextView
+                                style="@style/TextAppearance.Eve.Subheadline.Medium"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="8dp"
                                 android:layout_weight="1"
                                 android:text="Version Enforcement Status"
-                                android:textColor="@color/eve_text"
-                                android:textSize="14sp" />
+                                android:textColor="@color/eve_text" />
 
                             <TextView
+                                style="@style/TextAppearance.Eve.Footnote.Medium"
                                 android:id="@+id/tvVersionStatusBadge"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -803,8 +803,7 @@
                                 android:paddingHorizontal="8dp"
                                 android:paddingVertical="3dp"
                                 android:text="Active"
-                                android:textColor="@color/eve_status_success_text"
-                                android:textSize="13sp" />
+                                android:textColor="@color/eve_status_success_text" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -820,19 +819,19 @@
                                 android:orientation="vertical">
 
                                 <TextView
+                                    style="@style/TextAppearance.Eve.Footnote"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Installed Version"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="13sp" />
+                                    android:textColor="@color/eve_text_secondary" />
 
                                 <TextView
+                                    style="@style/TextAppearance.Eve.Footnote.Medium"
                                     android:id="@+id/tvInstalledVersion"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="v1.0 (Code 1)"
-                                    android:textColor="@color/eve_text"
-                                    android:textSize="13sp" />
+                                    android:textColor="@color/eve_text" />
                             </LinearLayout>
 
                             <LinearLayout
@@ -842,41 +841,41 @@
                                 android:orientation="vertical">
 
                                 <TextView
+                                    style="@style/TextAppearance.Eve.Footnote"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Min Supported Code"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="13sp" />
+                                    android:textColor="@color/eve_text_secondary" />
 
                                 <TextView
+                                    style="@style/TextAppearance.Eve.Footnote.Medium"
                                     android:id="@+id/tvMinSupportedVersion"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="1"
-                                    android:textColor="@color/eve_text"
-                                    android:textSize="13sp" />
+                                    android:textColor="@color/eve_text" />
                             </LinearLayout>
                         </LinearLayout>
 
                         <TextView
+                            style="@style/TextAppearance.Eve.Footnote"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
                             android:text="To enforce an immediate update on older student devices, update 'minimum_supported_version_code' in Firebase Remote Config or using App Config."
-                            android:textColor="@color/eve_text_secondary"
-                            android:textSize="13sp" />
+                            android:textColor="@color/eve_text_secondary" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
                 <!-- MAINTENANCE MODE CONTROL PANEL -->
                 <TextView
+                    style="@style/TextAppearance.Eve.Admin.SectionHeader"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="28dp"
                     android:letterSpacing="0.08"
                     android:text="SYSTEM MAINTENANCE"
-                    android:textColor="@color/eve_text_secondary"
-                    android:textSize="13sp" />
+                    android:textColor="@color/eve_text_secondary" />
 
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
@@ -909,15 +908,16 @@
                                 app:tint="@color/eve_status_error_text" />
 
                             <TextView
+                                style="@style/TextAppearance.Eve.Headline"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="8dp"
                                 android:layout_weight="1"
                                 android:text="Maintenance Mode"
-                                android:textColor="@color/eve_text"
-                                android:textSize="15sp" />
+                                android:textColor="@color/eve_text" />
 
                             <TextView
+                                style="@style/TextAppearance.Eve.Footnote.Medium"
                                 android:id="@+id/tvLiveMaintenanceStatus"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -925,17 +925,16 @@
                                 android:paddingHorizontal="8dp"
                                 android:paddingVertical="3dp"
                                 android:text="OFF (Live)"
-                                android:textColor="@color/eve_status_success_text"
-                                android:textSize="13sp" />
+                                android:textColor="@color/eve_status_success_text" />
                         </LinearLayout>
 
                         <TextView
+                            style="@style/TextAppearance.Eve.Caption1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
                             android:text="When active, all students are immediately blocked by a maintenance screen with your custom message."
-                            android:textColor="@color/eve_text_secondary"
-                            android:textSize="12sp" />
+                            android:textColor="@color/eve_text_secondary" />
 
                         <com.google.android.material.materialswitch.MaterialSwitch
                             android:id="@+id/switchMaintenanceMode"
@@ -953,13 +952,13 @@
                             android:hint="Custom Maintenance Notice Message">
 
                             <com.google.android.material.textfield.TextInputEditText
+                                style="@style/TextAppearance.Eve.Footnote"
                                 android:id="@+id/etMaintenanceMessage"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:gravity="top|start"
                                 android:lines="2"
-                                android:maxLines="4"
-                                android:textSize="13sp" />
+                                android:maxLines="4" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.button.MaterialButton

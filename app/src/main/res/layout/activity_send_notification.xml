@@ -63,16 +63,17 @@
                 app:tint="@color/eve_text" />
 
             <TextView
+                style="@style/TextAppearance.Eve.Headline"
                 android:id="@+id/tvSelectedCount"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:layout_weight="1"
                 android:text="0 selected"
-                android:textColor="@color/eve_text"
-                android:textSize="17sp" />
+                android:textColor="@color/eve_text" />
 
             <TextView
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:id="@+id/btnSelectAll"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -82,8 +83,7 @@
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="8dp"
                 android:text="Select all"
-                android:textColor="@color/eve_accent_text"
-                android:textSize="14sp" />
+                android:textColor="@color/eve_accent_text" />
 
             <ImageButton
                 android:id="@+id/btnDeleteSelected"
@@ -110,28 +110,28 @@
             android:orientation="vertical">
 
             <TextView
+                style="@style/TextAppearance.Eve.Title3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Broadcast Push Notification"
-                android:textColor="@color/eve_text"
-                android:textSize="18sp" />
+                android:textColor="@color/eve_text" />
 
             <TextView
+                style="@style/TextAppearance.Eve.Footnote"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="This message will be pushed to all registered users subscribed to the app."
-                android:textColor="@color/eve_text_secondary"
-                android:textSize="13sp" />
+                android:textColor="@color/eve_text_secondary" />
 
             <!-- Target Audience / Category Selector -->
             <TextView
+                style="@style/TextAppearance.Eve.Subheadline.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="Target Audience"
-                android:textColor="@color/eve_text"
-                android:textSize="14sp" />
+                android:textColor="@color/eve_text" />
 
             <Spinner
                 android:id="@+id/spTargetCategory"
@@ -149,13 +149,13 @@
                 android:hint="Notification Title">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    style="@style/TextAppearance.Eve.BodySmall"
                     android:id="@+id/etTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textCapSentences"
                     android:maxLines="1"
-                    android:textColor="@color/eve_text"
-                    android:textSize="15sp" />
+                    android:textColor="@color/eve_text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Message Field -->
@@ -170,6 +170,7 @@
                 app:counterMaxLength="500">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    style="@style/TextAppearance.Eve.BodySmall"
                     android:id="@+id/etMessage"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -177,8 +178,7 @@
                     android:inputType="textMultiLine|textCapSentences"
                     android:maxLength="500"
                     android:minLines="5"
-                    android:textColor="@color/eve_text"
-                    android:textSize="15sp" />
+                    android:textColor="@color/eve_text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Send Button -->
@@ -210,19 +210,19 @@
 
             <!-- Sent Messages Section -->
             <TextView
+                style="@style/TextAppearance.Eve.Title3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Sent Broadcasts"
-                android:textColor="@color/eve_text"
-                android:textSize="18sp" />
+                android:textColor="@color/eve_text" />
 
             <TextView
+                style="@style/TextAppearance.Eve.Caption1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Note: Already-delivered push notifications cannot be recalled from a device. Deleting a broadcast removes it from all students' in-app notification lists."
-                android:textColor="@color/eve_text_secondary"
-                android:textSize="12sp" />
+                android:textColor="@color/eve_text_secondary" />
 
             <ProgressBar
                 android:id="@+id/progressBarSent"
@@ -233,6 +233,7 @@
                 android:visibility="gone" />
 
             <TextView
+                style="@style/TextAppearance.Eve.Footnote"
                 android:id="@+id/tvNoSentBroadcasts"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -240,7 +241,6 @@
                 android:layout_marginTop="20dp"
                 android:text="No broadcast messages sent yet."
                 android:textColor="@color/eve_text_secondary"
-                android:textSize="14sp"
                 android:visibility="gone" />
 
             <com.eve.app.ui.common.ErrorStateView

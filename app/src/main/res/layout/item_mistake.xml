@@ -24,14 +24,14 @@
 
             <TextView
                 android:id="@+id/tvMistakeType"
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_stat_mini"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="2dp"
                 android:text="Wrong Answer"
-                android:textColor="@color/eve_status_error_text"
-                android:textSize="13sp" />
+                android:textColor="@color/eve_status_error_text" />
 
             <View
                 android:layout_width="0dp"
@@ -44,23 +44,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:minHeight="40dp"
-                android:fontFamily="sans-serif-medium"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="4dp"
                 android:stateListAnimator="@animator/press_scale"
-                android:text="Mark as learned"
-                android:textSize="14sp" />
+                android:text="Mark as learned" />
         </com.eve.app.ui.result.ResponsiveResultRow>
 
         <!-- Question Text -->
         <TextView
             android:id="@+id/tvQuestionText"
+            style="@style/TextAppearance.Eve.Callout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:fontFamily="sans-serif"
-            android:textColor="@color/eve_text"
-            android:textSize="16sp" />
+            android:textColor="@color/eve_text" />
 
         <!-- Your Answer Box (if answered) -->
         <LinearLayout
@@ -73,21 +70,19 @@
             android:padding="10dp">
 
             <TextView
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
                 android:text="Your Answer:"
-                android:textColor="@color/eve_status_error_text"
-                android:textSize="13.5sp" />
+                android:textColor="@color/eve_status_error_text" />
 
             <TextView
                 android:id="@+id/tvYourAnswer"
+                style="@style/TextAppearance.Eve.Subheadline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:fontFamily="sans-serif"
-                android:textColor="@color/eve_text"
-                android:textSize="15sp" />
+                android:textColor="@color/eve_text" />
         </LinearLayout>
 
         <!-- Correct Answer Box -->
@@ -101,21 +96,19 @@
             android:padding="10dp">
 
             <TextView
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
                 android:text="Correct Answer:"
-                android:textColor="@color/eve_status_success_text"
-                android:textSize="13.5sp" />
+                android:textColor="@color/eve_status_success_text" />
 
             <TextView
                 android:id="@+id/tvCorrectAnswer"
+                style="@style/TextAppearance.Eve.Subheadline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:fontFamily="sans-serif"
-                android:textColor="@color/eve_text"
-                android:textSize="15sp" />
+                android:textColor="@color/eve_text" />
         </LinearLayout>
 
         <!-- Explanation Section -->
@@ -128,21 +121,19 @@
             android:visibility="gone">
 
             <TextView
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
                 android:text="Explanation:"
-                android:textColor="?attr/eveLabelSecondary"
-                android:textSize="13.5sp" />
+                android:textColor="?attr/eveLabelSecondary" />
 
             <TextView
                 android:id="@+id/tvExplanation"
+                style="@style/TextAppearance.Eve.Subheadline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:fontFamily="sans-serif"
-                android:textColor="?attr/eveLabelSecondary"
-                android:textSize="15sp" />
+                android:textColor="?attr/eveLabelSecondary" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

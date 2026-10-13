@@ -69,11 +69,11 @@
                     android:padding="16dp">
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Headline"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Live Backend Controls"
-                        android:textColor="@color/eve_accent_text"
-                        android:textSize="16sp" />
+                        android:textColor="@color/eve_accent_text" />
 
                     <!-- Maintenance Mode Switch -->
                     <LinearLayout
@@ -90,18 +90,18 @@
                             android:orientation="vertical">
 
                             <TextView
+                                style="@style/TextAppearance.Eve.Headline"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Maintenance Mode"
-                                android:textColor="@color/eve_text"
-                                android:textSize="15sp" />
+                                android:textColor="@color/eve_text" />
 
                             <TextView
+                                style="@style/TextAppearance.Eve.Caption1"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Blocks non-admin users from using the app"
-                                android:textColor="@color/eve_text_secondary"
-                                android:textSize="12sp" />
+                                android:textColor="@color/eve_text_secondary" />
                         </LinearLayout>
 
                         <com.google.android.material.materialswitch.MaterialSwitch
@@ -150,30 +150,30 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Footnote"
                         android:id="@+id/tvCurrentVersionNotice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="Current installed app version code: 1"
-                        android:textColor="@color/eve_text_secondary"
-                        android:textSize="13sp" />
+                        android:textColor="@color/eve_text_secondary" />
 
                     <!-- Default AI Test Publish Mode -->
                     <TextView
+                        style="@style/TextAppearance.Eve.Headline"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:text="Default AI Test Status"
-                        android:textColor="@color/eve_text"
-                        android:textSize="15sp" />
+                        android:textColor="@color/eve_text" />
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Caption1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:text="Applies to all exams unless an exam overrides it. Existing tests are not changed."
-                        android:textColor="@color/eve_text_secondary"
-                        android:textSize="12sp" />
+                        android:textColor="@color/eve_text_secondary" />
 
                     <RadioGroup
                         android:id="@+id/rgDefaultPublishMode"
@@ -183,19 +183,19 @@
 
                         <com.google.android.material.radiobutton.MaterialRadioButton
                             android:id="@+id/rbPublishPaused"
+                            android:textAppearance="@style/TextAppearance.Eve.BodySmall"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Keep new AI tests paused (review first)"
-                            android:textColor="@color/eve_text"
-                            android:textSize="14sp" />
+                            android:textColor="@color/eve_text" />
 
                         <com.google.android.material.radiobutton.MaterialRadioButton
                             android:id="@+id/rbPublishLive"
+                            android:textAppearance="@style/TextAppearance.Eve.BodySmall"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Publish new AI tests live automatically"
-                            android:textColor="@color/eve_text"
-                            android:textSize="14sp" />
+                            android:textColor="@color/eve_text" />
                     </RadioGroup>
 
                     <com.google.android.material.button.MaterialButton
@@ -235,20 +235,20 @@
                     android:padding="16dp">
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Headline"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Firebase Console Remote Config Guide"
-                        android:textColor="@color/eve_accent_text"
-                        android:textSize="15sp" />
+                        android:textColor="@color/eve_accent_text" />
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Caption1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:lineSpacingExtra="3dp"
                         android:text="To manage safety limits directly in the Firebase Console without changing backend code:\n\n1. Go to Firebase Console -> Engage -> Remote Config.\n\n2. Configure these parameters:\n   • minimum_supported_version_code: (Number, e.g. 2). Users with lower version will see a blocking update prompt.\n   • maintenance_mode: (Boolean: true/false). Halts student access immediately.\n   • maintenance_message: (String). The message displayed to students during maintenance.\n\n3. Click 'Publish Changes' in Firebase Console."
-                        android:textColor="@color/eve_text"
-                        android:textSize="12sp" />
+                        android:textColor="@color/eve_text" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>

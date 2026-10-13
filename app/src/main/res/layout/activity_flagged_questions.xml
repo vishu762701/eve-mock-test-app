@@ -110,13 +110,13 @@
 
         <TextView
             android:id="@+id/tvEmpty"
+            style="@style/TextAppearance.Eve.BodySmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
             android:text="🎉 No pending flagged questions!\nAll reported issues have been resolved."
             android:textColor="@color/eve_text_secondary"
-            android:textSize="14sp"
             android:visibility="gone" />
     </FrameLayout>
 </LinearLayout>

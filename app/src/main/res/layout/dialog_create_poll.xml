@@ -11,22 +11,23 @@
         android:padding="20dp">
 
         <TextView
+            style="@style/TextAppearance.Eve.Headline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Create New Poll"
-            android:textColor="@color/eve_text"
-            android:textSize="18sp" />
+            android:textColor="@color/eve_text" />
 
         <TextView
+            style="@style/TextAppearance.Eve.Footnote.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Poll Question *"
-            android:textColor="@color/eve_text"
-            android:textSize="13sp" />
+            android:textColor="@color/eve_text" />
 
         <EditText
             android:id="@+id/etQuestion"
+            style="@style/TextAppearance.Eve.BodySmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -35,16 +36,15 @@
             android:inputType="textCapSentences|textMultiLine"
             android:maxLines="3"
             android:padding="12dp"
-            android:textColor="@color/eve_text"
-            android:textSize="14sp" />
+            android:textColor="@color/eve_text" />
 
         <TextView
+            style="@style/TextAppearance.Eve.Footnote.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Options (2 to 6) *"
-            android:textColor="@color/eve_text"
-            android:textSize="13sp" />
+            android:textColor="@color/eve_text" />
 
         <LinearLayout
             android:id="@+id/optionsContainer"
@@ -56,19 +56,19 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAddOptionRow"
             style="@style/Widget.Eve.OutlinedButton"
+            android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:layout_marginTop="8dp"
-            android:text="+ Add Option"
-            android:textSize="12sp" />
+            android:text="+ Add Option" />
 
         <TextView
+            style="@style/TextAppearance.Eve.Footnote.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Poll Duration / End Date (Optional)"
-            android:textColor="@color/eve_text"
-            android:textSize="13sp" />
+            android:textColor="@color/eve_text" />
 
         <Spinner
             android:id="@+id/spDuration"

@@ -35,11 +35,11 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCreatePollDialog"
             style="@style/Widget.Eve.Button"
+            android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
             android:layout_width="wrap_content"
             android:layout_height="38dp"
             android:paddingHorizontal="12dp"
-            android:text="+ New Poll"
-            android:textSize="12sp" />
+            android:text="+ New Poll" />
     </LinearLayout>
 
     <FrameLayout

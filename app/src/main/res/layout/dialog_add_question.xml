@@ -77,12 +77,12 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
+            style="@style/TextAppearance.Eve.Footnote.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:text="Correct Answer"
-            android:textColor="@color/eve_text"
-            android:textSize="13sp" />
+            android:textColor="@color/eve_text" />
 
         <RadioGroup
             android:id="@+id/rgCorrectAnswer"

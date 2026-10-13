@@ -483,4 +483,67 @@
         <item name="android:textColor">?attr/eveLabelSecondary</item>
         <item name="lineHeight">22sp</item>
     </style>
+
+    <!-- Admin Screen Typography (Apple iOS 26 Hierarchy) -->
+    <style name="TextAppearance.Eve.Admin.ScreenTitle" parent="TextAppearance.Eve.Title3">
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+    </style>
+
+    <style name="TextAppearance.Eve.Admin.SectionHeader" parent="TextAppearance.Eve.Headline">
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+    </style>
+
+    <style name="TextAppearance.Eve.Admin.CardTitle" parent="TextAppearance.Eve.Headline">
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+    </style>
+
+    <style name="TextAppearance.Eve.Admin.CardValue" parent="TextAppearance.Eve.Title2">
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+    </style>
+
+    <style name="TextAppearance.Eve.Admin.ItemTitle" parent="TextAppearance.Eve.Subheadline.Medium">
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+    </style>
+
+    <style name="TextAppearance.Eve.Admin.ItemSubtitle" parent="TextAppearance.Eve.Footnote">
+        <item name="android:textColor">?attr/eveLabelSecondary</item>
+    </style>
+
+    <style name="TextAppearance.Eve.Admin.Badge" parent="TextAppearance.Eve.Caption1.Medium">
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+    </style>
+
+    <!-- Premium & Monetization Typography (Apple iOS 26 Hierarchy) -->
+    <style name="TextAppearance.Eve.Premium.HeroTitle" parent="TextAppearance.Eve.Title1">
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+    </style>
+
+    <style name="TextAppearance.Eve.Premium.PlanPrice" parent="TextAppearance.Eve.Title1">
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+    </style>
+
+    <style name="TextAppearance.Eve.Premium.FeatureTitle" parent="TextAppearance.Eve.Headline">
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+    </style>
+
+    <style name="TextAppearance.Eve.Premium.FeatureDescription" parent="TextAppearance.Eve.Subheadline">
+        <item name="android:textColor">?attr/eveLabelSecondary</item>
+    </style>
+
+    <!-- Analytics & Monitor Typography (Apple iOS 26 Hierarchy) -->
+    <style name="TextAppearance.Eve.Analytics.MetricValue" parent="TextAppearance.Eve.Title1">
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+    </style>
+
+    <style name="TextAppearance.Eve.Analytics.MetricLabel" parent="TextAppearance.Eve.Footnote.Medium">
+        <item name="android:textColor">?attr/eveLabelSecondary</item>
+    </style>
+
+    <style name="TextAppearance.Eve.Secondary.Badge" parent="TextAppearance.Eve.Caption1.Medium">
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+    </style>
+
+    <style name="TextAppearance.Eve.Secondary.CardTitle" parent="TextAppearance.Eve.Headline">
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+    </style>
 </resources>

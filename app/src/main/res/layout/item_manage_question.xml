@@ -19,18 +19,18 @@
 
         <TextView
             android:id="@+id/tvQuestionText"
+            style="@style/TextAppearance.Eve.Admin.ItemTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/eve_text"
-            android:textSize="15sp" />
+            android:textColor="@color/eve_text" />
 
         <TextView
             android:id="@+id/tvCorrect"
+            style="@style/TextAppearance.Eve.Admin.ItemSubtitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:textColor="@color/eve_status_success_text"
-            android:textSize="13sp" />
+            android:textColor="@color/eve_status_success_text" />
 
         <LinearLayout
             android:layout_width="match_parent"

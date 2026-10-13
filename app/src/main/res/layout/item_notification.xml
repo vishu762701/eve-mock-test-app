@@ -30,29 +30,25 @@
 
         <TextView
             android:id="@+id/tvTitle"
+            style="@style/TextAppearance.Eve.Headline"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/eve_text"
-            android:textSize="15sp"
-            android:textStyle="bold"
             tools:text="Naya Exam Available!" />
 
         <TextView
             android:id="@+id/tvBody"
+            style="@style/TextAppearance.Eve.Footnote"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
-            android:textColor="?attr/eveLabelSecondary"
-            android:textSize="13sp"
             tools:text="A new mock test has been added. Try it now!" />
 
         <TextView
             android:id="@+id/tvTime"
+            style="@style/TextAppearance.Eve.Footnote"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:textColor="?attr/eveLabelSecondary"
-            android:textSize="13sp"
             tools:text="2 hours ago" />
     </LinearLayout>
 

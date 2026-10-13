@@ -73,6 +73,7 @@
                 app:tint="@color/eve_text_secondary" />
 
             <EditText
+                style="@style/TextAppearance.Eve.BodySmall"
                 android:id="@+id/etSearchExam"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -83,8 +84,7 @@
                 android:inputType="text"
                 android:maxLines="1"
                 android:textColor="@color/eve_text"
-                android:textColorHint="@color/eve_text_secondary"
-                android:textSize="14sp" />
+                android:textColorHint="@color/eve_text_secondary" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -126,23 +126,23 @@
                 app:lottie_rawRes="@raw/search" />
 
             <TextView
+                style="@style/TextAppearance.Eve.Headline"
                 android:id="@+id/tvEmptyTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="No exams found"
-                android:textColor="@color/eve_text"
-                android:textSize="17sp" />
+                android:textColor="@color/eve_text" />
 
             <TextView
+                style="@style/TextAppearance.Eve.Footnote"
                 android:id="@+id/tvEmptyMessage"
                 android:layout_width="260dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:gravity="center"
                 android:text="No existing exams match your search or filter."
-                android:textColor="@color/eve_text_secondary"
-                android:textSize="13sp" />
+                android:textColor="@color/eve_text_secondary" />
         </LinearLayout>
     </FrameLayout>
 </LinearLayout>

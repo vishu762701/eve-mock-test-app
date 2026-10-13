@@ -9,6 +9,7 @@
 
     <EditText
         android:id="@+id/etOptionText"
+        style="@style/TextAppearance.Eve.BodySmall"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -17,8 +18,7 @@
         android:inputType="textCapSentences"
         android:maxLines="1"
         android:padding="10dp"
-        android:textColor="@color/eve_text"
-        android:textSize="14sp" />
+        android:textColor="@color/eve_text" />
 
     <ImageButton
         android:id="@+id/btnRemoveOption"

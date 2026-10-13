@@ -13,19 +13,19 @@
     android:padding="20dp">
 
     <TextView
+        style="@style/TextAppearance.Eve.Headline"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Home Banner"
-        android:textColor="@color/eve_text"
-        android:textSize="18sp" />
+        android:textColor="@color/eve_text" />
 
     <TextView
+        style="@style/TextAppearance.Eve.Caption1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
         android:text="Publish image banners, manage their optional links, and reorder or remove them from the Home surface."
-        android:textColor="@color/eve_text_secondary"
-        android:textSize="12sp" />
+        android:textColor="@color/eve_text_secondary" />
 
     <!-- Upload Section -->
     <LinearLayout
@@ -37,10 +37,10 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnPickBannerImage"
             style="@style/Widget.Eve.OutlinedButton"
+            android:textAppearance="@style/TextAppearance.Eve.Footnote.Medium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Choose Banner Image (Max 5MB)"
-            android:textSize="13sp" />
+            android:text="Choose Banner Image (Max 5MB)" />
 
         <!-- Preview uses the same centralized footprint as the Home banner. -->
         <com.google.android.material.card.MaterialCardView
@@ -74,13 +74,13 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etBannerLinkUrl"
+                style="@style/TextAppearance.Eve.BodySmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textUri"
                 android:maxLength="2048"
                 android:maxLines="1"
-                android:textColor="@color/eve_text"
-                android:textSize="14sp" />
+                android:textColor="@color/eve_text" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -94,22 +94,22 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etBannerLinkLabel"
+                style="@style/TextAppearance.Eve.BodySmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textCapSentences"
                 android:maxLength="48"
                 android:maxLines="1"
-                android:textColor="@color/eve_text"
-                android:textSize="14sp" />
+                android:textColor="@color/eve_text" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
             android:id="@+id/tvBannerUploadError"
+            style="@style/TextAppearance.Eve.Caption1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:textColor="@color/eve_status_error_text"
-            android:textSize="12sp"
             android:visibility="gone" />
 
         <com.google.android.material.button.MaterialButton
@@ -130,21 +130,21 @@
 
     <!-- Current Banners List -->
     <TextView
+        style="@style/TextAppearance.Eve.Subheadline.Medium"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Published banners in this Home surface"
-        android:textColor="@color/eve_text"
-        android:textSize="14sp" />
+        android:textColor="@color/eve_text" />
 
     <TextView
         android:id="@+id/tvNoBanners"
+        style="@style/TextAppearance.Eve.Footnote"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginVertical="12dp"
         android:gravity="center"
         android:text="No banners uploaded yet."
         android:textColor="@color/eve_text_secondary"
-        android:textSize="13sp"
         android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView

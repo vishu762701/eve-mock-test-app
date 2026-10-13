@@ -61,12 +61,11 @@
 
             <TextView
                 android:id="@+id/tvThemeTitle"
+                style="@style/TextAppearance.Eve.Subheadline.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
-                android:text="Dark Mode"
-                android:textColor="@color/eve_text"
-                android:textSize="15sp" />
+                android:text="Dark Mode" />
         </LinearLayout>
 
         <!-- Subtle Hairline Frosted Glass Divider -->
@@ -104,12 +103,11 @@
                     app:tint="@color/eve_text" />
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Subheadline.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:text="History"
-                    android:textColor="@color/eve_text"
-                    android:textSize="15sp" />
+                    android:text="History" />
             </LinearLayout>
 
             <!-- Row 2: Bookmarks -->
@@ -133,12 +131,11 @@
                     app:tint="@color/eve_text" />
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Subheadline.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:text="Bookmarks"
-                    android:textColor="@color/eve_text"
-                    android:textSize="15sp" />
+                    android:text="Bookmarks" />
             </LinearLayout>
 
             <!-- Row: Mistake Notebook -->
@@ -162,12 +159,11 @@
                     app:tint="@color/eve_text" />
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Subheadline.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:text="Mistake Notebook"
-                    android:textColor="@color/eve_text"
-                    android:textSize="15sp" />
+                    android:text="Mistake Notebook" />
             </LinearLayout>
 
             <!-- Row 3: Topic-wise Test -->
@@ -191,12 +187,11 @@
                     app:tint="@color/eve_text" />
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Subheadline.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:text="Topic-wise Test"
-                    android:textColor="@color/eve_text"
-                    android:textSize="15sp" />
+                    android:text="Topic-wise Test" />
             </LinearLayout>
 
             <!-- Row 4: PYQ -->
@@ -220,12 +215,11 @@
                     app:tint="@color/eve_text" />
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Subheadline.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:text="PYQ"
-                    android:textColor="@color/eve_text"
-                    android:textSize="15sp" />
+                    android:text="PYQ" />
             </LinearLayout>
 
             <!-- Row 5: Logout (Last row, highlighted) -->
@@ -249,12 +243,12 @@
                     app:tint="@color/selector_eve_destructive_text" />
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Subheadline.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
                     android:text="Logout"
-                    android:textColor="@color/selector_eve_destructive_text"
-                    android:textSize="15sp" />
+                    android:textColor="@color/selector_eve_destructive_text" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

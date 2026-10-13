@@ -84,10 +84,21 @@
                         android:text="All time" />
                 </com.google.android.material.chip.ChipGroup>
 
-                <TextView android:id="@+id/tvSummary" android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:textColor="@color/eve_text" android:textSize="14sp"/>
-                <TextView android:id="@+id/tvMostAttempted" android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp" android:textColor="@color/eve_accent_text" android:textSize="15sp" android:textStyle="bold"/>
+                <TextView
+                    style="@style/TextAppearance.Eve.BodySmall"
+                    android:id="@+id/tvSummary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/eve_text" />
+
+                <TextView
+                    style="@style/TextAppearance.Eve.Subheadline.Medium"
+                    android:id="@+id/tvMostAttempted"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:textColor="@color/eve_accent_text"
+                    android:textStyle="bold" />
 
                 <!-- Crash Reports Card -->
                 <com.google.android.material.card.MaterialCardView
@@ -120,23 +131,23 @@
                                 app:tint="@color/eve_primary" />
 
                             <TextView
+                                style="@style/TextAppearance.Eve.Headline"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="8dp"
                                 android:layout_weight="1"
                                 android:text="Crash Reports &amp; Stability"
-                                android:textColor="@color/eve_text"
-                                android:textSize="15sp" />
+                                android:textColor="@color/eve_text" />
 
                             <TextView
+                                style="@style/TextAppearance.Eve.Footnote.Medium"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/bg_category_chip"
                                 android:paddingHorizontal="8dp"
                                 android:paddingVertical="2dp"
                                 android:text="Crashlytics Active"
-                                android:textColor="@color/eve_status_success_text"
-                                android:textSize="13sp" />
+                                android:textColor="@color/eve_status_success_text" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -147,12 +158,12 @@
                             android:orientation="horizontal">
 
                             <TextView
+                                style="@style/TextAppearance.Eve.Title1"
                                 android:id="@+id/tvCrashFreePercentage"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="99.8%"
-                                android:textColor="@color/eve_status_success_text"
-                                android:textSize="26sp" />
+                                android:textColor="@color/eve_status_success_text" />
 
                             <LinearLayout
                                 android:layout_width="0dp"
@@ -162,47 +173,47 @@
                                 android:orientation="vertical">
 
                                 <TextView
+                                    style="@style/TextAppearance.Eve.Footnote.Medium"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Crash-Free Users (7d)"
-                                    android:textColor="@color/eve_text"
-                                    android:textSize="13sp" />
+                                    android:textColor="@color/eve_text" />
 
                                 <TextView
+                                    style="@style/TextAppearance.Eve.Footnote"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Firebase Crashlytics telemetry"
-                                    android:textColor="@color/eve_text_secondary"
-                                    android:textSize="13sp" />
+                                    android:textColor="@color/eve_text_secondary" />
                             </LinearLayout>
                         </LinearLayout>
 
                         <TextView
+                            style="@style/TextAppearance.Eve.Caption1.Medium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
                             android:text="Top Issues / Exceptions:"
-                            android:textColor="@color/eve_text"
-                            android:textSize="12sp" />
+                            android:textColor="@color/eve_text" />
 
                         <TextView
+                            style="@style/TextAppearance.Eve.Caption1"
                             android:id="@+id/tvTopCrashIssues"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:lineSpacingExtra="2dp"
                             android:text="• 0 fatal crashes logged in recent 7-day period\n• 0 ANR (Application Not Responding) events\n• Non-fatal network timeouts handled gracefully"
-                            android:textColor="@color/eve_text_secondary"
-                            android:textSize="12sp" />
+                            android:textColor="@color/eve_text_secondary" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnOpenCrashlyticsConsole"
                             style="@style/Widget.Eve.OutlinedButton"
+                            android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
-                            android:text="View Full Details in Firebase Console"
-                            android:textSize="12sp" />
+                            android:text="View Full Details in Firebase Console" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -225,11 +236,11 @@
                         android:padding="16dp">
 
                         <TextView
+                            style="@style/TextAppearance.Eve.Headline"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="📊 Exam Attempts Distribution"
-                            android:textColor="@color/eve_text"
-                            android:textSize="15sp" />
+                            android:textColor="@color/eve_text" />
 
                         <com.eve.app.ui.admin.ExamAttemptsBarChartView
                             android:id="@+id/barChartView"
@@ -239,24 +250,60 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <TextView android:id="@+id/tvExamHeading" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="22dp" android:text="Exam attempts breakdown" android:textColor="@color/eve_text"
-                    android:textSize="16sp" android:textStyle="bold"/>
-                <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvExams" android:layout_width="match_parent"
-                    android:layout_height="wrap_content" android:nestedScrollingEnabled="false" android:layout_marginTop="8dp"
-                    android:layoutAnimation="@anim/layout_enter"/>
-                <TextView android:id="@+id/tvWeakHeading" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="22dp" android:text="Weak questions" android:textColor="@color/eve_text"
-                    android:textSize="16sp" android:textStyle="bold"/>
-                <TextView android:id="@+id/tvWeakSub" android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp" android:text="High wrong-rate questions with enough attempts are shown first."
-                    android:textColor="@color/eve_text_secondary" android:textSize="12sp"/>
-                <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvQuestions" android:layout_width="match_parent"
-                    android:layout_height="wrap_content" android:nestedScrollingEnabled="false" android:layout_marginTop="8dp"
-                    android:layoutAnimation="@anim/layout_enter"/>
-                <TextView android:id="@+id/tvEmpty" android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp" android:text="Analytics are not available yet. Data will appear after students submit tests."
-                    android:textColor="@color/eve_text_secondary" android:textSize="13sp" android:visibility="gone"/>
+                <TextView
+                    style="@style/TextAppearance.Eve.Headline"
+                    android:id="@+id/tvExamHeading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="22dp"
+                    android:text="Exam attempts breakdown"
+                    android:textColor="@color/eve_text"
+                    android:textStyle="bold" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvExams"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:layout_marginTop="8dp"
+                    android:layoutAnimation="@anim/layout_enter" />
+
+                <TextView
+                    style="@style/TextAppearance.Eve.Headline"
+                    android:id="@+id/tvWeakHeading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="22dp"
+                    android:text="Weak questions"
+                    android:textColor="@color/eve_text"
+                    android:textStyle="bold" />
+
+                <TextView
+                    style="@style/TextAppearance.Eve.Caption1"
+                    android:id="@+id/tvWeakSub"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:text="High wrong-rate questions with enough attempts are shown first."
+                    android:textColor="@color/eve_text_secondary" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvQuestions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:layout_marginTop="8dp"
+                    android:layoutAnimation="@anim/layout_enter" />
+
+                <TextView
+                    style="@style/TextAppearance.Eve.Footnote"
+                    android:id="@+id/tvEmpty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="Analytics are not available yet. Data will appear after students submit tests."
+                    android:textColor="@color/eve_text_secondary"
+                    android:visibility="gone" />
             </LinearLayout>
         </ScrollView>
         <ProgressBar android:id="@+id/progress" android:layout_width="wrap_content" android:layout_height="wrap_content"

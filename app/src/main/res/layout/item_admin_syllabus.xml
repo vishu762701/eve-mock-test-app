@@ -43,18 +43,18 @@
 
                 <TextView
                     android:id="@+id/tvExamName"
+                    style="@style/TextAppearance.Eve.Admin.ItemTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/eve_text"
-                    android:textSize="15sp"
                     tools:text="SSC CGL Tier 1" />
 
                 <TextView
                     android:id="@+id/tvExamCategory"
+                    style="@style/TextAppearance.Eve.Caption1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/eve_text_secondary"
-                    android:textSize="12sp"
                     tools:text="Category: SSC" />
             </LinearLayout>
         </LinearLayout>
@@ -85,20 +85,20 @@
 
                 <TextView
                     android:id="@+id/tvFileName"
+                    style="@style/TextAppearance.Eve.Admin.ItemSubtitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="middle"
                     android:maxLines="1"
                     android:textColor="@color/eve_text"
-                    android:textSize="13sp"
                     tools:text="ssc_cgl_syllabus_2026.pdf" />
 
                 <TextView
                     android:id="@+id/tvUploadDate"
+                    style="@style/TextAppearance.Eve.Caption1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/eve_text_secondary"
-                    android:textSize="13sp"
                     tools:text="Uploaded: 24 Sep 2026" />
             </LinearLayout>
         </LinearLayout>
@@ -114,33 +114,33 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnChangeExam"
                 style="@style/Widget.Eve.OutlinedButton"
+                android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
                 android:paddingHorizontal="10dp"
-                android:text="Reassign"
-                android:textSize="12sp" />
+                android:text="Reassign" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnReplacePdf"
                 style="@style/Widget.Eve.OutlinedButton"
+                android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
                 android:layout_marginStart="8dp"
                 android:paddingHorizontal="10dp"
-                android:text="Replace PDF"
-                android:textSize="12sp" />
+                android:text="Replace PDF" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDeletePdf"
                 style="@style/Widget.Eve.OutlinedButton"
+                android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
                 android:layout_marginStart="8dp"
                 android:paddingHorizontal="10dp"
                 android:text="Delete"
                 android:textColor="@color/selector_eve_destructive_text"
-                app:strokeColor="@color/eve_shape_border"
-                android:textSize="12sp" />
+                app:strokeColor="@color/eve_shape_border" />
         </LinearLayout>
 
     </LinearLayout>

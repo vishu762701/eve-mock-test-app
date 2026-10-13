@@ -39,15 +39,16 @@
                 app:tint="@color/eve_bulletin_text" />
 
             <TextView
+                style="@style/TextAppearance.Eve.BodySmall"
                 android:id="@+id/tvBulletinMessage"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:maxWidth="260dp"
-                android:textColor="@color/eve_bulletin_text"
-                android:textSize="14sp" />
+                android:textColor="@color/eve_bulletin_text" />
 
             <TextView
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:id="@+id/btnBulletinAction"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -60,7 +61,6 @@
                 android:text="UNDO"
                 android:textAllCaps="true"
                 android:textColor="@color/eve_bulletin_action"
-                android:textSize="13sp"
                 android:textStyle="bold"
                 android:visibility="gone" />
         </LinearLayout>

@@ -44,11 +44,10 @@
 
             <TextView
                 android:id="@+id/tvSubtitle"
+                style="@style/TextAppearance.Eve.Footnote"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Review your incorrect and skipped questions"
-                android:textColor="?attr/eveLabelSecondary"
-                android:textSize="12sp" />
+                android:text="Review your incorrect and skipped questions" />
         </LinearLayout>
     </LinearLayout>
 
@@ -60,6 +59,7 @@
     <!-- Offline Banner -->
     <TextView
         android:id="@+id/tvOfflineBanner"
+        style="@style/TextAppearance.Eve.Test.OfflineBanner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/eve_offline_bg"
@@ -67,7 +67,6 @@
         android:paddingVertical="6dp"
         android:text="You are offline. Showing cached mistakes."
         android:textColor="@color/eve_offline_text"
-        android:textSize="12sp"
         android:visibility="gone" />
 
     <!-- Filter Chips -->

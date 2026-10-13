@@ -26,41 +26,39 @@
 
             <TextView
                 android:id="@+id/tvExamName"
+                style="@style/TextAppearance.Eve.Headline"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="SSC CGL - Generated Test #1"
-                android:textColor="@color/eve_text"
-                android:textSize="16sp" />
+                android:text="SSC CGL - Generated Test #1" />
 
             <TextView
                 android:id="@+id/tvStatusBadge"
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_circle_translucent"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="3dp"
                 android:text="PAUSED"
-                android:textColor="@color/eve_text_secondary"
-                android:textSize="13sp" />
+                android:textColor="@color/eve_text_secondary" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/tvTestDetails"
+            style="@style/TextAppearance.Eve.Footnote"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="25 questions • Generated 2h ago"
-            android:textColor="@color/eve_text_secondary"
-            android:textSize="13sp" />
+            android:text="25 questions • Generated 2h ago" />
 
         <TextView
             android:id="@+id/tvScheduledTime"
+            style="@style/TextAppearance.Eve.Caption1.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:textColor="@color/eve_accent_text"
-            android:textSize="12sp"
             android:visibility="gone" />
 
         <LinearLayout
@@ -71,11 +69,10 @@
             android:orientation="horizontal">
 
             <TextView
+                style="@style/TextAppearance.Eve.Subheadline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Live for students:"
-                android:textColor="@color/eve_text"
-                android:textSize="14sp" />
+                android:text="Live for students:" />
 
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/switchLive"
@@ -98,8 +95,7 @@
                 android:layout_height="wrap_content"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
-                android:text="Schedule"
-                android:textSize="13sp" />
+                android:text="Schedule" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPreview"
@@ -109,8 +105,7 @@
                 android:layout_marginStart="4dp"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
-                android:text="Review"
-                android:textSize="13sp" />
+                android:text="Review" />
 
             <ImageButton
                 android:id="@+id/btnDelete"

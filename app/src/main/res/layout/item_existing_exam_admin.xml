@@ -25,14 +25,14 @@
 
             <TextView
                 android:id="@+id/tvExamName"
+                style="@style/TextAppearance.Eve.Admin.ItemTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="SSC CGL 2026 Tier-1"
-                android:textColor="@color/eve_text"
-                android:textSize="16sp" />
+                android:textColor="@color/eve_text" />
 
             <ImageButton
                 android:id="@+id/btnMoreOptions"
@@ -54,32 +54,32 @@
 
             <TextView
                 android:id="@+id/tvCategoryBadge"
+                style="@style/TextAppearance.Eve.Admin.Badge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_category_chip"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="3dp"
                 android:text="SSC"
-                android:textColor="@color/eve_accent_text"
-                android:textSize="12sp" />
+                android:textColor="@color/eve_accent_text" />
 
             <TextView
                 android:id="@+id/tvTimeLimit"
+                style="@style/TextAppearance.Eve.Caption1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:text="⏱️ 60 mins"
-                android:textColor="@color/eve_text_secondary"
-                android:textSize="13sp" />
+                android:textColor="@color/eve_text_secondary" />
 
             <TextView
                 android:id="@+id/tvQuestionCount"
+                style="@style/TextAppearance.Eve.Caption1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:text="📝 100 Qs"
-                android:textColor="@color/eve_text_secondary"
-                android:textSize="13sp" />
+                android:textColor="@color/eve_text_secondary" />
         </LinearLayout>
 
         <View
@@ -96,35 +96,35 @@
 
             <TextView
                 android:id="@+id/tvAttemptCount"
+                style="@style/TextAppearance.Eve.Caption1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="📊 42 student attempts"
-                android:textColor="@color/eve_text_secondary"
-                android:textSize="13sp" />
+                android:textColor="@color/eve_text_secondary" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnQuickPreview"
                 style="@style/Widget.Eve.TextButton"
+                android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:minHeight="0dp"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="4dp"
-                android:text="Preview"
-                android:textSize="12sp" />
+                android:text="Preview" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnQuickEdit"
                 style="@style/Widget.Eve.TextButton"
+                android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:minHeight="0dp"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="4dp"
-                android:text="Edit"
-                android:textSize="12sp" />
+                android:text="Edit" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

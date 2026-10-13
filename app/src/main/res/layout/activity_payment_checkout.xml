@@ -78,19 +78,17 @@
 
                     <TextView
                         android:id="@+id/tvPlanName"
+                        style="@style/TextAppearance.Eve.Subheadline"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="?attr/eveLabelSecondary"
-                        android:textSize="14sp"
                         tools:text="Premium Pro" />
 
                     <TextView
                         android:id="@+id/tvAmount"
+                        style="@style/TextAppearance.Eve.Premium.PlanPrice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:textColor="?attr/eveLabelPrimary"
-                        android:textSize="28sp"
                         tools:text="₹99" />
 
                     <!-- Countdown Timer Chip -->
@@ -113,11 +111,10 @@
 
                         <TextView
                             android:id="@+id/tvTimer"
+                            style="@style/TextAppearance.Eve.Footnote.Medium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="6dp"
-                            android:textColor="?attr/eveLabelSecondary"
-                            android:textSize="13sp"
                             tools:text="Complete payment within 09:42" />
                     </LinearLayout>
                 </LinearLayout>
@@ -152,13 +149,12 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Footnote"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
                     android:gravity="center"
-                    android:text="Scan with any UPI app (Google Pay, PhonePe, Paytm, BHIM)"
-                    android:textColor="?attr/eveLabelSecondary"
-                    android:textSize="13sp" />
+                    android:text="Scan with any UPI app (Google Pay, PhonePe, Paytm, BHIM)" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnCopyUpi"
@@ -166,8 +162,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:text="Copy UPI Link"
-                    android:textSize="13sp" />
+                    android:text="Copy UPI Link" />
             </LinearLayout>
 
             <!-- 2. UPI Intent Section -->
@@ -187,13 +182,12 @@
                     app:tint="@color/eve_accent" />
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Subheadline"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:gravity="center"
-                    android:text="Tap below to pay directly with any installed UPI app."
-                    android:textColor="?attr/eveLabelSecondary"
-                    android:textSize="14sp" />
+                    android:text="Tap below to pay directly with any installed UPI app." />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnLaunchUpi"
@@ -202,7 +196,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:text="Pay via UPI App"
-                    android:textSize="15sp"
                     android:minHeight="48dp"
                     android:paddingVertical="8dp" />
             </LinearLayout>
@@ -230,13 +223,12 @@
 
                     <TextView
                         android:id="@+id/tvStatusText"
+                        style="@style/TextAppearance.Eve.Footnote"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="14dp"
                         android:layout_weight="1"
-                        android:text="Waiting for payment... Premium activates automatically once verified."
-                        android:textColor="?attr/eveLabelPrimary"
-                        android:textSize="13sp" />
+                        android:text="Waiting for payment... Premium activates automatically once verified." />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -251,20 +243,19 @@
                 android:visibility="gone">
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Headline"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Payment session expired"
-                    android:textColor="@color/eve_status_error_text"
-                    android:textSize="16sp" />
+                    android:textColor="@color/eve_status_error_text" />
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Footnote"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:gravity="center"
-                    android:text="The payment session timed out. Please start a new session."
-                    android:textColor="?attr/eveLabelSecondary"
-                    android:textSize="13sp" />
+                    android:text="The payment session timed out. Please start a new session." />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRestartPayment"
@@ -283,8 +274,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
                 android:text="⚡ Simulate Sandbox Payment (Test Verification)"
-                android:textColor="@color/eve_status_warning_text"
-                android:textSize="12sp" />
+                android:textColor="@color/eve_status_warning_text" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

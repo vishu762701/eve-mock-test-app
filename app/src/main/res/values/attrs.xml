@@ -12,7 +12,26 @@
     <attr name="eveLabelSecondary" format="color" />
     <attr name="eveLabelTertiary" format="color" />
     <attr name="eveLabelQuaternary" format="color" />
-    <attr name="eveAccentText" format="color" />
+    <attr name="evePlaceholderText" format="color" />
+    <attr name="eveSystemBackground" format="color" />
+    <attr name="eveSecondarySystemBackground" format="color" />
+    <attr name="eveTertiarySystemBackground" format="color" />
+    <attr name="eveSystemGroupedBackground" format="color" />
+    <attr name="eveSecondarySystemGroupedBackground" format="color" />
+    <attr name="eveTertiarySystemGroupedBackground" format="color" />
+    <attr name="eveSeparator" format="color" />
+    <attr name="eveOpaqueSeparator" format="color" />
     <attr name="eveControlOutline" format="color" />
+    <attr name="eveSystemBlue" format="color" />
     <attr name="evePrimaryFill" format="color" />
+    <attr name="eveOnPrimary" format="color" />
+    <attr name="eveAccentText" format="color" />
+    <attr name="eveAccentContainer" format="color" />
+    <attr name="eveOnAccentContainer" format="color" />
+    <attr name="eveDestructiveText" format="color" />
+    <attr name="eveFillPrimary" format="color" />
+    <attr name="eveFillSecondary" format="color" />
+    <attr name="eveFillTertiary" format="color" />
+    <attr name="eveFillQuaternary" format="color" />
+    <attr name="eveLink" format="color" />
 </resources>
