@@ -305,14 +305,20 @@ class HomeSemanticColorsTest {
         assertEquals("@color/eve_disabled_fill", (states.item(0) as Element).getAttribute("android:color"))
         assertEquals("@color/eve_secondary_system_grouped_background", (states.item(1) as Element).getAttribute("android:color"))
 
-        val pill = parser.parse(org.xml.sax.InputSource(java.io.StringReader(
-            source("src/main/res/drawable/bg_streak_pill.xml")))).documentElement
-        assertEquals("@color/eve_secondary_system_grouped_background",
-            (pill.getElementsByTagName("solid").item(0) as Element).getAttribute("android:color"))
-        assertEquals("Approved streak pill must remain borderless", 0,
-            pill.getElementsByTagName("stroke").length)
-        assertEquals("@dimen/eve_radius_pill",
-            (pill.getElementsByTagName("corners").item(0) as Element).getAttribute("android:radius"))
+        // Dark theme has its own drawable resource: never silently hide the pill.
+        for (drawable in listOf("src/main/res/drawable/bg_streak_pill.xml",
+            "src/main/res/drawable-night/bg_streak_pill.xml")) {
+            val pill = parser.parse(org.xml.sax.InputSource(java.io.StringReader(source(drawable))))
+                .documentElement
+            assertEquals("$drawable must use a grouped surface",
+                "@color/eve_secondary_system_grouped_background",
+                (pill.getElementsByTagName("solid").item(0) as Element).getAttribute("android:color"))
+            assertEquals("$drawable: approved streak pill must remain borderless",
+                0, pill.getElementsByTagName("stroke").length)
+            assertEquals("$drawable: preserve pill curvature",
+                "@dimen/eve_radius_pill",
+                (pill.getElementsByTagName("corners").item(0) as Element).getAttribute("android:radius"))
+        }
 
         for ((label, path) in listOf("Day" to "src/main/res/values/colors.xml",
             "Night" to "src/main/res/values-night/colors.xml")) {
