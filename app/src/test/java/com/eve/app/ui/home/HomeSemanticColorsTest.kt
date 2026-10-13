@@ -309,9 +309,8 @@ class HomeSemanticColorsTest {
             source("src/main/res/drawable/bg_streak_pill.xml")))).documentElement
         assertEquals("@color/eve_secondary_system_grouped_background",
             (pill.getElementsByTagName("solid").item(0) as Element).getAttribute("android:color"))
-        val border = pill.getElementsByTagName("stroke").item(0) as Element
-        assertEquals("1dp", border.getAttribute("android:width"))
-        assertEquals("@color/eve_shape_border", border.getAttribute("android:color"))
+        assertEquals("Approved streak pill must remain borderless", 0,
+            pill.getElementsByTagName("stroke").length)
         assertEquals("@dimen/eve_radius_pill",
             (pill.getElementsByTagName("corners").item(0) as Element).getAttribute("android:radius"))
 
