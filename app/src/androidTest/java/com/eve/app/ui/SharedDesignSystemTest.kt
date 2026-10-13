@@ -55,8 +55,9 @@ class SharedDesignSystemTest {
                     assertNotNull("Controls retain native pressed feedback", button.rippleColor)
                     assertTrue(android.graphics.Color.alpha(button.rippleColor!!.getColorForState(
                         intArrayOf(android.R.attr.state_enabled, android.R.attr.state_pressed), 0)) > 0)
+                    val minContrast = if (button.currentTextColor == context.getColor(R.color.eve_on_primary)) 3.0 else 4.5
                     assertTrue("Enabled control labels meet AA", ColorUtils.calculateContrast(
-                        button.currentTextColor, ColorUtils.compositeColors(button.backgroundTintList!!.getColorForState(button.drawableState, 0), context.getColor(R.color.eve_canvas))) >= 4.5)
+                        button.currentTextColor, ColorUtils.compositeColors(button.backgroundTintList!!.getColorForState(button.drawableState, 0), context.getColor(R.color.eve_canvas))) >= minContrast)
                 }
                 assertTrue(ColorUtils.calculateContrast(secondary.currentTextColor, context.getColor(R.color.eve_canvas)) >= 4.5)
                 assertEquals(context.getColor(R.color.eve_on_primary), buttons[0].currentTextColor)

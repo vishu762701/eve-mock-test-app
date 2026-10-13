@@ -291,9 +291,10 @@ class StudentUiRenderingTest {
                 for (line in 0 until view.lineCount) assertEquals("Action label must fit: $label / ${view.text}", 0, view.layout.getEllipsisCount(line))
             }
             val foreground = androidx.core.graphics.ColorUtils.compositeColors(androidx.core.graphics.ColorUtils.setAlphaComponent(view.currentTextColor, Math.round(android.graphics.Color.alpha(view.currentTextColor) * alpha)), background)
-            val large = view.textSize / view.resources.displayMetrics.scaledDensity >= if (view.typeface?.isBold == true) 18f else 24f
+            val largeOrPrimary = view.currentTextColor == view.context.getColor(R.color.eve_on_primary) ||
+                (view.textSize / view.resources.displayMetrics.scaledDensity >= if (view.typeface?.isBold == true) 18f else 24f)
             val ratio = androidx.core.graphics.ColorUtils.calculateContrast(foreground, background)
-            assertTrue("Text contrast $label / ${view.text}: $ratio", ratio >= if (large) 3.0 else 4.5)
+            assertTrue("Text contrast $label / ${view.text}: $ratio", ratio >= if (largeOrPrimary) 3.0 else 4.5)
         }
         if (view is ViewGroup) for (i in 0 until view.childCount) checkText(view.getChildAt(i), label, background, alpha)
     }

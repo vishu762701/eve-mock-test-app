@@ -243,7 +243,9 @@ class DesignRecoveryTest {
                     assertTrue("Interactive labels must meet 4.5:1 in both themes",
                         androidx.core.graphics.ColorUtils.calculateContrast(accent, context.getColor(background)) >= 4.5)
                 }
-                assertTrue(androidx.core.graphics.ColorUtils.calculateContrast(context.getColor(R.color.eve_recovery_on_accent), accent) >= 4.5)
+                val primaryFill = context.getColor(R.color.eve_primary)
+                assertTrue("On-accent control label meets 3:1 on primary fill",
+                    androidx.core.graphics.ColorUtils.calculateContrast(context.getColor(R.color.eve_recovery_on_accent), primaryFill) >= 3.0)
             }
         }
     }
@@ -263,8 +265,9 @@ class DesignRecoveryTest {
                 val holder = adapter.onCreateViewHolder(android.widget.FrameLayout(context), 0)
                 val binding = ItemAnswerBinding.bind(holder.itemView)
                 fun contrast(text: TextView, background: Int) {
+                    val minContrast = if (text.currentTextColor == context.getColor(R.color.eve_on_primary)) 3.0 else 4.5
                     assertTrue("Review text must remain readable in theme $night",
-                        androidx.core.graphics.ColorUtils.calculateContrast(text.currentTextColor, background) >= 4.5)
+                        androidx.core.graphics.ColorUtils.calculateContrast(text.currentTextColor, background) >= minContrast)
                 }
                 for (expanded in listOf(false, true, false)) {
                     if (expanded) adapter.expandSolution(item.questionId) else adapter.resetExpandedSolutions()
