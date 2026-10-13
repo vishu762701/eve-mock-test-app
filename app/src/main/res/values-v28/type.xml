@@ -2,8 +2,8 @@
 <resources>
     <!-- Apple iOS 26 Typography Roles with API 28+ font weights (400 Regular, 600 Semibold, 700 Bold) -->
 
-    <!-- Large Title: 34sp, 400 Regular (Emphasized: 700 Bold) -->
-    <style name="TextAppearance.Eve.LargeTitle" parent="TextAppearance.Eve">
+    <!-- Large Title / Display: 34sp, 400 Regular (Emphasized: 700 Bold) -->
+    <style name="TextAppearance.Eve.Display" parent="TextAppearance.Eve">
         <item name="android:textSize">34sp</item>
         <item name="android:textStyle">normal</item>
         <item name="android:fontFamily">sans-serif</item>
@@ -14,7 +14,16 @@
         <item name="lineHeight">41sp</item>
     </style>
 
-    <style name="TextAppearance.Eve.Display" parent="TextAppearance.Eve.LargeTitle" />
+    <style name="TextAppearance.Eve.LargeTitle" parent="TextAppearance.Eve.Display">
+        <item name="android:textSize">34sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:letterSpacing">0.012</item>
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+        <item name="lineHeight">41sp</item>
+    </style>
 
     <style name="TextAppearance.Eve.LargeTitle.Bold" parent="TextAppearance.Eve.LargeTitle">
         <item name="android:textStyle">bold</item>
