@@ -30,14 +30,14 @@
             app:tint="@color/eve_accent_text" />
 
         <TextView
-            style="@style/TextAppearance.Eve.ScreenTitle"
+            style="@style/TextAppearance.Eve.Title3"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:fontFamily="sans-serif-bold"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:paddingStart="12dp"
             android:text="Settings"
-            android:textSize="20sp"
             android:textColor="?attr/eveLabelPrimary" />
     </LinearLayout>
 
@@ -66,16 +66,14 @@
             <!-- Section 1: APPEARANCE                      -->
             <!-- ========================================== -->
             <TextView
-                style="@style/TextAppearance.Eve.Overline"
+                style="@style/TextAppearance.Eve.Eyebrow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
                 android:paddingHorizontal="24dp"
                 android:paddingTop="22dp"
                 android:paddingBottom="8dp"
                 android:text="APPEARANCE"
-                android:textColor="@color/eve_label_secondary"
-                android:textSize="13sp" />
+                android:textColor="@color/eve_label_secondary" />
 
             <com.google.android.material.card.MaterialCardView
                 style="@style/Widget.Eve.Card.Group"
@@ -117,20 +115,16 @@
                             style="@style/TextAppearance.Eve.Body"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif"
                             android:text="Font"
-                            android:textSize="15sp"
                             android:textColor="?attr/eveLabelPrimary" />
 
                         <TextView
                             android:id="@+id/tvFontValue"
-                            style="@style/TextAppearance.Eve.Caption"
+                            style="@style/TextAppearance.Eve.Footnote"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif"
                             android:text="Eve default"
-                            android:textColor="@color/eve_label_secondary"
-                            android:textSize="13sp" />
+                            android:textColor="@color/eve_label_secondary" />
                     </LinearLayout>
 
                     <ImageView
@@ -145,16 +139,14 @@
             <!-- Section 2: PREFERENCES                     -->
             <!-- ========================================== -->
             <TextView
-                style="@style/TextAppearance.Eve.Overline"
+                style="@style/TextAppearance.Eve.Eyebrow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
                 android:paddingHorizontal="24dp"
                 android:paddingTop="26dp"
                 android:paddingBottom="8dp"
                 android:text="PREFERENCES"
-                android:textColor="@color/eve_label_secondary"
-                android:textSize="13sp" />
+                android:textColor="@color/eve_label_secondary" />
 
             <com.google.android.material.card.MaterialCardView
                 style="@style/Widget.Eve.Card.Group"
@@ -201,19 +193,15 @@
                                 style="@style/TextAppearance.Eve.Body"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif"
                                 android:text="Daily Practice Reminder"
-                                android:textSize="15sp"
                                 android:textColor="?attr/eveLabelPrimary" />
 
                             <TextView
-                                style="@style/TextAppearance.Eve.Caption"
+                                style="@style/TextAppearance.Eve.Footnote"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif"
                                 android:text="Get notified every day to keep your streak"
-                                android:textColor="@color/eve_label_secondary"
-                                android:textSize="13sp" />
+                                android:textColor="@color/eve_label_secondary" />
                         </LinearLayout>
 
                         <com.google.android.material.materialswitch.MaterialSwitch
@@ -265,20 +253,16 @@
                                 style="@style/TextAppearance.Eve.Body"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif"
                                 android:text="Daily Goal"
-                                android:textSize="15sp"
                                 android:textColor="?attr/eveLabelPrimary" />
 
                             <TextView
                                 android:id="@+id/tvDailyGoalValue"
-                                style="@style/TextAppearance.Eve.Caption"
+                                style="@style/TextAppearance.Eve.Footnote"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif"
                                 android:text="2 tests per day"
-                                android:textColor="@color/eve_label_secondary"
-                                android:textSize="13sp" />
+                                android:textColor="@color/eve_label_secondary" />
                         </LinearLayout>
 
                         <ImageView
@@ -329,19 +313,15 @@
                                 style="@style/TextAppearance.Eve.Body"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif"
                                 android:text="My Exams"
-                                android:textSize="15sp"
                                 android:textColor="?attr/eveLabelPrimary" />
 
                             <TextView
-                                style="@style/TextAppearance.Eve.Caption"
+                                style="@style/TextAppearance.Eve.Footnote"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif"
                                 android:text="Choose exams for personalized feed"
-                                android:textColor="@color/eve_label_secondary"
-                                android:textSize="13sp" />
+                                android:textColor="@color/eve_label_secondary" />
                         </LinearLayout>
 
                         <ImageView
@@ -392,20 +372,16 @@
                                 style="@style/TextAppearance.Eve.Body"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif"
                                 android:text="App Language"
-                                android:textSize="15sp"
                                 android:textColor="?attr/eveLabelPrimary" />
 
                             <TextView
                                 android:id="@+id/tvLanguageValue"
-                                style="@style/TextAppearance.Eve.Caption"
+                                style="@style/TextAppearance.Eve.Footnote"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif"
                                 android:text="System default"
-                                android:textColor="@color/eve_label_secondary"
-                                android:textSize="13sp" />
+                                android:textColor="@color/eve_label_secondary" />
                         </LinearLayout>
 
                         <ImageView
@@ -422,16 +398,14 @@
             <!-- Section 3: ACCOUNT                         -->
             <!-- ========================================== -->
             <TextView
-                style="@style/TextAppearance.Eve.Overline"
+                style="@style/TextAppearance.Eve.Eyebrow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
                 android:paddingHorizontal="24dp"
                 android:paddingTop="28dp"
                 android:paddingBottom="8dp"
                 android:text="ACCOUNT"
-                android:textColor="@color/eve_label_secondary"
-                android:textSize="13sp" />
+                android:textColor="@color/eve_label_secondary" />
 
             <com.google.android.material.card.MaterialCardView
                 style="@style/Widget.Eve.Card.Group"
@@ -473,19 +447,15 @@
                             style="@style/TextAppearance.Eve.Body"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif"
                             android:text="Delete Account"
-                            android:textColor="@color/eve_destructive_text"
-                            android:textSize="15sp" />
+                            android:textColor="@color/eve_destructive_text" />
 
                         <TextView
-                            style="@style/TextAppearance.Eve.Caption"
+                            style="@style/TextAppearance.Eve.Footnote"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif"
                             android:text="Permanently delete account and all data"
-                            android:textColor="@color/eve_label_secondary"
-                            android:textSize="13sp" />
+                            android:textColor="@color/eve_label_secondary" />
                     </LinearLayout>
 
                     <ImageView

@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Choose Font"
-        style="@style/TextAppearance.Eve.Heading"
+        style="@style/TextAppearance.Eve.Title3"
         android:textColor="?attr/eveLabelPrimary" />
 
     <TextView
@@ -28,8 +28,8 @@
         android:layout_marginTop="4dp"
         android:layout_marginBottom="16dp"
         android:text="Select typography style for the app"
-        style="@style/TextAppearance.Eve.BodySmall"
-        android:textColor="?attr/eveLabelPrimary" />
+        style="@style/TextAppearance.Eve.Subheadline"
+        android:textColor="?attr/eveLabelSecondary" />
 
     <!-- Option 1: Eve Default -->
     <LinearLayout
@@ -62,7 +62,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Eve default"
-                style="@style/TextAppearance.Eve.Subheading"
+                style="@style/TextAppearance.Eve.Headline"
                 android:textColor="?attr/eveLabelPrimary" />
 
             <TextView
@@ -71,8 +71,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="Practice makes perfect  Aa Bb 123"
-                style="@style/TextAppearance.Eve.BodySmall"
-                android:textColor="?attr/eveLabelPrimary" />
+                style="@style/TextAppearance.Eve.Footnote"
+                android:textColor="@color/eve_label_secondary" />
         </LinearLayout>
     </LinearLayout>
 
@@ -112,7 +112,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Device font"
-                style="@style/TextAppearance.Eve.Subheading"
+                style="@style/TextAppearance.Eve.Headline"
                 android:textColor="?attr/eveLabelPrimary" />
 
             <TextView
@@ -121,8 +121,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="Uses your phone's system font"
-                style="@style/TextAppearance.Eve.BodySmall"
-                android:textColor="?attr/eveLabelPrimary" />
+                style="@style/TextAppearance.Eve.Footnote"
+                android:textColor="@color/eve_label_secondary" />
         </LinearLayout>
     </LinearLayout>
 

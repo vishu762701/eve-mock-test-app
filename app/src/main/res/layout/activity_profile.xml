@@ -31,7 +31,7 @@
             app:tint="@color/eve_accent_text" />
 
         <TextView
-            style="@style/TextAppearance.Eve.ScreenTitle"
+            style="@style/TextAppearance.Eve.Title3"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -111,6 +111,7 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnCancelPhoto"
                         style="@style/Widget.Eve.RecoverySecondary"
+                        android:textAppearance="@style/TextAppearance.Eve.Subheadline.Medium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="10dp"
@@ -119,12 +120,12 @@
                         android:minHeight="48dp"
                         android:paddingHorizontal="16dp"
                         android:paddingVertical="0dp"
-                        android:text="Cancel"
-                        android:textSize="13sp" />
+                        android:text="Cancel" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSavePhoto"
                         style="@style/Widget.Eve.RecoveryPrimary"
+                        android:textAppearance="@style/TextAppearance.Eve.Subheadline.Medium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:insetTop="0dp"
@@ -132,29 +133,27 @@
                         android:minHeight="48dp"
                         android:paddingHorizontal="16dp"
                         android:paddingVertical="0dp"
-                        android:text="Save"
-                        android:textSize="13sp" />
+                        android:text="Save" />
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/tvName"
+                    style="@style/TextAppearance.Eve.Title2"
                     android:gravity="center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
-                    android:textColor="@color/eve_text"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
+                    android:textColor="?attr/eveLabelPrimary"
                     tools:text="Student" />
 
                 <TextView
                     android:id="@+id/tvEmail"
+                    style="@style/TextAppearance.Eve.Subheadline"
                     android:gravity="center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:textColor="?attr/eveLabelSecondary"
-                    android:textSize="13sp"
                     tools:text="student@gmail.com" />
 
                 <LinearLayout
@@ -167,22 +166,21 @@
 
                     <TextView
                         android:id="@+id/tvEveIdLabel"
+                        style="@style/TextAppearance.Eve.Footnote"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="EVE ID: "
-                        android:textColor="?attr/eveLabelSecondary"
-                        android:textSize="13sp" />
+                        android:textColor="?attr/eveLabelSecondary" />
 
                     <TextView
                         android:id="@+id/tvEveId"
+                        style="@style/TextAppearance.Eve.Footnote.Medium"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:layout_height="wrap_content"
                         android:textColor="?attr/eveLabelPrimary"
-                        android:textSize="13sp"
-                        android:textStyle="bold"
                         tools:text="EV-ABC123" />
 
                     <ImageView
@@ -196,7 +194,7 @@
                         android:focusable="true"
                         android:padding="15dp"
                         android:src="@drawable/ic_copy"
-                        app:tint="@color/eve_recovery_text_secondary" />
+                        app:tint="@color/eve_label_secondary" />
                 </LinearLayout>
 
                 <com.google.android.material.chip.Chip
@@ -244,12 +242,11 @@
                 android:padding="16dp">
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Headline"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Personal Information"
-                    android:textColor="?attr/eveLabelPrimary"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textColor="?attr/eveLabelPrimary" />
 
                 <!-- Name Field -->
                 <com.google.android.material.textfield.TextInputLayout
@@ -262,6 +259,7 @@
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etName"
+                        style="@style/TextAppearance.Eve.Body"
                         android:background="@null"
                         android:minHeight="56dp"
                         android:paddingHorizontal="16dp"
@@ -270,7 +268,6 @@
                         android:inputType="textPersonName"
                         android:maxLines="1"
                         android:textColor="?attr/eveLabelPrimary"
-                        android:textSize="15sp"
                         android:textColorHint="@color/eve_placeholder_text" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -287,6 +284,7 @@
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etDob"
+                        style="@style/TextAppearance.Eve.Body"
                         android:background="@null"
                         android:minHeight="56dp"
                         android:paddingHorizontal="16dp"
@@ -298,18 +296,17 @@
                         android:inputType="none"
                         android:maxLines="1"
                         android:textColor="?attr/eveLabelPrimary"
-                        android:textSize="15sp"
                         android:textColorHint="@color/eve_placeholder_text" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Category Field -->
                 <TextView
+                    style="@style/TextAppearance.Eve.Subheadline.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:text="Category"
-                    android:textColor="?attr/eveLabelPrimary"
-                    android:textSize="14sp" />
+                    android:textColor="?attr/eveLabelPrimary" />
 
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/chipGroupCategory"
@@ -324,6 +321,7 @@
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipGeneral"
                         style="@style/Widget.Eve.AssistChip.Inset"
+                        android:textAppearance="@style/TextAppearance.Eve.Footnote.Medium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
@@ -332,6 +330,7 @@
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipObc"
                         style="@style/Widget.Eve.AssistChip.Inset"
+                        android:textAppearance="@style/TextAppearance.Eve.Footnote.Medium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="OBC" />
@@ -339,6 +338,7 @@
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipSc"
                         style="@style/Widget.Eve.AssistChip.Inset"
+                        android:textAppearance="@style/TextAppearance.Eve.Footnote.Medium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="SC" />
@@ -346,6 +346,7 @@
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipSt"
                         style="@style/Widget.Eve.AssistChip.Inset"
+                        android:textAppearance="@style/TextAppearance.Eve.Footnote.Medium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="ST" />
@@ -355,6 +356,7 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSaveProfile"
                     style="@style/Widget.Eve.RecoveryPrimary"
+                    android:textAppearance="@style/TextAppearance.Eve.Headline"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
@@ -380,12 +382,12 @@
                 android:paddingVertical="14dp">
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Body"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Daily Practice Reminder"
-                    android:textColor="@color/eve_text"
-                    android:textSize="15sp" />
+                    android:textColor="?attr/eveLabelPrimary" />
 
                 <com.google.android.material.materialswitch.MaterialSwitch
                     android:id="@+id/switchReminder"
@@ -398,6 +400,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnEditAbout"
                 style="@style/Widget.Eve.RecoverySecondary"
+                android:textAppearance="@style/TextAppearance.Eve.Headline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
@@ -410,6 +413,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAbout"
                 style="@style/Widget.Eve.RecoverySecondary"
+                android:textAppearance="@style/TextAppearance.Eve.Headline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"

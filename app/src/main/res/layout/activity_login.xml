@@ -53,37 +53,32 @@
 
                     <TextView
                         android:id="@+id/tvLogo"
+                        style="@style/TextAppearance.Eve.Eyebrow"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-medium"
                         android:letterSpacing="0.12"
                         android:text="EVE"
-                        android:textColor="?attr/eveLabelSecondary"
-                        android:textSize="13sp" />
+                        android:textColor="?attr/eveLabelSecondary" />
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/tvTagline"
+                    style="@style/TextAppearance.Eve.Title1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="36dp"
-                    android:fontFamily="sans-serif-medium"
                     android:text="Welcome back"
-                    android:textColor="?attr/eveLabelPrimary"
-                    android:textSize="30sp"
-                    android:textStyle="bold" />
+                    android:textColor="?attr/eveLabelPrimary" />
 
                 <TextView
                     android:id="@+id/tvSubtitle"
+                    style="@style/TextAppearance.Eve.Subheadline"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="28dp"
-                    android:fontFamily="sans-serif"
-                    android:lineSpacingExtra="2dp"
                     android:text="Sign in to save your mock tests and sync performance."
-                    android:textColor="?attr/eveLabelSecondary"
-                    android:textSize="15sp" />
+                    android:textColor="?attr/eveLabelSecondary" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilName"
@@ -96,12 +91,12 @@
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etName"
+                        style="@style/TextAppearance.Eve.Callout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="textCapWords"
                         android:maxLines="1"
                         android:textColor="?attr/eveLabelPrimary"
-                        android:textSize="16sp"
                         android:textColorHint="@color/eve_placeholder_text" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -115,12 +110,12 @@
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etEmail"
+                        style="@style/TextAppearance.Eve.Callout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="textEmailAddress"
                         android:maxLines="1"
                         android:textColor="?attr/eveLabelPrimary"
-                        android:textSize="16sp"
                         android:textColorHint="@color/eve_placeholder_text" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -131,28 +126,27 @@
                     android:layout_height="wrap_content"
                     android:hint="Password"
                     app:endIconMode="password_toggle"
-                    app:endIconTint="@color/eve_text_secondary">
+                    app:endIconTint="@color/eve_label_secondary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etPassword"
+                        style="@style/TextAppearance.Eve.Callout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:imeOptions="actionDone"
                         android:inputType="textPassword"
                         android:maxLines="1"
                         android:textColor="?attr/eveLabelPrimary"
-                        android:textSize="16sp"
                         android:textColorHint="@color/eve_placeholder_text" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
                     android:id="@+id/tvError"
+                    style="@style/TextAppearance.Eve.Footnote"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:fontFamily="sans-serif"
-                    android:textColor="@color/eve_login_error"
-                    android:textSize="14sp"
+                    android:textColor="@color/eve_destructive_text"
                     android:visibility="gone" />
 
                 <FrameLayout
@@ -165,11 +159,11 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSubmit"
                         style="@style/Widget.Eve.Button.Primary"
+                        android:textAppearance="@style/TextAppearance.Eve.Headline"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:minHeight="52dp"
-                        android:text="Sign In"
-                        android:textSize="16sp" />
+                        android:text="Sign In" />
 
                     <ProgressBar
                         android:id="@+id/progressSubmit"
@@ -197,12 +191,12 @@
                         android:background="@color/eve_separator" />
 
                     <TextView
+                        style="@style/TextAppearance.Eve.Footnote"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginHorizontal="12dp"
                         android:text="or"
-                        android:textColor="?attr/eveLabelSecondary"
-                        android:textSize="13sp" />
+                        android:textColor="?attr/eveLabelSecondary" />
 
                     <View
                         android:layout_width="0dp"
@@ -221,13 +215,12 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnGoogle"
                         style="@style/Widget.Eve.OutlinedButton"
+                        android:textAppearance="@style/TextAppearance.Eve.Subheadline.Medium"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:minHeight="52dp"
                         android:contentDescription="Continue with Google"
-                        android:fontFamily="sans-serif-medium"
                         android:text="Continue with Google"
-                        android:textSize="15sp"
                         app:icon="@drawable/ic_social_google"
                         app:iconGravity="textStart"
                         app:iconPadding="10dp"
@@ -247,12 +240,12 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnToggleMode"
                     style="@style/Widget.Eve.TextButton"
+                    android:textAppearance="@style/TextAppearance.Eve.Subheadline.Medium"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
                     android:text="Don't have an account? Sign Up"
-                    android:textColor="@color/eve_accent_text"
-                    android:textSize="14sp" />
+                    android:textColor="@color/eve_accent_text" />
             </LinearLayout>
         </FrameLayout>
     </ScrollView>
