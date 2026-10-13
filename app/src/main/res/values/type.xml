@@ -8,100 +8,134 @@
     </style>
 
     <!-- Apple iOS 26 System Typography Roles (Platform-native sans-serif stack) -->
-    <!-- Display / Large Title: 34sp, Bold, tighter tracking, 41sp line height -->
-    <style name="TextAppearance.Eve.Display" parent="TextAppearance.Eve">
+    <!-- Large Title: 34sp, Regular (Emphasized: Bold), 41sp line height, +0.012 tracking -->
+    <style name="TextAppearance.Eve.LargeTitle" parent="TextAppearance.Eve">
         <item name="android:textSize">34sp</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:textStyle">normal</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
-        <item name="android:letterSpacing">-0.02</item>
+        <item name="android:letterSpacing">0.012</item>
         <item name="android:textColor">?attr/eveLabelPrimary</item>
         <item name="lineHeight">41sp</item>
     </style>
 
-    <style name="TextAppearance.Eve.LargeTitle" parent="TextAppearance.Eve.Display" />
+    <style name="TextAppearance.Eve.Display" parent="TextAppearance.Eve.LargeTitle" />
 
-    <!-- Title 1: 28sp, Bold, 34sp line height -->
+    <style name="TextAppearance.Eve.LargeTitle.Bold" parent="TextAppearance.Eve.LargeTitle">
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextAppearance.Eve.LargeTitle.Emphasized" parent="TextAppearance.Eve.LargeTitle.Bold" />
+
+    <!-- Title 1: 28sp, Regular (Emphasized: Bold), 34sp line height, +0.014 tracking -->
     <style name="TextAppearance.Eve.Title1" parent="TextAppearance.Eve">
         <item name="android:textSize">28sp</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:textStyle">normal</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
-        <item name="android:letterSpacing">-0.015</item>
+        <item name="android:letterSpacing">0.014</item>
         <item name="android:textColor">?attr/eveLabelPrimary</item>
         <item name="lineHeight">34sp</item>
     </style>
 
-    <!-- Title 2: 22sp, Bold, 28sp line height -->
+    <style name="TextAppearance.Eve.Title1.Bold" parent="TextAppearance.Eve.Title1">
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextAppearance.Eve.Title1.Emphasized" parent="TextAppearance.Eve.Title1.Bold" />
+
+    <!-- Title 2: 22sp, Regular (Emphasized: Bold), 28sp line height, -0.012 tracking -->
     <style name="TextAppearance.Eve.Title2" parent="TextAppearance.Eve">
         <item name="android:textSize">22sp</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:textStyle">normal</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
-        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:letterSpacing">-0.012</item>
         <item name="android:textColor">?attr/eveLabelPrimary</item>
         <item name="lineHeight">28sp</item>
     </style>
 
-    <!-- Title 3: 20sp, Semibold / Medium, 25sp line height -->
+    <style name="TextAppearance.Eve.Title2.Bold" parent="TextAppearance.Eve.Title2">
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextAppearance.Eve.Title2.Emphasized" parent="TextAppearance.Eve.Title2.Bold" />
+
+    <!-- Title 3: 20sp, Regular (Emphasized: Semibold), 25sp line height, -0.022 tracking -->
     <style name="TextAppearance.Eve.Title3" parent="TextAppearance.Eve">
         <item name="android:textSize">20sp</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:letterSpacing">-0.022</item>
         <item name="android:textColor">?attr/eveLabelPrimary</item>
         <item name="lineHeight">25sp</item>
     </style>
 
-    <!-- Headline: 17sp, Semibold / Medium, 22sp line height -->
+    <style name="TextAppearance.Eve.Title3.Medium" parent="TextAppearance.Eve.Title3">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
+    </style>
+    <style name="TextAppearance.Eve.Title3.Semibold" parent="TextAppearance.Eve.Title3.Medium" />
+    <style name="TextAppearance.Eve.Title3.Emphasized" parent="TextAppearance.Eve.Title3.Medium" />
+
+    <!-- Headline: 17sp, Semibold (Emphasized: Semibold), 22sp line height, -0.024 tracking -->
     <style name="TextAppearance.Eve.Headline" parent="TextAppearance.Eve">
         <item name="android:textSize">17sp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="fontFamily">sans-serif-medium</item>
-        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:letterSpacing">-0.024</item>
         <item name="android:textColor">?attr/eveLabelPrimary</item>
         <item name="lineHeight">22sp</item>
     </style>
 
-    <!-- Title: 22sp, Semibold / Bold -->
-    <style name="TextAppearance.Eve.Title" parent="TextAppearance.Eve">
-        <item name="android:textSize">22sp</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="fontFamily">sans-serif-medium</item>
-        <item name="android:letterSpacing">-0.01</item>
-        <item name="android:textColor">?attr/eveLabelPrimary</item>
-        <item name="lineHeight">28sp</item>
-    </style>
+    <style name="TextAppearance.Eve.Headline.Emphasized" parent="TextAppearance.Eve.Headline" />
 
-    <!-- Body: 17sp, Regular, 22sp line height -->
+    <!-- Title alias: 22sp, Title 2 compatibility -->
+    <style name="TextAppearance.Eve.Title" parent="TextAppearance.Eve.Title2" />
+
+    <!-- Body: 17sp, Regular (Emphasized: Semibold), 22sp line height, -0.024 tracking -->
     <style name="TextAppearance.Eve.Body" parent="TextAppearance.Eve">
         <item name="android:textSize">17sp</item>
         <item name="android:textStyle">normal</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
-        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:letterSpacing">-0.024</item>
         <item name="android:textColor">?attr/eveLabelPrimary</item>
         <item name="lineHeight">22sp</item>
     </style>
 
+    <style name="TextAppearance.Eve.Body.Medium" parent="TextAppearance.Eve.Body">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
+    </style>
+    <style name="TextAppearance.Eve.Body.Semibold" parent="TextAppearance.Eve.Body.Medium" />
+    <style name="TextAppearance.Eve.Body.Emphasized" parent="TextAppearance.Eve.Body.Medium" />
+
     <style name="TextAppearance.Eve.Subhead" parent="TextAppearance.Eve.Subheadline" />
 
-    <!-- Callout: 16sp, Regular, 21sp line height -->
+    <!-- Callout: 16sp, Regular (Emphasized: Semibold), 21sp line height, -0.020 tracking -->
     <style name="TextAppearance.Eve.Callout" parent="TextAppearance.Eve">
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">normal</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
-        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:letterSpacing">-0.020</item>
         <item name="android:textColor">?attr/eveLabelPrimary</item>
         <item name="lineHeight">21sp</item>
     </style>
 
-    <!-- Subheadline: 15sp, Regular, 20sp line height -->
+    <style name="TextAppearance.Eve.Callout.Medium" parent="TextAppearance.Eve.Callout">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
+    </style>
+    <style name="TextAppearance.Eve.Callout.Semibold" parent="TextAppearance.Eve.Callout.Medium" />
+    <style name="TextAppearance.Eve.Callout.Emphasized" parent="TextAppearance.Eve.Callout.Medium" />
+
+    <!-- Subheadline: 15sp, Regular (Emphasized: Semibold), 20sp line height, -0.016 tracking -->
     <style name="TextAppearance.Eve.Subheadline" parent="TextAppearance.Eve">
         <item name="android:textSize">15sp</item>
         <item name="android:textStyle">normal</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
+        <item name="android:letterSpacing">-0.016</item>
         <item name="android:textColor">?attr/eveLabelSecondary</item>
         <item name="lineHeight">20sp</item>
     </style>
@@ -117,18 +151,22 @@
         <item name="android:textColor">?attr/eveLabelPrimary</item>
     </style>
 
+    <style name="TextAppearance.Eve.Subheadline.Semibold" parent="TextAppearance.Eve.Subheadline.Medium" />
+    <style name="TextAppearance.Eve.Subheadline.Emphasized" parent="TextAppearance.Eve.Subheadline.Medium" />
+
     <style name="TextAppearance.Eve.Subheadline.Medium.Secondary" parent="TextAppearance.Eve.Subheadline">
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="fontFamily">sans-serif-medium</item>
         <item name="android:textColor">?attr/eveLabelSecondary</item>
     </style>
 
-    <!-- Footnote: 13sp, Regular, 18sp line height -->
+    <!-- Footnote: 13sp, Regular (Emphasized: Semibold), 18sp line height, -0.006 tracking -->
     <style name="TextAppearance.Eve.Footnote" parent="TextAppearance.Eve">
         <item name="android:textSize">13sp</item>
         <item name="android:textStyle">normal</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
+        <item name="android:letterSpacing">-0.006</item>
         <item name="android:textColor">?attr/eveLabelSecondary</item>
         <item name="lineHeight">18sp</item>
     </style>
@@ -144,18 +182,22 @@
         <item name="android:textColor">?attr/eveLabelPrimary</item>
     </style>
 
+    <style name="TextAppearance.Eve.Footnote.Semibold" parent="TextAppearance.Eve.Footnote.Medium" />
+    <style name="TextAppearance.Eve.Footnote.Emphasized" parent="TextAppearance.Eve.Footnote.Medium" />
+
     <style name="TextAppearance.Eve.Footnote.Medium.Secondary" parent="TextAppearance.Eve.Footnote">
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="fontFamily">sans-serif-medium</item>
         <item name="android:textColor">?attr/eveLabelSecondary</item>
     </style>
 
-    <!-- Caption: 12sp, Regular (Apple secondaryLabel for high legibility), 16sp line height -->
+    <!-- Caption: 12sp, Regular (Apple secondaryLabel for high legibility), 16sp line height, 0 tracking -->
     <style name="TextAppearance.Eve.Caption" parent="TextAppearance.Eve">
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">normal</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
+        <item name="android:letterSpacing">0</item>
         <item name="android:textColor">?attr/eveLabelSecondary</item>
         <item name="lineHeight">16sp</item>
     </style>
@@ -169,17 +211,28 @@
         <item name="android:textColor">?attr/eveLabelSecondary</item>
     </style>
 
+    <style name="TextAppearance.Eve.Caption1.Semibold" parent="TextAppearance.Eve.Caption1.Medium" />
+    <style name="TextAppearance.Eve.Caption1.Emphasized" parent="TextAppearance.Eve.Caption1.Medium" />
     <style name="TextAppearance.Eve.Caption.Medium" parent="TextAppearance.Eve.Caption1.Medium" />
 
-    <!-- Caption 2: 11sp, Medium (Apple secondaryLabel for high legibility), 13sp line height -->
+    <!-- Caption 2: 11sp, Regular (Emphasized: Semibold), 13sp line height, +0.006 tracking -->
     <style name="TextAppearance.Eve.Caption2" parent="TextAppearance.Eve">
         <item name="android:textSize">11sp</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="fontFamily">sans-serif-medium</item>
-        <item name="android:letterSpacing">0.01</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:letterSpacing">0.006</item>
         <item name="android:textColor">?attr/eveLabelSecondary</item>
         <item name="lineHeight">13sp</item>
     </style>
+
+    <style name="TextAppearance.Eve.Caption2.Medium" parent="TextAppearance.Eve.Caption2">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">?attr/eveLabelSecondary</item>
+    </style>
+    <style name="TextAppearance.Eve.Caption2.Semibold" parent="TextAppearance.Eve.Caption2.Medium" />
+    <style name="TextAppearance.Eve.Caption2.Emphasized" parent="TextAppearance.Eve.Caption2.Medium" />
 
     <!-- Component-Specific Typography: Eyebrow / Kicker (EVE branding) -->
     <style name="TextAppearance.Eve.Eyebrow" parent="TextAppearance.Eve">

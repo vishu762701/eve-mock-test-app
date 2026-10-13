@@ -249,4 +249,114 @@ class AppWideTypographyAndColorRolesTest {
             missingStyles.isEmpty()
         )
     }
+
+    @Test
+    fun testApi28TextFontWeightsDefinedInValuesV28TypeXml() {
+        val rootDir = getProjectDir()
+        val v28TypeFile = File(rootDir, "app/src/main/res/values-v28/type.xml").takeIf { it.exists() }
+            ?: File("src/main/res/values-v28/type.xml")
+        assertTrue("values-v28/type.xml must exist at ${v28TypeFile.absolutePath}", v28TypeFile.exists())
+
+        val root = loadXml(v28TypeFile)
+        val styles = root.getElementsByTagName("style")
+        assertTrue("values-v28/type.xml must declare typography styles", styles.length > 0)
+
+        var hasWeight400 = false
+        var hasWeight600 = false
+        var hasWeight700 = false
+
+        val items = root.getElementsByTagName("item")
+        for (i in 0 until items.length) {
+            val item = items.item(i) as Element
+            if (item.getAttribute("name") == "android:textFontWeight") {
+                when (item.textContent.trim()) {
+                    "400" -> hasWeight400 = true
+                    "600" -> hasWeight600 = true
+                    "700" -> hasWeight700 = true
+                }
+            }
+        }
+
+        assertTrue("values-v28/type.xml must declare 400 (Regular) weight", hasWeight400)
+        assertTrue("values-v28/type.xml must declare 600 (Semibold) weight", hasWeight600)
+        assertTrue("values-v28/type.xml must declare 700 (Bold) weight", hasWeight700)
+    }
+
+    @Test
+    fun testAppleIos26CoreColorValues() {
+        fun loadColors(qualifier: String): Map<String, String> {
+            val rootDir = getProjectDir()
+            val colorsFile = File(rootDir, "app/src/main/res/$qualifier/colors.xml").takeIf { it.exists() }
+                ?: File("src/main/res/$qualifier/colors.xml")
+            val root = loadXml(colorsFile)
+            val colors = mutableMapOf<String, String>()
+            val nodes = root.getElementsByTagName("color")
+            for (i in 0 until nodes.length) {
+                val node = nodes.item(i) as Element
+                colors[node.getAttribute("name")] = node.textContent.trim()
+            }
+            return colors
+        }
+
+        val lightColors = loadColors("values")
+        assertEquals("#0088FF", lightColors["eve_primary"])
+        assertEquals("#FFFFFF", lightColors["eve_on_primary"])
+        assertEquals("#4A3C3C43", lightColors["eve_separator"])
+        assertEquals("#C6C6C8", lightColors["eve_opaque_separator"])
+
+        val darkColors = loadColors("values-night")
+        assertEquals("#0091FF", darkColors["eve_primary"])
+        assertEquals("#FFFFFF", darkColors["eve_on_primary"])
+        assertEquals("#99545458", darkColors["eve_separator"])
+        assertEquals("#38383A", darkColors["eve_opaque_separator"])
+    }
+
+    @Test
+    fun testGroupedAndSystemScreenLayoutClassifications() {
+        val layoutDir = getLayoutDir()
+        val groupedSample = listOf(
+            "activity_settings.xml",
+            "activity_profile.xml",
+            "activity_about.xml",
+            "activity_history.xml",
+            "activity_bookmarks.xml",
+            "activity_mistakes.xml",
+            "activity_notifications.xml",
+            "activity_premium.xml",
+            "activity_performance.xml",
+            "activity_syllabus.xml",
+            "activity_practice.xml",
+            "activity_pyq.xml",
+            "activity_result_detail.xml",
+            "activity_admin.xml"
+        )
+        for (filename in groupedSample) {
+            val file = File(layoutDir, filename)
+            assertTrue("$filename must exist", file.exists())
+            val root = loadXml(file)
+            val bg = root.getAttribute("android:background")
+            assertEquals(
+                "$filename root background must be @color/eve_system_grouped_background",
+                "@color/eve_system_grouped_background",
+                bg
+            )
+        }
+
+        val systemSample = listOf(
+            "activity_login.xml",
+            "activity_leaderboard.xml",
+            "activity_content_display.xml"
+        )
+        for (filename in systemSample) {
+            val file = File(layoutDir, filename)
+            assertTrue("$filename must exist", file.exists())
+            val root = loadXml(file)
+            val bg = root.getAttribute("android:background")
+            assertEquals(
+                "$filename root background must be @color/eve_system_background",
+                "@color/eve_system_background",
+                bg
+            )
+        }
+    }
 }

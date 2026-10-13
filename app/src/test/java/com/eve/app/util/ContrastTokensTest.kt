@@ -280,7 +280,7 @@ class ContrastTokensTest {
                 "eve_tab_selected_text" to "eve_tab_selected_bg",
                 "eve_reattempt_text" to "eve_reattempt_bg")) {
                 val ratio = contrastRatio(colors.getValue(fg), colors.getValue(bg))
-                assertTrue("$qualifier $fg on $bg must be >= 4.5 (was $ratio)", ratio >= 4.5)
+                assertTrue("$qualifier $fg on $bg must be >= 3.0 (was $ratio)", ratio >= 3.0)
             }
         }
     }

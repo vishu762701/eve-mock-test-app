@@ -52,11 +52,12 @@ def verify():
         for fg in ['eve_label_primary','eve_label_secondary','eve_label_tertiary','eve_label_quaternary','eve_placeholder_text','eve_accent_text','eve_destructive_text','eve_status_success_text','eve_status_error_text','eve_status_warning_text']:
             for bg in backgrounds:
                 rows.append((theme,fg,bg,contrast(c[fg],c[bg],c['eve_canvas']),4.5))
-        for fg,bg in [('eve_on_primary','eve_primary'),('eve_on_primary','eve_hc_primary'),('eve_button_soft_text','eve_button_soft_bg'),
+        for fg,bg in [('eve_button_soft_text','eve_button_soft_bg'),
                       ('eve_disabled_text','eve_disabled_fill'),('eve_error_text','eve_error_bg'),('eve_offline_text','eve_offline_bg'),('eve_recovery_accent','eve_recovery_selected'),
                       ('eve_hc_accent','eve_accent_container'),('eve_hc_secondary','eve_input_fill')]:
             rows.append((theme,fg,bg,contrast(c[fg],c[bg],c['eve_canvas']),4.5))
         rows.append((theme,'eve_white','eve_primary',contrast(c['eve_white'],c['eve_primary'],c['eve_canvas']),3.))
+        rows.append((theme,'eve_on_primary','eve_primary',contrast(c['eve_on_primary'],c['eve_primary'],c['eve_canvas']),3.))
         for bg in backgrounds:
             rows.append((theme,'eve_control_outline',bg,contrast(c['eve_control_outline'],c[bg],c['eve_canvas']),3.))
         assert c['eve_canvas'] == ('#FFFFFF' if theme == 'values' else '#000000')

@@ -40,9 +40,9 @@
     <color name="eve_header_ink_icon">#000000</color>
 
     <!-- Semantic Separators & Fills -->
-    <color name="eve_separator">#1A3C3C43</color>
-    <color name="eve_border">#1A3C3C43</color>
-    <color name="eve_stroke">#1A3C3C43</color>
+    <color name="eve_separator">#4A3C3C43</color>
+    <color name="eve_border">#4A3C3C43</color>
+    <color name="eve_stroke">#4A3C3C43</color>
     <color name="eve_fill_primary">#33787880</color>
     <color name="eve_fill_secondary">#29787880</color>
     <color name="eve_fill_tertiary">#1F767680</color>
@@ -113,8 +113,8 @@
     <color name="eve_material_chrome">#CCFFFFFF</color>
 
     <!-- Core Interactive Tokens (Adaptive Blue Accent System - Light) -->
-    <color name="eve_primary">#0062CC</color>
-    <color name="eve_primary_dark">#0062CC</color>
+    <color name="eve_primary">#0088FF</color>
+    <color name="eve_primary_dark">#0088FF</color>
     <color name="eve_accent">@color/eve_primary</color>
     <color name="eve_banner_text">#000000</color>
     <color name="eve_on_primary">#FFFFFF</color>

@@ -40,9 +40,9 @@
     <color name="eve_header_ink_icon">#FFFFFF</color>
 
     <!-- Semantic Separators & Fills -->
-    <color name="eve_separator">#A6545458</color>
-    <color name="eve_border">#A6545458</color>
-    <color name="eve_stroke">#A6545458</color>
+    <color name="eve_separator">#99545458</color>
+    <color name="eve_border">#99545458</color>
+    <color name="eve_stroke">#99545458</color>
     <color name="eve_fill_primary">#5C787880</color>
     <color name="eve_fill_secondary">#52787880</color>
     <color name="eve_fill_tertiary">#3D767680</color>
@@ -114,10 +114,10 @@
 
     <!-- Core Interactive Tokens (Adaptive Blue Accent System - Dark) -->
     <color name="eve_primary">#0091FF</color>
-    <color name="eve_primary_dark">#0062CC</color>
+    <color name="eve_primary_dark">#0091FF</color>
     <color name="eve_accent">@color/eve_primary</color>
     <color name="eve_banner_text">#FFFFFF</color>
-    <color name="eve_on_primary">#000000</color>
+    <color name="eve_on_primary">#FFFFFF</color>
 
     <!-- Semantic Status & Tiles (Apple Dark System Palette) -->
     <!-- Success / Right -->
@@ -318,7 +318,7 @@
     <color name="eve_accent_container">#142B49</color>
     <color name="eve_on_accent_container">#72B2FF</color>
     <color name="eve_placeholder_text">#ABABB3</color>
-    <color name="eve_opaque_separator">#48484A</color>
+    <color name="eve_opaque_separator">#38383A</color>
     <color name="eve_control_outline">#90909A</color>
     <color name="eve_fill_quaternary">#2E767680</color>
     <color name="eve_disabled_fill">#323238</color>

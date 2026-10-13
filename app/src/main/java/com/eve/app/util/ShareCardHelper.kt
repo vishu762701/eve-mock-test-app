@@ -14,6 +14,18 @@ import java.io.FileOutputStream
 
 object ShareCardHelper {
 
+    // Apple iOS 26 dark-mode semantic roles (permanent dark card palette)
+    private const val COLOR_SYSTEM_BACKGROUND_DARK = "#000000" // iOS systemBackground (dark)
+    private const val COLOR_SECONDARY_BACKGROUND_DARK = "#1C1C1E" // iOS secondarySystemBackground (dark)
+    private const val COLOR_OPAQUE_SEPARATOR_DARK = "#38383A" // iOS opaqueSeparator (dark)
+    private const val COLOR_SYSTEM_BLUE_DARK = "#0091FF" // iOS systemBlue (dark)
+    private const val COLOR_LABEL_SECONDARY_DARK = "#C5C5CC" // iOS secondaryLabel (dark)
+    private const val COLOR_LABEL_TERTIARY_DARK = "#ABABB3" // iOS tertiaryLabel (dark)
+    private const val COLOR_ACCENT_CONTAINER_DARK = "#142B49" // iOS accentContainer (dark)
+    private const val COLOR_ACCENT_TEXT_DARK = "#72B2FF" // iOS accentText (dark)
+    private const val COLOR_STATUS_SUCCESS_DARK = "#30D158" // iOS systemGreen (dark)
+    private const val COLOR_STATUS_ERROR_DARK = "#FF4245" // iOS systemRed (dark)
+
     fun generateAndShare(
         context: Context,
         examName: String,
@@ -43,18 +55,18 @@ object ShareCardHelper {
 
         // 1. Dark Background
         val bgPaint = Paint().apply {
-            color = Color.parseColor("#0F172A") // Deep slate
+            color = Color.parseColor(COLOR_SYSTEM_BACKGROUND_DARK)
             style = Paint.Style.FILL
         }
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), bgPaint)
 
         // 2. Card Container
         val cardPaint = Paint().apply {
-            color = Color.parseColor("#1E293B")
+            color = Color.parseColor(COLOR_SECONDARY_BACKGROUND_DARK)
             style = Paint.Style.FILL
         }
         val cardStrokePaint = Paint().apply {
-            color = Color.parseColor("#334155")
+            color = Color.parseColor(COLOR_OPAQUE_SEPARATOR_DARK)
             style = Paint.Style.STROKE
             strokeWidth = 3f
         }
@@ -64,7 +76,7 @@ object ShareCardHelper {
 
         // 3. App Title / Header
         val brandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#38BDF8") // Sky blue
+            color = Color.parseColor(COLOR_SYSTEM_BLUE_DARK)
             textSize = 34f
             typeface = boldTypeface
             letterSpacing = 0.15f
@@ -82,14 +94,14 @@ object ShareCardHelper {
 
         // Subtle divider
         val divPaint = Paint().apply {
-            color = Color.parseColor("#334155")
+            color = Color.parseColor(COLOR_OPAQUE_SEPARATOR_DARK)
             strokeWidth = 2f
         }
         canvas.drawLine(120f, 260f, width - 120f, 260f, divPaint)
 
         // 5. Score Label & Value
         val scoreLabelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#94A3B8")
+            color = Color.parseColor(COLOR_LABEL_SECONDARY_DARK)
             textSize = 30f
             typeface = regularTypeface
             letterSpacing = 0.08f
@@ -105,11 +117,11 @@ object ShareCardHelper {
 
         // Percentage & Accuracy Pills
         val pillBgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#0369A1") // Deep ocean
+            color = Color.parseColor(COLOR_ACCENT_CONTAINER_DARK)
             style = Paint.Style.FILL
         }
         val pillTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#E0F2FE")
+            color = Color.parseColor(COLOR_ACCENT_TEXT_DARK)
             textSize = 28f
             typeface = boldTypeface
         }
@@ -126,21 +138,21 @@ object ShareCardHelper {
         val boxY = 570f
         val boxH = 160f
 
-        drawStatBox(canvas, 120f, boxY, boxWidth, boxH, "Correct", correctCount.toString(), "#10B981", boldTypeface, regularTypeface)
-        drawStatBox(canvas, 120f + boxWidth + 20f, boxY, boxWidth, boxH, "Wrong", wrongCount.toString(), "#EF4444", boldTypeface, regularTypeface)
-        drawStatBox(canvas, 120f + (boxWidth + 20f) * 2, boxY, boxWidth, boxH, "Skipped", skippedCount.toString(), "#94A3B8", boldTypeface, regularTypeface)
+        drawStatBox(canvas, 120f, boxY, boxWidth, boxH, "Correct", correctCount.toString(), COLOR_STATUS_SUCCESS_DARK, boldTypeface, regularTypeface)
+        drawStatBox(canvas, 120f + boxWidth + 20f, boxY, boxWidth, boxH, "Wrong", wrongCount.toString(), COLOR_STATUS_ERROR_DARK, boldTypeface, regularTypeface)
+        drawStatBox(canvas, 120f + (boxWidth + 20f) * 2, boxY, boxWidth, boxH, "Skipped", skippedCount.toString(), COLOR_LABEL_SECONDARY_DARK, boldTypeface, regularTypeface)
 
         // 7. Standing Card
         val standingRect = RectF(120f, 770f, width - 120f, 910f)
         val standingPaint = Paint().apply {
-            color = Color.parseColor("#0F172A")
+            color = Color.parseColor(COLOR_SYSTEM_BACKGROUND_DARK)
             style = Paint.Style.FILL
         }
         canvas.drawRoundRect(standingRect, 24f, 24f, standingPaint)
         canvas.drawRoundRect(standingRect, 24f, 24f, cardStrokePaint)
 
         val standLabelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#94A3B8")
+            color = Color.parseColor(COLOR_LABEL_SECONDARY_DARK)
             textSize = 26f
             typeface = regularTypeface
             letterSpacing = 0.05f
@@ -148,7 +160,7 @@ object ShareCardHelper {
         canvas.drawText("PERFORMANCE STANDING", 160f, 820f, standLabelPaint)
 
         val standValuePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#38BDF8")
+            color = Color.parseColor(COLOR_SYSTEM_BLUE_DARK)
             textSize = 42f
             typeface = boldTypeface
         }
@@ -156,7 +168,7 @@ object ShareCardHelper {
 
         // 8. Eve App Footer
         val footerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#64748B")
+            color = Color.parseColor(COLOR_LABEL_TERTIARY_DARK)
             textSize = 24f
             typeface = regularTypeface
             textAlign = Paint.Align.CENTER
@@ -197,11 +209,11 @@ object ShareCardHelper {
     ) {
         val rect = RectF(x, y, x + w, y + h)
         val fillPaint = Paint().apply {
-            color = Color.parseColor("#0F172A")
+            color = Color.parseColor(COLOR_SYSTEM_BACKGROUND_DARK)
             style = Paint.Style.FILL
         }
         val borderPaint = Paint().apply {
-            color = Color.parseColor("#334155")
+            color = Color.parseColor(COLOR_OPAQUE_SEPARATOR_DARK)
             style = Paint.Style.STROKE
             strokeWidth = 2f
         }
@@ -217,7 +229,7 @@ object ShareCardHelper {
         canvas.drawText(value, x + w / 2, y + 65f, valPaint)
 
         val lblPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#94A3B8")
+            color = Color.parseColor(COLOR_LABEL_SECONDARY_DARK)
             textSize = 22f
             typeface = regularTypeface
             textAlign = Paint.Align.CENTER

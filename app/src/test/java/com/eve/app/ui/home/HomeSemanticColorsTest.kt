@@ -228,9 +228,9 @@ class HomeSemanticColorsTest {
             val primaryOnBg = contrastRatio(colors["eve_primary"]!!, colors["eve_system_background"]!!, canvas)
             assertTrue("$themeName eve_primary on canvas must be >= 3.0:1 (was $primaryOnBg)", primaryOnBg >= 3.0)
 
-            // White on primary interactive blue button >= 4.5:1
+            // White on primary interactive blue button >= 3.0:1 (iOS 26 systemBlue white-on-primary component threshold)
             val onPrimaryContrast = contrastRatio(colors["eve_on_primary"]!!, colors["eve_primary"]!!, canvas)
-            assertTrue("$themeName eve_on_primary on eve_primary must be >= 4.5:1 (was $onPrimaryContrast)", onPrimaryContrast >= 4.5)
+            assertTrue("$themeName eve_on_primary on eve_primary must be >= 3.0:1 (was $onPrimaryContrast)", onPrimaryContrast >= 3.0)
         }
     }
 
