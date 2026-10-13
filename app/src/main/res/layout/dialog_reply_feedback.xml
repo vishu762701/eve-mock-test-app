@@ -7,11 +7,11 @@
     android:padding="20dp">
 
     <TextView
+        style="@style/TextAppearance.Eve.Secondary.SectionHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Reply to Student Feedback"
-        android:textColor="@color/eve_text"
-        android:textSize="18sp" />
+        android:textColor="@color/eve_text" />
 
     <!-- Original Message Card Context -->
     <com.google.android.material.card.MaterialCardView
@@ -38,30 +38,30 @@
 
                 <TextView
                     android:id="@+id/tvOriginalSenderName"
+                    style="@style/TextAppearance.Eve.Subheadline.Medium"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Student Name"
-                    android:textColor="@color/eve_accent_text"
-                    android:textSize="14sp" />
+                    android:textColor="@color/eve_accent_text" />
 
                 <TextView
                     android:id="@+id/tvOriginalTimestamp"
+                    style="@style/TextAppearance.Eve.Caption1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="24 Sep 2026, 06:30 PM"
-                    android:textColor="@color/eve_text_secondary"
-                    android:textSize="13sp" />
+                    android:textColor="@color/eve_text_secondary" />
             </LinearLayout>
 
             <TextView
                 android:id="@+id/tvOriginalSenderEmail"
+                style="@style/TextAppearance.Eve.Caption1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="student@example.com"
-                android:textColor="@color/eve_text_secondary"
-                android:textSize="12sp" />
+                android:textColor="@color/eve_text_secondary" />
 
             <View
                 android:layout_width="match_parent"
@@ -71,14 +71,14 @@
 
             <TextView
                 android:id="@+id/tvOriginalMessageText"
+                style="@style/TextAppearance.Eve.Secondary.Body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:lineSpacingExtra="2dp"
                 android:maxLines="6"
                 android:scrollbars="vertical"
                 android:text="Original message content goes here in full context."
-                android:textColor="@color/eve_text"
-                android:textSize="13sp" />
+                android:textColor="@color/eve_text" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -93,6 +93,7 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etReplyText"
+            style="@style/TextAppearance.Eve.Callout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="top|start"

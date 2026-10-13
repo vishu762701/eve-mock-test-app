@@ -1,12 +1,12 @@
 package com.eve.app.ui.result
 
 import android.content.Context
-import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.widget.TextViewCompat
 import com.eve.app.R
 import com.eve.app.data.model.AnswerItem
 import com.eve.app.databinding.ItemResultTopicBinding
@@ -34,13 +34,12 @@ object ResultAnalysisRows {
         layoutParams = params(context)
         val status = when { answer.isCorrect -> "Correct"; answer.isAttempted -> "Wrong"; else -> "Skipped" }
         text = "Q${answer.number}: ${answer.timeTakenSeconds}s • $status"
+        TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Footnote_Medium)
         setTextColor(ContextCompat.getColor(context, when {
             answer.isCorrect -> R.color.eve_status_success_text
             answer.isAttempted -> R.color.eve_status_error_text
             else -> R.color.eve_text_secondary
         }))
-        textSize = 13f
-        typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
         setBackgroundResource(R.drawable.bg_student_inset)
         val padding = (12 * resources.displayMetrics.density).toInt()
         setPadding(padding, padding, padding, padding)

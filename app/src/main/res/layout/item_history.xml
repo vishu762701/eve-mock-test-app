@@ -20,35 +20,35 @@
 
         <TextView
             android:id="@+id/tvExamName"
+            style="@style/TextAppearance.Eve.Secondary.ItemTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/eve_text"
-            android:textSize="17sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="@color/eve_text" />
 
         <TextView
             android:id="@+id/tvMeta"
+            style="@style/TextAppearance.Eve.Secondary.ItemSubtitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:textColor="?attr/eveLabelSecondary"
-            android:textSize="13sp" />
+            android:textColor="?attr/eveLabelSecondary" />
 
         <TextView
             android:id="@+id/tvScore"
+            style="@style/TextAppearance.Eve.Secondary.Body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="?attr/eveLabelPrimary" />
 
         <TextView
             android:id="@+id/tvBreakdown"
+            style="@style/TextAppearance.Eve.Secondary.ItemSubtitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:textColor="?attr/eveLabelSecondary"
-            android:textSize="13sp" />
+            android:textColor="?attr/eveLabelSecondary" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

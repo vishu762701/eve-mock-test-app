@@ -12,10 +12,10 @@ Ranked by impact on user experience, stability, and design system fidelity per `
 - **Scope**: `activity_test.xml`, `item_question.xml`, `item_palette_circle.xml`, `CircularTimerView.kt`, `type.xml`.
 - **Details**: Standardized question text to Callout (16sp, lineSpacingMultiplier 1.5), option labels (A–D) to Subheadline (14sp), per-question timer chip to Footnote.Medium (13sp), palette circle numbers to Caption1.Medium (12sp), screen title to Headline (17sp), loading/message states to semantic roles, 0 hardcoded text sizes, and preserved all rigid 2x2 geometry, server scoring, and answer state colors.
 
-## [P1] Phase 5: Official Apple iOS 26 Typography Migration for Result & Secondary Screens
-- **Impact**: Medium-High
-- **Scope**: `activity_result.xml`, `ResultDetailActivity.kt`, `ResultActivity.kt`, syllabus, history, feedback, about.
-- **Details**: Map Overview statistics, Performance breakdown, Analytics cards, Review explanations, and Leaderboard preview rows to iOS 26 typography hierarchy.
+## [COMPLETED] Phase 5: Official Apple iOS 26 Typography Migration for Result & Secondary Screens
+- **Status**: Completed (2026-10-13)
+- **Scope**: `activity_result.xml`, `activity_result_detail.xml`, `item_answer.xml`, `item_result_topic.xml`, `item_topic_stat.xml`, `ResultDetailActivity.kt`, `ResultAnalysisRows.kt`, `activity_leaderboard.xml`, `item_leaderboard.xml`, `activity_history.xml`, `item_history.xml`, `activity_syllabus.xml`, `item_syllabus.xml`, `activity_feedback.xml`, `item_feedback_message.xml`, `item_post_reply.xml`, `dialog_create_feedback_post.xml`, `dialog_reply_feedback.xml`, `dialog_report_question.xml`, `activity_about.xml`, `activity_content_display.xml`.
+- **Details**: Full migration of Result (Overview, Statistics, Performance, Analytics, Review), Leaderboard, History, Syllabus, Feedback, and About screens to canonical Apple iOS 26 typography hierarchy and semantic color roles. 100% elimination of hardcoded text sizes across 19 layouts. Leaderboard visual geometry strictly preserved with zero redesign. Comprehensive automated JVM test suite (`ResultAndSecondaryScreensTypographyTest.kt`).
 
 ## [P3] Accessibility: Extreme Font Scale (1.78x / 2.0x) Audit
 - **Impact**: Low-Medium

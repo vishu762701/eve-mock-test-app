@@ -40,24 +40,22 @@
                         android:src="@drawable/ic_status_circle_right" />
                     <TextView
                         android:id="@+id/tvQuestionNum"
+                        style="@style/TextAppearance.Eve.Subheadline.Medium"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginStart="8dp"
-                        android:fontFamily="sans-serif-medium"
                         android:text="Question 1"
-                        android:textColor="@color/eve_text"
-                        android:textSize="14sp" />
+                        android:textColor="@color/eve_text" />
                 </LinearLayout>
                 <TextView
                     android:id="@+id/tvQuestionStatusLabel"
+                    style="@style/TextAppearance.Eve.Footnote.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:fontFamily="sans-serif-medium"
                     android:text="Correct"
-                    android:textColor="@color/eve_tile_right_text"
-                    android:textSize="13sp" />
+                    android:textColor="@color/eve_tile_right_text" />
             </LinearLayout>
             <ImageView
                 android:id="@+id/ivBookmark"
@@ -88,9 +86,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:lineSpacingMultiplier="1.25"
-            android:textColor="?attr/eveLabelPrimary"
-            android:textSize="18sp" />
+            android:textColor="?attr/eveLabelPrimary" />
 
         <!-- Review Options Container (Shows complete question with options) -->
         <LinearLayout
@@ -113,24 +109,19 @@
 
                 <TextView
                     android:id="@+id/tvBadgeOptionA"
+                    style="@style/TextAppearance.Eve.Result.OptionKey"
                     android:layout_width="28dp"
                     android:layout_height="28dp"
                     android:background="@drawable/bg_option_badge_default"
-                    android:fontFamily="sans-serif-bold"
-                    android:gravity="center"
-                    android:text="A"
-                    android:textColor="?attr/eveLabelPrimary"
-                    android:textSize="13sp" />
+                    android:text="A" />
 
                 <TextView
                     android:id="@+id/tvOptionA"
+                    style="@style/TextAppearance.Eve.Result.OptionText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:layout_weight="1"
-                    android:fontFamily="sans-serif"
-                    android:textColor="@color/eve_text"
-                    android:textSize="16sp" />
+                    android:layout_weight="1" />
 
                 <ImageView
                     android:id="@+id/ivOptionAStatus"
@@ -154,24 +145,19 @@
 
                 <TextView
                     android:id="@+id/tvBadgeOptionB"
+                    style="@style/TextAppearance.Eve.Result.OptionKey"
                     android:layout_width="28dp"
                     android:layout_height="28dp"
                     android:background="@drawable/bg_option_badge_default"
-                    android:fontFamily="sans-serif-bold"
-                    android:gravity="center"
-                    android:text="B"
-                    android:textColor="?attr/eveLabelPrimary"
-                    android:textSize="13sp" />
+                    android:text="B" />
 
                 <TextView
                     android:id="@+id/tvOptionB"
+                    style="@style/TextAppearance.Eve.Result.OptionText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:layout_weight="1"
-                    android:fontFamily="sans-serif"
-                    android:textColor="@color/eve_text"
-                    android:textSize="16sp" />
+                    android:layout_weight="1" />
 
                 <ImageView
                     android:id="@+id/ivOptionBStatus"
@@ -195,24 +181,19 @@
 
                 <TextView
                     android:id="@+id/tvBadgeOptionC"
+                    style="@style/TextAppearance.Eve.Result.OptionKey"
                     android:layout_width="28dp"
                     android:layout_height="28dp"
                     android:background="@drawable/bg_option_badge_default"
-                    android:fontFamily="sans-serif-bold"
-                    android:gravity="center"
-                    android:text="C"
-                    android:textColor="?attr/eveLabelPrimary"
-                    android:textSize="13sp" />
+                    android:text="C" />
 
                 <TextView
                     android:id="@+id/tvOptionC"
+                    style="@style/TextAppearance.Eve.Result.OptionText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:layout_weight="1"
-                    android:fontFamily="sans-serif"
-                    android:textColor="@color/eve_text"
-                    android:textSize="16sp" />
+                    android:layout_weight="1" />
 
                 <ImageView
                     android:id="@+id/ivOptionCStatus"
@@ -236,24 +217,19 @@
 
                 <TextView
                     android:id="@+id/tvBadgeOptionD"
+                    style="@style/TextAppearance.Eve.Result.OptionKey"
                     android:layout_width="28dp"
                     android:layout_height="28dp"
                     android:background="@drawable/bg_option_badge_default"
-                    android:fontFamily="sans-serif-bold"
-                    android:gravity="center"
-                    android:text="D"
-                    android:textColor="?attr/eveLabelPrimary"
-                    android:textSize="13sp" />
+                    android:text="D" />
 
                 <TextView
                     android:id="@+id/tvOptionD"
+                    style="@style/TextAppearance.Eve.Result.OptionText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:layout_weight="1"
-                    android:fontFamily="sans-serif"
-                    android:textColor="@color/eve_text"
-                    android:textSize="16sp" />
+                    android:layout_weight="1" />
 
                 <ImageView
                     android:id="@+id/ivOptionDStatus"
@@ -269,13 +245,12 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnViewSolution"
             style="@style/Widget.Eve.Button.Soft"
+            android:textAppearance="@style/TextAppearance.Eve.Subheadline.Medium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="48dp"
             android:layout_marginTop="12dp"
             android:text="View Solution"
-            android:textSize="15sp"
-            android:fontFamily="sans-serif-medium"
             app:icon="@drawable/ic_visibility"
             app:iconGravity="textStart"
             app:iconPadding="8dp"
@@ -299,23 +274,21 @@
         <!-- 3. User's Answer -->
         <TextView
             android:id="@+id/tvYourAnswer"
+            style="@style/TextAppearance.Eve.Subheadline.Medium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-medium"
             android:lineSpacingExtra="3dp"
-            android:textSize="15sp"
             android:textColor="?attr/eveLabelPrimary" />
 
         <!-- 4. Correct Answer -->
         <TextView
             android:id="@+id/tvCorrectAnswer"
+            style="@style/TextAppearance.Eve.Subheadline.Medium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:fontFamily="sans-serif-medium"
             android:lineSpacingExtra="3dp"
-            android:textColor="@color/eve_tile_right_text"
-            android:textSize="15sp" />
+            android:textColor="@color/eve_tile_right_text" />
 
         <!-- Accuracy Stat Badge (% got this right) -->
         <LinearLayout
@@ -327,21 +300,20 @@
             android:orientation="horizontal">
 
             <TextView
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="📊"
-                android:textSize="13sp"
                 android:textColor="?attr/eveLabelPrimary" />
 
             <TextView
                 android:id="@+id/tvAccuracyStat"
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:fontFamily="sans-serif-medium"
                 android:text="--% got this right"
-                android:textColor="?attr/eveLabelSecondary"
-                android:textSize="13sp" />
+                android:textColor="?attr/eveLabelSecondary" />
         </LinearLayout>
 
         <!-- 5. Time Information (When Available) -->
@@ -370,12 +342,11 @@
                 android:orientation="horizontal">
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Footnote.Medium"
                     android:layout_width="32dp"
                     android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-medium"
                     android:text="You"
-                    android:textColor="@color/eve_text"
-                    android:textSize="13sp" />
+                    android:textColor="@color/eve_text" />
 
                 <ProgressBar
                     android:id="@+id/pbTimeYou"
@@ -388,12 +359,11 @@
 
                 <TextView
                     android:id="@+id/tvTimeYou"
+                    style="@style/TextAppearance.Eve.Footnote.Medium"
                     android:layout_width="40dp"
                     android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-medium"
                     android:gravity="end"
-                    android:textColor="@color/eve_text"
-                    android:textSize="13sp" />
+                    android:textColor="@color/eve_text" />
             </LinearLayout>
 
             <!-- Avg Row -->
@@ -405,12 +375,11 @@
                 android:orientation="horizontal">
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Footnote.Medium"
                     android:layout_width="32dp"
                     android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-medium"
                     android:text="Avg"
-                    android:textColor="?attr/eveLabelSecondary"
-                    android:textSize="13sp" />
+                    android:textColor="?attr/eveLabelSecondary" />
 
                 <ProgressBar
                     android:id="@+id/pbTimeAvg"
@@ -423,22 +392,20 @@
 
                 <TextView
                     android:id="@+id/tvTimeAvg"
+                    style="@style/TextAppearance.Eve.Footnote.Medium"
                     android:layout_width="40dp"
                     android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-medium"
                     android:gravity="end"
-                    android:textColor="?attr/eveLabelSecondary"
-                    android:textSize="13sp" />
+                    android:textColor="?attr/eveLabelSecondary" />
             </LinearLayout>
 
             <!-- Message -->
             <TextView
                 android:id="@+id/tvTimeInsightMessage"
+                style="@style/TextAppearance.Eve.Footnote"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:fontFamily="sans-serif"
-                android:textSize="13sp"
                 android:textColor="?attr/eveLabelPrimary" />
         </LinearLayout>
 
@@ -459,11 +426,10 @@
             <!-- One-line correct summary -->
             <TextView
                 android:id="@+id/tvCorrectSummary"
+                style="@style/TextAppearance.Eve.Result.ExplanationHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
-                android:textColor="@color/eve_text"
-                android:textSize="15sp" />
+                android:textColor="@color/eve_text" />
 
             <!-- Key Points Header -->
             <LinearLayout
@@ -482,26 +448,23 @@
                     app:tint="@color/eve_primary" />
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Eyebrow"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
-                    android:fontFamily="sans-serif-bold"
-                    android:letterSpacing="0.04"
                     android:text="KEY POINTS"
-                    android:textColor="@color/eve_accent_text"
-                    android:textSize="12.5sp" />
+                    android:textColor="@color/eve_accent_text" />
             </LinearLayout>
 
             <!-- Explanation with formatted bulleted concepts -->
             <TextView
                 android:id="@+id/tvExplanation"
+                style="@style/TextAppearance.Eve.Result.ExplanationBody"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:fontFamily="sans-serif"
                 android:lineSpacingMultiplier="1.25"
-                android:textColor="@color/eve_text"
-                android:textSize="15sp" />
+                android:textColor="@color/eve_text" />
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
@@ -533,13 +496,12 @@
                 app:tint="@color/eve_status_warning" />
 
             <TextView
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:fontFamily="sans-serif-medium"
                 android:text="Report an issue with this question"
-                android:textColor="?attr/eveLabelSecondary"
-                android:textSize="13.5sp" />
+                android:textColor="?attr/eveLabelSecondary" />
         </LinearLayout>
         </LinearLayout>
     </LinearLayout>

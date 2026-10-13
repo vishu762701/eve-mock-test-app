@@ -65,19 +65,19 @@
 
             <TextView
                 android:id="@+id/tvTitle"
+                style="@style/TextAppearance.Eve.Title2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="?attr/eveLabelPrimary"
-                android:textSize="22sp"
                 tools:text="Privacy Policy" />
 
             <TextView
                 android:id="@+id/tvLastUpdated"
+                style="@style/TextAppearance.Eve.Caption1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:textColor="?attr/eveLabelSecondary"
-                android:textSize="12sp"
                 tools:text="Last updated: 24 Sep 2026" />
 
             <!-- Structured Contact Us Container -->
@@ -119,18 +119,18 @@
                             android:orientation="vertical">
 
                             <TextView
+                                style="@style/TextAppearance.Eve.Footnote"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Support Email"
-                                android:textColor="?attr/eveLabelSecondary"
-                                android:textSize="13sp" />
+                                android:textColor="?attr/eveLabelSecondary" />
 
                             <TextView
                                 android:id="@+id/tvEmailValue"
+                                style="@style/TextAppearance.Eve.Secondary.Body"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@color/eve_accent_text"
-                                android:textSize="14sp"
                                 tools:text="pronlike9@gmail.com" />
                         </LinearLayout>
                     </LinearLayout>
@@ -166,18 +166,18 @@
                             android:orientation="vertical">
 
                             <TextView
+                                style="@style/TextAppearance.Eve.Footnote"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Support Phone"
-                                android:textColor="?attr/eveLabelSecondary"
-                                android:textSize="13sp" />
+                                android:textColor="?attr/eveLabelSecondary" />
 
                             <TextView
                                 android:id="@+id/tvPhoneValue"
+                                style="@style/TextAppearance.Eve.Secondary.Body"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@color/eve_accent_text"
-                                android:textSize="14sp"
                                 tools:text="+91 9876543210" />
                         </LinearLayout>
                     </LinearLayout>
@@ -213,18 +213,18 @@
                             android:orientation="vertical">
 
                             <TextView
+                                style="@style/TextAppearance.Eve.Footnote"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Official Website"
-                                android:textColor="?attr/eveLabelSecondary"
-                                android:textSize="13sp" />
+                                android:textColor="?attr/eveLabelSecondary" />
 
                             <TextView
                                 android:id="@+id/tvWebsiteValue"
+                                style="@style/TextAppearance.Eve.Secondary.Body"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@color/eve_accent_text"
-                                android:textSize="14sp"
                                 tools:text="https://vishu762701.github.io" />
                         </LinearLayout>
                     </LinearLayout>
@@ -233,12 +233,12 @@
 
             <TextView
                 android:id="@+id/tvBody"
+                style="@style/TextAppearance.Eve.Secondary.Body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:lineSpacingExtra="4dp"
-                android:textColor="?attr/eveLabelPrimary"
-                android:textSize="14sp" />
+                android:textColor="?attr/eveLabelPrimary" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

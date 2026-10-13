@@ -9,6 +9,20 @@
 - Light app background tokens are pure `#FFFFFF`; dark background tokens are pure `#000000`.
 - Test submission remains server-side through `POST /api/attempts/submit`; authentication, scoring, answer persistence, and navigation code were not changed by the Home Banner/Test appearance task.
 
+### EVE Phase 5 of 5: Official iOS 26 Typography & Semantic Colors (Result & Secondary Screens) — 2026-10-13
+
+Completed Phase 5 of 5 migrating all active Result and secondary student-facing screens to the official Apple iOS 26 dynamic typography hierarchy and semantic color system:
+- Standardized Result Hero score display (`tvTotalScore`) to LargeTitle (`36sp`, bold, tabular numbers) and score badge (`tvScorePercentage`) to Footnote.Medium (`13sp`, medium).
+- Standardized Result Statistics metric counts (`tvCorrectCount`, `tvIncorrectCount`, `tvSkippedCount`) to Title2 (`24sp`, bold) and metric labels to Footnote.Medium (`13sp`, medium).
+- Standardized Result Detail (`activity_result_detail.xml`) headers to Subheadline.Medium (`15sp`, medium), inset labels to Caption1.Medium (`12sp`, medium), inset values to Subheadline.Medium (`15sp`, bold), and action links to Footnote.Medium (`13sp`, medium).
+- Standardized Answer Review items (`item_answer.xml`) question text to Callout (`16sp`, regular), option choice keys A–D to Footnote.Medium (`13sp`, medium), option choice text to Callout (`16sp`, regular), time analysis rows to Footnote.Medium (`13sp`, medium), solution headers to Subheadline.Medium (`15sp`, bold), explanation body to Subheadline (`15sp`, regular), and report actions to Footnote.Medium (`13sp`, medium).
+- Standardized Leaderboard (`activity_leaderboard.xml`, `item_leaderboard.xml`) user ranks and names to Subheadline.Medium (`15sp`, medium), scores to Subheadline (`15sp`, regular), hero rank to Title3 (`20sp`, bold), and empty/loading states to Headline (`17sp`) / Footnote (`13sp`). Strictly preserved existing card geometry and structure without visual redesign.
+- Standardized Secondary Screens (History, Syllabus, Feedback, Dialogs, About, Content Display) items to Headline (`17sp`, medium), Section Headers to Title3 (`20sp`, medium), Subtitles to Footnote (`13sp`, regular), Body paragraphs to Subheadline (`15sp`, regular), and search input to Body (`17sp`, regular via `TextAppearance.Eve.Search`).
+- Eliminated 100% of hardcoded `android:textSize` attributes across 19 production layout files (`activity_result.xml`, `activity_result_detail.xml`, `item_answer.xml`, `item_result_topic.xml`, `item_topic_stat.xml`, `activity_leaderboard.xml`, `item_leaderboard.xml`, `activity_history.xml`, `item_history.xml`, `activity_syllabus.xml`, `item_syllabus.xml`, `activity_feedback.xml`, `item_feedback_message.xml`, `item_post_reply.xml`, `dialog_create_feedback_post.xml`, `dialog_reply_feedback.xml`, `dialog_report_question.xml`, `activity_about.xml`, `activity_content_display.xml`).
+- Updated programmatic text assignments in `ResultDetailActivity.kt` and `ResultAnalysisRows.kt` to `TextViewCompat.setTextAppearance()`.
+- Maintained all protected invariants: pure `#FFFFFF` Light / `#000000` Dark canvas, exam status color tokens (`eve_tile_right_*`, `eve_tile_wrong_*`, `eve_tile_medium_*`), server-side scoring, minimum 48dp touch targets, and rigid test geometry.
+- Added comprehensive automated JVM unit test suite `ResultAndSecondaryScreensTypographyTest.kt` verifying 0 hardcoded text sizes, exact semantic typography bindings, and preservation of all approved test surface invariants.
+
 ### EVE Phase 4 of 5: Official iOS 26 Typography (Mock Test Screen) — 2026-10-13
 
 Completed Phase 4 of 5 migrating the entire active Mock Test screen to the official Apple iOS 26 dynamic typography hierarchy:

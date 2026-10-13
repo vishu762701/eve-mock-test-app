@@ -209,8 +209,7 @@ class ResultDetailActivity : EveBaseActivity() {
         } else {
             val emptyTv = TextView(this).apply {
                 text = "No topic metadata recorded for this test."
-                setTextColor(ContextCompat.getColor(context, R.color.eve_text_secondary))
-                textSize = 13f
+                androidx.core.widget.TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Footnote)
             }
             binding.layoutTopicList.addView(emptyTv)
             binding.btnPracticeWeakest.visibility = View.GONE
@@ -244,8 +243,7 @@ class ResultDetailActivity : EveBaseActivity() {
         } else {
             val emptyTv = TextView(this).apply {
                 text = "No timed questions recorded."
-                setTextColor(ContextCompat.getColor(context, R.color.eve_text_secondary))
-                textSize = 13f
+                androidx.core.widget.TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Footnote)
             }
             binding.layoutSlowestList.addView(emptyTv)
         }

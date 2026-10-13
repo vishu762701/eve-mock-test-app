@@ -15,11 +15,11 @@
         android:padding="20dp">
 
         <TextView
+            style="@style/TextAppearance.Eve.Subheadline.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Select Issue Category"
-            android:textColor="?attr/eveLabelPrimary"
-            android:textSize="14sp" />
+            android:textColor="?attr/eveLabelPrimary" />
 
         <TextView
             style="@style/TextAppearance.Eve.Overline"
@@ -36,41 +36,41 @@
 
             <RadioButton
                 android:id="@+id/rbReasonWrongQuestion"
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:checked="true"
                 android:text="Wrong Question"
-                android:textSize="13sp"
                 android:minHeight="48dp"
                 android:textColor="?attr/eveLabelPrimary"
                 android:buttonTint="@color/selector_eve_checked_control" />
 
             <RadioButton
                 android:id="@+id/rbReasonNoSolution"
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="No Solution"
-                android:textSize="13sp"
                 android:minHeight="48dp"
                 android:textColor="?attr/eveLabelPrimary"
                 android:buttonTint="@color/selector_eve_checked_control" />
 
             <RadioButton
                 android:id="@+id/rbReasonWrongTranslation"
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Wrong Translation"
-                android:textSize="13sp"
                 android:minHeight="48dp"
                 android:textColor="?attr/eveLabelPrimary"
                 android:buttonTint="@color/selector_eve_checked_control" />
 
             <RadioButton
                 android:id="@+id/rbReasonOutOfSyllabus"
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Out of Syllabus"
-                android:textSize="13sp"
                 android:minHeight="48dp"
                 android:textColor="?attr/eveLabelPrimary"
                 android:buttonTint="@color/selector_eve_checked_control" />
@@ -85,70 +85,70 @@
 
             <RadioButton
                 android:id="@+id/rbReasonNotVisible"
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Question and Options not visible"
-                android:textSize="13sp"
                 android:minHeight="48dp"
                 android:textColor="?attr/eveLabelPrimary"
                 android:buttonTint="@color/selector_eve_checked_control" />
 
             <RadioButton
                 android:id="@+id/rbReasonBlinking"
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Blinking Screen Issue"
-                android:textSize="13sp"
                 android:minHeight="48dp"
                 android:textColor="?attr/eveLabelPrimary"
                 android:buttonTint="@color/selector_eve_checked_control" />
 
             <RadioButton
                 android:id="@+id/rbReasonFormatting"
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Formatting Issues"
-                android:textSize="13sp"
                 android:minHeight="48dp"
                 android:textColor="?attr/eveLabelPrimary"
                 android:buttonTint="@color/selector_eve_checked_control" />
 
             <RadioButton
                 android:id="@+id/rbReasonScroll"
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Scroll Not Working"
-                android:textSize="13sp"
                 android:minHeight="48dp"
                 android:textColor="?attr/eveLabelPrimary"
                 android:buttonTint="@color/selector_eve_checked_control" />
 
             <RadioButton
                 android:id="@+id/rbReasonDarkMode"
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Dark Mode Issue"
-                android:textSize="13sp"
                 android:minHeight="48dp"
                 android:textColor="?attr/eveLabelPrimary"
                 android:buttonTint="@color/selector_eve_checked_control" />
 
             <RadioButton
                 android:id="@+id/rbReasonQuestionMissingOptionsVisible"
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Question not visible but Options visible"
-                android:textSize="13sp"
                 android:minHeight="48dp"
                 android:textColor="?attr/eveLabelPrimary"
                 android:buttonTint="@color/selector_eve_checked_control" />
 
             <RadioButton
                 android:id="@+id/rbReasonOther"
+                style="@style/TextAppearance.Eve.Footnote.Medium"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Other"
-                android:textSize="13sp"
                 android:minHeight="48dp"
                 android:textColor="?attr/eveLabelPrimary"
                 android:buttonTint="@color/selector_eve_checked_control" />
@@ -164,23 +164,23 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etReportComment"
+                style="@style/TextAppearance.Eve.Callout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="top|start"
                 android:inputType="textMultiLine"
                 android:minLines="3"
-                android:textSize="13sp"
                 android:textColorHint="@color/eve_placeholder_text" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Inline error message (if server error occurs) -->
         <TextView
             android:id="@+id/tvCommentError"
+            style="@style/TextAppearance.Eve.Caption1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textColor="@color/eve_status_error_text"
-            android:textSize="12sp"
             android:visibility="gone" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

@@ -59,20 +59,20 @@
             android:padding="20dp">
 
             <TextView
+                style="@style/TextAppearance.Eve.Secondary.SectionHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="We value your feedback"
-                android:textColor="@color/eve_text"
-                android:textSize="18sp" />
+                android:textColor="@color/eve_text" />
 
             <TextView
                 android:id="@+id/tvFeedbackSubtitle"
+                style="@style/TextAppearance.Eve.Secondary.Body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="Let us know about issues, suggestions, or test requests. Type your message below and tap Send."
-                android:textColor="?attr/eveLabelSecondary"
-                android:textSize="14sp" />
+                android:textColor="?attr/eveLabelSecondary" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilFeedback"
@@ -86,6 +86,7 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etFeedbackMessage"
+                    style="@style/TextAppearance.Eve.Callout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="top|start"
@@ -94,7 +95,6 @@
                     android:maxLength="1000"
                     android:minLines="6"
                     android:textColor="@color/eve_text"
-                    android:textSize="15sp"
                     android:textColorHint="@color/eve_placeholder_text" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -109,11 +109,11 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSendFeedback"
                 style="@style/Widget.Eve.Button.Primary"
+                android:textAppearance="@style/TextAppearance.Eve.Headline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Send Feedback"
-                android:textSize="16sp" />
+                android:text="Send Feedback" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

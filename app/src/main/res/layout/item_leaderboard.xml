@@ -17,10 +17,10 @@
 
         <TextView
             android:id="@+id/tvRank"
+            style="@style/TextAppearance.Eve.Leaderboard.Rank"
             android:layout_width="34dp"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textSize="15sp"
             android:textStyle="bold"
             android:textColor="?attr/eveLabelPrimary" />
 
@@ -32,32 +32,31 @@
 
             <TextView
                 android:id="@+id/tvAvatarInitial"
+                style="@style/TextAppearance.Eve.Subheadline.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:textColor="@color/eve_on_primary"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:textColor="@color/eve_on_primary" />
         </FrameLayout>
 
         <TextView
             android:id="@+id/tvName"
+            style="@style/TextAppearance.Eve.Leaderboard.Name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_weight="1"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textColor="@color/eve_text"
-            android:textSize="15sp" />
+            android:textColor="@color/eve_text" />
 
         <TextView
             android:id="@+id/tvScore"
+            style="@style/TextAppearance.Eve.Leaderboard.Score"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:textColor="@color/eve_accent_text"
-            android:textSize="15sp"
             android:textStyle="bold" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

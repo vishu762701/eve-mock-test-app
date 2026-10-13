@@ -351,4 +351,136 @@
         <item name="android:textColor">?attr/eveLabelSecondary</item>
         <item name="android:gravity">center</item>
     </style>
+
+    <!-- Result Screen Typography (Apple iOS 26 Hierarchy) -->
+    <!-- Result Hero Total Score: 36sp, Bold, tabular alignment (LargeTitle role) -->
+    <style name="TextAppearance.Eve.Result.HeroScore" parent="TextAppearance.Eve.LargeTitle">
+        <item name="android:textSize">36sp</item>
+        <item name="android:fontFamily">sans-serif-bold</item>
+        <item name="fontFamily">sans-serif-bold</item>
+        <item name="android:textColor">@color/eve_text</item>
+        <item name="lineHeight">42sp</item>
+    </style>
+
+    <!-- Result Hero Eyebrow / Label: 12sp, Medium, uppercase (Eyebrow role) -->
+    <style name="TextAppearance.Eve.Result.HeroLabel" parent="TextAppearance.Eve.Eyebrow">
+        <item name="android:letterSpacing">0.08</item>
+        <item name="android:textColor">?attr/eveLabelSecondary</item>
+    </style>
+
+    <!-- Result Score Percentage Badge: 13sp, Medium (Footnote.Medium role) -->
+    <style name="TextAppearance.Eve.Result.ScoreBadge" parent="TextAppearance.Eve.Footnote.Medium">
+        <item name="android:textColor">?attr/eveAccentText</item>
+    </style>
+
+    <!-- Result Statistics Metric Count: 24sp, Bold, tabular numbers (Title2 role) -->
+    <style name="TextAppearance.Eve.Result.MetricCount" parent="TextAppearance.Eve.Title2">
+        <item name="android:textSize">24sp</item>
+        <item name="android:fontFamily">sans-serif-bold</item>
+        <item name="fontFamily">sans-serif-bold</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <!-- Result Statistics Metric Label: 13sp, Medium (Footnote.Medium role) -->
+    <style name="TextAppearance.Eve.Result.MetricLabel" parent="TextAppearance.Eve.Footnote.Medium">
+        <item name="android:gravity">center</item>
+    </style>
+
+    <!-- Result Detail Card Heading: 15sp, Medium (Subheadline.Medium role) -->
+    <style name="TextAppearance.Eve.Result.CardHeader" parent="TextAppearance.Eve.Subheadline.Medium">
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+    </style>
+
+    <!-- Result Detail Inset Title / Subtitle: 12sp, Medium (Caption1.Medium role) -->
+    <style name="TextAppearance.Eve.Result.InsetLabel" parent="TextAppearance.Eve.Caption1.Medium">
+        <item name="android:textColor">?attr/eveLabelSecondary</item>
+    </style>
+
+    <!-- Result Detail Inset Value: 15sp, Bold (Subheadline.Medium role) -->
+    <style name="TextAppearance.Eve.Result.InsetValue" parent="TextAppearance.Eve.Subheadline.Medium">
+        <item name="android:fontFamily">sans-serif-bold</item>
+        <item name="fontFamily">sans-serif-bold</item>
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+    </style>
+
+    <!-- Result Detail Card Action / Link: 13sp, Medium (Footnote.Medium role) -->
+    <style name="TextAppearance.Eve.Result.ActionLink" parent="TextAppearance.Eve.Footnote.Medium">
+        <item name="android:textColor">?attr/eveAccentText</item>
+    </style>
+
+    <!-- Leaderboard Screen Typography -->
+    <!-- Leaderboard Hero Rank: 28sp, Bold (Title1 role) -->
+    <style name="TextAppearance.Eve.Leaderboard.HeroRank" parent="TextAppearance.Eve.Title1">
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+    </style>
+
+    <!-- Leaderboard Row Rank: 15sp, Medium (Subheadline.Medium role) -->
+    <style name="TextAppearance.Eve.Leaderboard.Rank" parent="TextAppearance.Eve.Subheadline.Medium">
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+    </style>
+
+    <!-- Leaderboard Row User Name: 15sp, Medium (Subheadline.Medium role) -->
+    <style name="TextAppearance.Eve.Leaderboard.Name" parent="TextAppearance.Eve.Subheadline.Medium">
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+    </style>
+
+    <!-- Leaderboard Row Score / Metadata: 15sp, Regular (Subheadline role) -->
+    <style name="TextAppearance.Eve.Leaderboard.Score" parent="TextAppearance.Eve.Subheadline">
+        <item name="android:textColor">?attr/eveLabelSecondary</item>
+    </style>
+
+    <!-- Secondary Screens Typography (History, Syllabus, Feedback, About) -->
+    <!-- Secondary Item Title: 17sp, Medium (Headline role) -->
+    <style name="TextAppearance.Eve.Secondary.ItemTitle" parent="TextAppearance.Eve.Headline">
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+    </style>
+
+    <!-- Secondary Item Subtitle / Caption: 13sp, Regular (Footnote role) -->
+    <style name="TextAppearance.Eve.Secondary.ItemSubtitle" parent="TextAppearance.Eve.Footnote">
+        <item name="android:textColor">?attr/eveLabelSecondary</item>
+    </style>
+
+    <!-- Secondary Item Body: 15sp, Regular (Subheadline role) -->
+    <style name="TextAppearance.Eve.Secondary.Body" parent="TextAppearance.Eve.Subheadline">
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+    </style>
+
+    <!-- Secondary Section Header: 18sp/20sp, Medium (Title3 role) -->
+    <style name="TextAppearance.Eve.Secondary.SectionHeader" parent="TextAppearance.Eve.Title3">
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+    </style>
+
+    <!-- Answer / Question Review Item Typography -->
+    <style name="TextAppearance.Eve.Result.QuestionNumber" parent="TextAppearance.Eve.Subheadline.Medium">
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+    </style>
+
+    <style name="TextAppearance.Eve.Result.QuestionText" parent="TextAppearance.Eve.Headline">
+        <item name="android:textSize">17sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/eve_text</item>
+        <item name="lineHeight">24sp</item>
+    </style>
+
+    <style name="TextAppearance.Eve.Result.OptionKey" parent="TextAppearance.Eve.Footnote.Medium">
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="TextAppearance.Eve.Result.OptionText" parent="TextAppearance.Eve.Callout">
+        <item name="android:textColor">@color/eve_text</item>
+        <item name="lineHeight">22sp</item>
+    </style>
+
+    <style name="TextAppearance.Eve.Result.ExplanationHeader" parent="TextAppearance.Eve.Subheadline.Medium">
+        <item name="android:fontFamily">sans-serif-bold</item>
+        <item name="fontFamily">sans-serif-bold</item>
+        <item name="android:textColor">?attr/eveLabelPrimary</item>
+    </style>
+
+    <style name="TextAppearance.Eve.Result.ExplanationBody" parent="TextAppearance.Eve.Subheadline">
+        <item name="android:textColor">?attr/eveLabelSecondary</item>
+        <item name="lineHeight">22sp</item>
+    </style>
 </resources>

@@ -36,23 +36,24 @@
 
                 <TextView
                     android:id="@+id/tvSenderName"
+                    style="@style/TextAppearance.Eve.Subheadline.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/eve_text"
-                    android:textSize="15sp"
                     tools:text="Student Name" />
 
                 <TextView
                     android:id="@+id/tvSenderEmail"
+                    style="@style/TextAppearance.Eve.Secondary.ItemSubtitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/eve_text_secondary"
-                    android:textSize="12sp"
                     tools:text="student@example.com" />
             </LinearLayout>
 
             <TextView
                 android:id="@+id/tvUnreadBadge"
+                style="@style/TextAppearance.Eve.Eyebrow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_pill_accent"
@@ -60,21 +61,20 @@
                 android:paddingVertical="2dp"
                 android:text="NEW"
                 android:textColor="@color/eve_on_accent_container"
-                android:textSize="13sp"
                 android:visibility="gone"
                 tools:visibility="visible" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnReply"
                 style="@style/Widget.Eve.TextButton"
+                android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
                 android:minHeight="0dp"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="4dp"
-                android:text="Reply"
-                android:textSize="12sp" />
+                android:text="Reply" />
 
             <ImageButton
                 android:id="@+id/btnDeleteMessage"
@@ -90,22 +90,22 @@
 
         <TextView
             android:id="@+id/tvMessageBody"
+            style="@style/TextAppearance.Eve.Secondary.Body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:lineSpacingExtra="2dp"
             android:textColor="@color/eve_text"
-            android:textSize="14sp"
             tools:text="This is a feedback message from a student regarding the mock tests." />
 
         <TextView
             android:id="@+id/tvTimestamp"
+            style="@style/TextAppearance.Eve.Caption1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginTop="8dp"
             android:textColor="@color/eve_text_secondary"
-            android:textSize="13sp"
             tools:text="24 Sep 2026, 06:30 PM" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

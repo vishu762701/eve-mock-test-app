@@ -7,19 +7,19 @@
     android:padding="20dp">
 
     <TextView
+        style="@style/TextAppearance.Eve.Secondary.SectionHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="📢 Create Feedback Post"
-        android:textColor="@color/eve_text"
-        android:textSize="18sp" />
+        android:textColor="@color/eve_text" />
 
     <TextView
+        style="@style/TextAppearance.Eve.Secondary.ItemSubtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:text="Publish a feedback inquiry or question for students on the Home screen."
-        android:textColor="@color/eve_text_secondary"
-        android:textSize="13sp" />
+        android:textColor="@color/eve_text_secondary" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilPostTitle"
@@ -31,11 +31,11 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etPostTitle"
+            style="@style/TextAppearance.Eve.Callout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textCapSentences"
-            android:maxLines="2"
-            android:textSize="14sp" />
+            android:maxLines="2" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -48,12 +48,12 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etPostMessage"
+            style="@style/TextAppearance.Eve.Callout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="top|start"
             android:inputType="textMultiLine|textCapSentences"
-            android:minLines="3"
-            android:textSize="14sp" />
+            android:minLines="3" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout

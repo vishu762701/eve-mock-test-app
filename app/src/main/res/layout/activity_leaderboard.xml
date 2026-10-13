@@ -71,12 +71,11 @@
 
                 <TextView
                     android:id="@+id/tvRankMedallion"
+                    style="@style/TextAppearance.Eve.Subheadline.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:textColor="?attr/eveLabelPrimary"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:textColor="?attr/eveLabelPrimary" />
             </FrameLayout>
 
             <!-- Middle: small label "YOUR RANK", large rank value, percentile -->
@@ -88,42 +87,40 @@
                 android:orientation="vertical">
 
                 <TextView
+                    style="@style/TextAppearance.Eve.Eyebrow"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:letterSpacing="0.08"
                     android:text="YOUR RANK"
-                    android:textColor="?attr/eveLabelSecondary"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
+                    android:textColor="?attr/eveLabelSecondary" />
 
                 <TextView
                     android:id="@+id/tvYourRank"
+                    style="@style/TextAppearance.Eve.Title3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
-                    android:textColor="?attr/eveLabelPrimary"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="?attr/eveLabelPrimary" />
 
                 <TextView
                     android:id="@+id/tvYourPercentile"
+                    style="@style/TextAppearance.Eve.Caption1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:textColor="?attr/eveLabelSecondary"
-                    android:textSize="12sp" />
+                    android:textColor="?attr/eveLabelSecondary" />
             </LinearLayout>
 
             <!-- Right: Score large and bold with /total in muted colour -->
             <TextView
                 android:id="@+id/tvYourScore"
+                style="@style/TextAppearance.Eve.Title3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:gravity="end"
-                android:textColor="?attr/eveLabelPrimary"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="?attr/eveLabelPrimary" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -136,20 +133,19 @@
         android:paddingBottom="6dp">
 
         <TextView
+            style="@style/TextAppearance.Eve.Headline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Top Scorers"
-            android:textColor="?attr/eveLabelPrimary"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textColor="?attr/eveLabelPrimary" />
 
         <TextView
+            style="@style/TextAppearance.Eve.Caption1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:text="Highest scores across all participants"
-            android:textColor="?attr/eveLabelSecondary"
-            android:textSize="12sp" />
+            android:textColor="?attr/eveLabelSecondary" />
     </LinearLayout>
 
     <FrameLayout
@@ -183,12 +179,12 @@
                 android:layout_height="wrap_content" />
 
             <TextView
+                style="@style/TextAppearance.Eve.Footnote"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:text="Loading leaderboard…"
-                android:textColor="?attr/eveLabelSecondary"
-                android:textSize="13sp" />
+                android:textColor="?attr/eveLabelSecondary" />
         </LinearLayout>
 
         <LinearLayout
@@ -212,22 +208,21 @@
 
             <TextView
                 android:id="@+id/tvMessage"
+                style="@style/TextAppearance.Eve.Headline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:gravity="center"
-                android:textColor="@color/eve_text"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textColor="@color/eve_text" />
 
             <TextView
                 android:id="@+id/tvMessageSub"
+                style="@style/TextAppearance.Eve.Footnote"
                 android:layout_width="260dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:gravity="center"
-                android:textColor="?attr/eveLabelSecondary"
-                android:textSize="13sp" />
+                android:textColor="?attr/eveLabelSecondary" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRetry"

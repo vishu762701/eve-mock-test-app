@@ -13,21 +13,20 @@
 
         <TextView
             android:id="@+id/tvTopicName"
+            style="@style/TextAppearance.Eve.Subheadline"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textColor="@color/eve_text"
-            android:textSize="14sp" />
+            android:textColor="@color/eve_text" />
 
         <TextView
             android:id="@+id/tvTopicAccuracy"
+            style="@style/TextAppearance.Eve.Footnote.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:textSize="13sp"
-            android:textStyle="bold"
             android:textColor="?attr/eveLabelPrimary" />
     </LinearLayout>
 
@@ -41,9 +40,9 @@
 
     <TextView
         android:id="@+id/tvTopicCount"
+        style="@style/TextAppearance.Eve.Footnote"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
-        android:textColor="?attr/eveLabelSecondary"
-        android:textSize="13sp" />
+        android:textColor="?attr/eveLabelSecondary" />
 </LinearLayout>
