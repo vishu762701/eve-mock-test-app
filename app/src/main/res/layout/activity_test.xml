@@ -34,6 +34,7 @@
 
         <TextView
             android:id="@+id/tvTimer"
+            style="@style/TextAppearance.Eve.Test.QuestionTimer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
@@ -42,16 +43,14 @@
         <!-- Exam / Test title between circular timer and language button -->
         <TextView
             android:id="@+id/tvTestTitle"
+            style="@style/TextAppearance.Eve.Test.Title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginHorizontal="12dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:singleLine="true"
-            android:fontFamily="sans-serif-medium"
-            android:textColor="@color/eve_text"
-            android:textSize="16sp" />
+            android:singleLine="true" />
     </LinearLayout>
 
 
@@ -69,15 +68,12 @@
 
     <TextView
         android:id="@+id/tvOfflineBanner"
+        style="@style/TextAppearance.Eve.Test.OfflineBanner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/eve_offline_bg"
-        android:gravity="center"
         android:paddingVertical="6dp"
         android:text="@string/offline_banner_text"
-        android:textColor="@color/eve_offline_text"
-        android:textSize="12sp"
-        android:textStyle="bold"
         android:visibility="gone" />
 
 
@@ -112,12 +108,11 @@
                 android:layout_height="wrap_content" />
 
             <TextView
+                style="@style/TextAppearance.Eve.Test.Loading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="Loading questions…"
-                android:textColor="@color/eve_text_secondary"
-                android:textSize="14sp" />
+                android:text="Loading questions…" />
         </LinearLayout>
 
         <LinearLayout
@@ -141,22 +136,17 @@
 
             <TextView
                 android:id="@+id/tvMessage"
+                style="@style/TextAppearance.Eve.Test.Message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:gravity="center"
-                android:textColor="@color/eve_text"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="16dp" />
 
             <TextView
                 android:id="@+id/tvMessageSub"
+                style="@style/TextAppearance.Eve.Test.MessageSub"
                 android:layout_width="260dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:gravity="center"
-                android:textColor="?attr/eveLabelSecondary"
-                android:textSize="13sp" />
+                android:layout_marginTop="4dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRetry"

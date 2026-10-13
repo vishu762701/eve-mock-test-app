@@ -42,14 +42,11 @@
 
             <TextView
                 android:id="@+id/tvQuestionTimer"
+                style="@style/TextAppearance.Eve.Test.QuestionTimer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:fontFamily="sans-serif-medium"
-                android:text="0:00"
-                android:textColor="@color/eve_text_secondary"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:text="0:00" />
         </LinearLayout>
 
         <View
@@ -118,9 +115,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:lineSpacingMultiplier="1.5"
-                android:gravity="left"
-                android:textColor="@color/eve_test_foreground"
-                android:textSize="16sp" />
+                android:gravity="left" />
 
     </FrameLayout>
 
@@ -140,50 +135,46 @@
 
         <com.eve.app.ui.common.TelegramRadioButton
             android:id="@+id/rbA"
+            style="@style/TextAppearance.Eve.Test.Option"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:background="@android:color/transparent"
-            android:fontFamily="sans-serif"
             android:paddingVertical="12dp"
             android:minHeight="56dp"
-            android:paddingEnd="12dp"
-            android:textSize="14sp" />
+            android:paddingEnd="12dp" />
 
         <com.eve.app.ui.common.TelegramRadioButton
             android:id="@+id/rbB"
+            style="@style/TextAppearance.Eve.Test.Option"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:background="@android:color/transparent"
-            android:fontFamily="sans-serif"
             android:paddingVertical="12dp"
             android:minHeight="56dp"
-            android:paddingEnd="12dp"
-            android:textSize="14sp" />
+            android:paddingEnd="12dp" />
 
         <com.eve.app.ui.common.TelegramRadioButton
             android:id="@+id/rbC"
+            style="@style/TextAppearance.Eve.Test.Option"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:background="@android:color/transparent"
-            android:fontFamily="sans-serif"
             android:paddingVertical="12dp"
             android:minHeight="56dp"
-            android:paddingEnd="12dp"
-            android:textSize="14sp" />
+            android:paddingEnd="12dp" />
 
         <com.eve.app.ui.common.TelegramRadioButton
             android:id="@+id/rbD"
+            style="@style/TextAppearance.Eve.Test.Option"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            android:fontFamily="sans-serif"
             android:paddingVertical="12dp"
             android:minHeight="56dp"
-            android:paddingEnd="12dp"
-            android:textSize="14sp" />
+            android:paddingEnd="12dp" />
         </RadioGroup>
     </FrameLayout>
 </LinearLayout>

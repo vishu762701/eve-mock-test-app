@@ -64,6 +64,7 @@ class CircularTimerView @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
+        textPaint.textSize = sp(12f)
         val pad = strokePx / 2f
         val diameter = minOf(w, h).toFloat()
         val cx = w / 2f

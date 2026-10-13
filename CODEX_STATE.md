@@ -9,6 +9,20 @@
 - Light app background tokens are pure `#FFFFFF`; dark background tokens are pure `#000000`.
 - Test submission remains server-side through `POST /api/attempts/submit`; authentication, scoring, answer persistence, and navigation code were not changed by the Home Banner/Test appearance task.
 
+### EVE Phase 4 of 5: Official iOS 26 Typography (Mock Test Screen) — 2026-10-13
+
+Completed Phase 4 of 5 migrating the entire active Mock Test screen to the official Apple iOS 26 dynamic typography hierarchy:
+- Standardized question text (`tvQuestion`) to Callout (`16sp`, regular, `24sp` line height) while preserving explicit `android:lineSpacingMultiplier="1.5"` per test engine specification.
+- Standardized option radio buttons A–D (`rbA`, `rbB`, `rbC`, `rbD`) to Subheadline (`14sp`, regular, `20sp` line height) via `TextAppearance.Eve.Test.Option`.
+- Standardized live per-question timer chip (`tvQuestionTimer`) to Footnote.Medium (`13sp`, medium, `18sp` line height) via `TextAppearance.Eve.Test.QuestionTimer`.
+- Standardized exam / top bar title (`tvTestTitle`) to Headline (`17sp`, medium, `22sp` line height, single line with `ellipsize="end"`).
+- Standardized question palette circle numbers (`tvCircleNumber`) to Caption1.Medium (`12sp`, medium, centered) via `TextAppearance.Eve.Test.PaletteNumber`.
+- Ensured circular countdown timer canvas paint (`CircularTimerView.kt`) dynamically updates scalable SP (`sp(12f)`) on size changed to maintain accessibility font scaling.
+- Standardized loading and error message states (`tvOfflineBanner`, `tvMessage`, `tvMessageSub`) to canonical Apple typography roles.
+- Eliminated 100% of hardcoded `android:textSize` attributes across `activity_test.xml`, `item_question.xml`, and `item_palette_circle.xml`.
+- Maintained all rigid test surface invariants: `questionScroll` container, 1.5 line spacing multiplier, absence of `BlurView`, absence of `btnLanguage`, and approved 2x2 bottom button widget styles (`Widget.Eve.ApprovedTestAction`, `Widget.Eve.ApprovedTestNavigation`, `Widget.Eve.ApprovedTestNext`).
+- Added comprehensive automated JVM unit test suite `MockTestTypographyTest.kt` verifying 0 hardcoded text sizes, exact semantic typography bindings, and preservation of all approved test surface invariants.
+
 ### EVE Phase 3 of 5: Official iOS 26 Colors + Typography (Profile, Settings & Login) — 2026-10-13
 
 Completed Phase 3 of 5 establishing the official Apple iOS 26 dynamic semantic color and typography foundation across Profile, Settings, and Login user journeys:

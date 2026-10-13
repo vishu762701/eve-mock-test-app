@@ -208,14 +208,15 @@
         <item name="android:textColor">?attr/eveLabelPrimary</item>
     </style>
 
-    <!-- QuestionText: 17sp, Regular, lineSpacingMultiplier 1.25 -->
-    <style name="TextAppearance.Eve.QuestionText" parent="TextAppearance.Eve">
-        <item name="android:textSize">17sp</item>
+    <!-- QuestionText: 16sp (Apple iOS Callout), Regular, lineSpacingMultiplier 1.5 per approved test specification -->
+    <style name="TextAppearance.Eve.QuestionText" parent="TextAppearance.Eve.Callout">
+        <item name="android:textSize">16sp</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:lineSpacingMultiplier">1.25</item>
-        <item name="android:textColor">?attr/eveLabelPrimary</item>
+        <item name="android:lineSpacingMultiplier">1.5</item>
+        <item name="android:textColor">@color/eve_test_foreground</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
+        <item name="lineHeight">24sp</item>
     </style>
 
     <!-- Subheading: 17sp, Medium -->
@@ -296,5 +297,58 @@
     </style>
     <style name="TextAppearance.Eve.Quaternary" parent="TextAppearance.Eve.Caption">
         <item name="android:textColor">?attr/eveLabelQuaternary</item>
+    </style>
+
+    <!-- Mock Test Screen Typography (Apple iOS 26 Hierarchy) -->
+    <!-- Screen / Exam Title: 17sp, Semibold / Medium (Headline role) -->
+    <style name="TextAppearance.Eve.Test.Title" parent="TextAppearance.Eve.Headline">
+        <item name="android:textColor">@color/eve_text</item>
+    </style>
+
+    <!-- Question Timer Chip: 13sp, Medium, secondary label (Footnote.Medium role) -->
+    <style name="TextAppearance.Eve.Test.QuestionTimer" parent="TextAppearance.Eve.Footnote.Medium.Secondary">
+        <item name="android:textColor">@color/eve_text_secondary</item>
+    </style>
+
+    <!-- Option Choices A-D: 14sp, Regular, Apple option row typography (Subheadline role) -->
+    <style name="TextAppearance.Eve.Test.Option" parent="TextAppearance.Eve.Subheadline">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/eve_test_foreground</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="lineHeight">20sp</item>
+    </style>
+
+    <!-- Palette Cell Numbers: 12sp, Medium, center aligned (Caption1.Medium role) -->
+    <style name="TextAppearance.Eve.Test.PaletteNumber" parent="TextAppearance.Eve.Caption1.Medium">
+        <item name="android:textColor">@color/eve_text</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <!-- Offline Status Banner: 12sp, Bold / Medium, centered (Caption1.Medium role) -->
+    <style name="TextAppearance.Eve.Test.OfflineBanner" parent="TextAppearance.Eve.Caption1.Medium">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/eve_offline_text</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <!-- Loading State: 14sp, Regular, secondary label (Subheadline role) -->
+    <style name="TextAppearance.Eve.Test.Loading" parent="TextAppearance.Eve.Subheadline">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/eve_text_secondary</item>
+    </style>
+
+    <!-- Error / Message State Title: 16sp, Bold / Medium (Headline role) -->
+    <style name="TextAppearance.Eve.Test.Message" parent="TextAppearance.Eve.Headline">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/eve_text</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <!-- Error / Message State Subtitle: 13sp, Regular (Footnote role) -->
+    <style name="TextAppearance.Eve.Test.MessageSub" parent="TextAppearance.Eve.Footnote">
+        <item name="android:textColor">?attr/eveLabelSecondary</item>
+        <item name="android:gravity">center</item>
     </style>
 </resources>
