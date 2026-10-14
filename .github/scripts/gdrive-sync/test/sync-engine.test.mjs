@@ -58,12 +58,10 @@ test('runSync produces all 7 volumes in dry-run mode without credentials', async
   fs.rmSync(testOutDir, { recursive: true, force: true });
 });
 
-test('runSync executes live sync against mocked Google Drive endpoints', async () => {
+test('runSync executes live sync against mocked Google Drive endpoints (Service Account mode)', async () => {
   const mockKey = createMockKey();
   const folderId = 'mock-folder-id';
   const testOutDir = path.join(REPO_ROOT, 'build/test-jarvis-live-output');
-
-  const syncedFilesMap = new Map();
 
   const mockFetch = async (url, opts) => {
     // Token exchange
@@ -111,6 +109,65 @@ test('runSync executes live sync against mocked Google Drive endpoints', async (
 
   assert.strictEqual(result.status, 'SYNCED');
   assert.strictEqual(result.mode, 'live');
+  assert.strictEqual(result.syncedDocuments.length, 7);
+
+  // Clean up
+  fs.rmSync(testOutDir, { recursive: true, force: true });
+});
+
+test('runSync executes live sync against mocked Google Drive endpoints (User OAuth mode)', async () => {
+  const folderId = 'mock-user-folder-id';
+  const testOutDir = path.join(REPO_ROOT, 'build/test-jarvis-user-oauth-output');
+
+  let refreshTokenUsed = false;
+
+  const mockFetch = async (url, opts) => {
+    // Token exchange
+    if (url.includes('/token')) {
+      refreshTokenUsed = true;
+      assert.match(opts.body, /grant_type=refresh_token/);
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({ access_token: 'mock-user-token', expires_in: 3600 })
+      };
+    }
+
+    // Permissions check
+    if (url.includes(`/permissions`)) {
+      return { ok: true, status: 200, json: async () => ({ permissions: [] }) };
+    }
+
+    // Query files
+    if (url.includes('/drive/v3/files?q=')) {
+      return { ok: true, status: 200, json: async () => ({ files: [] }) };
+    }
+
+    // Multipart create
+    if (url.includes('uploadType=multipart')) {
+      const generatedId = 'user-file-id-' + Math.random().toString(36).substring(7);
+      return { ok: true, status: 200, json: async () => ({ id: generatedId }) };
+    }
+
+    throw new Error(`Unhandled mock fetch URL: ${url}`);
+  };
+
+  const result = await runSync({
+    rootDir: REPO_ROOT,
+    commitSha: 'a3d3144513ae320562e57a597db2ca76893fdd10',
+    branch: 'main',
+    triggerEvent: 'push',
+    clientId: 'mock-user-client-id',
+    clientSecret: 'mock-user-client-secret',
+    refreshToken: 'mock-user-refresh-token',
+    folderId,
+    outDir: testOutDir,
+    fetchFn: mockFetch
+  });
+
+  assert.strictEqual(result.status, 'SYNCED');
+  assert.strictEqual(result.mode, 'live');
+  assert.strictEqual(refreshTokenUsed, true);
   assert.strictEqual(result.syncedDocuments.length, 7);
 
   // Clean up

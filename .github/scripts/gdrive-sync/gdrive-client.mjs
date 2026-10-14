@@ -1,45 +1,81 @@
 /**
- * Least-Privilege Google Drive API v3 Client for EVE JARVIS Gemini Sync
+ * Enterprise Google Drive API v3 Client for EVE JARVIS Gemini Sync
  * Pure Node.js (Zero external dependencies).
- * Uses Google Cloud Service Account with RS256 JWT exchange.
+ * Supports Dual-Mode Authentication:
+ *   1. Google User OAuth 2.0 (Refresh Token) — solves personal Google Drive quota limitations (files owned by user).
+ *   2. Google Cloud Service Account (RS256 JWT) — for Google Workspace Shared Drives.
  * Scope: https://www.googleapis.com/auth/drive.file
  * Preserves stable Google Drive file IDs via files.update.
+ * Features automatic retries with exponential backoff and transparent token re-authentication.
  */
 
 import crypto from 'node:crypto';
 
 export class GDriveClient {
   /**
-   * @param {object|string} serviceAccountKey Parsed JSON or string JSON of service account credentials
+   * @param {object|string} authOptions Authentication configuration:
+   *   - Service Account: JSON string or object with `client_email` and `private_key` (or { serviceAccountKey })
+   *   - User OAuth 2.0: object with { clientId, clientSecret, refreshToken }
    * @param {typeof fetch} [fetchFn] Optional custom fetch implementation (for unit testing)
    */
-  constructor(serviceAccountKey, fetchFn = globalThis.fetch) {
-    if (!serviceAccountKey) {
-      throw new Error('Service account key is required');
+  constructor(authOptions, fetchFn = globalThis.fetch) {
+    if (!authOptions) {
+      throw new Error('Authentication options (Service Account or User OAuth) are required');
     }
 
-    const key = typeof serviceAccountKey === 'string'
-      ? JSON.parse(serviceAccountKey)
-      : serviceAccountKey;
-
-    if (!key.client_email || !key.private_key) {
-      throw new Error('Invalid service account key: missing client_email or private_key');
-    }
-
-    this.clientEmail = key.client_email;
-    this.privateKey = key.private_key;
-    this.tokenUri = key.token_uri || 'https://oauth2.googleapis.com/token';
     this.fetch = fetchFn;
     this.accessToken = null;
     this.tokenExpiresAt = 0;
+
+    let parsed = authOptions;
+    if (typeof authOptions === 'string') {
+      try {
+        parsed = JSON.parse(authOptions);
+      } catch (e) {
+        throw new Error('Invalid JSON string provided for credentials: ' + e.message);
+      }
+    }
+
+    // Check if wrapped in { serviceAccountKey }
+    if (parsed.serviceAccountKey) {
+      parsed = typeof parsed.serviceAccountKey === 'string'
+        ? JSON.parse(parsed.serviceAccountKey)
+        : parsed.serviceAccountKey;
+    }
+
+    // Determine authentication mode
+    if (parsed.refreshToken || parsed.refresh_token) {
+      // User OAuth 2.0
+      this.authMode = 'user_oauth';
+      this.clientId = parsed.clientId || parsed.client_id;
+      this.clientSecret = parsed.clientSecret || parsed.client_secret;
+      this.refreshToken = parsed.refreshToken || parsed.refresh_token;
+      this.tokenUri = parsed.tokenUri || parsed.token_uri || 'https://oauth2.googleapis.com/token';
+
+      if (!this.clientId || !this.clientSecret || !this.refreshToken) {
+        throw new Error('Invalid User OAuth configuration: clientId, clientSecret, and refreshToken are required');
+      }
+    } else if (parsed.client_email && parsed.private_key) {
+      // Service Account
+      this.authMode = 'service_account';
+      this.clientEmail = parsed.client_email;
+      this.privateKey = parsed.private_key;
+      this.tokenUri = parsed.token_uri || 'https://oauth2.googleapis.com/token';
+    } else {
+      throw new Error('Invalid credentials: must provide either Service Account (client_email, private_key) or User OAuth (clientId, clientSecret, refreshToken)');
+    }
   }
 
   /**
-   * Generates a signed RS256 JWT for Google OAuth2 token exchange.
-   * Scope is strictly least-privilege: drive.file.
+   * Generates a signed RS256 JWT for Service Account token exchange.
+   * Scope: https://www.googleapis.com/auth/drive.file
    * @returns {string} Signed JWT
    */
   generateJwt() {
+    if (this.authMode !== 'service_account') {
+      throw new Error('generateJwt is only available in service_account authentication mode');
+    }
+
     const header = {
       alg: 'RS256',
       typ: 'JWT'
@@ -67,7 +103,8 @@ export class GDriveClient {
   }
 
   /**
-   * Exchanges signed JWT for a Google OAuth bearer access token.
+   * Exchanges Service Account JWT or User Refresh Token for Google OAuth bearer access token.
+   * Caches token until 60 seconds before expiration.
    * @returns {Promise<string>}
    */
   async getAccessToken() {
@@ -76,6 +113,46 @@ export class GDriveClient {
       return this.accessToken;
     }
 
+    if (this.authMode === 'user_oauth') {
+      return this._exchangeRefreshToken();
+    } else {
+      return this._exchangeServiceAccountJwt();
+    }
+  }
+
+  /**
+   * @private
+   */
+  async _exchangeRefreshToken() {
+    const params = new URLSearchParams({
+      grant_type: 'refresh_token',
+      client_id: this.clientId,
+      client_secret: this.clientSecret,
+      refresh_token: this.refreshToken
+    });
+
+    const res = await this.fetch(this.tokenUri, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString()
+    });
+
+    if (!res.ok) {
+      const errBody = await res.text();
+      throw new Error(`Google OAuth Refresh Token exchange failed (HTTP ${res.status}): ${errBody}`);
+    }
+
+    const data = await res.json();
+    this.accessToken = data.access_token;
+    const expiresIn = typeof data.expires_in === 'number' ? data.expires_in : 3600;
+    this.tokenExpiresAt = Date.now() + (expiresIn * 1000);
+    return this.accessToken;
+  }
+
+  /**
+   * @private
+   */
+  async _exchangeServiceAccountJwt() {
     const jwt = this.generateJwt();
     const params = new URLSearchParams({
       grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
@@ -95,27 +172,82 @@ export class GDriveClient {
 
     const data = await res.json();
     this.accessToken = data.access_token;
-    this.tokenExpiresAt = now + (data.expires_in * 1000);
+    const expiresIn = typeof data.expires_in === 'number' ? data.expires_in : 3600;
+    this.tokenExpiresAt = Date.now() + (expiresIn * 1000);
     return this.accessToken;
   }
 
   /**
+   * Executes fetch with automatic retries for transient errors (429, 5xx) and token refresh for 401.
+   * @param {string} url
+   * @param {object} options
+   * @param {number} [maxRetries=4]
+   * @param {number} [baseDelay=500]
+   * @returns {Promise<Response>}
+   */
+  async fetchWithRetry(url, options = {}, maxRetries = 4, baseDelay = 500) {
+    let attempt = 0;
+    let reauthenticated = false;
+
+    while (true) {
+      const token = await this.getAccessToken();
+      const headers = {
+        ...(options.headers || {}),
+        'Authorization': `Bearer ${token}`
+      };
+
+      try {
+        const res = await this.fetch(url, { ...options, headers });
+
+        // Handle 401 Unauthorized (expired or revoked token)
+        if (res.status === 401 && !reauthenticated) {
+          reauthenticated = true;
+          this.accessToken = null; // force token refresh on next attempt
+          continue;
+        }
+
+        // Handle 429 Too Many Requests or 5xx Server Transient Errors
+        if ((res.status === 429 || (res.status >= 500 && res.status <= 504)) && attempt < maxRetries) {
+          attempt++;
+          let delayMs = baseDelay * Math.pow(2, attempt - 1) + Math.floor(Math.random() * 100);
+          const retryAfter = res.headers && typeof res.headers.get === 'function'
+            ? res.headers.get('Retry-After')
+            : null;
+          if (retryAfter) {
+            const parsed = parseInt(retryAfter, 10);
+            if (!isNaN(parsed) && parsed > 0) delayMs = parsed * 1000;
+          }
+          await new Promise(r => setTimeout(r, delayMs));
+          continue;
+        }
+
+        return res;
+      } catch (err) {
+        if (attempt < maxRetries) {
+          attempt++;
+          const delayMs = baseDelay * Math.pow(2, attempt - 1) + Math.floor(Math.random() * 100);
+          await new Promise(r => setTimeout(r, delayMs));
+          continue;
+        }
+        throw err;
+      }
+    }
+  }
+
+  /**
    * Searches designated parent folder for a file by exact name.
+   * Supports both regular personal folders and Google Workspace Shared Drives.
    * @param {string} folderId
    * @param {string} fileName
    * @returns {Promise<{ id: string, name: string, mimeType: string } | null>}
    */
   async findFileByName(folderId, fileName) {
-    const token = await this.getAccessToken();
     const safeName = fileName.replace(/'/g, "\\'");
     const q = `'${folderId}' in parents and name = '${safeName}' and trashed = false`;
-    const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name,mimeType)&spaces=drive`;
+    const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name,mimeType,trashed)&spaces=drive&supportsAllDrives=true&includeItemsFromAllDrives=true`;
 
-    const res = await this.fetch(url, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json'
-      }
+    const res = await this.fetchWithRetry(url, {
+      headers: { 'Accept': 'application/json' }
     });
 
     if (!res.ok) {
@@ -124,27 +256,30 @@ export class GDriveClient {
     }
 
     const data = await res.json();
-    if (data.files && data.files.length > 0) {
-      return data.files[0];
+    const files = (data.files || []).filter(f => !f.trashed);
+    if (files.length > 0) {
+      if (files.length > 1) {
+        console.warn(`[EVE JARVIS SYNC] Notice: Multiple non-trashed files named '${fileName}' found in folder '${folderId}'. Using primary document ID: ${files[0].id}`);
+      }
+      return files[0];
     }
     return null;
   }
 
   /**
    * Updates an existing Google Drive file in-place, PRESERVING its stable document ID.
+   * Supports Shared Drives and personal Drives.
    * @param {string} fileId
    * @param {string} content
    * @param {string} [mimeType='text/markdown']
    * @returns {Promise<{ id: string, action: string }>}
    */
   async updateFile(fileId, content, mimeType = 'text/markdown') {
-    const token = await this.getAccessToken();
-    const url = `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`;
+    const url = `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media&supportsAllDrives=true`;
 
-    const res = await this.fetch(url, {
+    const res = await this.fetchWithRetry(url, {
       method: 'PATCH',
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': `${mimeType}; charset=utf-8`
       },
       body: content
@@ -152,6 +287,11 @@ export class GDriveClient {
 
     if (!res.ok) {
       const errBody = await res.text();
+      if (res.status === 403 && (errBody.includes('storageQuotaExceeded') || errBody.includes('quota'))) {
+        throw new Error(
+          `Google Drive API Error (403 storageQuotaExceeded): Storage quota exceeded. Note: Google Service Accounts do not have storage quota in personal Google Drive folders. To fix this for personal Google accounts, use Google User OAuth credentials (GDRIVE_CLIENT_ID, GDRIVE_CLIENT_SECRET, GDRIVE_REFRESH_TOKEN) or a Google Workspace Shared Drive.`
+        );
+      }
       throw new Error(`Failed to update file '${fileId}' (HTTP ${res.status}): ${errBody}`);
     }
 
@@ -161,6 +301,7 @@ export class GDriveClient {
 
   /**
    * Creates a new file inside the designated parent folder using multipart upload.
+   * Supports Shared Drives and personal Drives.
    * @param {string} folderId
    * @param {string} fileName
    * @param {string} content
@@ -168,7 +309,6 @@ export class GDriveClient {
    * @returns {Promise<{ id: string, action: string }>}
    */
   async createFile(folderId, fileName, content, mimeType = 'text/markdown') {
-    const token = await this.getAccessToken();
     const boundary = '-------eve_jarvis_boundary_' + Date.now();
     const delimiter = `\r\n--${boundary}\r\n`;
     const closeDelimiter = `\r\n--${boundary}--`;
@@ -188,12 +328,11 @@ export class GDriveClient {
       content +
       closeDelimiter;
 
-    const url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
+    const url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true';
 
-    const res = await this.fetch(url, {
+    const res = await this.fetchWithRetry(url, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': `multipart/related; boundary=${boundary}`
       },
       body: multipartBody
@@ -201,6 +340,11 @@ export class GDriveClient {
 
     if (!res.ok) {
       const errBody = await res.text();
+      if (res.status === 403 && (errBody.includes('storageQuotaExceeded') || errBody.includes('quota'))) {
+        throw new Error(
+          `Google Drive API Error (403 storageQuotaExceeded): Storage quota exceeded. Note: Google Service Accounts do not have storage quota in personal Google Drive folders. To fix this for personal Google accounts, use Google User OAuth credentials (GDRIVE_CLIENT_ID, GDRIVE_CLIENT_SECRET, GDRIVE_REFRESH_TOKEN) or a Google Workspace Shared Drive.`
+        );
+      }
       throw new Error(`Failed to create file '${fileName}' (HTTP ${res.status}): ${errBody}`);
     }
 
@@ -231,18 +375,15 @@ export class GDriveClient {
 
   /**
    * Fetches current permissions list for a file or folder.
+   * Supports Shared Drives.
    * @param {string} fileId
    * @returns {Promise<Array<{ id: string, type: string, role: string, emailAddress?: string }>>}
    */
   async listPermissions(fileId) {
-    const token = await this.getAccessToken();
-    const url = `https://www.googleapis.com/drive/v3/files/${fileId}/permissions?fields=permissions(id,type,role,emailAddress)`;
+    const url = `https://www.googleapis.com/drive/v3/files/${fileId}/permissions?fields=permissions(id,type,role,emailAddress)&supportsAllDrives=true`;
 
-    const res = await this.fetch(url, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json'
-      }
+    const res = await this.fetchWithRetry(url, {
+      headers: { 'Accept': 'application/json' }
     });
 
     if (!res.ok) {
@@ -267,7 +408,6 @@ export class GDriveClient {
       return [];
     }
 
-    const token = await this.getAccessToken();
     const existingPerms = await this.listPermissions(fileId);
     const existingEmails = new Set(
       existingPerms
@@ -286,11 +426,10 @@ export class GDriveClient {
         continue;
       }
 
-      const url = `https://www.googleapis.com/drive/v3/files/${fileId}/permissions?sendNotificationEmail=false`;
-      const res = await this.fetch(url, {
+      const url = `https://www.googleapis.com/drive/v3/files/${fileId}/permissions?sendNotificationEmail=false&supportsAllDrives=true`;
+      const res = await this.fetchWithRetry(url, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -318,16 +457,14 @@ export class GDriveClient {
    * @returns {Promise<number>} Number of public permissions removed
    */
   async removePublicPermissions(fileId) {
-    const token = await this.getAccessToken();
     const perms = await this.listPermissions(fileId);
     const publicPerms = perms.filter(p => p.type === 'anyone');
 
     let removed = 0;
     for (const p of publicPerms) {
-      const url = `https://www.googleapis.com/drive/v3/files/${fileId}/permissions/${p.id}`;
-      const res = await this.fetch(url, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+      const url = `https://www.googleapis.com/drive/v3/files/${fileId}/permissions/${p.id}?supportsAllDrives=true`;
+      const res = await this.fetchWithRetry(url, {
+        method: 'DELETE'
       });
       if (res.ok) {
         removed++;

@@ -274,3 +274,37 @@ The previous synchronization approach relied on Apps Script polling GitHub, whic
 6. **Zero External Dependencies**: Pure Node.js client using standard `node:crypto`, `node:fs`, and global `fetch`. Tested via `node:test`.
 7. **Strict Confidentiality**: Automatic secret sanitization, keystore/binary exclusion, and active deletion of any detected public (`anyone`) permissions.
 8. **Graceful Preflight**: If GitHub Secrets are not yet configured, the workflow executes a dry run and logs clear onboarding instructions without failing the CI build.
+
+## ADR-010: Dual-Mode OAuth/Service Account Architecture, Storage Quota Resolution, and Atomic Master Index Publication
+
+- **Date**: 2026-10-14
+- **Status**: Accepted
+- **Author**: Principal Architecture Engineer, Google Cloud Integration Expert, Security Lead
+
+### Context
+While ADR-009 established the event-driven GitHub Actions synchronization pipeline, personal Google accounts (`@gmail.com`) experience `403 storageQuotaExceeded` when uploading via Google Cloud Service Accounts. In Google Drive, files created by a service account are owned by the service account itself, and Google Cloud grants zero bytes of Drive storage quota to service accounts on personal My Drive. To achieve reliable synchronization across personal Google accounts without requiring paid Workspace subscriptions, a dual-mode authentication architecture is required alongside atomic publishing guarantees, exponential backoff retries, and commit SHA consistency.
+
+### Official Documentation References Opened
+- Google Identity - OAuth 2.0 for Web Server Applications: https://developers.google.com/identity/protocols/oauth2/web-server
+- Google Identity - Using OAuth 2.0 to Access Google APIs: https://developers.google.com/identity/protocols/oauth2
+- Google Drive API v3 - Manage Uploads: https://developers.google.com/drive/api/guides/manage-uploads
+- Google Drive API v3 - Shared Drives Support: https://developers.google.com/drive/api/guides/enable-shareddrives
+- Google Drive API v3 - Permissions: https://developers.google.com/drive/api/v3/reference/permissions
+
+### Decisions
+1. **Dual-Mode Authentication**:
+   - **Mode 1: Google User OAuth 2.0 (Option A - Recommended for Personal Accounts)**: Uses `GDRIVE_REFRESH_TOKEN`, `GDRIVE_CLIENT_ID`, and `GDRIVE_CLIENT_SECRET`. Tokens are exchanged via `https://oauth2.googleapis.com/token` (`grant_type=refresh_token`). Requests execute under the user's account, files are owned by the user, and uploads consume the user's standard 15 GB+ personal Drive storage quota with zero quota errors.
+   - **Mode 2: Google Cloud Service Account (Option B - Workspace Shared Drives)**: Retains RS256 JWT authorization for enterprise Google Workspace Shared Drives where storage belongs to the organizational domain.
+2. **Atomic Master Index Publication**:
+   - The master index document (`00_INDEX_AND_SYSTEM_STATUS.md`) is synchronized ONLY after all 6 domain volumes (`01_...` through `06_...`) have completed and verified successfully.
+   - If any volume upload encounters an error, the sync halts immediately with `status: 'PARTIAL_FAILURE'`, preventing partial or inconsistent states from being indexed in Gemini.
+3. **Transient Error Handling and Exponential Backoff**:
+   - Automatic retries on HTTP 429 (Too Many Requests), 500, 502, 503, 504 with randomized jitter.
+   - Respects Google's `Retry-After` header when present.
+   - Transparent 401 re-authentication: if a token expires during long uploads, the client invalidates cached tokens, fetches a fresh bearer token, and retries the request seamlessly.
+4. **Shared Drive Universal Compatibility**:
+   - Appends `supportsAllDrives=true` and `includeItemsFromAllDrives=true` across all query, file creation, update, and permission API endpoints, providing full interoperability with Google Workspace Shared Drives.
+5. **Commit SHA Consistency**:
+   - Workflow resolves `${{ github.event.workflow_run.head_sha || github.sha }}` ensuring that runs triggered after `Build Eve APK` synchronize the exact commit SHA verified by the Android build.
+6. **Zero-Dependency User Token Generation**:
+   - Provided `.github/scripts/gdrive-sync/oauth-helper.mjs` using pure Node.js to streamline obtaining a user refresh token in under one minute without installing external packages.

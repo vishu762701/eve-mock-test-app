@@ -9,6 +9,11 @@ export const SECRET_PATTERNS = [
   { name: 'Fine-grained GitHub Token', regex: /github_pat_[A-Za-z0-9_]{82,}/g },
   { name: 'Slack Bot/User Token', regex: /xox[baprs]-[0-9]{10,13}-[0-9]{10,13}-[a-zA-Z0-9]{24,}/g },
   { name: 'AWS Access Key ID', regex: /(?:A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}/g },
+  { name: 'Google Cloud API Key', regex: /AIza[0-9A-Za-z\-_]{35}/g },
+  { name: 'Stripe Secret Key', regex: /(?:sk|rk)_live_[0-9a-zA-Z]{24,}/g },
+  { name: 'Supabase Service Role Key', regex: /sbp_[a-zA-Z0-9]{40,}/g },
+  { name: 'JSON Web Token / Bearer Token', regex: /ey[A-Za-z0-9_-]{15,}\.ey[A-Za-z0-9_-]{15,}\.[A-Za-z0-9_-]{15,}/g },
+  { name: 'URI Embedded Password Credentials', regex: /https?:\/\/[^:@/\s]+:[^:@/\s]+@[a-zA-Z0-9_.-]+/g },
   { name: 'Generic Password Assignment', regex: /(?:password|secret|api_key|apikey|private_key)\s*[:=]\s*["']([A-Za-z0-9@#$%^&*-_+=]{16,})["']/gi }
 ];
 
