@@ -23,6 +23,15 @@ test('Partial upload failure: Halts sync, does NOT publish master index, reports
       };
     }
 
+    // 1b. Folder accessibility check
+    if (url.includes('/drive/v3/files/mock-folder-id')) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({ id: 'mock-folder-id', name: 'EVE-JARVIS-KNOWLEDGE', mimeType: 'application/vnd.google-apps.folder', trashed: false })
+      };
+    }
+
     // 2. Query file by name
     if (url.includes('/drive/v3/files?q=')) {
       return {

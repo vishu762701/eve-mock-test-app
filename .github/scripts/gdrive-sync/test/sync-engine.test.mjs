@@ -73,6 +73,11 @@ test('runSync executes live sync against mocked Google Drive endpoints (Service 
       };
     }
 
+    // Folder accessibility check
+    if (url.includes(`/drive/v3/files/${folderId}`)) {
+      return { ok: true, status: 200, json: async () => ({ id: folderId, name: 'EVE-JARVIS-KNOWLEDGE', mimeType: 'application/vnd.google-apps.folder', trashed: false }) };
+    }
+
     // Permissions check
     if (url.includes(`/permissions`)) {
       if (opts?.method === 'POST') {
@@ -131,6 +136,11 @@ test('runSync executes live sync against mocked Google Drive endpoints (User OAu
         status: 200,
         json: async () => ({ access_token: 'mock-user-token', expires_in: 3600 })
       };
+    }
+
+    // Folder accessibility check
+    if (url.includes(`/drive/v3/files/${folderId}`)) {
+      return { ok: true, status: 200, json: async () => ({ id: folderId, name: 'EVE-JARVIS-KNOWLEDGE', mimeType: 'application/vnd.google-apps.folder', trashed: false }) };
     }
 
     // Permissions check

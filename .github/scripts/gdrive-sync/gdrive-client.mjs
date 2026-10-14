@@ -235,6 +235,72 @@ export class GDriveClient {
   }
 
   /**
+   * Securely discovers an app-created folder or automatically provisions a new one.
+   * Under the Google Drive 'drive.file' scope, an application can ONLY access files and folders
+   * created by the application itself. Manually created folders outside the app will return 404.
+   * This method ensures full accessibility by auto-provisioning the folder under the app's authority.
+   * @param {string} [folderName='EVE-JARVIS-KNOWLEDGE']
+   * @param {string} [explicitFolderId=null] Optional folder ID to verify before provisioning
+   * @returns {Promise<string>} The verified accessible Google Drive folder ID
+   */
+  async getOrCreateAppFolder(folderName = 'EVE-JARVIS-KNOWLEDGE', explicitFolderId = null) {
+    // 1. If explicit folder ID is provided, verify accessibility under current credentials
+    if (explicitFolderId) {
+      try {
+        const url = `https://www.googleapis.com/drive/v3/files/${explicitFolderId}?fields=id,name,mimeType,trashed&supportsAllDrives=true`;
+        const res = await this.fetchWithRetry(url, { headers: { 'Accept': 'application/json' } });
+        if (res.ok) {
+          const data = await res.json();
+          if (!data.trashed) {
+            console.log(`[EVE JARVIS SYNC] Using verified accessible folder ID: ${explicitFolderId} ('${data.name}')`);
+            return explicitFolderId;
+          }
+        }
+      } catch {
+        // Fallback to app discovery/creation
+      }
+      console.warn(`[EVE JARVIS SYNC] Notice: Specified folder ID '${explicitFolderId}' is not accessible under current scope (drive.file requires app-created folders). Discovering or auto-provisioning app-owned folder...`);
+    }
+
+    // 2. Query for existing app-created folder
+    const safeName = folderName.replace(/'/g, "\\'");
+    const q = `mimeType = 'application/vnd.google-apps.folder' and name = '${safeName}' and trashed = false`;
+    const searchUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name,trashed)&spaces=drive&supportsAllDrives=true&includeItemsFromAllDrives=true`;
+
+    const searchRes = await this.fetchWithRetry(searchUrl, { headers: { 'Accept': 'application/json' } });
+    if (searchRes.ok) {
+      const data = await searchRes.json();
+      const activeFolders = (data.files || []).filter(f => !f.trashed);
+      if (activeFolders.length > 0) {
+        console.log(`[EVE JARVIS SYNC] Discovered existing app-owned folder '${folderName}' (ID: ${activeFolders[0].id}).`);
+        return activeFolders[0].id;
+      }
+    }
+
+    // 3. Provision new app-owned folder
+    console.log(`[EVE JARVIS SYNC] Provisioning new app-owned Google Drive folder '${folderName}'...`);
+    const createUrl = 'https://www.googleapis.com/drive/v3/files?supportsAllDrives=true';
+    const createRes = await this.fetchWithRetry(createUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: folderName,
+        mimeType: 'application/vnd.google-apps.folder',
+        description: 'Synchronized Knowledge Base for EVE JARVIS Gemini Gem'
+      })
+    });
+
+    if (!createRes.ok) {
+      const errText = await createRes.text();
+      throw new Error(`Failed to provision app-owned folder '${folderName}' (HTTP ${createRes.status}): ${errText}`);
+    }
+
+    const folderData = await createRes.json();
+    console.log(`[EVE JARVIS SYNC] Successfully provisioned app-owned folder '${folderName}' (ID: ${folderData.id}).`);
+    return folderData.id;
+  }
+
+  /**
    * Searches designated parent folder for a file by exact name.
    * Supports both regular personal folders and Google Workspace Shared Drives.
    * @param {string} folderId

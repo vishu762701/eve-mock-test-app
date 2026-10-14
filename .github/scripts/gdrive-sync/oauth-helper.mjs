@@ -7,10 +7,15 @@
  * Helps users generate a Google OAuth Refresh Token for personal Google accounts (@gmail.com)
  * with the least-privilege scope: https://www.googleapis.com/auth/drive.file
  *
- * Usage:
- *   node .github/scripts/gdrive-sync/oauth-helper.mjs --client-id=<ID>
- *   node .github/scripts/gdrive-sync/oauth-helper.mjs --client-id=<ID> --client-secret=<SECRET> --code=<AUTH_CODE>
+ * Security:
+ * - Never prints raw secrets/tokens in terminal stdout.
+ * - Saves confidential tokens to .jarvis-oauth-secrets.env with 0600 file permissions.
+ * - Supports reading secrets via environment variables to avoid exposure in process tables (ps).
  */
+
+import fs from 'node:fs';
+import path from 'node:path';
+import readline from 'node:readline';
 
 const REDIRECT_URI = 'https://developers.google.com/oauthplayground';
 const SCOPE = 'https://www.googleapis.com/auth/drive.file';
@@ -31,11 +36,30 @@ function parseArgs() {
   return args;
 }
 
+function maskSecret(str) {
+  if (!str) return '***';
+  if (str.length <= 8) return '********';
+  return str.slice(0, 4) + '...' + str.slice(-4);
+}
+
+function promptInput(query) {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+  return new Promise(resolve => {
+    rl.question(query, answer => {
+      rl.close();
+      resolve(answer.trim());
+    });
+  });
+}
+
 async function main() {
   const args = parseArgs();
-  const clientId = args.clientId || process.env.GDRIVE_CLIENT_ID;
-  const clientSecret = args.clientSecret || process.env.GDRIVE_CLIENT_SECRET;
-  const code = args.code;
+  let clientId = args.clientId || process.env.GDRIVE_CLIENT_ID;
+  let clientSecret = args.clientSecret || process.env.GDRIVE_CLIENT_SECRET;
+  let code = args.code;
 
   if (!clientId) {
     console.log(`
@@ -53,7 +77,7 @@ Step 1: In Google Cloud Console (https://console.cloud.google.com/apis/credentia
 
 Step 2: Generate Authorization URL:
   Run:
-    node .github/scripts/gdrive-sync/oauth-helper.mjs --client-id=YOUR_CLIENT_ID
+    GDRIVE_CLIENT_ID=your_id node .github/scripts/gdrive-sync/oauth-helper.mjs
 `);
     process.exit(0);
   }
@@ -78,19 +102,19 @@ ${authUrl.toString()}
 4. Google will redirect to OAuth Playground. Copy the "code" parameter from the browser URL or page:
    (Example: 4/0AQl6...)
 
-5. Exchange the code for your Refresh Token:
-   Run:
-     node .github/scripts/gdrive-sync/oauth-helper.mjs \\
-       --client-id=${clientId} \\
-       --client-secret=YOUR_CLIENT_SECRET \\
-       --code=YOUR_AUTHORIZATION_CODE
+5. Run helper with the code:
+   GDRIVE_CLIENT_ID=${clientId} node .github/scripts/gdrive-sync/oauth-helper.mjs --code=YOUR_CODE
 `);
     process.exit(0);
   }
 
   if (!clientSecret) {
-    console.error('Error: --client-secret is required to exchange authorization code for tokens.');
-    process.exit(1);
+    // Prompt securely without passing secret in CLI flags
+    clientSecret = await promptInput('Enter Google OAuth Client Secret (hidden from process list): ');
+    if (!clientSecret) {
+      console.error('Error: Client Secret is required.');
+      process.exit(1);
+    }
   }
 
   console.log('Exchanging authorization code for Google OAuth Refresh Token...');
@@ -116,19 +140,39 @@ ${authUrl.toString()}
   }
 
   const data = await res.json();
-  if (!data.refresh_token) {
+  const refreshToken = data.refresh_token;
+
+  if (!refreshToken) {
     console.warn('\n⚠️ Warning: No refresh token returned. If you already authorized this app before, you must revoke access at https://myaccount.google.com/permissions or pass prompt=consent.');
   }
+
+  // Write secrets securely to local .jarvis-oauth-secrets.env with 0600 permissions
+  const secretsPath = path.resolve(process.cwd(), '.jarvis-oauth-secrets.env');
+  const envContent = [
+    `# EVE JARVIS Google Drive Credentials (CONFIDENTIAL - DO NOT SHARE)`,
+    `GDRIVE_CLIENT_ID=${clientId}`,
+    `GDRIVE_CLIENT_SECRET=${clientSecret}`,
+    `GDRIVE_REFRESH_TOKEN=${refreshToken || ''}`,
+    ``
+  ].join('\n');
+
+  fs.writeFileSync(secretsPath, envContent, { mode: 0o600 });
 
   console.log(`
 ✅ Success! Google OAuth tokens generated.
 
-Add these Repository Secrets to GitHub (Settings -> Secrets and variables -> Actions):
+🔒 Secrets securely written to: ${path.basename(secretsPath)} (mode 0600 - user read/write only).
+(This file is protected by .gitignore and will never be committed).
+
+Summary of Credentials (Masked):
 --------------------------------------------------------------------------------
 GDRIVE_CLIENT_ID:      ${clientId}
-GDRIVE_CLIENT_SECRET:  ${clientSecret}
-GDRIVE_REFRESH_TOKEN:  ${data.refresh_token || '(Existing token retained)'}
+GDRIVE_CLIENT_SECRET:  ${maskSecret(clientSecret)}
+GDRIVE_REFRESH_TOKEN:  ${maskSecret(refreshToken)}
 --------------------------------------------------------------------------------
+
+To complete setup, copy the values from .jarvis-oauth-secrets.env into GitHub Repository Secrets:
+https://github.com/vishu762701/eve-mock-test-app/settings/secrets/actions
 `);
 }
 

@@ -84,35 +84,41 @@ This approach authorizes synchronization under your own Google account, using yo
    - **Authorized redirect URIs**: Add `https://developers.google.com/oauthplayground`
 7. Click **Create** and copy your **Client ID** and **Client Secret**.
 
-#### Step A3: Generate Refresh Token
-You can generate the refresh token in 1 minute using the built-in helper script:
+#### Step A3: Generate Refresh Token (Secure & Masked)
+Generate the refresh token in 1 minute using the built-in helper script with masked terminal output:
 ```bash
-# 1. Print authorization URL
-node .github/scripts/gdrive-sync/oauth-helper.mjs --client-id=YOUR_CLIENT_ID
+# Option 1: Secure interactive prompt or environment variables (avoids process argument exposure)
+export GDRIVE_CLIENT_ID="YOUR_CLIENT_ID"
+export GDRIVE_CLIENT_SECRET="YOUR_CLIENT_SECRET"
+node .github/scripts/gdrive-sync/oauth-helper.mjs
 
-# 2. Open the URL in browser, sign in with your Google account, and grant permission.
-# 3. Copy the "code" parameter returned on the redirect page, then run:
+# Option 2: CLI arguments (helper masks tokens in stdout and writes credentials to .jarvis-oauth-secrets.env with 0600 permissions)
+node .github/scripts/gdrive-sync/oauth-helper.mjs --client-id=YOUR_CLIENT_ID
+# Open the printed URL, authenticate, copy the "code" query param, then:
 node .github/scripts/gdrive-sync/oauth-helper.mjs \
   --client-id=YOUR_CLIENT_ID \
   --client-secret=YOUR_CLIENT_SECRET \
   --code=YOUR_AUTHORIZATION_CODE
 ```
-*(Alternatively, use [Google OAuth 2.0 Playground](https://developers.google.com/oauthplayground) with your Client ID and Client Secret, select `https://www.googleapis.com/auth/drive.file`, and exchange authorization code for tokens).*
+*(The credentials are saved to `.jarvis-oauth-secrets.env` with strict `0600` permissions. This file is git-ignored and excluded from all scans. Alternatively, you can use [Google OAuth 2.0 Playground](https://developers.google.com/oauthplayground) with `https://www.googleapis.com/auth/drive.file`).*
 
-#### Step A4: Create Destination Folder in Google Drive
-1. In [Google Drive](https://drive.google.com/), create a new folder named `EVE-JARVIS-KNOWLEDGE`.
-2. Open the folder and copy the **Folder ID** from your browser's address bar (the alphanumeric string after `/folders/`).
+#### Step A4: Destination Folder in Google Drive (Automatic App Provisioning)
+Under Google Drive's restricted `drive.file` scope, an application can only access files and folders it creates. Manually created folders created through the Google Drive web UI will return `404 File not found`.
+
+**No manual folder creation is required!**
+The sync engine automatically checks, discovers, or provisions an app-owned folder named `EVE-JARVIS-KNOWLEDGE` in your Google Drive on the first run.
+If you already have a folder ID, you may supply `GDRIVE_FOLDER_ID`; if it is inaccessible under `drive.file`, the sync engine will transparently discover or provision the app-owned `EVE-JARVIS-KNOWLEDGE` folder.
 
 #### Step A5: Add GitHub Repository Secrets
 Go to your GitHub repository: `https://github.com/vishu762701/eve-mock-test-app/settings/secrets/actions` and add:
 
-| Secret Name | Value |
-| :--- | :--- |
-| `GDRIVE_CLIENT_ID` | Your Google OAuth Client ID |
-| `GDRIVE_CLIENT_SECRET` | Your Google OAuth Client Secret |
-| `GDRIVE_REFRESH_TOKEN` | The generated Google OAuth Refresh Token |
-| `GDRIVE_FOLDER_ID` | The Google Drive Folder ID from Step A4 |
-| `GDRIVE_AUTHORIZED_USERS` | (Optional) Comma-separated list of additional Google emails granted read access |
+| Secret Name | Value | Required? |
+| :--- | :--- | :--- |
+| `GDRIVE_CLIENT_ID` | Your Google OAuth Client ID | Yes |
+| `GDRIVE_CLIENT_SECRET` | Your Google OAuth Client Secret | Yes |
+| `GDRIVE_REFRESH_TOKEN` | The generated Google OAuth Refresh Token | Yes |
+| `GDRIVE_FOLDER_ID` | (Optional) Specific folder ID — if omitted or inaccessible under `drive.file`, folder is auto-provisioned | Optional |
+| `GDRIVE_AUTHORIZED_USERS` | (Optional) Comma-separated list of additional Google emails granted read access | Optional |
 
 ---
 
@@ -136,11 +142,11 @@ Use this option if you are using a Google Workspace Shared Drive (Team Drive) wh
 #### Step B3: Add GitHub Repository Secrets
 Add to `https://github.com/vishu762701/eve-mock-test-app/settings/secrets/actions`:
 
-| Secret Name | Value |
-| :--- | :--- |
-| `GDRIVE_SERVICE_ACCOUNT_KEY` | Entire JSON content of the downloaded service account key file |
-| `GDRIVE_FOLDER_ID` | The Google Drive Folder ID from Step B2 |
-| `GDRIVE_AUTHORIZED_USERS` | (Optional) Comma-separated list of Google emails granted access |
+| Secret Name | Value | Required? |
+| :--- | :--- | :--- |
+| `GDRIVE_SERVICE_ACCOUNT_KEY` | Entire JSON content of the downloaded service account key file | Yes |
+| `GDRIVE_FOLDER_ID` | The Google Drive Folder ID from Step B2 | Yes |
+| `GDRIVE_AUTHORIZED_USERS` | (Optional) Comma-separated list of Google emails granted access | Optional |
 
 ---
 
@@ -165,8 +171,36 @@ The sync engine uses Google Drive in-place updates (`PATCH /upload/drive/v3/file
 
 ---
 
-## 5. Verification and Safety Guarantees
+## 5. Consistency Guarantees & Inflight Risk Notice
 
-* **Atomic Master Index**: The master index `00_INDEX_AND_SYSTEM_STATUS.md` is uploaded ONLY after all 6 domain volumes are successfully published and verified. If a network interruption or error occurs during volume upload, the sync halts immediately and does not publish a mismatched master index.
+* **Two-Phase Publication & Verification Gate**: The master index `00_INDEX_AND_SYSTEM_STATUS.md` is uploaded ONLY after all 6 domain volumes (`01` through `06`) have successfully uploaded and verified. If an upload failure occurs on any volume, publication of `00_INDEX_AND_SYSTEM_STATUS.md` is aborted to prevent indexing partial or corrupted states.
+* **Cryptographic SHA-256 Integrity Seals**: Every volume's content digest is computed and published in the master index's Two-Phase Integrity Seals table.
+* **Inflight Mixed-Version Notice**: Google Drive's REST API does not provide multi-file ACID transactions. During the ~5–10s sync window when volumes are updating, an inflight reader could observe individual volume updates. Consumers and the EVE JARVIS Gem must treat the commit SHA in `00_INDEX_AND_SYSTEM_STATUS.md` as the authoritative source seal and verify that individual volume headers match.
 * **Dry-Run Safety**: If secrets are not yet configured in GitHub, the workflow automatically runs in pre-generation dry-run mode, verifying all 670+ files without failing the CI pipeline.
-* **Strict Privacy**: Checks and deletes any public (`anyone`) access on the Google Drive folder.
+* **Strict Privacy**: Actively checks and deletes any public (`anyone`) access on the Google Drive folder.
+
+---
+
+## 6. Gemini Gem Ingestion Compatibility & Verification Protocol
+
+### Supported Formats & File Limits
+Gemini Gems support direct Google Drive Knowledge integration with:
+- **Formats**: Markdown (`.md`), plain text (`.txt`), PDF, DOCX. Our 7 volumes are formatted as UTF-8 Markdown (`.md`).
+- **File Limit**: Up to 10 files per Gem. Our sync engine packages the repository into exactly 7 volumes, leaving 3 spare slots for personal files.
+- **Size Limit**: Up to 100 MB per file. Our total codebase is ~4.2 MB, well within Google Gemini's limits.
+- **Citation Precision**: Every file in each volume includes a file path header and strict line numbers (`1: ...`) allowing Gemini to quote exact line ranges.
+
+### Live Verification Queries
+After connecting the 7 documents in your EVE JARVIS Gem, submit the following verification queries to confirm read access:
+
+1. **Verify Index & Build Status**:
+   > *"What is the exact git commit SHA and CI build status reported in `00_INDEX_AND_SYSTEM_STATUS.md`?"*
+   > **Expected Response**: Returns the exact 40-character commit SHA, build pass status, and total line counts.
+
+2. **Verify Code Retrieval & Line Numbers**:
+   > *"In `02_ANDROID_CORE_AND_UI.md`, cite the exact line numbers and code where the Telegram Day/Night circular reveal animation is implemented."*
+   > **Expected Response**: Quotes the animation logic in `MainActivity.kt` with exact line numbers.
+
+3. **Verify Engineering Constraints**:
+   > *"What are the permanent canvas color rules and typography standards in `01_ENGINEERING_RULES_AND_STANDARDS.md`?"*
+   > **Expected Response**: Cites pure `#FFFFFF`/`#000000` canvas rules, ban on Lime `#E3FF3B`, and ADR-008 zero `android:textSize` rule.

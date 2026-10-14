@@ -308,3 +308,48 @@ While ADR-009 established the event-driven GitHub Actions synchronization pipeli
    - Workflow resolves `${{ github.event.workflow_run.head_sha || github.sha }}` ensuring that runs triggered after `Build Eve APK` synchronize the exact commit SHA verified by the Android build.
 6. **Zero-Dependency User Token Generation**:
    - Provided `.github/scripts/gdrive-sync/oauth-helper.mjs` using pure Node.js to streamline obtaining a user refresh token in under one minute without installing external packages.
+
+## ADR-011: Drive.file Folder Provisioning, Git Ref Pinning, Token Masking, Two-Phase Consistency Seals, and Gemini Attachment Verification
+
+- **Date**: 2026-10-14
+- **Status**: Accepted
+- **Author**: Principal Architecture Engineer, Google Cloud Integration Expert, Security Architect
+
+### Context
+Following ADR-010, end-to-end integration verification identified 5 critical operational blockers:
+1. `workflow_run` default checkout uses the tip of the default branch rather than the triggering completed build's `head_sha`.
+2. Google Drive `https://www.googleapis.com/auth/drive.file` scope prohibits access to pre-existing folders created outside the application (returning HTTP 404).
+3. OAuth refresh tokens and secrets were echoed in terminal outputs, risking exposure in CI logs or terminal histories.
+4. Calling the master-index-last publication an "atomic transaction" was technically inaccurate given Google Drive's REST API lacks multi-resource transactional commits. Readers could observe in-flight intermediate updates during the upload window.
+5. Ingestion compatibility, file limits, and live reading verification procedures for the Gemini Gem Knowledge integration required authoritative documentation and test verification queries.
+
+### Official Documentation References Opened
+- Google Drive API v3 - Permissions & drive.file Scope: https://developers.google.com/drive/api/guides/api-specific-auth#drive.file
+- Google Drive API v3 - Files create/search: https://developers.google.com/drive/api/v3/reference/files/create
+- GitHub Actions - Workflow run head_sha: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_run
+- Google Gemini - Add files to Gems: https://support.google.com/gemini/answer/15235889
+
+### Decisions
+1. **Explicit Checkout Pinning (`ref: head_sha`)**:
+   - In `.github/workflows/sync-jarvis-gemini.yml`, both `test-sync-engine` and `sync-to-google-drive` jobs explicitly pass `ref: ${{ github.event.workflow_run.head_sha || github.ref }}` to `actions/checkout@v4`.
+   - `sync-engine.mjs` verifies that local git HEAD matches the targeted `commitSha`. If a divergence occurs, packaging explicitly targets the verified commit SHA.
+2. **App-Owned Folder Provisioning (`getOrCreateAppFolder`)**:
+   - Under `https://www.googleapis.com/auth/drive.file`, the app has authority only over files and folders it creates.
+   - If an explicit folder ID is provided but inaccessible (HTTP 404), or if no folder ID is provided, `GDriveClient.getOrCreateAppFolder()` searches for an existing app-created folder named `EVE-JARVIS-KNOWLEDGE` or provisions a new one via `POST /drive/v3/files`.
+   - Users no longer need to manually create a folder or copy folder IDs for personal OAuth setups.
+3. **Secret Masking and File Isolation (`0600`)**:
+   - `oauth-helper.mjs` masks all refresh tokens and client secrets in stdout (`ya29.***`, `GOCSPX-***`, `1//04***`).
+   - Generates `.jarvis-oauth-secrets.env` with strict `0600` POSIX file permissions.
+   - Supports reading secrets via environment variables or stdin prompt without echoing secrets in bash process tables.
+   - Protected files `.jarvis-oauth-secrets.env` and `.jarvis-oauth.env` are ignored in `.gitignore` and blacklisted in `security.mjs`.
+4. **Two-Phase Publication Model & SHA-256 Integrity Seals**:
+   - Replaced "atomic transaction" claims with an explicit Two-Phase Publication and Eventual Consistency model.
+   - In Phase 1, all 6 domain volumes (`01` through `06`) are updated in-place.
+   - `formatter.mjs` computes cryptographic SHA-256 digests (`vol.sha256`) for every volume.
+   - In Phase 2, `00_INDEX_AND_SYSTEM_STATUS.md` is published with the integrity seal table containing the exact commit SHA and SHA-256 checksums of all 6 volumes.
+   - Documents the ~5–10s in-flight mixed-version risk window and instructs consumers/Gems to verify volume headers against the master index seal.
+5. **Gemini Gem Knowledge Compatibility & Verification Protocol**:
+   - Formatted as UTF-8 Markdown (`.md`), with standardized line numbering (`1: ...`) and file headers.
+   - 7 volumes (~4.2 MB total) strictly fit within Gemini Gems' limit of 10 files and 100 MB per file.
+   - Preserves permanent document IDs via in-place `PATCH` media updates, ensuring Gemini Gem Knowledge attachments never break across commits.
+   - Defined structured verification prompts for confirming Gemini Gem ingestion.

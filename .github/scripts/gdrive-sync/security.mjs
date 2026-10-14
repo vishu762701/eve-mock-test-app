@@ -20,6 +20,7 @@ export const SECRET_PATTERNS = [
 export const SENSITIVE_PATH_PATTERNS = [
   /\.(jks|keystore|key|pem|p12|pfx|crt|der)$/i,
   /^\.env(?:\..+)?$/i,
+  /\.jarvis-oauth.*\.env$/i,
   /\/google-services\.json$/i,
   /^google-services\.json$/i,
   /service-account.*\.json$/i,

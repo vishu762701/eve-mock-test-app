@@ -33,5 +33,6 @@ test('GitHub Actions workflow file sync-jarvis-gemini.yml satisfies all architec
   assert.match(content, /GDRIVE_CLIENT_ID/, 'Must support GDRIVE_CLIENT_ID');
   assert.match(content, /GDRIVE_CLIENT_SECRET/, 'Must support GDRIVE_CLIENT_SECRET');
   assert.match(content, /GDRIVE_SERVICE_ACCOUNT_KEY/, 'Must support GDRIVE_SERVICE_ACCOUNT_KEY');
-  assert.match(content, /GDRIVE_FOLDER_ID/, 'Must support GDRIVE_FOLDER_ID');
+  // 6. Explicit Checkout Ref on workflow_run
+  assert.match(content, /ref:\s*\${{\s*github\.event\.workflow_run\.head_sha\s*\|\|\s*github\.ref\s*}}/, 'Must explicitly checkout completed build head_sha');
 });

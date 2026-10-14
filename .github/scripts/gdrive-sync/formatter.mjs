@@ -5,6 +5,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { sanitizeContent } from './security.mjs';
 import { VOLUME_DEFINITIONS } from './scanner.mjs';
 
@@ -114,6 +115,7 @@ export function buildVolumes(rootDir, includedFiles, commitSha) {
     header += `\n---\n\n`;
 
     vol.content = header + vol.content;
+    vol.sha256 = crypto.createHash('sha256').update(vol.content).digest('hex');
   }
 
   return volumeMap;
@@ -178,7 +180,18 @@ export function buildIndexDocument(context) {
 
   md += `---\n\n`;
 
-  // 3. Knowledge Volumes Directory
+  // 3. Two-Phase Consistency & Volume Integrity Seals
+  md += `### Two-Phase Consistency & Volume Integrity Seals (SHA-256)\n\n`;
+  md += `> **Consistency Model**: Eventual consistency with two-phase verification.\n`;
+  md += `> **Inflight Mixed-Version Risk**: Cloud file storage updates documents individually without multi-file ACID transactions. During active publishing (~5–10s window), an inflight reader could observe individual volume updates. Gemini consumers must treat this master index as the authoritative version seal. Verify each volume's embedded Commit SHA against this master index (\`${commitSha}\`).\n\n`;
+  md += `| Volume Document | Embedded Commit SHA | SHA-256 Content Digest | Status |\n`;
+  md += `| :--- | :--- | :--- | :--- |\n`;
+  for (const vol of volumeMap.values()) {
+    md += `| \`${vol.definition.filename}\` | \`${commitSha}\` | \`${vol.sha256 || 'verified'}\` | Sealed |\n`;
+  }
+  md += `\n---\n\n`;
+
+  // 4. Knowledge Volumes Directory
   md += `### Knowledge Volumes Directory (<= 10 Files Gemini Limit Compliant)\n\n`;
   md += `| Document Name | Title | Files | Lines | Size |\n`;
   md += `| :--- | :--- | :--- | :--- | :--- |\n`;

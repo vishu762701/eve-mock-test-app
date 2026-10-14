@@ -9,6 +9,8 @@ app/build/
 .secret.local
 .env
 .env.*
+.jarvis-oauth-secrets.env
+.jarvis-oauth.env
 *.jks
 *service-account*.json
 functions/package-lock.json

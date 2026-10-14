@@ -440,3 +440,51 @@ test('removePublicPermissions finds and removes any public permissions', async (
   assert.strictEqual(removed, 1);
   assert.strictEqual(deleteCalled, true);
 });
+
+test('getOrCreateAppFolder provisions app-owned folder when external folder returns 404 under drive.file scope', async () => {
+  const userConfig = {
+    clientId: 'user-client-id',
+    clientSecret: 'user-secret',
+    refreshToken: 'user-refresh'
+  };
+
+  let searchCalled = false;
+  let createCalled = false;
+
+  const mockFetch = async (url, opts) => {
+    if (url.includes('/token')) {
+      return { ok: true, status: 200, json: async () => ({ access_token: 'valid-token', expires_in: 3600 }) };
+    }
+
+    // 1. External folder returns 404 (because drive.file scope cannot access folders created outside app)
+    if (url.includes('/drive/v3/files/external-manual-folder-id')) {
+      return { ok: false, status: 404, text: async () => 'File not found: external-manual-folder-id' };
+    }
+
+    // 2. Query for app-created folder (first search returns empty)
+    if (url.includes('/drive/v3/files?q=')) {
+      searchCalled = true;
+      assert.ok(url.includes(encodeURIComponent("mimeType = 'application/vnd.google-apps.folder'")));
+      return { ok: true, status: 200, json: async () => ({ files: [] }) };
+    }
+
+    // 3. Create app-owned folder
+    if (url === 'https://www.googleapis.com/drive/v3/files?supportsAllDrives=true') {
+      assert.strictEqual(opts.method, 'POST');
+      const body = JSON.parse(opts.body);
+      assert.strictEqual(body.name, 'EVE-JARVIS-KNOWLEDGE');
+      assert.strictEqual(body.mimeType, 'application/vnd.google-apps.folder');
+      createCalled = true;
+      return { ok: true, status: 200, json: async () => ({ id: 'app-provisioned-folder-id', name: 'EVE-JARVIS-KNOWLEDGE' }) };
+    }
+
+    throw new Error('Unexpected URL: ' + url);
+  };
+
+  const client = new GDriveClient(userConfig, mockFetch);
+  const resolvedId = await client.getOrCreateAppFolder('EVE-JARVIS-KNOWLEDGE', 'external-manual-folder-id');
+
+  assert.strictEqual(resolvedId, 'app-provisioned-folder-id');
+  assert.strictEqual(searchCalled, true);
+  assert.strictEqual(createCalled, true);
+});

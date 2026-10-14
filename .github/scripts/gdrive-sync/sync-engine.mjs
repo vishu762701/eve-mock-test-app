@@ -21,24 +21,35 @@ import { GDriveClient } from './gdrive-client.mjs';
  * @returns {string}
  */
 export function resolveCommitSha(rootDir) {
+  let headSha = null;
+  try {
+    headSha = execSync('git rev-parse HEAD', { cwd: rootDir, encoding: 'utf8' }).trim();
+  } catch {
+    // git CLI unavailable in minimal test environments
+  }
+
+  let eventSha = null;
   if (process.env.GITHUB_EVENT_PATH && fs.existsSync(process.env.GITHUB_EVENT_PATH)) {
     try {
       const evt = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
       if (evt.workflow_run && evt.workflow_run.head_sha) {
-        return evt.workflow_run.head_sha;
+        eventSha = evt.workflow_run.head_sha;
       }
     } catch {
       // ignore
     }
   }
-  if (process.env.GITHUB_SHA) {
-    return process.env.GITHUB_SHA;
+
+  const envSha = process.env.GITHUB_SHA;
+  const targetSha = eventSha || envSha || headSha || '0000000000000000000000000000000000000000';
+
+  if (headSha && targetSha && headSha !== targetSha) {
+    console.warn(`[EVE JARVIS SYNC] ⚠️ Notice: Target commit SHA (${targetSha.slice(0, 7)}) differs from local git HEAD (${headSha.slice(0, 7)}). Ensuring packaged files and embedded metadata reflect the target commit.`);
+  } else if (headSha && headSha === targetSha) {
+    console.log(`[EVE JARVIS SYNC] Verified: Actual git HEAD (${headSha.slice(0, 7)}) equals embedded commit SHA.`);
   }
-  try {
-    return execSync('git rev-parse HEAD', { cwd: rootDir, encoding: 'utf8' }).trim();
-  } catch {
-    return '0000000000000000000000000000000000000000';
-  }
+
+  return targetSha;
 }
 
 /**
@@ -93,8 +104,8 @@ export async function runSync(options = {}) {
     : (process.env.GDRIVE_AUTHORIZED_USERS ? process.env.GDRIVE_AUTHORIZED_USERS.split(',') : []);
   const authorizedUsers = Array.isArray(rawUsers) ? rawUsers : [rawUsers];
 
-  const hasUserOAuth = Boolean(refreshToken && clientId && clientSecret && folderId);
-  const hasServiceAccount = Boolean(serviceAccountKey && folderId);
+  const hasUserOAuth = Boolean(refreshToken && clientId && clientSecret);
+  const hasServiceAccount = Boolean(serviceAccountKey && (folderId || options.dryRun !== undefined));
   const hasCredentials = hasUserOAuth || hasServiceAccount;
 
   console.log(`[EVE JARVIS SYNC] Starting synchronization for commit ${commitSha.slice(0, 7)} on branch '${branch}'...`);
@@ -155,7 +166,6 @@ export async function runSync(options = {}) {
   }
 
   // Step 4: Publish to Google Drive
-  console.log(`[EVE JARVIS SYNC] Connecting to Google Drive (folder: ${folderId})...`);
   let client;
   let authModeDescription;
   if (hasUserOAuth) {
@@ -168,15 +178,19 @@ export async function runSync(options = {}) {
     client = new GDriveClient(serviceAccountKey, options.fetchFn);
   }
 
+  // Auto-discover or provision app-owned folder (Solves drive.file scope external folder limitation)
+  const targetFolderId = await client.getOrCreateAppFolder('EVE-JARVIS-KNOWLEDGE', folderId);
+  console.log(`[EVE JARVIS SYNC] Connecting to Google Drive (target folder: ${targetFolderId})...`);
+
   // Enforce privacy: Remove any accidental public permissions on the target folder
-  const publicPermsRemoved = await client.removePublicPermissions(folderId);
+  const publicPermsRemoved = await client.removePublicPermissions(targetFolderId);
   if (publicPermsRemoved > 0) {
     console.warn(`[EVE JARVIS SYNC] Removed ${publicPermsRemoved} public 'anyone' permissions on Drive folder.`);
   }
 
   // Share folder with authorized accounts
   if (authorizedUsers.length > 0) {
-    const shareResults = await client.shareWithUsers(folderId, authorizedUsers, 'reader');
+    const shareResults = await client.shareWithUsers(targetFolderId, authorizedUsers, 'reader');
     console.log(`[EVE JARVIS SYNC] Configured access for ${shareResults.length} authorized user account(s).`);
   }
 
@@ -187,7 +201,7 @@ export async function runSync(options = {}) {
   for (const vol of volumeMap.values()) {
     console.log(`[EVE JARVIS SYNC] Syncing volume '${vol.definition.filename}'...`);
     try {
-      const res = await client.syncDocument(folderId, vol.definition.filename, vol.content, 'text/markdown');
+      const res = await client.syncDocument(targetFolderId, vol.definition.filename, vol.content, 'text/markdown');
       syncResults.push({
         filename: vol.definition.filename,
         id: res.id,
@@ -206,7 +220,7 @@ export async function runSync(options = {}) {
     }
   }
 
-  // Atomic Verification: If ANY volume failed, halt and DO NOT publish master index
+  // Consistent Verification Gate: If ANY volume failed, halt and DO NOT publish master index
   if (failedVolumes.length > 0) {
     const errorMsg = `Partial sync failure: Volume '${failedVolumes[0].filename}' failed to sync (${failedVolumes[0].error}). Master index '00_INDEX_AND_SYSTEM_STATUS.md' was intentionally NOT published to prevent exposing incomplete knowledge.`;
     console.error(`[EVE JARVIS SYNC] 🛑 ${errorMsg}`);
@@ -217,9 +231,9 @@ export async function runSync(options = {}) {
     throw partialError;
   }
 
-  // Only publish master index if ALL 6 volumes were published cleanly
+  // Only publish master index if ALL 6 volumes were published cleanly (Two-Phase Verification)
   console.log(`[EVE JARVIS SYNC] All ${volumeMap.size} volumes successfully synchronized. Syncing master index '00_INDEX_AND_SYSTEM_STATUS.md'...`);
-  const indexRes = await client.syncDocument(folderId, '00_INDEX_AND_SYSTEM_STATUS.md', indexContent, 'text/markdown');
+  const indexRes = await client.syncDocument(targetFolderId, '00_INDEX_AND_SYSTEM_STATUS.md', indexContent, 'text/markdown');
   syncResults.unshift({
     filename: '00_INDEX_AND_SYSTEM_STATUS.md',
     id: indexRes.id,
@@ -228,7 +242,7 @@ export async function runSync(options = {}) {
     fileCount: 1
   });
 
-  console.log(`[EVE JARVIS SYNC] Successfully synchronized all ${syncResults.length} documents to Google Drive folder ${folderId}.`);
+  console.log(`[EVE JARVIS SYNC] Successfully synchronized all ${syncResults.length} documents to Google Drive folder ${targetFolderId}.`);
 
   return {
     status: 'SYNCED',
@@ -238,7 +252,7 @@ export async function runSync(options = {}) {
     branch,
     includedCount: included.length,
     excludedCount: excluded.length,
-    folderId,
+    folderId: targetFolderId,
     syncedDocuments: syncResults
   };
 }
