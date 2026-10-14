@@ -65,7 +65,8 @@ jobs:
           HAS_USER_OAUTH=false
           HAS_SA=false
 
-          if [ -n "$GDRIVE_REFRESH_TOKEN" ] && [ -n "$GDRIVE_CLIENT_ID" ] && [ -n "$GDRIVE_CLIENT_SECRET" ] && [ -n "$GDRIVE_FOLDER_ID" ]; then
+          # Personal OAuth can provision its own Drive folder; no folder ID is required.
+          if [ -n "$GDRIVE_REFRESH_TOKEN" ] && [ -n "$GDRIVE_CLIENT_ID" ] && [ -n "$GDRIVE_CLIENT_SECRET" ]; then
             HAS_USER_OAUTH=true
           fi
 
@@ -82,7 +83,7 @@ jobs:
             echo "To complete live synchronization to Google Drive for your EVE JARVIS Gemini Gem:" >> $GITHUB_STEP_SUMMARY
             echo "1. Follow the instructions in [docs/EVE_JARVIS_GEMINI_SYNC_SETUP.md](https://github.com/${{ github.repository }}/blob/main/docs/EVE_JARVIS_GEMINI_SYNC_SETUP.md)" >> $GITHUB_STEP_SUMMARY
             echo "2. Add your Google Drive secrets to Repository Secrets:" >> $GITHUB_STEP_SUMMARY
-            echo "   - **Option A (Recommended for Personal @gmail.com Accounts)**: \`GDRIVE_CLIENT_ID\`, \`GDRIVE_CLIENT_SECRET\`, \`GDRIVE_REFRESH_TOKEN\`, \`GDRIVE_FOLDER_ID\`" >> $GITHUB_STEP_SUMMARY
+            echo "   - **Option A (Recommended for Personal @gmail.com Accounts)**: \`GDRIVE_CLIENT_ID\`, \`GDRIVE_CLIENT_SECRET\`, \`GDRIVE_REFRESH_TOKEN\` (\`GDRIVE_FOLDER_ID\` is optional; folder is auto-provisioned)" >> $GITHUB_STEP_SUMMARY
             echo "   - **Option B (Google Workspace Shared Drive)**: \`GDRIVE_SERVICE_ACCOUNT_KEY\`, \`GDRIVE_FOLDER_ID\`" >> $GITHUB_STEP_SUMMARY
             exit 0
           fi

@@ -35,4 +35,12 @@ test('GitHub Actions workflow file sync-jarvis-gemini.yml satisfies all architec
   assert.match(content, /GDRIVE_SERVICE_ACCOUNT_KEY/, 'Must support GDRIVE_SERVICE_ACCOUNT_KEY');
   // 6. Explicit Checkout Ref on workflow_run
   assert.match(content, /ref:\s*\${{\s*github\.event\.workflow_run\.head_sha\s*\|\|\s*github\.ref\s*}}/, 'Must explicitly checkout completed build head_sha');
+
+  // 7. Personal Drive OAuth must be eligible without an explicit folder ID.
+  // The sync engine creates/discovers an app-owned folder with drive.file scope.
+  const personalOauthGate = content.match(/^\s*if \[ -n "\$GDRIVE_REFRESH_TOKEN" \].*then$/m)?.[0] || '';
+  assert.match(personalOauthGate, /GDRIVE_CLIENT_ID/, 'Personal OAuth needs the client ID');
+  assert.match(personalOauthGate, /GDRIVE_CLIENT_SECRET/, 'Personal OAuth needs the client secret');
+  assert.doesNotMatch(personalOauthGate, /GDRIVE_FOLDER_ID/, 'Personal OAuth must not require a folder ID');
+  assert.match(content, /if \[ -n "\$GDRIVE_SERVICE_ACCOUNT_KEY" \] && \[ -n "\$GDRIVE_FOLDER_ID" \]; then/, 'Service account must still require a Shared Drive folder ID');
 });
