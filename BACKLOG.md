@@ -22,6 +22,11 @@ Ranked by impact on user experience, stability, and design system fidelity per `
 - **Scope**: All 95 Android layouts in `app/src/main/res/layout/`, `attrs.xml`, `themes.xml`, `type.xml`, ADR-008 (`DECISIONS.md`), `AppWideTypographyAndColorRolesTest.kt`.
 - **Details**: Full migration of all remaining layouts (student secondary, monetization, core admin dashboard, admin management, admin forms, admin item rows, and admin dialogs). Codified all 26 authoritative Apple iOS colour roles in `attrs.xml` and `themes.xml`. Achieved 100% elimination of hardcoded `android:textSize` attributes project-wide (0 remaining across all 95 layout files). Automated verification suite added in `AppWideTypographyAndColorRolesTest.kt`. Preserved pure `#FFFFFF` / `#000000` canvas, Telegram transitions, test engine, and asset invariants.
 
+## [COMPLETED] EVE JARVIS Gemini Gem Google Drive Synchronization Pipeline
+- **Status**: Completed (2026-10-14)
+- **Scope**: `.github/workflows/sync-jarvis-gemini.yml`, `.github/scripts/gdrive-sync/`, `docs/EVE_JARVIS_GEMINI_SYNC_SETUP.md`, ADR-009 (`DECISIONS.md`).
+- **Details**: Replaced Apps Script polling with an event-driven GitHub Actions synchronization pipeline. Features 7-volume knowledge consolidation under the Gemini Gem 10-file cap, line-numbered source code with exact commit SHA headers, stable Google Drive document ID preservation via in-place `files.update`, least-privilege `drive.file` service account authentication, automated secret sanitization, keystore/binary exclusion, and real-time GitHub Actions CI status reporting. Verified via automated unit tests (`node:test`).
+
 ## [P3] Accessibility: Extreme Font Scale (1.78x / 2.0x) Audit
 - **Impact**: Low-Medium
 - **Scope**: Navigation drawer list items in `activity_main.xml` and form layouts.

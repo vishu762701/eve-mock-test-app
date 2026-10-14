@@ -249,3 +249,28 @@ Following Phases 1 through 5 of the design modernization, multiple secondary, ad
    - Test engine timing, question scoring, 2x2 grid navigation buttons preserved.
    - All Lottie and SVG vector assets untouched.
    - All UI text strictly English.
+
+## ADR-009: Event-Driven GitHub-to-Google-Drive Knowledge Synchronization for EVE JARVIS Gemini Gem
+
+- **Date**: 2026-10-14
+- **Status**: Accepted
+- **Author**: Principal Architecture Engineer, DevOps & Security Lead
+
+### Context
+The previous synchronization approach relied on Apps Script polling GitHub, which suffered from execution time timeouts (6 min cap), unauthenticated GitHub rate limits, inability to inspect internal GitHub Actions build status, and mutable file IDs that broke Gemini Gem Knowledge references. To provide continuous, accurate, line-numbered repository knowledge for the EVE JARVIS Gemini Gem, an event-driven GitHub Actions synchronization pipeline was constructed.
+
+### Official Documentation References Opened
+- Google Drive API v3 Files: https://developers.google.com/drive/api/v3/reference/files
+- Google Drive API v3 Permissions: https://developers.google.com/drive/api/v3/reference/permissions
+- Google OAuth 2.0 for Server-to-Server Applications (Service Accounts): https://developers.google.com/identity/protocols/oauth2/service-account
+- Google Gemini Gems & Knowledge Base Limits: https://support.google.com/gemini/answer/15235889
+
+### Decisions
+1. **Event-Driven Workflow**: Replaced polling with `.github/workflows/sync-jarvis-gemini.yml` triggered on `push` to `main`, `workflow_run` (after `Build Eve APK`), and `workflow_dispatch`.
+2. **7-Volume Knowledge Architecture**: Formatted the entire codebase (~78k lines, ~4.2 MB) into 7 structured Markdown documents (`00_INDEX_AND_SYSTEM_STATUS.md` through `06_CI_CD_WORKFLOWS_AND_SCRIPTS.md`), strictly respecting Gemini Gems' 10-file Knowledge cap.
+3. **Line-Numbered Source Code**: Every file is prefixed with standardized line numbers (`1: ...`), commit SHA, and path header for citation precision in Gemini.
+4. **Stable Google Drive Document IDs**: Uses Google Drive API in-place updates (`files.update` with `uploadType=media`) instead of delete-and-recreate cycles, preserving existing file IDs so Gemini Gem Knowledge links remain stable across commits.
+5. **Least-Privilege Authorization**: Uses Google Cloud Service Account with restricted `https://www.googleapis.com/auth/drive.file` scope. The service account only accesses files within the designated shared folder.
+6. **Zero External Dependencies**: Pure Node.js client using standard `node:crypto`, `node:fs`, and global `fetch`. Tested via `node:test`.
+7. **Strict Confidentiality**: Automatic secret sanitization, keystore/binary exclusion, and active deletion of any detected public (`anyone`) permissions.
+8. **Graceful Preflight**: If GitHub Secrets are not yet configured, the workflow executes a dry run and logs clear onboarding instructions without failing the CI build.

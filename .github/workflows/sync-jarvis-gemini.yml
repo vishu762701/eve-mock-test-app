@@ -1,0 +1,75 @@
+name: Sync EVE JARVIS Gemini Knowledge
+
+on:
+  push:
+    branches: [ main ]
+  workflow_run:
+    workflows: [ "Build Eve APK" ]
+    branches: [ main ]
+    types: [ completed ]
+  workflow_dispatch:
+
+concurrency:
+  group: sync-jarvis-gemini-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  test-sync-engine:
+    name: Verify Sync Engine Integrity
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run Sync Engine Unit Tests
+        run: node --test .github/scripts/gdrive-sync/test/*.test.mjs
+
+  sync-to-google-drive:
+    name: Publish to Google Drive
+    needs: test-sync-engine
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Synchronize Knowledge Documents
+        id: sync
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GDRIVE_SERVICE_ACCOUNT_KEY: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_KEY }}
+          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+          GDRIVE_AUTHORIZED_USERS: ${{ secrets.GDRIVE_AUTHORIZED_USERS }}
+        run: |
+          if [ -z "$GDRIVE_SERVICE_ACCOUNT_KEY" ] || [ -z "$GDRIVE_FOLDER_ID" ]; then
+            echo "::notice title=Google Drive Sync Secrets Missing::GDRIVE_SERVICE_ACCOUNT_KEY and/or GDRIVE_FOLDER_ID not set. Running pre-generation dry run."
+            node .github/scripts/gdrive-sync/cli.mjs --dry-run
+            echo "### ⚠️ EVE JARVIS Google Drive Sync Setup Required" >> $GITHUB_STEP_SUMMARY
+            echo "The sync engine verified all repository files and built all 7 structured Knowledge volumes cleanly." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "To complete live synchronization to Google Drive for your EVE JARVIS Gemini Gem:" >> $GITHUB_STEP_SUMMARY
+            echo "1. Follow the instructions in [docs/EVE_JARVIS_GEMINI_SYNC_SETUP.md](https://github.com/${{ github.repository }}/blob/main/docs/EVE_JARVIS_GEMINI_SYNC_SETUP.md)" >> $GITHUB_STEP_SUMMARY
+            echo "2. Add \`GDRIVE_SERVICE_ACCOUNT_KEY\` and \`GDRIVE_FOLDER_ID\` to Repository Secrets." >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+
+          # Mask sensitive credentials
+          echo "::add-mask::$GDRIVE_SERVICE_ACCOUNT_KEY"
+          if [ -n "$GDRIVE_AUTHORIZED_USERS" ]; then
+            echo "::add-mask::$GDRIVE_AUTHORIZED_USERS"
+          fi
+
+          node .github/scripts/gdrive-sync/cli.mjs
