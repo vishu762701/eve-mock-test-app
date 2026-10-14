@@ -21,6 +21,9 @@ on:
       - '.github/scripts/verify-docs.mjs'
   workflow_dispatch:
 
+env:
+  APP_VERSION_CODE: ${{ github.run_number }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
