@@ -88,17 +88,17 @@ This approach authorizes synchronization under your own Google account, using yo
 Generate the refresh token in 1 minute using the built-in helper script with masked terminal output:
 ```bash
 # Option 1: Secure interactive prompt or environment variables (avoids process argument exposure)
-export GDRIVE_CLIENT_ID="YOUR_CLIENT_ID"
-export GDRIVE_CLIENT_SECRET="YOUR_CLIENT_SECRET"
+export GDRIVE_CLIENT_ID="<client_id>"
+export GDRIVE_CLIENT_SECRET="<client_secret>"
 node .github/scripts/gdrive-sync/oauth-helper.mjs
 
 # Option 2: CLI arguments (helper masks tokens in stdout and writes credentials to .jarvis-oauth-secrets.env with 0600 permissions)
-node .github/scripts/gdrive-sync/oauth-helper.mjs --client-id=YOUR_CLIENT_ID
+node .github/scripts/gdrive-sync/oauth-helper.mjs --client-id=<client_id>
 # Open the printed URL, authenticate, copy the "code" query param, then:
 node .github/scripts/gdrive-sync/oauth-helper.mjs \
-  --client-id=YOUR_CLIENT_ID \
-  --client-secret=YOUR_CLIENT_SECRET \
-  --code=YOUR_AUTHORIZATION_CODE
+  --client-id=<client_id> \
+  --client-secret=<client_secret> \
+  --code=<authorization_code>
 ```
 *(The credentials are saved to `.jarvis-oauth-secrets.env` with strict `0600` permissions. This file is git-ignored and excluded from all scans. Alternatively, you can use [Google OAuth 2.0 Playground](https://developers.google.com/oauthplayground) with `https://www.googleapis.com/auth/drive.file`).*
 
