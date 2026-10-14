@@ -18,3 +18,5 @@ backend/package-lock.json
 /project.zip
 /Project.zip
 /LATEST_PROJECT_CODE.txt
+__pycache__/
+*.pyc
