@@ -62,7 +62,7 @@ outlines retain their established appearance through `eve_test_shape_border`.
 
 ## 3. Permanent invariants (never break these)
 1. Color system:
-   - Light backgrounds: pure `#FFFFFF`. Dark backgrounds: pure `#101117` / `#000000`.
+   - Light backgrounds: pure `#FFFFFF` standard canvas, `#F2F2F7` grouped canvas (per ADR-007). Dark backgrounds: pure `#101117` / `#000000`.
    - Semantic tokens (never decorative):
      - Right / Answered: light fill `#C9F0B8`, text `#1F6B3A`; dark fill `#293B27`, text `#7FE3A5`.
      - Wrong: light fill `#FFC1BB`, text `#9B2C26`; dark fill `#602625`, text `#FF9A92`.
