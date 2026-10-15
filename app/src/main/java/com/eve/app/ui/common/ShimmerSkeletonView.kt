@@ -113,7 +113,7 @@ class ShimmerSkeletonView @JvmOverloads constructor(
         val pad = 16f * density
         val cardW = w - (pad * 2f)
         val cardH = 96f * density
-        val cardRadius = 16f * density
+        val cardRadius = com.eve.app.util.EveShapes.card(resources)
         val spacing = 12f * density
 
         var top = 8f * density
@@ -127,7 +127,7 @@ class ShimmerSkeletonView @JvmOverloads constructor(
 
     private fun drawQuestionSkeleton(canvas: Canvas, w: Float, h: Float) {
         val pad = 16f * density
-        val lineRadius = 6f * density
+        val lineRadius = resources.getDimension(com.eve.app.R.dimen.eve_radius_pill)
 
         // Question header line
         rectF.set(pad, 16f * density, pad + 120f * density, 32f * density)
@@ -146,7 +146,7 @@ class ShimmerSkeletonView @JvmOverloads constructor(
         val spacing = 10f * density
         for (i in 0 until 4) {
             rectF.set(pad, top, w - pad, top + optH)
-            canvas.drawRoundRect(rectF, 12f * density, 12f * density, paint)
+            canvas.drawRoundRect(rectF, resources.getDimension(com.eve.app.R.dimen.eve_radius_input), resources.getDimension(com.eve.app.R.dimen.eve_radius_input), paint)
             top += optH + spacing
         }
     }
@@ -160,7 +160,7 @@ class ShimmerSkeletonView @JvmOverloads constructor(
         for (i in 0 until 6) {
             if (top + itemH > h && i > 0) break
             rectF.set(pad, top, w - pad, top + itemH)
-            canvas.drawRoundRect(rectF, 14f * density, 14f * density, paint)
+            canvas.drawRoundRect(rectF, com.eve.app.util.EveShapes.card(resources), com.eve.app.util.EveShapes.card(resources), paint)
             top += itemH + spacing
         }
     }

@@ -78,7 +78,7 @@ class ExamAdapter(
             }
 
             val ctx = b.root.context
-            b.root.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_secondary_system_grouped_background))
+            b.root.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_secondary_system_background))
             b.root.strokeColor = androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_shape_border)
             b.root.strokeWidth = 0
             b.tvExamName.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_label_primary))
@@ -130,6 +130,7 @@ class ExamAdapter(
         }
 
         private fun showLottieMode() {
+            b.examIconContainer.setCardBackgroundColor(android.graphics.Color.TRANSPARENT)
             isLottieMode = true
             b.ivExamImage.visibility = View.GONE
             b.lottieExamIcon.visibility = View.VISIBLE

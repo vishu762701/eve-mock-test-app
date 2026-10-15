@@ -10,10 +10,11 @@
     android:orientation="vertical">
 
     <!-- Top Bar -->
-    <LinearLayout
+    <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
+<LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_bg"
+        android:background="@android:color/transparent"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="16dp"
@@ -21,8 +22,8 @@
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Back"
             android:padding="8dp"
@@ -30,7 +31,7 @@
             app:tint="@color/eve_text" />
 
         <TextView
-            style="@style/TextAppearance.Eve.ScreenTitle"
+            style="@style/TextAppearance.Eve.Headline"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -44,6 +45,7 @@
             android:indeterminate="true"
             android:visibility="gone" />
     </LinearLayout>
+</com.eve.app.ui.common.EveGlassToolbar>
 
     <!-- Tabs: 1. Create Exam, 2. Manage Questions, 3. Admins -->
     <com.google.android.material.tabs.TabLayout
@@ -477,8 +479,8 @@
 
                             <ImageButton
                                 android:id="@+id/btnRefreshStats"
-                                android:layout_width="36dp"
-                                android:layout_height="36dp"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
                                 android:background="?attr/selectableItemBackgroundBorderless"
                                 android:contentDescription="Refresh stats"
                                 android:padding="6dp"
@@ -783,7 +785,7 @@
                                 android:layout_height="24dp"
                                 android:contentDescription="Build Info"
                                 android:src="@drawable/ic_info"
-                                app:tint="@color/eve_primary" />
+                                app:tint="@color/eve_system_blue" />
 
                             <TextView
                                 style="@style/TextAppearance.Eve.Subheadline.Medium"

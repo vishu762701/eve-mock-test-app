@@ -18,6 +18,19 @@ collect_evidence() {
       fi
     done
   done
+  # Disposable production-layout fixtures only; publish no extra artifact.
+  for fixture in ios26-nav-bar ios26-tab-bar ios26-menu ios26-sheet ios26-dialog home mock-test recovery-result-overview student-settings student-login; do
+    for theme in light dark; do
+      for folder in eve-approved-ui eve-student-ui; do
+        fixture_path="/sdcard/Pictures/$folder/$fixture-$theme.png"
+        if adb shell test -f "$fixture_path"; then
+          echo "EVE_DESIGN_PNG_BEGIN $fixture-$theme.png"
+          adb shell base64 "$fixture_path" || true
+          echo "EVE_DESIGN_PNG_END $fixture-$theme.png"
+        fi
+      done
+    done
+  done
   adb logcat -d -s AndroidRuntime ThemeSwitchAnimator ThemeManager SystemBarHelper > ui-renderings/safe-runtime.log || true
   # Keep transaction evidence readable even when artifact storage cannot be downloaded.
   cat ui-renderings/safe-runtime.log || true

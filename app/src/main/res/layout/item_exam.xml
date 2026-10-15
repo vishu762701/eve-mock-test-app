@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView
-    style="@style/Widget.Eve.Card.Group"
+    style="@style/Widget.Eve.Card.Content"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -10,12 +10,13 @@
     android:clickable="true"
     android:focusable="true"
     android:stateListAnimator="@animator/press_scale"
-    app:rippleColor="@color/eve_ripple">
+    app:rippleColor="@color/eve_ripple"
+    android:minHeight="@dimen/eve_list_row_min">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp">
+        android:padding="@dimen/eve_card_padding_inner">
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/examIconContainer"
@@ -24,7 +25,7 @@
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             app:cardBackgroundColor="@color/eve_exam_icon_tile_bg"
-            app:cardCornerRadius="14dp"
+            app:cardCornerRadius="@dimen/eve_radius_card"
             app:cardElevation="0dp"
             app:rippleColor="@android:color/transparent"
             app:strokeColor="@color/eve_shape_border"

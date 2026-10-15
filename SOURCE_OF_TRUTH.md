@@ -9,19 +9,19 @@
 - If this file and the actual code disagree, trust the code, and report the mismatch under "Noticed but not touched (outside scope)" in the Final Report.
 - Never claim state from memory or from older chats. Inspect real files, run `git status` and `git log -1`, and run the relevant checks.
 
-## Current UI design authority (2026-10-11)
+## Current UI design authority
 
-The user's Autonomous UI Design Recovery request supersedes previous manual dimensions
-and universal black/white decorative strokes on Home, Profile, Result (all three tabs),
-Target Exams, and directly shared surface components. Older numerical UI audit sections
-are historical evidence, not current design constraints. Behavior, permanent canvas and
-semantic colors, test engine geometry/submission, and circular theme reveal remain invariant.
-
-The active treatment uses content-measured score cards, equal-width responsive metric
-columns (two on normal phone widths, four when space permits, fewer at larger font scales),
-one rounded rectangle for score fill/outline/clipping, subtle decorative outline tokens,
-blue selection/focus accents, and scrollable, width-bounded Target Exams content. Test palette
-outlines retain their established appearance through `eve_test_shape_border`.
+ADR-009 (Full-screen iOS 26 geometry) records explicit user authorization for shapes
+on every screen, superseding older geometry-protected rules. Only radii, padding,
+row heights and backgrounds may alter geometry; preserve screen regions and behavior.
+Capsules use half-height radii; Eve chooses 26dp fixed cards/menus and 34dp modal
+containers. Concentric children use parent radius minus padding, minimum 4dp.
+Glass is restricted to navigation/top bars, tab bars, popup menus, sheets and dialogs;
+content cards, banners and list rows remain opaque. Sign In's outside area is clear.
+Home/Login/Test use plain system backgrounds; Settings/Profile/Admin lists/Result/
+Leaderboard/About use grouped backgrounds. Interactive blue aliases use systemBlue,
+with the user's documented normal-text contrast exception. See EVE_IOS26_UI_CONTRACT.md.
+All protected behavior, answer-state colours, Lottie and icon assets remain invariant.
 
 ## 1. Repository identity
 - Remote origin: `git@github.com:vishu762701/eve-mock-test-app.git`
@@ -62,7 +62,7 @@ outlines retain their established appearance through `eve_test_shape_border`.
 
 ## 3. Permanent invariants (never break these)
 1. Color system:
-   - Light backgrounds: pure `#FFFFFF` standard canvas, `#F2F2F7` grouped canvas (per ADR-007). Dark backgrounds: pure `#101117` / `#000000`.
+   - Light backgrounds: pure `#FFFFFF` standard canvas, `#F2F2F7` grouped canvas (per ADR-007). Dark standard/grouped canvases: `#000000`.
    - Semantic tokens (never decorative):
      - Right / Answered: light fill `#C9F0B8`, text `#1F6B3A`; dark fill `#293B27`, text `#7FE3A5`.
      - Wrong: light fill `#FFC1BB`, text `#9B2C26`; dark fill `#602625`, text `#FF9A92`.
@@ -70,7 +70,7 @@ outlines retain their established appearance through `eve_test_shape_border`.
    - Lime `#E3FF3B` is banned everywhere in `app/` and `backend/`.
 2. The Telegram-style circular reveal Day/Night transition must never be degraded.
 3. Server-side test timer, question layout fitting, and submit mechanics must never be replaced by client-only logic.
-4. Blur is applied only to chrome/surfaces through a matte `BlurView`, never over text, images, or Lottie animations.
+4. Blur is applied only to the allowed chrome and modal backdrop layers, never over foreground text, images, icons or Lottie animations.
 5. Test scoring, ranking, and answer visibility stay server-authoritative.
 
 ## 4. Verification (run for the layer you changed; both if the change spans both)

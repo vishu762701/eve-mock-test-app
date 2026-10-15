@@ -18,11 +18,9 @@ object ShareCardHelper {
     private const val COLOR_SYSTEM_BACKGROUND_DARK = "#000000" // iOS systemBackground (dark)
     private const val COLOR_SECONDARY_BACKGROUND_DARK = "#1C1C1E" // iOS secondarySystemBackground (dark)
     private const val COLOR_OPAQUE_SEPARATOR_DARK = "#38383A" // iOS opaqueSeparator (dark)
-    private const val COLOR_SYSTEM_BLUE_DARK = "#0091FF" // iOS systemBlue (dark)
     private const val COLOR_LABEL_SECONDARY_DARK = "#C5C5CC" // iOS secondaryLabel (dark)
     private const val COLOR_LABEL_TERTIARY_DARK = "#ABABB3" // iOS tertiaryLabel (dark)
     private const val COLOR_ACCENT_CONTAINER_DARK = "#142B49" // iOS accentContainer (dark)
-    private const val COLOR_ACCENT_TEXT_DARK = "#72B2FF" // iOS accentText (dark)
     private const val COLOR_STATUS_SUCCESS_DARK = "#30D158" // iOS systemGreen (dark)
     private const val COLOR_STATUS_ERROR_DARK = "#FF4245" // iOS systemRed (dark)
 
@@ -41,6 +39,13 @@ object ShareCardHelper {
         val height = 1350
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
+        val darkConfiguration = android.content.res.Configuration(context.resources.configuration).apply {
+            uiMode = uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK.inv() or
+                android.content.res.Configuration.UI_MODE_NIGHT_YES
+        }
+        val systemBlue = context.createConfigurationContext(darkConfiguration).getColor(com.eve.app.R.color.eve_system_blue)
+        val cardRadius = context.resources.getDimension(com.eve.app.R.dimen.eve_radius_card) /
+            context.resources.displayMetrics.density * (width / 360f)
 
         val boldTypeface = try {
             androidx.core.content.res.ResourcesCompat.getFont(context, com.eve.app.R.font.source_serif_4_bold) ?: Typeface.DEFAULT_BOLD
@@ -71,12 +76,12 @@ object ShareCardHelper {
             strokeWidth = 3f
         }
         val cardRect = RectF(60f, 60f, width - 60f, height - 60f)
-        canvas.drawRoundRect(cardRect, 36f, 36f, cardPaint)
-        canvas.drawRoundRect(cardRect, 36f, 36f, cardStrokePaint)
+        canvas.drawRoundRect(cardRect, cardRadius, cardRadius, cardPaint)
+        canvas.drawRoundRect(cardRect, cardRadius, cardRadius, cardStrokePaint)
 
         // 3. App Title / Header
         val brandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor(COLOR_SYSTEM_BLUE_DARK)
+            color = systemBlue
             textSize = 34f
             typeface = boldTypeface
             letterSpacing = 0.15f
@@ -121,16 +126,16 @@ object ShareCardHelper {
             style = Paint.Style.FILL
         }
         val pillTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor(COLOR_ACCENT_TEXT_DARK)
+            color = systemBlue
             textSize = 28f
             typeface = boldTypeface
         }
         val pill1Rect = RectF(120f, 475f, 340f, 530f)
-        canvas.drawRoundRect(pill1Rect, 20f, 20f, pillBgPaint)
+        canvas.drawRoundRect(pill1Rect, EveShapes.capsule(pill1Rect.height()), EveShapes.capsule(pill1Rect.height()), pillBgPaint)
         canvas.drawText(percentageText, 140f, 513f, pillTextPaint)
 
         val pill2Rect = RectF(360f, 475f, 600f, 530f)
-        canvas.drawRoundRect(pill2Rect, 20f, 20f, pillBgPaint)
+        canvas.drawRoundRect(pill2Rect, EveShapes.capsule(pill2Rect.height()), EveShapes.capsule(pill2Rect.height()), pillBgPaint)
         canvas.drawText("Acc: $accuracyText", 380f, 513f, pillTextPaint)
 
         // 6. Performance Breakdown Boxes (Correct, Wrong, Skipped)
@@ -138,9 +143,9 @@ object ShareCardHelper {
         val boxY = 570f
         val boxH = 160f
 
-        drawStatBox(canvas, 120f, boxY, boxWidth, boxH, "Correct", correctCount.toString(), COLOR_STATUS_SUCCESS_DARK, boldTypeface, regularTypeface)
-        drawStatBox(canvas, 120f + boxWidth + 20f, boxY, boxWidth, boxH, "Wrong", wrongCount.toString(), COLOR_STATUS_ERROR_DARK, boldTypeface, regularTypeface)
-        drawStatBox(canvas, 120f + (boxWidth + 20f) * 2, boxY, boxWidth, boxH, "Skipped", skippedCount.toString(), COLOR_LABEL_SECONDARY_DARK, boldTypeface, regularTypeface)
+        drawStatBox(canvas, 120f, boxY, boxWidth, boxH, "Correct", correctCount.toString(), COLOR_STATUS_SUCCESS_DARK, boldTypeface, regularTypeface, cardRadius)
+        drawStatBox(canvas, 120f + boxWidth + 20f, boxY, boxWidth, boxH, "Wrong", wrongCount.toString(), COLOR_STATUS_ERROR_DARK, boldTypeface, regularTypeface, cardRadius)
+        drawStatBox(canvas, 120f + (boxWidth + 20f) * 2, boxY, boxWidth, boxH, "Skipped", skippedCount.toString(), COLOR_LABEL_SECONDARY_DARK, boldTypeface, regularTypeface, cardRadius)
 
         // 7. Standing Card
         val standingRect = RectF(120f, 770f, width - 120f, 910f)
@@ -148,8 +153,8 @@ object ShareCardHelper {
             color = Color.parseColor(COLOR_SYSTEM_BACKGROUND_DARK)
             style = Paint.Style.FILL
         }
-        canvas.drawRoundRect(standingRect, 24f, 24f, standingPaint)
-        canvas.drawRoundRect(standingRect, 24f, 24f, cardStrokePaint)
+        canvas.drawRoundRect(standingRect, cardRadius, cardRadius, standingPaint)
+        canvas.drawRoundRect(standingRect, cardRadius, cardRadius, cardStrokePaint)
 
         val standLabelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.parseColor(COLOR_LABEL_SECONDARY_DARK)
@@ -160,7 +165,7 @@ object ShareCardHelper {
         canvas.drawText("PERFORMANCE STANDING", 160f, 820f, standLabelPaint)
 
         val standValuePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor(COLOR_SYSTEM_BLUE_DARK)
+            color = systemBlue
             textSize = 42f
             typeface = boldTypeface
         }
@@ -205,7 +210,8 @@ object ShareCardHelper {
         value: String,
         colorHex: String,
         boldTypeface: Typeface,
-        regularTypeface: Typeface
+        regularTypeface: Typeface,
+        cardRadius: Float
     ) {
         val rect = RectF(x, y, x + w, y + h)
         val fillPaint = Paint().apply {
@@ -217,8 +223,8 @@ object ShareCardHelper {
             style = Paint.Style.STROKE
             strokeWidth = 2f
         }
-        canvas.drawRoundRect(rect, 20f, 20f, fillPaint)
-        canvas.drawRoundRect(rect, 20f, 20f, borderPaint)
+        canvas.drawRoundRect(rect, cardRadius, cardRadius, fillPaint)
+        canvas.drawRoundRect(rect, cardRadius, cardRadius, borderPaint)
 
         val valPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.parseColor(colorHex)

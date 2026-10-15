@@ -65,7 +65,7 @@ class TelegramRadioButton @JvmOverloads constructor(
         buttonDrawable = null
 
         // 10dp rounded cards per Section 2b / 3c
-        val cornerPx = 10f * density
+        val cornerPx = com.eve.app.util.EveShapes.concentric(resources, com.eve.app.R.dimen.eve_radius_card, com.eve.app.R.dimen.eve_space_12)
         val tokenColor = ContextCompat.getColor(context, R.color.eve_text)
         val isDark = ThemeSwitchAnimator.isDarkMode(context)
         val rippleColor = androidx.core.graphics.ColorUtils.setAlphaComponent(
@@ -137,7 +137,7 @@ class TelegramRadioButton @JvmOverloads constructor(
     fun enableApprovedTestStyle() {
         useApprovedTestStyle = true
         fun surface(color: Int) = GradientDrawable().apply {
-            cornerRadius = 16f * density
+            cornerRadius = com.eve.app.util.EveShapes.concentric(resources, com.eve.app.R.dimen.eve_radius_card, com.eve.app.R.dimen.eve_space_12)
             setColor(ContextCompat.getColor(context, color))
         }
         background = StateListDrawable().apply {

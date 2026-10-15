@@ -157,7 +157,7 @@ class ResultAndSecondaryScreensTypographyTest {
 
         val tvDetailTitle = findElementById(root, "tvDetailTitle")
         assertNotNull("tvDetailTitle must exist", tvDetailTitle)
-        assertEquals("@style/TextAppearance.Eve.ScreenTitle", getStyleOrAppearance(tvDetailTitle))
+        assertEquals("@style/TextAppearance.Eve.Headline", getStyleOrAppearance(tvDetailTitle))
 
         val tvStatHeroScore = findElementById(root, "tvStatHeroScore")
         assertNotNull("tvStatHeroScore must exist", tvStatHeroScore)

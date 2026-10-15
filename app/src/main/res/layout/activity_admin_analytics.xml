@@ -5,11 +5,12 @@
     android:layout_height="match_parent"
     android:background="@color/eve_system_grouped_background"
     android:orientation="vertical">
-    <LinearLayout
+    <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
+<LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="56dp"
-        android:background="@color/eve_bg"
+        android:background="@android:color/transparent"
         android:gravity="center_vertical"
         android:paddingHorizontal="4dp"
         android:paddingVertical="8dp">
@@ -25,7 +26,7 @@
             app:tint="@color/eve_text" />
 
         <TextView
-            style="@style/TextAppearance.Eve.ScreenTitle"
+            style="@style/TextAppearance.Eve.Headline"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -44,6 +45,7 @@
             android:src="@drawable/ic_refresh"
             app:tint="@color/eve_text" />
     </LinearLayout>
+</com.eve.app.ui.common.EveGlassToolbar>
 
     <View
         android:layout_width="match_parent"
@@ -129,7 +131,7 @@
                                 android:layout_width="22dp"
                                 android:layout_height="22dp"
                                 android:src="@drawable/ic_bug_report"
-                                app:tint="@color/eve_primary" />
+                                app:tint="@color/eve_system_blue" />
 
                             <TextView
                                 style="@style/TextAppearance.Eve.Headline"

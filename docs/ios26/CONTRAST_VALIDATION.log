@@ -1,0 +1,22 @@
+USER-CHOSEN BLUE EXCEPTION: values eve_accent_text / eve_system_background = 3.52:1 (AA target 4.5:1)
+USER-CHOSEN BLUE EXCEPTION: values eve_accent_text / eve_secondary_system_background = 3.15:1 (AA target 4.5:1)
+USER-CHOSEN BLUE EXCEPTION: values eve_accent_text / eve_tertiary_system_background = 3.52:1 (AA target 4.5:1)
+USER-CHOSEN BLUE EXCEPTION: values eve_accent_text / eve_system_grouped_background = 3.15:1 (AA target 4.5:1)
+USER-CHOSEN BLUE EXCEPTION: values eve_accent_text / eve_secondary_system_grouped_background = 3.52:1 (AA target 4.5:1)
+USER-CHOSEN BLUE EXCEPTION: values eve_accent_text / eve_tertiary_system_grouped_background = 3.15:1 (AA target 4.5:1)
+USER-CHOSEN BLUE EXCEPTION: values eve_accent_text / eve_input_fill = 2.80:1 (AA target 4.5:1)
+USER-CHOSEN BLUE EXCEPTION: values eve_accent_text / eve_recovery_surface = 3.15:1 (AA target 4.5:1)
+USER-CHOSEN BLUE EXCEPTION: values eve_button_soft_text / eve_button_soft_bg = 3.08:1 (AA target 4.5:1)
+USER-CHOSEN BLUE EXCEPTION: values eve_recovery_accent / eve_recovery_selected = 3.08:1 (AA target 4.5:1)
+USER-CHOSEN BLUE EXCEPTION: values eve_hc_accent / eve_accent_container = 3.08:1 (AA target 4.5:1)
+USER-CHOSEN BLUE EXCEPTION: values-night eve_accent_text / eve_tertiary_system_background = 4.31:1 (AA target 4.5:1)
+USER-CHOSEN BLUE EXCEPTION: values-night eve_accent_text / eve_tertiary_system_grouped_background = 4.31:1 (AA target 4.5:1)
+USER-CHOSEN BLUE EXCEPTION: values-night eve_accent_text / eve_input_fill = 4.31:1 (AA target 4.5:1)
+USER-CHOSEN BLUE EXCEPTION: values-night eve_button_soft_text / eve_button_soft_bg = 4.41:1 (AA target 4.5:1)
+USER-CHOSEN BLUE EXCEPTION: values-night eve_recovery_accent / eve_recovery_selected = 4.41:1 (AA target 4.5:1)
+USER-CHOSEN BLUE EXCEPTION: values-night eve_hc_accent / eve_accent_container = 4.41:1 (AA target 4.5:1)
+PASS: required contrast checks across 194 measured pairs; explicit system-blue exceptions are listed above and do not meet AA.
+values: eve_white / eve_primary = 3.52:1
+values: eve_on_primary / eve_primary = 3.52:1
+values-night: eve_white / eve_primary = 3.23:1
+values-night: eve_on_primary / eve_primary = 3.23:1

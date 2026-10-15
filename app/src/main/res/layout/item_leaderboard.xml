@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="0dp"
-    android:layout_marginVertical="4dp">
+    android:layout_marginVertical="4dp"
+    android:minHeight="@dimen/eve_list_row_min">
 
     <LinearLayout
         android:layout_width="match_parent"

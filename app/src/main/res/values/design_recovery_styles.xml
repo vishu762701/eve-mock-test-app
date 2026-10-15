@@ -13,7 +13,7 @@
         <item name="boxCornerRadiusBottomEnd">@dimen/eve_radius_input</item>
     </style>
     <style name="Widget.Eve.RecoveryChip" parent="Widget.Material3.Chip.Filter">
-        <item name="chipCornerRadius">@dimen/eve_radius_input</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Eve.Capsule</item>
         <item name="chipStrokeWidth">0dp</item>
         <item name="chipBackgroundColor">@color/selector_recovery_chip_bg</item>
         <item name="android:textColor">@color/selector_recovery_chip_text</item>
@@ -39,7 +39,7 @@
         <item name="bottomSheetStyle">@style/Widget.Eve.RecoverySheet</item>
     </style>
     <style name="Widget.Eve.RecoverySheet" parent="Widget.Material3.BottomSheet.Modal">
-        <item name="backgroundTint">@color/eve_card_bg</item>
+        <item name="backgroundTint">@color/eve_modal_material</item>
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Eve.RecoverySheet</item>
     </style>
     <style name="ShapeAppearance.Eve.RecoverySheet" parent="">

@@ -8,4 +8,4 @@ Always read and follow ENGINEERING_STANDARD.md before doing anything. Then read 
 
 - Before UI changes, read `APPROVED_UI_IMPLEMENTATION_AUDIT.md` together with the current UI design authority in `SOURCE_OF_TRUTH.md`. Their current authority sections supersede historical numeric requirements and older approval boundaries.
 - Redesigns outside that approval, including Full Leaderboard redesigns, require explicit user authorization.
-- App-wide iOS 26 colour and typography migration (ADR-008) is authorized; geometry and protected test colours stay protected.
+- App-wide iOS 26 colour and typography migration (ADR-008), and full-screen geometry migration (ADR-009: Full-screen iOS 26 geometry) are authorized by the user. Radii, padding, row heights and backgrounds may change; screen regions, behavior, protected test colours, Lottie assets/triggers/sizes, icons and the theme reveal stay protected.

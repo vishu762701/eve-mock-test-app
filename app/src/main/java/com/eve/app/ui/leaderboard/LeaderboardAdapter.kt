@@ -26,12 +26,12 @@ class LeaderboardAdapter(
             b.tvRank.text = "#$rank"
             when (rank) {
                 1 -> {
-                    b.tvRank.setBackgroundResource(R.drawable.bg_tile_medium)
+                    com.eve.app.ui.common.EveGlassPill.setCapsuleBackground(b.tvRank, R.drawable.bg_tile_medium)
                     b.tvRank.setTextColor(ContextCompat.getColor(ctx, R.color.eve_tile_medium_text))
                     b.tvRank.setPadding((6 * ctx.resources.displayMetrics.density).toInt(), (2 * ctx.resources.displayMetrics.density).toInt(), (6 * ctx.resources.displayMetrics.density).toInt(), (2 * ctx.resources.displayMetrics.density).toInt())
                 }
                 2, 3 -> {
-                    b.tvRank.setBackgroundResource(R.drawable.bg_tile_surface2)
+                    com.eve.app.ui.common.EveGlassPill.setCapsuleBackground(b.tvRank, R.drawable.bg_tile_surface2)
                     b.tvRank.setTextColor(ContextCompat.getColor(ctx, R.color.eve_text_secondary))
                     b.tvRank.setPadding((6 * ctx.resources.displayMetrics.density).toInt(), (2 * ctx.resources.displayMetrics.density).toInt(), (6 * ctx.resources.displayMetrics.density).toInt(), (2 * ctx.resources.displayMetrics.density).toInt())
                 }

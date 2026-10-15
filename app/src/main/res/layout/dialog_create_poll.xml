@@ -58,7 +58,7 @@
             style="@style/Widget.Eve.OutlinedButton"
             android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
             android:layout_width="wrap_content"
-            android:layout_height="36dp"
+            android:layout_height="48dp"
             android:layout_marginTop="8dp"
             android:text="+ Add Option" />
 

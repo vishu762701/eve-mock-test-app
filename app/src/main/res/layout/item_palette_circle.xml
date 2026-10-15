@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:minWidth="@dimen/eve_control_min_touch"
+    android:minHeight="@dimen/eve_control_min_touch"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:paddingHorizontal="4dp"
@@ -11,7 +13,7 @@
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:stateListAnimator="@animator/press_scale"
-        app:cardCornerRadius="@dimen/eve_radius_card"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.Eve.Capsule"
         app:cardElevation="0dp"
         app:strokeColor="@color/eve_shape_border"
         app:strokeWidth="1dp">

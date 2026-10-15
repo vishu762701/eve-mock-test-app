@@ -167,7 +167,7 @@ class ProfileSettingsLoginTypographyAndColorTest {
 
         val tvTagline = findElementById(root, "tvTagline")
         assertNotNull("tvTagline must exist", tvTagline)
-        assertEquals("@style/TextAppearance.Eve.Title1", tvTagline?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.LargeTitle", tvTagline?.getAttribute("style"))
 
         val tvSubtitle = findElementById(root, "tvSubtitle")
         assertNotNull("tvSubtitle must exist", tvSubtitle)
@@ -269,9 +269,10 @@ class ProfileSettingsLoginTypographyAndColorTest {
         assertEquals("@color/eve_system_grouped_background", profile.getAttribute("android:background"))
         assertEquals("@color/eve_secondary_system_grouped_background", formSolid.getAttribute("android:color"))
 
-        // The Profile toolbar stays on its original opaque canvas.
+        // The Profile header is the sharp foreground of the allowed glass toolbar.
         val header = profile.getElementsByTagName("LinearLayout").item(0) as Element
-        assertEquals("@color/eve_bg", header.getAttribute("android:background"))
+        assertEquals("@android:color/transparent", header.getAttribute("android:background"))
+        assertEquals("com.eve.app.ui.common.EveGlassToolbar", (header.parentNode as Element).tagName)
 
         fun hex(resourcePath: String, token: String): String {
             val root = loadXml(resourcePath)

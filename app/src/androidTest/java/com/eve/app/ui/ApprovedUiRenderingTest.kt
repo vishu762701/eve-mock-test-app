@@ -130,7 +130,7 @@ class ApprovedUiRenderingTest {
 
     private fun verifyHome() {
         val b = ActivityMainBinding.inflate(LayoutInflater.from(context))
-        assertEquals(context.getColor(R.color.eve_system_grouped_background), (b.mainContentContainer.background as ColorDrawable).color)
+        assertEquals(context.getColor(R.color.eve_system_background), (b.mainContentContainer.background as ColorDrawable).color)
         assertEquals(background, context.getColor(R.color.eve_bg))
         assertEquals(background, context.getColor(R.color.eve_canvas))
         listOf(b.btnSearch, b.btnNotification, b.btnOverflow).forEach { bare(it) }
@@ -163,7 +163,7 @@ class ApprovedUiRenderingTest {
         measure(b.root)
         val outline = Outline()
         b.panelHomeBanner.outlineProvider.getOutline(b.panelHomeBanner, outline)
-        assertEquals(16f * density, outline.radius, 0.01f)
+        assertEquals(26f * density, outline.radius, 0.01f)
         assertTrue(b.panelHomeBanner.clipToOutline)
         save(b.root, "home")
     }
@@ -178,7 +178,7 @@ class ApprovedUiRenderingTest {
         assertEquals(foreground, view.backgroundTintList!!.defaultColor)
         assertEquals(background, view.currentTextColor)
         assertEquals(0f, view.elevation, 0.01f)
-        assertEquals(dp(24), view.cornerRadius)
+        assertEquals(view.height / 2f, view.shapeAppearanceModel.topLeftCornerSize.getCornerSize(android.graphics.RectF(0f, 0f, view.width.toFloat(), view.height.toFloat())), 1f)
     }
 
     private fun verifyMock() {
@@ -265,7 +265,7 @@ class ApprovedUiRenderingTest {
             assertEquals(dp(44), option.paddingLeft) // 12 inset + 20 indicator + 12 text gap
             if (index < 3) assertEquals(dp(10), options[index + 1].top - option.bottom)
             val surface = (option.background as StateListDrawable).current as GradientDrawable
-            assertEquals(16f * density, surface.cornerRadius, 0.01f)
+            assertEquals(14f * density, surface.cornerRadius, 0.01f)
             assertEquals(if (option.isChecked) color("#34C759") else context.getColor(R.color.eve_test_option_bg), surface.color!!.defaultColor)
         }
         assertEquals(if (dark) color("#111111") else color("#F3F3F5"), context.getColor(R.color.eve_test_option_bg))
@@ -335,7 +335,7 @@ class ApprovedUiRenderingTest {
         b.tvLeaderboardTabRank.text = "126 / 4,800"
         b.tvLeaderboardScoreChip.text = "Score: 78"
         b.tvLeaderboardPercentileChip.text = "Percentile: 97.4%"
-        val margins = b.tabLayoutResult.layoutParams as ViewGroup.MarginLayoutParams
+        val margins = (b.tabLayoutResult.parent as View).layoutParams as ViewGroup.MarginLayoutParams
         assertEquals(dp(16), margins.marginStart)
         assertEquals(dp(16), margins.marginEnd)
         assertEquals(dp(6), margins.topMargin)
@@ -354,15 +354,15 @@ class ApprovedUiRenderingTest {
                 assertEquals(image.width - b.tabLayoutResult.paddingLeft - b.tabLayoutResult.paddingRight, strip.width)
                 val x = ((index + 0.5f) * image.width / 3).toInt()
                 assertEquals("Selected pill must render for $name in dark=$dark", context.getColor(R.color.eve_result_tab_selected), image.getPixel(x, dp(8)))
-                assertEquals(if (dark) color("#171717") else color("#F1F1F3"), image.getPixel(image.width / 2, dp(1)))
+                assertEquals(Color.TRANSPARENT, image.getPixel(image.width / 2, dp(1)))
                 val cornerX = b.tabLayoutResult.paddingLeft + strip.getChildAt(index).right - dp(3) - dp(1)
                 assertEquals("Selected $name pill must retain its rounded right corner",
-                    if (dark) color("#171717") else color("#F1F1F3"),
+                    Color.TRANSPARENT,
                     image.getPixel(cornerX, b.tabLayoutResult.paddingTop + dp(1)))
             }
             val colors = b.tabLayoutResult.tabTextColors!!
             assertEquals(context.getColor(R.color.eve_result_tab_selected_text), colors.getColorForState(intArrayOf(android.R.attr.state_selected), 0))
-            assertEquals(context.getColor(R.color.eve_recovery_text_secondary), colors.defaultColor)
+            assertEquals(context.getColor(R.color.eve_label_primary), colors.defaultColor)
             save(b.root, "result-${name.lowercase()}")
         }
     }

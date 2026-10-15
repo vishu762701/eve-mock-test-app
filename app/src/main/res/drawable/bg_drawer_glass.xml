@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Frosted translucent glass background with rounded right edge -->
+    <!-- Opaque drawer surface with the shared fixed radius -->
     <item>
         <shape>
             <solid android:color="@color/eve_drawer_glass_base" />
             <corners
-                android:topRightRadius="24dp"
-                android:bottomRightRadius="24dp" />
+                android:topRightRadius="@dimen/eve_radius_card"
+                android:bottomRightRadius="@dimen/eve_radius_card" />
         </shape>
     </item>
-    <!-- Subtle 1dp glass rim highlight on outer right boundary -->
+    <!-- Subtle decorative boundary on the outer right edge -->
     <item
         android:left="-2dp"
         android:top="-2dp"
@@ -19,8 +19,8 @@
                 android:width="1dp"
                 android:color="@color/eve_shape_border" />
             <corners
-                android:topRightRadius="24dp"
-                android:bottomRightRadius="24dp" />
+                android:topRightRadius="@dimen/eve_radius_card"
+                android:bottomRightRadius="@dimen/eve_radius_card" />
         </shape>
     </item>
 </layer-list>

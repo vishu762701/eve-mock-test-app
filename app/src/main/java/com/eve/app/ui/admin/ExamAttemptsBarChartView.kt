@@ -102,7 +102,7 @@ class ExamAttemptsBarChartView @JvmOverloads constructor(
 
         var currentY = dpToPx(18f)
         val barHeight = dpToPx(12f)
-        val cornerRadius = dpToPx(6f)
+        val cornerRadius = resources.getDimension(com.eve.app.R.dimen.eve_radius_min)
 
         for (item in items) {
             // Draw title and count

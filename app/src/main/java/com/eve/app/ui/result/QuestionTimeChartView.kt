@@ -132,7 +132,7 @@ class QuestionTimeChartView @JvmOverloads constructor(
             }
 
             barRect.set(left, top, right, bottom)
-            val radius = 4f * density
+            val radius = resources.getDimension(com.eve.app.R.dimen.eve_radius_min)
             canvas.drawRoundRect(barRect, radius, radius, barPaint)
 
             // Draw time value on top of bar

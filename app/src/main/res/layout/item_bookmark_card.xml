@@ -10,7 +10,8 @@
     android:layout_marginVertical="@dimen/eve_space_8"
     android:clickable="true"
     android:focusable="true"
-    android:stateListAnimator="@animator/press_scale">
+    android:stateListAnimator="@animator/press_scale"
+    android:minHeight="@dimen/eve_list_row_min">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -203,7 +204,7 @@
                 android:contentDescription="Open"
                 android:src="@drawable/ic_back"
                 android:rotation="180"
-                app:tint="@color/eve_primary" />
+                app:tint="@color/eve_system_blue" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="56dp"
-        android:background="@color/eve_bg"
+        android:background="@color/eve_system_background"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="16dp"

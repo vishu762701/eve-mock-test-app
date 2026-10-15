@@ -3,7 +3,7 @@
     android:color="@color/eve_fill_tertiary">
     <item android:id="@android:id/mask">
         <shape android:shape="rectangle">
-            <corners android:radius="14dp" />
+            <corners android:radius="@dimen/eve_radius_input" />
             <solid android:color="@android:color/white" />
         </shape>
     </item>
@@ -11,13 +11,13 @@
         <selector>
             <item android:state_pressed="true">
                 <shape android:shape="rectangle">
-                    <corners android:radius="14dp" />
+                    <corners android:radius="@dimen/eve_radius_input" />
                     <solid android:color="@color/eve_fill_tertiary" />
                 </shape>
             </item>
             <item android:state_focused="true">
                 <shape android:shape="rectangle">
-                    <corners android:radius="14dp" />
+                    <corners android:radius="@dimen/eve_radius_input" />
                     <solid android:color="@color/eve_fill_tertiary" />
                 </shape>
             </item>

@@ -9,10 +9,11 @@
     android:orientation="vertical">
 
     <!-- Top Bar -->
-    <LinearLayout
+    <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
+<LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_bg"
+        android:background="@android:color/transparent"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="16dp"
@@ -26,11 +27,11 @@
             android:contentDescription="Back"
             android:padding="12dp"
             android:src="@drawable/ic_back"
-            app:tint="@color/eve_accent_text" />
+            app:tint="?attr/eveLabelPrimary" />
 
         <TextView
             android:id="@+id/tvHeaderTitle"
-            style="@style/TextAppearance.Eve.ScreenTitle"
+            style="@style/TextAppearance.Eve.Headline"
             android:layout_weight="1"
             android:maxLines="2"
             android:ellipsize="end"
@@ -40,6 +41,7 @@
             tools:text="Privacy Policy"
             android:textColor="?attr/eveLabelPrimary" />
     </LinearLayout>
+</com.eve.app.ui.common.EveGlassToolbar>
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -109,7 +111,7 @@
                             android:layout_height="24dp"
                             android:contentDescription="Email"
                             android:src="@drawable/ic_email"
-                            app:tint="@color/eve_primary" />
+                            app:tint="@color/eve_system_blue" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -156,7 +158,7 @@
                             android:layout_height="24dp"
                             android:contentDescription="Phone"
                             android:src="@drawable/ic_phone"
-                            app:tint="@color/eve_primary" />
+                            app:tint="@color/eve_system_blue" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -203,7 +205,7 @@
                             android:layout_height="24dp"
                             android:contentDescription="Website"
                             android:src="@drawable/ic_language"
-                            app:tint="@color/eve_primary" />
+                            app:tint="@color/eve_system_blue" />
 
                         <LinearLayout
                             android:layout_width="0dp"

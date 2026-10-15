@@ -1,5 +1,7 @@
 # Approved UI implementation audit
 
+Current override: ADR-009 (Full-screen iOS 26 geometry) authorizes the current user-requested migration on all screens. Historical numeric geometry and approval boundaries below do not constrain it; protected behavior, colours and assets still apply.
+
 Current authority: the 2026-10-11 Autonomous UI Design Recovery request explicitly
 approves responsive corrections to Home, Profile, all Result tabs, Target Exams and
 shared surfaces. It supersedes the old manual numeric requirements and global harsh

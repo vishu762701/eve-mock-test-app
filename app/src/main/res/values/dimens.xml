@@ -1,39 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Apple iOS Design System Geometry & Concentric Radii (Section 2b) -->
-    <!-- Small controls / chips: 10dp -->
-    <dimen name="radius_sm">10dp</dimen>
-    <dimen name="eve_radius_sm">10dp</dimen>
-    <dimen name="eve_radius_tile_small">10dp</dimen>
-    <dimen name="eve_radius_input">12dp</dimen>
+    <!-- Eve geometry interpretation: fixed 26dp cards, 34dp sheets; capsules use 50% in Material. -->
 
-    <!-- Medium controls: 14dp -->
+
+    <dimen name="radius_sm">14dp</dimen>
+    <dimen name="eve_radius_sm">14dp</dimen>
+    <dimen name="eve_radius_tile_small">26dp</dimen>
+    <dimen name="eve_radius_input">14dp</dimen>
+
+
     <dimen name="radius_md">14dp</dimen>
     <dimen name="eve_radius_md">14dp</dimen>
-    <dimen name="eve_radius_icon_container">14dp</dimen>
+    <dimen name="eve_radius_icon_container">26dp</dimen>
 
-    <!-- Standard cards & tiles: 20dp -->
-    <dimen name="radius_lg">20dp</dimen>
-    <dimen name="eve_radius_lg">20dp</dimen>
-    <dimen name="eve_radius_card">20dp</dimen>
-    <dimen name="eve_radius_tile">20dp</dimen>
 
-    <!-- Large sheets / dialogs: 28dp -->
-    <dimen name="radius_xl">28dp</dimen>
-    <dimen name="eve_radius_xl">28dp</dimen>
-    <dimen name="eve_radius_bottom_sheet">28dp</dimen>
+    <dimen name="radius_lg">26dp</dimen>
+    <dimen name="eve_radius_lg">26dp</dimen>
+    <dimen name="eve_radius_card">26dp</dimen>
+    <dimen name="eve_radius_tile">26dp</dimen>
 
-    <!-- XML shape capsules: Android clamps this fallback to half the bounds.
-         Material controls use ShapeAppearance.Eve.Capsule (50%) instead. -->
-    <dimen name="eve_radius_button">12dp</dimen>
+
+    <dimen name="radius_xl">34dp</dimen>
+    <dimen name="eve_radius_xl">34dp</dimen>
+    <dimen name="eve_radius_bottom_sheet">34dp</dimen>
+
+
+    <dimen name="eve_radius_button">@dimen/eve_radius_pill</dimen>
     <dimen name="eve_radius_pill">999dp</dimen>
 
-    <!-- Depths & Elevations (Apple iOS: restrained subtle elevation in light, 0dp pure matte in dark) -->
+
     <dimen name="eve_card_elevation_light">1.5dp</dimen>
     <dimen name="eve_card_elevation_dark">0dp</dimen>
     <dimen name="eve_stroke_hairline">0.5dp</dimen>
 
-    <!-- 4dp Spacing Grid -->
+
     <dimen name="eve_space_4">4dp</dimen>
     <dimen name="eve_space_8">8dp</dimen>
     <dimen name="eve_space_12">12dp</dimen>
@@ -42,13 +42,18 @@
     <dimen name="eve_space_24">24dp</dimen>
     <dimen name="eve_space_32">32dp</dimen>
     <dimen name="eve_screen_padding_horizontal">20dp</dimen>
-    <dimen name="eve_card_padding_inner">16dp</dimen>
+    <dimen name="eve_card_padding_inner">18dp</dimen>
     <dimen name="eve_list_item_spacing">12dp</dimen>
     <dimen name="eve_home_banner_height">160dp</dimen>
     <dimen name="eve_thin_material_blur_radius">12dp</dimen>
     <dimen name="target_exam_chip_icon_size">22dp</dimen>
-    <dimen name="eve_radius_menu">16dp</dimen>
-    <dimen name="eve_radius_segment_track">14dp</dimen>
-    <dimen name="eve_radius_segment_child">11dp</dimen>
+    <dimen name="eve_radius_menu">26dp</dimen>
+    <dimen name="eve_radius_segment_track">@dimen/eve_radius_pill</dimen>
+    <dimen name="eve_radius_segment_child">@dimen/eve_radius_pill</dimen>
     <dimen name="eve_control_min_touch">48dp</dimen>
+    <dimen name="eve_radius_concentric_sheet">18dp</dimen>
+    <dimen name="eve_radius_min">4dp</dimen>
+    <dimen name="eve_list_row_min">52dp</dimen>
+    <dimen name="eve_segment_min_height">56dp</dimen>
+    <dimen name="eve_modal_blur_radius">16dp</dimen>
 </resources>

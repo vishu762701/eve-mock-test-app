@@ -322,7 +322,11 @@ class SettingsActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .show().also { dialog ->
+                dialog.window?.clearFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND or
+                    android.view.WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
+                dialog.window?.setDimAmount(0f)
+            }
     }
 
     override fun onDestroy() {

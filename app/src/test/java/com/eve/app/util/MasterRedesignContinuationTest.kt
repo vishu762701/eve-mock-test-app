@@ -37,31 +37,17 @@ class MasterRedesignContinuationTest {
     }
 
     @Test
-    fun testMenuAndDrawerGlassTokensAreTranslucentInBothThemes() {
-        val lightColors = loadColors("src/main/res/values/colors.xml")
-        val darkColors = loadColors("src/main/res/values-night/colors.xml")
-
-        // 3-dot overflow menu background must be translucent, not opaque white (#E5FFFFFF) or solid
-        val lightMenuBg = lightColors["eve_menu_glass_bg"]
-        assertNotNull("eve_menu_glass_bg must exist in light colors", lightMenuBg)
-        assertTrue("Light menu glass must be translucent (start with #59)", lightMenuBg!!.startsWith("#59"))
-
-        val darkMenuBg = darkColors["eve_menu_glass_bg"]
-        assertNotNull("eve_menu_glass_bg must exist in dark colors", darkMenuBg)
-        assertTrue("Dark menu glass must be translucent (start with #73)", darkMenuBg!!.startsWith("#73"))
-
-        // Profile drawer tint must be translucent
-        val lightDrawerTint = lightColors["eve_drawer_glass_tint"]
-        assertNotNull("eve_drawer_glass_tint must exist in light colors", lightDrawerTint)
-        assertTrue("Light drawer tint must be translucent (start with #59)", lightDrawerTint!!.startsWith("#59"))
-
-        val darkDrawerTint = darkColors["eve_drawer_glass_tint"]
-        assertNotNull("eve_drawer_glass_tint must exist in dark colors", darkDrawerTint)
-        assertTrue("Dark drawer tint must be translucent (start with #73)", darkDrawerTint!!.startsWith("#73"))
-
-        // Drawer base must be transparent to prevent covering blur
-        assertEquals("@android:color/transparent", lightColors["eve_drawer_glass_base"])
-        assertEquals("@android:color/transparent", darkColors["eve_drawer_glass_base"])
+    fun testMenuUsesApi31MaterialAndOlderFallbackWhileDrawerIsOpaque() {
+        for (theme in listOf("values", "values-night")) {
+            val colors = loadColors("src/main/res/$theme/colors.xml")
+            assertEquals("@color/eve_secondary_system_background", colors["eve_menu_glass_bg"])
+            for (name in listOf("eve_drawer_glass_base", "eve_drawer_glass_tint", "eve_drawer_glass_bg")) {
+                assertEquals("$theme: drawer content is opaque", "@color/eve_secondary_system_background", colors[name])
+            }
+            val material = loadColors("src/main/res/$theme-v31/materials.xml")
+            assertEquals("@color/eve_material_regular", material["eve_menu_glass_bg"])
+            assertTrue("Tint must protect label contrast", colors["eve_material_regular"]!!.startsWith("#E6"))
+        }
     }
 
     @Test

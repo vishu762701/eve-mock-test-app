@@ -26,7 +26,7 @@ object RippleHelper {
     fun createPremiumRippleDrawable(
         context: Context,
         tintColor: Int? = null,
-        cornerRadiusDp: Float = 12f,
+        cornerRadiusDp: Float = context.resources.getDimension(com.eve.app.R.dimen.eve_radius_input) / context.resources.displayMetrics.density,
         isDark: Boolean = ThemeSwitchAnimator.isDarkMode(context)
     ): RippleDrawable {
         // Theme-adaptive tint: subtle white-based tint in dark mode, subtle dark-based tint in light mode

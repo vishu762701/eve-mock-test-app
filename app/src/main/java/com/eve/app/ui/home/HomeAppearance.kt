@@ -13,7 +13,7 @@ object HomeAppearance {
         values.distinct().sortedWith(compareBy<String> { it != "Other" }.thenBy { it })
 
     fun tintNotificationBell(view: com.airbnb.lottie.LottieAnimationView) {
-        val ink = ContextCompat.getColor(view.context, R.color.eve_primary)
+        val ink = ContextCompat.getColor(view.context, R.color.eve_label_primary)
         fun applyInk() {
             view.addValueCallback(com.airbnb.lottie.model.KeyPath("**"), com.airbnb.lottie.LottieProperty.COLOR,
                 com.airbnb.lottie.value.LottieValueCallback(ink))
@@ -25,7 +25,7 @@ object HomeAppearance {
     }
 
     fun clipBanner(view: View) {
-        val radius = 16f * view.resources.displayMetrics.density
+        val radius = com.eve.app.util.EveShapes.card(view.resources)
         com.eve.app.util.SquircleHelper.applySquircleOutline(view, radius)
     }
 

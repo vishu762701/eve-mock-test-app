@@ -48,7 +48,7 @@
     <color name="eve_fill_tertiary">#1F767680</color>
     <color name="eve_input_fill">#E5E5EA</color>
     <color name="eve_input_stroke">@color/eve_control_outline</color>
-    <color name="eve_input_focus_stroke">@color/eve_accent_text</color>
+    <color name="eve_input_focus_stroke">@color/eve_system_blue</color>
 
     <!-- Authoritative Apple iOS System Colors (Light Theme) -->
     <color name="eve_system_red">#FF383C</color>
@@ -103,18 +103,18 @@
     <color name="eve_clear">#00000000</color>
 
     <!-- Liquid Glass Floating Layer & Materials -->
-    <color name="eve_glass_card_fill">#E5FFFFFF</color>
+    <color name="eve_glass_card_fill">@color/eve_secondary_system_background</color>
     <color name="eve_glass_card_hairline">#1A3C3C43</color>
-    <color name="eve_material_ultra_thin">#40FFFFFF</color>
-    <color name="eve_material_thin">#80FFFFFF</color>
-    <color name="eve_material_regular">#B3FFFFFF</color>
-    <color name="eve_material_thick">#E6F2F2F7</color>
+    <color name="eve_material_ultra_thin">#CCFFFFFF</color>
+    <color name="eve_material_thin">#D9FFFFFF</color>
+    <color name="eve_material_regular">#E6FFFFFF</color>
+    <color name="eve_material_thick">#F2FFFFFF</color>
     <color name="eve_material_ultra_thick">#F2F2F7</color>
     <color name="eve_material_chrome">#CCFFFFFF</color>
 
     <!-- Core Interactive Tokens (Adaptive Blue Accent System - Light) -->
-    <color name="eve_primary">#0088FF</color>
-    <color name="eve_primary_dark">#0088FF</color>
+    <color name="eve_primary">@color/eve_system_blue</color>
+    <color name="eve_primary_dark">@color/eve_system_blue</color>
     <color name="eve_accent">@color/eve_primary</color>
     <color name="eve_banner_text">#000000</color>
     <color name="eve_on_primary">#FFFFFF</color>
@@ -206,7 +206,7 @@
     <color name="eve_category_tint_rose_bg">#FEECEC</color>
     <color name="eve_category_tint_rose_fg">@color/eve_destructive_text</color>
     <color name="eve_category_tint_blue_bg">#E5F1FF</color>
-    <color name="eve_category_tint_blue_fg">@color/eve_accent_text</color>
+    <color name="eve_category_tint_blue_fg">@color/eve_system_blue</color>
     <color name="eve_category_tint_teal_bg">#E5F9F6</color>
     <color name="eve_category_tint_teal_fg">#007987</color>
 
@@ -259,17 +259,16 @@
     <color name="eve_bronze">#A2845E</color>
     <color name="eve_grey">#8E8E93</color>
     <color name="timer_normal">#000000</color>
-    <color name="eve_stat_mini_bg">#1A3C3C43</color>
 
     <!-- Status & Info -->
-    <color name="eve_status_info">#0088FF</color>
-    <color name="eve_target_exam_check_blue">#0088FF</color>
+    <color name="eve_status_info">@color/eve_system_blue</color>
+    <color name="eve_target_exam_check_blue">@color/eve_system_blue</color>
     <color name="eve_shimmer_base">#E5E5EA</color>
     <color name="eve_shimmer_highlight">#F2F2F7</color>
     <color name="eve_white">#FFFFFF</color>
 
     <!-- Charts -->
-    <color name="eve_chart_primary">#0088FF</color>
+    <color name="eve_chart_primary">@color/eve_system_blue</color>
     <color name="eve_chart_fill">#260088FF</color>
     <color name="eve_chart_grid">#1A3C3C43</color>
     <color name="eve_chart_label">@color/eve_label_secondary</color>
@@ -283,7 +282,7 @@
     <!-- Login -->
     <color name="eve_login_button_bg">@color/eve_primary</color>
     <color name="eve_login_button_stroke">@color/eve_primary</color>
-    <color name="eve_login_glass_bg">#E5FFFFFF</color>
+    <color name="eve_login_glass_bg">@color/eve_material_regular</color>
     <color name="eve_login_glass_border">#1A3C3C43</color>
     <color name="eve_login_input_bg">#E5E5EA</color>
     <color name="eve_login_input_border">@android:color/transparent</color>
@@ -296,14 +295,14 @@
     <color name="eve_login_google_text">#000000</color>
 
     <!-- Drawer -->
-    <color name="eve_drawer_glass_bg">#59FFFFFF</color>
-    <color name="eve_drawer_glass_base">@android:color/transparent</color>
-    <color name="eve_drawer_glass_tint">#59FFFFFF</color>
+    <color name="eve_drawer_glass_bg">@color/eve_secondary_system_background</color>
+    <color name="eve_drawer_glass_base">@color/eve_secondary_system_background</color>
+    <color name="eve_drawer_glass_tint">@color/eve_secondary_system_background</color>
     <color name="eve_drawer_glass_border">#1A3C3C43</color>
     <color name="eve_drawer_scrim">#26000000</color>
 
     <!-- Dropdown Menu -->
-    <color name="eve_menu_glass_bg">#59FFFFFF</color>
+    <color name="eve_menu_glass_bg">@color/eve_secondary_system_background</color>
     <color name="eve_menu_glass_border">#1A3C3C43</color>
     <color name="eve_menu_glass_divider">#1A3C3C43</color>
 
@@ -314,9 +313,9 @@
     <color name="eve_premium_gradient_4">#F38926</color>
     <color name="eve_premium_star_1">#FFFFFF</color>
     <color name="eve_premium_star_2">#E3ECFA</color>
-    <color name="eve_accent_text">#005BC0</color>
+    <color name="eve_accent_text">@color/eve_system_blue</color>
     <color name="eve_accent_container">#E5F1FF</color>
-    <color name="eve_on_accent_container">#005BC0</color>
+    <color name="eve_on_accent_container">@color/eve_system_blue</color>
     <color name="eve_placeholder_text">#62626D</color>
     <color name="eve_opaque_separator">#C6C6C8</color>
     <color name="eve_control_outline">#74747E</color>
@@ -325,7 +324,7 @@
     <color name="eve_disabled_text">#64646F</color>
     <color name="eve_ripple">#260088FF</color>
     <color name="eve_hc_secondary">#303038</color>
-    <color name="eve_hc_accent">#004A99</color>
+    <color name="eve_hc_accent">@color/eve_system_blue</color>
     <color name="eve_hc_outline">#484850</color>
     <color name="eve_destructive_text">#96211C</color>
     <color name="eve_hc_primary">#004A99</color>
@@ -333,4 +332,7 @@
     <color name="eve_status_success_text">@color/eve_green_text</color>
     <color name="eve_status_error_text">@color/eve_destructive_text</color>
     <color name="eve_status_warning_text">@color/eve_tile_medium_text</color>
+    <!-- User-selected system blue; unused alternative for a one-line revert. -->
+    <color name="eve_accent_text_readable">#005BC0</color>
+    <color name="eve_modal_material">@color/eve_secondary_system_background</color>
 </resources>

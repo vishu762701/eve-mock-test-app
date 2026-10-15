@@ -60,7 +60,7 @@ class ManualBorderInventoryTest {
         val source = File(res.parentFile, "java/com/eve/app/ui/common/TelegramRadioButton.kt").readText()
         val approved = source.substringAfter("fun enableApprovedTestStyle()").substringBefore("private fun animateCheckProgress")
         assertFalse(approved.contains("setStroke"))
-        assertTrue(approved.contains("cornerRadius = 16f * density"))
+        assertTrue(approved.contains("cornerRadius = com.eve.app.util.EveShapes.concentric"))
         val next = elements(File(res, "values/approved_ui_styles.xml")).first { it.tagName == "style" && it.getAttribute("name") == "Widget.Eve.ApprovedTestNext" }
         assertTrue(next.textContent.contains("0dp"))
     }

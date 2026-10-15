@@ -9,10 +9,10 @@ import com.eve.app.R
 import com.eve.app.util.EveTouchHelper
 
 /**
- * Reusable Apple iOS 26 Liquid Glass Pill.
+ * Eve capsule label and shared capsule-background helper.
  * Features:
  * - Full pill rounded geometry (999dp)
- * - Translucent glass background with hairline rim
+ * - Opaque content surface; glass belongs to the surrounding chrome
  * - Tactile compression (0.98) with haptic clock tick
  */
 class EveGlassPill @JvmOverloads constructor(
@@ -20,6 +20,16 @@ class EveGlassPill @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : AppCompatTextView(context, attrs, defStyleAttr) {
+
+    companion object {
+        /** Retain the supplied semantic fill/stroke while giving a bound badge its capsule shape. */
+        fun setCapsuleBackground(view: android.view.View, @androidx.annotation.DrawableRes resource: Int) {
+            view.setBackgroundResource(resource)
+            val background = view.background.mutate() as android.graphics.drawable.GradientDrawable
+            background.cornerRadius = view.resources.getDimension(R.dimen.eve_radius_pill)
+            view.background = background
+        }
+    }
 
     init {
         setBackgroundResource(R.drawable.bg_soft_pill)
@@ -29,8 +39,7 @@ class EveGlassPill @JvmOverloads constructor(
         val padV = (6f * density).toInt()
         setPadding(padH, padV, padH, padV)
         setTextColor(ContextCompat.getColor(context, R.color.eve_text))
-        textSize = 13f
-        typeface = android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL)
+        androidx.core.widget.TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Footnote_Medium)
         EveTouchHelper.attachTactileFeedback(this, pressScale = 0.97f)
     }
 }

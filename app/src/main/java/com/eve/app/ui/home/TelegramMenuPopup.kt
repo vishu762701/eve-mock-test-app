@@ -12,7 +12,6 @@ import android.view.ViewGroup
 import android.widget.PopupWindow
 import com.eve.app.R
 import com.eve.app.databinding.PopupTelegramMenuBinding
-import com.eve.app.util.FastBlurHelper
 import com.eve.app.util.GlassmorphismHelper
 import com.eve.app.util.ThemeFrameCoordinator
 import com.eve.app.util.ThemeManager
@@ -193,7 +192,13 @@ class TelegramMenuPopup(
                     canvas.translate(-popupX.toFloat(), -popupY.toFloat())
                     decor.draw(canvas)
 
-                    val blurred = FastBlurHelper.blur(bmp, radius = 20, canReuseInBitmap = true)
+                    val blurred = if (android.os.Build.VERSION.SDK_INT >= 31) bmp else null
+                    if (android.os.Build.VERSION.SDK_INT >= 31) {
+                        com.eve.app.util.EveBlurHelper.applyRenderEffect(binding.ivGlassBlurBackground, 20f)
+                    } else {
+                        binding.viewGlassTintOverlay.setBackgroundColor(
+                            androidx.core.content.ContextCompat.getColor(context, com.eve.app.R.color.eve_secondary_system_background))
+                    }
                     blurBitmap = blurred
                     binding.ivGlassBlurBackground.setImageBitmap(blurred)
                 }

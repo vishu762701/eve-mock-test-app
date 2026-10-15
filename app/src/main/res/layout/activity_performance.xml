@@ -7,11 +7,12 @@
     android:orientation="vertical"
     android:background="@color/eve_system_grouped_background">
 
-    <LinearLayout
+    <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
+<LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="56dp"
-        android:background="@color/eve_bg"
+        android:background="@android:color/transparent"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="4dp"
@@ -25,10 +26,10 @@
             android:contentDescription="Back"
             android:padding="12dp"
             android:src="@drawable/ic_back"
-            app:tint="@color/eve_accent_text" />
+            app:tint="?attr/eveLabelPrimary" />
 
         <TextView
-            style="@style/TextAppearance.Eve.ScreenTitle"
+            style="@style/TextAppearance.Eve.Headline"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -38,6 +39,7 @@
             android:text="Performance Insights"
             android:textColor="?attr/eveLabelPrimary" />
     </LinearLayout>
+</com.eve.app.ui.common.EveGlassToolbar>
 
     <View
         android:layout_width="match_parent"

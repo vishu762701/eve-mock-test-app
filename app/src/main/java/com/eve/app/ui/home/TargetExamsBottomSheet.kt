@@ -39,7 +39,7 @@ object TargetExamsBottomSheet {
             typeface = android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL)
             val density = resources.displayMetrics.density
             chipMinHeight = maxOf(40f * density, paint.fontMetrics.run { bottom - top } + 20f * density)
-            chipCornerRadius = 12f * density
+            shapeAppearanceModel = shapeAppearanceModel.withCornerSize(com.google.android.material.shape.RelativeCornerSize(0.5f))
             chipStrokeWidth = 0f
             chipBackgroundColor = androidx.core.content.ContextCompat.getColorStateList(context, com.eve.app.R.color.selector_recovery_chip_bg)
             setTextColor(androidx.core.content.ContextCompat.getColorStateList(context, com.eve.app.R.color.selector_recovery_chip_text))
@@ -97,7 +97,11 @@ object TargetExamsBottomSheet {
         dialog.behavior.maxWidth = Math.round(640f * density)
         dialog.behavior.maxHeight = Math.round(activity.resources.displayMetrics.heightPixels * 0.9f)
         dialog.behavior.skipCollapsed = true
+        dialog.setOnDismissListener {
+            dialog.window?.decorView?.let { com.eve.app.util.GlassmorphismHelper.removeWindowBlur(it, animate = false) }
+        }
         dialog.show()
+        dialog.window?.decorView?.let { com.eve.app.util.GlassmorphismHelper.applyWindowBlur(it) }
         dialog.behavior.state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
         return dialog
     }

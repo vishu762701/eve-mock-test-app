@@ -140,7 +140,7 @@ class ManualUiSpecificationTest {
                     assertEquals(dp(160), home.panelHomeBanner.height)
                     val outline = Outline()
                     home.panelHomeBanner.outlineProvider.getOutline(home.panelHomeBanner, outline)
-                    assertEquals(16f * density, outline.radius, 0.01f)
+                    assertEquals(26f * density, outline.radius, 0.01f)
                     assertTrue(home.panelHomeBanner.clipToOutline)
                     if (font == 1f) {
                         assertEquals(dp(64), chips[0].width)
@@ -165,7 +165,7 @@ class ManualUiSpecificationTest {
                     ResultTabs.bind(result) {}
                     layout(result.root)
                     assertEquals(dp(width - 32), result.tabLayoutResult.width)
-                    if (font == 1f) assertEquals(dp(44), result.tabLayoutResult.height)
+                    assertTrue(result.tabLayoutResult.height >= dp(56))
                     assertEquals(dp(4), result.tabLayoutResult.paddingTop)
                     assertEquals(dp(4), result.tabLayoutResult.paddingStart)
                     val tabStrip = result.tabLayoutResult.getChildAt(0) as ViewGroup
@@ -206,7 +206,7 @@ class ManualUiSpecificationTest {
                             assertEquals(dp(12), tile.top - grid.getChildAt(i - grid.columnCount).bottom)
                         }
                         val surface = tile.background as GradientDrawable
-                        assertEquals(dp(16).toFloat(), surface.cornerRadius, 0.01f)
+                        assertEquals(dp(26).toFloat(), surface.cornerRadius, 0.01f)
                     }
                     repeat(12) { index ->
                         result.tabLayoutResult.getTabAt(index % 3)!!.select()
@@ -230,7 +230,7 @@ class ManualUiSpecificationTest {
                             option.isChecked = checked
                             option.jumpDrawablesToCurrentState()
                             val surface = (option.background as StateListDrawable).current as GradientDrawable
-                            assertEquals(16f * density, surface.cornerRadius, 0.01f)
+                            assertEquals(14f * density, surface.cornerRadius, 0.01f)
                         }
                     }
                     for (i in 1 until options.size) assertEquals(dp(10), options[i].top - options[i-1].bottom)

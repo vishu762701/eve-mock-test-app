@@ -6,6 +6,7 @@
     android:layout_height="wrap_content"
     android:clipToOutline="true"
     app:cardBackgroundColor="@android:color/transparent"
+    app:shapeAppearanceOverlay="@style/ShapeAppearance.Eve.Menu"
     app:cardCornerRadius="@dimen/eve_radius_menu"
     app:cardElevation="4dp"
     app:cardMaxElevation="6dp"
@@ -42,7 +43,7 @@
         <LinearLayout
             android:id="@+id/cardTheme"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="@dimen/eve_list_row_min"
             android:clickable="true"
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground"
@@ -86,7 +87,7 @@
             <LinearLayout
                 android:id="@+id/menuRowHistory"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="@dimen/eve_list_row_min"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
@@ -114,7 +115,7 @@
             <LinearLayout
                 android:id="@+id/menuRowBookmarks"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="@dimen/eve_list_row_min"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
@@ -142,7 +143,7 @@
             <LinearLayout
                 android:id="@+id/menuRowMistakes"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="@dimen/eve_list_row_min"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
@@ -170,7 +171,7 @@
             <LinearLayout
                 android:id="@+id/menuRowTopic"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="@dimen/eve_list_row_min"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
@@ -198,7 +199,7 @@
             <LinearLayout
                 android:id="@+id/menuRowPyq"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="@dimen/eve_list_row_min"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
@@ -226,7 +227,7 @@
             <LinearLayout
                 android:id="@+id/menuRowLogout"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="@dimen/eve_list_row_min"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
@@ -240,7 +241,7 @@
                     android:background="@android:color/transparent"
                     android:contentDescription="Logout"
                     android:src="@drawable/ic_logout"
-                    app:tint="@color/selector_eve_destructive_text" />
+                    app:tint="@color/eve_label_primary" />
 
                 <TextView
                     style="@style/TextAppearance.Eve.Subheadline.Medium"
@@ -248,7 +249,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
                     android:text="Logout"
-                    android:textColor="@color/selector_eve_destructive_text" />
+                    android:textColor="@color/eve_label_primary" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

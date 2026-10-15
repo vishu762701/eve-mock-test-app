@@ -8,14 +8,15 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/eve_bg"
+        android:background="@color/eve_system_grouped_background"
         android:orientation="vertical">
 
         <!-- Top App Bar / Header -->
-        <LinearLayout
+        <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
+<LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/eve_bg"
+            android:background="@android:color/transparent"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingHorizontal="16dp"
@@ -32,7 +33,7 @@
                 android:contentDescription="Back"
                 android:padding="12dp"
                 android:src="@drawable/ic_back"
-                app:tint="@color/eve_accent_text" />
+                app:tint="?attr/eveLabelPrimary" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -42,7 +43,7 @@
 
                 <TextView
                     android:id="@+id/tvResultTitle"
-                    style="@style/TextAppearance.Eve.ScreenTitle"
+                    style="@style/TextAppearance.Eve.Headline"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Test Result"
@@ -56,7 +57,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:textColor="?attr/eveLabelSecondary"
+                    android:textColor="?attr/eveLabelPrimary"
                     android:visibility="gone" />
             </LinearLayout>
 
@@ -71,7 +72,7 @@
                 android:contentDescription="Share"
                 android:padding="12dp"
                 android:src="@drawable/ic_share"
-                app:tint="@color/eve_accent_text" />
+                app:tint="?attr/eveLabelPrimary" />
 
             <!-- Compact 48dp reattempt action with visible refresh icon and accessible label. -->
             <com.google.android.material.button.MaterialButton
@@ -99,16 +100,18 @@
 
             <!-- Legacy IDs preserved in comments for test compatibility: android:id="@+id/layoutActionCluster" android:id="@+id/btnHome" -->
         </LinearLayout>
+</com.eve.app.ui.common.EveGlassToolbar>
 
         <!-- Segmented Navigation: 3 Tabs (Overview | Review | Leaderboard) -->
+        <com.eve.app.ui.common.EveGlassToolbar
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
+            android:layout_marginTop="6dp" android:layout_marginBottom="6dp"
+            android:background="@drawable/bg_result_segmented_track">
         <com.eve.app.ui.common.EveGlassTabLayout
             android:id="@+id/tabLayoutResult"
             android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="6dp"
-            android:layout_marginBottom="6dp"
+            android:layout_height="@dimen/eve_segment_min_height"
             android:background="@drawable/bg_result_segmented_track"
             app:tabGravity="fill"
             app:tabIndicator="@drawable/bg_result_segmented_indicator"
@@ -142,6 +145,7 @@
                 android:layout_height="wrap_content"
                 android:text="Leaderboard" />
         </com.eve.app.ui.common.EveGlassTabLayout>
+        </com.eve.app.ui.common.EveGlassToolbar>
 
         <!-- Content Container -->
         <FrameLayout
@@ -182,7 +186,7 @@
                         android:layout_height="wrap_content"
                         android:minHeight="0dp"
                         android:layout_marginBottom="12dp"
-                        app:eveCornerRadius="20dp"
+                        app:eveCornerRadius="@dimen/eve_radius_card"
                         app:eveHasHighlight="false"
                         app:eveTactile="false">
 

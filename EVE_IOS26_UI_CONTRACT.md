@@ -1,208 +1,136 @@
 # Eve iOS 26 UI contract
 
-## Authority and implementation
+## Authority
 
-This shared Android foundation supersedes the monochrome-only accent direction.
-It interprets Apple's semantic design principles with Android resource qualifiers,
-Material 3, native sans-serif typography and Android drawables. UIKit, SF font
-files, Apple's vibrancy pipeline and proprietary Liquid Glass rendering are not
-Android dependencies or claimed capabilities.
+The current user authorizes full geometry migration on all screens (ADR-009:
+Full-screen iOS 26 geometry). This overrides earlier geometry-protected rules.
+Screen regions, interactions, English strings, theme reveal, Lottie assets/triggers/
+sizes and icon files remain protected. Answer-state colours remain unchanged.
 
-Official sources reviewed on October 11, 2026:
+Eve interprets Apple's design principles on Android with Material 1.12.0, resource
+qualifiers, native sans-serif and BlurView 2.0.6. No UIKit, SF font files or Apple's
+proprietary glass renderer are used. Numeric corner radii below are Eve choices;
+Apple publishes no numeric radii for this three-shape interpretation.
 
-- [Color](https://developer.apple.com/design/human-interface-guidelines/color): use
-  consistent semantic meanings, adaptive appearances and increased contrast;
-  never convey essential state through colour alone.
-- [Buttons](https://developer.apple.com/design/human-interface-guidelines/buttons):
-  distinguish primary actions by style, provide press feedback and adequate targets.
-- [Labels](https://developer.apple.com/design/human-interface-guidelines/labels):
-  primary information, supplemental secondary text, unavailable-item tertiary text,
-  and quaternary watermark emphasis; prefer system typography.
-- [Materials](https://developer.apple.com/design/human-interface-guidelines/materials):
-  glass is a distinct functional navigation/control layer; use it sparingly and
-  do not spread it into content cards.
-- [Dark Mode](https://developer.apple.com/design/human-interface-guidelines/dark-mode):
-  adaptive colours are not simple inversions; inspect both modes and increased
-  contrast, with at least 4.5:1 for readable text.
-- [WWDC25: Get to know the new design system](https://developer.apple.com/videos/play/wwdc2025/356/):
-  design-language chapter at 2:06; fixed radii, capsules whose radius is half their
-  height, and concentric inner radii obtained by subtracting parent padding.
+## Verified references
 
-The HIG pages' JavaScript shells were supplemented by Apple's official JSON at
-`https://developer.apple.com/tutorials/data/design/human-interface-guidelines/{page}.json`.
-The reference blue values requested for this task are reference colours, not a
-claim that all iOS 26 platform palette values or rendering are replicated.
-Android has no UIKit semantic resolver; our Day/Night resource roles supply the
-adaptive equivalents. The existing in-app theme toggle remains intentional.
+The official Color, Typography and Materials JSON pages were fetched and read.
+[Extracted Apple rows and source hashes](docs/ios26/APPLE_REFERENCE_ROWS.md) and
+saved JSON provide the evidence. All 12 default system colours, light and dark,
+already matched colors.xml. Core text sizes/leading in type.xml already matched
+the iOS/iPadOS Large (default) table. No type-scale change was needed.
 
-## Colour roles
+- https://developer.apple.com/tutorials/data/design/human-interface-guidelines/color.json
+- https://developer.apple.com/tutorials/data/design/human-interface-guidelines/typography.json
+- https://developer.apple.com/tutorials/data/design/human-interface-guidelines/materials.json
 
-Canonical roles live in `values/colors.xml` and `values-night/colors.xml`. Existing
-names remain supported. Recovery colours are aliases into this same foundation.
-Use a role according to its meaning, not because its HEX looks convenient.
+## Colour and backgrounds
 
-| Role / resource | Day | Night | Use |
-| --- | --- | --- | --- |
-| systemBackground / `eve_system_background` | #FFFFFF | #000000 | Main canvas |
-| secondarySystemBackground | #F2F2F7 | #1C1C1E | Secondary content / control surface |
-| tertiarySystemBackground | #FFFFFF | #2C2C2E | Nested surface |
-| systemGroupedBackground | #F2F2F7 | #000000 | Grouped area |
-| secondarySystemGroupedBackground | #FFFFFF | #1C1C1E | Group content |
-| tertiarySystemGroupedBackground | #F2F2F7 | #2C2C2E | Nested group content |
-| Primary label | #000000 | #FFFFFF | Titles, questions, values, body |
-| Secondary label | #50505A | #C5C5CC | Readable supplemental content |
-| Tertiary label | #62626D | #ABABB3 | Unavailable-item descriptions |
-| Quaternary label | #64646F | #9999A3 | Watermarks / lowest priority only |
-| Placeholder | Tertiary label | Tertiary label | Input hints; never substitute for labels |
-| Separator | #1A3C3C43 | #A6545458 | Decorative separation, alpha composited |
-| Opaque separator | #C6C6C8 | #48484A | Opaque content divider |
-| Functional outline | #74747E | #90909A | Readability, input and control boundaries |
-| Reference system blue | #007AFF | #0A84FF | Reference / graphical accent |
-| Primary interactive fill | #0062CC | #0A84FF | Prominent buttons and selected controls |
-| On-primary | #FFFFFF | #000000 | Small labels and icons on primary fill |
-| Interactive text | #005BC0 | #72B2FF | Small links, outlined actions, blue labels |
-| Accent container | #E5F1FF | #142B49 | Soft action / selection surface |
-| On-accent-container | Interactive text | Interactive text | Readable soft-action label |
-| Destructive text | #96211C | #FF9A92 | Small destructive labels / login errors |
+| Role | Light | Dark |
+|---|---|---|
+| systemBackground | #FFFFFF | #000000 |
+| secondarySystemBackground | #F2F2F7 | #1C1C1E |
+| tertiarySystemBackground | #FFFFFF | #2C2C2E |
+| systemGroupedBackground | #F2F2F7 | #000000 |
+| secondarySystemGroupedBackground | #FFFFFF | #1C1C1E |
+| tertiarySystemGroupedBackground | #F2F2F7 | #2C2C2E |
+| Primary label | #000000 | #FFFFFF |
+| Reference systemBlue / interactive blue text | #0088FF | #0091FF |
 
-Contextual fills (`eve_fill_primary` through `eve_fill_quaternary`) retain adaptive
-alpha values. Always composite them against the actual underlying surface before
-checking contrast. Use opaque input and content surfaces where readability needs
-predictability. A separator is not a functional focus outline.
+Home, Login, Test and dialog content use plain backgrounds with secondary raised
+and tertiary nested surfaces. Settings, Profile, Admin lists, Result Overview,
+Leaderboard and About use grouped backgrounds with secondary cells and tertiary
+nested surfaces. Opaque content surfaces must never acquire a blur layer.
 
-General error and offline-banner text use readable foregrounds on their existing
-status containers; their semantic test status colours remain untouched. Generic
-admin state badges use `eve_status_success_text` / `eve_status_error_text`, rather
-than reference status hues as small text. `eve_status_warning_text` supplies the
-matching readable warning foreground. These aliases reuse existing meaningful
-status foregrounds and do not turn status colours into interactive accents.
+`eve_system_blue` is the sole default interactive-blue source. Accent text,
+on-accent-container, category blue foreground, input focus stroke, selected icons
+and links resolve through aliases to it. `eve_accent_text_readable` retains unused
+#005BC0 / #72B2FF for a one-line revert of the accent alias.
 
-Small coloured text and primary filled-button roles are **accessibility-adjusted
-Android equivalents**. White on reference #007AFF is only approximately 4.02:1;
-white on #0062CC is 5.80:1. Black on Night #0A84FF is 5.76:1. Labels are opaque
-and their lightness hierarchy is intentionally stronger than faint platform
-examples, meeting AA across the supported content surfaces.
+#0088FF on white is about 3.5:1: a known user-chosen trade-off, below 4.5:1.
+Blue on some secondary/tertiary surfaces also falls below 4.5:1. Checks report
+these explicit exact-blue exceptions without weakening the threshold for other
+text. This is not a claim of AA compliance for blue text. Protected green/red
+answer-state and review colours retain their baseline values and meaning.
 
-Increased contrast uses `ThemeOverlay.Eve.HighContrast`: secondary / tertiary text
-#303038 Day and #E5E5EA Night; blue text #004A99 / #A8D1FF; outlines #484850 /
-#CBCBD2; primary fills #004A99 / #409CFF. Main canvases stay unchanged.
-`DesignContrast` applies this overlay before inflation in `EveBaseActivity` when
-Android API 34+ `UiModeManager.contrast >= 0.5`. Returning from system settings
-refreshes a changed contrast preference, while deferring during the theme reveal.
-Older Android versions retain the AA default mapping. Theme-attribute shared
-appearances, text/outlined actions and primary button selectors gain the stronger
-roles; legacy direct colour call sites retain the already AA default roles.
+## Shapes and density
 
-Existing adaptive green/red/orange colours remain tied to status, result metrics
-and meaningful categories. Do not add rainbow decoration or borrow test status
-colours for general interaction. This task does not expand category colour use.
+| Shape | Components | Eve implementation |
+|---|---|---|
+| Capsule | Buttons, chips, segmented tracks and thumbs, single-line search/filter fields, switches, sliders, badges, floating actions and navigation/tab containers | `ShapeAppearance.Eve.Capsule`, cornerSize 50%; XML drawable fallback `eve_radius_pill` saturates to half bounds |
+| Fixed | Cards, grouped containers, tiles, popup menus | 26dp |
+| Fixed modal | Sheets and dialogs | 34dp; bottom sheets have top corners only |
+| Concentric | Nested surfaces and multiline/form fields | max(4dp, parent radius minus actual padding); 26−12=14dp, 34−16=18dp |
+
+`dimens.xml`, ShapeAppearance styles and `EveShapes.concentric` centralize geometry.
+Touch targets are at least 48dp; list rows have a 52dp minimum. Result uses a
+56dp segmented track so its 4dp insets leave 48dp targets. Preserve screen
+regions and existing responsive sizing. Do not place decorative circles, rings
+or tiles behind Lottie animations. Shape fill, outline and clipping must agree.
+
+## Material scope
+
+Glass is restricted to four categories: navigation/top bars, tab bars, popup menus,
+and modal sheets/dialogs. Cards, exam/result cards, list rows, banners and drawer
+content are opaque. The Sign In prompt's outside area stays undimmed and unblurred.
+
+EveGlassToolbar uses the thin approximation and EveBlurHelper with BlurView's
+RenderEffect engine on API 31+;
+foreground children are drawn after the backdrop. Lower APIs use an opaque tint.
+Popup RenderEffect is applied only to the captured background ImageView.
+Floating dialogs use API 31 window-background blur clipped to their background shape;
+GlassmorphismHelper retains window-local lifecycle ownership for sheet blur.
+EveGlassPill uses semantic primary text and a capsule; a pill alone does not enable blur.
+
+Material tokens are documented Android approximations, not Apple numeric values:
+
+| Token | Light tint | Dark tint |
+|---|---|---|
+| ultraThin | #CCFFFFFF | #CC1C1C1E |
+| thin | #D9FFFFFF | #D91C1C1E |
+| regular | #E6FFFFFF | #E61C1C1E |
+| thick | #F2FFFFFF | #F21C1C1E |
+
+Their raised alpha preserves at least 4.5:1 for primary labels against even an
+opposing black/white backdrop. Text, icons and Lottie foregrounds are never blurred.
+Use primary labels on glass. Device compositor behavior requires native evidence;
+source-level contrast calculations alone do not verify hardware rendering.
 
 ## Typography
 
-Use `TextAppearance.Eve.*` and the same semantic M3 mappings. Android `sans-serif`
-and `sans-serif-medium` support platform shaping and user font scaling; no Apple
-font files are imported. Display 34sp bold, titles 28/22/20sp, headline 17sp
-medium, body 17sp, callout 16sp, supplemental 15sp, footnote 13sp and captions
-12/11sp are reusable roles. Compact buttons use medium weight.
+Use semantic `TextAppearance.Eve.*` roles in sp. The verified default sizes are
+34/28/22/20/17/17/16/15/13/12/11 for Large Title through Caption 2. Headline is
+semibold (Android medium-family approximation). Top-level titles use Large Title;
+pushed-screen headers use Headline, 17sp. Preserve the Eve/Device font switch and
+independent test-question fitting. Avoid local numeric text-size or literal colour overrides.
 
-Importance is independent of font size: small answer labels remain primary;
-metadata remains secondary and readable. Do not reduce view alpha to make text
-secondary. Tertiary and quaternary are not ordinary metadata defaults. Device-font
-preferences and the test engine's independently fitted question typography remain
-supported. Do not force shared body sizing into the fixed test viewport.
+## Verification
 
-## Shape and component rules
+Preserve protected palette snapshots and native behavior tests. Update superseded
+geometry assertions to the authorized contract; never suppress unrelated failures.
+Run XML parsing, design-system checks, script tests, Android unit tests, lint, APK
+and instrumentation compilation. Both gesture and three-button native suites and
+visual evidence enforcement must pass before publishing the sole Eve-debug-apk
+artifact. Inspect light/dark evidence, verify the pushed main SHA and Actions status.
+Any missing device, screenshot or authenticated-flow evidence must be reported plainly.
 
-| Component | Shared rule |
-| --- | --- |
-| Primary, neutral, soft and outlined action | `ShapeAppearance.Eve.Capsule`, 50% radius based on actual height; 48dp minimum target, balanced inherited Material padding |
-| XML drawable capsule | `eve_radius_pill` saturation fallback; Android rendering clamps to half the bounds |
-| Circular icon button | Capsule on equal width/height, 48dp target and 12dp padding; labelled content must not be placed in a forced circle |
-| Content card / tile | Fixed 20dp corner; opaque surface, subtle single outline; 1.5dp light elevation, 0dp Night |
-| Input | Fixed 12dp; dedicated functional outline / focused blue; filled input focus state retained |
-| Category chip | Capsule with explicit checked colour and outline states; a checked chip is distinguished by fill and label |
-| Target / recovery chip | Fixed 12dp for dense wrapping, 40dp visual height and 48dp touch target |
-| Segmented track / child | 14dp parent; 3dp inset and 11dp child; avoid capsule child in a pinched fixed-radius track |
-| Sheet / dialog | Fixed 28dp; sheet top corners only, dialog all corners; keep actual functional glass chrome |
-| Popup menu | Fixed 16dp, opaque readable surface and one subtle outline |
-| Switch | Checked blue track and white graphical thumb (at least 3:1); neutral unchecked track; dedicated outline and disabled mapping |
+## Shared foundation retained
 
-Concentric example: a 28dp container with a 16dp inset input yields a 12dp inner
-radius. Use `max(0, parentRadius - inset)` when the child actually shares the
-parent's center. Do not apply that equation to unrelated side-by-side controls.
-Material fill and clipping use one shape model. Retain borders for focus,
-selection and readability. Never stack an XML outline over a Material outline.
-Buttons retain the existing tactile animator and Material ripple; explicit
-disabled foregrounds keep all button roles readable. Historical Lilac/Orange
-button names inherit Soft/Primary states rather than overriding them with static
-colours. Filled reattempt actions omit an unnecessary decorative outline; outlined
-actions retain their functional border. Focused field hints and Material error
-labels use accessible text roles, independently of reference accent/status hues. Cards remain content surfaces,
-not additional glass controls.
+`Theme.Eve.Foundation` continues to own the 26 semantic colour attributes, shared
+Material typography, widgets, disabled states and surface hierarchy. Existing
+Recovery names remain aliases into this foundation. General error/offline text
+and protected test states keep their own semantic colours; blue is an interaction
+role. The higher-contrast overlay retains stronger labels, outlines and fills;
+its blue-text alias follows the current user's systemBlue choice.
 
-`values/themes.xml` owns shared M3 colour/typography/widget/dialog definitions,
-including the complete surface-container hierarchy and tertiary control fallback.
-Disabled Read labels retain their disabled behaviour and use opaque readable text,
-rather than fading text alpha on an outlined control.
-`values-night/themes.xml` supplies appearance-specific window flags and the dark
-bottom-sheet parent. The shared foundation eliminates duplicated Night widget
-styles. Historical Recovery resource names remain compatibility aliases/styles,
-not an independent design system.
+Importance remains independent of type size. Supplemental metadata stays readable,
+answer labels stay primary, and question fitting retains its own measured viewport.
+The Eve/Device preference remains implemented by FontManager and the device-font
+overlay. No font assets or preference logic change in this migration.
 
-## Protected boundaries
-
-- Preserve the checked-in right/wrong/medium/marked colours, including legacy
-  result tile variants and `approved_ui_colors.xml` test-specific mappings.
-  Historical prose has conflicting HEX values; actual baseline resources and the
-  regression fixture govern preservation for this task.
-- Preserve `eve_test_shape_border`, monochrome test navigation and timer,
-  `eve_test_selected` #34C759, and `eve_test_review` #FFCC00.
-- Preserve rigid test-engine geometry, option semantics, answer visibility,
-  server scoring/submission, authentication and backend logic.
-- Preserve the Telegram-style circular theme reveal, system-bar synchronization,
-  and functional BlurView/glass chrome. No new glass content cards.
-- UI Studio is retired and outside scope. Single-role colour-reference corrections
-  in dependent layouts are not authorization for screen-by-screen redesign.
-
-## Verification gate
-
-- Parse resource XML; AAPT/Gradle compile proves references and theme attributes.
-- Resolve aliases and Day/Night overrides; composite foreground and background
-  alpha against the real canvas before checking 4.5:1 normal text and 3:1 important
-  graphics. Decorative separators and protected test colours have distinct roles.
-- Run `python3 -B .github/scripts/check_design_system.py` and script regressions.
-  Protected colour snapshots must remain unchanged. Do not lower thresholds to
-  accommodate a failing new role.
-- Run `./gradlew testDebugUnitTest assembleDebug lintDebug assembleDebugAndroidTest`.
-  Replace the superseded monochrome-only assertion with blue/AA assertions.
-- Native `SharedDesignSystemTest` inflates actual shared widget styles and checks
-  capsule geometry, opaque cards, disabled labels, resolved colours and contrast.
-  Capture Day/Night plus increased-contrast component PNGs. The runner also emits
-  these four deterministic fixture PNGs as base64 between `EVE_DESIGN_PNG_BEGIN`
-  and `EVE_DESIGN_PNG_END` markers in job logs, for reviewers who cannot reach the
-  artifact storage host. This fallback excludes live activity screenshots and user
-  data. Existing tests cover
-  production fixtures, font scales, test integrity, target selection and reveal.
-- Require both gesture and three-button native CI jobs and visual gallery evidence
-  enforcement. Review native PNGs; source inspection alone is not visual proof.
-  Shared component PNGs are native Canvas fixtures, not live authenticated flows;
-  existing recovery screenshots use hardware full-window captures. Neither claims
-  Apple rendering or production authentication/network verification.
-- Review the full diff, `git diff --check`, safely reconcile remote main, push without
-  force, then confirm exact remote SHA and Actions conclusions.
-
-## Student-screen application (Task 2)
-
-See [EVE_STUDENT_UI_COVERAGE.md](EVE_STUDENT_UI_COVERAGE.md) for the production
-Activity/layout/adapter trace, changed/retained decisions, capture names and
-verification limits. `Widget.Eve.Card.Group`, `.Content` and `.Inset` reuse this
-foundation for grouped rows, standard content and nested surfaces; they do not
-create another palette. Focusable outlined forms use the canonical 12dp field
-shape and 1dp/2dp idle/focus boundary. Practice/PYQ use shared measured actions and
-year capsules. Analytics rows use the production `ResultAnalysisRows` binder in
-both the Activity and native evidence, including narrow/enlarged-font reflow.
-
-The student evidence gate requires both themes for every major presentation path,
-additional large-font and scrolled captures, and existing full-window navigation,
-reveal and protected test regression evidence. Fixture data cannot verify live
-account, payment, downloaded image or external-app states.
+Production screen traces and the earlier native-fixture methodology remain in
+[EVE_STUDENT_UI_COVERAGE.md](EVE_STUDENT_UI_COVERAGE.md) and
+[EVE_ADMIN_UI_COVERAGE.md](EVE_ADMIN_UI_COVERAGE.md). Their older numeric shape or
+Home-background descriptions are superseded by this contract and ADR-009. Canvas
+fixtures, full-window screenshots and authenticated production flows are distinct
+forms of evidence; report them separately.

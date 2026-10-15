@@ -8,10 +8,11 @@
     android:orientation="vertical">
 
     <!-- Top App Bar / Header -->
-    <LinearLayout
+    <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
+<LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_bg"
+        android:background="@android:color/transparent"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="16dp"
@@ -27,7 +28,7 @@
             android:contentDescription="Back"
             android:padding="12dp"
             android:src="@drawable/ic_back"
-            app:tint="@color/eve_accent_text" />
+            app:tint="?attr/eveLabelPrimary" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -37,7 +38,7 @@
 
             <TextView
                 android:id="@+id/tvDetailTitle"
-                style="@style/TextAppearance.Eve.ScreenTitle"
+                style="@style/TextAppearance.Eve.Headline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Details"
@@ -49,10 +50,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:textColor="?attr/eveLabelSecondary"
+                android:textColor="?attr/eveLabelPrimary"
                 android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
+</com.eve.app.ui.common.EveGlassToolbar>
 
     <View
         android:layout_width="match_parent"

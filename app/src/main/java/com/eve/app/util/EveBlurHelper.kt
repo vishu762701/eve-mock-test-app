@@ -63,22 +63,22 @@ object EveBlurHelper {
         radiusDp: Float = DEFAULT_BLUR_RADIUS_DP,
         overlayColor: Int? = null
     ) {
+        val tint = overlayColor ?: androidx.core.content.ContextCompat.getColor(
+            blurView.context, com.eve.app.R.color.eve_material_regular)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            blurView.setBackgroundColor(androidx.core.graphics.ColorUtils.setAlphaComponent(tint, 255))
+            return
+        }
         try {
-            val facade = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                blurView.setupWith(rootView, RenderEffectBlur())
-            } else {
-                blurView.setupWith(rootView)
-            }
-
-            facade.setFrameClearDrawable(blurView.background)
+            blurView.setupWith(rootView, RenderEffectBlur())
+                .setFrameClearDrawable(android.graphics.drawable.ColorDrawable(
+                    androidx.core.content.ContextCompat.getColor(blurView.context, com.eve.app.R.color.eve_system_background)))
                 .setBlurRadius(radiusDp.coerceIn(1f, 25f))
                 .setBlurAutoUpdate(true)
-
-            if (overlayColor != null) {
-                facade.setOverlayColor(overlayColor)
-            }
-        } catch (t: Throwable) {
-            android.util.Log.w("EveBlurHelper", "BlurView setup skipped: ${t.message}")
+                .setOverlayColor(tint)
+        } catch (t: RuntimeException) {
+            android.util.Log.w("EveBlurHelper", "Using opaque chrome fallback", t)
+            blurView.setBackgroundColor(androidx.core.graphics.ColorUtils.setAlphaComponent(tint, 255))
         }
     }
 

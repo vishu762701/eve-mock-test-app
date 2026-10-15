@@ -10,7 +10,8 @@
     android:layout_height="wrap_content"
     android:clickable="true"
     android:focusable="true"
-    app:rippleColor="@color/eve_ripple">
+    app:rippleColor="@color/eve_ripple"
+    android:minHeight="@dimen/eve_list_row_min">
 
     <com.eve.app.ui.result.ResponsiveResultRow
         android:layout_width="match_parent"

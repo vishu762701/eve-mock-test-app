@@ -12,11 +12,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Build
-import com.eve.app.util.FastBlurHelper
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -303,7 +300,7 @@ class MainActivity : EveBaseActivity() {
         )
 
         com.eve.app.util.EveTouchHelper.attachTactileFeedback(binding.ivProfile) {
-            captureDrawerBlur()
+            prepareDrawerSurface()
             binding.drawerLayout.openDrawer(GravityCompat.START)
         }
         loadProfilePhoto(user)
@@ -674,6 +671,7 @@ class MainActivity : EveBaseActivity() {
 
     private fun handleFeedbackPostLongClick(post: com.eve.app.data.model.FeedbackPost) {
         val email = FirebaseAuth.getInstance().currentUser?.email
+
         lifecycleScope.launch(lifecycleExceptionHandler) {
             if (adminRepo.isAdmin(email)) {
                 com.google.android.material.dialog.MaterialAlertDialogBuilder(this@MainActivity)
@@ -921,14 +919,7 @@ class MainActivity : EveBaseActivity() {
 
     private fun setupHomeBannerSurface() {
         HomeAppearance.clipBanner(binding.panelHomeBanner)
-        binding.blurHomeBannerMaterial.outlineProvider = binding.panelHomeBanner.outlineProvider
-        binding.blurHomeBannerMaterial.clipToOutline = true
-        com.eve.app.util.EveBlurHelper.setupBlurView(
-            binding.blurHomeBannerMaterial,
-            binding.root,
-            radiusDp = resources.getDimension(R.dimen.eve_thin_material_blur_radius) / resources.displayMetrics.density,
-            overlayColor = ContextCompat.getColor(this, R.color.eve_material_thin)
-        )
+        binding.blurHomeBannerMaterial.setBackgroundColor(ContextCompat.getColor(this, R.color.eve_secondary_system_background))
     }
 
     private fun renderHomeBannerCta(position: Int) {
@@ -1113,66 +1104,36 @@ class MainActivity : EveBaseActivity() {
         goToLogin()
     }
 
-    private var drawerBlurBitmap: Bitmap? = null
-
-    private fun captureDrawerBlur() {
-        if (drawerBlurBitmap != null) return
-        try {
-            val container = binding.mainContentContainer
-            if (container.width <= 0 || container.height <= 0) return
-
-            val drawerW = binding.navDrawerPanel.width.takeIf { it > 0 }
-                ?: (290 * resources.displayMetrics.density).toInt()
-            val drawerH = container.height
-
-            val scale = 4
-            val sampleW = (drawerW / scale).coerceAtLeast(1)
-            val sampleH = (drawerH / scale).coerceAtLeast(1)
-
-            val bmp = Bitmap.createBitmap(sampleW, sampleH, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(bmp)
-            canvas.scale(1f / scale, 1f / scale)
-            container.draw(canvas)
-
-            val blurred = FastBlurHelper.blur(bmp, radius = 20, canReuseInBitmap = true)
-            drawerBlurBitmap = blurred
-            binding.ivDrawerGlassBlurBackground.setImageBitmap(blurred)
-        } catch (_: Throwable) {
-            // Fallback gracefully
-        }
+    private fun prepareDrawerSurface() {
+        // Drawer content is opaque; retain listener and animation ownership unchanged.
+        binding.ivDrawerGlassBlurBackground.setImageDrawable(null)
+        binding.ivDrawerGlassBlurBackground.setBackgroundColor(
+            ContextCompat.getColor(this, R.color.eve_secondary_system_background))
     }
 
     private fun setupDrawer(user: com.google.firebase.auth.FirebaseUser) {
         updateDrawerHeader(user)
+        prepareDrawerSurface()
 
         val isDark = ThemeManager.isDarkMode(this)
-        // Frosted glass translucent scrim allowing underlying content to remain sharp and visible outside drawer
+        // The existing outside scrim preserves the drawer interaction.
         val scrimColor = ContextCompat.getColor(this, R.color.eve_drawer_scrim)
         binding.drawerLayout.setScrimColor(scrimColor)
 
-        // Clip drawer panel rounded right edge (24dp) so blur background and tint conform to rounded corners
+        // Drawer clipping follows the shared fixed-card shape.
         binding.navDrawerPanel.outlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View, outline: Outline) {
-                val radius = 24 * resources.displayMetrics.density
+                val radius = com.eve.app.util.EveShapes.card(resources)
                 outline.setRoundRect(-radius.toInt(), 0, view.width, view.height, radius)
             }
         }
         binding.navDrawerPanel.clipToOutline = true
 
-        // Scoped frosted-glass blur: blur ONLY the drawer panel, never the rest of the screen
+        // Drawer animation ownership stays here; the drawer surface is opaque.
         binding.drawerLayout.addDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
                 if (slideOffset > 0f) {
-                    if (drawerBlurBitmap == null) {
-                        captureDrawerBlur()
-                    }
                     binding.lottieDrawerPremiumStar.setPaused(false)
-                }
-            }
-
-            override fun onDrawerStateChanged(newState: Int) {
-                if ((newState == DrawerLayout.STATE_DRAGGING || newState == DrawerLayout.STATE_SETTLING) && drawerBlurBitmap == null) {
-                    captureDrawerBlur()
                 }
             }
 
@@ -1182,7 +1143,6 @@ class MainActivity : EveBaseActivity() {
 
             override fun onDrawerClosed(drawerView: View) {
                 binding.ivDrawerGlassBlurBackground.setImageDrawable(null)
-                drawerBlurBitmap = null
                 binding.lottieDrawerPremiumStar.setPaused(true)
             }
         })
@@ -1196,7 +1156,7 @@ class MainActivity : EveBaseActivity() {
             com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, ProfileActivity::class.java), binding.ivDrawerAvatar)
         }
 
-        val drawerRowRadiusDp = 12f
+        val drawerRowRadiusDp = resources.getDimension(R.dimen.eve_radius_input) / resources.displayMetrics.density
         val drawerRows = listOf(
             binding.layoutDrawerProfile,
             binding.layoutDrawerPremium,

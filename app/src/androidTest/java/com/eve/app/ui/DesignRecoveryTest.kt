@@ -137,7 +137,7 @@ class DesignRecoveryTest {
                     readable(result.tvAccuracy)
                     val outline = Outline()
                     hero.outlineProvider.getOutline(hero, outline)
-                    assertEquals(20f * d, outline.radius, 0.01f)
+                    assertEquals(26f * d, outline.radius, 0.01f)
                     // A radius change must update both pixels and clipping without requiring a size change.
                     val shape = EveLiquidGlassView(context)
                     layout(shape, 200, 100)
@@ -387,7 +387,7 @@ class DesignRecoveryTest {
                                 com.eve.app.data.model.Exam(id = "render-exam-$i", examName = "Practice test ${i + 1}", category = "SSC"), false) })
                         }
                         val frame = android.widget.FrameLayout(activity).apply {
-                            setBackgroundColor(activity.getColor(R.color.eve_system_grouped_background))
+                            setBackgroundColor(activity.getColor(R.color.eve_system_background))
                             addView(home.root, android.widget.FrameLayout.LayoutParams(Math.round(360f * resources.displayMetrics.density),
                                 ViewGroup.LayoutParams.MATCH_PARENT, android.view.Gravity.CENTER_HORIZONTAL))
                         }
@@ -396,7 +396,7 @@ class DesignRecoveryTest {
                     instrumentation.waitForIdleSync()
                     capture("home-360dp", dark, home.root, scenario)
                     scenario.onActivity { activity ->
-                        val canvas = activity.getColor(R.color.eve_system_grouped_background)
+                        val canvas = activity.getColor(R.color.eve_system_background)
                         assertEquals("Home root", canvas,
                             (home.root.background as android.graphics.drawable.ColorDrawable).color)
                         assertEquals("Home content", canvas,
@@ -409,7 +409,7 @@ class DesignRecoveryTest {
                             (home.contentSheet.background as android.graphics.drawable.GradientDrawable).color!!.defaultColor)
                         assertEquals("Home no overlapping sheet", 0,
                             (home.contentSheet.layoutParams as android.widget.LinearLayout.LayoutParams).topMargin)
-                        val groupedCard = activity.getColor(R.color.eve_secondary_system_grouped_background)
+                        val groupedCard = activity.getColor(R.color.eve_secondary_system_background)
                         assertEquals("Streak pill uses a distinct Home grouped card surface", groupedCard,
                             (home.layoutStreakPill.background as android.graphics.drawable.GradientDrawable).color!!.defaultColor)
                         assertEquals("Admin button uses the distinct Home grouped card surface", groupedCard,
@@ -428,7 +428,7 @@ class DesignRecoveryTest {
                     var bannerHeight = 0
                     scenario.onActivity {
                         home.panelHomeBanner.getLocationOnScreen(bannerPosition)
-                        canvasColor = it.getColor(R.color.eve_system_grouped_background)
+                        canvasColor = it.getColor(R.color.eve_system_background)
                         bannerWidth = home.panelHomeBanner.width
                         bannerHeight = home.panelHomeBanner.height
                     }

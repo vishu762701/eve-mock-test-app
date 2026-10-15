@@ -113,20 +113,10 @@ jobs:
         run: |
           python3 .github/scripts/eve_visual_review.py --captures ui-renderings --source app/src/main/res --output ui-renderings
           echo "### Eve Visual Evidence" >> "$GITHUB_STEP_SUMMARY"
-          echo "The native UI artifact contains visual-review.html and visual-review.json alongside fixture screenshots." >> "$GITHUB_STEP_SUMMARY"
+          echo "The runner generates visual-review.html and visual-review.json; selected fixture PNGs are emitted in job logs. Only the verified APK is uploaded." >> "$GITHUB_STEP_SUMMARY"
       - name: Enforce complete theme evidence when native tests pass
         if: success()
         run: python3 .github/scripts/eve_visual_review.py --captures ui-renderings --source app/src/main/res --output ui-renderings --enforce
-      - uses: actions/upload-artifact@v4
-        if: ${{ failure() || github.event_name == 'workflow_dispatch' }}
-        with:
-          name: approved-ui-verification-${{ matrix.navigation }}
-          path: |
-            ui-renderings/
-            app/build/reports/androidTests/
-            app/build/outputs/androidTest-results/
-          retention-days: 7
-          if-no-files-found: warn
 
   backend:
     runs-on: ubuntu-latest

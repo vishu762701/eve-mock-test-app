@@ -9,11 +9,12 @@
     android:background="@color/eve_system_grouped_background">
 
     <!-- Top App Bar -->
-    <LinearLayout
+    <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
+<LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="56dp"
-        android:background="@color/eve_bg"
+        android:background="@android:color/transparent"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="4dp"
@@ -27,7 +28,7 @@
             android:contentDescription="Back"
             android:padding="12dp"
             android:src="@drawable/ic_back"
-            app:tint="@color/eve_accent_text" />
+            app:tint="?attr/eveLabelPrimary" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -37,7 +38,7 @@
             android:paddingStart="4dp">
 
             <TextView
-                style="@style/TextAppearance.Eve.ScreenTitle"
+                style="@style/TextAppearance.Eve.Headline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
@@ -50,12 +51,13 @@
                 style="@style/TextAppearance.Eve.BodySmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="?attr/eveLabelSecondary"
+                android:textColor="?attr/eveLabelPrimary"
                 android:visibility="gone"
                 tools:text="3 questions saved"
                 tools:visibility="visible" />
         </LinearLayout>
     </LinearLayout>
+</com.eve.app.ui.common.EveGlassToolbar>
 
     <View
         android:layout_width="match_parent"

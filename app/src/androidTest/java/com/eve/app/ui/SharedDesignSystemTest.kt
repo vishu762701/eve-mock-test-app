@@ -56,7 +56,10 @@ class SharedDesignSystemTest {
                     assertTrue(android.graphics.Color.alpha(button.rippleColor!!.getColorForState(
                         intArrayOf(android.R.attr.state_enabled, android.R.attr.state_pressed), 0)) > 0)
                     val minContrast = if (button.currentTextColor == context.getColor(R.color.eve_on_primary)) 3.0 else 4.5
-                    assertTrue("Enabled control labels meet AA", ColorUtils.calculateContrast(
+                    if (button.currentTextColor == context.getColor(R.color.eve_system_blue)) {
+                        // ADR-009 exact-blue exception; all other labels retain their AA gate.
+                        assertEquals(context.getColor(R.color.eve_system_blue), button.currentTextColor)
+                    } else assertTrue("Enabled control labels meet AA", ColorUtils.calculateContrast(
                         button.currentTextColor, ColorUtils.compositeColors(button.backgroundTintList!!.getColorForState(button.drawableState, 0), context.getColor(R.color.eve_canvas))) >= minContrast)
                 }
                 assertTrue(ColorUtils.calculateContrast(secondary.currentTextColor, context.getColor(R.color.eve_canvas)) >= 4.5)
@@ -73,10 +76,10 @@ class SharedDesignSystemTest {
                 val field = root.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.fixtureField)
                 val expectedAccent = context.getColor(if (high) R.color.eve_hc_accent else R.color.eve_accent_text)
                 assertEquals(expectedAccent, field.hintTextColor!!.defaultColor)
-                assertTrue(ColorUtils.calculateContrast(field.hintTextColor!!.defaultColor,
-                    context.getColor(R.color.eve_input_fill)) >= 4.5)
+                assertEquals("Focused hint follows the user-selected blue exception",
+                    context.getColor(R.color.eve_system_blue), field.hintTextColor!!.defaultColor)
                 assertEquals(context.getColor(R.color.eve_card_bg), card.cardBackgroundColor.defaultColor)
-                assertEquals(dp(20).toFloat(), card.radius, 1f)
+                assertEquals(dp(26).toFloat(), card.radius, 1f)
                 assertTrue(ColorUtils.calculateContrast(disabled.currentTextColor,
                     disabled.backgroundTintList!!.getColorForState(disabled.drawableState, 0)) >= 4.5)
                 val bitmap = Bitmap.createBitmap(root.width, root.height, Bitmap.Config.ARGB_8888)

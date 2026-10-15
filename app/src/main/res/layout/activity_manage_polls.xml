@@ -7,25 +7,26 @@
     android:orientation="vertical">
 
     <!-- Top Bar -->
-    <LinearLayout
+    <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
+<LinearLayout
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:background="@color/eve_bg"
+        android:background="@android:color/transparent"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="16dp">
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Back"
             android:src="@drawable/ic_back"
             app:tint="@color/eve_text" />
 
         <TextView
-            style="@style/TextAppearance.Eve.ScreenTitle"
+            style="@style/TextAppearance.Eve.Headline"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
@@ -37,10 +38,11 @@
             style="@style/Widget.Eve.Button"
             android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
             android:layout_width="wrap_content"
-            android:layout_height="38dp"
+            android:layout_height="48dp"
             android:paddingHorizontal="12dp"
             android:text="+ New Poll" />
     </LinearLayout>
+</com.eve.app.ui.common.EveGlassToolbar>
 
     <FrameLayout
         android:layout_width="match_parent"

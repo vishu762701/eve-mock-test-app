@@ -11,7 +11,7 @@
         android:orientation="vertical">
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Eve.TextInput.Outlined"
+            style="@style/Widget.Eve.TextInput.Modal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Question Text">
@@ -25,7 +25,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Eve.TextInput.Outlined"
+            style="@style/Widget.Eve.TextInput.Modal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -38,7 +38,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Eve.TextInput.Outlined"
+            style="@style/Widget.Eve.TextInput.Modal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -51,7 +51,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Eve.TextInput.Outlined"
+            style="@style/Widget.Eve.TextInput.Modal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -64,7 +64,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Eve.TextInput.Outlined"
+            style="@style/Widget.Eve.TextInput.Modal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -121,7 +121,7 @@
         </RadioGroup>
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Eve.TextInput.Outlined"
+            style="@style/Widget.Eve.TextInput.Modal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -134,7 +134,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Eve.TextInput.Outlined"
+            style="@style/Widget.Eve.TextInput.Modal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"

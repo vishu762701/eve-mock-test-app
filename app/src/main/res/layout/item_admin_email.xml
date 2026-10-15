@@ -4,7 +4,8 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingVertical="8dp">
+    android:paddingVertical="8dp"
+    android:minHeight="@dimen/eve_list_row_min">
 
     <TextView
         android:id="@+id/tvEmail"

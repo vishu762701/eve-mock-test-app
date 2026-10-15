@@ -105,13 +105,15 @@
         <item name="android:windowAnimationStyle">@style/Eve.WindowAnimation</item>
     </style>
 
-    <style name="Theme.Eve.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+    <style name="Theme.Eve.Dialog.Base" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="shapeAppearance">@style/ShapeAppearance.Eve.Dialog</item>
-        <item name="colorSurface">@color/eve_card_bg</item>
+        <item name="colorSurface">@color/eve_modal_material</item>
         <item name="android:windowBackground">@drawable/bg_dialog_liquid_glass</item>
         <item name="buttonBarPositiveButtonStyle">@style/Widget.Eve.TextButton</item>
         <item name="buttonBarNegativeButtonStyle">@style/Widget.Eve.TextButton</item>
     </style>
+
+    <style name="Theme.Eve.Dialog" parent="Theme.Eve.Dialog.Base" />
 
     <style name="ShapeAppearance.Eve.Dialog" parent="">
         <item name="cornerFamily">rounded</item>
@@ -126,7 +128,7 @@
     </style>
 
     <style name="Widget.Eve.BottomSheet.Modal" parent="Widget.Material3.BottomSheet.Modal">
-        <item name="backgroundTint">@color/eve_card_bg</item>
+        <item name="backgroundTint">@color/eve_modal_material</item>
         <item name="shapeAppearance">@style/ShapeRoundedBottomSheet</item>
     </style>
 
@@ -163,7 +165,7 @@
         <item name="textAppearanceLabelSmall">@style/TextAppearance.Eve.DeviceFont.LabelSmall</item>
     </style>
     <style name="ShapeCircle" parent=""><item name="cornerFamily">rounded</item><item name="cornerSize">50%</item></style>
-    <style name="ShapeRounded14" parent=""><item name="cornerFamily">rounded</item><item name="cornerSize">14dp</item></style>
+    <style name="ShapeRounded14" parent=""><item name="cornerFamily">rounded</item><item name="cornerSize">@dimen/eve_radius_input</item></style>
 
     <style name="Eve.WindowAnimation" parent="@android:style/Animation.Activity">
         <item name="android:activityOpenEnterAnimation">@anim/fluid_scale_enter</item>

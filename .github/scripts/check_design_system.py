@@ -44,6 +44,7 @@ def contrast(fg, bg, canvas='#FFFFFF'):
 
 def verify():
     rows = []
+    palettes = {theme: colors(theme) for theme in ['values', 'values-night']}
     backgrounds = ['eve_system_background','eve_secondary_system_background','eve_tertiary_system_background',
                    'eve_system_grouped_background','eve_secondary_system_grouped_background','eve_tertiary_system_grouped_background',
                    'eve_input_fill','eve_recovery_surface']
@@ -61,13 +62,28 @@ def verify():
         for bg in backgrounds:
             rows.append((theme,'eve_control_outline',bg,contrast(c['eve_control_outline'],c[bg],c['eve_canvas']),3.))
         assert c['eve_canvas'] == ('#FFFFFF' if theme == 'values' else '#000000')
-    failures = [row for row in rows if row[3] < row[4]]
+    # ADR-009: user explicitly chooses exact systemBlue over AA for blue text.
+    # Keep measured ratios and the 4.5 target; exempt only named aliases at the exact verified value.
+    blue_roles = {'eve_accent_text', 'eve_button_soft_text', 'eve_recovery_accent', 'eve_hc_accent'}
+    def chosen_blue(row):
+        theme, fg, _, _, _ = row
+        return fg in blue_roles and palettes[theme][fg] == ('#0088FF' if theme == 'values' else '#0091FF')
+    failures = [row for row in rows if row[3] < row[4] and not chosen_blue(row)]
+    for row in rows:
+        if row[3] < row[4] and chosen_blue(row):
+            print(f'USER-CHOSEN BLUE EXCEPTION: {row[0]} {row[1]} / {row[2]} = {row[3]:.2f}:1 (AA target {row[4]}:1)')
+    for theme in ['values', 'values-night']:
+        c = colors(theme)
+        for material in ['ultra_thin', 'thin', 'regular', 'thick']:
+            for backdrop in ['#000000', '#FFFFFF']:
+                ratio = contrast(c['eve_label_primary'], c['eve_material_' + material], backdrop)
+                assert ratio >= 4.5, (theme, material, backdrop, ratio)
     if failures:
         raise AssertionError(json.dumps(failures,indent=2))
     return rows
 
 if __name__ == '__main__':
     rows = verify()
-    print(f'PASS: {len(rows)} composited semantic contrast pairs; minimum text {min(r[3] for r in rows if r[4] == 4.5):.2f}:1')
+    print(f'PASS: required contrast checks across {len(rows)} measured pairs; explicit system-blue exceptions are listed above and do not meet AA.')
     for theme,fg,bg,ratio,_ in rows:
         if bg == 'eve_primary': print(f'{theme}: {fg} / {bg} = {ratio:.2f}:1')

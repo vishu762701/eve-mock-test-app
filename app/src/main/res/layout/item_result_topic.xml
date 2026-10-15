@@ -5,7 +5,8 @@
     android:layout_height="wrap_content"
     android:background="@drawable/bg_student_inset"
     android:gravity="center_vertical"
-    android:padding="12dp">
+    android:padding="12dp"
+    android:minHeight="@dimen/eve_list_row_min">
     <TextView
         android:id="@+id/tvTopicName"
         style="@style/TextAppearance.Eve.Callout"

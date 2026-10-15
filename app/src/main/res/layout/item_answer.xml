@@ -445,7 +445,7 @@
                     android:layout_height="16dp"
                     android:contentDescription="Key Points"
                     android:src="@drawable/ic_key"
-                    app:tint="@color/eve_primary" />
+                    app:tint="@color/eve_system_blue" />
 
                 <TextView
                     style="@style/TextAppearance.Eve.Eyebrow"

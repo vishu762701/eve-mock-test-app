@@ -8,10 +8,11 @@
     android:orientation="vertical">
 
     <!-- Top App Bar -->
-    <LinearLayout
+    <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
+<LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_bg"
+        android:background="@android:color/transparent"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="16dp"
@@ -19,8 +20,8 @@
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Back"
             android:padding="8dp"
@@ -35,7 +36,7 @@
             android:orientation="vertical">
 
             <TextView
-                style="@style/TextAppearance.Eve.ScreenTitle"
+                style="@style/TextAppearance.Eve.Headline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Manage Syllabus" />
@@ -45,7 +46,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Upload, assign and manage syllabus PDFs"
-                android:textColor="@color/eve_text_secondary" />
+                android:textColor="@color/eve_label_primary" />
         </LinearLayout>
 
         <ProgressBar
@@ -55,6 +56,7 @@
             android:indeterminate="true"
             android:visibility="gone" />
     </LinearLayout>
+</com.eve.app.ui.common.EveGlassToolbar>
 
     <View
         android:layout_width="match_parent"
@@ -139,7 +141,7 @@
                             android:layout_height="22dp"
                             android:contentDescription="PDF file"
                             android:src="@drawable/ic_description"
-                            app:tint="@color/eve_primary" />
+                            app:tint="@color/eve_system_blue" />
 
                         <TextView
                             style="@style/TextAppearance.Eve.Footnote.Medium"
@@ -155,8 +157,8 @@
 
                         <ImageButton
                             android:id="@+id/btnClearSelectedPdf"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
                             android:background="?attr/selectableItemBackgroundBorderless"
                             android:contentDescription="Clear"
                             android:padding="6dp"
@@ -232,7 +234,7 @@
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="10dp"
                 android:hint="Search syllabus by exam name..."
-                app:startIconDrawable="@drawable/ic_search">
+                app:startIconDrawable="@drawable/ic_search" app:boxCornerRadiusTopStart="@dimen/eve_radius_pill" app:boxCornerRadiusTopEnd="@dimen/eve_radius_pill" app:boxCornerRadiusBottomStart="@dimen/eve_radius_pill" app:boxCornerRadiusBottomEnd="@dimen/eve_radius_pill">
 
                 <com.google.android.material.textfield.TextInputEditText
                     style="@style/TextAppearance.Eve.BodySmall"

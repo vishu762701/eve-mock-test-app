@@ -85,14 +85,30 @@ object SystemBarHelper {
 
         val isDarkAppearance = activity.resources.configuration.uiMode and
             android.content.res.Configuration.UI_MODE_NIGHT_MASK == android.content.res.Configuration.UI_MODE_NIGHT_YES
-        // Home alone uses a grouped full-window canvas. Keep all other activities unchanged.
+        // System inset backing follows the same semantic canvas as each screen.
         val isHome = activity is MainActivity
+        val grouped = when (activity) {
+            is com.eve.app.ui.settings.SettingsActivity,
+            is com.eve.app.ui.profile.ProfileActivity,
+            is com.eve.app.ui.result.ResultActivity,
+            is com.eve.app.ui.leaderboard.LeaderboardActivity,
+            is com.eve.app.ui.about.AboutActivity,
+            is com.eve.app.ui.admin.AdminActivity,
+            is com.eve.app.ui.admin.AdminAnalyticsActivity,
+            is com.eve.app.ui.admin.ManageExamsActivity,
+            is com.eve.app.ui.admin.ManageExistingExamsActivity,
+            is com.eve.app.ui.admin.ManageUsersActivity,
+            is com.eve.app.ui.admin.ManagePremiumActivity,
+            is com.eve.app.ui.admin.ManagePollsActivity,
+            is com.eve.app.ui.admin.ManageSyllabusActivity -> true
+            else -> false
+        }
         val background = ContextCompat.getColor(activity,
-            if (isHome) R.color.eve_system_grouped_background else R.color.eve_bg)
+            if (grouped) R.color.eve_system_grouped_background else R.color.eve_system_background)
 
         window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(background))
         // Draw the same Home color behind the padded status, cutout, and navigation insets.
-        if (isHome) {
+        if (isHome || grouped) {
             activity.findViewById<View>(android.R.id.content)?.setBackgroundColor(background)
         }
 
@@ -106,7 +122,7 @@ object SystemBarHelper {
             window.navigationBarColor = android.graphics.Color.TRANSPARENT
         } else {
             window.statusBarColor = background
-            window.navigationBarColor = if (isHome) background else ContextCompat.getColor(activity, R.color.eve_canvas)
+            window.navigationBarColor = if (isHome || grouped) background else ContextCompat.getColor(activity, R.color.eve_canvas)
         }
 
         if (android.os.Build.VERSION.SDK_INT >= 29) {

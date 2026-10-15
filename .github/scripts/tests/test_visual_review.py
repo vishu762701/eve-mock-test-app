@@ -8,7 +8,8 @@ import tempfile
 import unittest
 
 SCRIPT = Path(__file__).resolve().parents[1] / "eve_visual_review.py"
-PAIRS = ("shared-components", "shared-components-high-contrast", "home", "mock-test", "recovery-home-360dp", "recovery-profile",
+PAIRS = (
+    "ios26-nav-bar", "ios26-tab-bar", "ios26-menu", "ios26-sheet", "ios26-dialog","shared-components", "shared-components-high-contrast", "home", "mock-test", "recovery-home-360dp", "recovery-profile",
          "recovery-result-overview", "recovery-result-review",
          "recovery-result-leaderboard", "recovery-target-exams",
          "recovery-target-exams-footer",
@@ -100,7 +101,7 @@ class VisualEvidenceTest(unittest.TestCase):
             result = self.run_tool(root, True)
             self.assertEqual(0, result.returncode, result.stderr)
             report = json.loads((root / "captures" / "visual-review.json").read_text())
-            self.assertEqual(142, len(report["screenshots"]))
+            self.assertEqual(2 * len(PAIRS), len(report["screenshots"]))
             self.assertFalse(report["missing_required_pairs"])
             self.assertEqual(1, len(report["xml_review_candidates"]))
             self.assertIn("eve-approved-ui/home-light.png",

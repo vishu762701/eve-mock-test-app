@@ -4,10 +4,9 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.widget.FrameLayout
+import eightbitlab.com.blurview.BlurView
 import androidx.core.content.ContextCompat
 import com.eve.app.R
-import com.eve.app.util.ThemeSwitchAnimator
 
 /**
  * Reusable Apple iOS 26 Liquid Glass Toolbar.
@@ -17,7 +16,7 @@ class EveGlassToolbar @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : FrameLayout(context, attrs, defStyleAttr) {
+) : BlurView(context, attrs, defStyleAttr) {
 
     private val separatorPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
@@ -26,6 +25,22 @@ class EveGlassToolbar @JvmOverloads constructor(
 
     init {
         setWillNotDraw(false)
+        outlineProvider = object : android.view.ViewOutlineProvider() {
+            override fun getOutline(view: android.view.View, outline: android.graphics.Outline) {
+                outline.setRoundRect(0, 0, view.width, view.height,
+                    com.eve.app.util.EveShapes.capsule(view.height.toFloat()))
+            }
+        }
+        clipToOutline = true
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        val backdrop = rootView as? android.view.ViewGroup ?: return
+        setBackgroundColor(android.graphics.Color.TRANSPARENT)
+        com.eve.app.util.EveBlurHelper.setupBlurView(this, backdrop,
+            radiusDp = resources.getDimension(R.dimen.eve_thin_material_blur_radius) / resources.displayMetrics.density,
+            overlayColor = ContextCompat.getColor(context, R.color.eve_material_thin))
     }
 
     override fun onDraw(canvas: Canvas) {

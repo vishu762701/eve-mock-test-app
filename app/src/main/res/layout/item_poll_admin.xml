@@ -10,7 +10,8 @@
     app:cardCornerRadius="@dimen/eve_radius_card"
     app:cardElevation="0dp"
     app:strokeColor="@color/eve_shape_border"
-    app:strokeWidth="1dp">
+    app:strokeWidth="1dp"
+    android:minHeight="@dimen/eve_list_row_min">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -123,7 +124,7 @@
                 style="@style/Widget.Eve.OutlinedButton"
                 android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
+                android:layout_height="48dp"
                 android:paddingHorizontal="12dp"
                 tools:text="Close Poll" />
 
@@ -132,7 +133,7 @@
                 style="@style/Widget.Eve.OutlinedButton"
                 android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
+                android:layout_height="48dp"
                 android:layout_marginStart="8dp"
                 android:paddingHorizontal="12dp"
                 android:textColor="@color/selector_eve_destructive_text"

@@ -353,3 +353,28 @@ Following ADR-010, end-to-end integration verification identified 5 critical ope
    - 7 volumes (~4.2 MB total) strictly fit within Gemini Gems' limit of 10 files and 100 MB per file.
    - Preserves permanent document IDs via in-place `PATCH` media updates, ensuring Gemini Gem Knowledge attachments never break across commits.
    - Defined structured verification prompts for confirming Gemini Gem ingestion.
+
+## ADR-009: Full-screen iOS 26 geometry, material scope and system-blue migration
+
+- **Authority**: The current user explicitly authorizes geometry migration on every screen, overriding earlier geometry protection in GEMINI.md and historical UI audits. Only radii, padding, row heights and backgrounds change layout geometry; screen regions and behavior remain fixed.
+- **Numbering**: This user-requested ADR-009 is identified by this full title. The pre-existing JARVIS ADR-009 above is retained unchanged as historical evidence.
+- **Decision**: Shared capsule (50%), fixed card/menu 26dp and sheet/dialog 34dp shapes; concentric children use max(4dp, parent minus padding). Numeric radii are Eve design choices, not Apple specifications.
+- **Alternatives**: Per-screen literals would duplicate policy and drift. Shared resources plus EveShapes keep runtime views and XML aligned.
+- **Glass**: Only navigation/top bars, tab bars, popup menus, sheets and dialogs. Content, banner and drawer surfaces are opaque. API 31+ uses RenderEffect for backdrop layers; older versions use opaque tint. Foreground content remains sharp. Sign In prompt outside area is undimmed and unblurred.
+- **Colour and type evidence**: Official Color, Typography and Materials JSON were fetched and read; preserved rows and source hashes are in docs/ios26/APPLE_REFERENCE_ROWS.md. All 12 default light/dark palette rows already matched colors.xml. Default iOS type sizes and leading already matched type.xml.
+- **Blue**: All interactive blue aliases resolve to systemBlue (#0088FF / #0091FF), including higher-contrast blue aliases per the user's exact-blue requirement. Unused eve_accent_text_readable preserves #005BC0 / #72B2FF. The resulting roughly 3.5:1 on white is a user-chosen contrast trade-off, not AA compliance. Other normal text and primary labels on glass retain the 4.5:1 gate.
+- **Backgrounds**: Home/Login/Test are plain; Settings/Profile/Admin lists/Result/Leaderboard/About are grouped. This supersedes the Home grouped-canvas choice in ADR-006.
+- **Invariants**: ThemeSwitchAnimator.kt, ThemeManager.kt and popup reveal logic; Lottie files, triggers and sizes; icon files; answer-state colours; English UI strings; server behavior; font preference.
+- **Pre-mortem**: Stale assertions must be updated only for authorized changes; background blur must not affect labels; larger targets must be exercised on the fixed Test viewport in both navigation modes.
+- **API references read**: Android RenderEffect (https://developer.android.com/reference/android/graphics/RenderEffect); Material 1.12.0 RelativeCornerSize source (https://raw.githubusercontent.com/material-components/material-components-android/1.12.0/lib/java/com/google/android/material/shape/RelativeCornerSize.java); BlurView 2.0.6 source (https://raw.githubusercontent.com/Dimezis/BlurView/version-2.0.6/library/src/main/java/eightbitlab/com/blurview/BlurView.java).
+
+### ADR-009 recovery and validation notes
+
+- On resume, the user changed delivery to local-only: do not push, merge, dispatch Actions or trigger deployment. Their manual GitHub upload/build supersedes the earlier direct-push completion requirement for this task.
+- Native Result binding was still resetting the XML tab height to 44dp. The shared minimum is now 56dp, leaving a 48dp tab target after the existing 4dp top/bottom inset; tabs stay in their existing screen region.
+- Glass dialogs use API 31 window-background blur confined to the dialog bounds, while chrome/menu backdrops use RenderEffect. Pre-31 modal resources are opaque. The Sign In reauthentication prompt explicitly clears outside dim/blur flags. Official Window reference actually opened: https://developer.android.com/reference/android/view/Window#setBackgroundBlurRadius(int). The attempted /develop/ui/views/graphics/window-blurs URL returned 404 and is not cited as reviewed.
+- Native emulator execution and light/dark screenshots remain pending where no Android device/emulator is attached; fixture compilation is reported separately from execution.
+
+- Glass foregrounds resolve primaryLabel, including the Home bell's existing runtime tint callback and unselected Result tab labels. This implements the explicit glass foreground-colour instruction; animation asset content, paths, frames, timing/triggers and sizes are unchanged. Filled controls retain their separate opaque control surfaces and documented blue contrast trade-off.
+
+- Subsequent delivery instruction: “Push and make applies” supersedes the local-only recovery restriction. Commit and push the prepared migration on main, then verify remote SHA and GitHub Actions. No force-push.

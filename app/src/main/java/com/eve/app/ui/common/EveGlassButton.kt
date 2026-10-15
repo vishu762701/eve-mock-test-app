@@ -19,7 +19,7 @@ class EveGlassButton @JvmOverloads constructor(
 ) : MaterialButton(context, attrs, defStyleAttr) {
 
     init {
-        cornerRadius = resources.getDimensionPixelSize(R.dimen.eve_radius_pill)
+        shapeAppearanceModel = shapeAppearanceModel.withCornerSize(com.google.android.material.shape.RelativeCornerSize(0.5f))
         insetTop = 0
         insetBottom = 0
         EveTouchHelper.attachTactileFeedback(this, pressScale = 0.982f)

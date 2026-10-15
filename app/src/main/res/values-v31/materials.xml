@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="eve_modal_material">@color/eve_material_regular</color>
+    <color name="eve_menu_glass_bg">@color/eve_material_regular</color>
+    <!-- Window background blur follows the dialog bounds, leaving its outside area sharp. -->
+    <style name="Theme.Eve.Dialog" parent="Theme.Eve.Dialog.Base">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackgroundBlurRadius">@dimen/eve_modal_blur_radius</item>
+        <item name="android:windowBlurBehindEnabled">false</item>
+    </style>
+</resources>

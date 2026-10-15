@@ -9,10 +9,11 @@
     android:orientation="vertical">
 
     <!-- Apple-style Top Navigation Bar -->
-    <LinearLayout
+    <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
+<LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_bg"
+        android:background="@android:color/transparent"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="12dp"
@@ -27,10 +28,10 @@
             android:contentDescription="Back"
             android:padding="12dp"
             android:src="@drawable/ic_back"
-            app:tint="@color/eve_accent_text" />
+            app:tint="?attr/eveLabelPrimary" />
 
         <TextView
-            style="@style/TextAppearance.Eve.Title3"
+            style="@style/TextAppearance.Eve.Headline"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -40,6 +41,7 @@
             android:text="Settings"
             android:textColor="?attr/eveLabelPrimary" />
     </LinearLayout>
+</com.eve.app.ui.common.EveGlassToolbar>
 
     <View
         android:layout_width="match_parent"

@@ -5,7 +5,8 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="6dp"
     android:gravity="center_vertical"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:minHeight="@dimen/eve_list_row_min">
 
     <EditText
         android:id="@+id/etOptionText"
@@ -22,8 +23,8 @@
 
     <ImageButton
         android:id="@+id/btnRemoveOption"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_marginStart="6dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="Remove option"

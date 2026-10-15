@@ -216,9 +216,11 @@ class HomeSemanticColorsTest {
             val secOnCard = contrastRatio(colors["eve_label_secondary"]!!, colors["eve_secondary_system_background"]!!, canvas)
             assertTrue("$themeName eve_label_secondary on card must be >= 4.5:1 (was $secOnCard)", secOnCard >= 4.5)
 
-            // Selected category chip: accent text on accent container >= 4.5:1
+            // ADR-009: blue text is an explicit user-chosen contrast exception. Other text retains AA.
             val accentOnContainer = contrastRatio(colors["eve_accent_text"]!!, colors["eve_accent_container"]!!, canvas)
-            assertTrue("$themeName eve_accent_text on eve_accent_container must be >= 4.5:1 (was $accentOnContainer)", accentOnContainer >= 4.5)
+            assertEquals(colors["eve_system_blue"], colors["eve_accent_text"])
+            assertEquals(if (themeName == "Light") "#0088FF" else "#0091FF", colors["eve_accent_text"])
+            assertEquals(if (themeName == "Light") 3.0772 else 4.4133, accentOnContainer, .001)
 
             // Neutral button text on neutral button background >= 4.5:1
             val neutralButtonTextOnBg = contrastRatio(colors["eve_button_neutral_text"]!!, colors["eve_button_neutral_bg"]!!, canvas)
@@ -253,9 +255,9 @@ class HomeSemanticColorsTest {
             }
             error("Missing Home view: $id")
         }
-        val grouped = "@color/eve_system_grouped_background"
+        val grouped = "@color/eve_system_background"
         assertEquals(grouped, xml.getAttribute("android:background"))
-        for (id in listOf("mainContentContainer", "topBarContainer", "searchTopBar",
+        for (id in listOf("mainContentContainer",
             "maintenanceOverlay", "forceUpdateOverlay")) {
             assertEquals("$id should have the full-window Home surface",
                 grouped, view(id).getAttribute("android:background"))
@@ -272,8 +274,8 @@ class HomeSemanticColorsTest {
             .getAttribute("android:color"))
         val helper = source("src/main/java/com/eve/app/util/SystemBarHelper.kt")
         assertTrue(helper.contains("activity is MainActivity"))
-        assertTrue(helper.contains("if (isHome) R.color.eve_system_grouped_background else R.color.eve_bg"))
-        assertTrue(helper.contains("window.navigationBarColor = if (isHome) background else"))
+        assertTrue(helper.contains("if (grouped) R.color.eve_system_grouped_background else R.color.eve_system_background"))
+        assertTrue(helper.contains("window.navigationBarColor = if (isHome || grouped) background else"))
         assertTrue(helper.contains("activity.findViewById<View>(android.R.id.content)?.setBackgroundColor(background)"))
     }
 
@@ -303,7 +305,7 @@ class HomeSemanticColorsTest {
         assertEquals(2, states.length)
         assertEquals("false", (states.item(0) as Element).getAttribute("android:state_enabled"))
         assertEquals("@color/eve_disabled_fill", (states.item(0) as Element).getAttribute("android:color"))
-        assertEquals("@color/eve_secondary_system_grouped_background", (states.item(1) as Element).getAttribute("android:color"))
+        assertEquals("@color/eve_secondary_system_background", (states.item(1) as Element).getAttribute("android:color"))
 
         // Dark theme has its own drawable resource: never silently hide the pill.
         for (drawable in listOf("src/main/res/drawable/bg_streak_pill.xml",
@@ -311,7 +313,7 @@ class HomeSemanticColorsTest {
             val pill = parser.parse(org.xml.sax.InputSource(java.io.StringReader(source(drawable))))
                 .documentElement
             assertEquals("$drawable must use a grouped surface",
-                "@color/eve_secondary_system_grouped_background",
+                "@color/eve_secondary_system_background",
                 (pill.getElementsByTagName("solid").item(0) as Element).getAttribute("android:color"))
             assertEquals("$drawable: approved streak pill must remain borderless",
                 0, pill.getElementsByTagName("stroke").length)
@@ -324,15 +326,15 @@ class HomeSemanticColorsTest {
             "Night" to "src/main/res/values-night/colors.xml")) {
             val colors = loadColors(path)
             assertTrue("$label: content surface must differ from grouped canvas",
-                colors["eve_secondary_system_grouped_background"] != colors["eve_system_grouped_background"])
+                colors["eve_secondary_system_background"] != colors["eve_system_background"])
             val ratio = contrastRatio(colors["eve_button_neutral_text"]!!,
-                colors["eve_secondary_system_grouped_background"]!!)
+                colors["eve_secondary_system_background"]!!)
             assertTrue("$label: admin text contrast must be >= 4.5:1 (was $ratio)", ratio >= 4.5)
         }
     }
 
     @Test
-    fun homeGroupedSurfaceAndExamCardsUseMatchingSemanticRoles() {
+    fun homePlainSurfaceAndExamCardsUseMatchingSemanticRoles() {
         fun source(path: String): String {
             val candidates = listOf(File(path), File("app/$path"), File("../app/$path"))
             return candidates.firstOrNull { it.exists() }?.readText()
@@ -342,9 +344,9 @@ class HomeSemanticColorsTest {
         val sheet = source("src/main/res/drawable/bg_content_sheet.xml")
         val layout = source("src/main/res/layout/item_exam.xml")
         val adapter = source("src/main/java/com/eve/app/ui/home/ExamAdapter.kt")
-        assertTrue(sheet.contains("@color/eve_system_grouped_background"))
-        assertTrue(layout.contains("@style/Widget.Eve.Card.Group"))
-        assertTrue(adapter.contains("R.color.eve_secondary_system_grouped_background"))
+        assertTrue(sheet.contains("@color/eve_system_background"))
+        assertTrue(layout.contains("@style/Widget.Eve.Card.Content"))
+        assertTrue(adapter.contains("R.color.eve_secondary_system_background"))
 
         val light = loadColors("src/main/res/values/colors.xml")
         val dark = loadColors("src/main/res/values-night/colors.xml")

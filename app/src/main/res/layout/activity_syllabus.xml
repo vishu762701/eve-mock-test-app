@@ -20,7 +20,7 @@
             app:navigationIcon="@drawable/ic_back"
             app:navigationIconTint="@color/eve_text"
             app:title="Exam Syllabus"
-            app:titleTextAppearance="@style/TextAppearance.Eve.ScreenTitle"
+            app:titleTextAppearance="@style/TextAppearance.Eve.Headline"
             app:titleTextColor="@color/eve_text" />
 
         <com.google.android.material.textfield.TextInputLayout
@@ -32,7 +32,7 @@
             android:layout_marginBottom="12dp"
             app:hintEnabled="false"
             app:startIconDrawable="@drawable/ic_search"
-            app:startIconTint="@color/eve_text_secondary">
+            app:startIconTint="@color/eve_text_secondary" app:boxCornerRadiusTopStart="@dimen/eve_radius_pill" app:boxCornerRadiusTopEnd="@dimen/eve_radius_pill" app:boxCornerRadiusBottomStart="@dimen/eve_radius_pill" app:boxCornerRadiusBottomEnd="@dimen/eve_radius_pill">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etSearch"

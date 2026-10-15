@@ -1,0 +1,43 @@
+{
+  "status": "LOCAL_VERIFIED_RUNTIME_PENDING",
+  "baseline_commit": "5f28980b64b87873984dd2f8d0f70baff54e5971",
+  "branch": "main",
+  "delivery": "User authorized push to main; remote SHA and Actions verification pending",
+  "unit_tests": {
+    "tests": 253,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "script_tests": {
+    "tests": 13,
+    "failures": 0
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 1660,
+    "baseline_warnings": 1660
+  },
+  "gradle_tasks": [
+    "testDebugUnitTest",
+    "assembleDebug",
+    "lintDebug",
+    "assembleDebugAndroidTest"
+  ],
+  "gradle_result": "BUILD SUCCESSFUL",
+  "resource_xml_parse_count": 287,
+  "layout_count": 95,
+  "protected_verification": {
+    "theme_implementations_byte_unchanged": true,
+    "animation_asset_files_unchanged": true,
+    "animation_XML_nodes_unchanged": true,
+    "SVG_and_icon_files_unchanged": true,
+    "UI_strings_hints_descriptions_unchanged": true,
+    "protected_palette_snapshot_tests": "PASS",
+    "popup_reveal_logic": "diff reviewed; only background capture renderer/fallback changed"
+  },
+  "animation_tint_note": "Existing Home bell tint callback resolves primaryLabel for glass as required; assets, frames, paths, triggers and sizes are unchanged.",
+  "native_execution": "NOT RUN: adb devices returned an empty device list; no installed emulator or /dev/kvm",
+  "visual_status": "UNKNOWN: no screenshots generated from the current migration were executed/reviewed",
+  "remote_delivery": "Pending authorized commit and push"
+}

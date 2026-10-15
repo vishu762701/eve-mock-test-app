@@ -63,7 +63,7 @@
 
                 <TextView
                     android:id="@+id/tvTagline"
-                    style="@style/TextAppearance.Eve.Title1"
+                    style="@style/TextAppearance.Eve.LargeTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="36dp"

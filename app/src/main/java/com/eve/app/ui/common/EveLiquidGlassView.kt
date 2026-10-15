@@ -24,7 +24,7 @@ class EveLiquidGlassView @JvmOverloads constructor(
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
     private val density = resources.displayMetrics.density
-    var cornerRadiusPx: Float = 24f * density
+    var cornerRadiusPx: Float = com.eve.app.util.EveShapes.card(resources)
         set(value) {
             field = value.coerceAtLeast(0f)
             invalidateOutline()
@@ -60,7 +60,7 @@ class EveLiquidGlassView @JvmOverloads constructor(
         setWillNotDraw(false)
         if (attrs != null) {
             val a = context.obtainStyledAttributes(attrs, R.styleable.EveLiquidGlassView)
-            cornerRadiusPx = a.getDimension(R.styleable.EveLiquidGlassView_eveCornerRadius, 24f * density)
+            cornerRadiusPx = a.getDimension(R.styleable.EveLiquidGlassView_eveCornerRadius, com.eve.app.util.EveShapes.card(resources))
             hasHighlight = a.getBoolean(R.styleable.EveLiquidGlassView_eveHasHighlight, false)
             isTactileEnabled = a.getBoolean(R.styleable.EveLiquidGlassView_eveTactile, true)
             a.recycle()

@@ -11,7 +11,7 @@ object ResultTabs {
         val scrollable = track.resources.configuration.fontScale > 1.2f && track.resources.configuration.screenWidthDp < 600
         track.tabMode = if (scrollable) TabLayout.MODE_SCROLLABLE else TabLayout.MODE_FIXED
         track.tabGravity = if (scrollable) TabLayout.GRAVITY_START else TabLayout.GRAVITY_FILL
-        var readableHeight = Math.round(44f * track.resources.displayMetrics.density)
+        var readableHeight = track.resources.getDimensionPixelSize(com.eve.app.R.dimen.eve_segment_min_height)
         for (index in 0 until track.tabCount) {
             val tab = track.getTabAt(index) ?: continue
             val label = android.widget.TextView(track.context).apply {
