@@ -378,3 +378,5 @@ Following ADR-010, end-to-end integration verification identified 5 critical ope
 - Glass foregrounds resolve primaryLabel, including the Home bell's existing runtime tint callback and unselected Result tab labels. This implements the explicit glass foreground-colour instruction; animation asset content, paths, frames, timing/triggers and sizes are unchanged. Filled controls retain their separate opaque control surfaces and documented blue contrast trade-off.
 
 - Subsequent delivery instruction: “Push and make applies” supersedes the local-only recovery restriction. Commit and push the prepared migration on main, then verify remote SHA and GitHub Actions. No force-push.
+
+- First delivery CI exposed two legacy native contrast assertions for exact system blue. Align those checks with the existing explicit blue exception, retain full-opacity and all other contrast gates; retry emulator provisioning without weakening native verification.

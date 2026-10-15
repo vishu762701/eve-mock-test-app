@@ -210,3 +210,5 @@ This inventory includes every changed layout, drawable, Kotlin source/test, reso
 | [docs/ios26/VALIDATION.json](../../docs/ios26/VALIDATION.json) | Machine-readable observed local validation, source/protection checks and runtime/remote limitations. |
 
 Total inventory entries: 170.
+
+Delivery follow-up also changes `app/src/androidTest/java/com/eve/app/ui/StudentUiRenderingTest.kt`: recognizes only full-opacity system blue as the documented contrast exception; other checks remain.

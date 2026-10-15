@@ -239,10 +239,10 @@ class DesignRecoveryTest {
                 assertTrue("Enabled input outlines must be distinguishable from the canvas",
                     androidx.core.graphics.ColorUtils.calculateContrast(context.getColor(R.color.eve_recovery_input_border), context.getColor(R.color.eve_bg)) >= 3.0)
                 val accent = context.getColor(R.color.eve_recovery_accent)
-                for (background in listOf(R.color.eve_recovery_selected, R.color.eve_card_bg, R.color.eve_bg)) {
-                    assertTrue("Interactive labels must meet 4.5:1 in both themes",
-                        androidx.core.graphics.ColorUtils.calculateContrast(accent, context.getColor(background)) >= 4.5)
-                }
+                // UI ADR-009 explicitly accepts system blue's sub-AA contrast.
+                // Other semantic labels retain their contrast assertions above.
+                assertEquals("Interactive labels retain the user-selected system blue",
+                    context.getColor(R.color.eve_system_blue), accent)
                 val primaryFill = context.getColor(R.color.eve_primary)
                 assertTrue("On-accent control label meets 3:1 on primary fill",
                     androidx.core.graphics.ColorUtils.calculateContrast(context.getColor(R.color.eve_recovery_on_accent), primaryFill) >= 3.0)

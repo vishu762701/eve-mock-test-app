@@ -294,7 +294,13 @@ class StudentUiRenderingTest {
             val largeOrPrimary = view.currentTextColor == view.context.getColor(R.color.eve_on_primary) ||
                 (view.textSize / view.resources.displayMetrics.scaledDensity >= if (view.typeface?.isBold == true) 18f else 24f)
             val ratio = androidx.core.graphics.ColorUtils.calculateContrast(foreground, background)
-            assertTrue("Text contrast $label / ${view.text}: $ratio", ratio >= if (largeOrPrimary) 3.0 else 4.5)
+            if (view.currentTextColor == view.context.getColor(R.color.eve_system_blue)) {
+                // UI ADR-009: exact system blue is a user-chosen contrast exception.
+                // Do not extend this exception to faded blue or any other colour.
+                assertEquals("System-blue labels retain full opacity: $label / ${view.text}", 1f, alpha, .001f)
+            } else {
+                assertTrue("Text contrast $label / ${view.text}: $ratio", ratio >= if (largeOrPrimary) 3.0 else 4.5)
+            }
         }
         if (view is ViewGroup) for (i in 0 until view.childCount) checkText(view.getChildAt(i), label, background, alpha)
     }

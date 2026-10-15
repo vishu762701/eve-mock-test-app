@@ -166,3 +166,15 @@ This is not a substitute for the missing runtime evidence above.
    that controls fit and protected answer colours/animations remain correct.
 
 Delivery is authorized; Actions and device checks remain pending until observed.
+
+## Authorized delivery and first Actions result
+
+The migration was pushed to main as `1b4a57f97e4cce5ba9fb5802dfc857d907c113f7`;
+`git ls-remote` matched that SHA. Build Eve APK run [38676387557](https://github.com/vishu762701/eve-mock-test-app/actions/runs/38676387557)
+passed build/lint/unit, backend and Functions. Gesture setup failed while downloading
+Google's emulator image (invalid ZIP), before app tests. Three-button ran 34 native
+tests; two failed because older assertions still required AA contrast for the
+user-selected exact blue. The follow-up restricts the exception to full-opacity
+system-blue labels; other colour, layout and functionality gates remain intact.
+The revised AndroidTest APK compiles locally. No APK was published from that failed
+run. Follow-up CI verification is pending.
