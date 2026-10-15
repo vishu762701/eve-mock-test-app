@@ -1,8 +1,8 @@
 {
-  "status": "LOCAL_VERIFIED_RUNTIME_PENDING",
+  "status": "CI_VERIFIED_APK_PUBLISHED_PHYSICAL_CHECKS_REMAIN",
   "baseline_commit": "5f28980b64b87873984dd2f8d0f70baff54e5971",
   "branch": "main",
-  "delivery": "User authorized push to main; remote SHA and Actions verification pending",
+  "delivery": "Pushed main; remote SHA matched 58a6415780d5858860b4108e674d25ba2e374eef",
   "unit_tests": {
     "tests": 253,
     "failures": 0,
@@ -37,7 +37,38 @@
     "popup_reveal_logic": "diff reviewed; only background capture renderer/fallback changed"
   },
   "animation_tint_note": "Existing Home bell tint callback resolves primaryLabel for glass as required; assets, frames, paths, triggers and sizes are unchanged.",
-  "native_execution": "NOT RUN: adb devices returned an empty device list; no installed emulator or /dev/kvm",
-  "visual_status": "UNKNOWN: no screenshots generated from the current migration were executed/reviewed",
-  "remote_delivery": "Pending authorized commit and push"
+  "native_execution": "PASS: 34/34 tests in gesture and 34/34 in three-button on API 35",
+  "visual_status": "24 requested/shared PNGs decoded and reviewed; Canvas and physical/compositor limitations in report",
+  "remote_delivery": "Remote implementation SHA confirmed. Entire Actions run 38677521615 passed; exactly one Eve-debug-apk artifact uploaded. Documentation-only follow-up records results.",
+  "ci": {
+    "run_id": 38677521615,
+    "commit": "58a6415780d5858860b4108e674d25ba2e374eef",
+    "build_lint_unit": "PASS",
+    "backend": "PASS",
+    "firebase_functions": "PASS",
+    "gesture": {
+      "tests": 34,
+      "result": "PASS",
+      "screenshots": 167,
+      "missing_pairs": 0,
+      "evidence_warnings": 0
+    },
+    "three_button": {
+      "tests": 34,
+      "result": "PASS",
+      "screenshots": 167,
+      "missing_pairs": 0,
+      "evidence_warnings": 0
+    },
+    "publication": "PASS",
+    "conclusion": "success",
+    "artifacts": [
+      {
+        "id": 11947146346,
+        "name": "Eve-debug-apk",
+        "size_in_bytes": 14393220,
+        "expired": false
+      }
+    ]
+  }
 }

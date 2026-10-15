@@ -185,7 +185,7 @@ This inventory includes every changed layout, drawable, Kotlin source/test, reso
 |---|---|
 | [AGENTS.md](../../AGENTS.md) | Records explicit full-screen geometry authorization and the protected boundaries. |
 | [APPROVED_UI_IMPLEMENTATION_AUDIT.md](../../APPROVED_UI_IMPLEMENTATION_AUDIT.md) | Adds the current authorization override while retaining historical audit evidence. |
-| [BACKLOG.md](../../BACKLOG.md) | Records the pending manual native/physical-device release checks. |
+| [BACKLOG.md](../../BACKLOG.md) | Records remaining physical-device and live-flow checks after native CI success. |
 | [CLAUDE.md](../../CLAUDE.md) | Aligns the equivalent repository rules with the authorized geometry scope. |
 | [DECISIONS.md](../../DECISIONS.md) | Records the user-requested UI ADR-009, numbering collision, implementation choices, official references and recovery and subsequent push authorization. |
 | [EVE_IOS26_UI_CONTRACT.md](../../EVE_IOS26_UI_CONTRACT.md) | Documents the verified palette/type rows, Eve shape interpretations, glass scope, exact-blue trade-off and verification boundaries. |
@@ -205,7 +205,7 @@ This inventory includes every changed layout, drawable, Kotlin source/test, reso
 | [docs/ios26/FILE_CHANGES.md](../../docs/ios26/FILE_CHANGES.md) | Complete per-file migration inventory, including this document. |
 | [docs/ios26/GRADLE_VALIDATION.log](../../docs/ios26/GRADLE_VALIDATION.log) | Observed final successful build/unit/lint/instrumentation-compilation output. |
 | [docs/ios26/LINT_COMPARISON.json](../../docs/ios26/LINT_COMPARISON.json) | Compares baseline and final warnings without suppressing diagnostics. |
-| [docs/ios26/MIGRATION_REPORT.md](../../docs/ios26/MIGRATION_REPORT.md) | Recovered checkpoint, actual checks, Apple rows, light/dark source report and explicit runtime/manual delivery gaps. |
+| [docs/ios26/MIGRATION_REPORT.md](../../docs/ios26/MIGRATION_REPORT.md) | Recovered checkpoint, actual checks, Apple rows, light/dark capture review, delivery results and explicit physical/runtime gaps. |
 | [docs/ios26/SCRIPT_VALIDATION.log](../../docs/ios26/SCRIPT_VALIDATION.log) | Observed thirteen passing verification-script tests and explicit blue exceptions. |
 | [docs/ios26/VALIDATION.json](../../docs/ios26/VALIDATION.json) | Machine-readable observed local validation, source/protection checks and runtime/remote limitations. |
 

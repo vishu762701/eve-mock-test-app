@@ -2,13 +2,13 @@
 
 ## Status and recovered checkpoint
 
-**VERIFIED: local implementation and build checks pass. Runtime release verification is pending.**
+**VERIFIED: local checks and all CI verification gates pass, including both native navigation modes and complete light/dark evidence. Physical-device checks remain below.**
 
 Repository: `vishu762701/eve-mock-test-app`, branch `main`, baseline
 `5f28980b64b87873984dd2f8d0f70baff54e5971`.
 The user's latest instruction, “Push and make applies”, authorizes delivery to main
-and supersedes the earlier local-only recovery instruction. Remote SHA and Actions
-verification are pending delivery; local validation below is already complete.
+and supersedes the earlier local-only recovery instruction. Remote SHA matches the pushed migration; the initial Actions result and follow-up
+are recorded at the end of this report. Local validation below is complete.
 
 On recovery, the existing migration diff and Apple evidence were intact. The last
 recorded build had compiled Kotlin and stopped at JdkImageTransform because the
@@ -32,7 +32,7 @@ is **UNKNOWN**; build success was never inferred from the downloaded JDK.
 | Typography check | VERIFIED in source/build | No layout numeric textSize or literal textColor overrides remain. Home/Login use Large Title; pushed headers use inline Headline. Core type.xml values are retained. Android's existing medium-family semibold approximation remains documented; exact rendered glyph weight is not measured. |
 | Protection | VERIFIED by diff/tests | ThemeManager and ThemeSwitchAnimator, animation assets/XML nodes/sizes/triggers, icon files and UI strings remain unchanged. Protected palette snapshots pass. The Home bell's existing colour callback now resolves primaryLabel on glass under the explicit glass-colour instruction; no animation data or timing change. Popup reveal logic is retained. |
 | CI delivery contract | VERIFIED in source/script tests | Existing build/native/backend gates retained. Both navigation modes and complete visual evidence gate remain required before the sole Eve-debug-apk upload. Requested fixture PNGs are available through disposable test logs; the additional verification artifact upload was removed. |
-| GitHub Actions/runtime visuals | UNKNOWN / pending Actions run | No current native emulator execution or Actions run is claimed. |
+| GitHub Actions/runtime visuals | VERIFIED with stated limits | Follow-up: 34/34 native tests pass in each navigation mode; each evidence gate reports 167 screenshots, zero missing pairs and zero warnings. Requested light/dark fixtures reviewed; physical/compositor limitations remain below. |
 
 [Per-file inventory](FILE_CHANGES.md) includes every layout, drawable, Kotlin file,
 resource, test, workflow and authority/evidence document touched.
@@ -107,23 +107,26 @@ All requested light palette values and default type sizes match these rows.
 
 ## Light and Dark report
 
-Every row below has **VERIFIED source/resource/compilation evidence** and **UNKNOWN
-current rendered-device appearance**. No screenshots were produced or reviewed
-from this migration. Ios26ChromeTest and the existing native suites are prepared
-for Actions execution; their presence/compilation does not constitute a run.
+Every row has **VERIFIED source/resource/compilation evidence**. Both native
+navigation jobs pass. Twenty-four requested/shared PNGs were decoded from Actions
+logs and visually inspected (contact sheets plus the recovered Test/light image).
+The initial Test/light decoding failure was a byte-order mark in a log prefix;
+removing that marker recovered a valid PNG. Detached Canvas fixtures do not
+exercise the window compositor. Home's approved fixture has unbound list/chip
+placeholders; authenticated/populated Home appearance remains unverified.
 
 | Surface | Light source treatment | Dark source treatment | Current runtime evidence |
 |---|---|---|---|
-| Nav/top bar | Thin #D9FFFFFF tint, primary black labels/icons; capsule | Thin #D91C1C1E tint, primary white labels/icons; capsule | UNKNOWN; ios26-nav-bar fixture prepared |
-| Tab bar | Capsule track/thumb, primary unselected labels, blue selected control | Same adaptive roles | UNKNOWN; ios26-tab-bar and Result fixtures prepared |
-| 3-dot menu | Regular tint, 26dp corners, primary labels/icons | Regular dark tint, 26dp corners, primary labels/icons | UNKNOWN; ios26-menu fixture prepared |
-| One sheet: Target Exams | Regular modal material, 34dp top corners, capsule chips | Adaptive dark equivalents | UNKNOWN; ios26-sheet and target-exams fixtures prepared |
-| One dialog: Report Question | Plain-content hierarchy in 34dp floating glass dialog | Adaptive dark equivalents | UNKNOWN; ios26-dialog content fixture prepared; window/compositor inspection still required |
-| Home | #FFFFFF canvas; #F2F2F7 raised content; opaque banner/drawer | #000000 canvas; #1C1C1E raised content | UNKNOWN; existing Home/native fixtures prepared |
-| Test | #FFFFFF canvas; protected answer/state fills; concentric options | #000000 canvas; protected dark answer/state fills | UNKNOWN; existing Mock Test fixtures prepared |
-| Result | #F2F2F7 grouped canvas; #FFFFFF cards; #F2F2F7 nested surfaces | #000000 grouped canvas; #1C1C1E cards; #2C2C2E nested surfaces | UNKNOWN; Overview/Review/Leaderboard fixtures prepared |
-| Settings | #F2F2F7 grouped canvas, #FFFFFF cells | #000000 grouped canvas, #1C1C1E cells | UNKNOWN; student-settings fixtures prepared |
-| Login | #FFFFFF plain canvas; semantic form/type roles | #000000 plain canvas; adaptive form/type roles | UNKNOWN; student-login/signup fixtures prepared |
+| Nav/top bar | Thin #D9FFFFFF tint, primary black labels/icons; capsule | Thin #D91C1C1E tint, primary white labels/icons; capsule | Canvas fixture reviewed; attached Result toolbar also reviewed |
+| Tab bar | Capsule track/thumb, primary unselected labels, blue selected control | Same adaptive roles | Canvas and attached Result captures reviewed |
+| 3-dot menu | Regular tint, 26dp corners, primary labels/icons | Regular dark tint, 26dp corners, primary labels/icons | Canvas fixture reviewed; actual popup compositor unverified |
+| One sheet: Target Exams | Regular modal material, 34dp top corners, capsule chips | Adaptive dark equivalents | Canvas fixture reviewed; attached sheet behavior test passed |
+| One dialog: Report Question | Plain-content hierarchy in 34dp floating glass dialog | Adaptive dark equivalents | Content fixture reviewed; window/compositor inspection still required |
+| Home | #FFFFFF canvas; #F2F2F7 raised content; opaque banner/drawer | #000000 canvas; #1C1C1E raised content | Approved Canvas fixture reviewed; populated Home remains unverified |
+| Test | #FFFFFF canvas; protected answer/state fills; concentric options | #000000 canvas; protected dark answer/state fills | Light/dark Canvas fixtures reviewed; protected answer colors and controls retained |
+| Result | #F2F2F7 grouped canvas; #FFFFFF cards; #F2F2F7 nested surfaces | #000000 grouped canvas; #1C1C1E cards; #2C2C2E nested surfaces | Light/dark attached Overview captures reviewed; native Result tests passed |
+| Settings | #F2F2F7 grouped canvas, #FFFFFF cells | #000000 grouped canvas, #1C1C1E cells | Light/dark Canvas fixtures reviewed |
+| Login | #FFFFFF plain canvas; semantic form/type roles | #000000 plain canvas; adaptive form/type roles | Light/dark login Canvas fixtures reviewed |
 
 The production Result segmented navigation is above its content; it stays in that
 region. There is no separate bottom tab-bar container to relocate or invent.
@@ -133,39 +136,25 @@ Play-services UI and was not modified or exercised.
 
 ## What could not be verified
 
-- Current native suites in gesture and three-button navigation: no attached device,
-  no installed emulator and no /dev/kvm. `adb devices` returned an empty list.
-- Current light/dark PNGs, hardware blur/clipping, low-API opaque fallback on a
-  device, Sign In outside-area appearance, enlarged-font reflow and physical navigation.
+- Hardware blur/clipping, low-API opaque fallback on a physical device, Sign In outside-area appearance, and physical navigation. Native geometry, reflow and the full student text sweep now pass on the emulator.
 - Actual Eve/Device preference switching and rendered semibold appearance on a device.
 - Authenticated/network production flows, Google account picker, real exam submission
   and live account data. Their business implementation was not changed by this task.
-- Remote uploaded commit SHA, GitHub Actions conclusions and published APK artifact:
-  delivery verification is pending the authorized push.
 
 **INFERRED**: the resource and renderer changes should produce the intended
 appearance because compilation, binding/source tests and colour mathematics pass.
 This is not a substitute for the missing runtime evidence above.
 
-## Manual verification before release
+## Remaining physical-device verification
 
-1. Push the preserved changes to main under the latest authorization. Compare local HEAD with
-   `git ls-remote origin refs/heads/main`; do not force-push.
-2. Run/review Build Eve APK for that commit. Both native navigation jobs, build,
-   backend and Firebase Functions checks must pass. Confirm only Eve-debug-apk is
-   uploaded, after the verification gates pass.
-3. Review the requested light/dark fixture images in job logs and the full native
-   gallery on the runner. Run `eve_visual_review.py --enforce` against collected
-   captures when reviewing locally. Canvas chrome/dialog-content fixtures do not
-   certify hardware blur or actual dialog-window composition.
-4. On a phone, inspect nav/tab/menu, Target Exams, Report Question and the Sign In
-   prompt in both themes. Check sharp foregrounds, clear Sign In outside area and
-   opaque content cards. Check a pre-31 device's opaque fallback.
-5. Open Home, Test, all Result tabs, Settings and Login; increase font scale, use
-   both font preferences, toggle Day/Night through the Telegram reveal, and check
-   that controls fit and protected answer colours/animations remain correct.
-
-Delivery is authorized; Actions and device checks remain pending until observed.
+1. Inspect nav/tab/menu, Target Exams, Report Question and the Sign In prompt in
+   both themes. Check sharp foregrounds, clear Sign In outside area, hardware blur
+   and opaque content cards. Check a pre-31 device's opaque fallback.
+2. Open populated Home, Test, all Result tabs, Settings and Login; increase font
+   scale, use both font preferences, toggle Day/Night through the Telegram reveal,
+   and check physical navigation. Native emulator geometry/reflow/reveal tests pass;
+   actual device font appearance and compositor behavior remain unverified.
+3. Exercise authenticated account/exam flows and external Google account selection.
 
 ## Authorized delivery and first Actions result
 
@@ -177,4 +166,4 @@ tests; two failed because older assertions still required AA contrast for the
 user-selected exact blue. The follow-up restricts the exception to full-opacity
 system-blue labels; other colour, layout and functionality gates remain intact.
 The revised AndroidTest APK compiles locally. No APK was published from that failed
-run. Follow-up CI verification is pending.
+run. Follow-up [38677521615](https://github.com/vishu762701/eve-mock-test-app/actions/runs/38677521615) verifies commit `58a6415780d5858860b4108e674d25ba2e374eef`; the remote SHA was confirmed. Both native jobs pass 34/34 tests. Each reports 167 screenshots, zero missing pairs and zero evidence warnings. Build/lint/unit, backend and Functions also pass. The entire workflow and publication job completed successfully. Its artifact API lists exactly one artifact: [Eve-debug-apk](https://github.com/vishu762701/eve-mock-test-app/actions/runs/38677521615/artifacts/11947146346), ID `11947146346`, 14,393,220 bytes, not expired when checked. No additional verification artifact was uploaded. A documentation-only follow-up records these results; build paths-ignore intentionally avoids rebuilding unchanged app code for that report update.

@@ -380,3 +380,7 @@ Following ADR-010, end-to-end integration verification identified 5 critical ope
 - Subsequent delivery instruction: “Push and make applies” supersedes the local-only recovery restriction. Commit and push the prepared migration on main, then verify remote SHA and GitHub Actions. No force-push.
 
 - First delivery CI exposed two legacy native contrast assertions for exact system blue. Align those checks with the existing explicit blue exception, retain full-opacity and all other contrast gates; retry emulator provisioning without weakening native verification.
+
+- Delivery verification: Build Eve APK run 38677521615 passes both API 35 navigation suites (34 native tests each), complete evidence (167 captures per job, zero missing pairs/warnings), Android build/lint/unit, backend and Functions. Requested light/dark captures were reviewed. Physical compositor, pre-31, Sign In outside-area and live production checks remain explicitly unverified.
+
+- Publication verified: the same run completed successfully and uploaded exactly one artifact, Eve-debug-apk (11947146346). A documentation-only follow-up records the verified implementation run without rebuilding unchanged application code.

@@ -32,6 +32,6 @@ Ranked by impact on user experience, stability, and design system fidelity per `
 - **Scope**: Navigation drawer list items in `activity_main.xml` and form layouts.
 - **Details**: Verify text wrapping on narrow devices (320dp) under maximum system font scales to ensure UI rows remain cleanly accessible with zero overlap.
 
-## [P1] iOS 26 migration: manual native release verification
-- **Scope**: Both native navigation modes, light/dark chrome/modal and Home/Test/Result/Settings/Login evidence, device compositor blur, and Eve/Device font switching.
-- **Details**: The latest user instruction authorizes pushing the recovered migration to main. Native fixtures and CI gating are prepared, but this workspace has no connected Android device or installed emulator. Before publishing an APK, run both native suites and the complete visual-evidence gate after the authorized GitHub push. Check the Sign In prompt's clear outside area and pre-31 opaque fallback on devices. Local compilation and unit tests are separate from this runtime evidence.
+## [P1] iOS 26 migration: physical-device verification
+- **Scope**: Device compositor blur, clear Sign In outside area, pre-31 fallback, live account/exam flows, and Eve/Device font appearance.
+- **Details**: Both API 35 native navigation suites pass (34 tests each), with complete light/dark evidence gates. Requested chrome/modal and Home/Test/Result/Settings/Login captures were reviewed with fixture limitations recorded in docs/ios26/MIGRATION_REPORT.md. Inspect the remaining hardware and live-flow behavior on physical devices; emulator/Canvas evidence does not certify these items.
