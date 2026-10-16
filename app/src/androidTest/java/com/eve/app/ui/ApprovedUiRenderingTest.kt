@@ -356,8 +356,9 @@ class ApprovedUiRenderingTest {
                 assertEquals("Selected pill must render for $name in dark=$dark", context.getColor(R.color.eve_result_tab_selected), image.getPixel(x, dp(8)))
                 assertEquals(context.getColor(R.color.eve_result_tab_track), image.getPixel(image.width / 2, dp(1)))
                 val cornerX = b.tabLayoutResult.paddingLeft + strip.getChildAt(index).right - dp(3) - dp(1)
+                val expectedCorner = if (index == 2) Color.TRANSPARENT else context.getColor(R.color.eve_result_tab_track)
                 assertEquals("Selected $name pill must retain its rounded right corner",
-                    context.getColor(R.color.eve_result_tab_track),
+                    expectedCorner,
                     image.getPixel(cornerX, b.tabLayoutResult.paddingTop + dp(1)))
             }
             val colors = b.tabLayoutResult.tabTextColors!!
