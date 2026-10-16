@@ -384,3 +384,37 @@ Following ADR-010, end-to-end integration verification identified 5 critical ope
 - Delivery verification: Build Eve APK run 38677521615 passes both API 35 navigation suites (34 native tests each), complete evidence (167 captures per job, zero missing pairs/warnings), Android build/lint/unit, backend and Functions. Requested light/dark captures were reviewed. Physical compositor, pre-31, Sign In outside-area and live production checks remain explicitly unverified.
 
 - Publication verified: the same run completed successfully and uploaded exactly one artifact, Eve-debug-apk (11947146346). A documentation-only follow-up records the verified implementation run without rebuilding unchanged application code.
+
+## ADR-011: Navigation Chrome Correction, Transparent Header Containers & iOS 26 Neutral Segmented Navigation
+
+- **Date**: 2026-10-16
+- **Status**: Accepted
+- **Author**: Principal Mobile Systems Architect, UI/UX Lead
+- **Authority**: User instruction: "remove the unwanted full-width rounded top-header background throughout the app and refine existing navigation tabs/filter pills using official iOS 26 principles."
+
+### Context
+In earlier iterations, `EveGlassToolbar` implemented a BlurView with a capsule outline provider, 50% height corner radius, thin material overlay tint, and a bottom separator line. When used to wrap top navigation rows across 36 screens (student and admin), it rendered an unwanted continuous full-width rounded slab behind headers. Additionally, `EveGlassToolbar` was reused in `activity_result.xml` around `tabLayoutResult` with a duplicate track background.
+
+### Official Documentation References Opened
+- Apple Human Interface Guidelines - Toolbars: https://developer.apple.com/design/human-interface-guidelines/toolbars
+- Apple Human Interface Guidelines - Segmented Controls: https://developer.apple.com/design/human-interface-guidelines/segmented-controls
+
+### Decisions
+1. **Transparent, Non-Blurring Header Containers**:
+   - Refactored `EveGlassToolbar` from `BlurView` to extend `FrameLayout` with `Color.TRANSPARENT` background.
+   - Removed capsule clipping (`outlineProvider`), BlurView attachment (`EveBlurHelper.setupBlurView`), overlay tint, decorative shadow, and bottom separator line.
+   - Screen titles and navigation rows float directly over the canvas across all 36 screens.
+   - Preserved all child IDs, callbacks, insets, touch targets (>= 48dp), system status/navigation bars, and Android gesture handles.
+2. **Separated Header Containers from Tab Surfaces**:
+   - In `activity_result.xml`, replaced outer `EveGlassToolbar` around `tabLayoutResult` with a neutral `FrameLayout`.
+   - Removed outer duplicate `@drawable/bg_result_segmented_track` background, establishing a single capsule track on `tabLayoutResult`.
+   - Restored solid fill `@color/eve_result_tab_track` on `bg_result_segmented_track.xml`.
+3. **Neutral Segmented Control Surfaces with Primary-Label Text**:
+   - Light mode: `@color/eve_result_tab_selected` resolves to `@color/eve_system_background` (`#FFFFFF`); `@color/eve_result_tab_selected_text` resolves to `@color/eve_label_primary` (`#000000`). Track resolves to `@color/eve_surface_variant` (`#E5E5EA`).
+   - Dark mode: `@color/eve_result_tab_selected` resolves to raised dark semantic surface `@color/eve_system_gray2` (`#636366`); `@color/eve_result_tab_selected_text` resolves to `@color/eve_label_primary` (`#FFFFFF`). Track resolves to `@color/eve_secondary_system_grouped_background` (`#1C1C1E`).
+   - Removed 1dp strokes from `bg_tab_segmented_track.xml` and `bg_tab_segmented_indicator.xml`.
+   - Aligned generic tab tokens (`eve_tab_selected_bg`, `eve_tab_selected_text`) in `values/colors.xml` and `values-night/colors.xml`.
+4. **Touch & Motion Invariants**:
+   - In `EveGlassTabLayout`, added animation cancellation on rapid taps (`v.animate().cancel()`) and respect for disabled animations via `EveMotionHelper.areAnimationsEnabled(v.context)`.
+   - Home avatar and Lottie notification bell parent remain visually bare with transparent background and no decorative container.
+   - Home category pills retain horizontal scrolling, content-sizing, 40dp min height, 48dp touch delegation, accent-tinted selected fill/text, and neutral unselected fill/text.

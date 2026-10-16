@@ -9,6 +9,15 @@
 - Light app background tokens are pure `#FFFFFF`; dark background tokens are pure `#000000`.
 - Test submission remains server-side through `POST /api/attempts/submit`; authentication, scoring, answer persistence, and navigation code were not changed by the Home Banner/Test appearance task.
 
+### EVE: Navigation-Chrome Correction & iOS 26 Segmented Control Refinement — 2026-10-16
+
+- Removed unwanted full-width rounded capsule header backgrounds across all 36 layouts by refactoring `EveGlassToolbar` to a transparent `FrameLayout` (`Color.TRANSPARENT`), eliminating the capsule OutlineProvider, BlurView RenderEffect backdrop, and bottom separator line. Header titles and controls now sit directly on the screen canvas per iOS 26 Human Interface Guidelines.
+- Maintained protective invariants: student avatar unchanged, notification bell Lottie (`btnNotification`) and its parent remain completely bare with zero background or decorative ring, and Telegram circular reveal day/night transition remains intact.
+- Decoupled Result segmented tabs (`tabLayoutResult`) from the header toolbar by replacing its outer `EveGlassToolbar` with a standard `FrameLayout` and giving `tabLayoutResult` its own dedicated bounded track surface via `bg_result_segmented_track.xml` (`eve_result_tab_track`).
+- Refined segmented control selection to neutral iOS 26 surfaces with primary-label text (light: `#FFFFFF` surface with `#000000` text; dark: raised `#636366` surface with `#FFFFFF` text), removing hard 1dp stroke outlines from indicators and tracks.
+- Enhanced `EveGlassTabLayout` touch response with immediate animation cancellation on rapid taps and respect for system reduced motion settings (`EveMotionHelper.areAnimationsEnabled`).
+- Added regression test suite `NavigationChromeAndTabsTest.kt` verifying transparent headers, bare Lottie parent, separated tab tracks, and neutral segmented colors.
+
 ### EVE: App-wide iOS 26 Dynamic Typography & 26 Colour Roles (All 95 Layouts) — 2026-10-13
 
 Completed project-wide rollout of the official Apple iOS 26 dynamic typography hierarchy and complete 26 semantic colour roles across every layout in the project:

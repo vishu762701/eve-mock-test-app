@@ -57,10 +57,22 @@ class EveGlassTabLayout @JvmOverloads constructor(
             tabView.setOnTouchListener { v, event ->
                 when (event.actionMasked) {
                     MotionEvent.ACTION_DOWN -> {
-                        v.animate().scaleX(0.97f).scaleY(0.97f).setDuration(80).start()
+                        v.animate().cancel()
+                        if (com.eve.app.util.EveMotionHelper.areAnimationsEnabled(v.context)) {
+                            v.animate().scaleX(0.97f).scaleY(0.97f).setDuration(80).start()
+                        } else {
+                            v.scaleX = 1.0f
+                            v.scaleY = 1.0f
+                        }
                     }
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                        v.animate().scaleX(1.0f).scaleY(1.0f).setDuration(160).start()
+                        v.animate().cancel()
+                        if (com.eve.app.util.EveMotionHelper.areAnimationsEnabled(v.context)) {
+                            v.animate().scaleX(1.0f).scaleY(1.0f).setDuration(160).start()
+                        } else {
+                            v.scaleX = 1.0f
+                            v.scaleY = 1.0f
+                        }
                     }
                 }
                 false

@@ -209,3 +209,17 @@
   - `./gradlew assembleDebug` passed (Debug APK built).
   - `./gradlew lintDebug` passed (0 lint errors).
   - `git diff --check` passed with 0 errors.
+
+## EVE Navigation-Chrome Correction & iOS 26 Segmented Control Refinement (2026-10-16)
+
+- [x] **Transparent Navigation Headers:** Refactored `EveGlassToolbar` to a transparent `FrameLayout` (`Color.TRANSPARENT`), removing continuous rounded capsule clipping (`EveShapes.capsule`), background blur/tint (`setupBlurWith`), and hairline bottom separator across all 36 toolbar screens (student and admin).
+- [x] **Separated Tab Surfaces:** Decoupled `tabLayoutResult` in `activity_result.xml` from the outer toolbar wrapper by replacing the outer wrapper with a standard `FrameLayout`, and giving the tabs their own dedicated bounded surface track via `bg_result_segmented_track.xml` (`eve_result_tab_track`).
+- [x] **Neutral Segmented Control Selection:** Standardized segmented control selection surfaces to Apple HIG neutral tokens (`eve_system_background` / `#FFFFFF` in Light, `eve_system_gray2` / `#636366` in Dark) with primary-label text (`eve_label_primary`), eliminating hard 1dp stroke outlines.
+- [x] **Protected Invariants:** Preserved bare Lottie notification bell (`btnNotification`) and parent container without any decorative background/ring, preserved student avatar, Home category chips horizontally scrollable with 40dp visual height / 48dp target, and Telegram circular reveal day/night transition.
+- [x] **Motion & Accessibility:** Added rapid-tap animation cancellation and reduced-motion compliance (`EveMotionHelper.areAnimationsEnabled`) in `EveGlassTabLayout`.
+- [x] **Verification Gate:**
+  - `python3 -B .github/scripts/check_design_system.py` passed.
+  - `python3 -B -m unittest discover -s .github/scripts/tests -q` passed (13/13 tests).
+  - `node .github/scripts/verify-docs.mjs` passed (33 docs, 0 errors, 0 warnings).
+  - Unit test `NavigationChromeAndTabsTest.kt` added.
+  - `git diff --check` passed with 0 errors.

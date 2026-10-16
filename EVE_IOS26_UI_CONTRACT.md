@@ -74,9 +74,14 @@ Glass is restricted to four categories: navigation/top bars, tab bars, popup men
 and modal sheets/dialogs. Cards, exam/result cards, list rows, banners and drawer
 content are opaque. The Sign In prompt's outside area stays undimmed and unblurred.
 
-EveGlassToolbar uses the thin approximation and EveBlurHelper with BlurView's
-RenderEffect engine on API 31+;
-foreground children are drawn after the backdrop. Lower APIs use an opaque tint.
+EveGlassToolbar provides a transparent, non-blurring layout container for top headers,
+keeping screen titles and actions directly over the screen canvas in accordance with
+Apple HIG navigation bar principles, without continuous capsule clipping, blur backdrop,
+overlay tint, or decorative separator line.
+Non-Lottie navigation/action buttons may use compact circular or capsule glass surfaces
+where appropriate. The Home notification Lottie and its parent remain visually bare.
+Segmented navigation controls (Result tabs) maintain their own bounded capsule track and
+a neutral selected surface (white in light mode, raised dark semantic surface in dark mode) with primary-label text.
 Popup RenderEffect is applied only to the captured background ImageView.
 Floating dialogs use API 31 window-background blur clipped to their background shape;
 GlassmorphismHelper retains window-local lifecycle ownership for sheet blur.

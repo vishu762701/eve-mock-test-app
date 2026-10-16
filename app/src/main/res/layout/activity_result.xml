@@ -103,11 +103,10 @@
 </com.eve.app.ui.common.EveGlassToolbar>
 
         <!-- Segmented Navigation: 3 Tabs (Overview | Review | Leaderboard) -->
-        <com.eve.app.ui.common.EveGlassToolbar
+        <FrameLayout
             android:layout_width="match_parent" android:layout_height="wrap_content"
             android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
-            android:layout_marginTop="6dp" android:layout_marginBottom="6dp"
-            android:background="@drawable/bg_result_segmented_track">
+            android:layout_marginTop="6dp" android:layout_marginBottom="6dp">
         <com.eve.app.ui.common.EveGlassTabLayout
             android:id="@+id/tabLayoutResult"
             android:layout_width="match_parent"
@@ -145,7 +144,7 @@
                 android:layout_height="wrap_content"
                 android:text="Leaderboard" />
         </com.eve.app.ui.common.EveGlassTabLayout>
-        </com.eve.app.ui.common.EveGlassToolbar>
+        </FrameLayout>
 
         <!-- Content Container -->
         <FrameLayout
