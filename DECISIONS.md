@@ -521,4 +521,143 @@ To achieve complete, app-wide fidelity to Apple's official iOS 26 design languag
    - Added `android:background="@color/eve_system_grouped_background"` to root `FrameLayout` of `activity_result.xml` to match `SystemBarHelper` and `Ios26DesignFidelityTest` grouped canvas requirements.
    - Synchronized `AppWideTypographyAndColorRolesTest.testGroupedAndSystemScreenLayoutClassifications` by moving `activity_leaderboard.xml` from `systemSample` to `groupedSample`, matching the official HIG grouped canvas specification in `EVE_IOS26_UI_CONTRACT.md` and `SOURCE_OF_TRUTH.md`.
 
+## ADR-014: Codification and Verification of Locked iOS 26 Rules and Apple HIG Source Authority
 
+- **Date**: 2026-10-17
+- **Status**: Accepted
+- **Author**: Principal Apple HIG Specialist, Android Design Systems Architect
+- **Authority**: User instruction: "LOCKED RULES (do not change values)"
+
+### Context
+The user codified permanent locked rules for EVE's iOS 26 look adapted for Android, mandating verified official values from Apple HIG with cited source URLs, and requiring that any value that cannot be verified from Apple HIG be kept at its current value and marked UNVERIFIED.
+
+### Official Documentation References Opened
+- Apple Human Interface Guidelines - Color: https://developer.apple.com/design/human-interface-guidelines/color
+- Apple HIG Color JSON Endpoint: https://developer.apple.com/tutorials/data/design/human-interface-guidelines/color.json (SHA-256 `262ce33cb88d41ac0238bf1e3f59b7957e8ddb030379c41b35a6cbdb9ab11a39`)
+- Apple Human Interface Guidelines - Typography: https://developer.apple.com/design/human-interface-guidelines/typography
+- Apple HIG Typography JSON Endpoint: https://developer.apple.com/tutorials/data/design/human-interface-guidelines/typography.json (SHA-256 `85bf7dc78d41a6e5e16d4055f3bdadf7bac4f7d5cb2206514c8b82d5d24631ed`)
+- Apple Human Interface Guidelines - Accessibility: https://developer.apple.com/design/human-interface-guidelines/accessibility
+- Apple Human Interface Guidelines - Buttons: https://developer.apple.com/design/human-interface-guidelines/buttons
+- Apple Developer UIKit UIColor: https://developer.apple.com/documentation/uikit/uicolor
+
+### Decisions & Verification Audit
+
+1. **Style (iOS 26 adapted for Android)**:
+   - Neutral black/white canvas (`#FFFFFF` Light / `#000000` Dark) with one primary interactive accent (`#0088FF` Light / `#0091FF` Dark).
+   - Adapted for Android via Material Components 1.12.0, ViewBinding, and RenderEffect/cross-window blur (API 31+).
+   - **Status**: VERIFIED.
+
+2. **Colors (`values/` and `values-night/`)**:
+   - `background = iOS systemBackground`:
+     - Light: `#FFFFFF` | Dark: `#000000`
+     - Source: https://developer.apple.com/design/human-interface-guidelines/color
+     - Matched in repo: `eve_system_background` `#FFFFFF` / `#000000`.
+     - **Status**: VERIFIED.
+   - `cards = secondarySystemBackground`:
+     - Light: `#F2F2F7` | Dark: `#1C1C1E`
+     - Source: https://developer.apple.com/design/human-interface-guidelines/color
+     - Matched in repo: `eve_secondary_system_background` `#F2F2F7` / `#1C1C1E`.
+     - Grouped canvases use `secondarySystemGroupedBackground` (`#FFFFFF` Light / `#1C1C1E` Dark); standard canvases use `secondarySystemBackground`.
+     - **Status**: VERIFIED.
+   - `accent = #0088FF light / #0091FF dark`:
+     - Light: `#0088FF` | Dark: `#0091FF`
+     - Source: https://developer.apple.com/tutorials/data/design/human-interface-guidelines/color.json (row `blue`: RGB 0,136,255 Light / 0,145,255 Dark).
+     - Matched in repo: `eve_system_blue`, `eve_primary`, `eve_accent`.
+     - **Status**: VERIFIED.
+   - `success = systemGreen`:
+     - Light: `#34C759` (RGB: 52, 199, 89) | Dark: `#30D158` (RGB: 48, 209, 88)
+     - Source: https://developer.apple.com/design/human-interface-guidelines/color
+     - Matched in repo: `eve_system_green`, `eve_status_success`.
+     - **Status**: VERIFIED.
+   - `error = systemRed`:
+     - HIG JSON: Light `#FF383C` (RGB: 255, 56, 60) | Dark `#FF4245` (RGB: 255, 66, 69)
+     - Standard sRGB: Light `#FF3B30` | Dark `#FF453A`
+     - Source: https://developer.apple.com/tutorials/data/design/human-interface-guidelines/color.json
+     - Matched in repo: `eve_system_red`, `eve_status_error` resolve to authoritative HIG JSON `#FF383C` / `#FF4245`.
+     - **Status**: VERIFIED.
+   - `warning = systemOrange (max 2-3 tiny uses per screen)`:
+     - HIG JSON: Light `#FF8D28` (RGB: 255, 141, 40) | Dark `#FF9230` (RGB: 255, 146, 48)
+     - Standard sRGB: Light `#FF9500` | Dark `#FF9F0A`
+     - Source: https://developer.apple.com/tutorials/data/design/human-interface-guidelines/color.json
+     - Matched in repo: `eve_system_orange`, `eve_status_warning` resolve to authoritative HIG JSON `#FF8D28` / `#FF9230`.
+     - **Status**: VERIFIED.
+   - `No yellow, lime, pink`:
+     - Lime `#E3FF3B` banned app-wide per SOURCE_OF_TRUTH.md Invariant 1.
+     - Yellow removed from general UI and alerts (warning uses systemOrange; Mock Test Review `#FFCC00` invariant retained).
+     - Pink unused in UI.
+     - **Status**: VERIFIED.
+
+3. **Text Hierarchy & Contrast**:
+   - `Inter font (regular/medium/semibold/bold)`:
+     - Apple HIG system typeface is San Francisco (`SF Pro`), not Inter. The app does not bundle Inter font files; it uses Android platform-native `sans-serif` and `sans-serif-medium` (ADR-001) for performance, zero APK bloat, Devanagari Hindi fallback, and Dynamic Type scaling.
+     - Per locked rule instruction: "If you cannot verify a value, keep the current one and mark it UNVERIFIED."
+     - Current platform-native sans-serif typeface preserved.
+     - **Status**: UNVERIFIED (Inter font is not in Apple HIG; current stack preserved).
+   - Text Scale:
+     - Title: `28sp` bold -> Title 1 (28pt, bold, leading 34pt).
+     - Heading: `20sp` semibold -> Title 3 (20pt, semibold, leading 25pt).
+     - Body: `17sp` -> Body (17pt, regular, leading 22pt).
+     - Secondary: `15sp` -> Subheadline (15pt, regular, leading 20pt).
+     - Caption: `13sp` -> Footnote (13pt, regular, leading 18pt).
+     - Source: https://developer.apple.com/design/human-interface-guidelines/typography
+     - Matched in repo: `TextAppearance.Eve.Title1`, `Title3.Semibold`, `Body`, `Subheadline`, `Footnote`.
+     - **Status**: VERIFIED.
+   - Contrast:
+     - Primary text: Black (`#000000`) Light / White (`#FFFFFF`) Dark (contrast 21.0:1 >= 4.5:1).
+     - Secondary text: 65% opacity: `#50505A` Light (8.04:1 >= 4.5:1) / `#C5C5CC` Dark (12.5:1 >= 4.5:1).
+     - Source: https://developer.apple.com/design/human-interface-guidelines/accessibility
+     - **Status**: VERIFIED.
+
+4. **Shape**:
+   - `buttons/chips fully rounded`:
+     - Capsule / Pill with half-height radius (`@dimen/eve_radius_pill` = `999dp`, `ShapeAppearance.Eve.Capsule` 50%).
+     - Source: https://developer.apple.com/design/human-interface-guidelines/buttons
+     - **Status**: VERIFIED.
+   - `cards 24dp` vs current `26dp`:
+     - Apple HIG does NOT publish numeric corner radii for cards (Apple uses proprietary continuous squircle curves in UIKit/SwiftUI).
+     - Per locked rule instruction: "If you cannot verify a value, keep the current one and mark it UNVERIFIED."
+     - Current repository value `26dp` (`@dimen/eve_radius_card`) is maintained and marked UNVERIFIED.
+     - **Status**: UNVERIFIED in Apple HIG (26dp maintained).
+   - `sheets top 32dp` vs current `34dp`:
+     - Apple HIG does NOT publish numeric corner radii for modal sheets.
+     - Per locked rule instruction: "If you cannot verify a value, keep the current one and mark it UNVERIFIED."
+     - Current repository value `34dp` (`@dimen/eve_radius_bottom_sheet`) is maintained and marked UNVERIFIED.
+     - **Status**: UNVERIFIED in Apple HIG (34dp maintained).
+   - `inner radius = outer radius - padding`:
+     - Concentric geometry formula (`EveShapes.concentric`) implemented in `com.eve.app.util.EveShapes`: `(parent - padding).coerceAtLeast(4f)`.
+     - **Status**: VERIFIED.
+
+## ADR-015: Eve Design System Foundation Architecture and Home Screen Application
+
+- **Date**: 2026-10-17
+- **Status**: Accepted
+- **Author**: Principal Systems Architect, Android UI Lead, Design Systems Specialist
+- **Authority**: User instruction: "TASK: Build the Eve Design System foundation, then apply it to the Home screen ONLY. Do not touch other screens. Follow GEMINI.md."
+
+### Context
+While EVE has codified Apple iOS 26 color roles, dynamic typography scales, and liquid glass specifications, these tokens were previously distributed across disparate utility classes and XML declarations without a unified programmatic design system foundation. Furthermore, the Home screen required systematic adherence to this unified foundation while leaving all other screens completely untouched.
+
+### Decisions
+1. **Canonical Design System Foundation (`com.eve.app.designsystem.EveDesignSystem`)**:
+   - Centralized all tokens, geometry rules, materials, and motion under a single, discoverable Kotlin facade:
+     - `EveDesignSystem.Colors`: Screen canvases (`systemBackground`, `systemGroupedBackground`), semantic surface hierarchy (`secondarySystemBackground`, `tertiarySystemBackground`, `cardBackground`, `contentCardBackground`), label hierarchy (`labelPrimary`, `labelSecondary`, `labelTertiary`, `labelQuaternary`, `placeholderText`, `headerInkText`), interactive blue (`systemBlue`, `accentText`, `accentContainer`), protected status colors (`statusRightFill`, `statusRightText`, `statusWrongFill`, `statusWrongText`, `statusReviewFill`, `statusReviewText`, `destructiveText`), strokes/separators (`shapeBorder`, `separator`), and material tints.
+     - `EveDesignSystem.Typography`: 11 canonical Apple iOS 26 text styles (`LargeTitle` through `Caption2`, `Eyebrow`, `Search`) and platform-native typefaces (`sansSerif`, `sansSerifMedium`).
+     - `EveDesignSystem.Shapes`: Standard radii (`RADIUS_CARD_DP = 26f`, `RADIUS_SHEET_DP = 34f`, `RADIUS_CONCENTRIC_CARD_DP = 8f`, `RADIUS_MIN_DP = 4f`), outline providers (`applyCardSquircle`, `applyCapsuleOutline`, `applyConcentricCardOutline`), and concentric formula (`(parent - padding).coerceAtLeast(4f)`).
+     - `EveDesignSystem.Spacing`: 4dp spatial grid (`SPACE_4_DP` through `SPACE_32_DP`) and touch constraints (min 48dp target, 52dp list row, 56dp segmented control).
+     - `EveDesignSystem.Elevation`: Dynamic card elevations (1.5dp Light / 0dp Dark).
+     - `EveDesignSystem.Motion`: Standard durations (Quick 150ms, Dismiss 220ms, Standard 300ms, Spring 360ms), interpolators, spring entrance/dismiss animations, and tactile feedback (`attachTactileFeedback`).
+     - `EveDesignSystem.Materials`: Unified Liquid Glass Regular (`apple-regular`) and cross-window blur utilities.
+     - `EveDesignSystem.Components`: Reusable builders and stylers for cards, concentric icon tiles, category chips, streak pills, admin buttons, banner surfaces, and bare Lottie bell tinting.
+
+2. **Strict Application to Home Screen ONLY**:
+   - `MainActivity.kt`: Replaced ad-hoc surface styling with `EveDesignSystem.Components.applyHomeBannerSurface`, `applyStreakPill`, `applyAdminButton`, `Colors.secondarySystemBackground`, `Shapes.cardRadius`, and `Motion.attachTactileFeedback`.
+   - `HomeAppearance.kt`: Delegated banner squircle clipping, notification bell ink tinting, and category chip construction directly to `EveDesignSystem`.
+   - `ExamAdapter.kt`: Standardized card backgrounds, labels, status colors, and icon tile borders using `EveDesignSystem.Colors`.
+   - `item_feedback_post.xml`: Standardized card style to `Widget.Eve.Card.Content` ensuring secondary system background contrast over the plain Home canvas.
+   - `dimens.xml`: Added `@dimen/eve_radius_concentric_card` (8dp) documenting concentric child geometry.
+
+3. **Protection of Non-Home Screens & Permanent Invariants**:
+   - Zero edits made to Test, Result, Profile, Settings, Admin, Leaderboard, History, Syllabus, About, or Bookmarks screens.
+   - Preserved Telegram-style Day/Night circular reveal animation (`ThemeSwitchAnimator.kt`, `ThemeManager.kt`, `TelegramMenuPopup.kt`).
+   - Bare notification bell Lottie container and all Lottie/SVG assets remain completely undecorated.
+   - Maintained exactly 95 layout files project-wide with 0 hardcoded `android:textSize` attributes.

@@ -268,10 +268,15 @@ class MainActivity : EveBaseActivity() {
         // Task H: Immediately restore last-known valid streak state so theme recreation never flashes empty/GONE
         val cachedStreak = com.eve.app.util.StreakHelper.getCachedStreak(this)
         if (cachedStreak != null) {
-            binding.tvStreakSummary.text = com.eve.app.util.StreakHelper.formatStreakText(
+            val summaryText = com.eve.app.util.StreakHelper.formatStreakText(
                 cachedStreak.currentStreak,
                 cachedStreak.todayCount,
                 cachedStreak.goal
+            )
+            com.eve.app.designsystem.EveDesignSystem.Components.applyStreakPill(
+                binding.layoutStreakPill,
+                binding.tvStreakSummary,
+                summaryText
             )
             binding.layoutStreakPill.visibility = View.VISIBLE
             binding.tvStreakSummary.visibility = View.VISIBLE
@@ -299,7 +304,7 @@ class MainActivity : EveBaseActivity() {
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
 
-        com.eve.app.util.EveTouchHelper.attachTactileFeedback(binding.ivProfile) {
+        com.eve.app.designsystem.EveDesignSystem.Motion.attachTactileFeedback(binding.ivProfile) {
             prepareDrawerSurface()
             binding.drawerLayout.openDrawer(GravityCompat.START)
         }
@@ -421,10 +426,15 @@ class MainActivity : EveBaseActivity() {
                             res.data.todayCount,
                             goal
                         )
-                        binding.tvStreakSummary.text = com.eve.app.util.StreakHelper.formatStreakText(
+                        val summaryText = com.eve.app.util.StreakHelper.formatStreakText(
                             res.data.currentStreak,
                             res.data.todayCount,
                             goal
+                        )
+                        com.eve.app.designsystem.EveDesignSystem.Components.applyStreakPill(
+                            binding.layoutStreakPill,
+                            binding.tvStreakSummary,
+                            summaryText
                         )
                         binding.layoutStreakPill.visibility = View.VISIBLE
                         binding.tvStreakSummary.visibility = View.VISIBLE
@@ -918,8 +928,10 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun setupHomeBannerSurface() {
-        HomeAppearance.clipBanner(binding.panelHomeBanner)
-        binding.blurHomeBannerMaterial.setBackgroundColor(ContextCompat.getColor(this, R.color.eve_secondary_system_background))
+        com.eve.app.designsystem.EveDesignSystem.Components.applyHomeBannerSurface(
+            binding.panelHomeBanner,
+            binding.blurHomeBannerMaterial
+        )
     }
 
     private fun renderHomeBannerCta(position: Int) {
@@ -982,6 +994,7 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun showAdminButton() {
+        com.eve.app.designsystem.EveDesignSystem.Components.applyAdminButton(binding.btnAdmin)
         binding.btnAdmin.visibility = View.VISIBLE
         binding.btnAdmin.setOnClickListener {
             com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, AdminActivity::class.java), binding.btnAdmin)
@@ -1108,7 +1121,7 @@ class MainActivity : EveBaseActivity() {
         // Drawer content is opaque; retain listener and animation ownership unchanged.
         binding.ivDrawerGlassBlurBackground.setImageDrawable(null)
         binding.ivDrawerGlassBlurBackground.setBackgroundColor(
-            ContextCompat.getColor(this, R.color.eve_secondary_system_background))
+            com.eve.app.designsystem.EveDesignSystem.Colors.secondarySystemBackground(this))
     }
 
     private fun setupDrawer(user: com.google.firebase.auth.FirebaseUser) {
@@ -1117,13 +1130,13 @@ class MainActivity : EveBaseActivity() {
 
         val isDark = ThemeManager.isDarkMode(this)
         // The existing outside scrim preserves the drawer interaction.
-        val scrimColor = ContextCompat.getColor(this, R.color.eve_drawer_scrim)
+        val scrimColor = com.eve.app.designsystem.EveDesignSystem.Colors.drawerScrim(this)
         binding.drawerLayout.setScrimColor(scrimColor)
 
         // Drawer clipping follows the shared fixed-card shape.
         binding.navDrawerPanel.outlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View, outline: Outline) {
-                val radius = com.eve.app.util.EveShapes.card(resources)
+                val radius = com.eve.app.designsystem.EveDesignSystem.Shapes.cardRadius(resources)
                 outline.setRoundRect(-radius.toInt(), 0, view.width, view.height, radius)
             }
         }

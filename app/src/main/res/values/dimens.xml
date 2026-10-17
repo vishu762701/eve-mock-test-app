@@ -52,6 +52,7 @@
     <dimen name="eve_radius_segment_child">@dimen/eve_radius_pill</dimen>
     <dimen name="eve_control_min_touch">48dp</dimen>
     <dimen name="eve_radius_concentric_sheet">18dp</dimen>
+    <dimen name="eve_radius_concentric_card">8dp</dimen>
     <dimen name="eve_radius_min">4dp</dimen>
     <dimen name="eve_list_row_min">52dp</dimen>
     <dimen name="eve_segment_min_height">56dp</dimen>

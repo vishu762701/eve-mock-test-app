@@ -37,6 +37,12 @@ Ranked by impact on user experience, stability, and design system fidelity per `
 - **Scope**: `TestActivity.kt`, `EveLiquidGlass.kt`, `Theme.Eve.Dialog.SubmitConfirmation`, `bg_dialog_submit_confirmation.xml`, `values-v31/materials.xml`, `values-night-v31/materials.xml`, `EVE_IOS26_UI_CONTRACT.md`, `DECISIONS.md`, `LiquidGlassRegularMaterialTest.kt`.
 - **Details**: Replaced visual material treatment of the "Submit test?" confirmation dialog in `TestActivity.kt` with unified Apple-inspired Liquid Glass `.regular` (`EVE_REGULAR_GLASS`). Standardized Light appearance (`#E6FFFFFF` 90% white alpha with 1dp `#1A000000` rim) and Dark appearance (`#E61C1C1E` 90% alpha with 1dp `#26FFFFFF` rim) on API 31+ via SurfaceFlinger window background blur (`16dp` radius). Implemented runtime adaptation via `WindowManager.addCrossWindowBlurEnabledListener` with automatic fallback to opaque `@color/eve_secondary_system_background` if transparency or battery saver is active. Fully cleans up listener on dismiss. Preserved exact title ("Submit test?"), question count calculations, positive "Submit" and negative "Cancel" actions, and server submission mechanics. Leaves all other dialogs and content cards untouched. Verified via unit test suite.
 
+## [COMPLETED] Eve Design System Foundation & Home Screen Application (ADR-015)
+- **Status**: Completed (2026-10-17)
+- **Scope**: `EveDesignSystem.kt`, `MainActivity.kt`, `HomeAppearance.kt`, `ExamAdapter.kt`, `item_feedback_post.xml`, `dimens.xml`, `EveDesignSystemTest.kt`, ADR-015 (`DECISIONS.md`).
+- **Details**: Built canonical `EveDesignSystem` Kotlin foundation facade (`com.eve.app.designsystem.EveDesignSystem`) unifying `Colors`, `Typography`, `Shapes`, `Spacing`, `Elevation`, `Motion`, `Materials`, and `Components`. Applied strictly and exclusively to Home screen components (banner squircle clipping/matte, drawer radius/background, streak pill, admin button, category chips, exam cards, and feedback card background). Kept all 35+ non-Home screens completely untouched. Verified via automated unit tests, 194 passing contrast pairs, and documentation verification.
+
+
 
 
 ## [P3] Accessibility: Extreme Font Scale (1.78x / 2.0x) Audit

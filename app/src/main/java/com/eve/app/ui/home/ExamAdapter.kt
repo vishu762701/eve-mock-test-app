@@ -79,17 +79,17 @@ class ExamAdapter(
 
             val ctx = b.root.context
             b.root.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_secondary_system_background))
-            b.root.strokeColor = androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_shape_border)
+            b.root.strokeColor = com.eve.app.designsystem.EveDesignSystem.Colors.shapeBorder(ctx)
             b.root.strokeWidth = 0
-            b.tvExamName.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_label_primary))
+            b.tvExamName.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.labelPrimary(ctx))
             if (attempted) {
-                b.tvExamTime.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_tile_right_text))
+                b.tvExamTime.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.statusRightText(ctx))
             } else {
-                b.tvExamTime.setTextColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_label_secondary))
+                b.tvExamTime.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.labelSecondary(ctx))
             }
             val categoryTint = com.eve.app.util.ExamCategoryTintHelper.getTintForCategory(exam.categoryOrOther)
             b.examIconContainer.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, categoryTint.bgRes))
-            b.examIconContainer.strokeColor = androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_shape_border)
+            b.examIconContainer.strokeColor = com.eve.app.designsystem.EveDesignSystem.Colors.shapeBorder(ctx)
             b.ivExamImage.setColorFilter(androidx.core.content.ContextCompat.getColor(ctx, categoryTint.fgRes))
             val iconColor = androidx.core.content.ContextCompat.getColor(ctx, categoryTint.fgRes)
             b.lottieExamIcon.addValueCallback(com.airbnb.lottie.model.KeyPath("**"), com.airbnb.lottie.LottieProperty.COLOR_FILTER) {

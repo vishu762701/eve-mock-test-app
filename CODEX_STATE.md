@@ -9,6 +9,18 @@
 - Light app background tokens are pure `#FFFFFF`; dark background tokens are pure `#000000`.
 - Test submission remains server-side through `POST /api/attempts/submit`; authentication, scoring, answer persistence, and navigation code were not changed by the Home Banner/Test appearance task.
 
+### EVE: Design System Foundation & Home Screen Application (ADR-015) — 2026-10-17
+
+- Built the canonical `EveDesignSystem` Kotlin foundation facade (`com.eve.app.designsystem.EveDesignSystem`) unifying all tokens into structured modules: `Colors`, `Typography`, `Shapes`, `Spacing`, `Elevation`, `Motion`, `Materials`, and `Components`.
+- Applied the foundation strictly and exclusively to the Home screen:
+  - `MainActivity.kt`: Integrated `EveDesignSystem.Components.applyHomeBannerSurface`, `applyStreakPill`, `applyAdminButton`, `Colors.secondarySystemBackground`, `Shapes.cardRadius`, and `Motion.attachTactileFeedback`.
+  - `HomeAppearance.kt`: Delegated banner clipping, bare notification bell ink tinting, and category chip construction directly to `EveDesignSystem`.
+  - `ExamAdapter.kt`: Standardized card backgrounds, labels, status colors, and icon tile borders using `EveDesignSystem.Colors`.
+  - `item_feedback_post.xml`: Standardized card style to `Widget.Eve.Card.Content` ensuring secondary system background contrast over the plain Home canvas.
+  - `dimens.xml`: Added `@dimen/eve_radius_concentric_card` (8dp) documenting concentric child geometry.
+- All non-Home screens (Test, Result, Profile, Settings, Admin, Leaderboard, History, Syllabus, About, Bookmarks) remain completely untouched.
+- Preserved all invariants: Telegram Day/Night circular reveal, bare Lottie notification bell, 194 passing contrast pairs, 0 hardcoded text sizes, and exactly 95 layout files.
+
 ### EVE: Navigation-Chrome Correction & iOS 26 Segmented Control Refinement — 2026-10-16
 
 - Removed unwanted full-width rounded capsule header backgrounds across all 36 layouts by refactoring `EveGlassToolbar` to a transparent `FrameLayout` (`Color.TRANSPARENT`), eliminating the capsule OutlineProvider, BlurView RenderEffect backdrop, and bottom separator line. Header titles and controls now sit directly on the screen canvas per iOS 26 Human Interface Guidelines.

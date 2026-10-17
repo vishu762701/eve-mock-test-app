@@ -251,4 +251,26 @@
   - `node .github/scripts/verify-docs.mjs` passed (33 docs, 0 errors, 0 warnings).
   - `git diff --check` passed with 0 errors.
 
+## EVE Locked iOS 26 Rules and Apple HIG Source Authority Verification (ADR-014) (2026-10-17)
+
+- [x] **Locked Rules & Apple HIG Source Audit:** Conducted exhaustive verification of locked rules against Apple Human Interface Guidelines documentation and JSON endpoints (`color.json`, `typography.json`).
+- [x] **Verified Tokens:** Formally verified systemBackground (`#FFFFFF`/`#000000`), secondarySystemBackground (`#F2F2F7`/`#1C1C1E`), interactive blue accent (`#0088FF`/`#0091FF`), systemGreen (`#34C759`/`#30D158`), systemRed (`#FF383C`/`#FF4245`), systemOrange (`#FF8D28`/`#FF9230`), bans on lime/yellow/pink, Dynamic Type scale (Title 28 bold, Heading 20 semibold, Body 17, Secondary 15, Caption 13 sp), primary/secondary text contrast (>= 4.5:1), fully rounded buttons/chips (capsule), and concentric inner radius formula.
+- [x] **Unverified Values Maintained:** Documented that Apple HIG does not specify Inter font (SF Pro is Apple system font) or numeric corner radii for cards/sheets; per locked rule instruction, current platform-native sans-serif typeface, 26dp cards, and 34dp sheets are maintained and marked UNVERIFIED.
+- [x] **Verification Gate:**
+  - `python3 -B .github/scripts/check_design_system.py` passed (194 measured pairs).
+  - `python3 -B -m unittest discover -s .github/scripts/tests -q` passed (13/13 tests).
+  - `node .github/scripts/verify-docs.mjs` passed (33 docs, 0 errors, 0 warnings).
+  - `git diff --check` passed with 0 errors.
+
+## EVE Design System Foundation and Home Screen Application (ADR-015) (2026-10-17)
+
+- [x] **Canonical Eve Design System Foundation:** Built `com.eve.app.designsystem.EveDesignSystem` organizing all tokens and helpers under structured modules: `Colors` (canvas, surfaces, labels, accents, status), `Typography` (11 canonical styles, typefaces), `Shapes` (capsule, 26dp card, 34dp sheet, concentric calculation, squircle outline providers), `Spacing` (4dp spatial grid, 48dp/52dp/56dp interaction bounds), `Elevation` (1.5dp light / 0dp dark), `Motion` (durations, standard/spring interpolators, tactile feedback), `Materials` (Liquid Glass Regular `apple-regular`), and `Components` (card, concentric icon tile, chip, streak pill, admin button, banner surface, and bell tinting).
+- [x] **Strict Application to Home Screen ONLY:** Applied foundation directly to `MainActivity.kt` (banner squircle clipping, matte background, drawer background and radius, streak pill styling, admin button, profile touch feedback), `HomeAppearance.kt` (delegation of banner clipping, bell ink, and category chips to design system), `ExamAdapter.kt` (semantic colors, label hierarchy, status indicators), `item_feedback_post.xml` (standardized to `Widget.Eve.Card.Content` for plain canvas contrast), and `dimens.xml` (`@dimen/eve_radius_concentric_card` = 8dp).
+- [x] **Non-Home Screens Untouched:** Preserved all other 35+ screens (Test, Result, Profile, Settings, Admin, Leaderboard, History, Syllabus, About, Bookmarks) without any modifications.
+- [x] **Automated Verification:** Added `EveDesignSystemTest.kt` verifying concentric geometry formulas, spatial grid, motion parameters, typography tokens, Home screen XML bindings, and source integrity.
+- [x] **Verification Gate:**
+  - `python3 -B .github/scripts/check_design_system.py` passed (194 measured pairs).
+  - `python3 -B -m unittest discover -s .github/scripts/tests -q` passed (13/13 tests).
+  - `node .github/scripts/verify-docs.mjs` passed (33 docs, 0 errors, 0 warnings).
+  - `git diff --check` passed with 0 errors.
 
