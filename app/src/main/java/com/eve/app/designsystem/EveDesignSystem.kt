@@ -406,7 +406,7 @@ object EveDesignSystem {
          */
         fun applyConcentricIconContainer(
             container: MaterialCardView,
-            categoryTint: ExamCategoryTintHelper.CategoryTint? = null,
+            categoryTint: ExamCategoryTintHelper.TintColors? = null,
             parentPaddingDp: Float = 18f
         ) {
             val ctx = container.context
