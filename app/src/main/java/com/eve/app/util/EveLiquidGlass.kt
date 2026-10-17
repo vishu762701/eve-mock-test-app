@@ -67,6 +67,62 @@ object EveLiquidGlass {
     }
 
     /**
+     * Applies the EVE_REGULAR_GLASS specification to the Mock Test submission confirmation dialog.
+     * On API 31+, registers a lifecycle-safe CrossWindowBlurEnabledListener to adaptively switch between
+     * hardware window blur and an opaque semantic surface if transparency is disabled or toggled at runtime.
+     * On dismissal, all listeners are released to prevent memory leaks.
+     */
+    fun applySubmitConfirmationGlass(dialog: Dialog, @Px blurRadiusPx: Int? = null) {
+        val window = dialog.window ?: return
+        val context = dialog.context
+        val density = context.resources.displayMetrics.density
+        val radiusPx = blurRadiusPx ?: Math.round(16f * density)
+
+        window.setBackgroundDrawableResource(R.drawable.bg_dialog_submit_confirmation)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val wm = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
+            val mainExecutor = ContextCompat.getMainExecutor(context)
+
+            fun updateSurface(blurEnabled: Boolean) {
+                try {
+                    if (blurEnabled) {
+                        window.setBackgroundBlurRadius(radiusPx)
+                        window.setBackgroundDrawableResource(R.drawable.bg_dialog_submit_confirmation)
+                    } else {
+                        window.setBackgroundBlurRadius(0)
+                        val drawable = ContextCompat.getDrawable(context, R.drawable.bg_dialog_submit_confirmation)?.mutate()
+                        if (drawable is android.graphics.drawable.InsetDrawable) {
+                            val inner = drawable.drawable as? android.graphics.drawable.GradientDrawable
+                            inner?.setColor(ContextCompat.getColor(context, R.color.eve_secondary_system_background))
+                        }
+                        window.setBackgroundDrawable(drawable)
+                    }
+                } catch (_: Throwable) {
+                    // Graceful fallback
+                }
+            }
+
+            val isSupported = isCrossWindowBlurSupported(context)
+            updateSurface(isSupported)
+
+            if (wm != null) {
+                val blurListener = java.util.function.Consumer<Boolean> { enabled ->
+                    updateSurface(enabled)
+                }
+                try {
+                    wm.addCrossWindowBlurEnabledListener(mainExecutor, blurListener)
+                    dialog.setOnDismissListener {
+                        try {
+                            wm.removeCrossWindowBlurEnabledListener(blurListener)
+                        } catch (_: Throwable) {}
+                    }
+                } catch (_: Throwable) {}
+            }
+        }
+    }
+
+    /**
      * Returns the appropriate Liquid Glass Regular tint for the current theme context.
      */
     @ColorInt

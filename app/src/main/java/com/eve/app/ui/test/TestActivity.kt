@@ -436,12 +436,15 @@ class TestActivity : EveBaseActivity() {
                 "Marked for review: ${counts.markedForReview}\n" +
                 "Not visited: ${counts.notVisited}"
 
-        AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this, R.style.Theme_Eve_Dialog_SubmitConfirmation)
             .setTitle("Submit test?")
             .setMessage(message)
             .setPositiveButton("Submit") { _, _ -> submit() }
             .setNegativeButton("Cancel", null)
-            .show()
+            .create()
+
+        com.eve.app.util.EveLiquidGlass.applySubmitConfirmationGlass(dialog)
+        dialog.show()
     }
 
     private fun submit() {

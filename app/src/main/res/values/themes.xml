@@ -115,6 +115,12 @@
 
     <style name="Theme.Eve.Dialog" parent="Theme.Eve.Dialog.Base" />
 
+    <!-- Scoped Mock Test Submission Confirmation Dialog Theme -->
+    <style name="Theme.Eve.Dialog.SubmitConfirmation" parent="Theme.Eve.Dialog.Base">
+        <item name="android:windowBackground">@drawable/bg_dialog_submit_confirmation</item>
+        <item name="android:windowIsFloating">true</item>
+    </style>
+
     <style name="ShapeAppearance.Eve.Dialog" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">@dimen/eve_radius_xl</item>

@@ -172,4 +172,73 @@ class LiquidGlassRegularMaterialTest {
         assertFalse("item_question.xml must not contain BlurView", questionContent.contains("BlurView"))
         assertFalse("item_exam.xml must not contain BlurView", examCard.contains("BlurView"))
     }
+
+    @Test
+    fun testSubmitConfirmationDialog_themeAndGeometry() {
+        // bg_dialog_submit_confirmation.xml
+        val doc = loadXml("src/main/res/drawable/bg_dialog_submit_confirmation.xml")
+        val inset = doc.documentElement
+        assertEquals("inset", inset.tagName)
+        assertEquals("16dp", inset.getAttribute("android:insetLeft"))
+        assertEquals("16dp", inset.getAttribute("android:insetRight"))
+        assertEquals("16dp", inset.getAttribute("android:insetTop"))
+        assertEquals("16dp", inset.getAttribute("android:insetBottom"))
+
+        val solid = doc.getElementsByTagName("solid").item(0) as Element
+        assertEquals("@color/eve_modal_material", solid.getAttribute("android:color"))
+
+        val stroke = doc.getElementsByTagName("stroke").item(0) as Element
+        assertEquals("1dp", stroke.getAttribute("android:width"))
+        assertEquals("@color/eve_shape_border", stroke.getAttribute("android:color"))
+
+        val corners = doc.getElementsByTagName("corners").item(0) as Element
+        assertEquals("@dimen/eve_radius_bottom_sheet", corners.getAttribute("android:radius"))
+
+        // Theme.Eve.Dialog.SubmitConfirmation in values/themes.xml
+        val themesDoc = loadXml("src/main/res/values/themes.xml")
+        val themeStyle = findStyle(themesDoc, "Theme.Eve.Dialog.SubmitConfirmation")
+        assertNotNull("Theme.Eve.Dialog.SubmitConfirmation must exist in values/themes.xml", themeStyle)
+        assertEquals("@drawable/bg_dialog_submit_confirmation", findItem(themeStyle!!, "android:windowBackground"))
+        assertEquals("true", findItem(themeStyle, "android:windowIsFloating"))
+
+        // Theme.Eve.Dialog.SubmitConfirmation in values-v31/materials.xml
+        val v31Doc = loadXml("src/main/res/values-v31/materials.xml")
+        val v31Style = findStyle(v31Doc, "Theme.Eve.Dialog.SubmitConfirmation")
+        assertNotNull("Theme.Eve.Dialog.SubmitConfirmation must exist in values-v31/materials.xml", v31Style)
+        assertEquals("@drawable/bg_dialog_submit_confirmation", findItem(v31Style!!, "android:windowBackground"))
+        assertEquals("true", findItem(v31Style, "android:windowIsFloating"))
+        assertEquals("true", findItem(v31Style, "android:windowIsTranslucent"))
+        assertEquals("@dimen/eve_modal_blur_radius", findItem(v31Style, "android:windowBackgroundBlurRadius"))
+        assertEquals("false", findItem(v31Style, "android:windowBlurBehindEnabled"))
+    }
+
+    @Test
+    fun testSubmitConfirmationDialog_sourceCodeAndInvariants() {
+        val testActivitySource = File("src/main/java/com/eve/app/ui/test/TestActivity.kt").readText()
+
+        assertTrue(
+            "confirmSubmit() must use Theme_Eve_Dialog_SubmitConfirmation",
+            testActivitySource.contains("R.style.Theme_Eve_Dialog_SubmitConfirmation")
+        )
+        assertTrue(
+            "confirmSubmit() must set title 'Submit test?'",
+            testActivitySource.contains(".setTitle(\"Submit test?\")")
+        )
+        assertTrue(
+            "confirmSubmit() must have positive button 'Submit'",
+            testActivitySource.contains(".setPositiveButton(\"Submit\")")
+        )
+        assertTrue(
+            "confirmSubmit() must have negative button 'Cancel'",
+            testActivitySource.contains(".setNegativeButton(\"Cancel\", null)")
+        )
+        assertTrue(
+            "confirmSubmit() must apply EveLiquidGlass.applySubmitConfirmationGlass",
+            testActivitySource.contains("applySubmitConfirmationGlass(dialog)")
+        )
+        assertTrue(
+            "calculateSubmitDialogCounts must be preserved",
+            testActivitySource.contains("QuestionPaletteAdapter.calculateSubmitDialogCounts")
+        )
+    }
 }

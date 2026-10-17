@@ -445,15 +445,22 @@ Following the formal architecture investigation and component proposal, this dec
 
 2. **Target Component Binding (Floating Modal Dialogs & Sheets)**:
    - Floating dialogs float directly over active, visually rich activity layouts (questions, results, settings), matching Apple HIG's functional layer principle.
-   - In `values-v31/materials.xml`, `Theme.Eve.Dialog` and `Theme.Eve.BottomSheetDialog` configure `android:windowIsTranslucent="true"` and `android:windowBackgroundBlurRadius="@dimen/eve_modal_blur_radius"`. SurfaceFlinger hardware clips the background blur behind the window frame.
-   - Background drawable `@drawable/bg_dialog_liquid_glass` enforces a 34dp corner radius (`@dimen/eve_radius_bottom_sheet`), 16dp window insets, and 1dp stroke (`@color/eve_shape_border`).
+   - In `values-v31/materials.xml`, `Theme.Eve.Dialog`, `Theme.Eve.BottomSheetDialog`, and scoped `Theme.Eve.Dialog.SubmitConfirmation` configure `android:windowIsTranslucent="true"` and `android:windowBackgroundBlurRadius="@dimen/eve_modal_blur_radius"`. SurfaceFlinger hardware clips the background blur behind the window frame.
+   - Background drawables `@drawable/bg_dialog_liquid_glass` and `@drawable/bg_dialog_submit_confirmation` enforce a 34dp corner radius (`@dimen/eve_radius_bottom_sheet`), 16dp window insets, and 1dp stroke (`@color/eve_shape_border`).
    - All foreground content (title, message, buttons) remains 100% sharp and unblurred.
 
 3. **Core Helper & Utility Integration**:
    - Added `EveLiquidGlass.kt` (`com.eve.app.util.EveLiquidGlass`) providing formal specifications, runtime hardware cross-window blur detection (`WindowManager.isCrossWindowBlurEnabled`), and safe window setup helpers.
+   - Built `EveLiquidGlass.applySubmitConfirmationGlass(dialog)` which dynamically registers a `Consumer<Boolean>` listener with `WindowManager.addCrossWindowBlurEnabledListener` on API 31+ to seamlessly switch to an opaque surface if transparency/blur is toggled at runtime, automatically unregistering on dismiss to eliminate leaks.
    - Verified via comprehensive automated unit test suite `LiquidGlassRegularMaterialTest.kt`.
 
-4. **Permanent Invariants Strictly Maintained**:
+4. **Mock Test Submission Confirmation Dialog Production Implementation**:
+   - Scoped strictly to `confirmSubmit()` in `TestActivity.kt`.
+   - Uses dedicated scoped theme `R.style.Theme_Eve_Dialog_SubmitConfirmation` and `@drawable/bg_dialog_submit_confirmation`.
+   - Preserves exact title `"Submit test?"`, question count calculations (`calculateSubmitDialogCounts`), positive button `"Submit"` calling `submit()`, and negative button `"Cancel"`.
+   - Leaves all other alert dialogs in `TestActivity.kt` and throughout the app untouched.
+
+5. **Permanent Invariants Strictly Maintained**:
    - Content cards, exam cards, banners, and list rows remain opaque; no blur applied to content layers.
    - Telegram-style circular reveal Day/Night transition (`ThemeSwitchAnimator.kt`, `ThemeManager.kt`) and popup reveal remain untouched.
    - All Lottie animations, triggers, and icon files remain invariant with zero background tiles/circles.
