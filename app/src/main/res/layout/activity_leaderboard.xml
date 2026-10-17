@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/eve_system_background">
+    android:background="@color/eve_system_grouped_background">
 
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
 <LinearLayout
@@ -41,11 +41,6 @@
             android:textColor="?attr/eveLabelPrimary" />
     </LinearLayout>
 </com.eve.app.ui.common.EveGlassToolbar>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/eve_stroke" />
 
     <com.google.android.material.card.MaterialCardView
         style="@style/Widget.Eve.Card.Group"

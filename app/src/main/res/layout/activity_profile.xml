@@ -44,11 +44,6 @@
     </LinearLayout>
 </com.eve.app.ui.common.EveGlassToolbar>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/eve_stroke_hairline"
-        android:background="@color/eve_separator" />
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"

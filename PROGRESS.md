@@ -235,3 +235,18 @@
   - `python3 -B .github/scripts/check_design_system.py` passed (194 color pairs).
   - `python3 -B -m unittest discover -s .github/scripts/tests -q` passed (13/13 tests).
   - `git diff --check` passed with 0 whitespace errors.
+
+## EVE Complete Official iOS 26 Design Fidelity Implementation (2026-10-17)
+
+- [x] **Screen Canvas Roles & SystemBar Centralization:** Formally established `ScreenCanvasRole` (`PLAIN` `#FFFFFF`/`#000000`, `GROUPED` `#F2F2F7`/`#000000`) in `SystemBarHelper.kt`. Bound in `EveBaseActivity.setContentView()` so `SystemBarHelper.syncSystemBars()` sets both window and `android.R.id.content` backgrounds to the exact canvas color, eliminating flashing and edge-to-edge mismatch. Removed conflicting `setBackgroundDrawableResource` calls from 8 activities.
+- [x] **All Section Tabs Upgraded to `EveGlassTabLayout`:** Standardized `activity_admin.xml`, `activity_manage_premium.xml`, and `activity_edit_about.xml` from legacy flat rectangular underline `TabLayout` to `EveGlassTabLayout` using `@style/Widget.Eve.InlineSectionTabs`, preserving all tab items, text, ordering, and selection listeners.
+- [x] **Elimination of Redundant Header Hairlines:** Removed 20 redundant `<View>` hairline separators across 19 student/admin activities directly below `EveGlassToolbar` and 1 below admin tabs, keeping titles floating cleanly over the canvas per Apple HIG.
+- [x] **Day/Night & API 31+ Modal Qualifier Resolution:** Standardized `Theme.Eve.BottomSheetDialog` to canonical `Theme.Material3.DayNight.BottomSheetDialog` across `values/themes.xml` and `values-v31/materials.xml`, removing redundant override from `values-night/themes.xml`. Fixed `GlassmorphismHelper.update` to explicitly clear `FLAG_BLUR_BEHIND` when blur radius reaches 0.
+- [x] **Repository Cleanliness:** Removed binary archive `eve-argon4-phase1-changed-files.zip` from git tracking.
+- [x] **Test Suite & Invariants:** Added `Ios26DesignFidelityTest.kt` validating screen canvas roles, tab items/callbacks, absence of redundant hairlines, and protected test colors (`#34C759`, `#FFCC00`). Verified 0 hardcoded `android:textSize` attributes across all 95 layouts.
+- [x] **Verification Gate:**
+  - `python3 -B .github/scripts/check_design_system.py` passed (194 measured pairs).
+  - `python3 -B -m unittest discover -s .github/scripts/tests -q` passed (13/13 tests).
+  - `node .github/scripts/verify-docs.mjs` passed (33 docs, 0 errors, 0 warnings).
+  - `git diff --check` passed with 0 errors.
+

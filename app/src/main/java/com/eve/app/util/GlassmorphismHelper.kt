@@ -33,10 +33,15 @@ object GlassmorphismHelper {
             val root = view.rootView
             val lp = root.layoutParams as? WindowManager.LayoutParams ?: return
             val wm = view.context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager ?: return
-            lp.flags = (lp.flags or WindowManager.LayoutParams.FLAG_BLUR_BEHIND) and
-                WindowManager.LayoutParams.FLAG_DIM_BEHIND.inv()
-            lp.dimAmount = 0f
-            lp.blurBehindRadius = radius
+            if (radius > 0) {
+                lp.flags = (lp.flags or WindowManager.LayoutParams.FLAG_BLUR_BEHIND) and
+                    WindowManager.LayoutParams.FLAG_DIM_BEHIND.inv()
+                lp.dimAmount = 0f
+                lp.blurBehindRadius = radius
+            } else {
+                lp.flags = lp.flags and WindowManager.LayoutParams.FLAG_BLUR_BEHIND.inv()
+                lp.blurBehindRadius = 0
+            }
             wm.updateViewLayout(root, lp)
             ThemeManager.trace("popup_blur_update:$radius", view)
         } catch (_: Exception) { /* Window may have detached between validation and update. */ }
@@ -74,6 +79,11 @@ object GlassmorphismHelper {
                 duration = 150L
                 interpolator = FastOutSlowInInterpolator()
                 addUpdateListener { update(view, owner, it.animatedValue as Int) }
+                addListener(object : android.animation.AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: android.animation.Animator) {
+                        cancel(view)
+                    }
+                })
                 start()
             }
         } else {

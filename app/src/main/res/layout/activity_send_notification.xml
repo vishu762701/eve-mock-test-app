@@ -46,7 +46,7 @@
             android:id="@+id/selectionTopBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/eve_bg"
+            android:background="@android:color/transparent"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingHorizontal="16dp"

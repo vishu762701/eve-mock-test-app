@@ -48,19 +48,17 @@
 </com.eve.app.ui.common.EveGlassToolbar>
 
     <!-- Tabs: 1. Create Exam, 2. Manage Questions, 3. Admins -->
-    <com.google.android.material.tabs.TabLayout
+    <com.eve.app.ui.common.EveGlassTabLayout
         android:id="@+id/tabLayoutAdmin"
+        style="@style/Widget.Eve.InlineSectionTabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_bg"
-        app:tabIndicatorColor="@color/eve_primary"
-        app:tabIndicatorHeight="2dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         app:tabMode="scrollable"
         app:tabGravity="start"
-        app:tabMinWidth="80dp"
-        app:tabSelectedTextColor="@color/eve_text"
-        app:tabTextAppearance="@style/TextAppearance.Eve.Button"
-        app:tabTextColor="@color/eve_text_secondary">
+        app:tabMinWidth="80dp">
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
@@ -77,12 +75,7 @@
             android:layout_height="wrap_content"
             android:text="Admins" />
 
-    </com.google.android.material.tabs.TabLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/eve_stroke" />
+    </com.eve.app.ui.common.EveGlassTabLayout>
 
     <!-- Container for Tab Contents -->
     <FrameLayout

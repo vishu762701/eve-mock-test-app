@@ -188,6 +188,22 @@
         <item name="android:textAllCaps">false</item>
     </style>
 
+    <style name="Widget.Eve.InlineSectionTabs" parent="Widget.Material3.TabLayout">
+        <item name="android:background">@drawable/bg_tab_segmented_track</item>
+        <item name="android:minHeight">@dimen/eve_control_min_touch</item>
+        <item name="android:padding">4dp</item>
+        <item name="tabIndicator">@drawable/bg_tab_segmented_indicator</item>
+        <item name="tabIndicatorAnimationMode">elastic</item>
+        <item name="tabIndicatorAnimationDuration">220</item>
+        <item name="tabIndicatorColor">@android:color/transparent</item>
+        <item name="tabIndicatorFullWidth">true</item>
+        <item name="tabIndicatorGravity">stretch</item>
+        <item name="tabRippleColor">@null</item>
+        <item name="tabSelectedTextColor">@color/eve_tab_selected_text</item>
+        <item name="tabTextColor">@color/eve_tab_unselected_text</item>
+        <item name="tabTextAppearance">@style/TextAppearance.Eve.TabSegment</item>
+    </style>
+
     <style name="Widget.Eve.MaterialSwitch" parent="Widget.Material3.CompoundButton.MaterialSwitch">
         <item name="trackDecoration">@drawable/eve_switch_track_outline</item>
         <item name="trackDecorationTint">@color/selector_switch_outline</item>

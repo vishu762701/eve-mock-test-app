@@ -85,7 +85,6 @@ class GeneratedTestsActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.setBackgroundDrawableResource(R.color.eve_bg)
         hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
         binding = ActivityGeneratedTestsBinding.inflate(layoutInflater)
         setContentView(binding.root)

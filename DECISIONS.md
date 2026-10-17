@@ -465,3 +465,55 @@ Following the formal architecture investigation and component proposal, this dec
    - Telegram-style circular reveal Day/Night transition (`ThemeSwitchAnimator.kt`, `ThemeManager.kt`) and popup reveal remain untouched.
    - All Lottie animations, triggers, and icon files remain invariant with zero background tiles/circles.
    - Rigid 2x2 test engine geometry, Hindi/English font fitting, server scoring, and answer-state colors remain unchanged.
+
+## ADR-013: Complete Official iOS 26 Design Fidelity Implementation (Canvas Roles, Inline Section Tabs, Header Chrome & Modal Material Architecture)
+
+- **Date**: 2026-10-17
+- **Status**: Accepted
+- **Author**: Principal Mobile Systems Architect, UI/UX Lead, Apple HIG Specialist
+- **Authority**: User instruction: "EVE — COMPLETE OFFICIAL iOS 26 DESIGN FIDELITY IMPLEMENTATION"
+
+### Context
+To achieve complete, app-wide fidelity to Apple's official iOS 26 design language across the entire EVE Android application under ADR-008, ADR-009, ADR-011, and ADR-012, this decision addresses systemic canvas role divergence, obsolete flat rectangular underline tab layouts, redundant top header hairlines, and resource qualifier conflicts between Day/Night themes and API 31+ window blur.
+
+### Official Documentation References Opened
+- Apple Human Interface Guidelines - Color: https://developer.apple.com/design/human-interface-guidelines/color
+- Apple Human Interface Guidelines - Toolbars: https://developer.apple.com/design/human-interface-guidelines/toolbars
+- Apple Human Interface Guidelines - Navigation Bars: https://developer.apple.com/design/human-interface-guidelines/navigation-bars
+- Apple Human Interface Guidelines - Segmented Controls: https://developer.apple.com/design/human-interface-guidelines/segmented-controls
+- Apple Human Interface Guidelines - Materials: https://developer.apple.com/design/human-interface-guidelines/materials
+- Apple Human Interface Guidelines - Sheets: https://developer.apple.com/design/human-interface-guidelines/sheets
+- Android Developers - WindowInsetsControllerCompat: https://developer.android.com/reference/androidx/core/view/WindowInsetsControllerCompat
+- Android Developers - WindowManager.LayoutParams: https://developer.android.com/reference/android/view/WindowManager.LayoutParams
+
+### Decisions
+1. **Screen Canvas Roles & Centralized SystemBar Integration**:
+   - Formally defined `ScreenCanvasRole` (`PLAIN` `#FFFFFF`/`#000000`, `GROUPED` `#F2F2F7`/`#000000`).
+   - Centralized classification in `SystemBarHelper.kt` with authoritative sets `PLAIN_CANVAS_ACTIVITY_NAMES` and `PLAIN_CANVAS_LAYOUT_NAMES` (`MainActivity`, `LoginActivity`, `TestActivity`, `ContentDisplayActivity`). All other activities resolve to `GROUPED`.
+   - Bound in `EveBaseActivity.setContentView()` so `SystemBarHelper.syncSystemBars(this)` is invoked immediately upon layout attachment.
+   - Eliminated conflicting `window.setBackgroundDrawableResource(R.color.eve_bg)` calls from 8 activities (`ActivityLogActivity`, `AdminActivity`, `ApiUsageActivity`, `EditExamActivity`, `FlaggedQuestionsActivity`, `GeneratedTestsActivity`, `ManageExamsActivity`, `ExamTestsActivity`).
+   - Backed both `window` and `android.R.id.content` with the exact semantic canvas color, ensuring zero flash or mismatch at the status bar, display cutout, and gesture navigation regions.
+
+2. **Complete Modernization of All Section Tabs**:
+   - Upgraded all remaining legacy flat rectangular underline `TabLayout` implementations (`activity_admin.xml`, `activity_manage_premium.xml`, `activity_edit_about.xml`) to `EveGlassTabLayout` with `@style/Widget.Eve.InlineSectionTabs`.
+   - Codified `Widget.Eve.InlineSectionTabs` using `@drawable/bg_tab_segmented_track`, `@drawable/bg_tab_segmented_indicator`, `tabIndicatorGravity="stretch"`, `tabIndicatorAnimationMode="elastic"`, `tabIndicatorAnimationDuration="220"`, `@color/eve_tab_selected_text`, and `@color/eve_tab_unselected_text`.
+   - Preserved 100% of tab counts, titles, order (Overview/Review/Leaderboard, Exams/Manage Questions/Admins, Settings/Transactions/Users, Privacy/Terms/Contact Us), and tab selection listeners.
+
+3. **Elimination of Redundant Header Hairlines**:
+   - Removed 20 redundant `<View>` hairline separators across 19 activities directly below `EveGlassToolbar` (`activity_about.xml`, `activity_activity_log.xml`, `activity_admin_analytics.xml`, `activity_api_usage.xml`, `activity_bookmarks.xml`, `activity_feedback.xml`, `activity_feedback_messages.xml`, `activity_flagged_questions.xml`, `activity_history.xml`, `activity_leaderboard.xml`, `activity_manage_syllabus.xml`, `activity_mistakes.xml`, `activity_notifications.xml`, `activity_payment_checkout.xml`, `activity_performance.xml`, `activity_premium.xml`, `activity_profile.xml`, `activity_result_detail.xml`, `activity_settings.xml`) and 1 below admin tabs in `activity_admin.xml`.
+   - Screen titles and navigation rows float cleanly directly over the canvas in accordance with Apple HIG.
+
+4. **Day/Night Qualifier Conflict & Modal Material Resolution**:
+   - Fixed resource qualifier precedence conflict where `values-night` overrode `values-v31` for `Theme.Eve.BottomSheetDialog` causing missing blur on API 31+ in dark mode, while `values-v31` hardcoded `parent="Theme.Material3.Light.BottomSheetDialog"`.
+   - Replaced parent with canonical `Theme.Material3.DayNight.BottomSheetDialog` in both `values/themes.xml` and `values-v31/materials.xml`, and removed the redundant override from `values-night/themes.xml`.
+   - Updated `GlassmorphismHelper.update` to explicitly clear `FLAG_BLUR_BEHIND` when blur radius reaches 0, preventing SurfaceFlinger blur buffer retention after blur removal. Added completion listener to deregister work owner on exit animation end.
+
+5. **Repository Hygiene**:
+   - Removed binary ZIP archive `eve-argon4-phase1-changed-files.zip` from git tracking.
+
+6. **Invariants Strictly Preserved**:
+   - Telegram circular Day/Night reveal animation and timing (`ThemeSwitchAnimator.kt`, `ThemeManager.kt`, `TelegramMenuPopup.kt`).
+   - All Lottie animations, triggers, and icon files.
+   - Rigid 2x2 test engine geometry, Hindi/English font fitting, server-evaluated scoring, and protected test state colors (`#34C759` selected, `#FFCC00` review).
+   - 0 hardcoded `android:textSize` attributes across all 95 layouts.
+

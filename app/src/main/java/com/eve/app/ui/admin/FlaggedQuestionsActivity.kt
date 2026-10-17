@@ -35,7 +35,6 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.setBackgroundDrawableResource(R.color.eve_bg)
         binding = ActivityFlaggedQuestionsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

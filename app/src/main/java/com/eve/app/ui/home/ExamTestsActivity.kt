@@ -40,7 +40,6 @@ class ExamTestsActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.setBackgroundDrawableResource(R.color.eve_bg)
         binding = ActivityExamTestsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

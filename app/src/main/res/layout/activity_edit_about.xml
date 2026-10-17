@@ -45,17 +45,15 @@
 </com.eve.app.ui.common.EveGlassToolbar>
 
     <!-- Tab Selector -->
-    <com.google.android.material.tabs.TabLayout
+    <com.eve.app.ui.common.EveGlassTabLayout
         android:id="@+id/tabLayout"
+        style="@style/Widget.Eve.InlineSectionTabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_bg"
-        app:tabIndicatorColor="@color/eve_premium_line"
-        app:tabIndicatorHeight="2dp"
-        app:tabMode="scrollable"
-        app:tabSelectedTextColor="@color/eve_text"
-        app:tabTextAppearance="@style/TextAppearance.Eve.Button"
-        app:tabTextColor="@color/eve_text_secondary">
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        app:tabMode="scrollable">
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
@@ -72,7 +70,7 @@
             android:layout_height="wrap_content"
             android:text="Contact Us" />
 
-    </com.google.android.material.tabs.TabLayout>
+    </com.eve.app.ui.common.EveGlassTabLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"

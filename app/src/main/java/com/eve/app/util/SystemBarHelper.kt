@@ -4,12 +4,17 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
+import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.eve.app.R
+import com.eve.app.ui.about.ContentDisplayActivity
 import com.eve.app.ui.home.MainActivity
+import com.eve.app.ui.login.LoginActivity
+import com.eve.app.ui.test.TestActivity
 
 /**
  * Global system bar / top inset and appearance handler.
@@ -17,9 +22,92 @@ import com.eve.app.ui.home.MainActivity
  * - Content starts directly below the system status bar.
  * - Prevents headers, titles, profile avatars, tabs, and action buttons from being clipped or overlapping status bar icons.
  * - Dynamically adapts to notch, hole-punch cutouts, rotation, and Android 15 edge-to-edge enforcement.
- * - Matches system-bar appearance to each activity’s visible theme.
+ * - Matches system-bar appearance and canvas backing to each screen's semantic role from one source of truth.
  */
 object SystemBarHelper {
+
+    enum class ScreenCanvasRole(@ColorRes val colorRes: Int) {
+        PLAIN(R.color.eve_system_background),
+        GROUPED(R.color.eve_system_grouped_background)
+    }
+
+    /**
+     * Authoritative set of plain-canvas screens (Home, Login, active Test, plain Content Display).
+     * All other production screens (Settings, Profile, Result, Full Leaderboard, Notifications,
+     * About, student grouped lists/dashboards, and all Admin screens) use the grouped canvas.
+     */
+    val PLAIN_CANVAS_ACTIVITY_NAMES: Set<String> = setOf(
+        MainActivity::class.java.name,
+        LoginActivity::class.java.name,
+        TestActivity::class.java.name,
+        ContentDisplayActivity::class.java.name
+    )
+
+    val PLAIN_CANVAS_LAYOUT_NAMES: Set<String> = setOf(
+        "activity_main.xml",
+        "activity_login.xml",
+        "activity_test.xml",
+        "activity_content_display.xml"
+    )
+
+    fun resolveCanvasRole(activity: Activity): ScreenCanvasRole {
+        if (activity is MainActivity ||
+            activity is LoginActivity ||
+            activity is TestActivity ||
+            activity is ContentDisplayActivity ||
+            activity.javaClass.name in PLAIN_CANVAS_ACTIVITY_NAMES
+        ) {
+            return ScreenCanvasRole.PLAIN
+        }
+        // For debug/instrumentation host activities that dynamically swap layouts via setContentView:
+        if (activity.javaClass.simpleName == "RepairVerificationActivity") {
+            val content = activity.findViewById<ViewGroup>(android.R.id.content)
+            val root = content?.getChildAt(0) ?: return ScreenCanvasRole.PLAIN
+            if (root.findViewById<View>(R.id.drawerLayout) != null ||
+                root.findViewById<View>(R.id.mainContentContainer) != null ||
+                root.findViewById<View>(R.id.cardLogin) != null ||
+                root.findViewById<View>(R.id.circularTimerView) != null ||
+                root.findViewById<View>(R.id.tvHeaderTitle) != null
+            ) {
+                return ScreenCanvasRole.PLAIN
+            }
+            if (root.findViewById<View>(R.id.tabLayoutResult) != null ||
+                root.findViewById<View>(R.id.ivProfilePhoto) != null ||
+                root.findViewById<View>(R.id.switchReminder) != null ||
+                root.findViewById<View>(R.id.rvLeaderboard) != null ||
+                root.findViewById<View>(R.id.rvNotifications) != null ||
+                root.findViewById<View>(R.id.tabLayoutAdmin) != null
+            ) {
+                return ScreenCanvasRole.GROUPED
+            }
+            val lightGrouped = (root.background as? android.graphics.drawable.ColorDrawable)?.color
+            if (lightGrouped != null && lightGrouped == ContextCompat.getColor(activity, R.color.eve_system_grouped_background) &&
+                lightGrouped != ContextCompat.getColor(activity, R.color.eve_system_background)
+            ) {
+                return ScreenCanvasRole.GROUPED
+            }
+            return ScreenCanvasRole.PLAIN
+        }
+        return ScreenCanvasRole.GROUPED
+    }
+
+    fun resolveCanvasRoleForNames(activityName: String, layoutName: String? = null): ScreenCanvasRole {
+        val cleanActivity = activityName.substringAfterLast('.')
+        val cleanLayout = layoutName?.let { if (it.endsWith(".xml")) it else "$it.xml" }
+        if (cleanActivity in setOf("MainActivity", "LoginActivity", "TestActivity", "ContentDisplayActivity") ||
+            activityName in PLAIN_CANVAS_ACTIVITY_NAMES ||
+            (cleanLayout != null && cleanLayout in PLAIN_CANVAS_LAYOUT_NAMES)
+        ) {
+            return ScreenCanvasRole.PLAIN
+        }
+        return ScreenCanvasRole.GROUPED
+    }
+
+    fun isGroupedScreen(activity: Activity): Boolean =
+        resolveCanvasRole(activity) == ScreenCanvasRole.GROUPED
+
+    @ColorRes
+    fun canvasColorRes(activity: Activity): Int = resolveCanvasRole(activity).colorRes
 
     fun init(app: Application) {
         app.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
@@ -87,30 +175,13 @@ object SystemBarHelper {
             android.content.res.Configuration.UI_MODE_NIGHT_MASK == android.content.res.Configuration.UI_MODE_NIGHT_YES
         // System inset backing follows the same semantic canvas as each screen.
         val isHome = activity is MainActivity
-        val grouped = when (activity) {
-            is com.eve.app.ui.settings.SettingsActivity,
-            is com.eve.app.ui.profile.ProfileActivity,
-            is com.eve.app.ui.result.ResultActivity,
-            is com.eve.app.ui.leaderboard.LeaderboardActivity,
-            is com.eve.app.ui.about.AboutActivity,
-            is com.eve.app.ui.admin.AdminActivity,
-            is com.eve.app.ui.admin.AdminAnalyticsActivity,
-            is com.eve.app.ui.admin.ManageExamsActivity,
-            is com.eve.app.ui.admin.ManageExistingExamsActivity,
-            is com.eve.app.ui.admin.ManageUsersActivity,
-            is com.eve.app.ui.admin.ManagePremiumActivity,
-            is com.eve.app.ui.admin.ManagePollsActivity,
-            is com.eve.app.ui.admin.ManageSyllabusActivity -> true
-            else -> false
-        }
+        val grouped = isGroupedScreen(activity)
         val background = ContextCompat.getColor(activity,
             if (grouped) R.color.eve_system_grouped_background else R.color.eve_system_background)
 
         window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(background))
-        // Draw the same Home color behind the padded status, cutout, and navigation insets.
-        if (isHome || grouped) {
-            activity.findViewById<View>(android.R.id.content)?.setBackgroundColor(background)
-        }
+        // Draw the same screen canvas color behind the padded status, cutout, and navigation insets.
+        activity.findViewById<View>(android.R.id.content)?.setBackgroundColor(background)
 
         if (android.os.Build.VERSION.SDK_INT >= 35) {
             // Android 15 derives forced navigation appearance from the window

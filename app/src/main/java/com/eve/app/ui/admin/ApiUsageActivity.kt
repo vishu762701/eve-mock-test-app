@@ -20,7 +20,6 @@ class ApiUsageActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.setBackgroundDrawableResource(R.color.eve_bg)
         binding = ActivityApiUsageBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

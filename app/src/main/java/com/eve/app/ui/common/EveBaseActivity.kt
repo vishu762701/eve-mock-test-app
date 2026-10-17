@@ -1,6 +1,8 @@
 package com.eve.app.ui.common
 
 import android.os.Bundle
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import com.eve.app.util.FontManager
 
@@ -20,6 +22,21 @@ abstract class EveBaseActivity : AppCompatActivity() {
         activityFontVersion = FontManager.fontVersion
         androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
+        com.eve.app.util.SystemBarHelper.syncSystemBars(this)
+    }
+
+    override fun setContentView(layoutResID: Int) {
+        super.setContentView(layoutResID)
+        com.eve.app.util.SystemBarHelper.syncSystemBars(this)
+    }
+
+    override fun setContentView(view: View?) {
+        super.setContentView(view)
+        com.eve.app.util.SystemBarHelper.syncSystemBars(this)
+    }
+
+    override fun setContentView(view: View?, params: ViewGroup.LayoutParams?) {
+        super.setContentView(view, params)
         com.eve.app.util.SystemBarHelper.syncSystemBars(this)
     }
 

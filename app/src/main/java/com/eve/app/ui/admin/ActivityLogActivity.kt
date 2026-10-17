@@ -26,7 +26,6 @@ class ActivityLogActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.setBackgroundDrawableResource(R.color.eve_bg)
         binding = ActivityActivityLogBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
