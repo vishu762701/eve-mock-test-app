@@ -609,7 +609,7 @@ object EveDesignSystem {
             chipBackgroundColor = ContextCompat.getColorStateList(context, R.color.selector_home_pill_bg)
             setTextColor(ContextCompat.getColorStateList(context, R.color.selector_home_pill_text))
             isCheckedIconVisible = false
-            setEnsureMinTouchTargetSize(true)
+            setEnsureMinTouchTargetSize(false)
             setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.eve_home_type_pill_label))
             typeface = androidx.core.content.res.ResourcesCompat.getFont(context, R.font.dm_sans_medium) ?: Typography.sansSerifMedium()
             val padH = resources.getDimension(R.dimen.eve_home_pill_padding_horizontal)
