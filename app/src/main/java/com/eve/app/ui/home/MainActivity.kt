@@ -797,6 +797,12 @@ class MainActivity : EveBaseActivity() {
         val barBottomMargin = resources.getDimensionPixelSize(R.dimen.eve_home_bottom_bar_margin_bottom)
         val clearance = resources.getDimensionPixelSize(R.dimen.eve_home_bottom_bar_margin_horizontal)
 
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+            val shadowColor = androidx.core.content.ContextCompat.getColor(this, R.color.eve_home_card_shadow)
+            binding.cardHomeBottomBar.outlineAmbientShadowColor = shadowColor
+            binding.cardHomeBottomBar.outlineSpotShadowColor = shadowColor
+        }
+
         ViewCompat.setOnApplyWindowInsetsListener(binding.cardHomeBottomBar) { view, windowInsets ->
             val gestureInsets = windowInsets.getInsets(
                 WindowInsetsCompat.Type.systemGestures() or WindowInsetsCompat.Type.navigationBars()

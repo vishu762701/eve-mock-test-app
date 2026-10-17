@@ -479,9 +479,7 @@
             app:cardElevation="@dimen/eve_home_card_elevation"
             app:cardMaxElevation="@dimen/eve_home_card_elevation"
             app:strokeWidth="@dimen/eve_home_hairline_stroke"
-            app:strokeColor="@color/eve_home_hairline"
-            android:outlineAmbientShadowColor="@color/eve_home_card_shadow"
-            android:outlineSpotShadowColor="@color/eve_home_card_shadow">
+            app:strokeColor="@color/eve_home_hairline">
 
             <LinearLayout
                 android:id="@+id/layoutHomeBottomBarNav"

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- API 28+ elevation shadow tints for Eve Home cards and floating bar -->
+    <style name="Widget.Eve.Home.Card" parent="Widget.Material3.CardView.Elevated">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Eve.Home.Card</item>
+        <item name="cardCornerRadius">@dimen/eve_home_card_radius</item>
+        <item name="cardElevation">@dimen/eve_home_card_elevation</item>
+        <item name="cardMaxElevation">@dimen/eve_home_card_elevation</item>
+        <item name="cardBackgroundColor">@color/eve_home_card</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="strokeColor">@android:color/transparent</item>
+        <item name="android:outlineAmbientShadowColor">@color/eve_home_card_shadow</item>
+        <item name="android:outlineSpotShadowColor">@color/eve_home_card_shadow</item>
+        <item name="android:stateListAnimator">@animator/press_scale</item>
+    </style>
+</resources>

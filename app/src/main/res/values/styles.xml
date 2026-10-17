@@ -367,8 +367,6 @@
         <item name="cardBackgroundColor">@color/eve_home_card</item>
         <item name="strokeWidth">0dp</item>
         <item name="strokeColor">@android:color/transparent</item>
-        <item name="android:outlineAmbientShadowColor">@color/eve_home_card_shadow</item>
-        <item name="android:outlineSpotShadowColor">@color/eve_home_card_shadow</item>
         <item name="android:stateListAnimator">@animator/press_scale</item>
     </style>
 

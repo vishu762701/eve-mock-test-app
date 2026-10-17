@@ -13,8 +13,6 @@
     app:cardElevation="@dimen/eve_home_card_elevation"
     app:cardMaxElevation="@dimen/eve_home_card_elevation"
     app:cardBackgroundColor="@color/eve_home_card"
-    android:outlineAmbientShadowColor="@color/eve_home_card_shadow"
-    android:outlineSpotShadowColor="@color/eve_home_card_shadow"
     app:strokeWidth="@dimen/eve_space_0"
     app:strokeColor="@android:color/transparent"
     android:stateListAnimator="@animator/press_scale"
