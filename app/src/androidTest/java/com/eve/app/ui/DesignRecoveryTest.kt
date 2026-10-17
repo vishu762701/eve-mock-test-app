@@ -361,6 +361,7 @@ class DesignRecoveryTest {
                         home = com.eve.app.databinding.ActivityMainBinding.inflate(activity.layoutInflater)
                         home.tvWelcome.text = "Hi, Aarti"
                         com.eve.app.ui.home.HomeAppearance.tintNotificationBell(home.btnNotification)
+                        com.eve.app.ui.home.HomeAppearance.applyTopBarDepth(home.topBarContainer, home.searchTopBar)
                         home.panelHomeBanner.visibility = View.VISIBLE
                         com.eve.app.ui.home.HomeAppearance.clipBanner(home.panelHomeBanner)
                         val poster = Bitmap.createBitmap(640, 320, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.rgb(182, 213, 253)) }
@@ -401,9 +402,16 @@ class DesignRecoveryTest {
                             (home.root.background as android.graphics.drawable.ColorDrawable).color)
                         assertEquals("Home content", canvas,
                             (home.mainContentContainer.background as android.graphics.drawable.ColorDrawable).color)
-                        assertEquals("Home header", canvas,
+                        val expectedTopBarColor = activity.getColor(
+                            if (com.eve.app.util.EveLiquidGlass.isCrossWindowBlurSupported(activity)) {
+                                R.color.eve_home_blur_tint
+                            } else {
+                                R.color.eve_home_solid_tint
+                            }
+                        )
+                        assertEquals("Home header", expectedTopBarColor,
                             (home.topBarContainer.background as android.graphics.drawable.ColorDrawable).color)
-                        assertEquals("Home search header", canvas,
+                        assertEquals("Home search header", expectedTopBarColor,
                             (home.searchTopBar.background as android.graphics.drawable.ColorDrawable).color)
                         assertEquals("Home flat content", canvas,
                             (home.contentSheet.background as android.graphics.drawable.GradientDrawable).color!!.defaultColor)

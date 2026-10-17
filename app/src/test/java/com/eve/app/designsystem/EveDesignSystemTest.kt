@@ -96,7 +96,7 @@ class EveDesignSystemTest {
         assertEquals(150L, EveDesignSystem.Motion.DURATION_QUICK_MS)
         assertEquals(220L, EveDesignSystem.Motion.DURATION_DISMISS_MS)
         assertEquals(300L, EveDesignSystem.Motion.DURATION_STANDARD_MS)
-        assertEquals(360L, EveDesignSystem.Motion.DURATION_SPRING_MS)
+        assertEquals(280L, EveDesignSystem.Motion.DURATION_SPRING_MS)
 
         assertNotNull(EveDesignSystem.Motion.standardInterpolator)
         assertNotNull(EveDesignSystem.Motion.springInterpolator)

@@ -56,5 +56,18 @@
     <dimen name="eve_radius_min">4dp</dimen>
     <dimen name="eve_list_row_min">52dp</dimen>
     <dimen name="eve_segment_min_height">56dp</dimen>
+    <dimen name="eve_space_0">0dp</dimen>
+    <dimen name="eve_space_3">3dp</dimen>
+    <dimen name="eve_space_6">6dp</dimen>
+    <dimen name="eve_space_10">10dp</dimen>
+    <dimen name="eve_space_14">14dp</dimen>
+    <dimen name="eve_space_18">18dp</dimen>
+
+    <!-- iOS 26 Home Screen Depth & Motion Tokens -->
+    <dimen name="eve_home_card_elevation">0dp</dimen>
+    <dimen name="eve_home_blur_radius">24dp</dimen>
+    <dimen name="eve_home_hairline_border">1dp</dimen>
+    <item name="eve_home_press_scale" format="float" type="dimen">0.97</item>
+    <item name="eve_home_damping_ratio" format="float" type="dimen">0.8</item>
     <dimen name="eve_modal_blur_radius">16dp</dimen>
 </resources>

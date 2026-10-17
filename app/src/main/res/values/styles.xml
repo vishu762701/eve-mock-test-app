@@ -297,8 +297,9 @@
     </style>
     <style name="Widget.Eve.Card.Group" parent="Widget.Eve.Card">
         <item name="cardBackgroundColor">@color/eve_secondary_system_grouped_background</item>
-        <item name="cardElevation">0dp</item>
-        <item name="strokeWidth">0dp</item>
+        <item name="cardElevation">@dimen/eve_home_card_elevation</item>
+        <item name="cardMaxElevation">@dimen/eve_home_card_elevation</item>
+        <item name="strokeWidth">@dimen/eve_space_0</item>
     </style>
     <style name="Widget.Eve.Card.Inset" parent="Widget.Eve.Card.Group">
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Eve.Concentric</item>
@@ -307,6 +308,12 @@
     </style>
     <style name="Widget.Eve.Card.Content" parent="Widget.Eve.Card.Group">
         <item name="cardBackgroundColor">@color/eve_secondary_background</item>
+        <item name="cardElevation">@dimen/eve_home_card_elevation</item>
+        <item name="cardMaxElevation">@dimen/eve_home_card_elevation</item>
+    </style>
+    <style name="Widget.Eve.Card.Home" parent="Widget.Eve.Card.Content">
+        <item name="cardElevation">@dimen/eve_home_card_elevation</item>
+        <item name="cardMaxElevation">@dimen/eve_home_card_elevation</item>
     </style>
     <style name="Widget.Eve.TextInput.Outlined" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Eve.Concentric</item>

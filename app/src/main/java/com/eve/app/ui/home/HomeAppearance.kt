@@ -26,4 +26,15 @@ object HomeAppearance {
             isSelected = category == selected,
             onSelect = onSelect
         )
+
+    fun applyTopBarDepth(topBarContainer: View, searchTopBar: View? = null) {
+        val context = topBarContainer.context
+        val hasBlur = com.eve.app.util.EveLiquidGlass.isCrossWindowBlurSupported(context)
+        val topBarBg = androidx.core.content.ContextCompat.getColor(
+            context,
+            if (hasBlur) com.eve.app.R.color.eve_home_blur_tint else com.eve.app.R.color.eve_home_solid_tint
+        )
+        topBarContainer.setBackgroundColor(topBarBg)
+        searchTopBar?.setBackgroundColor(topBarBg)
+    }
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <solid android:color="@color/eve_modal_material" />
+    <solid android:color="@color/eve_home_sheet_bg" />
     <corners android:topLeftRadius="@dimen/eve_radius_bottom_sheet" android:topRightRadius="@dimen/eve_radius_bottom_sheet" />
+    <stroke android:width="@dimen/eve_home_hairline_border" android:color="@color/eve_home_hairline_border" />
 </shape>

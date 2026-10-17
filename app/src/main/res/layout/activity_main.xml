@@ -21,7 +21,7 @@
         android:id="@+id/topBarContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_system_background">
+        android:background="@color/eve_home_top_bar_bg">
 
         <!-- Normal Top Bar -->
         <LinearLayout
@@ -29,8 +29,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="12dp"
-            android:paddingBottom="4dp">
+            android:paddingTop="@dimen/eve_space_12"
+            android:paddingBottom="@dimen/eve_space_4">
 
             <!-- Row 1: avatar left, bare search, bell, overflow right -->
 <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
@@ -148,8 +148,8 @@
             android:id="@+id/searchTopBar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:minHeight="56dp"
-            android:background="@color/eve_system_background"
+            android:minHeight="@dimen/eve_segment_min_height"
+            android:background="@color/eve_home_top_bar_bg"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingHorizontal="16dp"
@@ -201,6 +201,13 @@
                 app:tint="?attr/eveLabelPrimary"
                 android:visibility="gone" />
         </LinearLayout>
+
+        <View
+            android:id="@+id/topBarHairline"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/eve_home_hairline_border"
+            android:layout_gravity="bottom"
+            android:background="@color/eve_home_hairline_border" />
     </FrameLayout>
 
     <!-- Flat Home content continues the grouped canvas without a raised sheet. -->
@@ -443,10 +450,10 @@
             android:visibility="gone"
             app:cardBackgroundColor="@android:color/transparent"
             app:shapeAppearanceOverlay="@style/ShapeAppearance.Eve.Capsule"
-            app:cardElevation="0dp"
+            app:cardElevation="@dimen/eve_home_card_elevation"
             app:rippleColor="@android:color/transparent"
             app:strokeColor="@android:color/transparent"
-            app:strokeWidth="0dp">
+            app:strokeWidth="@dimen/eve_space_0">
 
             <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/lottieFloatingAirplane"

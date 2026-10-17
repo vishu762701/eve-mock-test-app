@@ -101,7 +101,8 @@ object TargetExamsBottomSheet {
             dialog.window?.decorView?.let { com.eve.app.util.GlassmorphismHelper.removeWindowBlur(it, animate = false) }
         }
         dialog.show()
-        dialog.window?.decorView?.let { com.eve.app.util.GlassmorphismHelper.applyWindowBlur(it) }
+        val blurRadiusPx = activity.resources.getDimensionPixelSize(com.eve.app.R.dimen.eve_home_blur_radius)
+        dialog.window?.decorView?.let { com.eve.app.util.GlassmorphismHelper.applyWindowBlur(it, blurRadius = blurRadiusPx) }
         dialog.behavior.state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
         return dialog
     }

@@ -15,8 +15,10 @@ import android.view.animation.PathInterpolator
 object EveTouchHelper {
 
     val standardInterpolator = PathInterpolator(0.4f, 0.0f, 0.2f, 1.0f)
-    const val DEFAULT_PRESS_SCALE = 0.965f
+    val springInterpolator = android.view.animation.OvershootInterpolator(0.65f)
+    const val DEFAULT_PRESS_SCALE = 0.97f
     const val DEFAULT_PRESS_ALPHA = 0.88f
+    const val DURATION_RELEASE_MS = 260L
 
     @SuppressLint("ClickableViewAccessibility")
     fun attachTactileFeedback(
@@ -33,7 +35,7 @@ object EveTouchHelper {
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     if (EveMotionHelper.areAnimationsEnabled(v.context)) {
-                        animatePress(v, pressScale, pressAlpha, 100L)
+                        animatePress(v, pressScale, pressAlpha, 90L)
                     }
                     if (enableHaptic) {
                         try {
@@ -43,11 +45,11 @@ object EveTouchHelper {
                     false
                 }
                 MotionEvent.ACTION_UP -> {
-                    if (EveMotionHelper.areAnimationsEnabled(v.context)) animateRelease(v, 200L)
+                    if (EveMotionHelper.areAnimationsEnabled(v.context)) animateRelease(v, DURATION_RELEASE_MS)
                     false
                 }
                 MotionEvent.ACTION_CANCEL -> {
-                    if (EveMotionHelper.areAnimationsEnabled(v.context)) animateRelease(v, 200L)
+                    if (EveMotionHelper.areAnimationsEnabled(v.context)) animateRelease(v, DURATION_RELEASE_MS)
                     false
                 }
                 else -> false
@@ -65,13 +67,13 @@ object EveTouchHelper {
             .start()
     }
 
-    private fun animateRelease(view: View, durationMs: Long) {
+    private fun animateRelease(view: View, durationMs: Long = DURATION_RELEASE_MS) {
         view.animate()
             .scaleX(1.0f)
             .scaleY(1.0f)
             .alpha(1.0f)
             .setDuration(durationMs)
-            .setInterpolator(standardInterpolator)
+            .setInterpolator(springInterpolator)
             .start()
     }
 }

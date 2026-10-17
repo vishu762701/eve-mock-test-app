@@ -328,6 +328,9 @@ object EveDesignSystem {
             val resId = if (isDark) R.dimen.eve_card_elevation_dark else R.dimen.eve_card_elevation_light
             return context.resources.getDimension(resId)
         }
+
+        fun homeCardElevation(context: Context): Float =
+            context.resources.getDimension(R.dimen.eve_home_card_elevation)
     }
 
     /**

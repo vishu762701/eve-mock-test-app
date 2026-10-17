@@ -16,10 +16,10 @@ import android.view.animation.PathInterpolator
 object EveMotionHelper {
 
     val standardInterpolator = PathInterpolator(0.4f, 0.0f, 0.2f, 1.0f)
-    val springInterpolator = OvershootInterpolator(1.25f)
+    val springInterpolator = OvershootInterpolator(0.65f)
 
     const val DURATION_STANDARD_MS = 300L
-    const val DURATION_SPRING_MS = 360L
+    const val DURATION_SPRING_MS = 280L
 
     fun areAnimationsEnabled(context: Context): Boolean {
         return try {

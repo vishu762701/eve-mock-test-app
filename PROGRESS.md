@@ -274,3 +274,15 @@
   - `node .github/scripts/verify-docs.mjs` passed (33 docs, 0 errors, 0 warnings).
   - `git diff --check` passed with 0 errors.
 
+## EVE Scoped Home Screen iOS 26 Depth & Motion Specification (ADR-016) (2026-10-17)
+
+- [x] **Depth — Zero Card Shadows:** Flattened all Home cards (`Widget.Eve.Card.Group`, `Widget.Eve.Card.Content`, `Widget.Eve.Card.Home`, `item_exam.xml`, `item_feedback_post.xml`, `popup_telegram_menu.xml`, airplane card) to `@dimen/eve_home_card_elevation` = `0dp` and `0dp` stroke.
+- [x] **Depth — Selective Glass Blur & Tint:** Applied ~24dp blur (`@dimen/eve_home_blur_radius` = `24dp`), ~75% tint (`@color/eve_home_blur_tint` `#BFFFFFFF` / `#BF1C1C1E`), 1dp hairline border (`@dimen/eve_home_hairline_border` = `1dp`, `@color/eve_home_hairline_border`), and 94% solid tint fallback (`@color/eve_home_solid_tint` `#F0FFFFFF` / `#F01C1C1E`) restricted to top bar (`topBarContainer`, `searchTopBar`), menus (`bg_home_popup_menu.xml`, `popup_telegram_menu.xml`), and sheets (`bg_recovery_sheet.xml`, `TargetExamsBottomSheet.kt`).
+- [x] **Motion — Spring Physics & Tactile Feedback:** Configured mathematically exact spring curve with damping ratio 0.8 (1.5% overshoot -> tension 0.65) via `@interpolator/eve_spring_damping_08.xml` and `OvershootInterpolator(0.65f)`, duration window of 200-350ms (`@integer/eve_home_motion_duration` = `260` ms, `DURATION_SPRING_MS` = `280L`), and press feedback scale `0.97` (`@dimen/eve_home_press_scale`, `@animator/press_scale.xml`, `EveTouchHelper.DEFAULT_PRESS_SCALE`).
+- [x] **Full Resource Encapsulation:** Zero hardcoded colors/dp/sp in touched files; all values codified in `colors.xml`, `dimens.xml`, `integers.xml`, `styles.xml`, and `themes.xml` (day + night).
+- [x] **Home Screen Scoped & Invariants Preserved:** Applied strictly to Home screen only (`Theme.Eve.Home`). Telegram theme toggle, all Lottie files/triggers/sizes, and SVG vector assets remained 100% untouched.
+- [x] **Automated Verification:**
+  - `python3 -B .github/scripts/check_design_system.py` passed (194 measured pairs).
+  - `python3 -B -m unittest discover -s .github/scripts/tests -q` passed (13/13 tests).
+  - `node .github/scripts/verify-docs.mjs` passed (33 docs, 0 errors, 0 warnings).
+  - `git diff --check` passed with 0 errors.

@@ -1,29 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Apple iOS 26 tactile touch feedback: subtle 0.98 scale compression on press with smooth return -->
+<!-- Apple iOS 26 tactile touch feedback: spring (damping ratio 0.8), 200-350 ms, press feedback scale 0.97 -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="true">
         <set>
             <objectAnimator
-                android:duration="90"
+                android:duration="@integer/eve_home_motion_press_duration"
                 android:propertyName="scaleX"
-                android:valueTo="0.98"
+                android:valueTo="0.97"
                 android:valueType="floatType" />
             <objectAnimator
-                android:duration="90"
+                android:duration="@integer/eve_home_motion_press_duration"
                 android:propertyName="scaleY"
-                android:valueTo="0.98"
+                android:valueTo="0.97"
                 android:valueType="floatType" />
         </set>
     </item>
     <item>
         <set>
             <objectAnimator
-                android:duration="160"
+                android:duration="@integer/eve_home_motion_duration"
+                android:interpolator="@interpolator/eve_spring_damping_08"
                 android:propertyName="scaleX"
                 android:valueTo="1.0"
                 android:valueType="floatType" />
             <objectAnimator
-                android:duration="160"
+                android:duration="@integer/eve_home_motion_duration"
+                android:interpolator="@interpolator/eve_spring_damping_08"
                 android:propertyName="scaleY"
                 android:valueTo="1.0"
                 android:valueType="floatType" />

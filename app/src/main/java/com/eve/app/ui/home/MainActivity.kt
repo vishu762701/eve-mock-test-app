@@ -262,6 +262,7 @@ class MainActivity : EveBaseActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setupHomeBannerSurface()
+        setupTopBarDepth()
 
         com.eve.app.util.SystemBarHelper.syncSystemBars(this)
 
@@ -932,6 +933,10 @@ class MainActivity : EveBaseActivity() {
             binding.panelHomeBanner,
             binding.blurHomeBannerMaterial
         )
+    }
+
+    private fun setupTopBarDepth() {
+        HomeAppearance.applyTopBarDepth(binding.topBarContainer, binding.searchTopBar)
     }
 
     private fun renderHomeBannerCta(position: Int) {

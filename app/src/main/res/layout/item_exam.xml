@@ -5,10 +5,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="0dp"
+    android:layout_marginHorizontal="@dimen/eve_space_0"
     android:layout_marginVertical="@dimen/eve_space_8"
     android:clickable="true"
     android:focusable="true"
+    app:cardElevation="@dimen/eve_home_card_elevation"
+    app:cardMaxElevation="@dimen/eve_home_card_elevation"
     android:stateListAnimator="@animator/press_scale"
     app:rippleColor="@color/eve_ripple"
     android:minHeight="@dimen/eve_list_row_min">
@@ -26,10 +28,10 @@
             android:layout_centerVertical="true"
             app:cardBackgroundColor="@color/eve_exam_icon_tile_bg"
             app:cardCornerRadius="@dimen/eve_radius_card"
-            app:cardElevation="0dp"
+            app:cardElevation="@dimen/eve_home_card_elevation"
             app:rippleColor="@android:color/transparent"
             app:strokeColor="@color/eve_shape_border"
-            app:strokeWidth="0dp">
+            app:strokeWidth="@dimen/eve_space_0">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/ivExamImage"
@@ -44,7 +46,7 @@
                 android:id="@+id/lottieExamIcon"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="6dp"
+                android:padding="@dimen/eve_space_6"
                 android:visibility="gone"
                 app:lottie_autoPlay="false"
                 app:lottie_loop="false"
@@ -54,11 +56,11 @@
         <!-- Task D: Pin indicator is icon only (ic_pin), positioned at end without hiding name -->
         <ImageView
             android:id="@+id/ivPinned"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="@dimen/eve_space_20"
+            android:layout_height="@dimen/eve_space_20"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="@dimen/eve_space_8"
             android:contentDescription="Pinned test"
             android:src="@drawable/ic_pin"
             app:tint="@color/eve_text_secondary"
@@ -89,7 +91,7 @@
                 style="@style/TextAppearance.Eve.Footnote"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/eve_space_4"
                 android:textColor="?attr/eveLabelSecondary" />
         </LinearLayout>
     </RelativeLayout>

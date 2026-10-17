@@ -661,3 +661,47 @@ While EVE has codified Apple iOS 26 color roles, dynamic typography scales, and 
    - Preserved Telegram-style Day/Night circular reveal animation (`ThemeSwitchAnimator.kt`, `ThemeManager.kt`, `TelegramMenuPopup.kt`).
    - Bare notification bell Lottie container and all Lottie/SVG assets remain completely undecorated.
    - Maintained exactly 95 layout files project-wide with 0 hardcoded `android:textSize` attributes.
+
+## ADR-016: Scoped Home Screen Apple iOS 26 Depth & Motion Specification
+
+- **Date**: 2026-10-17
+- **Status**: Accepted
+- **Author**: Principal Systems Architect, Android UI Lead, Motion & Physics Specialist
+- **Authority**: User instruction: "Depth: no card shadows. Blur only on top bar, bottom tabs, menus, sheets: ~24dp blur, ~75% tint, 1dp hairline border. Without blur support use a 94% solid tint. Motion: spring (damping ratio 0.8), 200-350 ms, press feedback scale 0.97. STEPS: 1. Put all values in colors.xml, dimens.xml, text/shape styles and themes (day + night). No hard-coded colors/dp/sp in files you touch. 2. Apply to Home screen only. 3. DO NOT modify: Telegram theme toggle (ThemeSwitchAnimator.kt, ThemeManager.kt, TelegramMenuPopup.kt), any Lottie file/trigger/size, SVG icons (tint only). No circle or tile behind Lotties."
+
+### Context
+Following the establishment of the unified Eve Design System foundation (ADR-015), the Home screen required explicit iOS 26 Depth and Motion calibration. The specifications dictate flat, shadow-free content cards (0dp elevation), selective glassmorphism blur and tinting restricted to chrome and modal containers (top bar, menus, sheets) with a 24dp blur radius, 75% alpha tint, 1dp hairline border, and a 94% solid tint fallback when blur is unavailable. Motion requires an authentic spring curve with damping ratio 0.8, 200-350ms duration, and 0.97 press tactile feedback scale. All values must reside in XML resources without hardcoded colors or dimensions in touched files.
+
+### Official Documentation References Opened
+- Android Developers - OvershootInterpolator: https://developer.android.com/reference/android/view/animation/OvershootInterpolator
+- Android Developers - Window Background Blur: https://developer.android.com/develop/ui/views/graphics/blur
+- Android Developers - StateListAnimator: https://developer.android.com/reference/android/animation/StateListAnimator
+- Apple Human Interface Guidelines - Materials & Depth: https://developer.apple.com/design/human-interface-guidelines/materials
+- Apple Human Interface Guidelines - Motion & Physics: https://developer.apple.com/design/human-interface-guidelines/motion
+
+### Decisions
+1. **Depth Architecture & Zero Card Shadow**:
+   - Zero elevation (`@dimen/eve_home_card_elevation` = `0dp`, `@dimen/eve_space_0` = `0dp` stroke) applied across all Home card components: `Widget.Eve.Card.Group`, `Widget.Eve.Card.Content`, `Widget.Eve.Card.Home`, `item_exam.xml`, `item_feedback_post.xml`, `popup_telegram_menu.xml`, and floating airplane card.
+   - Glassmorphic layers restricted to top bar, menus, and sheets:
+     - Blur radius: `@dimen/eve_home_blur_radius` = `24dp` (passed dynamically into `GlassmorphismHelper.applyWindowBlur` in `TargetExamsBottomSheet.kt`).
+     - 75% Blur Tint: `@color/eve_home_blur_tint` (`#BFFFFFFF` Light / `#BF1C1C1E` Dark, alpha `0.75 * 255 = 191 = 0xBF`).
+     - 94% Solid Tint Fallback: `@color/eve_home_solid_tint` (`#F0FFFFFF` Light / `#F01C1C1E` Dark, alpha `0.94 * 255 = 239.7 = 0xF0`).
+     - Hairline Border: `@dimen/eve_home_hairline_border` = `1dp`, color `@color/eve_home_hairline_border` (`@color/eve_shape_border`).
+   - Dynamic Cross-Window Blur Resolution: Top bar backgrounds (`topBarContainer`, `searchTopBar`) resolve adaptively via `HomeAppearance.applyTopBarDepth()` checking `EveLiquidGlass.isCrossWindowBlurSupported()`. Menus (`bg_home_popup_menu.xml`, `popup_telegram_menu.xml`) and sheets (`bg_recovery_sheet.xml`) use `values-v31/materials.xml` overrides for `eve_home_blur_tint` and default to `eve_home_solid_tint`.
+   - Top bar divider hairline: Added 1dp hairline view (`topBarHairline`) below top bar container.
+
+2. **Motion Architecture & Mathematical Spring Physics**:
+   - Damping ratio $\zeta = 0.8$ produces a theoretical overshoot of $e^{-\pi \frac{0.8}{\sqrt{1 - 0.8^2}}} = e^{-\frac{4\pi}{3}} \approx 1.516\%$. Android's `OvershootInterpolator(tension)` peak overshoot is given by $\frac{4 T^3}{27 (T+1)^2}$. For $T = 0.65$, peak overshoot is $1.494\% \approx 1.5\%$. Implemented in `@interpolator/eve_spring_damping_08.xml` with `android:tension="0.65"`, and programmatically in `EveMotionHelper.springInterpolator` and `EveTouchHelper.springInterpolator` (`OvershootInterpolator(0.65f)`).
+   - Durations: Release duration `@integer/eve_home_motion_duration` = `260` ms, press duration `@integer/eve_home_motion_press_duration` = `90` ms, spring duration `DURATION_SPRING_MS` = `280L` (within 200-350ms specification).
+   - Press feedback scale: `@dimen/eve_home_press_scale` = `0.97`, `EveTouchHelper.DEFAULT_PRESS_SCALE` = `0.97f`, applied in `press_scale.xml` selector state list animator for cards and tactile feedback listeners.
+
+3. **Strict Resource Encapsulation (Zero Hardcoded dp/sp/colors)**:
+   - Added spacing dimensions `@dimen/eve_space_0` (0dp), `eve_space_3` (3dp), `eve_space_6` (6dp), `eve_space_10` (10dp), `eve_space_14` (14dp), `eve_space_18` (18dp).
+   - Cleaned all hardcoded dp/sp literals from touched Home XML files (`item_exam.xml`, `item_feedback_post.xml`, `popup_telegram_menu.xml`, `activity_main.xml`).
+   - Applied scoped `Theme.Eve.Home` with `Widget.Eve.Home.PopupMenu` to `MainActivity` in `AndroidManifest.xml`.
+
+4. **Invariants Preserved**:
+   - Zero modifications to Telegram theme toggle (`ThemeSwitchAnimator.kt`, `ThemeManager.kt`, `TelegramMenuPopup.kt`).
+   - Zero modifications to Lottie animation files, triggers, or dimensions; no circles or tiles behind Lotties.
+   - SVG icons maintain tinting only.
+   - Non-Home screens remain completely untouched.

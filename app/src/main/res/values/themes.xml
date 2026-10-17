@@ -151,6 +151,16 @@
         <item name="android:popupElevation">8dp</item>
     </style>
 
+    <!-- Scoped Home Screen Theme (iOS 26 Depth & Motion: 0dp card elevation, no shadows, 24dp blur/tint popup menu) -->
+    <style name="Theme.Eve.Home" parent="Theme.Eve">
+        <item name="popupMenuStyle">@style/Widget.Eve.Home.PopupMenu</item>
+    </style>
+
+    <style name="Widget.Eve.Home.PopupMenu" parent="Widget.Material3.PopupMenu">
+        <item name="android:popupBackground">@drawable/bg_home_popup_menu</item>
+        <item name="android:popupElevation">@dimen/eve_home_card_elevation</item>
+    </style>
+
     <style name="ThemeOverlay.Eve.DeviceFont" parent="">
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
