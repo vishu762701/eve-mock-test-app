@@ -388,7 +388,7 @@ class DesignRecoveryTest {
                                 com.eve.app.data.model.Exam(id = "render-exam-$i", examName = "Practice test ${i + 1}", category = "SSC"), false) })
                         }
                         val frame = android.widget.FrameLayout(activity).apply {
-                            setBackgroundColor(activity.getColor(R.color.eve_system_background))
+                            setBackgroundColor(activity.getColor(R.color.eve_home_background))
                             addView(home.root, android.widget.FrameLayout.LayoutParams(Math.round(360f * resources.displayMetrics.density),
                                 ViewGroup.LayoutParams.MATCH_PARENT, android.view.Gravity.CENTER_HORIZONTAL))
                         }
@@ -413,8 +413,13 @@ class DesignRecoveryTest {
                             (home.topBarContainer.background as android.graphics.drawable.ColorDrawable).color)
                         assertEquals("Home search header", expectedTopBarColor,
                             (home.searchTopBar.background as android.graphics.drawable.ColorDrawable).color)
-                        assertEquals("Home flat content", canvas,
-                            (home.contentSheet.background as android.graphics.drawable.GradientDrawable).color!!.defaultColor)
+                        val sheetBg = home.contentSheet.background
+                        val contentColor = when (sheetBg) {
+                            is android.graphics.drawable.ColorDrawable -> sheetBg.color
+                            is android.graphics.drawable.GradientDrawable -> sheetBg.color!!.defaultColor
+                            else -> -1
+                        }
+                        assertEquals("Home flat content", homeBg, contentColor)
                         assertEquals("Home no overlapping sheet", 0,
                             (home.contentSheet.layoutParams as android.widget.LinearLayout.LayoutParams).topMargin)
                         val groupedCard = activity.getColor(R.color.eve_secondary_system_background)
@@ -436,7 +441,7 @@ class DesignRecoveryTest {
                     var bannerHeight = 0
                     scenario.onActivity {
                         home.panelHomeBanner.getLocationOnScreen(bannerPosition)
-                        canvasColor = it.getColor(R.color.eve_system_background)
+                        canvasColor = it.getColor(R.color.eve_home_background)
                         bannerWidth = home.panelHomeBanner.width
                         bannerHeight = home.panelHomeBanner.height
                     }
