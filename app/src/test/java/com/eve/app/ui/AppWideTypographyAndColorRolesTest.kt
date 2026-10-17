@@ -330,6 +330,7 @@ class AppWideTypographyAndColorRolesTest {
             "activity_practice.xml",
             "activity_pyq.xml",
             "activity_result_detail.xml",
+            "activity_leaderboard.xml",
             "activity_admin.xml"
         )
         for (filename in groupedSample) {
@@ -346,7 +347,6 @@ class AppWideTypographyAndColorRolesTest {
 
         val systemSample = listOf(
             "activity_login.xml",
-            "activity_leaderboard.xml",
             "activity_content_display.xml"
         )
         for (filename in systemSample) {

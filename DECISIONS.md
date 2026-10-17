@@ -517,3 +517,8 @@ To achieve complete, app-wide fidelity to Apple's official iOS 26 design languag
    - Rigid 2x2 test engine geometry, Hindi/English font fitting, server-evaluated scoring, and protected test state colors (`#34C759` selected, `#FFCC00` review).
    - 0 hardcoded `android:textSize` attributes across all 95 layouts.
 
+7. **Screen Canvas Root Alignment & Unit Test Synchronization**:
+   - Added `android:background="@color/eve_system_grouped_background"` to root `FrameLayout` of `activity_result.xml` to match `SystemBarHelper` and `Ios26DesignFidelityTest` grouped canvas requirements.
+   - Synchronized `AppWideTypographyAndColorRolesTest.testGroupedAndSystemScreenLayoutClassifications` by moving `activity_leaderboard.xml` from `systemSample` to `groupedSample`, matching the official HIG grouped canvas specification in `EVE_IOS26_UI_CONTRACT.md` and `SOURCE_OF_TRUTH.md`.
+
+
