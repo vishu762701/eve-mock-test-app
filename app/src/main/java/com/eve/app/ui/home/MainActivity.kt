@@ -830,7 +830,7 @@ class MainActivity : EveBaseActivity() {
 
         binding.btnBottomNavSaved.setOnClickListener {
             updateBottomNavSelection(2)
-            AppBulletin.showInfo(this, "Saved tests")
+            AppBulletin.show(this, "Saved tests")
         }
 
         binding.btnBottomNavProfile.setOnClickListener {
