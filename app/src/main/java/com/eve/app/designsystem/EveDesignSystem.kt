@@ -612,11 +612,13 @@ object EveDesignSystem {
             setEnsureMinTouchTargetSize(false)
             setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.eve_home_type_pill_label))
             typeface = androidx.core.content.res.ResourcesCompat.getFont(context, R.font.dm_sans_medium) ?: Typography.sansSerifMedium()
+            includeFontPadding = false
             val padH = resources.getDimension(R.dimen.eve_home_pill_padding_horizontal)
             chipStartPadding = padH
             chipEndPadding = padH
             textStartPadding = 0f
             textEndPadding = 0f
+            setPaddingRelative(Math.round(padH), 0, Math.round(padH), 0)
             val pillH = resources.getDimension(R.dimen.eve_home_pill_height)
             chipMinHeight = pillH
             chipCornerRadius = resources.getDimension(R.dimen.eve_home_pill_radius)
