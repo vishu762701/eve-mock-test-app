@@ -352,4 +352,64 @@
         <item name="boxCornerRadiusBottomStart">@dimen/eve_radius_concentric_sheet</item>
         <item name="boxCornerRadiusBottomEnd">@dimen/eve_radius_concentric_sheet</item>
     </style>
+
+    <!-- Eve Design System Locked Foundation Component Styles (Home Screen) -->
+    <style name="ShapeAppearance.Eve.Home.Card" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/eve_home_card_radius</item>
+    </style>
+
+    <style name="Widget.Eve.Home.Card" parent="Widget.Material3.CardView.Elevated">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Eve.Home.Card</item>
+        <item name="cardCornerRadius">@dimen/eve_home_card_radius</item>
+        <item name="cardElevation">@dimen/eve_home_card_elevation</item>
+        <item name="cardMaxElevation">@dimen/eve_home_card_elevation</item>
+        <item name="cardBackgroundColor">@color/eve_home_card</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="strokeColor">@android:color/transparent</item>
+        <item name="android:outlineAmbientShadowColor">@color/eve_home_card_shadow</item>
+        <item name="android:outlineSpotShadowColor">@color/eve_home_card_shadow</item>
+        <item name="android:stateListAnimator">@animator/press_scale</item>
+    </style>
+
+    <style name="Widget.Eve.Home.SegmentedTabs" parent="Widget.Material3.TabLayout">
+        <item name="android:background">@drawable/bg_home_tab_track</item>
+        <item name="android:minHeight">@dimen/eve_home_tab_height</item>
+        <item name="android:padding">@dimen/eve_home_tab_inner_padding</item>
+        <item name="tabIndicator">@drawable/bg_home_tab_indicator</item>
+        <item name="tabIndicatorAnimationMode">elastic</item>
+        <item name="tabIndicatorAnimationDuration">220</item>
+        <item name="tabIndicatorColor">@android:color/transparent</item>
+        <item name="tabIndicatorFullWidth">true</item>
+        <item name="tabIndicatorGravity">stretch</item>
+        <item name="tabRippleColor">@null</item>
+        <item name="tabSelectedTextColor">@color/eve_home_on_accent</item>
+        <item name="tabTextColor">@color/eve_home_text_secondary</item>
+        <item name="tabTextAppearance">@style/TextAppearance.Eve.Home.TabLabel</item>
+    </style>
+
+    <style name="Widget.Eve.Home.CategoryPill" parent="Widget.Material3.Chip.Filter">
+        <item name="ensureMinTouchTargetSize">true</item>
+        <item name="chipMinTouchTargetSize">@dimen/eve_home_min_touch_target</item>
+        <item name="android:minHeight">@dimen/eve_home_pill_height</item>
+        <item name="chipMinHeight">@dimen/eve_home_pill_height</item>
+        <item name="chipCornerRadius">@dimen/eve_home_pill_radius</item>
+        <item name="chipStartPadding">@dimen/eve_home_pill_padding_horizontal</item>
+        <item name="chipEndPadding">@dimen/eve_home_pill_padding_horizontal</item>
+        <item name="chipStrokeWidth">@dimen/eve_home_pill_border_width</item>
+        <item name="chipStrokeColor">@color/selector_home_pill_stroke</item>
+        <item name="chipBackgroundColor">@color/selector_home_pill_bg</item>
+        <item name="android:textColor">@color/selector_home_pill_text</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="android:textSize">@dimen/eve_home_type_pill_label</item>
+        <item name="android:fontFamily">@font/dm_sans_medium</item>
+        <item name="fontFamily">@font/dm_sans_medium</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+    </style>
+
+    <style name="Widget.Eve.Home.FloatingBottomBar" parent="">
+        <item name="android:background">@drawable/bg_home_floating_bottom_bar</item>
+        <item name="android:elevation">@dimen/eve_home_card_elevation</item>
+    </style>
 </resources>

@@ -245,7 +245,7 @@ class HomeTypographyTest {
 
         val tvWelcome = findElementById(root, "tvWelcome")
         assertNotNull(tvWelcome)
-        assertEquals("@style/TextAppearance.Eve.LargeTitle", tvWelcome?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Home.PageTitle", tvWelcome?.getAttribute("style"))
 
         val etSearch = findElementById(root, "etSearch")
         assertNotNull(etSearch)
@@ -282,12 +282,12 @@ class HomeTypographyTest {
 
         val tvExamName = findElementById(root, "tvExamName")
         assertNotNull(tvExamName)
-        assertEquals("@style/TextAppearance.Eve.Headline", tvExamName?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Home.CardTitle", tvExamName?.getAttribute("style"))
         assertTrue("tvExamName must not have hardcoded textSize", tvExamName?.getAttribute("android:textSize").isNullOrEmpty())
 
         val tvExamTime = findElementById(root, "tvExamTime")
         assertNotNull(tvExamTime)
-        assertEquals("@style/TextAppearance.Eve.Footnote", tvExamTime?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Home.Secondary", tvExamTime?.getAttribute("style"))
         assertTrue("tvExamTime must not have hardcoded textSize", tvExamTime?.getAttribute("android:textSize").isNullOrEmpty())
     }
 

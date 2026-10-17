@@ -52,6 +52,11 @@ Ranked by impact on user experience, stability, and design system fidelity per `
 - **Scope**: `EveDesignSystem.kt`, `HomeAppearance.kt`, `ExamAdapter.kt`, `EveDesignSystemTest.kt`, ADR-017 (`DECISIONS.md`).
 - **Details**: Codified all authoritative locked design tokens directly into `EveDesignSystem` (locked hex constants for canvas #FFFFFF/#000000, secondary cards #F2F2F7/#1C1C1E, systemBlue #0088FF/#0091FF, systemGreen #34C759/#30D158, systemRed #FF383C/#FF4245, systemOrange #FF8D28/#FF9230, secondary text #50505A/#C5C5CC; locked typography roles Title/Heading/Body/Secondary/Caption; shape constants; spring damping 0.8; press scale 0.97). Applied strictly and exclusively to Home screen. Zero modifications to non-Home screens. Verified via automated unit tests and design system checks.
 
+## [COMPLETED] Eve Design System Foundation with Locked Values & Home Screen Application (ADR-018)
+- **Status**: Completed (2026-10-17)
+- **Scope**: `colors.xml`, `values-night/colors.xml`, `dimens.xml`, `values-night/dimens.xml`, `values-sw360dp/dimens.xml`, `values-sw600dp/dimens.xml`, `type.xml`, `styles.xml`, `activity_main.xml`, `item_exam.xml`, `item_feedback_post.xml`, `ExamAdapter.kt`, `MainActivity.kt`, `HomeAppearance.kt`, `EveDesignSystem.kt`, `FontManager.kt`, `dm_sans*`, drawables & selectors, ADR-018 (`DECISIONS.md`).
+- **Details**: Codified locked Eve Design System foundation and applied it strictly to the Home screen ONLY. Overrides earlier approved visuals for Home tabs, pills, cards, fonts, colors, and bottom bar per explicit user instructions. Bundled static OFL DM Sans fonts (400, 500, 700). Applied PageTitle 29sp, CardTitle/Body 18sp, Secondary 14sp, Tab 15sp, Pill 14sp. Built 40dp segmented tabs, 32dp outline pills (>=48dp touch delegate), 24dp cards (soft 2dp/12dp shadow light, 0dp dark), and 54dp floating solid capsule bottom bar with dynamic scrolling clearances on `rvExams`. Preserved non-Home screens, Telegram theme toggle, Lottie assets/triggers/sizes, and SVG icons. Verified via automated tests and design system checks.
+
 ## [P3] Accessibility: Extreme Font Scale (1.78x / 2.0x) Audit
 - **Impact**: Low-Medium
 - **Scope**: Navigation drawer list items in `activity_main.xml` and form layouts.

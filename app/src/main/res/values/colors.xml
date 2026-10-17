@@ -343,4 +343,19 @@
     <color name="eve_home_top_bar_bg">@color/eve_home_solid_tint</color>
     <color name="eve_home_menu_bg">@color/eve_home_solid_tint</color>
     <color name="eve_home_sheet_bg">@color/eve_home_solid_tint</color>
+
+    <!-- Eve Design System Locked Foundation Tokens (Light Mode) -->
+    <color name="eve_home_background">#EEF2F8</color>
+    <color name="eve_home_card">#FFFFFF</color>
+    <color name="eve_home_text_primary">#000000</color>
+    <color name="eve_home_text_secondary">#6C6C70</color>
+    <color name="eve_home_hairline">#1A000000</color>
+    <color name="eve_home_tab_track">#29787880</color>
+    <color name="eve_home_accent">#000000</color>
+    <color name="eve_home_on_accent">#FFFFFF</color>
+    <color name="eve_home_success">#34C759</color>
+    <color name="eve_home_error">#FF383C</color>
+    <color name="eve_home_warning">#FF8D28</color>
+    <color name="eve_home_floating_bar_bg">#FFFFFF</color>
+    <color name="eve_home_card_shadow">#1A000000</color>
 </resources>

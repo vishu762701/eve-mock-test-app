@@ -71,12 +71,26 @@ object FontManager {
             if (bold) Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
             else Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL)
         } else {
-            val fontRes = if (bold) R.font.source_serif_4_bold else R.font.source_serif_4_regular
+            val fontRes = if (bold) R.font.dm_sans_bold else R.font.dm_sans_regular
             try {
                 ResourcesCompat.getFont(context, fontRes)
                     ?: if (bold) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
             } catch (_: Throwable) {
                 if (bold) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+            }
+        }
+    }
+
+    fun mediumTypeface(context: Context): Typeface {
+        val choice = getFontChoice(context)
+        return if (choice == FONT_DEVICE) {
+            Typeface.create("sans-serif-medium", Typeface.NORMAL)
+        } else {
+            try {
+                ResourcesCompat.getFont(context, R.font.dm_sans_medium)
+                    ?: Typeface.create("sans-serif-medium", Typeface.NORMAL)
+            } catch (_: Throwable) {
+                Typeface.create("sans-serif-medium", Typeface.NORMAL)
             }
         }
     }

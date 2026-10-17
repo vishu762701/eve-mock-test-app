@@ -379,6 +379,7 @@ class MainActivity : EveBaseActivity() {
 
         Log.e("EVE_STARTUP", "stage: setupFloatingAirplane")
         setupFloatingAirplane()
+        setupFloatingBottomBar()
 
         binding.btnRetry.setOnClickListener { viewModel.load() }
 
@@ -769,9 +770,11 @@ class MainActivity : EveBaseActivity() {
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.cardFloatingAirplane) { view, windowInsets ->
             val navInsets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
-            val baseMarginPx = (16 * resources.displayMetrics.density).toInt()
+            val baseMarginPx = resources.getDimensionPixelSize(R.dimen.eve_home_screen_margin)
+            val barHeight = resources.getDimensionPixelSize(R.dimen.eve_home_bottom_bar_height)
+            val barMargin = resources.getDimensionPixelSize(R.dimen.eve_home_bottom_bar_margin_bottom)
             (view.layoutParams as? ViewGroup.MarginLayoutParams)?.let { lp ->
-                lp.bottomMargin = baseMarginPx + navInsets.bottom
+                lp.bottomMargin = barHeight + barMargin + navInsets.bottom + baseMarginPx
                 lp.marginEnd = baseMarginPx + navInsets.right
                 view.layoutParams = lp
             }
@@ -787,6 +790,62 @@ class MainActivity : EveBaseActivity() {
                 AppBulletin.showError(this, "Couldn't open link")
             }
         }
+    }
+
+    private fun setupFloatingBottomBar() {
+        val barHeight = resources.getDimensionPixelSize(R.dimen.eve_home_bottom_bar_height)
+        val barBottomMargin = resources.getDimensionPixelSize(R.dimen.eve_home_bottom_bar_margin_bottom)
+        val clearance = resources.getDimensionPixelSize(R.dimen.eve_home_bottom_bar_margin_horizontal)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.cardHomeBottomBar) { view, windowInsets ->
+            val gestureInsets = windowInsets.getInsets(
+                WindowInsetsCompat.Type.systemGestures() or WindowInsetsCompat.Type.navigationBars()
+            )
+            val bottomInset = gestureInsets.bottom
+            (view.layoutParams as? ViewGroup.MarginLayoutParams)?.let { lp ->
+                lp.bottomMargin = barBottomMargin + bottomInset
+                view.layoutParams = lp
+            }
+
+            // Every scrolling screen content needs bottom padding (bar height + margins + inset, clipToPadding=false) so the last item is never hidden.
+            val totalBottomPadding = barHeight + barBottomMargin + bottomInset + clearance
+            binding.rvExams.setPadding(
+                binding.rvExams.paddingLeft,
+                binding.rvExams.paddingTop,
+                binding.rvExams.paddingRight,
+                totalBottomPadding
+            )
+            windowInsets
+        }
+
+        binding.btnBottomNavHome.setOnClickListener {
+            binding.rvExams.smoothScrollToPosition(0)
+            updateBottomNavSelection(0)
+        }
+
+        binding.btnBottomNavHistory.setOnClickListener {
+            updateBottomNavSelection(1)
+            binding.drawerLayout.openDrawer(androidx.core.view.GravityCompat.START)
+        }
+
+        binding.btnBottomNavSaved.setOnClickListener {
+            updateBottomNavSelection(2)
+            AppBulletin.showInfo(this, "Saved tests")
+        }
+
+        binding.btnBottomNavProfile.setOnClickListener {
+            updateBottomNavSelection(3)
+            binding.drawerLayout.openDrawer(androidx.core.view.GravityCompat.START)
+        }
+    }
+
+    private fun updateBottomNavSelection(selectedIndex: Int) {
+        val accentColor = com.eve.app.designsystem.EveDesignSystem.Colors.homeAccent(this)
+        val secondaryColor = com.eve.app.designsystem.EveDesignSystem.Colors.homeTextSecondary(this)
+        binding.ivBottomNavHome.imageTintList = android.content.res.ColorStateList.valueOf(if (selectedIndex == 0) accentColor else secondaryColor)
+        binding.ivBottomNavHistory.imageTintList = android.content.res.ColorStateList.valueOf(if (selectedIndex == 1) accentColor else secondaryColor)
+        binding.ivBottomNavSaved.imageTintList = android.content.res.ColorStateList.valueOf(if (selectedIndex == 2) accentColor else secondaryColor)
+        binding.ivBottomNavProfile.imageTintList = android.content.res.ColorStateList.valueOf(if (selectedIndex == 3) accentColor else secondaryColor)
     }
 
     private fun applyFloatingAirplaneTheme() {

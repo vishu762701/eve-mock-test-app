@@ -6,14 +6,14 @@
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/eve_system_background">
+    android:background="@color/eve_home_background">
 
     <!-- Main Content Container -->
     <LinearLayout
         android:id="@+id/mainContentContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/eve_system_background"
+        android:background="@color/eve_home_background"
         android:orientation="vertical">
 
     <!-- Top Bar Container / Header-Ink Zone -->
@@ -21,7 +21,7 @@
         android:id="@+id/topBarContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/eve_home_top_bar_bg">
+        android:background="@color/eve_home_background">
 
         <!-- Normal Top Bar -->
         <LinearLayout
@@ -133,13 +133,13 @@
 
                 <TextView
                     android:id="@+id/tvWelcome"
-                    style="@style/TextAppearance.Eve.LargeTitle"
+                    style="@style/TextAppearance.Eve.Home.PageTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="Hi, Student"
-                    android:textColor="@color/eve_header_ink_text" />
+                    android:textColor="@color/eve_home_text_primary" />
             </LinearLayout>
         </LinearLayout>
 
@@ -149,7 +149,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:minHeight="@dimen/eve_segment_min_height"
-            android:background="@color/eve_home_top_bar_bg"
+            android:background="@color/eve_home_background"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingHorizontal="16dp"
@@ -205,9 +205,9 @@
         <View
             android:id="@+id/topBarHairline"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/eve_home_hairline_border"
+            android:layout_height="@dimen/eve_home_hairline_stroke"
             android:layout_gravity="bottom"
-            android:background="@color/eve_home_hairline_border" />
+            android:background="@color/eve_home_hairline" />
     </FrameLayout>
 
     <!-- Flat Home content continues the grouped canvas without a raised sheet. -->
@@ -216,7 +216,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@drawable/bg_content_sheet"
+        android:background="@color/eve_home_background"
         android:orientation="vertical">
 
         <TextView
@@ -358,8 +358,8 @@
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:layoutAnimation="@anim/layout_enter"
-                android:paddingHorizontal="16dp"
-                android:paddingBottom="96dp" />
+                android:paddingHorizontal="@dimen/eve_home_screen_margin"
+                android:paddingBottom="76dp" />
 
         <!-- Upgrade 3: Telegram-style shimmer skeleton placeholder (LoadingDrawable pattern) -->
         <com.eve.app.ui.common.ShimmerSkeletonView
@@ -443,8 +443,8 @@
             android:layout_width="72dp"
             android:layout_height="72dp"
             android:layout_gravity="bottom|end"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="@dimen/eve_home_screen_margin"
+            android:layout_marginBottom="76dp"
             android:clickable="true"
             android:focusable="true"
             android:visibility="gone"
@@ -464,6 +464,112 @@
                 app:lottie_autoPlay="false"
                 app:lottie_loop="true"
                 app:lottie_rawRes="@raw/man_flying_on_paper_airplane" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Floating Solid Capsule Bottom Bar (Eve Design System Locked Foundation) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardHomeBottomBar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/eve_home_bottom_bar_height"
+            android:layout_gravity="bottom"
+            android:layout_marginHorizontal="@dimen/eve_home_bottom_bar_margin_horizontal"
+            android:layout_marginBottom="@dimen/eve_home_bottom_bar_margin_bottom"
+            app:cardCornerRadius="@dimen/eve_home_bottom_bar_radius"
+            app:cardBackgroundColor="@color/eve_home_floating_bar_bg"
+            app:cardElevation="@dimen/eve_home_card_elevation"
+            app:cardMaxElevation="@dimen/eve_home_card_elevation"
+            app:strokeWidth="@dimen/eve_home_hairline_stroke"
+            app:strokeColor="@color/eve_home_hairline"
+            android:outlineAmbientShadowColor="@color/eve_home_card_shadow"
+            android:outlineSpotShadowColor="@color/eve_home_card_shadow">
+
+            <LinearLayout
+                android:id="@+id/layoutHomeBottomBarNav"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <!-- 1. Home (Selected) -->
+                <FrameLayout
+                    android:id="@+id/btnBottomNavHome"
+                    android:layout_width="@dimen/eve_space_0"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Home">
+
+                    <ImageView
+                        android:id="@+id/ivBottomNavHome"
+                        android:layout_width="@dimen/eve_home_bottom_bar_icon_size"
+                        android:layout_height="@dimen/eve_home_bottom_bar_icon_size"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_nav_home"
+                        app:tint="@color/eve_home_accent" />
+                </FrameLayout>
+
+                <!-- 2. History -->
+                <FrameLayout
+                    android:id="@+id/btnBottomNavHistory"
+                    android:layout_width="@dimen/eve_space_0"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="History">
+
+                    <ImageView
+                        android:id="@+id/ivBottomNavHistory"
+                        android:layout_width="@dimen/eve_home_bottom_bar_icon_size"
+                        android:layout_height="@dimen/eve_home_bottom_bar_icon_size"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_history"
+                        app:tint="@color/eve_home_text_secondary" />
+                </FrameLayout>
+
+                <!-- 3. Saved / Bookmarks -->
+                <FrameLayout
+                    android:id="@+id/btnBottomNavSaved"
+                    android:layout_width="@dimen/eve_space_0"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Saved">
+
+                    <ImageView
+                        android:id="@+id/ivBottomNavSaved"
+                        android:layout_width="@dimen/eve_home_bottom_bar_icon_size"
+                        android:layout_height="@dimen/eve_home_bottom_bar_icon_size"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_bookmark"
+                        app:tint="@color/eve_home_text_secondary" />
+                </FrameLayout>
+
+                <!-- 4. Profile -->
+                <FrameLayout
+                    android:id="@+id/btnBottomNavProfile"
+                    android:layout_width="@dimen/eve_space_0"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Profile">
+
+                    <ImageView
+                        android:id="@+id/ivBottomNavProfile"
+                        android:layout_width="@dimen/eve_home_bottom_bar_icon_size"
+                        android:layout_height="@dimen/eve_home_bottom_bar_icon_size"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_person"
+                        app:tint="@color/eve_home_text_secondary" />
+                </FrameLayout>
+            </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
     </FrameLayout>
     </LinearLayout>

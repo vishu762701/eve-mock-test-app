@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView
-    style="@style/Widget.Eve.Card.Content"
+    style="@style/Widget.Eve.Home.Card"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="@dimen/eve_space_0"
-    android:layout_marginVertical="@dimen/eve_space_8"
+    android:layout_marginHorizontal="@dimen/eve_home_screen_margin"
+    android:layout_marginVertical="@dimen/eve_home_card_gap_half"
     android:clickable="true"
     android:focusable="true"
+    app:cardCornerRadius="@dimen/eve_home_card_radius"
     app:cardElevation="@dimen/eve_home_card_elevation"
     app:cardMaxElevation="@dimen/eve_home_card_elevation"
+    app:cardBackgroundColor="@color/eve_home_card"
+    android:outlineAmbientShadowColor="@color/eve_home_card_shadow"
+    android:outlineSpotShadowColor="@color/eve_home_card_shadow"
+    app:strokeWidth="@dimen/eve_space_0"
+    app:strokeColor="@android:color/transparent"
     android:stateListAnimator="@animator/press_scale"
     app:rippleColor="@color/eve_ripple"
     android:minHeight="@dimen/eve_list_row_min">
@@ -18,7 +24,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/eve_card_padding_inner">
+        android:padding="@dimen/eve_home_card_padding">
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/examIconContainer"
@@ -27,8 +33,8 @@
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             app:cardBackgroundColor="@color/eve_exam_icon_tile_bg"
-            app:cardCornerRadius="@dimen/eve_radius_card"
-            app:cardElevation="@dimen/eve_home_card_elevation"
+            app:cardCornerRadius="@dimen/eve_home_card_padding"
+            app:cardElevation="@dimen/eve_space_0"
             app:rippleColor="@android:color/transparent"
             app:strokeColor="@color/eve_shape_border"
             app:strokeWidth="@dimen/eve_space_0">
@@ -63,7 +69,7 @@
             android:layout_marginStart="@dimen/eve_space_8"
             android:contentDescription="Pinned test"
             android:src="@drawable/ic_pin"
-            app:tint="@color/eve_text_secondary"
+            app:tint="@color/eve_home_text_secondary"
             android:visibility="gone" />
 
         <!-- Task C: Exam name is ALWAYS visible in pinned and unpinned states -->
@@ -79,20 +85,22 @@
 
             <TextView
                 android:id="@+id/tvExamName"
-                style="@style/TextAppearance.Eve.Headline"
+                style="@style/TextAppearance.Eve.Home.CardTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:maxLines="2"
-                android:textColor="?attr/eveLabelPrimary" />
+                android:maxLines="1"
+                android:textColor="@color/eve_home_text_primary" />
 
             <TextView
                 android:id="@+id/tvExamTime"
-                style="@style/TextAppearance.Eve.Footnote"
+                style="@style/TextAppearance.Eve.Home.Secondary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/eve_space_4"
-                android:textColor="?attr/eveLabelSecondary" />
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/eve_home_text_secondary" />
         </LinearLayout>
     </RelativeLayout>
 </com.google.android.material.card.MaterialCardView>

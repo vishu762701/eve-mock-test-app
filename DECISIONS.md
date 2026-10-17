@@ -764,3 +764,65 @@ Under ADR-014, ADR-015, and ADR-016, EVE established the locked rules for its iO
      - `testEveDesignSystemTypography_LockedRolesAndScale`
      - `testEveDesignSystemShapesAndMotion_LockedConstants`
      - `testNonHomeScreensAreUntouchedAndIntact`
+
+## ADR-018: Eve Design System Foundation with Locked Values & Home Screen Application
+
+- **Date**: 2026-10-17
+- **Status**: Accepted
+- **Author**: Principal Systems Architect & Design Systems Lead
+- **Authority**: Direct user instruction: "TASK: Build the Eve Design System foundation with the LOCKED values below, then apply it to the Home screen ONLY. Do not touch other screens. This task deliberately overrides any earlier approved visuals for tabs, pills, cards, fonts, colors and the bottom bar on Home. If GEMINI.md or any approved-UI file conflicts, follow this task and report the conflict. These are Eve's own values: do not 'correct' them to anything else."
+
+### Context & Conflict Statement
+Under earlier ADRs (ADR-008, ADR-009, ADR-011, ADR-014, ADR-015, ADR-016), the Home screen was configured using iOS 26 Apple HIG design authority (systemBackground #FFFFFF/#000000, 26dp card radii with 0dp elevation/shadow, 40dp filled/neutral category chips, and without a floating bottom bar). The user established locked values representing "Eve's own values", explicitly overriding earlier approved visuals for tabs, pills, cards, fonts, colors, and bottom navigation on the Home screen.
+
+### Decisions
+1. **Locked Color Tokens (values/ + values-night/)**:
+   - Background: Light `#EEF2F8` / Dark `#0B0F16` (`@color/eve_home_background`)
+   - Card: Light `#FFFFFF` / Dark `#161B24` (`@color/eve_home_card`)
+   - Text Primary: Light `#000000` / Dark `#FFFFFF` (`@color/eve_home_text_primary`)
+   - Text Secondary: Light `#6C6C70` / Dark `#A1A1A6` (`@color/eve_home_text_secondary`)
+   - Hairline: Light `rgba(0,0,0,0.10)` (`#1A000000`) / Dark `rgba(255,255,255,0.14)` (`#24FFFFFF`) (`@color/eve_home_hairline`)
+   - Tab Track: Light `rgba(120,120,128,0.16)` (`#29787880`) / Dark `rgba(120,120,128,0.32)` (`#52787880`) (`@color/eve_home_tab_track`)
+   - Accent (Mono): Light `#000000` / Dark `#FFFFFF` (`@color/eve_home_accent`); On-Accent: Light `#FFFFFF` / Dark `#000000` (`@color/eve_home_on_accent`)
+   - Semantic Status: Success `#34C759` / `#30D158`, Error `#FF383C` / `#FF4245`, Warning `#FF8D28` / `#FF9230` (used strictly for meaning, never decoration)
+   - Floating Bottom Bar Background: Light `#FFFFFF` / Dark `#2C2C2E` (`@color/eve_home_floating_bar_bg`)
+
+2. **Typography — DM Sans (OFL)**:
+   - Bundled static OFL DM Sans fonts in `app/src/main/res/font/`: `dm_sans_regular.ttf` (400), `dm_sans_medium.ttf` (500), `dm_sans_bold.ttf` (700).
+   - Created `dm_sans.xml` font family mapping 400, 500, and 700 weights.
+   - Updated `FontManager.kt` so `FONT_EVE_DEFAULT` resolves to DM Sans while keeping all font preference mechanisms working.
+   - Defined `TextAppearance.Eve.Home.*` styles in `values/type.xml`:
+     - `PageTitle`: 29sp Bold
+     - `CardTitle`: 18sp Bold
+     - `CardBody`: 18sp Regular
+     - `Secondary`: 14sp Regular
+     - `TabLabel`: 15sp Regular, `TabLabel.Selected`: 15sp Bold
+     - `PillLabel`: 14sp Medium
+
+3. **Segmented Tabs (Filled Pill)**:
+   - Container height 40dp, fully rounded capsule, track color `@color/eve_home_tab_track`, 3dp inner padding.
+   - Selected segment: accent fill (`@color/eve_home_accent`) with on-accent text (`@color/eve_home_on_accent`).
+   - Unselected segment: secondary text (`@color/eve_home_text_secondary`).
+
+4. **Pills (Outline)**:
+   - Height 32dp (tab height minus 8dp), horizontal padding 12dp, fully rounded capsule (16dp / 999dp), 1dp accent border, accent text.
+   - Touch targets expand to at least 48dp without changing visible geometry via Material Chip touch target delegation (`chipMinTouchTargetSize = 48dp`, `setEnsureMinTouchTargetSize(true)`).
+
+5. **Cards**:
+   - Radius 24dp, padding 12dp, gap between cards 8dp, screen margin 16dp, section gap 16dp.
+   - Soft shadow ~ y 2dp, blur 12dp, 10% black in light mode (`@dimen/eve_home_card_elevation` 2dp, `@color/eve_home_card_shadow` `#1A000000`).
+   - Dark mode: 0dp elevation, transparent shadow, card background `#161B24` provides clear visual separation.
+
+6. **Bottom Bar (Floating, Solid, Capsule)**:
+   - 12dp margins left/right, 10dp above bottom plus system gesture inset.
+   - Height 54dp, 22dp icons, 0.5dp hairline border, solid fill, no blur.
+   - Selected icon = accent, unselected icons = secondary (`@color/selector_home_bottom_bar_tint`).
+   - Scrolling clearance: `MainActivity.kt` sets `rvExams` bottom padding dynamically (`54dp + 10dp + gestureInset + 12dp clearance`) with `clipToPadding="false"`, ensuring the last exam card is never obscured. Floating airplane FAB anchors above this clearance.
+
+7. **Multi-Bucket Dimension Qualifiers**:
+   - Replicated all size tokens into `values-sw360dp/dimens.xml` and `values-sw600dp/dimens.xml` identical to base dimens.
+
+8. **Strict Scoping to Home Screen ONLY & Invariant Preservation**:
+   - Applied strictly and exclusively to Home screen layouts and classes (`MainActivity`, `activity_main.xml`, `HomeAppearance.kt`, `ExamAdapter.kt`, `item_exam.xml`, `item_feedback_post.xml`).
+   - Zero edits made to Test, Result, Profile, Settings, Admin, or Leaderboard screens.
+   - Telegram theme switcher (`ThemeSwitchAnimator.kt`, `ThemeManager.kt`, `TelegramMenuPopup.kt`), all Lottie files/triggers/sizes, and SVG vector assets remained completely untouched.

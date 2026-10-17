@@ -9,6 +9,19 @@
 - Light app background tokens are pure `#FFFFFF`; dark background tokens are pure `#000000`.
 - Test submission remains server-side through `POST /api/attempts/submit`; authentication, scoring, answer persistence, and navigation code were not changed by the Home Banner/Test appearance task.
 
+### EVE: Design System Foundation with Locked Values & Home Screen Application (ADR-018) — 2026-10-17
+
+- Codified the complete locked Eve Design System foundation and applied it strictly to the Home screen ONLY:
+  - Locked color tokens (values/ and values-night/): `eve_home_background` (#EEF2F8 / #0B0F16), `eve_home_card` (#FFFFFF / #161B24), `eve_home_text_primary` (#000000 / #FFFFFF), `eve_home_text_secondary` (#6C6C70 / #A1A1A6), `eve_home_hairline` (rgba(0,0,0,0.10) / rgba(255,255,255,0.14)), `eve_home_tab_track` (rgba(120,120,128,0.16) / rgba(120,120,128,0.32)), `eve_home_accent` (#000000 / #FFFFFF), `eve_home_on_accent` (#FFFFFF / #000000), semantic status tokens (success #34C759/#30D158, error #FF383C/#FF4245, warning #FF8D28/#FF9230 for meaning only), and `eve_home_floating_bar_bg` (#FFFFFF / #2C2C2E).
+  - Bundled static OFL DM Sans fonts: Regular 400, Medium 500, Bold 700 TTF files in `res/font/`, verified with TrueType magic header `00 01 00 00`. Default font resolves to DM Sans via `FontManager.kt`.
+  - Type styles in `values/type.xml`: `TextAppearance.Eve.Home.PageTitle` (29sp Bold), `CardTitle` (18sp Bold), `CardBody` (18sp Regular), `Secondary` (14sp Regular), `TabLabel` (15sp Regular, Selected Bold), `PillLabel` (14sp Medium).
+  - Segmented Tabs (Filled Pill): 40dp height, fully rounded, track color, 3dp inner padding; selected = accent fill + on-accent text; unselected = secondary text.
+  - Pills (Outline): 32dp height, 12dp horizontal padding, fully rounded, 1dp accent border, accent text, with >= 48dp touch delegate without altering visible geometry.
+  - Cards: 24dp radius, 12dp padding, 8dp card gap, 16dp screen margin, 16dp section gap. Soft 2dp elevation/12dp blur (10% black) in light mode; 0dp elevation/no visible shadow in dark mode (card background #161B24 separates).
+  - Bottom Bar (Floating, Solid, Capsule): 12dp side margins, 10dp bottom margin (+ gesture inset), 54dp height, 22dp icons, 0.5dp hairline border, solid fill, no blur. Selected icon = accent, unselected = secondary. Dynamic bottom clearance in `MainActivity` on `rvExams` with `clipToPadding="false"`.
+  - Screen-width qualifiers: Replicated all size tokens identically into `values-sw360dp/dimens.xml` and `values-sw600dp/dimens.xml`.
+  - Scoping & Invariants: Applied strictly to Home screen only (`MainActivity`, `activity_main.xml`, `HomeAppearance.kt`, `ExamAdapter.kt`, `item_exam.xml`, `item_feedback_post.xml`). Test, Result, Admin, Leaderboard, Profile, and Settings screens untouched. Telegram theme switcher, Lottie files/triggers/sizes, and SVG assets 100% preserved.
+
 ### EVE: Design System Foundation Locked Values Codification & Home Screen Application (ADR-017) — 2026-10-17
 
 - Codified all authoritative locked design tokens directly within `EveDesignSystem` (`com.eve.app.designsystem.EveDesignSystem`):

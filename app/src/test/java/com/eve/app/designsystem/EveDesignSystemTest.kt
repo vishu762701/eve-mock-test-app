@@ -7,11 +7,12 @@ import org.junit.Test
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 import java.io.File
+import java.io.FileInputStream
 import javax.xml.parsers.DocumentBuilderFactory
 
 /**
  * Automated verification test suite for the Eve Design System foundation
- * and its strict application to the Home screen ONLY.
+ * with locked values and its strict application to the Home screen ONLY.
  */
 class EveDesignSystemTest {
 
@@ -56,204 +57,271 @@ class EveDesignSystemTest {
         return null
     }
 
-    @Test
-    fun testEveDesignSystemShapes_ConcentricGeometryRules() {
-        // Parent card 26dp with inner padding 18dp -> 8dp concentric radius
-        assertEquals(8f, EveDesignSystem.Shapes.concentricRadius(26f, 18f), 0.001f)
+    private fun parseColorMap(relativePath: String): Map<String, String> {
+        val element = loadXml(relativePath)
+        val map = mutableMapOf<String, String>()
+        val nodeList = element.getElementsByTagName("color")
+        for (i in 0 until nodeList.length) {
+            val node = nodeList.item(i) as Element
+            map[node.getAttribute("name")] = node.textContent.trim()
+        }
+        return map
+    }
 
-        // Parent card 26dp with inner padding 12dp -> 14dp concentric radius
-        assertEquals(14f, EveDesignSystem.Shapes.concentricRadius(26f, 12f), 0.001f)
-
-        // Parent sheet 34dp with inner padding 16dp -> 18dp concentric radius
-        assertEquals(18f, EveDesignSystem.Shapes.concentricRadius(34f, 16f), 0.001f)
-
-        // Clamping rule: minimum corner radius is 4dp
-        assertEquals(4f, EveDesignSystem.Shapes.concentricRadius(10f, 8f), 0.001f)
-        assertEquals(4f, EveDesignSystem.Shapes.concentricRadius(26f, 30f), 0.001f)
-
-        // Capsule half-bounds
-        assertEquals(24f, EveDesignSystem.Shapes.capsuleRadius(48f), 0.001f)
-        assertEquals(20f, EveDesignSystem.Shapes.capsuleRadius(40f), 0.001f)
+    private fun parseDimenMap(relativePath: String): Map<String, String> {
+        val element = loadXml(relativePath)
+        val map = mutableMapOf<String, String>()
+        val nodeList = element.getElementsByTagName("dimen")
+        for (i in 0 until nodeList.length) {
+            val node = nodeList.item(i) as Element
+            map[node.getAttribute("name")] = node.textContent.trim()
+        }
+        return map
     }
 
     @Test
-    fun testEveDesignSystemSpacing_4dpGridAndTouchTargets() {
-        assertEquals(4, EveDesignSystem.Spacing.SPACE_4_DP)
-        assertEquals(8, EveDesignSystem.Spacing.SPACE_8_DP)
-        assertEquals(12, EveDesignSystem.Spacing.SPACE_12_DP)
-        assertEquals(16, EveDesignSystem.Spacing.SPACE_16_DP)
-        assertEquals(20, EveDesignSystem.Spacing.SPACE_20_DP)
-        assertEquals(24, EveDesignSystem.Spacing.SPACE_24_DP)
-        assertEquals(32, EveDesignSystem.Spacing.SPACE_32_DP)
-
-        assertEquals(48, EveDesignSystem.Spacing.MIN_TOUCH_TARGET_DP)
-        assertEquals(52, EveDesignSystem.Spacing.MIN_LIST_ROW_HEIGHT_DP)
-        assertEquals(56, EveDesignSystem.Spacing.MIN_SEGMENTED_HEIGHT_DP)
+    fun testEveDesignSystemLockedColors_LightAndDarkConstants() {
+        assertEquals("#EEF2F8", EveDesignSystem.Colors.HEX_HOME_LIGHT_BG)
+        assertEquals("#0B0F16", EveDesignSystem.Colors.HEX_HOME_DARK_BG)
+        assertEquals("#FFFFFF", EveDesignSystem.Colors.HEX_HOME_LIGHT_CARD)
+        assertEquals("#161B24", EveDesignSystem.Colors.HEX_HOME_DARK_CARD)
+        assertEquals("#000000", EveDesignSystem.Colors.HEX_HOME_LIGHT_TEXT_PRIMARY)
+        assertEquals("#FFFFFF", EveDesignSystem.Colors.HEX_HOME_DARK_TEXT_PRIMARY)
+        assertEquals("#6C6C70", EveDesignSystem.Colors.HEX_HOME_LIGHT_TEXT_SECONDARY)
+        assertEquals("#A1A1A6", EveDesignSystem.Colors.HEX_HOME_DARK_TEXT_SECONDARY)
+        assertEquals("#1A000000", EveDesignSystem.Colors.HEX_HOME_LIGHT_HAIRLINE)
+        assertEquals("#24FFFFFF", EveDesignSystem.Colors.HEX_HOME_DARK_HAIRLINE)
+        assertEquals("#29787880", EveDesignSystem.Colors.HEX_HOME_LIGHT_TAB_TRACK)
+        assertEquals("#52787880", EveDesignSystem.Colors.HEX_HOME_DARK_TAB_TRACK)
+        assertEquals("#000000", EveDesignSystem.Colors.HEX_HOME_LIGHT_ACCENT)
+        assertEquals("#FFFFFF", EveDesignSystem.Colors.HEX_HOME_DARK_ACCENT)
+        assertEquals("#FFFFFF", EveDesignSystem.Colors.HEX_HOME_LIGHT_ON_ACCENT)
+        assertEquals("#000000", EveDesignSystem.Colors.HEX_HOME_DARK_ON_ACCENT)
+        assertEquals("#34C759", EveDesignSystem.Colors.HEX_HOME_LIGHT_SUCCESS)
+        assertEquals("#30D158", EveDesignSystem.Colors.HEX_HOME_DARK_SUCCESS)
+        assertEquals("#FF383C", EveDesignSystem.Colors.HEX_HOME_LIGHT_ERROR)
+        assertEquals("#FF4245", EveDesignSystem.Colors.HEX_HOME_DARK_ERROR)
+        assertEquals("#FF8D28", EveDesignSystem.Colors.HEX_HOME_LIGHT_WARNING)
+        assertEquals("#FF9230", EveDesignSystem.Colors.HEX_HOME_DARK_WARNING)
+        assertEquals("#FFFFFF", EveDesignSystem.Colors.HEX_HOME_LIGHT_FLOATING_BAR_BG)
+        assertEquals("#2C2C2E", EveDesignSystem.Colors.HEX_HOME_DARK_FLOATING_BAR_BG)
     }
 
     @Test
-    fun testEveDesignSystemMotion_DurationsAndInterpolators() {
-        assertEquals(150L, EveDesignSystem.Motion.DURATION_QUICK_MS)
-        assertEquals(220L, EveDesignSystem.Motion.DURATION_DISMISS_MS)
-        assertEquals(300L, EveDesignSystem.Motion.DURATION_STANDARD_MS)
-        assertEquals(280L, EveDesignSystem.Motion.DURATION_SPRING_MS)
+    fun testEveDesignSystemLockedColorsXml_LightAndDarkIntegrity() {
+        val lightColors = parseColorMap("src/main/res/values/colors.xml")
+        assertEquals("#EEF2F8", lightColors["eve_home_background"])
+        assertEquals("#FFFFFF", lightColors["eve_home_card"])
+        assertEquals("#000000", lightColors["eve_home_text_primary"])
+        assertEquals("#6C6C70", lightColors["eve_home_text_secondary"])
+        assertEquals("#1A000000", lightColors["eve_home_hairline"])
+        assertEquals("#29787880", lightColors["eve_home_tab_track"])
+        assertEquals("#000000", lightColors["eve_home_accent"])
+        assertEquals("#FFFFFF", lightColors["eve_home_on_accent"])
+        assertEquals("#34C759", lightColors["eve_home_success"])
+        assertEquals("#FF383C", lightColors["eve_home_error"])
+        assertEquals("#FF8D28", lightColors["eve_home_warning"])
+        assertEquals("#FFFFFF", lightColors["eve_home_floating_bar_bg"])
+        assertEquals("#1A000000", lightColors["eve_home_card_shadow"])
 
-        assertNotNull(EveDesignSystem.Motion.standardInterpolator)
-        assertNotNull(EveDesignSystem.Motion.springInterpolator)
+        val darkColors = parseColorMap("src/main/res/values-night/colors.xml")
+        assertEquals("#0B0F16", darkColors["eve_home_background"])
+        assertEquals("#161B24", darkColors["eve_home_card"])
+        assertEquals("#FFFFFF", darkColors["eve_home_text_primary"])
+        assertEquals("#A1A1A6", darkColors["eve_home_text_secondary"])
+        assertEquals("#24FFFFFF", darkColors["eve_home_hairline"])
+        assertEquals("#52787880", darkColors["eve_home_tab_track"])
+        assertEquals("#FFFFFF", darkColors["eve_home_accent"])
+        assertEquals("#000000", darkColors["eve_home_on_accent"])
+        assertEquals("#30D158", darkColors["eve_home_success"])
+        assertEquals("#FF4245", darkColors["eve_home_error"])
+        assertEquals("#FF9230", darkColors["eve_home_warning"])
+        assertEquals("#2C2C2E", darkColors["eve_home_floating_bar_bg"])
+        assertEquals("#00000000", darkColors["eve_home_card_shadow"])
     }
 
     @Test
-    fun testEveDesignSystemMaterials_LiquidGlassRegularSpec() {
-        assertEquals("apple-regular", EveDesignSystem.Materials.SPEC_REGULAR_GLASS)
+    fun testEveDesignSystemLockedDimensXml_BaseAndQualifiersIntegrity() {
+        val baseDimens = parseDimenMap("src/main/res/values/dimens.xml")
+        assertEquals("29sp", baseDimens["eve_home_type_page_title"])
+        assertEquals("18sp", baseDimens["eve_home_type_card_title"])
+        assertEquals("18sp", baseDimens["eve_home_type_card_body"])
+        assertEquals("14sp", baseDimens["eve_home_type_secondary"])
+        assertEquals("15sp", baseDimens["eve_home_type_tab_label"])
+        assertEquals("14sp", baseDimens["eve_home_type_pill_label"])
+        assertEquals("40dp", baseDimens["eve_home_tab_height"])
+        assertEquals("3dp", baseDimens["eve_home_tab_inner_padding"])
+        assertEquals("32dp", baseDimens["eve_home_pill_height"])
+        assertEquals("12dp", baseDimens["eve_home_pill_padding_horizontal"])
+        assertEquals("1dp", baseDimens["eve_home_pill_border_width"])
+        assertEquals("24dp", baseDimens["eve_home_card_radius"])
+        assertEquals("12dp", baseDimens["eve_home_card_padding"])
+        assertEquals("8dp", baseDimens["eve_home_card_gap"])
+        assertEquals("16dp", baseDimens["eve_home_screen_margin"])
+        assertEquals("16dp", baseDimens["eve_home_section_gap"])
+        assertEquals("2dp", baseDimens["eve_home_card_elevation_light"])
+        assertEquals("0dp", baseDimens["eve_home_card_elevation_dark"])
+        assertEquals("12dp", baseDimens["eve_home_bottom_bar_margin_horizontal"])
+        assertEquals("10dp", baseDimens["eve_home_bottom_bar_margin_bottom"])
+        assertEquals("54dp", baseDimens["eve_home_bottom_bar_height"])
+        assertEquals("22dp", baseDimens["eve_home_bottom_bar_icon_size"])
+        assertEquals("0.5dp", baseDimens["eve_home_hairline_stroke"])
+        assertEquals("48dp", baseDimens["eve_home_min_touch_target"])
+
+        // Qualifier values-sw360dp
+        val sw360Dimens = parseDimenMap("src/main/res/values-sw360dp/dimens.xml")
+        assertEquals("29sp", sw360Dimens["eve_home_type_page_title"])
+        assertEquals("18sp", sw360Dimens["eve_home_type_card_title"])
+        assertEquals("18sp", sw360Dimens["eve_home_type_card_body"])
+        assertEquals("14sp", sw360Dimens["eve_home_type_secondary"])
+        assertEquals("15sp", sw360Dimens["eve_home_type_tab_label"])
+        assertEquals("14sp", sw360Dimens["eve_home_type_pill_label"])
+        assertEquals("40dp", sw360Dimens["eve_home_tab_height"])
+        assertEquals("32dp", sw360Dimens["eve_home_pill_height"])
+        assertEquals("24dp", sw360Dimens["eve_home_card_radius"])
+        assertEquals("54dp", sw360Dimens["eve_home_bottom_bar_height"])
+
+        // Qualifier values-sw600dp
+        val sw600Dimens = parseDimenMap("src/main/res/values-sw600dp/dimens.xml")
+        assertEquals("29sp", sw600Dimens["eve_home_type_page_title"])
+        assertEquals("18sp", sw600Dimens["eve_home_type_card_title"])
+        assertEquals("18sp", sw600Dimens["eve_home_type_card_body"])
+        assertEquals("14sp", sw600Dimens["eve_home_type_secondary"])
+        assertEquals("15sp", sw600Dimens["eve_home_type_tab_label"])
+        assertEquals("14sp", sw600Dimens["eve_home_type_pill_label"])
+        assertEquals("40dp", sw600Dimens["eve_home_tab_height"])
+        assertEquals("32dp", sw600Dimens["eve_home_pill_height"])
+        assertEquals("24dp", sw600Dimens["eve_home_card_radius"])
+        assertEquals("54dp", sw600Dimens["eve_home_bottom_bar_height"])
+
+        // Night dimen for 0dp card elevation
+        val nightDimens = parseDimenMap("src/main/res/values-night/dimens.xml")
+        assertEquals("0dp", nightDimens["eve_home_card_elevation"])
     }
 
     @Test
-    fun testEveDesignSystemTypography_CanonicalRolesPresent() {
-        assertTrue(EveDesignSystem.Typography.LargeTitle != 0)
-        assertTrue(EveDesignSystem.Typography.Title1 != 0)
-        assertTrue(EveDesignSystem.Typography.Title2 != 0)
-        assertTrue(EveDesignSystem.Typography.Title3 != 0)
-        assertTrue(EveDesignSystem.Typography.Headline != 0)
-        assertTrue(EveDesignSystem.Typography.Body != 0)
-        assertTrue(EveDesignSystem.Typography.Callout != 0)
-        assertTrue(EveDesignSystem.Typography.Subheadline != 0)
-        assertTrue(EveDesignSystem.Typography.SubheadlineMedium != 0)
-        assertTrue(EveDesignSystem.Typography.Footnote != 0)
-        assertTrue(EveDesignSystem.Typography.FootnoteMedium != 0)
-        assertTrue(EveDesignSystem.Typography.Caption1 != 0)
-        assertTrue(EveDesignSystem.Typography.Caption1Medium != 0)
-        assertTrue(EveDesignSystem.Typography.Caption2 != 0)
-        assertTrue(EveDesignSystem.Typography.Eyebrow != 0)
-        assertTrue(EveDesignSystem.Typography.Search != 0)
-    }
-
-    @Test
-    fun testHomeScreenXml_UsesApprovedDesignSystemComponents() {
-        val root = loadXml("src/main/res/layout/activity_main.xml")
-
-        // Root is Plain System Background
-        assertEquals("@color/eve_system_background", root.getAttribute("android:background"))
-
-        // Eyebrow and LargeTitle greeting
-        val tvWelcome = findElementById(root, "tvWelcome")
-        assertNotNull("tvWelcome must exist", tvWelcome)
-        assertEquals("@style/TextAppearance.Eve.LargeTitle", tvWelcome?.getAttribute("style"))
-
-        // Search field container has 48dp height and bg_search_field
-        val searchContainer = findElementById(root, "layoutSearchFieldContainer")
-        assertNotNull("layoutSearchFieldContainer must exist", searchContainer)
-        assertEquals("48dp", searchContainer?.getAttribute("android:layout_height"))
-        assertEquals("@drawable/bg_search_field", searchContainer?.getAttribute("android:background"))
-
-        // Search edit text has Search text appearance
-        val etSearch = findElementById(root, "etSearch")
-        assertNotNull("etSearch must exist", etSearch)
-        assertEquals("@style/TextAppearance.Eve.Search", etSearch?.getAttribute("style"))
-
-        // Bare notification bell with transparent background
-        val bell = findElementById(root, "btnNotification")
-        assertNotNull("btnNotification must exist", bell)
-        assertEquals("@android:color/transparent", bell?.getAttribute("android:background"))
-
-        // Streak pill container
-        val streakPill = findElementById(root, "layoutStreakPill")
-        assertNotNull("layoutStreakPill must exist", streakPill)
-        assertEquals("@drawable/bg_streak_pill", streakPill?.getAttribute("android:background"))
-
-        // Admin button uses Neutral button style and selector surface
-        val btnAdmin = findElementById(root, "btnAdmin")
-        assertNotNull("btnAdmin must exist", btnAdmin)
-        assertEquals("@style/Widget.Eve.Button.Neutral", btnAdmin?.getAttribute("style"))
-        assertEquals("@color/selector_home_admin_surface", btnAdmin?.getAttribute("app:backgroundTint"))
-        assertEquals("52dp", btnAdmin?.getAttribute("android:minHeight"))
-    }
-
-    @Test
-    fun testHomeExamAndFeedbackCardXml_UsesContentCardStyle() {
-        val examCard = loadXml("src/main/res/layout/item_exam.xml")
-        assertEquals("@style/Widget.Eve.Card.Content", examCard.getAttribute("style"))
-
-        val feedbackCard = loadXml("src/main/res/layout/item_feedback_post.xml")
-        assertEquals("@style/Widget.Eve.Card.Content", feedbackCard.getAttribute("style"))
-    }
-
-    @Test
-    fun testHomeAppearanceAndExamAdapter_SourceIntegrity() {
+    fun testDmSansFontBundling_StaticOflFilesAndWeights() {
         val root = getProjectDir()
-        fun readSrc(rel: String): String {
-            val candidates = listOf(File(root, rel), File(root, "app/$rel"), File(rel), File("app/$rel"))
-            return candidates.firstOrNull { it.exists() }?.readText()
-                ?: error("Missing source file: $rel")
+        val fontDir = File(root, "app/src/main/res/font")
+        val regularTtf = File(fontDir, "dm_sans_regular.ttf")
+        val mediumTtf = File(fontDir, "dm_sans_medium.ttf")
+        val boldTtf = File(fontDir, "dm_sans_bold.ttf")
+
+        assertTrue("dm_sans_regular.ttf must exist", regularTtf.exists())
+        assertTrue("dm_sans_medium.ttf must exist", mediumTtf.exists())
+        assertTrue("dm_sans_bold.ttf must exist", boldTtf.exists())
+
+        // Check TTF Magic Byte 00 01 00 00
+        val ttfMagic = byteArrayOf(0x00, 0x01, 0x00, 0x00)
+        listOf(regularTtf, mediumTtf, boldTtf).forEach { file ->
+            FileInputStream(file).use { fis ->
+                val header = ByteArray(4)
+                fis.read(header)
+                assertTrue("File ${file.name} must have valid TrueType magic header", header.contentEquals(ttfMagic))
+            }
         }
 
-        val homeAppearance = readSrc("src/main/java/com/eve/app/ui/home/HomeAppearance.kt")
-        assertTrue(homeAppearance.contains("EveDesignSystem.Components.tintNotificationBell"))
-        assertTrue(homeAppearance.contains("EveDesignSystem.Shapes.applyCardSquircle"))
-        assertTrue(homeAppearance.contains("EveDesignSystem.Components.createCategoryChip"))
-
-        val examAdapter = readSrc("src/main/java/com/eve/app/ui/home/ExamAdapter.kt")
-        assertTrue(examAdapter.contains("EveDesignSystem.Colors.shapeBorder"))
-        assertTrue(examAdapter.contains("EveDesignSystem.Colors.labelPrimary"))
-        assertTrue(examAdapter.contains("EveDesignSystem.Colors.statusRightText"))
-        assertTrue(examAdapter.contains("EveDesignSystem.Colors.labelSecondary"))
-        assertTrue(examAdapter.contains("R.color.eve_secondary_system_background"))
-
-        val mainActivity = readSrc("src/main/java/com/eve/app/ui/home/MainActivity.kt")
-        assertTrue(mainActivity.contains("EveDesignSystem.Components.applyHomeBannerSurface"))
-        assertTrue(mainActivity.contains("EveDesignSystem.Components.applyStreakPill"))
-        assertTrue(mainActivity.contains("EveDesignSystem.Components.applyAdminButton"))
-        assertTrue(mainActivity.contains("EveDesignSystem.Colors.secondarySystemBackground"))
-        assertTrue(mainActivity.contains("EveDesignSystem.Shapes.cardRadius"))
+        // Check font family xml
+        val dmSansXml = File(fontDir, "dm_sans.xml")
+        assertTrue("dm_sans.xml must exist", dmSansXml.exists())
+        val familyXml = loadXml("src/main/res/font/dm_sans.xml")
+        val fontNodes = familyXml.getElementsByTagName("font")
+        assertEquals("dm_sans.xml must define 3 static weights (400, 500, 700)", 3, fontNodes.length)
     }
 
     @Test
-    fun testEveDesignSystemColors_AuthoritativeLockedHexConstants() {
-        assertEquals("#FFFFFF", EveDesignSystem.Colors.HEX_LIGHT_CANVAS)
-        assertEquals("#000000", EveDesignSystem.Colors.HEX_DARK_CANVAS)
-        assertEquals("#F2F2F7", EveDesignSystem.Colors.HEX_LIGHT_CARDS)
-        assertEquals("#1C1C1E", EveDesignSystem.Colors.HEX_DARK_CARDS)
-        assertEquals("#0088FF", EveDesignSystem.Colors.HEX_LIGHT_ACCENT)
-        assertEquals("#0091FF", EveDesignSystem.Colors.HEX_DARK_ACCENT)
-        assertEquals("#34C759", EveDesignSystem.Colors.HEX_LIGHT_SUCCESS)
-        assertEquals("#30D158", EveDesignSystem.Colors.HEX_DARK_SUCCESS)
-        assertEquals("#FF383C", EveDesignSystem.Colors.HEX_LIGHT_ERROR)
-        assertEquals("#FF4245", EveDesignSystem.Colors.HEX_DARK_ERROR)
-        assertEquals("#FF8D28", EveDesignSystem.Colors.HEX_LIGHT_WARNING)
-        assertEquals("#FF9230", EveDesignSystem.Colors.HEX_DARK_WARNING)
-        assertEquals("#50505A", EveDesignSystem.Colors.HEX_LIGHT_SECONDARY_TEXT)
-        assertEquals("#C5C5CC", EveDesignSystem.Colors.HEX_DARK_SECONDARY_TEXT)
+    fun testEveDesignSystemTypographyStyles_Definitions() {
+        assertTrue(EveDesignSystem.Typography.HomePageTitle != 0)
+        assertTrue(EveDesignSystem.Typography.HomeCardTitle != 0)
+        assertTrue(EveDesignSystem.Typography.HomeCardBody != 0)
+        assertTrue(EveDesignSystem.Typography.HomeSecondary != 0)
+        assertTrue(EveDesignSystem.Typography.HomeTabLabel != 0)
+        assertTrue(EveDesignSystem.Typography.HomePillLabel != 0)
     }
 
     @Test
-    fun testEveDesignSystemTypography_LockedRolesAndScale() {
-        assertTrue(EveDesignSystem.Typography.Title != 0)
-        assertTrue(EveDesignSystem.Typography.Heading != 0)
-        assertTrue(EveDesignSystem.Typography.Body != 0)
-        assertTrue(EveDesignSystem.Typography.Secondary != 0)
-        assertTrue(EveDesignSystem.Typography.Caption != 0)
+    fun testHomeScreenXml_UsesLockedDesignSystemComponents() {
+        val root = loadXml("src/main/res/layout/activity_main.xml")
 
-        assertEquals(EveDesignSystem.Typography.Title1Bold, EveDesignSystem.Typography.Title)
-        assertEquals(EveDesignSystem.Typography.Title3Semibold, EveDesignSystem.Typography.Heading)
-        assertEquals(EveDesignSystem.Typography.Subheadline, EveDesignSystem.Typography.Secondary)
-        assertEquals(EveDesignSystem.Typography.Footnote, EveDesignSystem.Typography.Caption)
+        // Root is Plain System Background with locked Home token
+        assertEquals("@color/eve_home_background", root.getAttribute("android:background"))
+
+        // Welcome greeting uses 29sp Bold HomePageTitle and primary ink
+        val tvWelcome = findElementById(root, "tvWelcome")
+        assertNotNull("tvWelcome must exist", tvWelcome)
+        assertEquals("@style/TextAppearance.Eve.Home.PageTitle", tvWelcome?.getAttribute("style"))
+        assertEquals("@color/eve_home_text_primary", tvWelcome?.getAttribute("android:textColor"))
+
+        // Top bar hairline
+        val topBarHairline = findElementById(root, "topBarHairline")
+        assertNotNull("topBarHairline must exist", topBarHairline)
+        assertEquals("@dimen/eve_home_hairline_stroke", topBarHairline?.getAttribute("android:layout_height"))
+        assertEquals("@color/eve_home_hairline", topBarHairline?.getAttribute("android:background"))
+
+        // rvExams has 16dp horizontal margin and clipToPadding=false
+        val rvExams = findElementById(root, "rvExams")
+        assertNotNull("rvExams must exist", rvExams)
+        assertEquals("false", rvExams?.getAttribute("android:clipToPadding"))
+        assertEquals("@dimen/eve_home_screen_margin", rvExams?.getAttribute("android:paddingHorizontal"))
+
+        // Floating solid capsule bottom bar
+        val bottomBar = findElementById(root, "cardHomeBottomBar")
+        assertNotNull("cardHomeBottomBar must exist", bottomBar)
+        assertEquals("@dimen/eve_home_bottom_bar_height", bottomBar?.getAttribute("android:layout_height"))
+        assertEquals("@dimen/eve_home_bottom_bar_radius", bottomBar?.getAttribute("app:cardCornerRadius"))
+        assertEquals("@color/eve_home_floating_bar_bg", bottomBar?.getAttribute("app:cardBackgroundColor"))
+        assertEquals("@dimen/eve_home_hairline_stroke", bottomBar?.getAttribute("app:strokeWidth"))
+        assertEquals("@color/eve_home_hairline", bottomBar?.getAttribute("app:strokeColor"))
+
+        // 4 Bottom Bar destinations with 22dp icons
+        val btnHome = findElementById(bottomBar!!, "btnBottomNavHome")
+        assertNotNull("btnBottomNavHome must exist", btnHome)
+        val ivHome = findElementById(btnHome!!, "ivBottomNavHome")
+        assertNotNull("ivBottomNavHome must exist", ivHome)
+        assertEquals("@dimen/eve_home_bottom_bar_icon_size", ivHome?.getAttribute("android:layout_width"))
+        assertEquals("@dimen/eve_home_bottom_bar_icon_size", ivHome?.getAttribute("android:layout_height"))
+        assertEquals("@color/eve_home_accent", ivHome?.getAttribute("app:tint"))
+
+        val btnHistory = findElementById(bottomBar, "btnBottomNavHistory")
+        assertNotNull("btnBottomNavHistory must exist", btnHistory)
+
+        val btnSaved = findElementById(bottomBar, "btnBottomNavSaved")
+        assertNotNull("btnBottomNavSaved must exist", btnSaved)
+
+        val btnProfile = findElementById(bottomBar, "btnBottomNavProfile")
+        assertNotNull("btnBottomNavProfile must exist", btnProfile)
     }
 
     @Test
-    fun testEveDesignSystemShapesAndMotion_LockedConstants() {
-        assertEquals(26f, EveDesignSystem.Shapes.RADIUS_CARD_DP, 0.001f)
-        assertEquals(34f, EveDesignSystem.Shapes.RADIUS_SHEET_DP, 0.001f)
-        assertEquals(8f, EveDesignSystem.Shapes.RADIUS_CONCENTRIC_CARD_DP, 0.001f)
-        assertEquals(4f, EveDesignSystem.Shapes.RADIUS_MIN_DP, 0.001f)
-        assertEquals(999f, EveDesignSystem.Shapes.RADIUS_PILL_DP, 0.001f)
-        assertEquals(50f, EveDesignSystem.Shapes.RADIUS_CAPSULE_PERCENT, 0.001f)
+    fun testHomeExamAndFeedbackCardXml_UsesLockedCardStyles() {
+        val examCard = loadXml("src/main/res/layout/item_exam.xml")
+        assertEquals("@style/Widget.Eve.Home.Card", examCard.getAttribute("style"))
+        assertEquals("@dimen/eve_home_card_radius", examCard.getAttribute("app:cardCornerRadius"))
+        assertEquals("@dimen/eve_home_card_elevation", examCard.getAttribute("app:cardElevation"))
+        assertEquals("@color/eve_home_card", examCard.getAttribute("app:cardBackgroundColor"))
+        assertEquals("@dimen/eve_home_screen_margin", examCard.getAttribute("android:layout_marginHorizontal"))
+        assertEquals("@dimen/eve_home_card_gap_half", examCard.getAttribute("android:layout_marginVertical"))
 
-        assertEquals(0.8f, EveDesignSystem.Motion.DAMPING_RATIO_SPRING, 0.001f)
-        assertEquals(0.97f, EveDesignSystem.Motion.SCALE_PRESS_FEEDBACK, 0.001f)
+        val tvExamName = findElementById(examCard, "tvExamName")
+        assertEquals("@style/TextAppearance.Eve.Home.CardTitle", tvExamName?.getAttribute("style"))
+        assertEquals("1", tvExamName?.getAttribute("android:maxLines"))
+        assertEquals("end", tvExamName?.getAttribute("android:ellipsize"))
+
+        val tvExamTime = findElementById(examCard, "tvExamTime")
+        assertEquals("@style/TextAppearance.Eve.Home.Secondary", tvExamTime?.getAttribute("style"))
+
+        val feedbackCard = loadXml("src/main/res/layout/item_feedback_post.xml")
+        assertEquals("@style/Widget.Eve.Home.Card", feedbackCard.getAttribute("style"))
+        assertEquals("@dimen/eve_home_card_radius", feedbackCard.getAttribute("app:cardCornerRadius"))
+        assertEquals("@dimen/eve_home_card_elevation", feedbackCard.getAttribute("app:cardElevation"))
+        assertEquals("@color/eve_home_card", feedbackCard.getAttribute("app:cardBackgroundColor"))
+
+        val tvFeedbackTitle = findElementById(feedbackCard, "tvFeedbackPostTitle")
+        assertEquals("@style/TextAppearance.Eve.Home.CardTitle", tvFeedbackTitle?.getAttribute("style"))
     }
 
     @Test
     fun testNonHomeScreensAreUntouchedAndIntact() {
-        // Assert that non-Home screen layouts remain present and untouched
         val testLayout = loadXml("src/main/res/layout/activity_test.xml")
         assertNotNull("activity_test.xml must exist and parse", testLayout)
 
@@ -268,5 +336,8 @@ class EveDesignSystemTest {
 
         val leaderboardLayout = loadXml("src/main/res/layout/activity_leaderboard.xml")
         assertNotNull("activity_leaderboard.xml must exist and parse", leaderboardLayout)
+
+        val adminLayout = loadXml("src/main/res/layout/activity_admin.xml")
+        assertNotNull("activity_admin.xml must exist and parse", adminLayout)
     }
 }

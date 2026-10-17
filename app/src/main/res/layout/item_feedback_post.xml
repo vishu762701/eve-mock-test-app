@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView
-    style="@style/Widget.Eve.Card.Content"
+    style="@style/Widget.Eve.Home.Card"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="@dimen/eve_space_0"
-    android:layout_marginVertical="@dimen/eve_space_6"
+    android:layout_marginHorizontal="@dimen/eve_home_screen_margin"
+    android:layout_marginVertical="@dimen/eve_home_card_gap_half"
     android:clickable="true"
     android:focusable="true"
+    app:cardCornerRadius="@dimen/eve_home_card_radius"
     app:cardElevation="@dimen/eve_home_card_elevation"
     app:cardMaxElevation="@dimen/eve_home_card_elevation"
+    app:cardBackgroundColor="@color/eve_home_card"
+    android:outlineAmbientShadowColor="@color/eve_home_card_shadow"
+    android:outlineSpotShadowColor="@color/eve_home_card_shadow"
+    app:strokeWidth="@dimen/eve_space_0"
+    app:strokeColor="@android:color/transparent"
     android:stateListAnimator="@animator/press_scale"
     app:rippleColor="@color/eve_ripple"
     android:minHeight="@dimen/eve_list_row_min">
@@ -19,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="@dimen/eve_space_16">
+        android:padding="@dimen/eve_home_card_padding">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -28,43 +34,44 @@
             android:orientation="horizontal">
 
             <TextView
-                style="@style/TextAppearance.Eve.Footnote.Medium"
+                style="@style/TextAppearance.Eve.Home.PillLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_pill_accent"
-                android:paddingHorizontal="@dimen/eve_space_10"
-                android:paddingVertical="@dimen/eve_space_3"
+                android:paddingHorizontal="@dimen/eve_home_pill_padding_horizontal"
+                android:paddingVertical="@dimen/eve_space_4"
                 android:text="📢 Feedback"
-                android:textColor="@color/eve_on_accent_container" />
+                android:textColor="@color/eve_home_accent" />
 
             <View
                 android:layout_width="@dimen/eve_space_0"
-                android:layout_height="@dimen/eve_home_hairline_border"
+                android:layout_height="@dimen/eve_home_hairline_stroke"
                 android:layout_weight="1" />
 
             <TextView
                 android:id="@+id/tvFeedbackPostDate"
-                style="@style/TextAppearance.Eve.Caption1"
+                style="@style/TextAppearance.Eve.Home.Secondary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="?attr/eveLabelSecondary" />
+                android:textColor="@color/eve_home_text_secondary" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/tvFeedbackPostTitle"
-            style="@style/TextAppearance.Eve.Headline"
+            style="@style/TextAppearance.Eve.Home.CardTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/eve_space_8"
-            android:textColor="@color/eve_text" />
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/eve_home_text_primary" />
 
         <TextView
             android:id="@+id/tvFeedbackPostMessage"
-            style="@style/TextAppearance.Eve.Footnote"
+            style="@style/TextAppearance.Eve.Home.CardBody"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/eve_space_4"
-            android:textColor="?attr/eveLabelSecondary" />
+            android:textColor="@color/eve_home_text_primary" />
 
         <!-- Inline Reply Box (Task B, Item 4) -->
         <LinearLayout

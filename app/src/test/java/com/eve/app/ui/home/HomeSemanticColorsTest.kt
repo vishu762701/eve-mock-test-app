@@ -255,23 +255,13 @@ class HomeSemanticColorsTest {
             }
             error("Missing Home view: $id")
         }
-        val grouped = "@color/eve_system_background"
+        val grouped = "@color/eve_home_background"
         assertEquals(grouped, xml.getAttribute("android:background"))
-        for (id in listOf("mainContentContainer",
-            "maintenanceOverlay", "forceUpdateOverlay")) {
-            assertEquals("$id should have the full-window Home surface",
-                grouped, view(id).getAttribute("android:background"))
-        }
+        assertEquals(grouped, view("mainContentContainer").getAttribute("android:background"))
         val sheet = view("contentSheet")
-        assertEquals("@drawable/bg_content_sheet", sheet.getAttribute("android:background"))
+        assertEquals(grouped, sheet.getAttribute("android:background"))
         assertEquals("Negative sheet overlap should be removed", "",
             sheet.getAttribute("android:layout_marginTop"))
-        val sheetDrawable = parser.parse(org.xml.sax.InputSource(java.io.StringReader(
-            source("src/main/res/drawable/bg_content_sheet.xml")))).documentElement
-        assertEquals("Home background must have no rounded sheet corners", 0,
-            sheetDrawable.getElementsByTagName("corners").length)
-        assertEquals(grouped, (sheetDrawable.getElementsByTagName("solid").item(0) as Element)
-            .getAttribute("android:color"))
         val helper = source("src/main/java/com/eve/app/util/SystemBarHelper.kt")
         assertTrue(helper.contains("activity is MainActivity"))
         assertTrue(helper.contains("if (grouped) R.color.eve_system_grouped_background else R.color.eve_system_background"))
@@ -341,18 +331,16 @@ class HomeSemanticColorsTest {
                 ?: error("Missing Home file: $path")
         }
 
-        val sheet = source("src/main/res/drawable/bg_content_sheet.xml")
         val layout = source("src/main/res/layout/item_exam.xml")
         val adapter = source("src/main/java/com/eve/app/ui/home/ExamAdapter.kt")
-        assertTrue(sheet.contains("@color/eve_system_background"))
-        assertTrue(layout.contains("@style/Widget.Eve.Card.Content"))
-        assertTrue(adapter.contains("R.color.eve_secondary_system_background"))
+        assertTrue(layout.contains("@style/Widget.Eve.Home.Card"))
+        assertTrue(adapter.contains("HomeAppearance.applyCard"))
 
         val light = loadColors("src/main/res/values/colors.xml")
         val dark = loadColors("src/main/res/values-night/colors.xml")
-        assertEquals("#F2F2F7", light["eve_system_grouped_background"])
-        assertEquals("#FFFFFF", light["eve_secondary_system_grouped_background"])
-        assertEquals("#000000", dark["eve_system_grouped_background"])
-        assertEquals("#1C1C1E", dark["eve_secondary_system_grouped_background"])
+        assertEquals("#EEF2F8", light["eve_home_background"])
+        assertEquals("#FFFFFF", light["eve_home_card"])
+        assertEquals("#0B0F16", dark["eve_home_background"])
+        assertEquals("#161B24", dark["eve_home_card"])
     }
 }

@@ -303,3 +303,18 @@
   - `python3 -B -m unittest discover -s .github/scripts/tests -q` passed (13/13 tests).
   - `node .github/scripts/verify-docs.mjs` passed (33 docs, 0 errors, 0 warnings).
   - `git diff --check` passed with 0 errors.
+
+## EVE Design System Foundation with Locked Values & Home Screen Application (ADR-018) (2026-10-17)
+
+- [x] **Locked Color Tokens (Day & Night):** Codified background (#EEF2F8 / #0B0F16), card (#FFFFFF / #161B24), text primary (#000000 / #FFFFFF), text secondary (#6C6C70 / #A1A1A6), hairline (rgba(0,0,0,0.10) / rgba(255,255,255,0.14)), tab track (rgba(120,120,128,0.16) / rgba(120,120,128,0.32)), accent (#000000 / #FFFFFF), on-accent (#FFFFFF / #000000), semantic status (success #34C759/#30D158, error #FF383C/#FF4245, warning #FF8D28/#FF9230 for meaning only), and floating bar background (#FFFFFF / #2C2C2E) in `colors.xml` and `values-night/colors.xml`.
+- [x] **Bundled OFL DM Sans Typography:** Static Regular 400, Medium 500, Bold 700 TTF files bundled in `res/font/` and verified with TrueType magic headers. Configured `FontManager.kt` default to DM Sans. Text appearances defined for PageTitle (29sp Bold), CardTitle (18sp Bold), CardBody (18sp Regular), Secondary (14sp Regular), TabLabel (15sp Regular, Selected Bold), and PillLabel (14sp Medium).
+- [x] **Segmented Tabs (Filled Pill):** 40dp height, fully rounded, track color, 3dp inner padding, accent fill + on-accent text when selected, secondary text when unselected.
+- [x] **Pills (Outline):** 32dp height, 12dp horizontal padding, fully rounded, 1dp accent border, accent text, with >= 48dp touch delegate without altering visible geometry.
+- [x] **Cards:** 24dp corner radius, 12dp padding, 8dp card gap, 16dp screen margin, 16dp section gap. Soft 2dp/12dp shadow (10% black) in light mode; 0dp elevation / no shadow in dark mode.
+- [x] **Floating Solid Capsule Bottom Bar:** 12dp side margins, 10dp bottom margin (+ gesture inset), 54dp height, 22dp icons, 0.5dp hairline border, accent selected tint, secondary unselected tint, no blur. Dynamic bottom clearance in `MainActivity` on `rvExams` with `clipToPadding="false"`.
+- [x] **Screen-Width Qualifiers:** Replicated all tokens identically into `values-sw360dp/dimens.xml` and `values-sw600dp/dimens.xml`.
+- [x] **Scoping & Invariants:** Applied strictly to Home screen only. Test, Result, Admin, Leaderboard, Profile, and Settings screens untouched. Telegram theme switcher, Lottie files/triggers/sizes, and SVG assets 100% preserved.
+- [x] **Verification Gate:**
+  - `python3 -B .github/scripts/check_design_system.py` passed (194 measured pairs).
+  - `node .github/scripts/verify-docs.mjs` passed (33 docs, 0 errors, 0 warnings).
+  - `git diff --check` passed with 0 errors.

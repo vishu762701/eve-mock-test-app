@@ -30,4 +30,8 @@ object HomeAppearance {
     fun applyTopBarDepth(topBarContainer: View, searchTopBar: View? = null) {
         EveDesignSystem.Components.applyHomeTopBarDepth(topBarContainer, searchTopBar)
     }
+
+    fun applyCard(card: com.google.android.material.card.MaterialCardView) {
+        EveDesignSystem.Components.applyHomeCard(card)
+    }
 }
