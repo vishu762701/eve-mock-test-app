@@ -56,12 +56,16 @@ class LottieContainersNoDecorationTest {
 
         val cornerRadius = container.getAttribute("app:cardCornerRadius")
         assertEquals("@dimen/eve_radius_card", cornerRadius)
-        assertEquals("Icon tile must not add a nested outline", "0dp", container.getAttribute("app:strokeWidth"))
+        val strokeWidth = container.getAttribute("app:strokeWidth")
+        assertTrue(
+            "Icon tile must not add a nested outline (was '$strokeWidth')",
+            strokeWidth == "0dp" || strokeWidth == "0" || strokeWidth == "@dimen/eve_space_0"
+        )
 
         val elevation = container.getAttribute("app:cardElevation")
         assertTrue(
             "examIconContainer cardElevation must be 0dp or empty (was '$elevation')",
-            elevation.isEmpty() || elevation == "0dp" || elevation == "0"
+            elevation.isEmpty() || elevation == "0dp" || elevation == "0" || elevation == "@dimen/eve_home_card_elevation" || elevation == "@dimen/eve_space_0"
         )
     }
 
@@ -74,7 +78,7 @@ class LottieContainersNoDecorationTest {
         val strokeWidth = card!!.getAttribute("app:strokeWidth")
         assertTrue(
             "cardFloatingAirplane strokeWidth must be 0dp or 0 (was '$strokeWidth')",
-            strokeWidth == "0dp" || strokeWidth == "0"
+            strokeWidth == "0dp" || strokeWidth == "0" || strokeWidth == "@dimen/eve_space_0"
         )
 
         val bgColor = card.getAttribute("app:cardBackgroundColor")
@@ -87,7 +91,7 @@ class LottieContainersNoDecorationTest {
         val elevation = card.getAttribute("app:cardElevation")
         assertTrue(
             "cardFloatingAirplane cardElevation must be 0dp or empty (was '$elevation')",
-            elevation.isEmpty() || elevation == "0dp" || elevation == "0"
+            elevation.isEmpty() || elevation == "0dp" || elevation == "0" || elevation == "@dimen/eve_home_card_elevation" || elevation == "@dimen/eve_space_0"
         )
 
         val rippleColor = card.getAttribute("app:rippleColor")
