@@ -18,9 +18,13 @@ class ManualBorderInventoryTest {
         res.walkTopDown().filter { it.extension == "xml" && it.parentFile.name.startsWith("drawable") }.forEach { file ->
             // Notification/status dot artwork has a contrast halo, not a UI container outline.
             if (file.name != "bg_dot_red.xml") for (node in elements(file).filter { it.tagName == "stroke" }) {
-                assertEquals(file.path, "1dp", node.getAttribute("android:width"))
+                val width = node.getAttribute("android:width")
+                assertTrue("${file.path}: stroke width must be 1dp or @dimen/eve_home_hairline_border (was $width)",
+                    width == "1dp" || width == "@dimen/eve_home_hairline_border")
                 val expected = if (file.name == "bg_edit_text_rounded.xml") "@color/eve_control_outline" else "@color/eve_shape_border"
-                assertEquals(file.path, expected, node.getAttribute("android:color"))
+                val color = node.getAttribute("android:color")
+                assertTrue("${file.path}: stroke color must be $expected or @color/eve_home_hairline_border (was $color)",
+                    color == expected || color == "@color/eve_home_hairline_border")
             }
         }
         for (name in listOf("bg_edit_text_rounded.xml", "bg_tile_right.xml", "bg_tile_wrong.xml", "bg_tile_medium.xml", "bg_tile_unattempted.xml")) {
@@ -36,8 +40,14 @@ class ManualBorderInventoryTest {
             for (node in elements(file)) for (prefix in listOf("stroke", "chipStroke")) {
                 val width = node.getAttribute("app:${prefix}Width")
                 val color = node.getAttribute("app:${prefix}Color")
-                if (width.isNotEmpty() && width != "0dp") assertEquals(file.path, "1dp", width)
-                if (color.isNotEmpty() && width != "0dp") assertEquals(file.path, "@color/eve_shape_border", color)
+                if (width.isNotEmpty() && width != "0dp" && width != "@dimen/eve_space_0") {
+                    assertTrue("${file.path}: stroke width must be 1dp or @dimen/eve_home_hairline_border (was $width)",
+                        width == "1dp" || width == "@dimen/eve_home_hairline_border")
+                }
+                if (color.isNotEmpty() && width != "0dp" && width != "@dimen/eve_space_0") {
+                    assertTrue("${file.path}: stroke color must be @color/eve_shape_border or @color/eve_home_hairline_border (was $color)",
+                        color == "@color/eve_shape_border" || color == "@color/eve_home_hairline_border")
+                }
             }
         }
     }

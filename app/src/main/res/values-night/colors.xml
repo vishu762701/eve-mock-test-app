@@ -302,7 +302,7 @@
     <color name="eve_drawer_scrim">#4D000000</color>
 
     <!-- Dropdown Menu -->
-    <color name="eve_menu_glass_bg">@color/eve_home_solid_tint</color>
+    <color name="eve_menu_glass_bg">@color/eve_secondary_system_background</color>
     <color name="eve_menu_glass_border">#A6545458</color>
     <color name="eve_menu_glass_divider">#A6545458</color>
 
@@ -339,7 +339,7 @@
     <!-- EVE Home Screen Depth Glass Tokens (iOS 26: 75% blur tint, 94% solid tint fallback, 1dp hairline border) -->
     <color name="eve_home_blur_tint">#BF1C1C1E</color>
     <color name="eve_home_solid_tint">#F01C1C1E</color>
-    <color name="eve_home_hairline_border">@color/eve_shape_border</color>
+    <color name="eve_home_hairline_border">@color/eve_menu_glass_border</color>
     <color name="eve_home_top_bar_bg">@color/eve_home_solid_tint</color>
     <color name="eve_home_menu_bg">@color/eve_home_solid_tint</color>
     <color name="eve_home_sheet_bg">@color/eve_home_solid_tint</color>
