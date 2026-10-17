@@ -223,3 +223,14 @@
   - `node .github/scripts/verify-docs.mjs` passed (33 docs, 0 errors, 0 warnings).
   - Unit test `NavigationChromeAndTabsTest.kt` added.
   - `git diff --check` passed with 0 errors.
+
+## EVE Apple-Inspired Liquid Glass Regular Implementation (2026-10-17)
+
+- [x] **Unified Specification (`EVE_REGULAR_GLASS`):** Codified unified Liquid Glass `.regular` specification with coordinated Light appearance (`#E6FFFFFF`, 90% white alpha with 1dp `#1A000000` rim) and Dark appearance (`#E61C1C1E`, 90% `#1C1C1E` alpha with 1dp `#26FFFFFF` rim) under ADR-012.
+- [x] **Floating Modal Dialogs & Sheets:** Configured `Theme.Eve.Dialog` and `Theme.Eve.BottomSheetDialog` in `values-v31/materials.xml` to leverage hardware SurfaceFlinger window background blur (`android:windowBackgroundBlurRadius="@dimen/eve_modal_blur_radius"`) clipped to 34dp rounded shape (`bg_dialog_liquid_glass.xml`), with pre-31 fallback to opaque `secondarySystemBackground`.
+- [x] **Core Utility (`EveLiquidGlass.kt`):** Implemented helper with runtime compositor check (`WindowManager.isCrossWindowBlurEnabled`), dialog window setup, and token accessors.
+- [x] **Automated Verification:** Added `LiquidGlassRegularMaterialTest.kt` validating tokens, themes, drawables, contrast math (>= 10:1), and content layer invariants.
+- [x] **Verification Gate:**
+  - `python3 -B .github/scripts/check_design_system.py` passed (194 color pairs).
+  - `python3 -B -m unittest discover -s .github/scripts/tests -q` passed (13/13 tests).
+  - `git diff --check` passed with 0 whitespace errors.

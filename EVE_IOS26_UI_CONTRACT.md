@@ -83,7 +83,7 @@ where appropriate. The Home notification Lottie and its parent remain visually b
 Segmented navigation controls (Result tabs) maintain their own bounded capsule track and
 a neutral selected surface (white in light mode, raised dark semantic surface in dark mode) with primary-label text.
 Popup RenderEffect is applied only to the captured background ImageView.
-Floating dialogs use API 31 window-background blur clipped to their background shape;
+Floating dialogs and modal bottom sheets adopt the unified Apple-inspired Liquid Glass regular specification (EVE_REGULAR_GLASS, ADR-012), using API 31 window-background blur clipped to their background shape (34dp radius) with #E6FFFFFF (Light) and #E61C1C1E (Dark) regular material, and a 1dp subtle inset rim (eve_shape_border). Pre-API 31 falls back to opaque secondarySystemBackground.
 GlassmorphismHelper retains window-local lifecycle ownership for sheet blur.
 EveGlassPill uses semantic primary text and a capsule; a pill alone does not enable blur.
 

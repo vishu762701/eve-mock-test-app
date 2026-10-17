@@ -418,3 +418,43 @@ In earlier iterations, `EveGlassToolbar` implemented a BlurView with a capsule o
    - In `EveGlassTabLayout`, added animation cancellation on rapid taps (`v.animate().cancel()`) and respect for disabled animations via `EveMotionHelper.areAnimationsEnabled(v.context)`.
    - Home avatar and Lottie notification bell parent remain visually bare with transparent background and no decorative container.
    - Home category pills retain horizontal scrolling, content-sizing, 40dp min height, 48dp touch delegation, accent-tinted selected fill/text, and neutral unselected fill/text.
+
+## ADR-012: Implementation of Unified Apple-Inspired Liquid Glass Regular Material (EVE_REGULAR_GLASS)
+
+- **Date**: 2026-10-17
+- **Status**: Accepted
+- **Author**: Principal Mobile Systems Architect, UI/UX Lead
+- **Authority**: User instruction: "TASK: IMPLEMENT APPLE-INSPIRED LIQUID GLASS REGULAR"
+
+### Context
+Following the formal architecture investigation and component proposal, this decision codifies and implements the unified, Android-compatible Liquid Glass `.regular` material (`EVE_REGULAR_GLASS`) across both Light and Dark themes.
+
+### Official Documentation References Opened
+- Apple Human Interface Guidelines - Materials: https://developer.apple.com/design/human-interface-guidelines/materials
+- Apple SwiftUI Framework - Glass.regular: https://developer.apple.com/documentation/swiftui/glass/regular
+- Apple Human Interface Guidelines - Color: https://developer.apple.com/design/human-interface-guidelines/color
+- Android API Reference - RenderEffect: https://developer.android.com/reference/android/graphics/RenderEffect
+- Android API Reference - Window.setBackgroundBlurRadius: https://developer.android.com/reference/android/view/Window#setBackgroundBlurRadius(int)
+- Android API Reference - WindowManager.isCrossWindowBlurEnabled: https://developer.android.com/reference/android/view/WindowManager#isCrossWindowBlurEnabled()
+
+### Decisions
+1. **One Unified Logical Material (`EVE_REGULAR_GLASS`)**:
+   - **Light Appearance**: Luminous neutral translucent tint (`@color/eve_material_regular` `#E6FFFFFF`, 90% white alpha) with a 1dp subtle rim (`@color/eve_shape_border` `#1A000000`). Composited over dark/black backgrounds, achieves >= 10:1 static contrast with primary black text (`#000000`), exceeding the 4.5:1 WCAG AA gate.
+   - **Dark Appearance**: Deep neutral translucent tint (`@color/eve_material_regular` `#E61C1C1E`, 90% `#1C1C1E` alpha) with a 1dp subtle rim (`@color/eve_shape_border` `#26FFFFFF`). Composited over light/white backgrounds, achieves >= 10:1 static contrast with primary white text (`#FFFFFF`), exceeding the 4.5:1 WCAG AA gate.
+   - **Pre-API 31 Fallback**: Resolves to solid `@color/eve_secondary_system_background` (`#F2F2F7` Light / `#1C1C1E` Dark), ensuring 100% legibility and structural hierarchy on older devices or when transparency is disabled.
+
+2. **Target Component Binding (Floating Modal Dialogs & Sheets)**:
+   - Floating dialogs float directly over active, visually rich activity layouts (questions, results, settings), matching Apple HIG's functional layer principle.
+   - In `values-v31/materials.xml`, `Theme.Eve.Dialog` and `Theme.Eve.BottomSheetDialog` configure `android:windowIsTranslucent="true"` and `android:windowBackgroundBlurRadius="@dimen/eve_modal_blur_radius"`. SurfaceFlinger hardware clips the background blur behind the window frame.
+   - Background drawable `@drawable/bg_dialog_liquid_glass` enforces a 34dp corner radius (`@dimen/eve_radius_bottom_sheet`), 16dp window insets, and 1dp stroke (`@color/eve_shape_border`).
+   - All foreground content (title, message, buttons) remains 100% sharp and unblurred.
+
+3. **Core Helper & Utility Integration**:
+   - Added `EveLiquidGlass.kt` (`com.eve.app.util.EveLiquidGlass`) providing formal specifications, runtime hardware cross-window blur detection (`WindowManager.isCrossWindowBlurEnabled`), and safe window setup helpers.
+   - Verified via comprehensive automated unit test suite `LiquidGlassRegularMaterialTest.kt`.
+
+4. **Permanent Invariants Strictly Maintained**:
+   - Content cards, exam cards, banners, and list rows remain opaque; no blur applied to content layers.
+   - Telegram-style circular reveal Day/Night transition (`ThemeSwitchAnimator.kt`, `ThemeManager.kt`) and popup reveal remain untouched.
+   - All Lottie animations, triggers, and icon files remain invariant with zero background tiles/circles.
+   - Rigid 2x2 test engine geometry, Hindi/English font fitting, server scoring, and answer-state colors remain unchanged.

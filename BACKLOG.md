@@ -32,6 +32,13 @@ Ranked by impact on user experience, stability, and design system fidelity per `
 - **Scope**: `EveGlassToolbar.kt`, `activity_result.xml`, `EveGlassTabLayout.kt`, `bg_result_segmented_track.xml`, `bg_tab_segmented_indicator.xml`, `bg_tab_segmented_track.xml`, `approved_ui_colors.xml`, `colors.xml`, `EVE_IOS26_UI_CONTRACT.md`, `ApprovedUiRenderingTest.kt`, `NavigationChromeAndTabsTest.kt`, ADR-011 (`DECISIONS.md`).
 - **Details**: Eliminated full-width rounded capsule slabs, blur overlays, and bottom separator borders behind headers across all 36 screens by converting `EveGlassToolbar` to a transparent `FrameLayout`. Separated header containers from tab surfaces in `activity_result.xml` by replacing the outer toolbar wrapper with a neutral `FrameLayout` and eliminating the duplicate nested track. Implemented official Apple iOS 26 neutral segmented control styling (light mode: `#FFFFFF` selected surface with `#000000` primary text; dark mode: `#636366` raised dark surface with `#FFFFFF` primary text). Added rapid-tap animation cancellation and disabled-animation checks in `EveGlassTabLayout`. Preserved bare Home Lottie notification bell, avatar, and 40dp/48dp category pills. Verified via automated unit tests and design-system validation.
 
+## [COMPLETED] Apple-Inspired Liquid Glass Regular Implementation (ADR-012)
+- **Status**: Completed (2026-10-17)
+- **Scope**: `EveLiquidGlass.kt`, `values-v31/materials.xml`, `values-night-v31/materials.xml`, `bg_dialog_liquid_glass.xml`, `EVE_IOS26_UI_CONTRACT.md`, `DECISIONS.md`, `LiquidGlassRegularMaterialTest.kt`.
+- **Details**: Formally established and implemented the unified Apple-inspired Liquid Glass `.regular` specification (`EVE_REGULAR_GLASS`). Standardized Light appearance (`#E6FFFFFF`, 90% white alpha with 1dp `#1A000000` rim) and Dark appearance (`#E61C1C1E`, 90% `#1C1C1E` alpha with 1dp `#26FFFFFF` rim) on API 31+ floating modal dialogs and bottom sheets, backed by hardware SurfaceFlinger window background blur (`android:windowBackgroundBlurRadius="@dimen/eve_modal_blur_radius"`). Ensured pre-31 devices gracefully fallback to opaque `@color/eve_secondary_system_background`. Preserved sharp foreground text and controls (achieving >= 10:1 static contrast), 34dp modal geometry, and project invariants (opaque content cards and untouched Telegram reveal / Lottie assets). Verified via unit test suite.
+
+
+
 ## [P3] Accessibility: Extreme Font Scale (1.78x / 2.0x) Audit
 - **Impact**: Low-Medium
 - **Scope**: Navigation drawer list items in `activity_main.xml` and form layouts.

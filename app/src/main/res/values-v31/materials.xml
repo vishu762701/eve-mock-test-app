@@ -8,4 +8,13 @@
         <item name="android:windowBackgroundBlurRadius">@dimen/eve_modal_blur_radius</item>
         <item name="android:windowBlurBehindEnabled">false</item>
     </style>
+    <!-- Bottom sheet modal glass surface on API 31+ -->
+    <style name="Theme.Eve.BottomSheetDialog" parent="Theme.Material3.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.Eve.BottomSheet.Modal</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackgroundBlurRadius">@dimen/eve_modal_blur_radius</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/eve_bg</item>
+    </style>
 </resources>
