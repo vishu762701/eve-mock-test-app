@@ -126,6 +126,22 @@ object EveDesignSystem {
         fun headerInkText(context: Context): Int =
             ContextCompat.getColor(context, R.color.eve_header_ink_text)
 
+        // Authoritative Locked Color Hex Constants (ADR-014)
+        const val HEX_LIGHT_CANVAS = "#FFFFFF"
+        const val HEX_DARK_CANVAS = "#000000"
+        const val HEX_LIGHT_CARDS = "#F2F2F7"
+        const val HEX_DARK_CARDS = "#1C1C1E"
+        const val HEX_LIGHT_ACCENT = "#0088FF"
+        const val HEX_DARK_ACCENT = "#0091FF"
+        const val HEX_LIGHT_SUCCESS = "#34C759"
+        const val HEX_DARK_SUCCESS = "#30D158"
+        const val HEX_LIGHT_ERROR = "#FF383C"
+        const val HEX_DARK_ERROR = "#FF4245"
+        const val HEX_LIGHT_WARNING = "#FF8D28"
+        const val HEX_DARK_WARNING = "#FF9230"
+        const val HEX_LIGHT_SECONDARY_TEXT = "#50505A"
+        const val HEX_DARK_SECONDARY_TEXT = "#C5C5CC"
+
         // Accent & Interactive Blue (ADR-008, ADR-009)
         @ColorInt
         fun systemBlue(context: Context): Int =
@@ -142,6 +158,31 @@ object EveDesignSystem {
         @ColorInt
         fun onAccentContainer(context: Context): Int =
             ContextCompat.getColor(context, R.color.eve_on_accent_container)
+
+        // Authoritative System Status Colors (ADR-014)
+        @ColorInt
+        fun systemGreen(context: Context): Int =
+            ContextCompat.getColor(context, R.color.eve_system_green)
+
+        @ColorInt
+        fun systemRed(context: Context): Int =
+            ContextCompat.getColor(context, R.color.eve_system_red)
+
+        @ColorInt
+        fun systemOrange(context: Context): Int =
+            ContextCompat.getColor(context, R.color.eve_system_orange)
+
+        @ColorInt
+        fun statusSuccess(context: Context): Int =
+            ContextCompat.getColor(context, R.color.eve_status_success)
+
+        @ColorInt
+        fun statusError(context: Context): Int =
+            ContextCompat.getColor(context, R.color.eve_status_error)
+
+        @ColorInt
+        fun statusWarning(context: Context): Int =
+            ContextCompat.getColor(context, R.color.eve_status_warning)
 
         // Protected Test State & Semantic Feedback Colors (Invariants)
         @ColorInt
@@ -236,6 +277,17 @@ object EveDesignSystem {
         @StyleRes val Eyebrow: Int = R.style.TextAppearance_Eve_Eyebrow
         @StyleRes val Search: Int = R.style.TextAppearance_Eve_Search
 
+        // Emphasized & Variant Styles
+        @StyleRes val Title1Bold: Int = R.style.TextAppearance_Eve_Title1_Bold
+        @StyleRes val Title2Bold: Int = R.style.TextAppearance_Eve_Title2_Bold
+        @StyleRes val Title3Semibold: Int = R.style.TextAppearance_Eve_Title3_Semibold
+
+        // Authoritative Locked Text Hierarchy Roles (ADR-014)
+        @StyleRes val Title: Int = Title1Bold           // 28sp bold -> Title 1
+        @StyleRes val Heading: Int = Title3Semibold     // 20sp semibold -> Title 3
+        @StyleRes val Secondary: Int = Subheadline      // 15sp regular -> Subheadline
+        @StyleRes val Caption: Int = Footnote           // 13sp regular -> Footnote
+
         fun applyStyle(textView: TextView, @StyleRes styleResId: Int) {
             TextViewCompat.setTextAppearance(textView, styleResId)
         }
@@ -249,6 +301,7 @@ object EveDesignSystem {
      */
     object Shapes {
         const val RADIUS_CAPSULE_PERCENT = 50f
+        const val RADIUS_PILL_DP = 999f
         const val RADIUS_CARD_DP = 26f
         const val RADIUS_SHEET_DP = 34f
         const val RADIUS_CONCENTRIC_CARD_DP = 8f
@@ -341,6 +394,10 @@ object EveDesignSystem {
         const val DURATION_DISMISS_MS = 220L
         const val DURATION_STANDARD_MS = EveMotionHelper.DURATION_STANDARD_MS
         const val DURATION_SPRING_MS = EveMotionHelper.DURATION_SPRING_MS
+
+        // Authoritative Spring Physics & Tactile Constraints (ADR-016)
+        const val DAMPING_RATIO_SPRING = 0.8f
+        const val SCALE_PRESS_FEEDBACK = 0.97f
 
         val standardInterpolator: PathInterpolator = EveMotionHelper.standardInterpolator
         val springInterpolator: OvershootInterpolator = EveMotionHelper.springInterpolator
@@ -511,6 +568,20 @@ object EveDesignSystem {
             }
             view.addLottieOnCompositionLoadedListener { applyInk() }
             applyInk()
+        }
+
+        /**
+         * Applies Home top bar depth with adaptive cross-window blur support (ADR-016).
+         */
+        fun applyHomeTopBarDepth(topBarContainer: View, searchTopBar: View? = null) {
+            val context = topBarContainer.context
+            val hasBlur = Materials.isCrossWindowBlurSupported(context)
+            val topBarBg = ContextCompat.getColor(
+                context,
+                if (hasBlur) R.color.eve_home_blur_tint else R.color.eve_home_solid_tint
+            )
+            topBarContainer.setBackgroundColor(topBarBg)
+            searchTopBar?.setBackgroundColor(topBarBg)
         }
     }
 }

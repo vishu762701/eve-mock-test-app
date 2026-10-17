@@ -705,3 +705,62 @@ Following the establishment of the unified Eve Design System foundation (ADR-015
    - Zero modifications to Lottie animation files, triggers, or dimensions; no circles or tiles behind Lotties.
    - SVG icons maintain tinting only.
    - Non-Home screens remain completely untouched.
+
+## ADR-017: Codification of Authoritative Locked Values into Eve Design System and Strict Scoping to Home Screen ONLY
+
+- **Date**: 2026-10-17
+- **Status**: Accepted
+- **Author**: Principal Systems Architect, Android UI Lead, Design Systems Specialist
+- **Authority**: User instruction: "TASK: Build the Eve Design System foundation with the LOCKED values below, then apply it to the Home screen ONLY. Do not touch other screens."
+
+### Context
+Under ADR-014, ADR-015, and ADR-016, EVE established the locked rules for its iOS 26-inspired design language adapted for Android. To ensure that these locked rules and values are explicitly available as first-class, typed constants and methods in the Kotlin codebase rather than only residing in XML resources or documentation, this decision codifies all authoritative locked tokens directly within `EveDesignSystem` and verifies their strict application to the Home screen only.
+
+### Decisions
+1. **Explicit Codification of Locked Design Tokens (`EveDesignSystem.kt`)**:
+   - **Canvas & Card Hex Constants**:
+     - Light Canvas: `HEX_LIGHT_CANVAS = "#FFFFFF"`
+     - Dark Canvas: `HEX_DARK_CANVAS = "#000000"`
+     - Light Cards: `HEX_LIGHT_CARDS = "#F2F2F7"`
+     - Dark Cards: `HEX_DARK_CARDS = "#1C1C1E"`
+     - Interactive Blue: `HEX_LIGHT_ACCENT = "#0088FF"`, `HEX_DARK_ACCENT = "#0091FF"`
+     - System Green (Success): `HEX_LIGHT_SUCCESS = "#34C759"`, `HEX_DARK_SUCCESS = "#30D158"`
+     - System Red (Error): `HEX_LIGHT_ERROR = "#FF383C"`, `HEX_DARK_ERROR = "#FF4245"`
+     - System Orange (Warning): `HEX_LIGHT_WARNING = "#FF8D28"`, `HEX_DARK_WARNING = "#FF9230"`
+     - Secondary Text (65% opacity): `HEX_LIGHT_SECONDARY_TEXT = "#50505A"`, `HEX_DARK_SECONDARY_TEXT = "#C5C5CC"`
+   - **System Status Color Methods**:
+     - `systemGreen(context)`, `systemRed(context)`, `systemOrange(context)`, `statusSuccess(context)`, `statusError(context)`, `statusWarning(context)` resolving to authoritative `@color/eve_*` resources.
+   - **Locked Typography Hierarchy Roles**:
+     - `Title`: 28sp bold parented to `Title1Bold` (`TextAppearance.Eve.Title1.Bold`)
+     - `Heading`: 20sp semibold parented to `Title3Semibold` (`TextAppearance.Eve.Title3.Semibold`)
+     - `Body`: 17sp regular parented to `Body` (`TextAppearance.Eve.Body`)
+     - `Secondary`: 15sp regular parented to `Subheadline` (`TextAppearance.Eve.Subheadline`)
+     - `Caption`: 13sp regular parented to `Footnote` (`TextAppearance.Eve.Footnote`)
+   - **Locked Shape & Motion Constants**:
+     - `RADIUS_PILL_DP = 999f` (capsule 50%)
+     - `RADIUS_CARD_DP = 26f`
+     - `RADIUS_SHEET_DP = 34f`
+     - `RADIUS_CONCENTRIC_CARD_DP = 8f`
+     - `RADIUS_MIN_DP = 4f`
+     - `DAMPING_RATIO_SPRING = 0.8f`
+     - `SCALE_PRESS_FEEDBACK = 0.97f`
+   - **Home Screen Component Delegation**:
+     - `applyHomeTopBarDepth(topBarContainer, searchTopBar)` centralized in `EveDesignSystem.Components`, dynamically adapting between 24dp blur with 75% tint (`#BFFFFFFF` / `#BF1C1C1E`) and 94% solid fallback (`#F0FFFFFF` / `#F01C1C1E`).
+
+2. **Strict Application to Home Screen ONLY**:
+   - `HomeAppearance.kt`: `applyTopBarDepth` delegates directly to `EveDesignSystem.Components.applyHomeTopBarDepth`.
+   - `ExamAdapter.kt`: Standardized `examIconContainer.strokeColor` and card background to `EveDesignSystem.Colors`.
+   - `MainActivity.kt`: All Home banner surfaces, streak pills, admin buttons, drawer backgrounds/radii, and profile tactile feedback continue to strictly use `EveDesignSystem`.
+
+3. **Protection of Non-Home Screens & Permanent Invariants**:
+   - Zero edits made to Test, Result, Profile, Settings, Admin, Leaderboard, History, Syllabus, About, or Bookmarks screens.
+   - Telegram circular Day/Night reveal animation and menu popup remain completely untouched.
+   - Bare notification bell Lottie container and all Lottie/SVG assets remain completely undecorated.
+   - Exactly 95 layout files project-wide with 0 hardcoded `android:textSize` attributes.
+
+4. **Automated Verification**:
+   - Expanded `EveDesignSystemTest.kt` with tests for:
+     - `testEveDesignSystemColors_AuthoritativeLockedHexConstants`
+     - `testEveDesignSystemTypography_LockedRolesAndScale`
+     - `testEveDesignSystemShapesAndMotion_LockedConstants`
+     - `testNonHomeScreensAreUntouchedAndIntact`

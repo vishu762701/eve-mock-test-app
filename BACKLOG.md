@@ -47,6 +47,11 @@ Ranked by impact on user experience, stability, and design system fidelity per `
 - **Scope**: `colors.xml`, `dimens.xml`, `integers.xml`, `styles.xml`, `themes.xml`, `MainActivity.kt`, `HomeAppearance.kt`, `TargetExamsBottomSheet.kt`, `EveMotionHelper.kt`, `EveTouchHelper.kt`, `EveDesignSystem.kt`, `press_scale.xml`, `bg_home_popup_menu.xml`, `bg_recovery_sheet.xml`, `item_exam.xml`, `item_feedback_post.xml`, `popup_telegram_menu.xml`, `activity_main.xml`, `AndroidManifest.xml`, ADR-016 (`DECISIONS.md`).
 - **Details**: Full migration of Home screen to iOS 26 Depth (0dp card elevation, no shadows, 24dp blur on top bar/menus/sheets with 75% tint, 1dp hairline border, 94% solid tint fallback) and Motion (spring with damping ratio 0.8 / tension 0.65, 200-350ms duration window, 0.97 press tactile feedback scale). 100% elimination of hardcoded colors/dp/sp across touched files. Preserved Telegram theme toggle, all Lottie files/triggers/sizes, and non-Home screens.
 
+## [COMPLETED] Eve Design System Foundation Locked Values Codification & Home Screen Application (ADR-017)
+- **Status**: Completed (2026-10-17)
+- **Scope**: `EveDesignSystem.kt`, `HomeAppearance.kt`, `ExamAdapter.kt`, `EveDesignSystemTest.kt`, ADR-017 (`DECISIONS.md`).
+- **Details**: Codified all authoritative locked design tokens directly into `EveDesignSystem` (locked hex constants for canvas #FFFFFF/#000000, secondary cards #F2F2F7/#1C1C1E, systemBlue #0088FF/#0091FF, systemGreen #34C759/#30D158, systemRed #FF383C/#FF4245, systemOrange #FF8D28/#FF9230, secondary text #50505A/#C5C5CC; locked typography roles Title/Heading/Body/Secondary/Caption; shape constants; spring damping 0.8; press scale 0.97). Applied strictly and exclusively to Home screen. Zero modifications to non-Home screens. Verified via automated unit tests and design system checks.
+
 ## [P3] Accessibility: Extreme Font Scale (1.78x / 2.0x) Audit
 - **Impact**: Low-Medium
 - **Scope**: Navigation drawer list items in `activity_main.xml` and form layouts.

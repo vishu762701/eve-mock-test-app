@@ -60,7 +60,7 @@ class ExamAdapter(
         init {
             val ctx = b.root.context
             b.examIconContainer.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_exam_icon_tile_bg))
-            b.examIconContainer.strokeColor = androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_shape_border)
+            b.examIconContainer.strokeColor = com.eve.app.designsystem.EveDesignSystem.Colors.shapeBorder(ctx)
             b.examIconContainer.strokeWidth = 0
         }
 
@@ -78,7 +78,7 @@ class ExamAdapter(
             }
 
             val ctx = b.root.context
-            b.root.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_secondary_system_background))
+            b.root.setCardBackgroundColor(com.eve.app.designsystem.EveDesignSystem.Colors.secondarySystemBackground(ctx))
             b.root.strokeColor = com.eve.app.designsystem.EveDesignSystem.Colors.shapeBorder(ctx)
             b.root.strokeWidth = 0
             b.tvExamName.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.labelPrimary(ctx))

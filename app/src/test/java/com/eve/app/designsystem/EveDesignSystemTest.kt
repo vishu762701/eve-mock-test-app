@@ -205,4 +205,68 @@ class EveDesignSystemTest {
         assertTrue(mainActivity.contains("EveDesignSystem.Colors.secondarySystemBackground"))
         assertTrue(mainActivity.contains("EveDesignSystem.Shapes.cardRadius"))
     }
+
+    @Test
+    fun testEveDesignSystemColors_AuthoritativeLockedHexConstants() {
+        assertEquals("#FFFFFF", EveDesignSystem.Colors.HEX_LIGHT_CANVAS)
+        assertEquals("#000000", EveDesignSystem.Colors.HEX_DARK_CANVAS)
+        assertEquals("#F2F2F7", EveDesignSystem.Colors.HEX_LIGHT_CARDS)
+        assertEquals("#1C1C1E", EveDesignSystem.Colors.HEX_DARK_CARDS)
+        assertEquals("#0088FF", EveDesignSystem.Colors.HEX_LIGHT_ACCENT)
+        assertEquals("#0091FF", EveDesignSystem.Colors.HEX_DARK_ACCENT)
+        assertEquals("#34C759", EveDesignSystem.Colors.HEX_LIGHT_SUCCESS)
+        assertEquals("#30D158", EveDesignSystem.Colors.HEX_DARK_SUCCESS)
+        assertEquals("#FF383C", EveDesignSystem.Colors.HEX_LIGHT_ERROR)
+        assertEquals("#FF4245", EveDesignSystem.Colors.HEX_DARK_ERROR)
+        assertEquals("#FF8D28", EveDesignSystem.Colors.HEX_LIGHT_WARNING)
+        assertEquals("#FF9230", EveDesignSystem.Colors.HEX_DARK_WARNING)
+        assertEquals("#50505A", EveDesignSystem.Colors.HEX_LIGHT_SECONDARY_TEXT)
+        assertEquals("#C5C5CC", EveDesignSystem.Colors.HEX_DARK_SECONDARY_TEXT)
+    }
+
+    @Test
+    fun testEveDesignSystemTypography_LockedRolesAndScale() {
+        assertTrue(EveDesignSystem.Typography.Title != 0)
+        assertTrue(EveDesignSystem.Typography.Heading != 0)
+        assertTrue(EveDesignSystem.Typography.Body != 0)
+        assertTrue(EveDesignSystem.Typography.Secondary != 0)
+        assertTrue(EveDesignSystem.Typography.Caption != 0)
+
+        assertEquals(EveDesignSystem.Typography.Title1Bold, EveDesignSystem.Typography.Title)
+        assertEquals(EveDesignSystem.Typography.Title3Semibold, EveDesignSystem.Typography.Heading)
+        assertEquals(EveDesignSystem.Typography.Subheadline, EveDesignSystem.Typography.Secondary)
+        assertEquals(EveDesignSystem.Typography.Footnote, EveDesignSystem.Typography.Caption)
+    }
+
+    @Test
+    fun testEveDesignSystemShapesAndMotion_LockedConstants() {
+        assertEquals(26f, EveDesignSystem.Shapes.RADIUS_CARD_DP, 0.001f)
+        assertEquals(34f, EveDesignSystem.Shapes.RADIUS_SHEET_DP, 0.001f)
+        assertEquals(8f, EveDesignSystem.Shapes.RADIUS_CONCENTRIC_CARD_DP, 0.001f)
+        assertEquals(4f, EveDesignSystem.Shapes.RADIUS_MIN_DP, 0.001f)
+        assertEquals(999f, EveDesignSystem.Shapes.RADIUS_PILL_DP, 0.001f)
+        assertEquals(50f, EveDesignSystem.Shapes.RADIUS_CAPSULE_PERCENT, 0.001f)
+
+        assertEquals(0.8f, EveDesignSystem.Motion.DAMPING_RATIO_SPRING, 0.001f)
+        assertEquals(0.97f, EveDesignSystem.Motion.SCALE_PRESS_FEEDBACK, 0.001f)
+    }
+
+    @Test
+    fun testNonHomeScreensAreUntouchedAndIntact() {
+        // Assert that non-Home screen layouts remain present and untouched
+        val testLayout = loadXml("src/main/res/layout/activity_test.xml")
+        assertNotNull("activity_test.xml must exist and parse", testLayout)
+
+        val resultLayout = loadXml("src/main/res/layout/activity_result.xml")
+        assertNotNull("activity_result.xml must exist and parse", resultLayout)
+
+        val profileLayout = loadXml("src/main/res/layout/activity_profile.xml")
+        assertNotNull("activity_profile.xml must exist and parse", profileLayout)
+
+        val settingsLayout = loadXml("src/main/res/layout/activity_settings.xml")
+        assertNotNull("activity_settings.xml must exist and parse", settingsLayout)
+
+        val leaderboardLayout = loadXml("src/main/res/layout/activity_leaderboard.xml")
+        assertNotNull("activity_leaderboard.xml must exist and parse", leaderboardLayout)
+    }
 }

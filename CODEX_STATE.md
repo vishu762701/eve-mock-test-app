@@ -9,6 +9,18 @@
 - Light app background tokens are pure `#FFFFFF`; dark background tokens are pure `#000000`.
 - Test submission remains server-side through `POST /api/attempts/submit`; authentication, scoring, answer persistence, and navigation code were not changed by the Home Banner/Test appearance task.
 
+### EVE: Design System Foundation Locked Values Codification & Home Screen Application (ADR-017) — 2026-10-17
+
+- Codified all authoritative locked design tokens directly within `EveDesignSystem` (`com.eve.app.designsystem.EveDesignSystem`):
+  - Locked color hex constants: Canvas `#FFFFFF` / `#000000`, Secondary Cards `#F2F2F7` / `#1C1C1E`, Interactive Blue `#0088FF` / `#0091FF`, System Green (Success) `#34C759` / `#30D158`, System Red (Error) `#FF383C` / `#FF4245`, System Orange (Warning) `#FF8D28` / `#FF9230`, Secondary Text `#50505A` / `#C5C5CC`.
+  - System status methods: `systemGreen`, `systemRed`, `systemOrange`, `statusSuccess`, `statusError`, `statusWarning`.
+  - Locked typography roles: `Title` (28sp bold -> `Title1Bold`), `Heading` (20sp semibold -> `Title3Semibold`), `Body` (17sp regular -> `Body`), `Secondary` (15sp regular -> `Subheadline`), `Caption` (13sp regular -> `Footnote`).
+  - Locked shape and motion constants: Capsule `999dp`, Card `26dp`, Sheet `34dp`, Concentric Card `8dp`, Min `4dp`, Spring Damping `0.8`, Press Scale `0.97`.
+  - Component helper: `applyHomeTopBarDepth(topBarContainer, searchTopBar)` supporting adaptive 24dp blur with 75% tint and 94% solid fallback.
+- Applied strictly and exclusively to the Home screen (`HomeAppearance.kt`, `ExamAdapter.kt`, `MainActivity.kt`).
+- All non-Home screens (Test, Result, Profile, Settings, Admin, Leaderboard, History, Syllabus, About, Bookmarks) remain completely untouched.
+- Preserved all invariants: Telegram Day/Night circular reveal, bare Lottie notification bell, 194 passing contrast pairs, 0 hardcoded text sizes across all 95 layout files.
+
 ### EVE: Design System Foundation & Home Screen Application (ADR-015) — 2026-10-17
 
 - Built the canonical `EveDesignSystem` Kotlin foundation facade (`com.eve.app.designsystem.EveDesignSystem`) unifying all tokens into structured modules: `Colors`, `Typography`, `Shapes`, `Spacing`, `Elevation`, `Motion`, `Materials`, and `Components`.
