@@ -148,7 +148,7 @@ class ManualUiSpecificationTest {
                     }
                     for (chip in chips) {
                         assertEquals(chip.chipMinHeight / 2f, chip.chipCornerRadius, 0.01f)
-                        assertEquals(dp(1).toFloat(), chip.chipStrokeWidth, 0.01f)
+                        assertEquals(1f * density, chip.chipStrokeWidth, 0.01f)
                         for (checked in listOf(false, true, false)) {
                             chip.isChecked = checked
                             assertEquals(context.getColor(if (checked) R.color.eve_home_accent else android.R.color.transparent),
