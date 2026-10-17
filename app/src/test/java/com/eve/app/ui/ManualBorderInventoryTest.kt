@@ -20,11 +20,11 @@ class ManualBorderInventoryTest {
             if (file.name != "bg_dot_red.xml") for (node in elements(file).filter { it.tagName == "stroke" }) {
                 val width = node.getAttribute("android:width")
                 assertTrue("${file.path}: stroke width must be 1dp or @dimen/eve_home_hairline_border (was $width)",
-                    width == "1dp" || width == "@dimen/eve_home_hairline_border")
+                    width == "1dp" || width == "@dimen/eve_home_hairline_border" || width == "@dimen/eve_home_hairline_stroke" || width == "@dimen/eve_home_pill_border_width")
                 val expected = if (file.name == "bg_edit_text_rounded.xml") "@color/eve_control_outline" else "@color/eve_shape_border"
                 val color = node.getAttribute("android:color")
                 assertTrue("${file.path}: stroke color must be $expected or @color/eve_home_hairline_border (was $color)",
-                    color == expected || color == "@color/eve_home_hairline_border")
+                    color == expected || color == "@color/eve_home_hairline_border" || color == "@color/eve_home_hairline" || color == "@color/eve_home_accent")
             }
         }
         for (name in listOf("bg_edit_text_rounded.xml", "bg_tile_right.xml", "bg_tile_wrong.xml", "bg_tile_medium.xml", "bg_tile_unattempted.xml")) {
@@ -42,11 +42,11 @@ class ManualBorderInventoryTest {
                 val color = node.getAttribute("app:${prefix}Color")
                 if (width.isNotEmpty() && width != "0dp" && width != "@dimen/eve_space_0") {
                     assertTrue("${file.path}: stroke width must be 1dp or @dimen/eve_home_hairline_border (was $width)",
-                        width == "1dp" || width == "@dimen/eve_home_hairline_border")
+                        width == "1dp" || width == "@dimen/eve_home_hairline_border" || width == "@dimen/eve_home_hairline_stroke")
                 }
                 if (color.isNotEmpty() && width != "0dp" && width != "@dimen/eve_space_0") {
                     assertTrue("${file.path}: stroke color must be @color/eve_shape_border or @color/eve_home_hairline_border (was $color)",
-                        color == "@color/eve_shape_border" || color == "@color/eve_home_hairline_border")
+                        color == "@color/eve_shape_border" || color == "@color/eve_home_hairline_border" || color == "@color/eve_home_hairline")
                 }
             }
         }

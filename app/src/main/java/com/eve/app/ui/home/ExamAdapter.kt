@@ -86,7 +86,7 @@ class ExamAdapter(
             b.tvExamName.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.homeTextPrimary(ctx))
             b.tvExamTime.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Home_Secondary)
             if (attempted) {
-                b.tvExamTime.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.homeSuccess(ctx))
+                b.tvExamTime.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.statusRightText(ctx))
             } else {
                 b.tvExamTime.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.homeTextSecondary(ctx))
             }

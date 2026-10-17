@@ -60,7 +60,7 @@ class Ios26DesignFidelityTest {
             )
             val root = loadXml("src/main/res/layout/$layoutFile")
             val bg = root.getAttribute("android:background")
-            assertTrue(bg in setOf("@color/eve_system_background", "@color/eve_canvas", "@color/eve_bg", "@color/eve_test_background", "@color/eve_plain_canvas"))
+            assertTrue(bg in setOf("@color/eve_system_background", "@color/eve_canvas", "@color/eve_bg", "@color/eve_test_background", "@color/eve_plain_canvas", "@color/eve_home_background"))
         }
 
         val groupedScreens = listOf(

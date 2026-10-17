@@ -33,7 +33,7 @@
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             app:cardBackgroundColor="@color/eve_exam_icon_tile_bg"
-            app:cardCornerRadius="@dimen/eve_home_card_padding"
+            app:cardCornerRadius="@dimen/eve_radius_card"
             app:cardElevation="@dimen/eve_space_0"
             app:rippleColor="@android:color/transparent"
             app:strokeColor="@color/eve_shape_border"

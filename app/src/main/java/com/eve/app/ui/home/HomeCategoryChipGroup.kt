@@ -13,8 +13,9 @@ import com.google.android.material.chip.ChipGroup
 /** Keeps the 40dp visible pills while delegating a full 48dp vertical touch region. */
 class HomeCategoryChipGroup @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : ChipGroup(context, attrs) {
     init {
-        val inset = Math.round(4f * resources.displayMetrics.density)
+        val inset = Math.round(8f * resources.displayMetrics.density)
         setPaddingRelative(paddingStart, inset, paddingEnd, inset)
+        minimumHeight = Math.round(48f * resources.displayMetrics.density)
         addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> updateTouchDelegates() }
     }
 

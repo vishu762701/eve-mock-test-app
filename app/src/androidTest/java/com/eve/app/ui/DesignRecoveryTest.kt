@@ -397,10 +397,10 @@ class DesignRecoveryTest {
                     instrumentation.waitForIdleSync()
                     capture("home-360dp", dark, home.root, scenario)
                     scenario.onActivity { activity ->
-                        val canvas = activity.getColor(R.color.eve_system_background)
-                        assertEquals("Home root", canvas,
+                        val homeBg = activity.getColor(R.color.eve_home_background)
+                        assertEquals("Home root", homeBg,
                             (home.root.background as android.graphics.drawable.ColorDrawable).color)
-                        assertEquals("Home content", canvas,
+                        assertEquals("Home content", homeBg,
                             (home.mainContentContainer.background as android.graphics.drawable.ColorDrawable).color)
                         val expectedTopBarColor = activity.getColor(
                             if (com.eve.app.util.EveLiquidGlass.isCrossWindowBlurSupported(activity)) {

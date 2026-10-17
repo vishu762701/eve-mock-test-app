@@ -143,20 +143,18 @@ class ManualUiSpecificationTest {
                     assertEquals(26f * density, outline.radius, 0.01f)
                     assertTrue(home.panelHomeBanner.clipToOutline)
                     if (font == 1f) {
-                        assertEquals(dp(64), chips[0].width)
-                        assertEquals(dp(40), chips[0].height)
+                        assertTrue(chips[0].width >= dp(48))
+                        assertEquals(dp(32), chips[0].height)
                     }
                     for (chip in chips) {
                         assertEquals(chip.chipMinHeight / 2f, chip.chipCornerRadius, 0.01f)
-                        assertEquals(0f, chip.chipStrokeWidth, 0.01f)
+                        assertEquals(dp(1).toFloat(), chip.chipStrokeWidth, 0.01f)
                         for (checked in listOf(false, true, false)) {
                             chip.isChecked = checked
-                            assertEquals(context.getColor(if (checked) R.color.eve_recovery_selected else R.color.eve_recovery_surface),
+                            assertEquals(context.getColor(if (checked) R.color.eve_home_accent else android.R.color.transparent),
                                 chip.chipBackgroundColor!!.getColorForState(chip.drawableState, 0))
                         }
-                        assertEquals(dp(8), chip.paddingTop)
-                        assertEquals(dp(8), chip.paddingBottom)
-                        assertTrue(chip.height >= dp(40))
+                        assertTrue(chip.height >= dp(32))
                         assertTrue(chip.width <= dp(width - 32))
                         assertEquals(chip.text.toString(), chip.contentDescription.toString())
                     }

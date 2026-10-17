@@ -201,8 +201,12 @@ class EveDesignSystemTest {
 
     @Test
     fun testDmSansFontBundling_StaticOflFilesAndWeights() {
-        val root = getProjectDir()
-        val fontDir = File(root, "app/src/main/res/font")
+        val candidates = listOf(
+            File("src/main/res/font"),
+            File("app/src/main/res/font"),
+            File("../app/src/main/res/font")
+        )
+        val fontDir = candidates.firstOrNull { it.exists() } ?: File("src/main/res/font")
         val regularTtf = File(fontDir, "dm_sans_regular.ttf")
         val mediumTtf = File(fontDir, "dm_sans_medium.ttf")
         val boldTtf = File(fontDir, "dm_sans_bold.ttf")

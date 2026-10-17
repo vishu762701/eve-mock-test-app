@@ -130,7 +130,7 @@ class ApprovedUiRenderingTest {
 
     private fun verifyHome() {
         val b = ActivityMainBinding.inflate(LayoutInflater.from(context))
-        assertEquals(context.getColor(R.color.eve_system_background), (b.mainContentContainer.background as ColorDrawable).color)
+        assertEquals(context.getColor(R.color.eve_home_background), (b.mainContentContainer.background as ColorDrawable).color)
         assertEquals(background, context.getColor(R.color.eve_bg))
         assertEquals(background, context.getColor(R.color.eve_canvas))
         listOf(b.btnSearch, b.btnNotification, b.btnOverflow).forEach { bare(it) }
@@ -148,7 +148,7 @@ class ApprovedUiRenderingTest {
         var clicked = false
         categories.forEach { category ->
             val chip = HomeAppearance.categoryChip(context, category, "All") { clicked = true }
-            assertEquals(20f * density, chip.chipCornerRadius, 0.01f)
+            assertEquals(context.resources.getDimension(R.dimen.eve_home_pill_radius), chip.chipCornerRadius, 0.01f)
             b.chipGroupCategory.addView(chip)
         }
         b.chipGroupCategory.getChildAt(1).performClick()
@@ -159,7 +159,7 @@ class ApprovedUiRenderingTest {
         b.rvExams.adapter = adapter
         val holder = adapter.onCreateViewHolder(FrameLayout(context), adapter.getItemViewType(0))
         adapter.onBindViewHolder(holder, 0)
-        assertEquals(context.resources.getDimension(R.dimen.eve_radius_card), ItemExamBinding.bind(holder.itemView).root.radius, 0.01f)
+        assertEquals(context.resources.getDimension(R.dimen.eve_home_card_radius), ItemExamBinding.bind(holder.itemView).root.radius, 0.01f)
         measure(b.root)
         val outline = Outline()
         b.panelHomeBanner.outlineProvider.getOutline(b.panelHomeBanner, outline)
