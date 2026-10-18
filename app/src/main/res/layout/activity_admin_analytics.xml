@@ -4,7 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/eve_system_grouped_background"
-    android:orientation="vertical">
+    android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
 <LinearLayout
         android:layout_width="match_parent"
@@ -13,7 +16,10 @@
         android:background="@android:color/transparent"
         android:gravity="center_vertical"
         android:paddingHorizontal="4dp"
-        android:paddingVertical="8dp">
+        android:paddingVertical="8dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
         <ImageButton
             android:id="@+id/btnBack"
@@ -47,11 +53,20 @@
     </LinearLayout>
 </com.eve.app.ui.common.EveGlassToolbar>
 
-    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
         <ScrollView android:id="@+id/content" android:layout_width="match_parent" android:layout_height="match_parent"
-            android:fillViewport="true">
+            android:fillViewport="true"
+            android:clipToPadding="false"
+            android:clipChildren="false"
+            >
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="vertical" android:padding="16dp">
+                android:orientation="vertical" android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
                 <!-- Time Range Filter -->
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/chipGroupTimeRange"
@@ -108,20 +123,26 @@
                     app:cardBackgroundColor="@color/eve_card_bg"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_shape_border"
-                    app:strokeWidth="1dp">
+                    app:strokeColor="@android:color/transparent"
+                    app:strokeWidth="0dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical"
-                            android:orientation="horizontal">
+                            android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                             <ImageView
                                 android:layout_width="22dp"
@@ -154,7 +175,10 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
                             android:gravity="center_vertical"
-                            android:orientation="horizontal">
+                            android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                             <TextView
                                 style="@style/TextAppearance.Eve.Title1"
@@ -169,7 +193,10 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="12dp"
                                 android:layout_weight="1"
-                                android:orientation="vertical">
+                                android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                                 <TextView
                                     style="@style/TextAppearance.Eve.Footnote.Medium"
@@ -225,14 +252,17 @@
                     app:cardBackgroundColor="@color/eve_card_bg"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_shape_border"
-                    app:strokeWidth="1dp">
+                    app:strokeColor="@android:color/transparent"
+                    app:strokeWidth="0dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <TextView
                             style="@style/TextAppearance.Eve.Headline"
@@ -265,7 +295,9 @@
                     android:layout_height="wrap_content"
                     android:nestedScrollingEnabled="false"
                     android:layout_marginTop="8dp"
-                    android:layoutAnimation="@anim/layout_enter" />
+                    android:layoutAnimation="@anim/layout_enter"
+            android:clipToPadding="false"
+            android:clipChildren="false"/>
 
                 <TextView
                     style="@style/TextAppearance.Eve.Headline"
@@ -292,7 +324,9 @@
                     android:layout_height="wrap_content"
                     android:nestedScrollingEnabled="false"
                     android:layout_marginTop="8dp"
-                    android:layoutAnimation="@anim/layout_enter" />
+                    android:layoutAnimation="@anim/layout_enter"
+            android:clipToPadding="false"
+            android:clipChildren="false"/>
 
                 <TextView
                     style="@style/TextAppearance.Eve.Footnote"

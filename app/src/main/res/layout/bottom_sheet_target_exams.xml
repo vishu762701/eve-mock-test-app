@@ -7,7 +7,9 @@
     android:background="@drawable/bg_recovery_sheet"
     android:fillViewport="true"
     android:clipToPadding="false"
-    android:overScrollMode="ifContentScrolls">
+    android:overScrollMode="ifContentScrolls"
+            android:clipChildren="false"
+            >
 
     <LinearLayout
         android:layout_width="match_parent"

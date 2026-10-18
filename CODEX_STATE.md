@@ -206,6 +206,14 @@ See `UI_STUDIO_VERIFICATION.md` for the capability matrix, exact evidence, files
 - Preserved Telegram Day/Night circular reveal transition, Lottie files/triggers/sizes, and SVG icon vector geometries.
 - Verification: Design system contrast checks (194/194 pairs pass), python design system test suite (15/15 tests pass), documentation check (33 files pass), `git diff --check` passes with 0 errors, and GitHub Actions CI run `39102727802` passed 100% green across all jobs (Build, Native UI gesture & three-button, backend, functions, APK publishing).
 
+### App-Wide Elimination of Card Lining and Shadow Clipping — 2026-10-18 (ADR-021)
+
+- In `styles.xml`, set `strokeWidth="0dp"` and `strokeColor="@android:color/transparent"` on `Widget.Eve.Card` and `Widget.Eve.Tile`, and removed 1dp stroke drawing in `EveLiquidGlassView.kt`. Removed explicit `app:strokeWidth="1dp"` from `MaterialCardView` in 30 layout files, eliminating hard card border linings app-wide.
+- In `activity_result.xml` and `activity_result_detail.xml`, overhauled layout architecture into a coordinate viewport (`layoutResultViewport`): floating tab strip `layoutResultTabContainer` draws above content with elevation and translationZ, while scrolling containers (`scrollResultContent`, `scrollLeaderboard`, `sectionReview`) pass underneath with `paddingTop="@dimen/eve_result_tab_strip_total_height"` (68dp) and `clipToPadding="false"`. Added terminal card bottom margins (12dp / 16dp) and scroll bottom padding (36dp) so shadows fade naturally.
+- Added `@dimen/eve_shadow_room` (8dp) and `@dimen/eve_result_tab_strip_total_height` (68dp) in `dimens.xml`. Set `android:clipChildren="false"` and `android:clipToPadding="false"` across all 47 scrolling views and parent containers app-wide, and unclipped `ViewPager2` and its internal `RecyclerView` child in `MainActivity.kt` and `TestActivity.kt`.
+- Preserved all existing elevation, blur, offset parameters, colors, component sizes, typography/fonts, text strings, and animations. Telegram reveal toggle, Lottie assets/triggers, and SVG icon vector geometries remain untouched.
+- Verification: Validated 100% of XML layouts with `xml.etree.ElementTree` (0 syntax errors), passed all 15 Python unit tests, passed 33 documentation verification files, and verified 0 whitespace issues with `git diff --check`.
+
 ## Important Project Decisions
 
 - The GitHub repository is the project's single source of truth. Preserve existing auth, exam, test scoring, answer persistence, and navigation behavior when changing presentation.

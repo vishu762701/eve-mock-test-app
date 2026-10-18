@@ -894,6 +894,12 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun setupBannerCarousel() {
+        binding.vpHomeBanners.clipChildren = false
+        binding.vpHomeBanners.clipToPadding = false
+        (binding.vpHomeBanners.getChildAt(0) as? androidx.recyclerview.widget.RecyclerView)?.apply {
+            clipChildren = false
+            clipToPadding = false
+        }
         binding.vpHomeBanners.adapter = bannerAdapter
         binding.vpHomeBanners.registerOnPageChangeCallback(object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {

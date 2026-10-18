@@ -5,7 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/eve_system_grouped_background"
-    android:orientation="vertical">
+    android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
     <!-- Top App Bar / Header -->
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
@@ -17,7 +20,10 @@
         android:orientation="horizontal"
         android:paddingHorizontal="16dp"
         android:paddingTop="12dp"
-        android:paddingBottom="12dp">
+        android:paddingBottom="12dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
         <ImageButton
             android:id="@+id/btnBack"
@@ -34,7 +40,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
             <TextView
                 android:id="@+id/tvDetailTitle"
@@ -60,6 +69,7 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipChildren="false"
         android:clipToPadding="false"
         android:fillViewport="true"
         android:paddingBottom="24dp"
@@ -69,6 +79,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:orientation="vertical"
             android:padding="16dp">
 
@@ -79,6 +91,8 @@
                 android:id="@+id/layoutContainerStatistics"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:orientation="vertical"
                 android:visibility="gone">
 
@@ -95,7 +109,10 @@
                         android:gravity="center"
                         android:orientation="vertical"
                         android:paddingHorizontal="20dp"
-                        android:paddingVertical="20dp">
+                        android:paddingVertical="20dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <TextView
                             style="@style/TextAppearance.Eve.Result.HeroLabel"
@@ -135,7 +152,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <TextView
                             style="@style/TextAppearance.Eve.Heading"
@@ -290,7 +310,10 @@
                         android:background="@drawable/bg_tile_right"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="8dp">
+                        android:padding="8dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <TextView
                             android:id="@+id/tvStatRightCount"
@@ -318,7 +341,10 @@
                         android:background="@drawable/bg_tile_wrong"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="8dp">
+                        android:padding="8dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <TextView
                             android:id="@+id/tvStatWrongCount"
@@ -346,7 +372,10 @@
                         android:background="@drawable/bg_tile_unattempted"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="8dp">
+                        android:padding="8dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <TextView
                             android:id="@+id/tvStatUnattemptedTileCount"
@@ -373,7 +402,10 @@
                         android:background="@drawable/bg_tile_medium"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="8dp">
+                        android:padding="8dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <TextView
                             android:id="@+id/tvStatAccuracyPct"
@@ -401,6 +433,8 @@
                 android:id="@+id/layoutContainerPerformance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:orientation="vertical"
                 android:visibility="gone">
 
@@ -416,7 +450,10 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="20dp">
+                        android:padding="20dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <FrameLayout
                             android:layout_width="56dp"
@@ -472,7 +509,10 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:padding="16dp">
+                            android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                             <TextView
                                 style="@style/TextAppearance.Eve.Heading"
@@ -497,7 +537,10 @@
                                     android:background="@drawable/bg_tile_surface2"
                                     android:gravity="center"
                                     android:orientation="vertical"
-                                    android:padding="12dp">
+                                    android:padding="12dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                                     <TextView
                                         style="@style/TextAppearance.Eve.Result.InsetLabel"
@@ -523,7 +566,10 @@
                                     android:background="@drawable/bg_tile_surface2"
                                     android:gravity="center"
                                     android:orientation="vertical"
-                                    android:padding="12dp">
+                                    android:padding="12dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                                     <TextView
                                         style="@style/TextAppearance.Eve.Result.InsetLabel"
@@ -548,7 +594,10 @@
                                     android:background="@drawable/bg_tile_surface2"
                                     android:gravity="center"
                                     android:orientation="vertical"
-                                    android:padding="12dp">
+                                    android:padding="12dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                                     <TextView
                                         style="@style/TextAppearance.Eve.Result.InsetLabel"
@@ -579,7 +628,10 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:padding="16dp">
+                            android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                             <TextView
                                 style="@style/TextAppearance.Eve.Heading"
@@ -607,6 +659,8 @@
                 android:id="@+id/layoutContainerAnalytics"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:orientation="vertical"
                 android:visibility="gone">
 
@@ -622,7 +676,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <TextView
                             style="@style/TextAppearance.Eve.Heading"
@@ -644,7 +701,9 @@
                             android:id="@+id/layoutTopicList"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical" />
+                            android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"/>
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnPracticeWeakest"
@@ -671,7 +730,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <TextView
                             style="@style/TextAppearance.Eve.Heading"
@@ -693,7 +755,10 @@
                         <HorizontalScrollView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:scrollbars="none">
+                            android:scrollbars="none"
+            android:clipToPadding="false"
+            android:clipChildren="false"
+            >
 
                             <com.eve.app.ui.result.QuestionTimeChartView
                                 android:id="@+id/chartTimeView"
@@ -708,13 +773,17 @@
                     style="@style/Widget.Eve.Card.Group"
                     android:id="@+id/cardSlowestQuestions"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <TextView
                             style="@style/TextAppearance.Eve.Heading"
@@ -736,7 +805,9 @@
                             android:id="@+id/layoutSlowestList"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical" />
+                            android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>

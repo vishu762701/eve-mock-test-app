@@ -7,7 +7,10 @@
     android:background="@color/eve_system_grouped_background"
     android:clickable="true"
     android:focusable="true"
-    android:orientation="vertical">
+    android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
     <!-- Top Bar -->
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
@@ -18,7 +21,10 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="16dp"
-        android:paddingVertical="12dp">
+        android:paddingVertical="12dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
         <ImageButton
             android:id="@+id/btnBack"
@@ -81,7 +87,10 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
         <!-- ========================================================= -->
         <!-- TAB 1: CREATE EXAM & CONTENT MANAGEMENT                  -->
@@ -91,13 +100,19 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true"
-            android:visibility="visible">
+            android:visibility="visible"
+            android:clipToPadding="false"
+            android:clipChildren="false"
+            >
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                 <!-- CONTENT MANAGEMENT SECTION -->
                 <TextView
@@ -218,13 +233,19 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true"
-            android:visibility="gone">
+            android:visibility="gone"
+            android:clipToPadding="false"
+            android:clipChildren="false"
+            >
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                 <!-- 2. Select Exam -->
                 <TextView
@@ -239,7 +260,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                     <Spinner
                         android:id="@+id/spExam"
@@ -288,7 +312,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnAddQuestionManual"
@@ -317,7 +344,10 @@
                     android:gravity="center"
                     android:orientation="vertical"
                     android:paddingHorizontal="24dp"
-                    android:paddingVertical="36dp">
+                    android:paddingVertical="36dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                     <com.airbnb.lottie.LottieAnimationView
                         android:id="@+id/ivEmptyStateFolder"
@@ -369,7 +399,9 @@
                     android:layout_marginTop="8dp"
                     android:layoutAnimation="@anim/layout_enter"
                     android:nestedScrollingEnabled="false"
-                    android:visibility="gone" />
+                    android:visibility="gone"
+            android:clipToPadding="false"
+            android:clipChildren="false"/>
 
             </LinearLayout>
         </ScrollView>
@@ -382,13 +414,19 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true"
-            android:visibility="gone">
+            android:visibility="gone"
+            android:clipToPadding="false"
+            android:clipChildren="false"
+            >
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                 <!-- 1. USER MANAGEMENT -->
                 <TextView
@@ -411,26 +449,35 @@
                     app:cardBackgroundColor="@color/eve_card_bg"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_shape_border"
-                    app:strokeWidth="1dp">
+                    app:strokeColor="@android:color/transparent"
+                    app:strokeWidth="0dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="14dp">
+                        android:padding="14dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical"
-                            android:orientation="horizontal">
+                            android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                             <LinearLayout
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:orientation="vertical">
+                                android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                                 <TextView
                                     style="@style/TextAppearance.Eve.Admin.CardValue"
@@ -452,7 +499,10 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:orientation="vertical">
+                                android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                                 <TextView
                                     style="@style/TextAppearance.Eve.Admin.CardValue"
@@ -527,7 +577,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                     <EditText
                         style="@style/TextAppearance.Eve.BodySmall"
@@ -567,7 +620,9 @@
                     android:layout_height="wrap_content"
                     android:layoutAnimation="@anim/layout_enter"
                     android:layout_marginTop="4dp"
-                    android:nestedScrollingEnabled="false" />
+                    android:nestedScrollingEnabled="false"
+            android:clipToPadding="false"
+            android:clipChildren="false"/>
 
                 <!-- COMMUNICATION SECTION -->
                 <TextView
@@ -758,20 +813,26 @@
                     app:cardBackgroundColor="@color/eve_card_bg"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_shape_border"
-                    app:strokeWidth="1dp">
+                    app:strokeColor="@android:color/transparent"
+                    app:strokeWidth="0dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical"
-                            android:orientation="horizontal">
+                            android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                             <ImageView
                                 android:layout_width="24dp"
@@ -805,13 +866,19 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
-                            android:orientation="horizontal">
+                            android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                             <LinearLayout
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:orientation="vertical">
+                                android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                                 <TextView
                                     style="@style/TextAppearance.Eve.Footnote"
@@ -833,7 +900,10 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:orientation="vertical">
+                                android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                                 <TextView
                                     style="@style/TextAppearance.Eve.Footnote"
@@ -880,20 +950,26 @@
                     app:cardBackgroundColor="@color/eve_card_bg"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_shape_border"
-                    app:strokeWidth="1dp">
+                    app:strokeColor="@android:color/transparent"
+                    app:strokeWidth="0dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical"
-                            android:orientation="horizontal">
+                            android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                             <ImageView
                                 android:layout_width="24dp"

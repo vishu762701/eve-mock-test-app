@@ -4,7 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:padding="20dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
     <TextView
         style="@style/TextAppearance.Eve.Secondary.SectionHeader"
@@ -21,20 +24,26 @@
         app:cardBackgroundColor="@color/eve_card_bg"
         app:cardCornerRadius="@dimen/eve_radius_card"
         app:cardElevation="0dp"
-        app:strokeColor="@color/eve_shape_border"
-        app:strokeWidth="1dp">
+        app:strokeColor="@android:color/transparent"
+        app:strokeWidth="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="12dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                 <TextView
                     android:id="@+id/tvOriginalSenderName"
@@ -107,7 +116,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCancelReply"

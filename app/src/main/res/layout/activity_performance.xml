@@ -5,7 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/eve_system_grouped_background">
+    android:background="@color/eve_system_grouped_background"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
 <LinearLayout
@@ -16,7 +19,10 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="4dp"
-        android:paddingVertical="8dp">
+        android:paddingVertical="8dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
         <ImageButton
             android:id="@+id/btnBack"
@@ -45,7 +51,10 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@color/eve_system_grouped_background">
+        android:background="@color/eve_system_grouped_background"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
         <ScrollView
             android:id="@+id/contentGroup"
@@ -54,19 +63,27 @@
             android:clipToPadding="false"
             android:visibility="gone"
             android:overScrollMode="ifContentScrolls"
-            android:background="@color/eve_system_grouped_background">
+            android:background="@color/eve_system_grouped_background"
+            android:clipChildren="false"
+            >
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                 <!-- Overview -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                     <com.google.android.material.card.MaterialCardView
                         style="@style/Widget.Eve.Card.Group"
@@ -79,7 +96,10 @@
                             android:layout_height="wrap_content"
                             android:gravity="center"
                             android:orientation="vertical"
-                            android:padding="16dp">
+                            android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                             <TextView
                                 android:id="@+id/tvTotalAttempts"
@@ -109,7 +129,10 @@
                             android:layout_height="wrap_content"
                             android:gravity="center"
                             android:orientation="vertical"
-                            android:padding="16dp">
+                            android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                             <TextView
                                 android:id="@+id/tvOverallAccuracy"
@@ -139,7 +162,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <TextView
                             style="@style/TextAppearance.Eve.Headline"
@@ -178,7 +204,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <TextView
                             style="@style/TextAppearance.Eve.Headline"
@@ -221,7 +250,9 @@
                     android:layout_height="wrap_content"
                     android:layoutAnimation="@anim/layout_enter"
                     android:layout_marginTop="4dp"
-                    android:nestedScrollingEnabled="false" />
+                    android:nestedScrollingEnabled="false"
+            android:clipToPadding="false"
+            android:clipChildren="false"/>
             </LinearLayout>
         </ScrollView>
 
@@ -231,7 +262,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
             <ProgressBar
                 android:layout_width="wrap_content"
@@ -253,7 +287,10 @@
             android:gravity="center"
             android:orientation="vertical"
             android:padding="24dp"
-            android:visibility="gone">
+            android:visibility="gone"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
             <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/ivMessageIcon"

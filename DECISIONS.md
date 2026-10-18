@@ -928,3 +928,41 @@ In continuation of the Eve Design System modernization roadmap, the user specifi
 
 5. **Approved-UI Verification Alignment (Rule 6)**:
    - In `ApprovedUiRenderingTest.kt`, aligned `context.getColor(R.color.eve_bg)` expectation to `appBackground` (`#F5F5F5` light / `#000000` dark), `CircularTimerView` background pixels to `appBackground`, button `currentTextColor` to `buttonText` (`#FFFFFF` light / `#000000` dark), and `activity_test.xml` canvas root background to `canvasBackground` (`#FFFFFF` light / `#000000` dark). All 34 UI tests pass across both gesture and three-button navigation modes.
+
+## ADR-021: App-Wide Elimination of Card Lining and Shadow Clipping
+
+- **Date**: 2026-10-18
+- **Status**: Accepted
+- **Author**: Principal Systems Architect & UI/UX Lead
+- **Authority**: Direct user instruction: "TASK 2 of 3 - FIX 'LINING' AND CLIPPED SHADOWS APP-WIDE. Follow GEMINI.md and ENGINEERING_STANDARD.md. Do not change colors, sizes, fonts, text or behavior."
+
+### Context
+On the Result screen (and consistently across other screens in the app), three critical visual depth defects degraded the user experience:
+1. **Dark curved line / hard flat cut along card bottom edges**: Elevation shadows cast by Material cards were clipped abruptly at container boundaries instead of fading out smoothly. Additionally, base card styles and custom glass views drew 1dp hard border strokes (`eve_shape_border` and stroke paints) that produced a visible "lining" artifact.
+2. **Cards scrolling under the tab strip were sliced by a hard horizontal edge**: In `activity_result.xml`, the segmented tab strip (`layoutResultTabContainer`) and content container were arranged sequentially in a vertical `LinearLayout`. When content scrolled upward, it entered the top edge of the content container and was sliced flat by the layout boundary, rather than smoothly passing underneath the tab strip.
+3. **Tab strip depth not visible where it meets content**: Because the tab strip was placed sequentially above the content container without z-index separation or overlay elevation, it cast no elevation shadow onto the passing cards below.
+
+### Decisions
+1. **Elimination of Card Stroke Lining Artifacts (`styles.xml`, `EveLiquidGlassView.kt`, and Layouts)**:
+   - In `styles.xml`, updated base card styles `Widget.Eve.Card` and `Widget.Eve.Tile` to `strokeWidth="0dp"` and `strokeColor="@android:color/transparent"` (replacing `1dp` stroke with `eve_shape_border`).
+   - In `EveLiquidGlassView.kt`, removed the hardcoded 1dp outline stroke drawing in `onDraw` (`strokePaint.color = ...`).
+   - Across 30 layout files, audited and removed explicit `app:strokeWidth="1dp"` from `MaterialCardView` elements, setting `app:strokeWidth="0dp"` and `app:strokeColor="@android:color/transparent"`.
+
+2. **Shadow Room and Ancestor Unclipping (`clipChildren` & `clipToPadding`)**:
+   - In `dimens.xml`, added standard dimension tokens `@dimen/eve_shadow_room` (`8dp`) and `@dimen/eve_result_tab_strip_total_height` (`68dp`).
+   - Enabled shadow expansion across all 47 scrolling layouts (`ScrollView`, `NestedScrollView`, `RecyclerView`, `ViewPager2`) and their layout parents by explicitly setting `android:clipChildren="false"` and `android:clipToPadding="false"`.
+   - In `MainActivity.kt` and `TestActivity.kt`, unclipped `ViewPager2` and its internal `RecyclerView` child (`viewPager.getChildAt(0) as RecyclerView`) via `clipChildren = false` and `clipToPadding = false` to prevent elevation shadow clipping during horizontal transitions.
+   - Added appropriate bottom margins to terminal cards in scroll views (e.g. `cardCutoffVerdict` `12dp`, `cardOverviewAnalytics` `16dp`, `cardLeaderboardHero` `16dp`) so elevation blur has room to fade naturally without truncation.
+
+3. **Result Viewport Overhaul (`activity_result.xml` & `activity_result_detail.xml`)**:
+   - Replaced sequential vertical layout with a coordinate viewport container:
+     - `layoutResultViewport`: `FrameLayout` with `layout_weight="1"`, `clipChildren="false"`, and `clipToPadding="false"`.
+     - `layoutResultContentContainer`: `FrameLayout` matching parent dimensions (`match_parent`), `clipChildren="false"`, `clipToPadding="false"`.
+     - `scrollResultContent` & `scrollLeaderboard`: Configured with `android:paddingTop="@dimen/eve_result_tab_strip_total_height"` (`68dp`) and `android:paddingBottom="36dp"`, with `android:clipToPadding="false"` and `android:clipChildren="false"`. Cards smoothly scroll underneath the tab strip.
+     - `layoutResultTabContainer`: Floating tab strip placed with `android:elevation="@dimen/eve_home_card_elevation"` and `android:translationZ="@dimen/eve_home_card_elevation"`, positioned at the top of the viewport (`clipChildren="false"`, `clipToPadding="false"`). This ensures the tab strip draws cleanly above the scrolling cards and casts its depth shadow downward.
+     - `sectionReview`: Set `paddingTop="@dimen/eve_result_tab_strip_total_height"`, `clipChildren="false"`, and `clipToPadding="false"`, unmasking question card shadows during review navigation.
+
+4. **Strict Boundary Preservation**:
+   - Maintained all existing elevation, blur, and offset parameters.
+   - Zero alterations to colors, component sizes, typography/fonts, text strings, animations, or runtime logic.
+   - Protected Telegram reveal toggle, Lottie assets/triggers, and SVG icon vector geometries remain completely untouched.

@@ -6,7 +6,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/eve_system_grouped_background"
-    android:orientation="vertical">
+    android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
     <!-- Top Bar -->
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
@@ -20,7 +23,10 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="4dp"
-        android:paddingVertical="8dp">
+        android:paddingVertical="8dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
         <ImageButton
             android:id="@+id/btnBack"
@@ -51,14 +57,19 @@
         android:fillViewport="true"
         android:clipToPadding="false"
         android:overScrollMode="ifContentScrolls"
-        android:background="@color/eve_system_grouped_background">
+        android:background="@color/eve_system_grouped_background"
+            android:clipChildren="false"
+            >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="20dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
             <!-- Order Summary Card -->
             <com.google.android.material.card.MaterialCardView
@@ -71,7 +82,10 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                     <TextView
                         android:id="@+id/tvPlanName"
@@ -98,7 +112,10 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:paddingHorizontal="12dp"
-                        android:paddingVertical="6dp">
+                        android:paddingVertical="6dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <ImageView
                             android:layout_width="16dp"
@@ -125,7 +142,10 @@
                 android:layout_marginTop="20dp"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:visibility="visible">
+                android:visibility="visible"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="wrap_content"
@@ -170,7 +190,10 @@
                 android:layout_marginTop="20dp"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:visibility="gone"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                 <ImageView
                     android:layout_width="64dp"
@@ -210,7 +233,10 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:padding="16dp">
+                    android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                     <ProgressBar
                         android:id="@+id/progressStatus"
@@ -237,7 +263,10 @@
                 android:layout_marginTop="20dp"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:visibility="gone"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                 <TextView
                     style="@style/TextAppearance.Eve.Headline"

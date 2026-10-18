@@ -13,6 +13,8 @@
         android:id="@+id/mainContentContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:background="@color/eve_home_background"
         android:orientation="vertical">
 
@@ -217,7 +219,10 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:background="@color/eve_home_background"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
         <TextView
             android:id="@+id/tvOfflineBanner"
@@ -240,8 +245,8 @@
             android:layout_marginTop="6dp"
             android:layout_marginBottom="6dp"
             android:background="@android:color/transparent"
-            android:clipChildren="true"
-            android:clipToPadding="true"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:visibility="gone">
 
             <View
@@ -254,6 +259,8 @@
                 android:id="@+id/vpHomeBanners"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:alpha="1"
                 android:overScrollMode="never" />
 
@@ -332,6 +339,8 @@
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:paddingTop="12dp"
             android:paddingBottom="8dp"
             android:scrollbars="none">
@@ -350,12 +359,15 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:clipChildren="false"
+            android:clipToPadding="false">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvExams"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:clipChildren="false"
                 android:clipToPadding="false"
                 android:layoutAnimation="@anim/layout_enter"
                 android:paddingHorizontal="@dimen/eve_home_screen_margin"

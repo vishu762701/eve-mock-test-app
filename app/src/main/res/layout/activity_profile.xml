@@ -6,7 +6,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/eve_system_grouped_background"
-    android:orientation="vertical">
+    android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
     <!-- Top Bar -->
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
@@ -18,7 +21,10 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="4dp"
-        android:paddingVertical="8dp">
+        android:paddingVertical="8dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
         <ImageButton
             android:id="@+id/btnBack"
@@ -50,13 +56,18 @@
         android:layout_weight="1"
         android:fillViewport="true"
         android:clipToPadding="false"
-        android:overScrollMode="ifContentScrolls">
+        android:overScrollMode="ifContentScrolls"
+            android:clipChildren="false"
+            >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="32dp">
+            android:paddingBottom="32dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
             <!-- Photo & Header Section -->
             <LinearLayout
@@ -65,7 +76,10 @@
                 android:gravity="center_horizontal"
                 android:orientation="vertical"
                 android:paddingTop="24dp"
-                android:paddingHorizontal="20dp">
+                android:paddingHorizontal="20dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                 <FrameLayout
                     android:layout_width="wrap_content"
@@ -103,7 +117,10 @@
                     android:layout_marginTop="12dp"
                     android:gravity="center"
                     android:orientation="horizontal"
-                    android:visibility="gone">
+                    android:visibility="gone"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnCancelPhoto"
@@ -159,7 +176,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                     <TextView
                         android:id="@+id/tvEveIdLabel"
@@ -236,7 +256,10 @@
                 android:background="@drawable/bg_student_group"
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginTop="18dp"
-                android:padding="16dp">
+                android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                 <TextView
                     style="@style/TextAppearance.Eve.Headline"
@@ -376,7 +399,10 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingHorizontal="20dp"
-                android:paddingVertical="14dp">
+                android:paddingVertical="14dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                 <TextView
                     style="@style/TextAppearance.Eve.Body"

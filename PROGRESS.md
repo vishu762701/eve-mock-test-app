@@ -373,3 +373,26 @@
   - `node .github/scripts/verify-docs.mjs` passed (33 docs, 0 errors, 0 warnings).
   - `git diff --check` passed with 0 errors.
   - GitHub Actions CI run `39102727802` passed 100% green: `build`, `Native UI (gesture)`, `Native UI (three-button)`, `firebase-functions`, `backend`, and `Publish verified debug APK` all succeeded.
+
+## Task 2 of 3 — Fix "Lining" and Clipped Shadows App-Wide (ADR-021) (2026-10-18)
+
+- [x] **Shared Styles & Liquid Glass Lining Elimination:**
+  - In `styles.xml`, set `strokeWidth="0dp"` and `strokeColor="@android:color/transparent"` on `Widget.Eve.Card` and `Widget.Eve.Tile`, removing the 1dp border that caused the dark curved line artifact.
+  - In `EveLiquidGlassView.kt`, removed the 1dp outline stroke drawing in `onDraw`.
+  - In 30 layout files, audited and removed explicit `MaterialCardView` `app:strokeWidth="1dp"` to eliminate hard card border linings app-wide.
+- [x] **Result Viewport Overhaul (`activity_result.xml` & `activity_result_detail.xml`):**
+  - Replaced vertical sequential linear layout with a coordinate viewport container (`layoutResultViewport`).
+  - Positioned floating `layoutResultTabContainer` with `elevation="@dimen/eve_home_card_elevation"` and `translationZ="@dimen/eve_home_card_elevation"` above the viewport.
+  - Set `paddingTop="@dimen/eve_result_tab_strip_total_height"` (68dp) with `clipToPadding="false"` and `clipChildren="false"` on `scrollResultContent`, `scrollLeaderboard`, and `sectionReview`, allowing content cards to smoothly pass under the tab strip without being sliced.
+  - Added bottom padding (36dp) and terminal card margins (`12dp` / `16dp`) so bottom elevation shadows fade naturally.
+- [x] **App-Wide Shadow Room & Ancestor Unclipping:**
+  - Set `android:clipChildren="false"` and `android:clipToPadding="false"` on all 47 scrolling views (`ScrollView`, `NestedScrollView`, `RecyclerView`, `ViewPager2`) and their layout parent containers across activities, dialogs, bottom sheets, and list items.
+  - In `MainActivity.kt` and `TestActivity.kt`, unclipped `ViewPager2` and its internal `RecyclerView` child (`viewPager.getChildAt(0)`) via `clipChildren = false` and `clipToPadding = false`.
+- [x] **Strict Invariants Preserved:**
+  - Zero modifications to colors, component sizes, typography/fonts, text strings, or runtime logic.
+  - Preserved Telegram reveal toggle, Lottie animations/triggers, and SVG icon vector geometries.
+- [x] **Verification Gate:**
+  - Validated all XML layouts with `xml.etree.ElementTree` (0 syntax errors).
+  - `node .github/scripts/verify-docs.mjs` passed (33 docs, 0 errors, 0 warnings).
+  - `python3 -B -m unittest discover -s .github/scripts/tests -q` passed (15/15 tests).
+  - `git diff --check` passed with 0 errors.

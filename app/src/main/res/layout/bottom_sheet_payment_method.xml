@@ -7,7 +7,10 @@
     android:layout_height="wrap_content"
     android:background="@drawable/bg_sheet_bottom"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:padding="20dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
     <!-- Drag Handle -->
     <View
@@ -48,7 +51,10 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:padding="16dp">
+            android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
             <ImageView
                 android:layout_width="32dp"
@@ -61,7 +67,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                 <TextView
                     style="@style/TextAppearance.Eve.Subheadline.Medium"
@@ -101,7 +110,10 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:padding="16dp">
+            android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
             <ImageView
                 android:layout_width="32dp"
@@ -114,7 +126,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                 <TextView
                     style="@style/TextAppearance.Eve.Subheadline.Medium"

@@ -5,7 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/eve_canvas">
+    android:background="@color/eve_canvas"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,7 +19,10 @@
         android:orientation="horizontal"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:paddingVertical="10dp">
+        android:paddingVertical="10dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
         <!-- Circular countdown timer -->
         <FrameLayout
@@ -60,6 +66,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/eve_test_palette_bg"
+        android:clipChildren="false"
         android:clipToPadding="false"
         android:orientation="horizontal"
         android:paddingHorizontal="10dp"
@@ -80,12 +87,16 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:layout_weight="1">
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPager"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:clipChildren="false"
+            android:clipToPadding="false" />
 
         <!-- Upgrade 3: Telegram-style question shimmer skeleton (LoadingDrawable pattern) -->
         <com.eve.app.ui.common.ShimmerSkeletonView
@@ -101,7 +112,10 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:visibility="gone"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
             <ProgressBar
                 android:layout_width="wrap_content"
@@ -123,7 +137,10 @@
             android:gravity="center"
             android:orientation="vertical"
             android:padding="24dp"
-            android:visibility="gone">
+            android:visibility="gone"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
             <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/ivMessageIcon"
@@ -168,13 +185,19 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:paddingTop="20dp"
-        android:paddingBottom="10dp">
+        android:paddingBottom="10dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
         <!-- Action Row 1: Clear Response & Mark for Review (Equal 12dp horizontal gap) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
             <FrameLayout
                 android:layout_width="0dp"
@@ -214,7 +237,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
             <FrameLayout
                 android:layout_width="0dp"

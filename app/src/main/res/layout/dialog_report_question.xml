@@ -6,7 +6,9 @@
     android:layout_height="wrap_content"
     android:maxHeight="480dp"
     android:clipToPadding="false"
-    android:overScrollMode="ifContentScrolls">
+    android:overScrollMode="ifContentScrolls"
+            android:clipChildren="false"
+            >
 
     <LinearLayout
         android:layout_width="match_parent"

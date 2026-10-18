@@ -5,7 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/eve_system_grouped_background"
-    android:orientation="vertical">
+    android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
     <!-- Top App Bar -->
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
@@ -16,7 +19,10 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="16dp"
-        android:paddingVertical="12dp">
+        android:paddingVertical="12dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
         <ImageButton
             android:id="@+id/btnBack"
@@ -33,7 +39,10 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
             <TextView
                 style="@style/TextAppearance.Eve.Headline"
@@ -61,13 +70,19 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:fillViewport="true"
+            android:clipToPadding="false"
+            android:clipChildren="false"
+            >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="32dp">
+            android:paddingBottom="32dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
             <!-- Card: Add / Upload New Syllabus -->
             <com.google.android.material.card.MaterialCardView
@@ -78,14 +93,17 @@
                 app:cardBackgroundColor="@color/eve_card_bg"
                 app:cardCornerRadius="@dimen/eve_radius_card"
                 app:cardElevation="0dp"
-                app:strokeColor="@color/eve_shape_border"
-                app:strokeWidth="1dp">
+                app:strokeColor="@android:color/transparent"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                     <TextView
                         style="@style/TextAppearance.Eve.Headline"
@@ -129,7 +147,10 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:padding="10dp"
-                        android:visibility="gone">
+                        android:visibility="gone"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <ImageView
                             android:layout_width="22dp"
@@ -197,7 +218,10 @@
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="24dp"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                 <TextView
                     style="@style/TextAppearance.Eve.Headline"
@@ -248,7 +272,10 @@
                 android:gravity="center"
                 android:orientation="vertical"
                 android:padding="32dp"
-                android:visibility="gone">
+                android:visibility="gone"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                 <ImageView
                     android:layout_width="64dp"
@@ -283,7 +310,9 @@
                 android:layoutAnimation="@anim/layout_enter"
                 android:layout_marginTop="8dp"
                 android:nestedScrollingEnabled="false"
-                tools:listitem="@layout/item_admin_syllabus" />
+                tools:listitem="@layout/item_admin_syllabus"
+            android:clipToPadding="false"
+            android:clipChildren="false"/>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

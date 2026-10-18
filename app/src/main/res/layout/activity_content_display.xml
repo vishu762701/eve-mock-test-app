@@ -6,7 +6,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/eve_system_background"
-    android:orientation="vertical">
+    android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
     <!-- Top Bar -->
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
@@ -17,7 +20,10 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="16dp"
-        android:paddingVertical="12dp">
+        android:paddingVertical="12dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
         <ImageButton
             android:id="@+id/btnBack"
@@ -58,12 +64,17 @@
         android:layout_weight="1"
         android:padding="20dp"
         android:clipToPadding="false"
-        android:overScrollMode="ifContentScrolls">
+        android:overScrollMode="ifContentScrolls"
+            android:clipChildren="false"
+            >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
             <TextView
                 android:id="@+id/tvTitle"
@@ -89,7 +100,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:visibility="gone"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                 <!-- Support Email Card -->
                 <com.google.android.material.card.MaterialCardView
@@ -104,7 +118,10 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:padding="14dp">
+                        android:padding="14dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <ImageView
                             android:layout_width="24dp"
@@ -118,7 +135,10 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="14dp"
                             android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                             <TextView
                                 style="@style/TextAppearance.Eve.Footnote"
@@ -151,7 +171,10 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:padding="14dp">
+                        android:padding="14dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <ImageView
                             android:layout_width="24dp"
@@ -165,7 +188,10 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="14dp"
                             android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                             <TextView
                                 style="@style/TextAppearance.Eve.Footnote"
@@ -198,7 +224,10 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:padding="14dp">
+                        android:padding="14dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <ImageView
                             android:layout_width="24dp"
@@ -212,7 +241,10 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="14dp"
                             android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                             <TextView
                                 style="@style/TextAppearance.Eve.Footnote"

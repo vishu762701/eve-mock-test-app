@@ -101,7 +101,10 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_weight="1"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvAuditLogs"
@@ -109,7 +112,8 @@
                 android:layout_height="match_parent"
                 android:layoutAnimation="@anim/layout_enter"
                 android:clipToPadding="false"
-                android:paddingBottom="16dp" />
+                android:paddingBottom="16dp"
+            android:clipChildren="false"/>
 
             <ProgressBar
                 android:id="@+id/progressBar"

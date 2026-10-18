@@ -59,7 +59,10 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@color/eve_system_grouped_background">
+        android:background="@color/eve_system_grouped_background"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvTests"
@@ -71,7 +74,8 @@
             android:background="@color/eve_system_grouped_background"
             android:paddingHorizontal="16dp"
             android:paddingTop="12dp"
-            android:paddingBottom="24dp" />
+            android:paddingBottom="24dp"
+            android:clipChildren="false"/>
 
         <TextView
             android:id="@+id/tvEmpty"

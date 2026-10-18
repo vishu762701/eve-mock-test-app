@@ -103,7 +103,10 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@color/eve_system_grouped_background">
+        android:background="@color/eve_system_grouped_background"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -157,6 +160,7 @@
             android:layoutAnimation="@anim/layout_enter"
             android:clipToPadding="false"
             android:paddingVertical="8dp"
-            android:background="@color/eve_system_grouped_background" />
+            android:background="@color/eve_system_grouped_background"
+            android:clipChildren="false"/>
     </FrameLayout>
 </LinearLayout>

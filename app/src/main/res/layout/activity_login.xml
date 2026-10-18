@@ -4,7 +4,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/eve_system_background">
+    android:background="@color/eve_system_background"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
     <ScrollView
         android:id="@+id/scrollView"
@@ -14,14 +17,19 @@
         android:overScrollMode="ifContentScrolls"
         android:paddingBottom="24dp"
         android:scrollbars="none"
-        android:clipToPadding="false">
+        android:clipToPadding="false"
+            android:clipChildren="false"
+            >
 
         <FrameLayout
             android:id="@+id/contentLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingHorizontal="24dp"
-            android:paddingVertical="28dp">
+            android:paddingVertical="28dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
             <LinearLayout
                 android:id="@+id/cardLogin"
@@ -154,7 +162,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:minHeight="52dp"
-                    android:layout_marginTop="20dp">
+                    android:layout_marginTop="20dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSubmit"
@@ -210,7 +221,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:minHeight="52dp"
-                    android:layout_marginTop="12dp">
+                    android:layout_marginTop="12dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnGoogle"

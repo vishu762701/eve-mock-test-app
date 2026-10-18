@@ -5,7 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/eve_system_grouped_background"
-    android:orientation="vertical">
+    android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
     <!-- Top Bar -->
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
@@ -16,7 +19,10 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="16dp"
-        android:paddingVertical="12dp">
+        android:paddingVertical="12dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
         <ImageButton
             android:id="@+id/btnBack"
@@ -48,14 +54,20 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true">
+        android:fillViewport="true"
+            android:clipToPadding="false"
+            android:clipChildren="false"
+            >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="16dp"
-            android:paddingVertical="16dp">
+            android:paddingVertical="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
             <!-- Card 1: Exam & Sub-Exam Selection -->
             <com.google.android.material.card.MaterialCardView
@@ -65,14 +77,17 @@
                 app:cardBackgroundColor="@color/eve_card_bg"
                 app:cardCornerRadius="@dimen/eve_radius_card"
                 app:cardElevation="0dp"
-                app:strokeColor="@color/eve_shape_border"
-                app:strokeWidth="1dp">
+                app:strokeColor="@android:color/transparent"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="@dimen/eve_card_padding_inner">
+                    android:padding="@dimen/eve_card_padding_inner"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                     <TextView
                         style="@style/TextAppearance.Eve.Footnote.Medium"
@@ -88,7 +103,10 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/tilSelectExam"
@@ -138,7 +156,10 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:gravity="top"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/tilParentExam"
@@ -183,20 +204,26 @@
                 app:cardBackgroundColor="@color/eve_card_bg"
                 app:cardCornerRadius="@dimen/eve_radius_card"
                 app:cardElevation="0dp"
-                app:strokeColor="@color/eve_shape_border"
-                app:strokeWidth="1dp">
+                app:strokeColor="@android:color/transparent"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="@dimen/eve_card_padding_inner">
+                    android:padding="@dimen/eve_card_padding_inner"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <TextView
                             style="@style/TextAppearance.Eve.Caption2"
@@ -243,14 +270,17 @@
                 app:cardBackgroundColor="@color/eve_card_bg"
                 app:cardCornerRadius="@dimen/eve_radius_card"
                 app:cardElevation="0dp"
-                app:strokeColor="@color/eve_shape_border"
-                app:strokeWidth="1dp">
+                app:strokeColor="@android:color/transparent"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="@dimen/eve_card_padding_inner">
+                    android:padding="@dimen/eve_card_padding_inner"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                     <TextView
                         style="@style/TextAppearance.Eve.Admin.ItemTitle"
@@ -265,7 +295,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/tilDuration"
@@ -314,7 +347,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/tilQuestionCount"
@@ -369,14 +405,17 @@
                 app:cardBackgroundColor="@color/eve_card_bg"
                 app:cardCornerRadius="@dimen/eve_radius_card"
                 app:cardElevation="0dp"
-                app:strokeColor="@color/eve_shape_border"
-                app:strokeWidth="1dp">
+                app:strokeColor="@android:color/transparent"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="@dimen/eve_card_padding_inner">
+                    android:padding="@dimen/eve_card_padding_inner"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                     <TextView
                         style="@style/TextAppearance.Eve.Admin.ItemTitle"
@@ -391,7 +430,10 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
                         android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnPickTime"
@@ -464,14 +506,17 @@
                 app:cardBackgroundColor="@color/eve_card_bg"
                 app:cardCornerRadius="@dimen/eve_radius_card"
                 app:cardElevation="0dp"
-                app:strokeColor="@color/eve_shape_border"
-                app:strokeWidth="1dp">
+                app:strokeColor="@android:color/transparent"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="@dimen/eve_card_padding_inner">
+                    android:padding="@dimen/eve_card_padding_inner"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                     <TextView
                         style="@style/TextAppearance.Eve.Admin.ItemTitle"
@@ -522,14 +567,17 @@
                 app:cardBackgroundColor="@color/eve_card_bg"
                 app:cardCornerRadius="@dimen/eve_radius_card"
                 app:cardElevation="0dp"
-                app:strokeColor="@color/eve_shape_border"
-                app:strokeWidth="1dp">
+                app:strokeColor="@android:color/transparent"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="@dimen/eve_card_padding_inner">
+                    android:padding="@dimen/eve_card_padding_inner"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                     <TextView
                         style="@style/TextAppearance.Eve.Admin.ItemTitle"
@@ -571,7 +619,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:nestedScrollingEnabled="false" />
+                        android:nestedScrollingEnabled="false"
+            android:clipToPadding="false"
+            android:clipChildren="false"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -586,7 +636,10 @@
         android:elevation="8dp"
         android:orientation="vertical"
         android:paddingHorizontal="20dp"
-        android:paddingVertical="12dp">
+        android:paddingVertical="12dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
         <com.eve.app.ui.common.ErrorStateView
             android:id="@+id/compactErrorView"

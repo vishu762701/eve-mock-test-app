@@ -56,6 +56,8 @@
     <dimen name="eve_radius_min">4dp</dimen>
     <dimen name="eve_list_row_min">52dp</dimen>
     <dimen name="eve_segment_min_height">56dp</dimen>
+    <dimen name="eve_result_tab_strip_total_height">68dp</dimen>
+    <dimen name="eve_shadow_room">8dp</dimen>
     <dimen name="eve_space_0">0dp</dimen>
     <dimen name="eve_space_3">3dp</dimen>
     <dimen name="eve_space_6">6dp</dimen>

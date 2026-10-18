@@ -57,7 +57,10 @@
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipeRefresh"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvFeedbackMessages"
@@ -65,7 +68,8 @@
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:paddingTop="8dp"
-                android:paddingBottom="24dp" />
+                android:paddingBottom="24dp"
+            android:clipChildren="false"/>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <com.eve.app.ui.common.EmptyStateView

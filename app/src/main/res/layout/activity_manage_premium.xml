@@ -5,7 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/eve_system_grouped_background"
-    android:orientation="vertical">
+    android:orientation="vertical"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
     <!-- Top Bar -->
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
@@ -16,7 +19,10 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="16dp"
-        android:paddingVertical="12dp">
+        android:paddingVertical="12dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
         <ImageButton
             android:id="@+id/btnBack"
@@ -78,7 +84,10 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
         <ProgressBar
             android:id="@+id/progressAdmin"
@@ -94,13 +103,19 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true"
-            android:visibility="visible">
+            android:visibility="visible"
+            android:clipToPadding="false"
+            android:clipChildren="false"
+            >
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                 <!-- Plan Configuration Card -->
                 <com.google.android.material.card.MaterialCardView
@@ -109,14 +124,17 @@
                     app:cardBackgroundColor="@color/eve_card_bg"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_shape_border"
-                    app:strokeWidth="1dp">
+                    app:strokeColor="@android:color/transparent"
+                    app:strokeWidth="0dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <TextView
                             style="@style/TextAppearance.Eve.Admin.CardTitle"
@@ -222,14 +240,17 @@
                     app:cardBackgroundColor="@color/eve_card_bg"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
-                    app:strokeColor="@color/eve_shape_border"
-                    app:strokeWidth="1dp">
+                    app:strokeColor="@android:color/transparent"
+                    app:strokeWidth="0dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                         <TextView
                             style="@style/TextAppearance.Eve.Admin.CardTitle"
@@ -297,7 +318,10 @@
             android:id="@+id/containerTransactions"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone">
+            android:visibility="gone"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvTransactions"
@@ -305,7 +329,8 @@
                 android:layout_height="match_parent"
                 android:layoutAnimation="@anim/layout_enter"
                 android:clipToPadding="false"
-                android:padding="16dp" />
+                android:padding="16dp"
+            android:clipChildren="false"/>
 
             <TextView
                 android:id="@+id/tvEmptyTransactions"
@@ -323,14 +348,20 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:visibility="gone"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:paddingHorizontal="16dp"
-                android:paddingTop="12dp">
+                android:paddingTop="12dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnGrantManual"
@@ -343,7 +374,10 @@
 
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvPremiumUsers"
@@ -351,7 +385,8 @@
                     android:layout_height="match_parent"
                     android:layoutAnimation="@anim/layout_enter"
                     android:clipToPadding="false"
-                    android:padding="16dp" />
+                    android:padding="16dp"
+            android:clipChildren="false"/>
 
                 <TextView
                     android:id="@+id/tvEmptyUsers"

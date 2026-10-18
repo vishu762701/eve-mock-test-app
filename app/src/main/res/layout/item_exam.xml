@@ -22,7 +22,10 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/eve_home_card_padding">
+        android:padding="@dimen/eve_home_card_padding"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/examIconContainer"

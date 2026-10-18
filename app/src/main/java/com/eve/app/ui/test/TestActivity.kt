@@ -118,6 +118,12 @@ class TestActivity : EveBaseActivity() {
             binding.viewPager.setCurrentItem(pos, true)
         }
         binding.rvQuestionPalette.adapter = paletteAdapter
+        binding.viewPager.clipChildren = false
+        binding.viewPager.clipToPadding = false
+        (binding.viewPager.getChildAt(0) as? androidx.recyclerview.widget.RecyclerView)?.apply {
+            clipChildren = false
+            clipToPadding = false
+        }
 
         val baseBottomPadding = binding.layoutBottomBar.paddingBottom
         ViewCompat.setOnApplyWindowInsetsListener(binding.layoutBottomBar) { view, insets ->

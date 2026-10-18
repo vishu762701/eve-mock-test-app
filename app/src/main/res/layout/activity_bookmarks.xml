@@ -75,7 +75,10 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@color/eve_system_grouped_background">
+        android:background="@color/eve_system_grouped_background"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        >
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvBookmarks"
@@ -85,7 +88,8 @@
             android:layoutAnimation="@anim/layout_enter"
             android:paddingTop="8dp"
             android:paddingBottom="16dp"
-            android:background="@color/eve_system_grouped_background" />
+            android:background="@color/eve_system_grouped_background"
+            android:clipChildren="false"/>
 
         <LinearLayout
             android:id="@+id/progressGroup"

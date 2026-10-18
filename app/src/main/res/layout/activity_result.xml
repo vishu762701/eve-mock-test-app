@@ -103,81 +103,52 @@
         </LinearLayout>
 </com.eve.app.ui.common.EveGlassToolbar>
 
-        <!-- Segmented Navigation: 3 Tabs (Overview | Review | Leaderboard) -->
+        <!-- Viewport holding scrolling content and floating tab strip -->
         <FrameLayout
-            android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
-            android:layout_marginTop="6dp" android:layout_marginBottom="6dp">
-        <com.eve.app.ui.common.EveGlassTabLayout
-            android:id="@+id/tabLayoutResult"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/eve_segment_min_height"
-            android:background="@drawable/bg_result_segmented_track"
-            app:tabGravity="fill"
-            app:tabIndicator="@drawable/bg_result_segmented_indicator"
-            app:tabIndicatorAnimationMode="elastic"
-            app:tabIndicatorAnimationDuration="220"
-            app:tabIndicatorColor="@android:color/transparent"
-            app:tabIndicatorFullWidth="true"
-            app:tabIndicatorGravity="stretch"
-            app:tabMaxWidth="0dp"
-            app:tabMode="fixed"
-            app:tabPaddingStart="4dp"
-            app:tabPaddingEnd="4dp"
-            app:tabRippleColor="@null"
-            app:tabSelectedTextColor="@color/eve_result_tab_selected_text"
-            android:padding="4dp"
-            app:tabTextAppearance="@style/TextAppearance.Eve.ResultTabSegment"
-            app:tabTextColor="@color/eve_result_tab_text">
-
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Overview" />
-
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Review" />
-
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Leaderboard" />
-        </com.eve.app.ui.common.EveGlassTabLayout>
-        </FrameLayout>
-
-        <!-- Content Container -->
-        <FrameLayout
-            android:id="@+id/layoutResultContentContainer"
+            android:id="@+id/layoutResultViewport"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="@color/eve_system_grouped_background">
+            android:clipChildren="false"
+            android:clipToPadding="false">
 
-            <!-- ========================================================== -->
-            <!-- SECTION 1: OVERVIEW (Tab 1)                                -->
-            <!-- Compact Single-Screen Dashboard (No page scroll on normal screen) -->
-            <!-- ========================================================== -->
-            <androidx.core.widget.NestedScrollView
-                android:id="@+id/scrollResultContent"
+            <!-- Content Container -->
+            <FrameLayout
+                android:id="@+id/layoutResultContentContainer"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:clipChildren="false"
                 android:clipToPadding="false"
-                android:fillViewport="true"
-                android:overScrollMode="ifContentScrolls"
-                android:scrollbars="vertical"
-                android:visibility="visible"
                 android:background="@color/eve_system_grouped_background">
 
-                <LinearLayout
-                    android:id="@+id/sectionOverview"
+                <!-- ========================================================== -->
+                <!-- SECTION 1: OVERVIEW (Tab 1)                                -->
+                <!-- Compact Single-Screen Dashboard (No page scroll on normal screen) -->
+                <!-- ========================================================== -->
+                <androidx.core.widget.NestedScrollView
+                    android:id="@+id/scrollResultContent"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingHorizontal="16dp"
-                    android:paddingTop="12dp"
-                    android:paddingBottom="36dp">
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:clipChildren="false"
+                    android:paddingTop="@dimen/eve_result_tab_strip_total_height"
+                    android:paddingBottom="36dp"
+                    android:fillViewport="true"
+                    android:overScrollMode="ifContentScrolls"
+                    android:scrollbars="vertical"
+                    android:visibility="visible"
+                    android:background="@color/eve_system_grouped_background">
+
+                    <LinearLayout
+                        android:id="@+id/sectionOverview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="16dp"
+                        android:paddingTop="12dp"
+                        android:paddingBottom="24dp">
 
                     <!-- Content-measured score hero; clipping and fill share one shape. -->
                     <com.eve.app.ui.common.EveLiquidGlassView
@@ -559,13 +530,16 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
                         android:orientation="vertical">
 
                         <com.google.android.material.card.MaterialCardView
                             style="@style/Widget.Eve.Card.Group"
                             android:id="@+id/cardCutoffVerdict"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -724,6 +698,7 @@
                         android:id="@+id/cardOverviewAnalytics"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
                         android:clickable="true"
                         android:focusable="true">
 
@@ -849,6 +824,9 @@
                 android:id="@+id/sectionReview"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:paddingTop="@dimen/eve_result_tab_strip_total_height"
                 android:orientation="vertical"
                 android:visibility="gone">
 
@@ -856,6 +834,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
                     android:background="@color/eve_surface"
                     android:orientation="vertical"
                     android:paddingTop="6dp"
@@ -935,6 +915,7 @@
                         android:id="@+id/rvResultPalette"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:clipChildren="false"
                         android:clipToPadding="false"
                         android:orientation="horizontal"
                         android:paddingHorizontal="12dp"
@@ -952,6 +933,8 @@
                 <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
                     android:layout_marginTop="3dp"
                     android:layout_marginBottom="2dp"
                     android:scrollbars="none">
@@ -993,12 +976,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
                     android:background="@color/eve_system_grouped_background">
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rvAnswers"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:clipChildren="false"
                         android:clipToPadding="false"
                         android:nestedScrollingEnabled="true"
                         android:paddingHorizontal="14dp"
@@ -1043,7 +1029,10 @@
                 android:id="@+id/scrollLeaderboard"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:clipChildren="false"
                 android:clipToPadding="false"
+                android:paddingTop="@dimen/eve_result_tab_strip_total_height"
+                android:paddingBottom="36dp"
                 android:fillViewport="true"
                 android:visibility="gone"
                 android:overScrollMode="ifContentScrolls"
@@ -1053,6 +1042,8 @@
                     android:id="@+id/sectionLeaderboard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
                     android:orientation="vertical"
                     android:padding="16dp">
 
@@ -1060,7 +1051,8 @@
                         style="@style/Widget.Eve.Card.Group"
                         android:id="@+id/cardLeaderboardHero"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -1151,6 +1143,63 @@
                 </LinearLayout>
             </androidx.core.widget.NestedScrollView>
 
+        </FrameLayout>
+
+            <!-- Segmented Navigation: 3 Tabs (Overview | Review | Leaderboard) floating above content -->
+            <FrameLayout
+                android:id="@+id/layoutResultTabContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="6dp"
+                android:elevation="@dimen/eve_home_card_elevation"
+                android:translationZ="@dimen/eve_home_card_elevation"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+
+                <com.eve.app.ui.common.EveGlassTabLayout
+                    android:id="@+id/tabLayoutResult"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/eve_segment_min_height"
+                    android:elevation="@dimen/eve_home_card_elevation"
+                    android:translationZ="@dimen/eve_home_card_elevation"
+                    android:background="@drawable/bg_result_segmented_track"
+                    app:tabGravity="fill"
+                    app:tabIndicator="@drawable/bg_result_segmented_indicator"
+                    app:tabIndicatorAnimationMode="elastic"
+                    app:tabIndicatorAnimationDuration="220"
+                    app:tabIndicatorColor="@android:color/transparent"
+                    app:tabIndicatorFullWidth="true"
+                    app:tabIndicatorGravity="stretch"
+                    app:tabMaxWidth="0dp"
+                    app:tabMode="fixed"
+                    app:tabPaddingStart="4dp"
+                    app:tabPaddingEnd="4dp"
+                    app:tabRippleColor="@null"
+                    app:tabSelectedTextColor="@color/eve_result_tab_selected_text"
+                    android:padding="4dp"
+                    app:tabTextAppearance="@style/TextAppearance.Eve.ResultTabSegment"
+                    app:tabTextColor="@color/eve_result_tab_text">
+
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Overview" />
+
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Review" />
+
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Leaderboard" />
+                </com.eve.app.ui.common.EveGlassTabLayout>
+            </FrameLayout>
         </FrameLayout>
     </LinearLayout>
 
