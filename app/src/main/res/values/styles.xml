@@ -91,7 +91,7 @@
 
     <style name="Widget.Eve.TextInput.Filled" parent="Widget.Material3.TextInputLayout.FilledBox">
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Eve.Concentric</item>
-        <item name="boxBackgroundColor">@color/eve_input_fill</item>
+        <item name="boxBackgroundColor">@color/surface</item>
         <item name="hintTextColor">?attr/eveAccentText</item>
         <item name="boxStrokeColor">@color/selector_eve_input_stroke</item>
         <item name="boxStrokeWidth">1dp</item>
@@ -104,7 +104,7 @@
 
     <style name="Widget.Eve.TextInput.Filled.ExposedDropdownMenu" parent="Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu">
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Eve.Concentric</item>
-        <item name="boxBackgroundColor">@color/eve_input_fill</item>
+        <item name="boxBackgroundColor">@color/surface</item>
         <item name="hintTextColor">?attr/eveAccentText</item>
         <item name="boxStrokeColor">@color/selector_eve_input_stroke</item>
         <item name="boxStrokeWidth">1dp</item>
@@ -215,14 +215,19 @@
         <item name="android:textSize">13sp</item>
     </style>
 
+    <style name="Widget.Eve.Snackbar" parent="Widget.Material3.Snackbar">
+        <item name="backgroundTint">@color/surface</item>
+        <item name="actionTextColor">@color/system_blue</item>
+    </style>
+
     <style name="Eve.TopBar" parent="">
-        <item name="android:background">@color/eve_bg</item>
+        <item name="android:background">@color/bg_app</item>
         <item name="android:minHeight">64dp</item>
         <item name="android:elevation">0dp</item>
         <item name="android:paddingStart">20dp</item>
         <item name="android:paddingEnd">20dp</item>
     </style>
-    <style name="Eve.Screen" parent=""><item name="android:background">@color/eve_bg</item></style>
+    <style name="Eve.Screen" parent=""><item name="android:background">@color/bg_app</item></style>
     <style name="Eve.Title" parent="">
         <item name="android:textColor">@color/eve_text</item>
         <item name="android:textSize">22sp</item>
@@ -317,7 +322,7 @@
     </style>
     <style name="Widget.Eve.TextInput.Outlined" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Eve.Concentric</item>
-        <item name="boxBackgroundColor">@color/eve_input_fill</item>
+        <item name="boxBackgroundColor">@color/surface</item>
         <item name="boxStrokeColor">@color/selector_eve_input_stroke</item>
         <item name="boxStrokeErrorColor">@color/eve_destructive_text</item>
         <item name="hintTextColor">?attr/eveAccentText</item>
@@ -329,7 +334,7 @@
     </style>
     <style name="Widget.Eve.TextInput.Outlined.ExposedDropdownMenu" parent="Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Eve.Concentric</item>
-        <item name="boxBackgroundColor">@color/eve_input_fill</item>
+        <item name="boxBackgroundColor">@color/surface</item>
         <item name="boxStrokeColor">@color/selector_eve_input_stroke</item>
         <item name="boxStrokeErrorColor">@color/eve_destructive_text</item>
         <item name="hintTextColor">?attr/eveAccentText</item>

@@ -48,4 +48,20 @@
     <attr name="eveColorWarning" format="color" />
     <attr name="eveColorFloatingBarBg" format="color" />
     <attr name="eveColorCardShadow" format="color" />
+    <!-- App-Wide Authoritative Palette Token Attributes -->
+    <attr name="bgApp" format="color" />
+    <attr name="systemRed" format="color" />
+    <attr name="systemGreen" format="color" />
+    <attr name="systemBlue" format="color" />
+    <attr name="systemIndigo" format="color" />
+    <attr name="systemOrange" format="color" />
+    <attr name="systemPurple" format="color" />
+    <attr name="systemYellow" format="color" />
+    <attr name="systemRedContainer" format="color" />
+    <attr name="systemGreenContainer" format="color" />
+    <attr name="systemBlueContainer" format="color" />
+    <attr name="systemIndigoContainer" format="color" />
+    <attr name="systemOrangeContainer" format="color" />
+    <attr name="systemPurpleContainer" format="color" />
+    <attr name="systemYellowContainer" format="color" />
 </resources>

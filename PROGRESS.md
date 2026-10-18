@@ -340,8 +340,35 @@
 - [x] **Kotlin Foundation Accessors & Constants:** Codified `HEX_APP_LIGHT_*` and `HEX_APP_DARK_*` constants along with `@ColorInt` helper functions (`appBackground`, `appCard`, etc.) in `EveDesignSystem.kt`.
 - [x] **Color State Lists:** Created shared selectors in `res/color/` (`selector_eve_pill_bg.xml`, `selector_eve_pill_stroke.xml`, `selector_eve_pill_text.xml`, `selector_eve_tab_text.xml`, `selector_eve_floating_bar_tint.xml`).
 - [x] **Strict Colors-Only Boundary:** Zero changes to layout geometry, sizes, fonts, text strings, shapes, animations, or behavior.
+## Task 1 of 3 — App-Wide Locked Color Tokens (ADR-020) (2026-10-18)
+
+- [x] **Authoritative Color Tokens (Day & Night):**
+  - Background: `bg_app` (#F5F5F5 / #000000)
+  - Surface: `surface` (#FFFFFF / #1C1C1E)
+  - System hues: `system_red` (#FF383C / #FF4245), `system_green` (#34C759 / #30D158), `system_blue` (#0088FF / #0091FF), `system_indigo` (#6155F5 / #6155F5), `system_orange` (#FF8D28 / #FF9230), `system_purple` (#CB30E0 / #DB34F2), `system_yellow` (#FFCC00 / #FFD600)
+  - Containers `system_<hue>_container`: that system color at 12% alpha (light, `1F`) / 20% alpha (dark, `33`).
+- [x] **Theme Wiring & Inheritance:**
+  - Declared `bgApp`, `systemRed` ... `systemYellow`, and container variants in `attrs.xml`.
+  - Bound in `Theme.Eve.Foundation`: `windowBackground`, `colorBackground`, `statusBarColor`, `navigationBarColor` to `@color/bg_app`; `colorSurface`, `colorSurfaceContainer*` to `@color/surface`; `snackbarStyle` to `@style/Widget.Eve.Snackbar`.
+  - Dialogs and bottom sheets configured to `@color/surface` and `@color/bg_app`.
+  - Text input layouts in `styles.xml` configured to `boxBackgroundColor="@color/surface"`.
+- [x] **Hue Family & Container Aliases:**
+  - Old backgrounds (`eve_system_background`, `eve_system_grouped_background`, `eve_home_background`, `eve_color_background`, etc.) -> `@color/bg_app`.
+  - Old cards/panels (`eve_secondary_system_background`, `eve_card_bg`, `eve_home_card`, `eve_color_card`, Result light blue cards, etc.) -> `@color/surface`.
+  - Pale tinted containers (`eve_error_bg`, `eve_status_error_container` -> `system_red_container`; `eve_green_fill`, `eve_status_success_container` -> `system_green_container`; `eve_accent_container`, `eve_button_soft_bg` -> `system_blue_container`; `eve_offline_bg`, `eve_status_warning_container` -> `system_orange_container`; `eve_lilac_fill` -> `system_indigo_container`).
+  - Unchanged hues retained: teal/mint, cyan, pink, brown/bronze, grays.
+  - Retained protected answer-state test colours: `eve_tile_right_fill`, `eve_tile_wrong_fill`, `eve_tile_medium_fill`.
+- [x] **Zero Hardcoded Colors in Drawables & Kotlin:**
+  - Cleaned vector drawables (`ic_broadcast.xml`, `ic_bug_report.xml`, `ic_campaign.xml`, `ic_image.xml`, `ic_maintenance.xml`, `ic_message_dots.xml`, `ic_robot.xml`, `ic_notification.xml`) to use semantic tokens.
+  - Updated `AmbientBackgroundView.kt` base background to `@color/bg_app`.
+  - Updated `ConfettiView.kt` to resolve palette tokens.
+  - Updated `ShareCardHelper.kt` to resolve dark configuration tokens.
+  - Updated `EveDesignSystem.kt` constants and accessors.
+- [x] **Strict Invariants Preserved:**
+  - Telegram Day/Night circular reveal transition, Lottie files/triggers/sizes, and SVG icon vector geometries 100% untouched.
+  - Zero layout geometry, size, font, text, shape, or behavior modifications.
 - [x] **Verification Gate:**
   - `python3 -B .github/scripts/check_design_system.py` passed (194 measured pairs).
-  - `python3 -B -m unittest discover -s .github/scripts/tests -q` passed (14/14 tests).
+  - `python3 -B -m unittest discover -s .github/scripts/tests -q` passed (15/15 tests).
   - `node .github/scripts/verify-docs.mjs` passed (33 docs, 0 errors, 0 warnings).
   - `git diff --check` passed with 0 errors.

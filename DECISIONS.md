@@ -876,3 +876,52 @@ In ADR-018, the Eve Design System established authoritative locked foundation to
    - Zero modifications to layout XML structures, component dimensions/bounds/padding, typography/fonts, text strings, corner radii/shapes, animations, or runtime logic.
    - Preserved Telegram Day/Night circular reveal transition, Lottie animations/triggers, SVG icon assets, and answer-state semantic colors (`eve_tile_right_*`, `eve_tile_wrong_*`, `eve_tile_medium_*`).
    - Retained canonical `eve_canvas` (#FFFFFF / #000000) and historical Apple semantic tokens for existing contrast and hierarchy invariant test suites.
+
+## ADR-020: App-Wide Locked Color Tokens (Palettes, Hue Mappings, and Containers)
+
+- **Date**: 2026-10-18
+- **Status**: Accepted
+- **Author**: Principal Systems Architect & Design Systems Lead
+- **Authority**: Direct user instruction: "TASK 1 of 3 - APP-WIDE COLOR TOKENS (colors only). Follow GEMINI.md and ENGINEERING_STANDARD.md. Do not change layout, size, font, text, shape, animation or behavior."
+
+### Context
+In continuation of the Eve Design System modernization roadmap, the user specified the authoritative locked palette across light and dark modes:
+- `bg_app`: `#F5F5F5` (Light) | `#000000` (Dark)
+- `surface` (cards, panels, sheets, menus, dialogs, bottom bar): `#FFFFFF` (Light) | `#1C1C1E` (Dark)
+- `system_red`: `#FF383C` (Light) | `#FF4245` (Dark)
+- `system_green`: `#34C759` (Light) | `#30D158` (Dark)
+- `system_blue`: `#0088FF` (Light) | `#0091FF` (Dark)
+- `system_indigo`: `#6155F5` (Light) | `#6155F5` (Dark)
+- `system_orange`: `#FF8D28` (Light) | `#FF9230` (Dark)
+- `system_purple`: `#CB30E0` (Light) | `#DB34F2` (Dark)
+- `system_yellow`: `#FFCC00` (Light) | `#FFD600` (Dark)
+- Containers `system_<hue>_container`: that system color at 12% alpha (`1F`) in light mode and 20% alpha (`33`) in dark mode.
+
+### Decisions
+1. **Palette and Container Definitions (`values/colors.xml` & `values-night/colors.xml`)**:
+   - Codified `bg_app`, `surface`, `system_red`, `system_green`, `system_blue`, `system_indigo`, `system_orange`, `system_purple`, `system_yellow`.
+   - Defined matching containers: `system_red_container`, `system_green_container`, `system_blue_container`, `system_indigo_container`, `system_orange_container`, `system_purple_container`, `system_yellow_container`.
+   - Replaced old background aliases (`eve_system_background`, `eve_system_grouped_background`, `eve_bg`, `eve_background`, `eve_home_background`, `eve_color_background`) with `@color/bg_app`.
+   - Replaced old card/panel fills (`eve_secondary_system_background`, `eve_tertiary_system_background`, `eve_secondary_system_grouped_background`, `eve_tertiary_system_grouped_background`, `eve_surface`, `eve_surface_variant`, `eve_surface_2`, `eve_card_bg`, `eve_home_card`, `eve_color_card`, `eve_input_fill`, `eve_modal_material`, `eve_home_floating_bar_bg`, `eve_color_floating_bar_bg`, `eve_disabled_fill`) with `@color/surface`.
+   - Replaced hue containers: `eve_error_bg`, `eve_red_fill`, `eve_status_error_container` -> `@color/system_red_container`; `eve_green_fill`, `eve_status_success_container` -> `@color/system_green_container`; `eve_accent_container`, `eve_button_soft_bg` -> `@color/system_blue_container`; `eve_offline_bg`, `eve_amber_fill`, `eve_status_warning_container` -> `@color/system_orange_container`; `eve_lilac_fill` -> `@color/system_indigo_container`.
+   - Unchanged hues retained: teal/mint (`eve_system_mint`, `eve_system_teal`, `eve_category_tint_teal_*`), cyan (`eve_system_cyan`), pink (`eve_system_pink`, `eve_premium_gradient_3`), brown/bronze (`eve_system_brown`, `eve_bronze`), and grays (`eve_system_gray` through `gray6`).
+   - Retained protected answer-state test colours: `eve_tile_right_fill`, `eve_tile_wrong_fill`, `eve_tile_medium_fill`.
+
+2. **First-Class Theme Attributes (`values/attrs.xml` & `values/themes.xml`)**:
+   - Declared attributes: `bgApp`, `systemRed`, `systemGreen`, `systemBlue`, `systemIndigo`, `systemOrange`, `systemPurple`, `systemYellow`, and container variants `systemRedContainer`, etc.
+   - Bound into `Theme.Eve.Foundation`: `android:windowBackground`, `android:colorBackground`, `android:statusBarColor`, `android:navigationBarColor` to `@color/bg_app`.
+   - Bound `colorSurface` and `colorSurfaceContainer*` to `@color/surface`.
+   - Bound `snackbarStyle` to `@style/Widget.Eve.Snackbar` (`backgroundTint="@color/surface"`).
+   - Bound dialog and sheet styles (`Theme.Eve.Dialog.Base`, `Theme.Eve.BottomSheetDialog`, `Widget.Eve.BottomSheet.Modal`) to `@color/surface` and `@color/bg_app`.
+   - Updated component text fields in `styles.xml` (`Widget.Eve.TextInput.Filled`, `Widget.Eve.TextInput.Outlined`, exposed dropdowns) to `boxBackgroundColor="@color/surface"`.
+
+3. **Drawable & Kotlin Zero-Hardcoded Color Migration**:
+   - Replaced hardcoded stroke/fill in vector drawables (`ic_broadcast.xml`, `ic_bug_report.xml`, `ic_campaign.xml`, `ic_image.xml`, `ic_maintenance.xml`, `ic_message_dots.xml`, `ic_robot.xml`, `ic_notification.xml`) with semantic theme tokens (`@color/eve_text`, `@color/surface`, `@android:color/transparent`).
+   - In `AmbientBackgroundView.kt`: Replaced hardcoded `#F2F2F7` with `ContextCompat.getColor(context, R.color.bg_app)`.
+   - In `ConfettiView.kt`: Replaced hardcoded color array with lazy-loaded tokens (`system_yellow`, `system_green`, `system_blue`, `system_orange`, `system_purple`, `system_red`).
+   - In `ShareCardHelper.kt`: Swapped hardcoded hex values with resolved dark-configuration tokens (`bg_app`, `surface`, `system_green`, `system_red`, `system_blue`, `system_blue_container`, `eve_opaque_separator`, `eve_label_secondary`, `eve_label_tertiary`).
+   - In `EveDesignSystem.kt`: Updated constants `HEX_APP_LIGHT_*` and `HEX_APP_DARK_*` to reflect the new tokens and added `@ColorInt` helper accessors.
+
+4. **Strict Boundary Preservation**:
+   - Layout geometry, component sizes, padding, corner radii, animations, text/typography roles, and behavior remain strictly untouched.
+   - Telegram reveal toggle (`ThemeSwitchAnimator.kt`, `ThemeManager.kt`, `TelegramMenuPopup.kt`), all Lottie animations/triggers, and SVG icon vector geometries remain strictly protected.

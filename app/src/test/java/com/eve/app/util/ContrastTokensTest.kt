@@ -291,22 +291,22 @@ class ContrastTokensTest {
         val darkColors = loadColors("src/main/res/values-night/colors.xml")
 
         // Standard Background Hierarchy
-        org.junit.Assert.assertEquals("#FFFFFF", lightColors["eve_system_background"])
-        org.junit.Assert.assertEquals("#F2F2F7", lightColors["eve_secondary_system_background"])
+        org.junit.Assert.assertEquals("#F5F5F5", lightColors["eve_system_background"])
+        org.junit.Assert.assertEquals("#FFFFFF", lightColors["eve_secondary_system_background"])
         org.junit.Assert.assertEquals("#FFFFFF", lightColors["eve_tertiary_system_background"])
 
         org.junit.Assert.assertEquals("#000000", darkColors["eve_system_background"])
         org.junit.Assert.assertEquals("#1C1C1E", darkColors["eve_secondary_system_background"])
-        org.junit.Assert.assertEquals("#2C2C2E", darkColors["eve_tertiary_system_background"])
+        org.junit.Assert.assertEquals("#1C1C1E", darkColors["eve_tertiary_system_background"])
 
         // Grouped Background Hierarchy
-        org.junit.Assert.assertEquals("#F2F2F7", lightColors["eve_system_grouped_background"])
+        org.junit.Assert.assertEquals("#F5F5F5", lightColors["eve_system_grouped_background"])
         org.junit.Assert.assertEquals("#FFFFFF", lightColors["eve_secondary_system_grouped_background"])
-        org.junit.Assert.assertEquals("#F2F2F7", lightColors["eve_tertiary_system_grouped_background"])
+        org.junit.Assert.assertEquals("#F5F5F5", lightColors["eve_tertiary_system_grouped_background"])
 
         org.junit.Assert.assertEquals("#000000", darkColors["eve_system_grouped_background"])
         org.junit.Assert.assertEquals("#1C1C1E", darkColors["eve_secondary_system_grouped_background"])
-        org.junit.Assert.assertEquals("#2C2C2E", darkColors["eve_tertiary_system_grouped_background"])
+        org.junit.Assert.assertEquals("#1C1C1E", darkColors["eve_tertiary_system_grouped_background"])
     }
 
     @Test

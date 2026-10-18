@@ -36,14 +36,16 @@ class ConfettiView @JvmOverloads constructor(
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private var animator: ValueAnimator? = null
 
-    private val colors = intArrayOf(
-        Color.parseColor("#FFD700"), // Gold
-        Color.parseColor("#4CAF50"), // Green
-        Color.parseColor("#2196F3"), // Blue
-        Color.parseColor("#FF5722"), // Orange
-        Color.parseColor("#9C27B0"), // Purple
-        Color.parseColor("#E91E63")  // Pink
-    )
+    private val colors by lazy {
+        intArrayOf(
+            androidx.core.content.ContextCompat.getColor(context, com.eve.app.R.color.system_yellow),
+            androidx.core.content.ContextCompat.getColor(context, com.eve.app.R.color.system_green),
+            androidx.core.content.ContextCompat.getColor(context, com.eve.app.R.color.system_blue),
+            androidx.core.content.ContextCompat.getColor(context, com.eve.app.R.color.system_orange),
+            androidx.core.content.ContextCompat.getColor(context, com.eve.app.R.color.system_purple),
+            androidx.core.content.ContextCompat.getColor(context, com.eve.app.R.color.system_red)
+        )
+    }
 
     init {
         isClickable = false

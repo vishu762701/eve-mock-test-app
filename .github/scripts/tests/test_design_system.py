@@ -79,7 +79,7 @@ class DesignSystemTest(unittest.TestCase):
             'eve_system_teal': '#00D2E0',
             'eve_system_cyan': '#3CD3FE',
             'eve_system_blue': '#0091FF',
-            'eve_system_indigo': '#6D7CFF',
+            'eve_system_indigo': '#6155F5',
             'eve_system_purple': '#DB34F2',
             'eve_system_pink': '#FF375F',
             'eve_system_brown': '#B78A66',
@@ -129,7 +129,7 @@ class DesignSystemTest(unittest.TestCase):
 
     def test_app_wide_locked_foundation_colors(self):
         expected_light = {
-            'eve_color_background': '#EEF2F8',
+            'eve_color_background': '#F5F5F5',
             'eve_color_card': '#FFFFFF',
             'eve_color_text_primary': '#000000',
             'eve_color_text_secondary': '#6C6C70',
@@ -144,8 +144,8 @@ class DesignSystemTest(unittest.TestCase):
             'eve_color_card_shadow': '#1A000000',
         }
         expected_dark = {
-            'eve_color_background': '#0B0F16',
-            'eve_color_card': '#161B24',
+            'eve_color_background': '#000000',
+            'eve_color_card': '#1C1C1E',
             'eve_color_text_primary': '#FFFFFF',
             'eve_color_text_secondary': '#A1A1A6',
             'eve_color_hairline': '#24FFFFFF',
@@ -155,7 +155,7 @@ class DesignSystemTest(unittest.TestCase):
             'eve_color_success': '#30D158',
             'eve_color_error': '#FF4245',
             'eve_color_warning': '#FF9230',
-            'eve_color_floating_bar_bg': '#2C2C2E',
+            'eve_color_floating_bar_bg': '#1C1C1E',
             'eve_color_card_shadow': '#00000000',
         }
         aliases = [
@@ -176,3 +176,47 @@ class DesignSystemTest(unittest.TestCase):
                 app_token = f'eve_app_{role}'
                 color_token = f'eve_color_{role}'
                 self.assertEqual(colors[app_token], colors[color_token], f'{theme}: {app_token} must equal {color_token}')
+
+    def test_app_wide_palette_tokens_and_containers(self):
+        expected_light_tokens = {
+            'bg_app': '#F5F5F5',
+            'surface': '#FFFFFF',
+            'system_red': '#FF383C',
+            'system_green': '#34C759',
+            'system_blue': '#0088FF',
+            'system_indigo': '#6155F5',
+            'system_orange': '#FF8D28',
+            'system_purple': '#CB30E0',
+            'system_yellow': '#FFCC00',
+            'system_red_container': '#1FFF383C',
+            'system_green_container': '#1F34C759',
+            'system_blue_container': '#1F0088FF',
+            'system_indigo_container': '#1F6155F5',
+            'system_orange_container': '#1FFF8D28',
+            'system_purple_container': '#1FCB30E0',
+            'system_yellow_container': '#1FFFCC00',
+        }
+        expected_dark_tokens = {
+            'bg_app': '#000000',
+            'surface': '#1C1C1E',
+            'system_red': '#FF4245',
+            'system_green': '#30D158',
+            'system_blue': '#0091FF',
+            'system_indigo': '#6155F5',
+            'system_orange': '#FF9230',
+            'system_purple': '#DB34F2',
+            'system_yellow': '#FFD600',
+            'system_red_container': '#33FF4245',
+            'system_green_container': '#3330D158',
+            'system_blue_container': '#330091FF',
+            'system_indigo_container': '#336155F5',
+            'system_orange_container': '#33FF9230',
+            'system_purple_container': '#33DB34F2',
+            'system_yellow_container': '#33FFD600',
+        }
+        light_colors = design.colors('values')
+        for token, hex_val in expected_light_tokens.items():
+            self.assertEqual(hex_val, light_colors[token], f'Light palette token mismatch: {token}')
+        dark_colors = design.colors('values-night')
+        for token, hex_val in expected_dark_tokens.items():
+            self.assertEqual(hex_val, dark_colors[token], f'Dark palette token mismatch: {token}')

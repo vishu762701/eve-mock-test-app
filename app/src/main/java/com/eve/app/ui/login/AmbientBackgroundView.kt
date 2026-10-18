@@ -211,12 +211,7 @@ class AmbientBackgroundView @JvmOverloads constructor(
         if (w <= 0f || h <= 0f) return
 
         // 1. Theme-appropriate canvas background behind everything
-        val isDark = isDarkMode()
-        if (isDark) {
-            canvas.drawColor(Color.BLACK)
-        } else {
-            canvas.drawColor(Color.parseColor("#F2F2F7"))
-        }
+        canvas.drawColor(androidx.core.content.ContextCompat.getColor(context, com.eve.app.R.color.bg_app))
 
         val omega = (progress * 2.0 * Math.PI).toFloat()
 

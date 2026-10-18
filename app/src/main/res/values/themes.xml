@@ -22,15 +22,15 @@
         <item name="colorOnSecondaryContainer">@color/eve_on_accent_container</item>
         <item name="android:textColorLink">@color/eve_accent_text</item>
         <item name="colorOnSurfaceVariant">@color/eve_label_secondary</item>
-        <item name="colorSurfaceVariant">@color/eve_secondary_system_background</item>
-        <item name="colorSurfaceContainer">@color/eve_secondary_system_background</item>
-        <item name="colorSurfaceContainerHigh">@color/eve_tertiary_system_background</item>
-        <item name="colorSurfaceContainerLowest">@color/eve_system_background</item>
-        <item name="colorSurfaceContainerLow">@color/eve_card_bg</item>
-        <item name="colorSurfaceContainerHighest">@color/eve_surface_variant</item>
-        <item name="colorSurfaceBright">@color/eve_tertiary_system_background</item>
-        <item name="colorSurfaceDim">@color/eve_system_grouped_background</item>
-        <item name="android:colorBackground">@color/eve_canvas</item>
+        <item name="colorSurfaceVariant">@color/surface</item>
+        <item name="colorSurfaceContainer">@color/surface</item>
+        <item name="colorSurfaceContainerHigh">@color/surface</item>
+        <item name="colorSurfaceContainerLowest">@color/bg_app</item>
+        <item name="colorSurfaceContainerLow">@color/surface</item>
+        <item name="colorSurfaceContainerHighest">@color/surface</item>
+        <item name="colorSurfaceBright">@color/surface</item>
+        <item name="colorSurfaceDim">@color/bg_app</item>
+        <item name="android:colorBackground">@color/bg_app</item>
         <item name="colorOnBackground">@color/eve_label_primary</item>
         <item name="colorTertiary">@color/eve_accent</item>
         <item name="colorOnTertiary">@color/eve_on_primary</item>
@@ -87,9 +87,26 @@
         <item name="eveColorWarning">@color/eve_color_warning</item>
         <item name="eveColorFloatingBarBg">@color/eve_color_floating_bar_bg</item>
         <item name="eveColorCardShadow">@color/eve_color_card_shadow</item>
+        <!-- App-Wide Authoritative Palette Attribute Bindings -->
+        <item name="bgApp">@color/bg_app</item>
+        <item name="systemRed">@color/system_red</item>
+        <item name="systemGreen">@color/system_green</item>
+        <item name="systemBlue">@color/system_blue</item>
+        <item name="systemIndigo">@color/system_indigo</item>
+        <item name="systemOrange">@color/system_orange</item>
+        <item name="systemPurple">@color/system_purple</item>
+        <item name="systemYellow">@color/system_yellow</item>
+        <item name="systemRedContainer">@color/system_red_container</item>
+        <item name="systemGreenContainer">@color/system_green_container</item>
+        <item name="systemBlueContainer">@color/system_blue_container</item>
+        <item name="systemIndigoContainer">@color/system_indigo_container</item>
+        <item name="systemOrangeContainer">@color/system_orange_container</item>
+        <item name="systemPurpleContainer">@color/system_purple_container</item>
+        <item name="systemYellowContainer">@color/system_yellow_container</item>
 
-        <item name="android:windowBackground">@color/eve_bg</item><item name="android:statusBarColor">@color/eve_bg</item>
-        <item name="android:navigationBarColor">@color/eve_bg</item>
+        <item name="android:windowBackground">@color/bg_app</item><item name="android:statusBarColor">@color/bg_app</item>
+        <item name="android:navigationBarColor">@color/bg_app</item>
+        <item name="snackbarStyle">@style/Widget.Eve.Snackbar</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
         <item name="textAppearanceDisplayLarge">@style/TextAppearance.Eve.M3.DisplayLarge</item>
@@ -121,7 +138,7 @@
 
     <style name="Theme.Eve.Dialog.Base" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="shapeAppearance">@style/ShapeAppearance.Eve.Dialog</item>
-        <item name="colorSurface">@color/eve_modal_material</item>
+        <item name="colorSurface">@color/surface</item>
         <item name="android:windowBackground">@drawable/bg_dialog_liquid_glass</item>
         <item name="buttonBarPositiveButtonStyle">@style/Widget.Eve.TextButton</item>
         <item name="buttonBarNegativeButtonStyle">@style/Widget.Eve.TextButton</item>
@@ -144,11 +161,11 @@
         <item name="bottomSheetStyle">@style/Widget.Eve.BottomSheet.Modal</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@color/eve_bg</item>
+        <item name="android:navigationBarColor">@color/bg_app</item>
     </style>
 
     <style name="Widget.Eve.BottomSheet.Modal" parent="Widget.Material3.BottomSheet.Modal">
-        <item name="backgroundTint">@color/eve_modal_material</item>
+        <item name="backgroundTint">@color/surface</item>
         <item name="shapeAppearance">@style/ShapeRoundedBottomSheet</item>
     </style>
 

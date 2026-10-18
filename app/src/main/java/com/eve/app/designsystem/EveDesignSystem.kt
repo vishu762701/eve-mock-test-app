@@ -143,10 +143,10 @@ object EveDesignSystem {
         const val HEX_DARK_SECONDARY_TEXT = "#C5C5CC"
 
         // Authoritative Home Locked Color Hex Constants
-        const val HEX_HOME_LIGHT_BG = "#EEF2F8"
-        const val HEX_HOME_DARK_BG = "#0B0F16"
+        const val HEX_HOME_LIGHT_BG = "#F5F5F5"
+        const val HEX_HOME_DARK_BG = "#000000"
         const val HEX_HOME_LIGHT_CARD = "#FFFFFF"
-        const val HEX_HOME_DARK_CARD = "#161B24"
+        const val HEX_HOME_DARK_CARD = "#1C1C1E"
         const val HEX_HOME_LIGHT_TEXT_PRIMARY = "#000000"
         const val HEX_HOME_DARK_TEXT_PRIMARY = "#FFFFFF"
         const val HEX_HOME_LIGHT_TEXT_SECONDARY = "#6C6C70"
@@ -166,13 +166,13 @@ object EveDesignSystem {
         const val HEX_HOME_LIGHT_WARNING = "#FF8D28"
         const val HEX_HOME_DARK_WARNING = "#FF9230"
         const val HEX_HOME_LIGHT_FLOATING_BAR_BG = "#FFFFFF"
-        const val HEX_HOME_DARK_FLOATING_BAR_BG = "#2C2C2E"
+        const val HEX_HOME_DARK_FLOATING_BAR_BG = "#1C1C1E"
 
-        // Authoritative App-Wide Locked Color Hex Constants (ADR-019)
-        const val HEX_APP_LIGHT_BG = "#EEF2F8"
-        const val HEX_APP_DARK_BG = "#0B0F16"
+        // Authoritative App-Wide Locked Color Hex Constants (ADR-020)
+        const val HEX_APP_LIGHT_BG = "#F5F5F5"
+        const val HEX_APP_DARK_BG = "#000000"
         const val HEX_APP_LIGHT_CARD = "#FFFFFF"
-        const val HEX_APP_DARK_CARD = "#161B24"
+        const val HEX_APP_DARK_CARD = "#1C1C1E"
         const val HEX_APP_LIGHT_TEXT_PRIMARY = "#000000"
         const val HEX_APP_DARK_TEXT_PRIMARY = "#FFFFFF"
         const val HEX_APP_LIGHT_TEXT_SECONDARY = "#6C6C70"
@@ -192,7 +192,7 @@ object EveDesignSystem {
         const val HEX_APP_LIGHT_WARNING = "#FF8D28"
         const val HEX_APP_DARK_WARNING = "#FF9230"
         const val HEX_APP_LIGHT_FLOATING_BAR_BG = "#FFFFFF"
-        const val HEX_APP_DARK_FLOATING_BAR_BG = "#2C2C2E"
+        const val HEX_APP_DARK_FLOATING_BAR_BG = "#1C1C1E"
         const val HEX_APP_LIGHT_CARD_SHADOW = "#1A000000"
         const val HEX_APP_DARK_CARD_SHADOW = "#00000000"
 
@@ -301,6 +301,71 @@ object EveDesignSystem {
         @ColorInt
         fun appCardShadow(context: Context): Int =
             ContextCompat.getColor(context, R.color.eve_color_card_shadow)
+
+        // Authoritative App-Wide Color Tokens (ADR-020)
+        @ColorInt
+        fun bgApp(context: Context): Int =
+            ContextCompat.getColor(context, R.color.bg_app)
+
+        @ColorInt
+        fun surface(context: Context): Int =
+            ContextCompat.getColor(context, R.color.surface)
+
+        @ColorInt
+        fun systemRedToken(context: Context): Int =
+            ContextCompat.getColor(context, R.color.system_red)
+
+        @ColorInt
+        fun systemGreenToken(context: Context): Int =
+            ContextCompat.getColor(context, R.color.system_green)
+
+        @ColorInt
+        fun systemBlueToken(context: Context): Int =
+            ContextCompat.getColor(context, R.color.system_blue)
+
+        @ColorInt
+        fun systemIndigo(context: Context): Int =
+            ContextCompat.getColor(context, R.color.system_indigo)
+
+        @ColorInt
+        fun systemOrangeToken(context: Context): Int =
+            ContextCompat.getColor(context, R.color.system_orange)
+
+        @ColorInt
+        fun systemPurple(context: Context): Int =
+            ContextCompat.getColor(context, R.color.system_purple)
+
+        @ColorInt
+        fun systemYellow(context: Context): Int =
+            ContextCompat.getColor(context, R.color.system_yellow)
+
+        @ColorInt
+        fun systemRedContainer(context: Context): Int =
+            ContextCompat.getColor(context, R.color.system_red_container)
+
+        @ColorInt
+        fun systemGreenContainer(context: Context): Int =
+            ContextCompat.getColor(context, R.color.system_green_container)
+
+        @ColorInt
+        fun systemBlueContainer(context: Context): Int =
+            ContextCompat.getColor(context, R.color.system_blue_container)
+
+        @ColorInt
+        fun systemIndigoContainer(context: Context): Int =
+            ContextCompat.getColor(context, R.color.system_indigo_container)
+
+        @ColorInt
+        fun systemOrangeContainer(context: Context): Int =
+            ContextCompat.getColor(context, R.color.system_orange_container)
+
+        @ColorInt
+        fun systemPurpleContainer(context: Context): Int =
+            ContextCompat.getColor(context, R.color.system_purple_container)
+
+        @ColorInt
+        fun systemYellowContainer(context: Context): Int =
+            ContextCompat.getColor(context, R.color.system_yellow_container)
 
         // Accent & Interactive Blue (ADR-008, ADR-009)
         @ColorInt

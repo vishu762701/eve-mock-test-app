@@ -14,16 +14,6 @@ import java.io.FileOutputStream
 
 object ShareCardHelper {
 
-    // Apple iOS 26 dark-mode semantic roles (permanent dark card palette)
-    private const val COLOR_SYSTEM_BACKGROUND_DARK = "#000000" // iOS systemBackground (dark)
-    private const val COLOR_SECONDARY_BACKGROUND_DARK = "#1C1C1E" // iOS secondarySystemBackground (dark)
-    private const val COLOR_OPAQUE_SEPARATOR_DARK = "#38383A" // iOS opaqueSeparator (dark)
-    private const val COLOR_LABEL_SECONDARY_DARK = "#C5C5CC" // iOS secondaryLabel (dark)
-    private const val COLOR_LABEL_TERTIARY_DARK = "#ABABB3" // iOS tertiaryLabel (dark)
-    private const val COLOR_ACCENT_CONTAINER_DARK = "#142B49" // iOS accentContainer (dark)
-    private const val COLOR_STATUS_SUCCESS_DARK = "#30D158" // iOS systemGreen (dark)
-    private const val COLOR_STATUS_ERROR_DARK = "#FF4245" // iOS systemRed (dark)
-
     fun generateAndShare(
         context: Context,
         examName: String,
@@ -43,7 +33,17 @@ object ShareCardHelper {
             uiMode = uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK.inv() or
                 android.content.res.Configuration.UI_MODE_NIGHT_YES
         }
-        val systemBlue = context.createConfigurationContext(darkConfiguration).getColor(com.eve.app.R.color.eve_system_blue)
+        val darkContext = context.createConfigurationContext(darkConfiguration)
+        val bgDark = androidx.core.content.ContextCompat.getColor(darkContext, com.eve.app.R.color.bg_app)
+        val surfaceDark = androidx.core.content.ContextCompat.getColor(darkContext, com.eve.app.R.color.surface)
+        val borderDark = androidx.core.content.ContextCompat.getColor(darkContext, com.eve.app.R.color.eve_opaque_separator)
+        val labelSecDark = androidx.core.content.ContextCompat.getColor(darkContext, com.eve.app.R.color.eve_label_secondary)
+        val labelTerDark = androidx.core.content.ContextCompat.getColor(darkContext, com.eve.app.R.color.eve_label_tertiary)
+        val accentContainerDark = androidx.core.content.ContextCompat.getColor(darkContext, com.eve.app.R.color.system_blue_container)
+        val successDark = androidx.core.content.ContextCompat.getColor(darkContext, com.eve.app.R.color.system_green)
+        val errorDark = androidx.core.content.ContextCompat.getColor(darkContext, com.eve.app.R.color.system_red)
+        val systemBlue = androidx.core.content.ContextCompat.getColor(darkContext, com.eve.app.R.color.system_blue)
+
         val cardRadius = context.resources.getDimension(com.eve.app.R.dimen.eve_radius_card) /
             context.resources.displayMetrics.density * (width / 360f)
 
@@ -60,18 +60,18 @@ object ShareCardHelper {
 
         // 1. Dark Background
         val bgPaint = Paint().apply {
-            color = Color.parseColor(COLOR_SYSTEM_BACKGROUND_DARK)
+            color = bgDark
             style = Paint.Style.FILL
         }
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), bgPaint)
 
         // 2. Card Container
         val cardPaint = Paint().apply {
-            color = Color.parseColor(COLOR_SECONDARY_BACKGROUND_DARK)
+            color = surfaceDark
             style = Paint.Style.FILL
         }
         val cardStrokePaint = Paint().apply {
-            color = Color.parseColor(COLOR_OPAQUE_SEPARATOR_DARK)
+            color = borderDark
             style = Paint.Style.STROKE
             strokeWidth = 3f
         }
@@ -99,14 +99,14 @@ object ShareCardHelper {
 
         // Subtle divider
         val divPaint = Paint().apply {
-            color = Color.parseColor(COLOR_OPAQUE_SEPARATOR_DARK)
+            color = borderDark
             strokeWidth = 2f
         }
         canvas.drawLine(120f, 260f, width - 120f, 260f, divPaint)
 
         // 5. Score Label & Value
         val scoreLabelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor(COLOR_LABEL_SECONDARY_DARK)
+            color = labelSecDark
             textSize = 30f
             typeface = regularTypeface
             letterSpacing = 0.08f
@@ -122,7 +122,7 @@ object ShareCardHelper {
 
         // Percentage & Accuracy Pills
         val pillBgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor(COLOR_ACCENT_CONTAINER_DARK)
+            color = accentContainerDark
             style = Paint.Style.FILL
         }
         val pillTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -143,21 +143,21 @@ object ShareCardHelper {
         val boxY = 570f
         val boxH = 160f
 
-        drawStatBox(canvas, 120f, boxY, boxWidth, boxH, "Correct", correctCount.toString(), COLOR_STATUS_SUCCESS_DARK, boldTypeface, regularTypeface, cardRadius)
-        drawStatBox(canvas, 120f + boxWidth + 20f, boxY, boxWidth, boxH, "Wrong", wrongCount.toString(), COLOR_STATUS_ERROR_DARK, boldTypeface, regularTypeface, cardRadius)
-        drawStatBox(canvas, 120f + (boxWidth + 20f) * 2, boxY, boxWidth, boxH, "Skipped", skippedCount.toString(), COLOR_LABEL_SECONDARY_DARK, boldTypeface, regularTypeface, cardRadius)
+        drawStatBox(canvas, 120f, boxY, boxWidth, boxH, "Correct", correctCount.toString(), successDark, boldTypeface, regularTypeface, cardRadius, bgDark, borderDark, labelSecDark)
+        drawStatBox(canvas, 120f + boxWidth + 20f, boxY, boxWidth, boxH, "Wrong", wrongCount.toString(), errorDark, boldTypeface, regularTypeface, cardRadius, bgDark, borderDark, labelSecDark)
+        drawStatBox(canvas, 120f + (boxWidth + 20f) * 2, boxY, boxWidth, boxH, "Skipped", skippedCount.toString(), labelSecDark, boldTypeface, regularTypeface, cardRadius, bgDark, borderDark, labelSecDark)
 
         // 7. Standing Card
         val standingRect = RectF(120f, 770f, width - 120f, 910f)
         val standingPaint = Paint().apply {
-            color = Color.parseColor(COLOR_SYSTEM_BACKGROUND_DARK)
+            color = bgDark
             style = Paint.Style.FILL
         }
         canvas.drawRoundRect(standingRect, cardRadius, cardRadius, standingPaint)
         canvas.drawRoundRect(standingRect, cardRadius, cardRadius, cardStrokePaint)
 
         val standLabelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor(COLOR_LABEL_SECONDARY_DARK)
+            color = labelSecDark
             textSize = 26f
             typeface = regularTypeface
             letterSpacing = 0.05f
@@ -173,7 +173,7 @@ object ShareCardHelper {
 
         // 8. Eve App Footer
         val footerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor(COLOR_LABEL_TERTIARY_DARK)
+            color = labelTerDark
             textSize = 24f
             typeface = regularTypeface
             textAlign = Paint.Align.CENTER
@@ -208,18 +208,21 @@ object ShareCardHelper {
         h: Float,
         label: String,
         value: String,
-        colorHex: String,
+        colorInt: Int,
         boldTypeface: Typeface,
         regularTypeface: Typeface,
-        cardRadius: Float
+        cardRadius: Float,
+        bgDark: Int,
+        borderDark: Int,
+        labelSecDark: Int
     ) {
         val rect = RectF(x, y, x + w, y + h)
         val fillPaint = Paint().apply {
-            color = Color.parseColor(COLOR_SYSTEM_BACKGROUND_DARK)
+            color = bgDark
             style = Paint.Style.FILL
         }
         val borderPaint = Paint().apply {
-            color = Color.parseColor(COLOR_OPAQUE_SEPARATOR_DARK)
+            color = borderDark
             style = Paint.Style.STROKE
             strokeWidth = 2f
         }
@@ -227,7 +230,7 @@ object ShareCardHelper {
         canvas.drawRoundRect(rect, cardRadius, cardRadius, borderPaint)
 
         val valPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor(colorHex)
+            color = colorInt
             textSize = 46f
             typeface = boldTypeface
             textAlign = Paint.Align.CENTER
@@ -235,7 +238,7 @@ object ShareCardHelper {
         canvas.drawText(value, x + w / 2, y + 65f, valPaint)
 
         val lblPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor(COLOR_LABEL_SECONDARY_DARK)
+            color = labelSecDark
             textSize = 22f
             typeface = regularTypeface
             textAlign = Paint.Align.CENTER

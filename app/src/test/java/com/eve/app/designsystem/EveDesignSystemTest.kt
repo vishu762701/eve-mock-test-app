@@ -81,10 +81,10 @@ class EveDesignSystemTest {
 
     @Test
     fun testEveDesignSystemLockedColors_LightAndDarkConstants() {
-        assertEquals("#EEF2F8", EveDesignSystem.Colors.HEX_HOME_LIGHT_BG)
-        assertEquals("#0B0F16", EveDesignSystem.Colors.HEX_HOME_DARK_BG)
+        assertEquals("#F5F5F5", EveDesignSystem.Colors.HEX_HOME_LIGHT_BG)
+        assertEquals("#000000", EveDesignSystem.Colors.HEX_HOME_DARK_BG)
         assertEquals("#FFFFFF", EveDesignSystem.Colors.HEX_HOME_LIGHT_CARD)
-        assertEquals("#161B24", EveDesignSystem.Colors.HEX_HOME_DARK_CARD)
+        assertEquals("#1C1C1E", EveDesignSystem.Colors.HEX_HOME_DARK_CARD)
         assertEquals("#000000", EveDesignSystem.Colors.HEX_HOME_LIGHT_TEXT_PRIMARY)
         assertEquals("#FFFFFF", EveDesignSystem.Colors.HEX_HOME_DARK_TEXT_PRIMARY)
         assertEquals("#6C6C70", EveDesignSystem.Colors.HEX_HOME_LIGHT_TEXT_SECONDARY)
@@ -104,48 +104,48 @@ class EveDesignSystemTest {
         assertEquals("#FF8D28", EveDesignSystem.Colors.HEX_HOME_LIGHT_WARNING)
         assertEquals("#FF9230", EveDesignSystem.Colors.HEX_HOME_DARK_WARNING)
         assertEquals("#FFFFFF", EveDesignSystem.Colors.HEX_HOME_LIGHT_FLOATING_BAR_BG)
-        assertEquals("#2C2C2E", EveDesignSystem.Colors.HEX_HOME_DARK_FLOATING_BAR_BG)
+        assertEquals("#1C1C1E", EveDesignSystem.Colors.HEX_HOME_DARK_FLOATING_BAR_BG)
     }
 
     @Test
     fun testEveDesignSystemLockedColorsXml_LightAndDarkIntegrity() {
         val lightColors = parseColorMap("src/main/res/values/colors.xml")
-        assertEquals("#EEF2F8", lightColors["eve_home_background"])
-        assertEquals("#FFFFFF", lightColors["eve_home_card"])
+        assertEquals("@color/bg_app", lightColors["eve_home_background"])
+        assertEquals("@color/surface", lightColors["eve_home_card"])
         assertEquals("#000000", lightColors["eve_home_text_primary"])
         assertEquals("#6C6C70", lightColors["eve_home_text_secondary"])
         assertEquals("#1A000000", lightColors["eve_home_hairline"])
         assertEquals("#29787880", lightColors["eve_home_tab_track"])
         assertEquals("#000000", lightColors["eve_home_accent"])
         assertEquals("#FFFFFF", lightColors["eve_home_on_accent"])
-        assertEquals("#34C759", lightColors["eve_home_success"])
-        assertEquals("#FF383C", lightColors["eve_home_error"])
-        assertEquals("#FF8D28", lightColors["eve_home_warning"])
-        assertEquals("#FFFFFF", lightColors["eve_home_floating_bar_bg"])
+        assertEquals("@color/system_green", lightColors["eve_home_success"])
+        assertEquals("@color/system_red", lightColors["eve_home_error"])
+        assertEquals("@color/system_orange", lightColors["eve_home_warning"])
+        assertEquals("@color/surface", lightColors["eve_home_floating_bar_bg"])
         assertEquals("#1A000000", lightColors["eve_home_card_shadow"])
 
         val darkColors = parseColorMap("src/main/res/values-night/colors.xml")
-        assertEquals("#0B0F16", darkColors["eve_home_background"])
-        assertEquals("#161B24", darkColors["eve_home_card"])
+        assertEquals("@color/bg_app", darkColors["eve_home_background"])
+        assertEquals("@color/surface", darkColors["eve_home_card"])
         assertEquals("#FFFFFF", darkColors["eve_home_text_primary"])
         assertEquals("#A1A1A6", darkColors["eve_home_text_secondary"])
         assertEquals("#24FFFFFF", darkColors["eve_home_hairline"])
         assertEquals("#52787880", darkColors["eve_home_tab_track"])
         assertEquals("#FFFFFF", darkColors["eve_home_accent"])
         assertEquals("#000000", darkColors["eve_home_on_accent"])
-        assertEquals("#30D158", darkColors["eve_home_success"])
-        assertEquals("#FF4245", darkColors["eve_home_error"])
-        assertEquals("#FF9230", darkColors["eve_home_warning"])
-        assertEquals("#2C2C2E", darkColors["eve_home_floating_bar_bg"])
+        assertEquals("@color/system_green", darkColors["eve_home_success"])
+        assertEquals("@color/system_red", darkColors["eve_home_error"])
+        assertEquals("@color/system_orange", darkColors["eve_home_warning"])
+        assertEquals("@color/surface", darkColors["eve_home_floating_bar_bg"])
         assertEquals("#00000000", darkColors["eve_home_card_shadow"])
     }
 
     @Test
     fun testEveDesignSystemAppWideLockedColors_LightAndDarkConstants() {
-        assertEquals("#EEF2F8", EveDesignSystem.Colors.HEX_APP_LIGHT_BG)
-        assertEquals("#0B0F16", EveDesignSystem.Colors.HEX_APP_DARK_BG)
+        assertEquals("#F5F5F5", EveDesignSystem.Colors.HEX_APP_LIGHT_BG)
+        assertEquals("#000000", EveDesignSystem.Colors.HEX_APP_DARK_BG)
         assertEquals("#FFFFFF", EveDesignSystem.Colors.HEX_APP_LIGHT_CARD)
-        assertEquals("#161B24", EveDesignSystem.Colors.HEX_APP_DARK_CARD)
+        assertEquals("#1C1C1E", EveDesignSystem.Colors.HEX_APP_DARK_CARD)
         assertEquals("#000000", EveDesignSystem.Colors.HEX_APP_LIGHT_TEXT_PRIMARY)
         assertEquals("#FFFFFF", EveDesignSystem.Colors.HEX_APP_DARK_TEXT_PRIMARY)
         assertEquals("#6C6C70", EveDesignSystem.Colors.HEX_APP_LIGHT_TEXT_SECONDARY)
@@ -165,7 +165,7 @@ class EveDesignSystemTest {
         assertEquals("#FF8D28", EveDesignSystem.Colors.HEX_APP_LIGHT_WARNING)
         assertEquals("#FF9230", EveDesignSystem.Colors.HEX_APP_DARK_WARNING)
         assertEquals("#FFFFFF", EveDesignSystem.Colors.HEX_APP_LIGHT_FLOATING_BAR_BG)
-        assertEquals("#2C2C2E", EveDesignSystem.Colors.HEX_APP_DARK_FLOATING_BAR_BG)
+        assertEquals("#1C1C1E", EveDesignSystem.Colors.HEX_APP_DARK_FLOATING_BAR_BG)
         assertEquals("#1A000000", EveDesignSystem.Colors.HEX_APP_LIGHT_CARD_SHADOW)
         assertEquals("#00000000", EveDesignSystem.Colors.HEX_APP_DARK_CARD_SHADOW)
     }
@@ -173,18 +173,18 @@ class EveDesignSystemTest {
     @Test
     fun testEveDesignSystemAppWideLockedColorsXml_LightAndDarkIntegrity() {
         val lightColors = parseColorMap("src/main/res/values/colors.xml")
-        assertEquals("#EEF2F8", lightColors["eve_color_background"])
-        assertEquals("#FFFFFF", lightColors["eve_color_card"])
+        assertEquals("@color/bg_app", lightColors["eve_color_background"])
+        assertEquals("@color/surface", lightColors["eve_color_card"])
         assertEquals("#000000", lightColors["eve_color_text_primary"])
         assertEquals("#6C6C70", lightColors["eve_color_text_secondary"])
         assertEquals("#1A000000", lightColors["eve_color_hairline"])
         assertEquals("#29787880", lightColors["eve_color_tab_track"])
         assertEquals("#000000", lightColors["eve_color_accent"])
         assertEquals("#FFFFFF", lightColors["eve_color_on_accent"])
-        assertEquals("#34C759", lightColors["eve_color_success"])
-        assertEquals("#FF383C", lightColors["eve_color_error"])
-        assertEquals("#FF8D28", lightColors["eve_color_warning"])
-        assertEquals("#FFFFFF", lightColors["eve_color_floating_bar_bg"])
+        assertEquals("@color/system_green", lightColors["eve_color_success"])
+        assertEquals("@color/system_red", lightColors["eve_color_error"])
+        assertEquals("@color/system_orange", lightColors["eve_color_warning"])
+        assertEquals("@color/surface", lightColors["eve_color_floating_bar_bg"])
         assertEquals("#1A000000", lightColors["eve_color_card_shadow"])
 
         // Semantic aliases
@@ -202,19 +202,30 @@ class EveDesignSystemTest {
         assertEquals("@color/eve_color_floating_bar_bg", lightColors["eve_app_floating_bar_bg"])
         assertEquals("@color/eve_color_card_shadow", lightColors["eve_app_card_shadow"])
 
+        // Palette tokens
+        assertEquals("#F5F5F5", lightColors["bg_app"])
+        assertEquals("#FFFFFF", lightColors["surface"])
+        assertEquals("#FF383C", lightColors["system_red"])
+        assertEquals("#34C759", lightColors["system_green"])
+        assertEquals("#0088FF", lightColors["system_blue"])
+        assertEquals("#6155F5", lightColors["system_indigo"])
+        assertEquals("#FF8D28", lightColors["system_orange"])
+        assertEquals("#CB30E0", lightColors["system_purple"])
+        assertEquals("#FFCC00", lightColors["system_yellow"])
+
         val darkColors = parseColorMap("src/main/res/values-night/colors.xml")
-        assertEquals("#0B0F16", darkColors["eve_color_background"])
-        assertEquals("#161B24", darkColors["eve_color_card"])
+        assertEquals("@color/bg_app", darkColors["eve_color_background"])
+        assertEquals("@color/surface", darkColors["eve_color_card"])
         assertEquals("#FFFFFF", darkColors["eve_color_text_primary"])
         assertEquals("#A1A1A6", darkColors["eve_color_text_secondary"])
         assertEquals("#24FFFFFF", darkColors["eve_color_hairline"])
         assertEquals("#52787880", darkColors["eve_color_tab_track"])
         assertEquals("#FFFFFF", darkColors["eve_color_accent"])
         assertEquals("#000000", darkColors["eve_color_on_accent"])
-        assertEquals("#30D158", darkColors["eve_color_success"])
-        assertEquals("#FF4245", darkColors["eve_color_error"])
-        assertEquals("#FF9230", darkColors["eve_color_warning"])
-        assertEquals("#2C2C2E", darkColors["eve_color_floating_bar_bg"])
+        assertEquals("@color/system_green", darkColors["eve_color_success"])
+        assertEquals("@color/system_red", darkColors["eve_color_error"])
+        assertEquals("@color/system_orange", darkColors["eve_color_warning"])
+        assertEquals("@color/surface", darkColors["eve_color_floating_bar_bg"])
         assertEquals("#00000000", darkColors["eve_color_card_shadow"])
 
         // Semantic aliases
@@ -231,6 +242,17 @@ class EveDesignSystemTest {
         assertEquals("@color/eve_color_warning", darkColors["eve_app_warning"])
         assertEquals("@color/eve_color_floating_bar_bg", darkColors["eve_app_floating_bar_bg"])
         assertEquals("@color/eve_color_card_shadow", darkColors["eve_app_card_shadow"])
+
+        // Palette tokens
+        assertEquals("#000000", darkColors["bg_app"])
+        assertEquals("#1C1C1E", darkColors["surface"])
+        assertEquals("#FF4245", darkColors["system_red"])
+        assertEquals("#30D158", darkColors["system_green"])
+        assertEquals("#0091FF", darkColors["system_blue"])
+        assertEquals("#6155F5", darkColors["system_indigo"])
+        assertEquals("#FF9230", darkColors["system_orange"])
+        assertEquals("#DB34F2", darkColors["system_purple"])
+        assertEquals("#FFD600", darkColors["system_yellow"])
     }
 
     @Test
