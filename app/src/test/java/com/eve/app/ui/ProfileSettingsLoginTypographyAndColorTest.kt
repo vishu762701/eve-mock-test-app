@@ -283,9 +283,13 @@ class ProfileSettingsLoginTypographyAndColorTest {
             }
             error("Missing semantic token: $token in $resourcePath")
         }
-        assertEquals("#F2F2F7", hex("src/main/res/values/colors.xml", "eve_system_grouped_background"))
-        assertEquals("#FFFFFF", hex("src/main/res/values/colors.xml", "eve_secondary_system_grouped_background"))
-        assertEquals("#000000", hex("src/main/res/values-night/colors.xml", "eve_system_grouped_background"))
-        assertEquals("#1C1C1E", hex("src/main/res/values-night/colors.xml", "eve_secondary_system_grouped_background"))
+        assertEquals("@color/bg_app", hex("src/main/res/values/colors.xml", "eve_system_grouped_background"))
+        assertEquals("@color/surface", hex("src/main/res/values/colors.xml", "eve_secondary_system_grouped_background"))
+        assertEquals("@color/bg_app", hex("src/main/res/values-night/colors.xml", "eve_system_grouped_background"))
+        assertEquals("@color/surface", hex("src/main/res/values-night/colors.xml", "eve_secondary_system_grouped_background"))
+        assertEquals("#F5F5F5", hex("src/main/res/values/colors.xml", "bg_app"))
+        assertEquals("#FFFFFF", hex("src/main/res/values/colors.xml", "surface"))
+        assertEquals("#000000", hex("src/main/res/values-night/colors.xml", "bg_app"))
+        assertEquals("#1C1C1E", hex("src/main/res/values-night/colors.xml", "surface"))
     }
 }

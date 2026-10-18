@@ -71,9 +71,9 @@ class TaskBToEVerificationTest {
     fun testAppBackgroundRemainsPureWhiteAndBlack() {
         val lightColors = File("src/main/res/values/colors.xml").readText()
         val darkColors = File("src/main/res/values-night/colors.xml").readText()
-        assertTrue("Light app background must remain pure white", lightColors.contains("<color name=\"eve_bg\">#FFFFFF</color>"))
+        assertTrue("Light app background must resolve to bg_app", lightColors.contains("<color name=\"eve_bg\">@color/bg_app</color>"))
         assertTrue("Light canvas must remain pure white", lightColors.contains("<color name=\"eve_canvas\">#FFFFFF</color>"))
-        assertTrue("Dark app background must remain pure black", darkColors.contains("<color name=\"eve_bg\">#000000</color>"))
+        assertTrue("Dark app background must resolve to bg_app", darkColors.contains("<color name=\"eve_bg\">@color/bg_app</color>"))
         assertTrue("Dark canvas must remain pure black", darkColors.contains("<color name=\"eve_canvas\">#000000</color>"))
     }
 

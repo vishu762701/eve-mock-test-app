@@ -55,6 +55,18 @@ class ContrastTokensTest {
     private fun green(c: Int): Int = (c shr 8) and 0xFF
     private fun blue(c: Int): Int = c and 0xFF
 
+    private fun alpha(c: Int): Double = ((c shr 24) and 0xFF) / 255.0
+
+    private fun compositeColor(fgHex: String, bgHex: String): String {
+        val fg = parseHex(fgHex)
+        val bg = parseHex(bgHex)
+        val a = alpha(fg)
+        val r = (red(fg) * a + red(bg) * (1 - a)).toInt().coerceIn(0, 255)
+        val g = (green(fg) * a + green(bg) * (1 - a)).toInt().coerceIn(0, 255)
+        val b = (blue(fg) * a + blue(bg) * (1 - a)).toInt().coerceIn(0, 255)
+        return String.format("#%02X%02X%02X", r, g, b)
+    }
+
     private fun channelLuminance(value8Bit: Int): Double {
         val s = value8Bit / 255.0
         return if (s <= 0.03928) s / 12.92 else ((s + 0.055) / 1.055).pow(2.4)
@@ -68,9 +80,12 @@ class ContrastTokensTest {
         return 0.2126 * r + 0.7152 * g + 0.0722 * b
     }
 
-    private fun contrastRatio(fgHex: String, bgHex: String): Double {
-        val l1 = relativeLuminance(fgHex)
-        val l2 = relativeLuminance(bgHex)
+    private fun contrastRatio(fgHex: String, bgHex: String, canvasHex: String? = null): Double {
+        val effectiveCanvas = canvasHex ?: if (bgHex == "#000000" || bgHex.startsWith("#1C") || bgHex.startsWith("#33") || bgHex.startsWith("#2C")) "#000000" else "#FFFFFF"
+        val compBg = if (alpha(parseHex(bgHex)) < 1.0) compositeColor(bgHex, effectiveCanvas) else bgHex
+        val compFg = if (alpha(parseHex(fgHex)) < 1.0) compositeColor(fgHex, compBg) else fgHex
+        val l1 = relativeLuminance(compFg)
+        val l2 = relativeLuminance(compBg)
         val lighter = max(l1, l2)
         val darker = min(l1, l2)
         return (lighter + 0.05) / (darker + 0.05)
@@ -302,7 +317,7 @@ class ContrastTokensTest {
         // Grouped Background Hierarchy
         org.junit.Assert.assertEquals("#F5F5F5", lightColors["eve_system_grouped_background"])
         org.junit.Assert.assertEquals("#FFFFFF", lightColors["eve_secondary_system_grouped_background"])
-        org.junit.Assert.assertEquals("#F5F5F5", lightColors["eve_tertiary_system_grouped_background"])
+        org.junit.Assert.assertEquals("#FFFFFF", lightColors["eve_tertiary_system_grouped_background"])
 
         org.junit.Assert.assertEquals("#000000", darkColors["eve_system_grouped_background"])
         org.junit.Assert.assertEquals("#1C1C1E", darkColors["eve_secondary_system_grouped_background"])

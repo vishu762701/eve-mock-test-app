@@ -299,14 +299,16 @@ class AppWideTypographyAndColorRolesTest {
         }
 
         val lightColors = loadColors("values")
-        assertEquals("#0088FF", lightColors["eve_system_blue"])
+        assertEquals("@color/system_blue", lightColors["eve_system_blue"])
+        assertEquals("#0088FF", lightColors["system_blue"])
         assertEquals("@color/eve_system_blue", lightColors["eve_primary"])
         assertEquals("#FFFFFF", lightColors["eve_on_primary"])
         assertEquals("#4A3C3C43", lightColors["eve_separator"])
         assertEquals("#C6C6C8", lightColors["eve_opaque_separator"])
 
         val darkColors = loadColors("values-night")
-        assertEquals("#0091FF", darkColors["eve_system_blue"])
+        assertEquals("@color/system_blue", darkColors["eve_system_blue"])
+        assertEquals("#0091FF", darkColors["system_blue"])
         assertEquals("@color/eve_system_blue", darkColors["eve_primary"])
         assertEquals("#FFFFFF", darkColors["eve_on_primary"])
         assertEquals("#99545458", darkColors["eve_separator"])

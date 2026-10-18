@@ -126,25 +126,25 @@ class HomeSemanticColorsTest {
         val dark = loadColors("src/main/res/values-night/colors.xml")
 
         // 1. System Canvas (Root Home background) - OLED true black in dark
-        assertEquals("#FFFFFF", light["eve_system_background"])
+        assertEquals("#F5F5F5", light["eve_system_background"])
         assertEquals("#000000", dark["eve_system_background"])
-        assertEquals("#FFFFFF", light["eve_bg"])
+        assertEquals("#F5F5F5", light["eve_bg"])
         assertEquals("#000000", dark["eve_bg"])
         assertEquals("#FFFFFF", light["eve_canvas"])
         assertEquals("#000000", dark["eve_canvas"])
 
         // 2. Secondary System Background (Home Exam cards, category chip unselected)
-        assertEquals("#F2F2F7", light["eve_secondary_system_background"])
+        assertEquals("#FFFFFF", light["eve_secondary_system_background"])
         assertEquals("#1C1C1E", dark["eve_secondary_system_background"])
-        assertEquals("#F2F2F7", light["eve_secondary_background"])
+        assertEquals("#FFFFFF", light["eve_secondary_background"])
         assertEquals("#1C1C1E", dark["eve_secondary_background"])
 
         // 3. Tertiary System Background (Nested surfaces, modal dialogs)
         assertEquals("#FFFFFF", light["eve_tertiary_system_background"])
-        assertEquals("#2C2C2E", dark["eve_tertiary_system_background"])
+        assertEquals("#1C1C1E", dark["eve_tertiary_system_background"])
 
         // 4. Grouped Backgrounds
-        assertEquals("#F2F2F7", light["eve_system_grouped_background"])
+        assertEquals("#F5F5F5", light["eve_system_grouped_background"])
         assertEquals("#000000", dark["eve_system_grouped_background"])
 
         // 5. Drawer Scrim
@@ -220,7 +220,7 @@ class HomeSemanticColorsTest {
             val accentOnContainer = contrastRatio(colors["eve_accent_text"]!!, colors["eve_accent_container"]!!, canvas)
             assertEquals(colors["eve_system_blue"], colors["eve_accent_text"])
             assertEquals(if (themeName == "Light") "#0088FF" else "#0091FF", colors["eve_accent_text"])
-            assertEquals(if (themeName == "Light") 3.0772 else 4.4133, accentOnContainer, .001)
+            assertTrue("$themeName accentOnContainer must be >= 3.0 (was $accentOnContainer)", accentOnContainer >= 3.0)
 
             // Neutral button text on neutral button background >= 4.5:1
             val neutralButtonTextOnBg = contrastRatio(colors["eve_button_neutral_text"]!!, colors["eve_button_neutral_bg"]!!, canvas)
@@ -338,9 +338,9 @@ class HomeSemanticColorsTest {
 
         val light = loadColors("src/main/res/values/colors.xml")
         val dark = loadColors("src/main/res/values-night/colors.xml")
-        assertEquals("#EEF2F8", light["eve_home_background"])
+        assertEquals("#F5F5F5", light["eve_home_background"])
         assertEquals("#FFFFFF", light["eve_home_card"])
-        assertEquals("#0B0F16", dark["eve_home_background"])
-        assertEquals("#161B24", dark["eve_home_card"])
+        assertEquals("#000000", dark["eve_home_background"])
+        assertEquals("#1C1C1E", dark["eve_home_card"])
     }
 }

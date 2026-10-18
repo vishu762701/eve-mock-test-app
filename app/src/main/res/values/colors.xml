@@ -355,7 +355,7 @@
     <color name="eve_status_warning_text">@color/eve_tile_medium_text</color>
     <!-- User-selected system blue; unused alternative for a one-line revert. -->
     <color name="eve_accent_text_readable">#005BC0</color>
-    <color name="eve_modal_material">@color/surface</color>
+    <color name="eve_modal_material">@color/eve_secondary_system_background</color>
 
     <!-- EVE Home Screen Depth Glass Tokens (iOS 26: 75% blur tint, 94% solid tint fallback, 1dp hairline border) -->
     <color name="eve_home_blur_tint">#BFFFFFFF</color>
