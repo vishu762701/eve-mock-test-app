@@ -806,7 +806,7 @@ Under earlier ADRs (ADR-008, ADR-009, ADR-011, ADR-014, ADR-015, ADR-016), the H
 
 4. **Pills (Outline)**:
    - Height 32dp (tab height minus 8dp), horizontal padding 12dp, fully rounded capsule (16dp / 999dp), 1dp accent border, accent text.
-   - Touch targets expand to at least 48dp without changing visible geometry via Material Chip touch target delegation (`chipMinTouchTargetSize = 48dp`, `setEnsureMinTouchTargetSize(true)`).
+   - Touch targets expand to at least 48dp without changing visible geometry via `HomeCategoryChipGroup` with TouchDelegate / touch hit bounds expansion, keeping visible chip height strictly at 32dp with zero vertical padding and disabled font padding.
 
 5. **Cards**:
    - Radius 24dp, padding 12dp, gap between cards 8dp, screen margin 16dp, section gap 16dp.
