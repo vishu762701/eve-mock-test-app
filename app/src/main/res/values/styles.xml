@@ -217,7 +217,6 @@
 
     <style name="Widget.Eve.Snackbar" parent="Widget.Material3.Snackbar">
         <item name="backgroundTint">@color/surface</item>
-        <item name="actionTextColor">@color/system_blue</item>
     </style>
 
     <style name="Eve.TopBar" parent="">
