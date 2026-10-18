@@ -44,7 +44,8 @@ class ApprovedUiRenderingTest {
         assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP,
             value.toFloat(), context.resources.displayMetrics), view.textSize, 0.51f)
     private val foreground get() = if (dark) Color.WHITE else Color.BLACK
-    private val background get() = if (dark) Color.BLACK else Color.WHITE
+    private val background get() = if (dark) Color.BLACK else color("#F5F5F5")
+    private val buttonText get() = if (dark) Color.BLACK else Color.WHITE
     private fun color(value: String) = Color.parseColor(value)
     private fun measure(view: View, width: Int = 360, height: Int = 844) {
         repeat(2) {
@@ -176,7 +177,7 @@ class ApprovedUiRenderingTest {
         assertEquals(dp(stroke), view.strokeWidth)
         assertEquals(foreground, view.strokeColor!!.defaultColor)
         assertEquals(foreground, view.backgroundTintList!!.defaultColor)
-        assertEquals(background, view.currentTextColor)
+        assertEquals(buttonText, view.currentTextColor)
         assertEquals(0f, view.elevation, 0.01f)
         assertEquals(view.height / 2f, view.shapeAppearanceModel.topLeftCornerSize.getCornerSize(android.graphics.RectF(0f, 0f, view.width.toFloat(), view.height.toFloat())), 1f)
     }
