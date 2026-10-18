@@ -44,7 +44,8 @@ class ApprovedUiRenderingTest {
         assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP,
             value.toFloat(), context.resources.displayMetrics), view.textSize, 0.51f)
     private val foreground get() = if (dark) Color.WHITE else Color.BLACK
-    private val background get() = if (dark) Color.BLACK else color("#F5F5F5")
+    private val canvasBackground get() = if (dark) Color.BLACK else Color.WHITE
+    private val appBackground get() = if (dark) Color.BLACK else color("#F5F5F5")
     private val buttonText get() = if (dark) Color.BLACK else Color.WHITE
     private fun color(value: String) = Color.parseColor(value)
     private fun measure(view: View, width: Int = 360, height: Int = 844) {
@@ -132,8 +133,8 @@ class ApprovedUiRenderingTest {
     private fun verifyHome() {
         val b = ActivityMainBinding.inflate(LayoutInflater.from(context))
         assertEquals(context.getColor(R.color.eve_home_background), (b.mainContentContainer.background as ColorDrawable).color)
-        assertEquals(background, context.getColor(R.color.eve_bg))
-        assertEquals(background, context.getColor(R.color.eve_canvas))
+        assertEquals(appBackground, context.getColor(R.color.eve_bg))
+        assertEquals(canvasBackground, context.getColor(R.color.eve_canvas))
         listOf(b.btnSearch, b.btnNotification, b.btnOverflow).forEach { bare(it) }
         assertEquals(Color.TRANSPARENT, ((b.btnNotification.parent as View).background as ColorDrawable).color)
         assertEquals(dp(48), b.ivProfile.layoutParams.width)
@@ -184,7 +185,7 @@ class ApprovedUiRenderingTest {
 
     private fun verifyMock() {
         val b = ActivityTestBinding.inflate(LayoutInflater.from(context))
-        assertEquals(background, (b.root.background as ColorDrawable).color)
+        assertEquals(canvasBackground, (b.root.background as ColorDrawable).color)
         assertEquals(if (dark) Color.BLACK else color("#EEEEF0"),
             (b.rvQuestionPalette.background as ColorDrawable).color)
         b.tvTestTitle.text = "Practice Test"
@@ -240,7 +241,7 @@ class ApprovedUiRenderingTest {
         assertEquals(foreground, timerPaint("progressPaint").color)
         assertEquals(12f * context.resources.displayMetrics.scaledDensity, timerPaint("textPaint").textSize, 0.01f)
         bitmap(b.circularTimerView).useBitmap { image ->
-            assertEquals(background, image.getPixel(dp(22), dp(8)))
+            assertEquals(appBackground, image.getPixel(dp(22), dp(8)))
             assertEquals(foreground, image.getPixel(dp(22), dp(1)))
         }
         val holder = adapter.onCreateViewHolder(FrameLayout(context), 0)
@@ -316,7 +317,7 @@ class ApprovedUiRenderingTest {
             assertTrue("The remaining half-ring must render", listOf(
                 Color.red(pixel) - Color.red(foreground), Color.green(pixel) - Color.green(foreground),
                 Color.blue(pixel) - Color.blue(foreground)).all { kotlin.math.abs(it) <= 16 })
-            assertEquals(background, image.getPixel(dp(1), dp(22)))
+            assertEquals(appBackground, image.getPixel(dp(1), dp(22)))
         }
         b.viewPager.setCurrentItem(59, false)
         assertEquals(59, b.viewPager.currentItem)
