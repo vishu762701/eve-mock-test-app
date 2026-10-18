@@ -168,6 +168,34 @@ object EveDesignSystem {
         const val HEX_HOME_LIGHT_FLOATING_BAR_BG = "#FFFFFF"
         const val HEX_HOME_DARK_FLOATING_BAR_BG = "#2C2C2E"
 
+        // Authoritative App-Wide Locked Color Hex Constants (ADR-019)
+        const val HEX_APP_LIGHT_BG = "#EEF2F8"
+        const val HEX_APP_DARK_BG = "#0B0F16"
+        const val HEX_APP_LIGHT_CARD = "#FFFFFF"
+        const val HEX_APP_DARK_CARD = "#161B24"
+        const val HEX_APP_LIGHT_TEXT_PRIMARY = "#000000"
+        const val HEX_APP_DARK_TEXT_PRIMARY = "#FFFFFF"
+        const val HEX_APP_LIGHT_TEXT_SECONDARY = "#6C6C70"
+        const val HEX_APP_DARK_TEXT_SECONDARY = "#A1A1A6"
+        const val HEX_APP_LIGHT_HAIRLINE = "#1A000000"
+        const val HEX_APP_DARK_HAIRLINE = "#24FFFFFF"
+        const val HEX_APP_LIGHT_TAB_TRACK = "#29787880"
+        const val HEX_APP_DARK_TAB_TRACK = "#52787880"
+        const val HEX_APP_LIGHT_ACCENT = "#000000"
+        const val HEX_APP_DARK_ACCENT = "#FFFFFF"
+        const val HEX_APP_LIGHT_ON_ACCENT = "#FFFFFF"
+        const val HEX_APP_DARK_ON_ACCENT = "#000000"
+        const val HEX_APP_LIGHT_SUCCESS = "#34C759"
+        const val HEX_APP_DARK_SUCCESS = "#30D158"
+        const val HEX_APP_LIGHT_ERROR = "#FF383C"
+        const val HEX_APP_DARK_ERROR = "#FF4245"
+        const val HEX_APP_LIGHT_WARNING = "#FF8D28"
+        const val HEX_APP_DARK_WARNING = "#FF9230"
+        const val HEX_APP_LIGHT_FLOATING_BAR_BG = "#FFFFFF"
+        const val HEX_APP_DARK_FLOATING_BAR_BG = "#2C2C2E"
+        const val HEX_APP_LIGHT_CARD_SHADOW = "#1A000000"
+        const val HEX_APP_DARK_CARD_SHADOW = "#00000000"
+
         // Home Locked Color Accessors
         @ColorInt
         fun homeBackground(context: Context): Int =
@@ -220,6 +248,59 @@ object EveDesignSystem {
         @ColorInt
         fun homeCardShadow(context: Context): Int =
             ContextCompat.getColor(context, R.color.eve_home_card_shadow)
+
+        // App-Wide Locked Color Accessors (ADR-019)
+        @ColorInt
+        fun appBackground(context: Context): Int =
+            ContextCompat.getColor(context, R.color.eve_color_background)
+
+        @ColorInt
+        fun appCard(context: Context): Int =
+            ContextCompat.getColor(context, R.color.eve_color_card)
+
+        @ColorInt
+        fun appTextPrimary(context: Context): Int =
+            ContextCompat.getColor(context, R.color.eve_color_text_primary)
+
+        @ColorInt
+        fun appTextSecondary(context: Context): Int =
+            ContextCompat.getColor(context, R.color.eve_color_text_secondary)
+
+        @ColorInt
+        fun appHairline(context: Context): Int =
+            ContextCompat.getColor(context, R.color.eve_color_hairline)
+
+        @ColorInt
+        fun appTabTrack(context: Context): Int =
+            ContextCompat.getColor(context, R.color.eve_color_tab_track)
+
+        @ColorInt
+        fun appAccent(context: Context): Int =
+            ContextCompat.getColor(context, R.color.eve_color_accent)
+
+        @ColorInt
+        fun appOnAccent(context: Context): Int =
+            ContextCompat.getColor(context, R.color.eve_color_on_accent)
+
+        @ColorInt
+        fun appSuccess(context: Context): Int =
+            ContextCompat.getColor(context, R.color.eve_color_success)
+
+        @ColorInt
+        fun appError(context: Context): Int =
+            ContextCompat.getColor(context, R.color.eve_color_error)
+
+        @ColorInt
+        fun appWarning(context: Context): Int =
+            ContextCompat.getColor(context, R.color.eve_color_warning)
+
+        @ColorInt
+        fun appFloatingBarBg(context: Context): Int =
+            ContextCompat.getColor(context, R.color.eve_color_floating_bar_bg)
+
+        @ColorInt
+        fun appCardShadow(context: Context): Int =
+            ContextCompat.getColor(context, R.color.eve_color_card_shadow)
 
         // Accent & Interactive Blue (ADR-008, ADR-009)
         @ColorInt

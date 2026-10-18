@@ -126,3 +126,53 @@ class DesignSystemTest(unittest.TestCase):
             self.assertEqual(colors['eve_dark_text'], '#000000')
             self.assertEqual(colors['eve_light_text'], '#FFFFFF')
             self.assertEqual(colors['eve_clear'], '#00000000')
+
+    def test_app_wide_locked_foundation_colors(self):
+        expected_light = {
+            'eve_color_background': '#EEF2F8',
+            'eve_color_card': '#FFFFFF',
+            'eve_color_text_primary': '#000000',
+            'eve_color_text_secondary': '#6C6C70',
+            'eve_color_hairline': '#1A000000',
+            'eve_color_tab_track': '#29787880',
+            'eve_color_accent': '#000000',
+            'eve_color_on_accent': '#FFFFFF',
+            'eve_color_success': '#34C759',
+            'eve_color_error': '#FF383C',
+            'eve_color_warning': '#FF8D28',
+            'eve_color_floating_bar_bg': '#FFFFFF',
+            'eve_color_card_shadow': '#1A000000',
+        }
+        expected_dark = {
+            'eve_color_background': '#0B0F16',
+            'eve_color_card': '#161B24',
+            'eve_color_text_primary': '#FFFFFF',
+            'eve_color_text_secondary': '#A1A1A6',
+            'eve_color_hairline': '#24FFFFFF',
+            'eve_color_tab_track': '#52787880',
+            'eve_color_accent': '#FFFFFF',
+            'eve_color_on_accent': '#000000',
+            'eve_color_success': '#30D158',
+            'eve_color_error': '#FF4245',
+            'eve_color_warning': '#FF9230',
+            'eve_color_floating_bar_bg': '#2C2C2E',
+            'eve_color_card_shadow': '#00000000',
+        }
+        aliases = [
+            'background', 'card', 'text_primary', 'text_secondary',
+            'hairline', 'tab_track', 'accent', 'on_accent',
+            'success', 'error', 'warning', 'floating_bar_bg', 'card_shadow'
+        ]
+        light_colors = design.colors('values')
+        for token, hex_val in expected_light.items():
+            self.assertEqual(hex_val, light_colors[token], f'Light app token mismatch: {token}')
+        dark_colors = design.colors('values-night')
+        for token, hex_val in expected_dark.items():
+            self.assertEqual(hex_val, dark_colors[token], f'Dark app token mismatch: {token}')
+
+        for theme in ['values', 'values-night']:
+            colors = design.colors(theme)
+            for role in aliases:
+                app_token = f'eve_app_{role}'
+                color_token = f'eve_color_{role}'
+                self.assertEqual(colors[app_token], colors[color_token], f'{theme}: {app_token} must equal {color_token}')

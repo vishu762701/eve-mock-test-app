@@ -826,3 +826,53 @@ Under earlier ADRs (ADR-008, ADR-009, ADR-011, ADR-014, ADR-015, ADR-016), the H
    - Applied strictly and exclusively to Home screen layouts and classes (`MainActivity`, `activity_main.xml`, `HomeAppearance.kt`, `ExamAdapter.kt`, `item_exam.xml`, `item_feedback_post.xml`).
    - Zero edits made to Test, Result, Profile, Settings, Admin, or Leaderboard screens.
    - Telegram theme switcher (`ThemeSwitchAnimator.kt`, `ThemeManager.kt`, `TelegramMenuPopup.kt`), all Lottie files/triggers/sizes, and SVG vector assets remained completely untouched.
+
+
+## ADR-019: App-Wide Eve Design System Locked Color Tokens (Colors Only)
+
+- **Date**: 2026-10-18
+- **Status**: Accepted
+- **Author**: Principal Systems Architect & Design Systems Lead
+- **Authority**: Direct user instruction: "TASK 1 of 3 - APP-WIDE COLOR TOKENS (colors only). Follow GEMINI.md and ENGINEERING_STANDARD.md. Do not change layout, size, font, text, shape, animation or behavior."
+
+### Context
+In ADR-018, the Eve Design System established authoritative locked foundation tokens, initially applied strictly to the Home screen (`eve_home_*`). To enable cohesive visual theming across the entire application while maintaining zero regressions, the user initiated a 3-part roadmap, starting with Phase 1: codification of app-wide locked color tokens without touching layout geometry, sizes, fonts, strings, shapes, animations, or runtime logic.
+
+### Decisions
+1. **Authoritative App-Wide Locked Color Tokens (`values/colors.xml` and `values-night/colors.xml`)**:
+   - Background: Light `#EEF2F8` / Dark `#0B0F16` (`@color/eve_color_background`)
+   - Card: Light `#FFFFFF` / Dark `#161B24` (`@color/eve_color_card`)
+   - Text Primary: Light `#000000` / Dark `#FFFFFF` (`@color/eve_color_text_primary`)
+   - Text Secondary: Light `#6C6C70` / Dark `#A1A1A6` (`@color/eve_color_text_secondary`)
+   - Hairline: Light `rgba(0,0,0,0.10)` (`#1A000000`) / Dark `rgba(255,255,255,0.14)` (`#24FFFFFF`) (`@color/eve_color_hairline`)
+   - Tab Track: Light `rgba(120,120,128,0.16)` (`#29787880`) / Dark `rgba(120,120,128,0.32)` (`#52787880`) (`@color/eve_color_tab_track`)
+   - Accent (Mono): Light `#000000` / Dark `#FFFFFF` (`@color/eve_color_accent`)
+   - On-Accent: Light `#FFFFFF` / Dark `#000000` (`@color/eve_color_on_accent`)
+   - Success: Light `#34C759` / Dark `#30D158` (`@color/eve_color_success`)
+   - Error: Light `#FF383C` / Dark `#FF4245` (`@color/eve_color_error`)
+   - Warning: Light `#FF8D28` / Dark `#FF9230` (`@color/eve_color_warning`)
+   - Floating Bar Background: Light `#FFFFFF` / Dark `#2C2C2E` (`@color/eve_color_floating_bar_bg`)
+   - Card Shadow: Light `#1A000000` / Dark `#00000000` (`@color/eve_color_card_shadow`)
+
+2. **Semantic App-Wide Aliases**:
+   - Defined `@color/eve_app_*` tokens mapped directly to `@color/eve_color_*` across `values` and `values-night`.
+
+3. **First-Class Theme Attributes (`values/attrs.xml`) & Theme Bindings (`Theme.Eve.Foundation`)**:
+   - Declared attributes in `attrs.xml`: `eveColorBackground`, `eveColorCard`, `eveColorTextPrimary`, `eveColorTextSecondary`, `eveColorHairline`, `eveColorTabTrack`, `eveColorAccent`, `eveColorOnAccent`, `eveColorSuccess`, `eveColorError`, `eveColorWarning`, `eveColorFloatingBarBg`, `eveColorCardShadow`.
+   - Bound all 13 attributes in `Theme.Eve.Foundation` in `values/themes.xml` to `@color/eve_color_*`.
+
+4. **Kotlin Architectural Foundation (`EveDesignSystem.kt`)**:
+   - `EveDesignSystem.Colors`: Codified typed hex constants `HEX_APP_LIGHT_*` and `HEX_APP_DARK_*`.
+   - Accessors: `appBackground`, `appCard`, `appTextPrimary`, `appTextSecondary`, `appHairline`, `appTabTrack`, `appAccent`, `appOnAccent`, `appSuccess`, `appError`, `appWarning`, `appFloatingBarBg`, `appCardShadow`.
+
+5. **Shared App-Wide Color State Lists (`res/color/`)**:
+   - `selector_eve_pill_bg.xml`: State-checked/selected -> `eve_color_accent`, unselected -> transparent.
+   - `selector_eve_pill_stroke.xml`: Uniform border tint -> `eve_color_accent`.
+   - `selector_eve_pill_text.xml`: State-checked/selected -> `eve_color_on_accent`, unselected -> `eve_color_accent`.
+   - `selector_eve_tab_text.xml`: State-selected/checked -> `eve_color_on_accent`, unselected -> `eve_color_text_secondary`.
+   - `selector_eve_floating_bar_tint.xml`: State-selected/checked/activated -> `eve_color_accent`, unselected -> `eve_color_text_secondary`.
+
+6. **Strict "Colors Only" Boundary & Invariants**:
+   - Zero modifications to layout XML structures, component dimensions/bounds/padding, typography/fonts, text strings, corner radii/shapes, animations, or runtime logic.
+   - Preserved Telegram Day/Night circular reveal transition, Lottie animations/triggers, SVG icon assets, and answer-state semantic colors (`eve_tile_right_*`, `eve_tile_wrong_*`, `eve_tile_medium_*`).
+   - Retained canonical `eve_canvas` (#FFFFFF / #000000) and historical Apple semantic tokens for existing contrast and hierarchy invariant test suites.

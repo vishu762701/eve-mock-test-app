@@ -318,3 +318,30 @@
   - `python3 -B .github/scripts/check_design_system.py` passed (194 measured pairs).
   - `node .github/scripts/verify-docs.mjs` passed (33 docs, 0 errors, 0 warnings).
   - `git diff --check` passed with 0 errors.
+
+## Task 1 of 3 — App-Wide Eve Design System Locked Color Tokens (ADR-019) (2026-10-18)
+
+- [x] **App-Wide Locked Color Tokens (Day & Night):** Codified foundation color tokens in `res/values/colors.xml` and `res/values-night/colors.xml`:
+  - `eve_color_background` (#EEF2F8 / #0B0F16)
+  - `eve_color_card` (#FFFFFF / #161B24)
+  - `eve_color_text_primary` (#000000 / #FFFFFF)
+  - `eve_color_text_secondary` (#6C6C70 / #A1A1A6)
+  - `eve_color_hairline` (#1A000000 / #24FFFFFF)
+  - `eve_color_tab_track` (#29787880 / #52787880)
+  - `eve_color_accent` (#000000 / #FFFFFF)
+  - `eve_color_on_accent` (#FFFFFF / #000000)
+  - `eve_color_success` (#34C759 / #30D158)
+  - `eve_color_error` (#FF383C / #FF4245)
+  - `eve_color_warning` (#FF8D28 / #FF9230)
+  - `eve_color_floating_bar_bg` (#FFFFFF / #2C2C2E)
+  - `eve_color_card_shadow` (#1A000000 / #00000000)
+- [x] **Semantic App-Wide Aliases:** Codified direct mappings `eve_app_*` -> `eve_color_*` across Day and Night palettes.
+- [x] **First-Class Theme Attributes:** Declared 13 `eveColor*` attributes in `res/values/attrs.xml` and bound them in `Theme.Eve.Foundation` in `res/values/themes.xml`.
+- [x] **Kotlin Foundation Accessors & Constants:** Codified `HEX_APP_LIGHT_*` and `HEX_APP_DARK_*` constants along with `@ColorInt` helper functions (`appBackground`, `appCard`, etc.) in `EveDesignSystem.kt`.
+- [x] **Color State Lists:** Created shared selectors in `res/color/` (`selector_eve_pill_bg.xml`, `selector_eve_pill_stroke.xml`, `selector_eve_pill_text.xml`, `selector_eve_tab_text.xml`, `selector_eve_floating_bar_tint.xml`).
+- [x] **Strict Colors-Only Boundary:** Zero changes to layout geometry, sizes, fonts, text strings, shapes, animations, or behavior.
+- [x] **Verification Gate:**
+  - `python3 -B .github/scripts/check_design_system.py` passed (194 measured pairs).
+  - `python3 -B -m unittest discover -s .github/scripts/tests -q` passed (14/14 tests).
+  - `node .github/scripts/verify-docs.mjs` passed (33 docs, 0 errors, 0 warnings).
+  - `git diff --check` passed with 0 errors.

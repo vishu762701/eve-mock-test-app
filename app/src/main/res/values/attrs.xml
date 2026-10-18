@@ -34,4 +34,18 @@
     <attr name="eveFillTertiary" format="color" />
     <attr name="eveFillQuaternary" format="color" />
     <attr name="eveLink" format="color" />
+    <!-- Eve Design System Locked Foundation Color Roles (App-Wide) -->
+    <attr name="eveColorBackground" format="color" />
+    <attr name="eveColorCard" format="color" />
+    <attr name="eveColorTextPrimary" format="color" />
+    <attr name="eveColorTextSecondary" format="color" />
+    <attr name="eveColorHairline" format="color" />
+    <attr name="eveColorTabTrack" format="color" />
+    <attr name="eveColorAccent" format="color" />
+    <attr name="eveColorOnAccent" format="color" />
+    <attr name="eveColorSuccess" format="color" />
+    <attr name="eveColorError" format="color" />
+    <attr name="eveColorWarning" format="color" />
+    <attr name="eveColorFloatingBarBg" format="color" />
+    <attr name="eveColorCardShadow" format="color" />
 </resources>

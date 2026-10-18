@@ -9,6 +9,28 @@
 - Light app background tokens are pure `#FFFFFF`; dark background tokens are pure `#000000`.
 - Test submission remains server-side through `POST /api/attempts/submit`; authentication, scoring, answer persistence, and navigation code were not changed by the Home Banner/Test appearance task.
 
+### EVE: App-Wide Eve Design System Locked Color Tokens (ADR-019) — 2026-10-18
+
+- Codified authoritative locked foundation color tokens app-wide across `values/colors.xml` and `values-night/colors.xml`:
+  - `eve_color_background` (#EEF2F8 / #0B0F16)
+  - `eve_color_card` (#FFFFFF / #161B24)
+  - `eve_color_text_primary` (#000000 / #FFFFFF)
+  - `eve_color_text_secondary` (#6C6C70 / #A1A1A6)
+  - `eve_color_hairline` (#1A000000 / #24FFFFFF)
+  - `eve_color_tab_track` (#29787880 / #52787880)
+  - `eve_color_accent` (#000000 / #FFFFFF)
+  - `eve_color_on_accent` (#FFFFFF / #000000)
+  - `eve_color_success` (#34C759 / #30D158)
+  - `eve_color_error` (#FF383C / #FF4245)
+  - `eve_color_warning` (#FF8D28 / #FF9230)
+  - `eve_color_floating_bar_bg` (#FFFFFF / #2C2C2E)
+  - `eve_color_card_shadow` (#1A000000 / #00000000)
+- Defined semantic app-wide aliases `@color/eve_app_*` mapping directly to `@color/eve_color_*`.
+- Added 13 theme attributes in `values/attrs.xml` and bound them in `Theme.Eve.Foundation` in `values/themes.xml`.
+- Added Kotlin foundation constants `HEX_APP_LIGHT_*`, `HEX_APP_DARK_*` and `@ColorInt` accessors `appBackground`, `appCard`, etc. in `EveDesignSystem.kt`.
+- Created shared app-wide color state lists in `res/color/` (`selector_eve_pill_bg.xml`, `selector_eve_pill_stroke.xml`, `selector_eve_pill_text.xml`, `selector_eve_tab_text.xml`, `selector_eve_floating_bar_tint.xml`).
+- Maintained strict "colors only" boundary: zero changes to layout structures, bounds/dimensions, typography, strings, shapes/radii, animations, or runtime behavior.
+
 ### EVE: Design System Foundation with Locked Values & Home Screen Application (ADR-018) — 2026-10-17
 
 - Codified the complete locked Eve Design System foundation and applied it strictly to the Home screen ONLY:

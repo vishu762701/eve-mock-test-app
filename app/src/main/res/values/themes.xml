@@ -73,6 +73,20 @@
         <item name="eveFillTertiary">@color/eve_fill_tertiary</item>
         <item name="eveFillQuaternary">@color/eve_fill_quaternary</item>
         <item name="eveLink">@color/eve_link</item>
+        <!-- Eve Design System Locked Foundation Color Roles (App-Wide) -->
+        <item name="eveColorBackground">@color/eve_color_background</item>
+        <item name="eveColorCard">@color/eve_color_card</item>
+        <item name="eveColorTextPrimary">@color/eve_color_text_primary</item>
+        <item name="eveColorTextSecondary">@color/eve_color_text_secondary</item>
+        <item name="eveColorHairline">@color/eve_color_hairline</item>
+        <item name="eveColorTabTrack">@color/eve_color_tab_track</item>
+        <item name="eveColorAccent">@color/eve_color_accent</item>
+        <item name="eveColorOnAccent">@color/eve_color_on_accent</item>
+        <item name="eveColorSuccess">@color/eve_color_success</item>
+        <item name="eveColorError">@color/eve_color_error</item>
+        <item name="eveColorWarning">@color/eve_color_warning</item>
+        <item name="eveColorFloatingBarBg">@color/eve_color_floating_bar_bg</item>
+        <item name="eveColorCardShadow">@color/eve_color_card_shadow</item>
 
         <item name="android:windowBackground">@color/eve_bg</item><item name="android:statusBarColor">@color/eve_bg</item>
         <item name="android:navigationBarColor">@color/eve_bg</item>

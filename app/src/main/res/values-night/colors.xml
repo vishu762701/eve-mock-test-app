@@ -358,4 +358,34 @@
     <color name="eve_home_warning">#FF9230</color>
     <color name="eve_home_floating_bar_bg">#2C2C2E</color>
     <color name="eve_home_card_shadow">#00000000</color>
+
+    <!-- Eve Design System Locked Foundation Tokens (App-Wide, Dark Mode) -->
+    <color name="eve_color_background">#0B0F16</color>
+    <color name="eve_color_card">#161B24</color>
+    <color name="eve_color_text_primary">#FFFFFF</color>
+    <color name="eve_color_text_secondary">#A1A1A6</color>
+    <color name="eve_color_hairline">#24FFFFFF</color>
+    <color name="eve_color_tab_track">#52787880</color>
+    <color name="eve_color_accent">#FFFFFF</color>
+    <color name="eve_color_on_accent">#000000</color>
+    <color name="eve_color_success">#30D158</color>
+    <color name="eve_color_error">#FF4245</color>
+    <color name="eve_color_warning">#FF9230</color>
+    <color name="eve_color_floating_bar_bg">#2C2C2E</color>
+    <color name="eve_color_card_shadow">#00000000</color>
+
+    <!-- App-Wide Semantic Aliases -->
+    <color name="eve_app_background">@color/eve_color_background</color>
+    <color name="eve_app_card">@color/eve_color_card</color>
+    <color name="eve_app_text_primary">@color/eve_color_text_primary</color>
+    <color name="eve_app_text_secondary">@color/eve_color_text_secondary</color>
+    <color name="eve_app_hairline">@color/eve_color_hairline</color>
+    <color name="eve_app_tab_track">@color/eve_color_tab_track</color>
+    <color name="eve_app_accent">@color/eve_color_accent</color>
+    <color name="eve_app_on_accent">@color/eve_color_on_accent</color>
+    <color name="eve_app_success">@color/eve_color_success</color>
+    <color name="eve_app_error">@color/eve_color_error</color>
+    <color name="eve_app_warning">@color/eve_color_warning</color>
+    <color name="eve_app_floating_bar_bg">@color/eve_color_floating_bar_bg</color>
+    <color name="eve_app_card_shadow">@color/eve_color_card_shadow</color>
 </resources>
