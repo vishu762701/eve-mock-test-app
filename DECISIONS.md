@@ -925,3 +925,6 @@ In continuation of the Eve Design System modernization roadmap, the user specifi
 4. **Strict Boundary Preservation**:
    - Layout geometry, component sizes, padding, corner radii, animations, text/typography roles, and behavior remain strictly untouched.
    - Telegram reveal toggle (`ThemeSwitchAnimator.kt`, `ThemeManager.kt`, `TelegramMenuPopup.kt`), all Lottie animations/triggers, and SVG icon vector geometries remain strictly protected.
+
+5. **Approved-UI Verification Alignment (Rule 6)**:
+   - In `ApprovedUiRenderingTest.kt`, aligned `context.getColor(R.color.eve_bg)` expectation to `appBackground` (`#F5F5F5` light / `#000000` dark), `CircularTimerView` background pixels to `appBackground`, button `currentTextColor` to `buttonText` (`#FFFFFF` light / `#000000` dark), and `activity_test.xml` canvas root background to `canvasBackground` (`#FFFFFF` light / `#000000` dark). All 34 UI tests pass across both gesture and three-button navigation modes.
