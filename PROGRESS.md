@@ -376,10 +376,9 @@
 
 ## Task 2 of 3 — Fix "Lining" and Clipped Shadows App-Wide (ADR-021) (2026-10-18)
 
-- [x] **Shared Styles & Liquid Glass Lining Elimination:**
-  - In `styles.xml`, set `strokeWidth="0dp"` and `strokeColor="@android:color/transparent"` on `Widget.Eve.Card` and `Widget.Eve.Tile`, removing the 1dp border that caused the dark curved line artifact.
-  - In `EveLiquidGlassView.kt`, removed the 1dp outline stroke drawing in `onDraw`.
-  - In 30 layout files, audited and removed explicit `MaterialCardView` `app:strokeWidth="1dp"` to eliminate hard card border linings app-wide.
+- [x] **Card Border Preservation & Shadow Clipping Fix:**
+  - Preserved canonical 1dp card borders (`strokeWidth="1dp"`, `strokeColor="@color/eve_shape_border"`) on `Widget.Eve.Card`, `Widget.Eve.Tile`, `EveLiquidGlassView`, and layout cards per approved-UI specification.
+  - Eliminated clipped shadow lining artifact at root cause by providing shadow room and systematically unclipping parent containers instead of altering card borders or using alpha hacks.
 - [x] **Result Viewport Overhaul (`activity_result.xml` & `activity_result_detail.xml`):**
   - Replaced vertical sequential linear layout with a coordinate viewport container (`layoutResultViewport`).
   - Positioned floating `layoutResultTabContainer` with `elevation="@dimen/eve_home_card_elevation"` and `translationZ="@dimen/eve_home_card_elevation"` above the viewport.

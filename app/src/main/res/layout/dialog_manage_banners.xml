@@ -60,8 +60,7 @@
             app:cardBackgroundColor="@color/eve_card_bg"
             app:cardCornerRadius="@dimen/eve_radius_card"
             app:cardElevation="0dp"
-            app:strokeColor="@android:color/transparent"
-            app:strokeWidth="0dp">
+            app:strokeWidth="1dp">
 
             <ImageView
                 android:id="@+id/ivPreviewBanner"

@@ -449,8 +449,7 @@
                     app:cardBackgroundColor="@color/eve_card_bg"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
-                    app:strokeColor="@android:color/transparent"
-                    app:strokeWidth="0dp">
+                    app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -813,8 +812,7 @@
                     app:cardBackgroundColor="@color/eve_card_bg"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
-                    app:strokeColor="@android:color/transparent"
-                    app:strokeWidth="0dp">
+                    app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -950,8 +948,7 @@
                     app:cardBackgroundColor="@color/eve_card_bg"
                     app:cardCornerRadius="@dimen/eve_radius_card"
                     app:cardElevation="0dp"
-                    app:strokeColor="@android:color/transparent"
-                    app:strokeWidth="0dp">
+                    app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"

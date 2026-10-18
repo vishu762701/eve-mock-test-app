@@ -21,8 +21,7 @@
         app:cardElevation="0dp"
         app:cardPreventCornerOverlap="false"
         app:cardUseCompatPadding="false"
-        app:strokeColor="@android:color/transparent"
-        app:strokeWidth="0dp">
+        app:strokeWidth="1dp">
 
         <LinearLayout
             android:layout_width="wrap_content"

@@ -943,10 +943,10 @@ On the Result screen (and consistently across other screens in the app), three c
 3. **Tab strip depth not visible where it meets content**: Because the tab strip was placed sequentially above the content container without z-index separation or overlay elevation, it cast no elevation shadow onto the passing cards below.
 
 ### Decisions
-1. **Elimination of Card Stroke Lining Artifacts (`styles.xml`, `EveLiquidGlassView.kt`, and Layouts)**:
-   - In `styles.xml`, updated base card styles `Widget.Eve.Card` and `Widget.Eve.Tile` to `strokeWidth="0dp"` and `strokeColor="@android:color/transparent"` (replacing `1dp` stroke with `eve_shape_border`).
-   - In `EveLiquidGlassView.kt`, removed the hardcoded 1dp outline stroke drawing in `onDraw` (`strokePaint.color = ...`).
-   - Across 30 layout files, audited and removed explicit `app:strokeWidth="1dp"` from `MaterialCardView` elements, setting `app:strokeWidth="0dp"` and `app:strokeColor="@android:color/transparent"`.
+1. **Preservation of Canonical 1dp Card Borders & Elimination of Clipped Shadow Lining**:
+   - Maintained canonical 1dp card borders (`strokeWidth="1dp"`, `strokeColor="@color/eve_shape_border"`) on `Widget.Eve.Card`, `Widget.Eve.Tile`, and `EveLiquidGlassView.kt`, preserving the approved UI contract and passing `ManualUiSpecificationTest.kt`.
+   - Addressed the "dark curved line / hard flat cut along card bottom edges" root cause: cards with zero bottom margin and parents with `clipToPadding="true"` / `clipChildren="true"` clipped the elevation spot and ambient shadows abruptly at the bounding box, creating an unnatural dark cut line.
+   - Resolved by providing standard shadow room dimensions and systematically unclipping parent containers rather than adding extra borders or alpha hacks.
 
 2. **Shadow Room and Ancestor Unclipping (`clipChildren` & `clipToPadding`)**:
    - In `dimens.xml`, added standard dimension tokens `@dimen/eve_shadow_room` (`8dp`) and `@dimen/eve_result_tab_strip_total_height` (`68dp`).

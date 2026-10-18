@@ -145,13 +145,13 @@
         <item name="iconTint">@color/selector_eve_accent_text</item>
     </style>
 
-    <!-- Cards: 20dp radius, borderless surface, soft elevation in light, 0dp in dark -->
+    <!-- Cards: 20dp radius, 0.5dp subtle border, soft elevation in light, 0dp in dark -->
     <style name="Widget.Eve.Card" parent="Widget.Material3.CardView.Elevated">
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Eve.Card</item>
         <item name="cardCornerRadius">@dimen/eve_radius_card</item>
         <item name="cardElevation">@dimen/eve_card_elevation_light</item>
-        <item name="strokeWidth">0dp</item>
-        <item name="strokeColor">@android:color/transparent</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">@color/eve_shape_border</item>
         <item name="cardBackgroundColor">@color/eve_card_bg</item>
         <item name="android:stateListAnimator">@animator/press_scale</item>
     </style>
@@ -160,21 +160,24 @@
     <style name="Widget.Eve.Tile" parent="Widget.Material3.CardView.Elevated">
         <item name="cardCornerRadius">@dimen/eve_radius_tile</item>
         <item name="cardElevation">0dp</item>
-        <item name="strokeWidth">0dp</item>
-        <item name="strokeColor">@android:color/transparent</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">@color/eve_shape_border</item>
         <item name="cardBackgroundColor">@color/eve_surface_2</item>
     </style>
 
     <style name="Widget.Eve.Tile.Right" parent="Widget.Eve.Tile">
         <item name="cardBackgroundColor">@color/eve_tile_right_fill</item>
+        <item name="strokeColor">@color/eve_shape_border</item>
     </style>
 
     <style name="Widget.Eve.Tile.Wrong" parent="Widget.Eve.Tile">
         <item name="cardBackgroundColor">@color/eve_tile_wrong_fill</item>
+        <item name="strokeColor">@color/eve_shape_border</item>
     </style>
 
     <style name="Widget.Eve.Tile.Medium" parent="Widget.Eve.Tile">
         <item name="cardBackgroundColor">@color/eve_tile_medium_fill</item>
+        <item name="strokeColor">@color/eve_shape_border</item>
     </style>
 
     <style name="TextAppearance.Eve.TabSegment" parent="TextAppearance.Material3.LabelLarge">
