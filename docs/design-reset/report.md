@@ -191,3 +191,75 @@ four Premium cards and the palette-circle host). ViewPager2's internal RecyclerV
 also requires runtime host handling. Existing explicit elevations, custom surface
 helpers and zero-margin rows must be migrated through shared components, not
 border/alpha workarounds.
+
+## Phase 2 — shared components
+
+Implementation and local checks complete; hosted native verification is pending.
+
+- Native shared cards and inflater release ancestor clipping for existing XML cards
+  and runtime scroll/pager/recycler hosts. Existing bindings remain compatible.
+- Segmented strips are 40dp with 3dp padding / 34dp selected segment, Mono fill and
+  14/20 Poppins regular/bold labels. Overlay-host helper reserves 40dp and brings
+  the strip above content without introducing a tab shadow.
+- Native switches retain checked/drag/click behavior with exact 51x31dp tracks,
+  27dp white thumbs and a minimum 48dp target. Initialization refreshes checked
+  drawable state, including switches declared checked in XML.
+- Shared inputs keep password/dropdown/error behavior and use 44dp field height,
+  17/24 Poppins, 16dp horizontal padding, capsule / 20dp multiline geometry,
+  1.5dp focus/error rings and 14/20 red helper text.
+- Solid dialog/sheet helpers preserve caller listeners. Dialog type roles and
+  bottom-sheet overlays retain the root font/palette. Cards remain solid surface.
+- Medium glass uses existing Apache-2.0 BlurView 2.0.6 / RenderEffect on API 31+
+  with foreground children excluded. Radius is 14dp at pixel scale 1; tint is 55%,
+  fallback 94%, hairline 0.5dp. Hardware/device visual proof waits for chrome/screen
+  integration; below-31 and software paths are explicit in the component.
+- Primary/secondary/destructive/disabled buttons, pills, icon-only buttons, inner
+  tiles, rows, multiline/dropdown inputs, toasts and badges have shared token styles.
+  Chip text padding is zero inside the explicit 14dp chip padding; icons are 24dp.
+- One native state-list animator defines .96 press in 100ms / release in 140ms,
+  ease-out, and honors system animation scaling. No extra alpha/elevation effects.
+- Shared parent TouchDelegates expand small interactive regions to 48dp, expose
+  accessibility regions on API 29+, keep existing listeners and clean up on detach.
+- New native tests exercise switch pixels/geometry/callbacks, field validation,
+  tab selection/height, modal inheritance, clipping, inflater binding compatibility,
+  expanded hit targets and delegate cleanup in addition to the root light/dark test.
+- The shared verification fixture now uses the new production components/styles.
+
+Local `assembleDebug testDebugUnitTest lintDebug assembleDebugAndroidTest` succeeds;
+281 JVM tests pass, lint has 0 errors/fatal issues, and both APKs assemble. Static
+Python contracts and `git diff --check` are run before commit. Existing native CI
+run 39189722872 built/linted/tested successfully but failed four appearance checks:
+integer sp rounding, old 1dp borders, an old switch contrast threshold and red error
+helper contrast. Those contracts are now aligned to the owner's exact tokens;
+mandatory colors are never darkened to satisfy old contrast thresholds. The error
+helper "Please enter your message" measured 3.2742:1 on bg_app (not white).
+Full system-colored small-text-on-white inventory is still pending screen migration.
+
+No production screen is yet certified fully migrated. Phases 3–6 and all old-resource
+cleanup remain pending; no old resource files have been deleted and no final
+`design_check.sh` PASS is claimed. Protected toggle core files/resources still have
+an empty diff. Shared components do not alter backend/scoring/data/navigation logic.
+
+### Pending decision before navigation
+
+Android 7/API 24–25 cannot switch navigation-button icons to dark. Core 1.13.1
+explicitly documents that the appearance API has no effect below 26. Transparent
+light bg_app and readable white OS buttons cannot both be satisfied there.
+The owner has been asked to permit an Android-7-only dark navigation region or
+raise minimum support to API 26. No support/SDK change or extra exception has been
+implemented while the answer is pending. The font question is already resolved.
+
+### Current production counts (same baseline scope)
+
+| Metric | Before | After Phase 2 |
+| --- | ---: | ---: |
+| hex_color_occurrences | 496 | 520 |
+| literal_dp_occurrences | 3007 | 3106 |
+| literal_sp_occurrences | 181 | 223 |
+| style_definitions_including_qualifiers | 279 | 327 |
+| drawable_files_including_qualifiers | 133 | 138 |
+| font_files_including_xml_families | 8 | 11 |
+| layout_files_including_qualifiers | 95 | 95 |
+| kotlin_files | 237 | 251 |
+
+Added required tokens/qualifier copies are included; these are not claims of old-resource cleanup.

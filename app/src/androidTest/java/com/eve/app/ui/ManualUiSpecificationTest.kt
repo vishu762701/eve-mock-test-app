@@ -274,19 +274,19 @@ class ManualUiSpecificationTest {
                         for (enabled in listOf(true, false, true)) for (checked in listOf(false, true, false)) {
                             toggle.isEnabled = enabled
                             toggle.isChecked = checked
-                            assertEquals(if (checked) Color.TRANSPARENT else controlOutline,
-                                toggle.trackDecorationTintList!!.getColorForState(toggle.drawableState, 0))
-                            assertEquals(255, toggle.trackDecorationDrawable!!.alpha)
+                            assertNull("Locked switch has no decorative outline", toggle.trackDecorationDrawable)
+                            assertEquals(context.getColor(if (checked) R.color.system_green else R.color.track),
+                                toggle.trackTintList!!.getColorForState(toggle.drawableState, 0))
+                            assertEquals(context.getColor(R.color.solid_white), toggle.thumbTintList!!.defaultColor)
                         }
                     }
                     val inheritedCard = com.google.android.material.card.MaterialCardView(context)
-                    assertEquals(dp(1), inheritedCard.strokeWidth)
-                    assertEquals(border, inheritedCard.strokeColor)
+                    assertEquals(0, inheritedCard.strokeWidth)
+                    assertEquals(context.getColor(R.color.transparent), inheritedCard.strokeColor)
                     val inherited = Chip(context)
-                    assertEquals(density, inherited.chipStrokeWidth, 0.01f)
+                    assertEquals(0f, inherited.chipStrokeWidth, 0.01f)
                     for (state in listOf(intArrayOf(), intArrayOf(android.R.attr.state_checked), intArrayOf(-android.R.attr.state_enabled))) {
-                        assertEquals(if (state.contains(android.R.attr.state_checked)) Color.TRANSPARENT else controlOutline,
-                            inherited.chipStrokeColor!!.getColorForState(state, 0))
+                        assertEquals(context.getColor(R.color.transparent), inherited.chipStrokeColor!!.getColorForState(state, 0))
                     }
                     // Offscreen fixtures never receive Android's detach callback. Release their
                     // looping artwork before inflating the next configuration.

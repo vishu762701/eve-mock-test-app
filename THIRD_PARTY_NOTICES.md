@@ -40,3 +40,12 @@ Any distribution of binary artifacts containing these ported components must com
 - Bundled, unmodified font binaries: Poppins Regular 400, Medium 500, Bold 700.
 
 > This Font Software is licensed under the SIL Open Font License, Version 1.1.
+
+## BlurView 2.0.6
+
+- Existing dependency reused; no dependency version added or changed.
+- Source: https://github.com/Dimezis/BlurView/tree/version-2.0.6
+- License: Apache License 2.0; full notice included in APK assets at
+  `app/src/main/assets/licenses/BlurView-LICENSE.txt`.
+- `RenderEffectBlur` is used only on API 31+ with a hardware canvas. Other cases
+  use the owner's 94% glass tint. The shared chrome keeps foreground children sharp.

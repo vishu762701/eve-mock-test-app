@@ -39,14 +39,19 @@ class SharedDesignSystemTest {
                     R.id.fixtureSoft, R.id.fixtureOutlined).map { root.findViewById<MaterialButton>(it) }
                 val disabled = root.findViewById<MaterialButton>(R.id.fixtureDisabled)
                 val card = root.findViewById<MaterialCardView>(R.id.fixtureCard)
-                val toggle = root.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(R.id.fixtureToggle)
-                val thumb = toggle.thumbTintList!!.getColorForState(toggle.drawableState, 0)
-                val track = toggle.trackTintList!!.getColorForState(toggle.drawableState, 0)
-                assertEquals(context.getColor(R.color.eve_white), thumb)
-                assertTrue("The graphical switch handle meets 3:1", ColorUtils.calculateContrast(thumb, track) >= 3.0)
+                val toggle = root.findViewById<com.eve.app.designsystem.DesignSwitch>(R.id.fixtureToggle)
                 root.measure(View.MeasureSpec.makeMeasureSpec(dp(393), View.MeasureSpec.EXACTLY),
                     View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
                 root.layout(0, 0, root.measuredWidth, root.measuredHeight)
+                val switchBitmap = Bitmap.createBitmap(toggle.width, toggle.height, Bitmap.Config.ARGB_8888)
+                toggle.draw(Canvas(switchBitmap))
+                val thumbBounds = toggle.thumbDrawable.bounds
+                val trackBounds = toggle.trackDrawable.bounds
+                assertEquals(context.getColor(R.color.solid_white),
+                    switchBitmap.getPixel(thumbBounds.centerX(), thumbBounds.centerY()))
+                assertEquals(context.getColor(R.color.system_green),
+                    switchBitmap.getPixel(trackBounds.left + trackBounds.height() / 2, trackBounds.centerY()))
+                switchBitmap.recycle()
                 for (button in buttons) {
                     val bounds = RectF(0f, 0f, button.width.toFloat(), button.height.toFloat())
                     assertEquals("Capsules follow actual height", button.height / 2f,
@@ -55,33 +60,33 @@ class SharedDesignSystemTest {
                     assertNotNull("Controls retain native pressed feedback", button.rippleColor)
                     assertTrue(android.graphics.Color.alpha(button.rippleColor!!.getColorForState(
                         intArrayOf(android.R.attr.state_enabled, android.R.attr.state_pressed), 0)) > 0)
-                    val minContrast = if (button.currentTextColor == context.getColor(R.color.eve_on_primary)) 3.0 else 4.5
-                    if (button.currentTextColor == context.getColor(R.color.eve_system_blue)) {
+                    val minContrast = if (button.currentTextColor == context.getColor(R.color.on_accent)) 3.0 else 4.5
+                    if (button.backgroundTintList!!.getColorForState(button.drawableState, 0) == context.getColor(R.color.system_red)) {
+                        assertEquals("Destructive controls keep the owner's white label", context.getColor(R.color.solid_white), button.currentTextColor)
+                    } else if (button.currentTextColor == context.getColor(R.color.eve_system_blue)) {
                         // ADR-009 exact-blue exception; all other labels retain their AA gate.
                         assertEquals(context.getColor(R.color.eve_system_blue), button.currentTextColor)
                     } else assertTrue("Enabled control labels meet AA", ColorUtils.calculateContrast(
-                        button.currentTextColor, ColorUtils.compositeColors(button.backgroundTintList!!.getColorForState(button.drawableState, 0), context.getColor(R.color.eve_canvas))) >= minContrast)
+                        button.currentTextColor, ColorUtils.compositeColors(button.backgroundTintList!!.getColorForState(button.drawableState, 0), context.getColor(R.color.bg_app))) >= minContrast)
                 }
-                assertTrue(ColorUtils.calculateContrast(secondary.currentTextColor, context.getColor(R.color.eve_canvas)) >= 4.5)
-                assertEquals(context.getColor(R.color.eve_on_primary), buttons[0].currentTextColor)
-                assertEquals(context.getColor(if (high) R.color.eve_hc_primary else R.color.eve_primary), buttons[0].backgroundTintList!!.defaultColor)
+                assertTrue(ColorUtils.calculateContrast(secondary.currentTextColor, context.getColor(R.color.bg_app)) >= 4.5)
+                assertEquals(context.getColor(R.color.on_accent), buttons[0].currentTextColor)
+                assertEquals(context.getColor(R.color.accent), buttons[0].backgroundTintList!!.defaultColor)
                 for (button in buttons) {
                     button.isEnabled = false
-                    assertEquals(context.getColor(R.color.eve_disabled_text), button.currentTextColor)
+                    assertEquals(context.getColor(R.color.text_secondary), button.currentTextColor)
                     val fill = ColorUtils.compositeColors(button.backgroundTintList!!.getColorForState(button.drawableState, 0),
-                        context.getColor(R.color.eve_canvas))
-                    assertTrue("Every disabled button label remains readable", ColorUtils.calculateContrast(button.currentTextColor, fill) >= 4.5)
+                        context.getColor(R.color.bg_app))
+                    assertEquals("Disabled fills keep the locked track token",
+                        ColorUtils.compositeColors(context.getColor(R.color.track), context.getColor(R.color.bg_app)), fill)
                     button.isEnabled = true
                 }
                 val field = root.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.fixtureField)
-                val expectedAccent = context.getColor(if (high) R.color.eve_hc_accent else R.color.eve_accent_text)
-                assertEquals(expectedAccent, field.hintTextColor!!.defaultColor)
-                assertEquals("Focused hint follows the user-selected blue exception",
-                    context.getColor(R.color.eve_system_blue), field.hintTextColor!!.defaultColor)
-                assertEquals(context.getColor(R.color.eve_card_bg), card.cardBackgroundColor.defaultColor)
+                assertEquals(context.getColor(R.color.text_secondary), field.hintTextColor!!.defaultColor)
+                assertEquals(context.getColor(R.color.surface), card.cardBackgroundColor.defaultColor)
                 assertEquals(dp(26).toFloat(), card.radius, 1f)
-                assertTrue(ColorUtils.calculateContrast(disabled.currentTextColor,
-                    disabled.backgroundTintList!!.getColorForState(disabled.drawableState, 0)) >= 4.5)
+                assertEquals(context.getColor(R.color.text_secondary), disabled.currentTextColor)
+                assertEquals(context.getColor(R.color.track), disabled.backgroundTintList!!.getColorForState(disabled.drawableState, 0))
                 val bitmap = Bitmap.createBitmap(root.width, root.height, Bitmap.Config.ARGB_8888)
                 try {
                     root.draw(Canvas(bitmap))

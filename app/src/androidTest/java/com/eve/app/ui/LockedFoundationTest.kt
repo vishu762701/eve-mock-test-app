@@ -39,11 +39,11 @@ class LockedFoundationTest {
                 val text = TextView(context)
                 assertFalse(text.includeFontPadding)
                 assertEquals(primary, text.currentTextColor)
-                assertEquals(resources.getDimension(R.dimen.design_type_body), text.textSize, .01f)
+                assertEquals(resources.getDimensionPixelSize(R.dimen.design_type_body).toFloat(), text.textSize, .01f)
                 val button = MaterialButton(context)
                 assertFalse(button.includeFontPadding)
                 assertEquals(context.getColor(R.color.on_accent), button.currentTextColor)
-                assertEquals(resources.getDimension(R.dimen.design_type_button), button.textSize, .01f)
+                assertEquals(resources.getDimensionPixelSize(R.dimen.design_type_button).toFloat(), button.textSize, .01f)
                 assertEquals(context.getColor(R.color.accent), button.backgroundTintList!!.defaultColor)
                 button.isEnabled = false
                 assertEquals(context.getColor(R.color.text_secondary), button.currentTextColor)

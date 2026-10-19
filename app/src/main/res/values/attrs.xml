@@ -71,4 +71,8 @@
     <attr name="designTrack" format="color" />
     <attr name="designAccent" format="color" />
     <attr name="designOnAccent" format="color" />
+    <declare-styleable name="DesignGlassLayout">
+        <attr name="designGlassCapsule" format="boolean" />
+        <attr name="designGlassRadius" format="dimension" />
+    </declare-styleable>
 </resources>

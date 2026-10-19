@@ -1029,3 +1029,60 @@ attribute. SDK 36 public resources verify the native shadow names
 `android:ambientShadowAlpha` / `android:spotShadowAlpha`. Disable Material elevation
 color overlays to preserve solid surface pixels at 9dp; give Snackbar text an
 explicit readable body style on the solid surface. No errors are suppressed.
+
+## Locked reset — shared components and clipping
+
+Implement tokenized shared native components (cards, segmented tabs, inputs,
+switches, solid modals and glass chrome) without replacing existing navigation or
+data callbacks. SwitchCompat retains dragging, checked-state events and native
+animation-scale behavior. Its measured track is 51x31dp, painted thumb is 27dp and
+view target is at least 48dp high. Native thumb intrinsic width and track padding
+are derived from W/H so SwitchCompat's enforced-width calculation stays exactly W.
+
+Use one 100ms/.96, 140ms/1.0 ease-out state-list animator for shared press feedback;
+never alter alpha or add translation-Z feedback. Input text is 17/24 Poppins,
+44dp filled field, 1.5dp focused/error outline and 14/20 red error helper. Preserve
+native password/dropdown/error callbacks. One parent TouchDelegate group expands
+small targets to 48dp, retains click listeners and previous delegates, and removes
+layout observers and entries when views detach. API 29+ exposes delegate regions
+to accessibility. Shared native inflater subclasses keep ViewBinding base types.
+
+Diagnose clipping first: 89 XML cards, 9 with default-clipping ancestors. The
+inflater upgrades existing native cards to the shared subclass, releasing clipping
+through scroll/RecyclerView/ViewPager2 ancestors up to android.R.id.content.
+Bring overlay strips to front and reserve 40dp content padding; no tab elevation,
+added borders, translucent-shadow fakes or per-screen clipping patches.
+
+BlurView 2.0.6 was already installed and compiles with the existing AGP 8.5.2/SDK
+36. Its Apache 2.0 license and tagged source were read. Pixel-scale-1 RenderEffect
+backdrop blur gives the actual 14dp radius; foreground children are excluded from
+capture. Software/unavailable blur uses the exact 94% fallback, never RenderScript.
+Dialogs/sheets remain solid. Bottom-sheet theme is an overlay so it retains the
+root palette/font rather than reapplying a full Material theme.
+
+Approved UI tests are aligned only where the new locked values contradict old
+contracts: zero card/chip borders, exact green/white switches, gray placeholders,
+exact disabled track/secondary roles and mandatory system colors even below old
+contrast thresholds. Keep every click, state, geometry and unrelated contrast
+check. The root font-size test uses Android's integer dimension rounding; 17sp at
+2.625 density is 45 pixels, not 44.625 pixels in inflated TextView styles.
+
+Official sources actually read:
+- https://raw.githubusercontent.com/Dimezis/BlurView/version-2.0.6/LICENSE.md
+- https://raw.githubusercontent.com/Dimezis/BlurView/version-2.0.6/README.md
+- https://raw.githubusercontent.com/Dimezis/BlurView/version-2.0.6/library/src/main/java/eightbitlab/com/blurview/RenderEffectBlur.java
+- https://raw.githubusercontent.com/Dimezis/BlurView/version-2.0.6/library/src/main/java/eightbitlab/com/blurview/PreDrawBlurController.java
+- https://raw.githubusercontent.com/material-components/material-components-android/1.12.0/lib/java/com/google/android/material/textfield/TextInputLayout.java
+- https://dl.google.com/dl/android/maven2/androidx/appcompat/appcompat/1.7.0/appcompat-1.7.0-sources.jar
+
+## Locked reset — pending Android 7 navigation decision
+
+Project minSdk is 24. Official Core 1.13.1 WindowInsetsControllerCompat source says
+for setAppearanceLightNavigationBars: "This method has no effect on API < 26."
+Thus Android 7/API 24–25 cannot supply dark navigation-button icons over the locked
+light bg_app while the navigation region stays transparent. Ask the owner whether
+to authorize a dark nav-region fallback on those versions (retain support), or
+raise minimum support to API 26. Do not silently add an exception or drop support.
+No SDK or navigation behavior changes have been applied for this pending choice.
+Source actually read:
+https://dl.google.com/dl/android/maven2/androidx/core/core/1.13.1/core-1.13.1-sources.jar

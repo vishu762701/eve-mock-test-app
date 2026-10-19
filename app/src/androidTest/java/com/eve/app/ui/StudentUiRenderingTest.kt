@@ -294,10 +294,20 @@ class StudentUiRenderingTest {
             val largeOrPrimary = view.currentTextColor == view.context.getColor(R.color.eve_on_primary) ||
                 (view.textSize / view.resources.displayMetrics.scaledDensity >= if (view.typeface?.isBold == true) 18f else 24f)
             val ratio = androidx.core.graphics.ColorUtils.calculateContrast(foreground, background)
-            if (view.currentTextColor == view.context.getColor(R.color.eve_system_blue)) {
-                // UI ADR-009: exact system blue is a user-chosen contrast exception.
-                // Do not extend this exception to faded blue or any other colour.
-                assertEquals("System-blue labels retain full opacity: $label / ${view.text}", 1f, alpha, .001f)
+            val lockedSystemColors = listOf(R.color.system_red, R.color.system_green, R.color.system_blue,
+                R.color.system_indigo, R.color.system_orange, R.color.system_purple, R.color.system_yellow)
+                .map { view.context.getColor(it) }
+            val lockedDisabled = view is com.google.android.material.button.MaterialButton && !view.isEnabled &&
+                view.currentTextColor == view.context.getColor(R.color.text_secondary) &&
+                view.backgroundTintList?.getColorForState(view.drawableState, 0) == view.context.getColor(R.color.track)
+            if (lockedDisabled) {
+                assertEquals("Disabled roles keep their specified opacity: $label / ${view.text}", 1f, alpha, .001f)
+            } else if (view.currentTextColor in lockedSystemColors) {
+                // The owner mandates exact system hues and asks that low ratios be
+                // listed, never repaired by substituting darker colors.
+                assertEquals("Locked system labels retain full opacity: $label / ${view.text}", 1f, alpha, .001f)
+                if (ratio < 4.5) android.util.Log.i("LockedColorContrast",
+                    "$label / ${view.text}: $ratio; foreground=${view.currentTextColor}; background=$background")
             } else {
                 assertTrue("Text contrast $label / ${view.text}: $ratio", ratio >= if (largeOrPrimary) 3.0 else 4.5)
             }

@@ -20,7 +20,7 @@
         <item name="android:windowBlurBehindEnabled">false</item>
     </style>
     <!-- Solid bottom-sheet surface on API 31+ -->
-    <style name="Theme.Eve.BottomSheetDialog" parent="Theme.Material3.DayNight.BottomSheetDialog">
+    <style name="Theme.Eve.BottomSheetDialog" parent="Theme.Eve.BottomSheetDialog.Base">
         <item name="bottomSheetStyle">@style/Widget.Eve.BottomSheet.Modal</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:windowIsTranslucent">false</item>

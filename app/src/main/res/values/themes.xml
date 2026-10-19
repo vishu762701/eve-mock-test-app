@@ -128,6 +128,7 @@
         <item name="materialButtonStyle">@style/Widget.Eve.Token.Button</item>
         <item name="materialSwitchStyle">@style/Widget.Eve.Token.Switch</item>
         <item name="textInputStyle">@style/Widget.Eve.Token.TextInput</item>
+        <item name="tabStyle">@style/Widget.Eve.Token.SegmentedTabs</item>
         <item name="chipStyle">@style/Widget.Eve.Token.Chip</item>
         <item name="materialCardViewStyle">@style/Widget.Eve.Token.Card</item>
         <item name="bottomSheetDialogTheme">@style/Theme.Eve.BottomSheetDialog</item>
@@ -207,6 +208,9 @@
         <item name="colorOnSurfaceInverse">@color/on_accent</item>
         <item name="colorPrimaryInverse">@color/on_accent</item>
         <item name="snackbarTextViewStyle">@style/Widget.Eve.Token.Snackbar.Text</item>
+        <item name="viewInflaterClass">com.eve.app.designsystem.DesignViewInflater</item>
+        <item name="imageButtonStyle">@style/Widget.Eve.Token.IconButton</item>
+        <item name="android:imageButtonStyle">@style/Widget.Eve.Token.IconButton</item>
     </style>
 
     <style name="Theme.Eve.Dialog.Base" parent="ThemeOverlay.Material3.MaterialAlertDialog">
@@ -215,6 +219,10 @@
         <item name="android:windowBackground">@drawable/design_surface_panel</item>
         <item name="buttonBarPositiveButtonStyle">@style/Widget.Eve.Token.Button</item>
         <item name="buttonBarNegativeButtonStyle">@style/Widget.Eve.Token.Button.Secondary</item>
+        <item name="materialButtonStyle">@style/Widget.Eve.Token.Button</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.Eve.Token.Button.Secondary</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/Widget.Eve.Token.Dialog.Title</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/Widget.Eve.Token.Dialog.Body</item>
     </style>
 
     <style name="Theme.Eve.Dialog" parent="Theme.Eve.Dialog.Base" />
@@ -230,7 +238,9 @@
         <item name="cornerSize">@dimen/design_radius_card</item>
     </style>
 
-    <style name="Theme.Eve.BottomSheetDialog" parent="Theme.Material3.DayNight.BottomSheetDialog">
+    <style name="Theme.Eve.BottomSheetDialog" parent="Theme.Eve.BottomSheetDialog.Base" />
+    <style name="Theme.Eve.BottomSheetDialog.Base" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="materialButtonStyle">@style/Widget.Eve.Token.Button</item>
         <item name="bottomSheetStyle">@style/Widget.Eve.BottomSheet.Modal</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
@@ -239,7 +249,7 @@
 
     <style name="Widget.Eve.BottomSheet.Modal" parent="Widget.Material3.BottomSheet.Modal">
         <item name="backgroundTint">@color/surface</item>
-        <item name="shapeAppearance">@style/ShapeRoundedBottomSheet</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Eve.Token.Sheet</item>
     </style>
 
     <style name="ShapeRoundedBottomSheet" parent="">
