@@ -738,17 +738,23 @@ class RepairRegressionTest {
     @Test fun canceledPopupWorkCannotRestoreBlurOrEntranceOnFollowingFrames() {
         ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
             lateinit var view: View
+            lateinit var popup: android.widget.PopupWindow
             val frames = java.util.concurrent.CountDownLatch(1)
+            val failure = java.util.concurrent.atomic.AtomicReference<Throwable>()
             scenario.onActivity { act ->
-                val popup = android.widget.PopupWindow(act).apply {
+                popup = android.widget.PopupWindow(act).apply {
                     contentView = FrameLayout(act)
                     width = 200; height = 200
                     setBackgroundDrawable(android.graphics.drawable.ColorDrawable(Color.WHITE))
                 }
                 popup.showAtLocation(act.window.decorView, android.view.Gravity.CENTER, 0, 0)
                 view = popup.contentView
-                // Seed an existing native blur directly: the retired entrance helper is
-                // no longer part of the UI. Cancellation must still clear window blur.
+            }
+            // Native addView completes attachment on a traversal. A pre-existing blur
+            // must be seeded after that traversal, just like a real attached popup.
+            instrumentation.waitForIdleSync()
+            scenario.onActivity { act ->
+                assertTrue("Native popup must be attached before seeding its blur", view.isAttachedToWindow)
                 if (android.os.Build.VERSION.SDK_INT >= 31) {
                     val root = view.rootView
                     val params = root.layoutParams as android.view.WindowManager.LayoutParams
@@ -763,17 +769,23 @@ class RepairRegressionTest {
                 view.alpha = 0.73f; view.scaleX = 0.91f
                 view.postOnAnimation {
                     view.postOnAnimation {
-                        assertEquals(0.73f, view.alpha)
-                        assertEquals(0.91f, view.scaleX)
-                        if (android.os.Build.VERSION.SDK_INT >= 31) {
-                            assertEquals(0, (view.rootView.layoutParams as android.view.WindowManager.LayoutParams).blurBehindRadius)
+                        try {
+                            assertEquals(0.73f, view.alpha)
+                            assertEquals(0.91f, view.scaleX)
+                            if (android.os.Build.VERSION.SDK_INT >= 31) {
+                                assertEquals(0, (view.rootView.layoutParams as android.view.WindowManager.LayoutParams).blurBehindRadius)
+                            }
+                        } catch (error: Throwable) {
+                            failure.set(error)
+                        } finally {
+                            popup.dismiss()
+                            frames.countDown()
                         }
-                        popup.dismiss()
-                        frames.countDown()
                     }
                 }
             }
             assertTrue("Canceled work test did not draw", frames.await(3, java.util.concurrent.TimeUnit.SECONDS))
+            failure.get()?.let { throw AssertionError("Canceled popup frame verification failed", it) }
         }
     }
 

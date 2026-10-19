@@ -1197,3 +1197,8 @@ invalidate from its OnPreDraw callback; no speculative blur renderer change was 
 ## Root reset enforcement boundary
 
 The standalone design checker stays outside CI as the owner requested. Protected core/sun/moon and raw/Lottie exceptions are backed by baseline SHA-256 checks; unchanged channel-mask arithmetic is not a UI color. Existing artwork lookups were moved verbatim to a shared token object without changing playback or output. Exact system hues remain even where small text on white falls below 4.5:1; the report inventories those cases instead of altering the locked palette. Hosted native success is required before publishing the final APK.
+
+
+## Native recovery: measure current content, preserve hard gates
+
+Official Android Configuration.screenWidthDp and View.measure documentation were opened and read: https://developer.android.com/reference/android/content/res/Configuration#screenWidthDp and https://developer.android.com/reference/android/view/View#measure(int,int). Use the current app configuration width for chip caps, rather than physical display width; include all competing row children in desired-width measurement before stacking. The native fixture retains its no-wrap/no-overflow assertions. Posted-frame test assertions are captured and rethrown on the test thread so a failure cannot crash the remaining instrumentation. Failing JUnit XML is printed without modifying the job's original exit status or publication dependencies.

@@ -156,7 +156,8 @@ class ManualUiSpecificationTest {
                                 chip.chipBackgroundColor!!.getColorForState(chip.drawableState, 0))
                         }
                         assertTrue(chip.height >= dp(32))
-                        assertTrue(chip.width <= dp(width - 32))
+                        assertTrue("Chip must fit the locked screen margins at $width/$font",
+                            chip.width <= dp(width) - 2 * context.resources.getDimensionPixelSize(R.dimen.design_screen_margin))
                         assertEquals(chip.text.toString(), chip.contentDescription.toString())
                     }
                     for (i in 1 until chips.size) assertEquals(dp(8), chips[i].left - chips[i-1].right)

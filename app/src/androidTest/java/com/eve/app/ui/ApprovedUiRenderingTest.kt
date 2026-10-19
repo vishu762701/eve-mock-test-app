@@ -321,6 +321,15 @@ class ApprovedUiRenderingTest {
         assertEquals(59, b.viewPager.currentItem)
     }
 
+    private fun assertPremultipliedPixel(message: String, expected: Int, actual: Int) {
+        if (Color.alpha(expected) in 1..254) {
+            assertEquals(message, Color.alpha(expected), Color.alpha(actual))
+            assertTrue("$message: only 8-bit alpha premultiplication rounding is allowed",
+                listOf(Color.red(expected) - Color.red(actual), Color.green(expected) - Color.green(actual),
+                    Color.blue(expected) - Color.blue(actual)).all { kotlin.math.abs(it) <= 3 })
+        } else assertEquals(message, expected, actual)
+    }
+
     private fun verifyResult() {
         val b = ActivityResultBinding.inflate(LayoutInflater.from(context))
         ResultTabs.bind(b) {}
@@ -354,10 +363,11 @@ class ApprovedUiRenderingTest {
                 assertEquals(image.width - b.tabLayoutResult.paddingLeft - b.tabLayoutResult.paddingRight, strip.width)
                 val x = ((index + 0.5f) * image.width / 3).toInt()
                 assertEquals("Selected pill must render for $name in dark=$dark", context.getColor(R.color.text_primary), image.getPixel(x, dp(8)))
-                assertEquals(context.getColor(R.color.track), image.getPixel(image.width / 2, dp(1)))
+                assertEquals(context.getColor(R.color.track), (b.tabLayoutResult.background as GradientDrawable).color!!.defaultColor)
+                assertPremultipliedPixel("Track", context.getColor(R.color.track), image.getPixel(image.width / 2, dp(1)))
                 val cornerX = b.tabLayoutResult.paddingLeft + strip.getChildAt(index).right - dp(3) - dp(1)
                 val expectedCorner = if (index == 2) Color.TRANSPARENT else context.getColor(R.color.track)
-                assertEquals("Selected $name pill must retain its rounded right corner",
+                assertPremultipliedPixel("Selected $name pill must retain its rounded right corner",
                     expectedCorner,
                     image.getPixel(cornerX, b.tabLayoutResult.paddingTop + dp(1)))
             }

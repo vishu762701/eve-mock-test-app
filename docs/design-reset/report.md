@@ -98,3 +98,12 @@ Reproduced with `python3 scripts/design_inventory.py`; includes token definition
 | kotlin_files | 237 | 240 |
 
 Commands and local log hashes: phase6-verification.json. The four local gates use the configured JDK 21, Gradle 8.7 and Android SDK with the session proxy/trust store; no signing or workflow configuration was changed.
+
+
+## Final native recovery checkpoint
+
+Run 39334405207 at 06df86d39dbdad9348b58ee4f7e18cc7bc668a48 verified build/backend/functions success, both native modes failure, publishing skipped. Actual decoded logs show the same four failures in both modes; instrumentation crashed after 25/40 because a fixture asserted inside a posted main-thread callback. This is not reported as a successful device run.
+
+Recovery preserves every original feature assertion. The blur fixture now waits for real window attachment before seeding native blur, captures asynchronous assertion failures and reports them on the test thread. Transparent track pixels allow only the already-measured 8-bit alpha premultiplication rounding; the underlying drawable still requires the exact track token. Palette row measurement now accounts for both its weighted Poppins heading and nested legend, avoiding the verified 320dp wrap. Chip maximum width uses the configuration's app width and two exact 12dp margins; the obsolete 32dp fixture expectation was replaced by the margin token. Native failure XML is printed on failure with the original non-zero exit status retained, so further problems include their source lines.
+
+All four local Android gates PASS (1m24s, 86 tasks); Python 15 PASS; design_check PASS. Native rerun remains required before final publishing. No protected animation or Lottie playback code changed in this recovery.

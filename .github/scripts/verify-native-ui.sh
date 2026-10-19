@@ -88,6 +88,18 @@ adb shell wm dismiss-keyguard
 status=0
 gradle connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=com.eve.app.ui "-Pandroid.testInstrumentationRunnerArguments.navigationMode=$mode" --stacktrace || status=$?
 if [[ "$status" != "0" ]]; then
+  # Print only failing fixture assertions, so source lines survive Gradle's
+  # abbreviated native-test summary. Preserve the original failing exit code.
+  python3 - <<'PYFAILURES'
+from pathlib import Path
+import xml.etree.ElementTree as ET
+for path in Path("app/build/outputs/androidTest-results/connected").rglob("*.xml"):
+    root = ET.parse(path).getroot()
+    for case in root.iter("testcase"):
+        for failure in list(case.findall("failure")) + list(case.findall("error")):
+            print("NATIVE_FAILURE", case.get("classname"), case.get("name"))
+            print(failure.text or failure.get("message", ""))
+PYFAILURES
   adb shell cmd overlay lookup com.android.systemui com.android.systemui:color/light_mode_icon_color_single_tone > ui-renderings/systemui-light-icon-color.log || true
   adb shell cmd overlay lookup com.android.systemui com.android.systemui:color/dark_mode_icon_color_single_tone > ui-renderings/systemui-dark-icon-color.log || true
   if adb shell pm path com.android.deskclock | grep -q '^package:'; then

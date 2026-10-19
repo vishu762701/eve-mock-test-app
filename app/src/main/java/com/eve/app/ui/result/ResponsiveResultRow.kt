@@ -24,10 +24,18 @@ class ResponsiveResultRow @JvmOverloads constructor(context: Context, attrs: Att
         val intrinsicWidth = (0 until childCount).sumOf { index ->
             val child = getChildAt(index)
             val original = originals[index]
-            if (original.weight == 0f && child is android.widget.TextView) {
+            if (child.visibility == GONE) return@sumOf 0
+            val desired = if (child is android.widget.TextView) {
                 kotlin.math.ceil(android.text.Layout.getDesiredWidth(child.text, child.paint).toDouble()).toInt() +
-                    child.paddingLeft + child.paddingRight + original.start + original.end
-            } else 0
+                    child.compoundPaddingLeft + child.compoundPaddingRight
+            } else {
+                // A legend is a ViewGroup, not a TextView. Its dots, labels and
+                // spacing compete with the weighted heading just like text does.
+                child.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED))
+                child.measuredWidth
+            }
+            desired + original.start + original.end
         }
         val breakpoint = if (horizontalBreakpoint > 0f) horizontalBreakpoint
             else (if (childCount == 3) 260 else 248) * resources.displayMetrics.density

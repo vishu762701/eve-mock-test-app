@@ -65,7 +65,8 @@ object EveDesignSystem {
             textStartPadding = 0f
             textEndPadding = 0f
             shapeAppearanceModel = shapeAppearanceModel.withCornerSize(com.google.android.material.shape.RelativeCornerSize(.5f))
-            maxWidth = resources.displayMetrics.widthPixels - 2 * resources.getDimensionPixelSize(R.dimen.design_screen_margin)
+            maxWidth = kotlin.math.round(resources.configuration.screenWidthDp * resources.displayMetrics.density).toInt() -
+                2 * resources.getDimensionPixelSize(R.dimen.design_screen_margin)
             DesignPress.bind(this)
             isSingleLine = true
             ellipsize = android.text.TextUtils.TruncateAt.END
