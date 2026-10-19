@@ -22,8 +22,12 @@ def fail(p, message):
     errors.append(f'{p.relative_to(ROOT)}: {message}')
 
 protected = {MAIN / 'java/com/eve/app/util' / n for n in
-             ('ThemeSwitchAnimator.kt', 'ThemeManager.kt', 'TelegramMenuPopup.kt')}
+             ('ThemeSwitchAnimator.kt', 'ThemeManager.kt')}
+protected.add(MAIN/'java/com/eve/app/ui/home/TelegramMenuPopup.kt')
 protected.update(RES/'drawable'/n for n in ('ic_theme_sun.xml', 'ic_theme_moon.xml'))
+for p in protected:
+    if not p.is_file():
+        fail(p, 'protected file missing')
 # Only actual canonical color definitions and the unchanged Lottie lookup palette.
 color_tokens = {RES/q/n for q in ('values', 'values-night') for n in ('design_colors.xml', 'design_derived_colors.xml', 'design_protected_colors.xml')}
 color_tokens.add(MAIN / 'java/com/eve/app/designsystem/DesignLottieTokens.kt')

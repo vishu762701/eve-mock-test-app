@@ -1,0 +1,17 @@
+{
+  "path": "app/src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt",
+  "baseline": "pre-design-reset",
+  "blocks": {
+    "theme_setup_and_listeners": {
+      "baseline_sha256": "225cf38642da85e669e96fc928774218e1760eb5290fa1b78015e09785edc52a",
+      "current_sha256": "225cf38642da85e669e96fc928774218e1760eb5290fa1b78015e09785edc52a",
+      "equal": true
+    },
+    "dismissal_behavior": {
+      "baseline_sha256": "de71564c75a870d0e60925b43115a903fce5128a1c113349f800beaaf4fe2a74",
+      "current_sha256": "de71564c75a870d0e60925b43115a903fce5128a1c113349f800beaaf4fe2a74",
+      "equal": true
+    }
+  },
+  "whole_file_diff_since_verified_phase3": ""
+}
