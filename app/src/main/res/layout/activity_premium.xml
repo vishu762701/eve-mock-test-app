@@ -230,7 +230,7 @@
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:cardBackgroundColor="@color/eve_status_warning_container"
+                        app:cardBackgroundColor="@color/surface"
                         app:cardCornerRadius="@dimen/eve_radius_card"
                         app:cardElevation="0dp"
                         app:strokeColor="@color/eve_shape_border"

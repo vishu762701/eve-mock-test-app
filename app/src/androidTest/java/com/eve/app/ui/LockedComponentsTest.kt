@@ -116,7 +116,7 @@ class LockedComponentsTest {
                 val field = TextInputEditText(context).apply {
                     inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
                 }
-                input.addView(field, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+                input.addView(field, android.widget.LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
                 assertEquals("Password", field.hint.toString())
                 assertFalse(field.includeFontPadding)
                 assertNull("Only the outer input owns its fill/ring", field.background)

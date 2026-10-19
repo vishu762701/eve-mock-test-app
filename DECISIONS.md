@@ -1086,3 +1086,9 @@ raise minimum support to API 26. Do not silently add an exception or drop suppor
 No SDK or navigation behavior changes have been applied for this pending choice.
 Source actually read:
 https://dl.google.com/dl/android/maven2/androidx/core/core/1.13.1/core-1.13.1-sources.jar
+
+## Locked reset — Android 7 fallback authorized
+
+The owner chose to retain API 24–25 support and allow only those versions a
+black navigation area in light mode, since dark navigation icons are unavailable.
+No minSdk change. Phase 3 will implement this explicit platform exception.

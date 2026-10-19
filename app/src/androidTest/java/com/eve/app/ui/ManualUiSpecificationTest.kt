@@ -127,7 +127,7 @@ class ManualUiSpecificationTest {
                     }
                     val border = Color.parseColor(if (night == Configuration.UI_MODE_NIGHT_YES) "#3B3F4A" else "#D9DDE5")
                     assertEquals(border, context.getColor(R.color.eve_shape_border))
-                    val controlOutline = context.getColor(R.color.eve_control_outline)
+                    val controlOutline = context.getColor(R.color.hairline)
                     val home = ActivityMainBinding.inflate(LayoutInflater.from(context))
                     home.panelHomeBanner.visibility = View.VISIBLE
                     HomeAppearance.clipBanner(home.panelHomeBanner)

@@ -263,3 +263,21 @@ implemented while the answer is pending. The font question is already resolved.
 | kotlin_files | 237 | 251 |
 
 Added required tokens/qualifier copies are included; these are not claims of old-resource cleanup.
+
+### Phase 2 hosted verification follow-up
+
+Both hosted native modes exposed three issues: a programmatic test passed generic
+LayoutParams where Material TextInputLayout requires LinearLayout.LayoutParams;
+an inherited outline assertion still expected the retired control-outline color
+instead of the root hairline token; and the premium-active card's legacy yellow
+fill reduced locked secondary-text contrast to 4.3556. The fixture now uses the
+native parameter type, the assertion follows the root token, and the premium card
+uses the required solid surface. No callbacks, premium state, or data changed.
+Local and hosted re-verification follows this correction.
+
+### Android 7 navigation decision resolved
+
+The owner explicitly allows a black navigation-area fallback only on Android 7
+(API 24–25) in light mode. Keep minSdk 24. All other supported versions retain
+the requested transparent navigation bar and appropriate icon contrast. This
+resolves the question above; implementation belongs to Phase 3.
