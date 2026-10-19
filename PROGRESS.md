@@ -1,10 +1,10 @@
-# EVE design reset — current handoff
+# EVE design reset — verified delivery checkpoint
 
-Continue the owner’s locked root UI reset; do not repeat completed phases.
-
-- Phases 0–3 were committed; Phase 3 native light/dark, gesture/three-button checks passed on run 39216050826.
-- Phase 4 presentation migration is implemented. Its later hosted checks failed; native fixes are included in Phase 5 and require hosted verification.
-- Phase 5 removes unused legacy resources, fonts, effects and task documents with recorded reference/lint evidence. Local assembleDebug, testDebugUnitTest, lintDebug and assembleDebugAndroidTest pass.
-- Phase 6 enforcement and contrast inventory are implemented; design_check PASS and all four local Android gates PASS. Final hosted delivery remains pending. Do not publish an APK until all required jobs pass for its exact commit.
-- Preserve Telegram reveal behavior, Lottie assets/motion/triggers, navigation, features and business logic. Device font is retired; API 24–25 light-mode black navigation fallback is owner-approved.
-- Current evidence: [report](docs/design-reset/report.md), [screens](docs/design-reset/screens.md), [cleanup proof](docs/design-reset/cleanup-evidence.json).
+- Executable/resource release commit: `6e2994598fab2bf6e7d36da031d44624aeae813b` on main.
+- CI: [Build Eve APK run 39341884146](https://github.com/vishu762701/eve-mock-test-app/actions/runs/39341884146), all six jobs SUCCESS. Native gesture and three-button: 40/40 each, no skips or failures. Publishing succeeded.
+- Verified artifact: [Eve-debug-apk](https://github.com/vishu762701/eve-mock-test-app/actions/runs/39341884146/artifacts/12229219060), app-debug.apk, versionCode 368. Downloaded ZIP digest and APK signature checked; full hashes in docs/design-reset/final-delivery.json.
+- Phase 6 standalone design checker PASS; all four local Android gates, 261 JVM tests, 15 Python contracts, scanner and documentation checks PASS. No checker CI wiring was added.
+- Root source, screen inventory, before/after counts, cleanup evidence, deleted-file list, licenses, retained hues and contrast inventory: [report](docs/design-reset/report.md).
+- Telegram reveal core/sun/moon and Lottie assets/playback retained. Owner-approved Device font removal and API 24–25 black navigation fallback remain.
+- Do not restart completed phases, rerun successful APK jobs or create duplicate commits. The delivery-record commit changes documentation only; shipped app code stays at the verified release above.
+- Limits: existing Lottie palette normalization pending product choice; system notification/toast typography controlled by Android; native DatePicker internals, older physical devices and live authenticated production walkthrough unverified.

@@ -78,3 +78,10 @@ Ranked by impact on user experience, stability, and design system fidelity per `
 - **Details**: Both API 35 native navigation suites pass (34 tests each), with complete light/dark evidence gates. Requested chrome/modal and Home/Test/Result/Settings/Login captures were reviewed with fixture limitations recorded in docs/design-reset/report.md. Inspect the remaining hardware and live-flow behavior on physical devices; emulator/Canvas evidence does not certify these items.
 
 - P2 — Documentation outside the UI reset: README still describes the old Firebase-only setup, while SOURCE_OF_TRUTH.md and the current client use the Worker backend. Reconcile setup documentation separately; no authentication/backend configuration was changed in this UI task.
+
+
+## Remaining verification after the root reset
+
+- P1: Perform a real authenticated phone walkthrough of login, test/save/submit, review, admin controls and sandbox payment in light/dark, both navigation modes and enlarged text. Hosted disposable fixtures are green; this production walkthrough is not performed.
+- P2: Audit Android-controlled notification/toast typography and native DatePicker internals against the locked design; custom OS-surface replacements were not added in the final verification scope.
+- P2: Resolve the already-asked Lottie artwork color choice. Assets, motion, playback and existing palettes remain preserved; full system-hue normalization is not certified.

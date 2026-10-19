@@ -1,16 +1,22 @@
 # EVE design reset evidence
 
+**Final delivery VERIFIED:** [run 39341884146](https://github.com/vishu762701/eve-mock-test-app/actions/runs/39341884146) passed all six jobs for executable/resource commit `6e2994598fab2bf6e7d36da031d44624aeae813b`. Both native modes completed 40/40 tests, zero skips/failures, 165 captures each and zero missing theme pairs. The final downloaded artifact is [Eve-debug-apk](https://github.com/vishu762701/eve-mock-test-app/actions/runs/39341884146/artifacts/12229219060) containing `app-debug.apk` (15,254,946 bytes), package `com.eve.app`, versionCode 368, min/target SDK 24/36. ZIP digest matches GitHub; APK signature verification exited 0. Full hashes/job URLs and remaining limits: [final-delivery.json](final-delivery.json).
+
+APK SHA-256: `4f905bf569b8d841302dfafa81a51fe207bd88daf915862aec71ea802c4d1e21`.
+
+The final evidence/handoff update is documentation only. The APK remains tied to the exact verified code commit above; no Android job is manually rerun for that record. Earlier “pending” paragraphs below describe historical phase boundaries, not the final run.
+
 This report replaces the earlier chronological task notes. Current authority is the owner’s locked specification and the two explicit exceptions: remove Device font; permit black navigation area on API 24–25 in light mode. XML Views/ViewBinding only; no Compose screens.
 
 | Phase | Status at Phase 5 boundary | Evidence |
 | --- | --- | --- |
 | 0 Baseline | Verified | pre-design-reset at 40ecfd366ccd3df94cbeed8f2526355f940dcec5; baseline.json and baseline-sha256.json |
-| 1 Root | Implemented and locally verified | Root day/night color, dimension, type, shape, motion and default widget themes |
-| 2 Components | Implemented and locally verified | Shared solid cards/dialogs/sheets, native controls, shadow clipping and spacing |
+| 1 Root | App-owned root verified locally and on hosted fixtures | Root day/night color, dimension, type, shape, motion and default widget themes |
+| 2 Components | App-owned shared components verified; OS surface limits below | Shared solid cards/dialogs/sheets, native controls, shadow clipping and spacing |
 | 3 Navigation/icons/motion | Verified on hosted devices | 6761cf64bf309f1dcd9d9824be37a2d41b157346, run 39216050826; all six jobs success |
-| 4 All screens | Implemented; final native certification pending | screens.md; 95 XML layouts, runtime/custom-view migration; recovery fixes in Phase 5 |
+| 4 All screens | Migrated; native inventory/matrix PASS; production E2E unverified | screens.md; 95 XML layouts, runtime/custom-view migration; recovery fixes in Phase 5 |
 | 5 Remove old | Local gates verified | cleanup-evidence.json; deleted-files.md; phase5-inventory.json |
-| 6 Enforce/final APK | Local checks verified; hosted delivery pending | scripts/design_check.sh PASS; no final APK is claimed at this boundary |
+| 6 Enforce/final APK | VERIFIED for the recorded release | design_check PASS, all six hosted jobs success, downloaded APK/signature/commit verified |
 
 ## Checks and actual hosted state
 
@@ -91,7 +97,7 @@ Reproduced with `python3 scripts/design_inventory.py`; includes token definition
 | hex_color_occurrences | 496 | 137 |
 | literal_dp_occurrences | 3007 | 658 |
 | literal_sp_occurrences | 181 | 42 |
-| style_definitions_including_qualifiers | 279 | 116 |
+| style_definitions_including_qualifiers | 279 | 119 |
 | drawable_files_including_qualifiers | 133 | 103 |
 | font_files_including_xml_families | 8 | 4 |
 | layout_files_including_qualifiers | 95 | 95 |
@@ -129,3 +135,10 @@ Run 39338680515 at 5325483 completed all 40 tests per mode with one failing fixt
 Run 39340175160 at 623ba85 completed 40 tests per mode with one remaining ManualUiSpecificationTest failure: an enlarged-font custom tab label had no completed text layout (lineCount 0). The zero-width stroke fixture issue cleared. Shared tab labels are now installed, given maxLines=1 and sized before Material's onMeasure, rather than mutating typography after onLayout. Selection callbacks and the exact 14sp role/40dp strip/34dp segment remain unchanged; font layout assertions remain strict. Shared touch regions continue to update through their existing global-layout bindings.
 
 Source evidence review also found three palette-legend marker Views without backgrounds and review-item top/bottom margins summing to 16dp. Generic success/error/neutral dot styles now restore system-green/system-red/secondary meaning, and two existing 4dp margins give the exact 8dp inter-card gap. No new feature, palette value or screen-local style was introduced. All four local Android gates PASS in 28s; final native rerun/publication remains pending.
+
+
+## Final verification limits
+
+Local `scripts/design_check.sh` PASS, all four Android gates PASS, 261 JVM tests PASS, lint zero errors; 15 Python contracts, two scanner tests, documentation validation and git diff checks PASS. Hosted proof is the final six-success run above. Protected core/sun/moon/raw/Lottie hashes and unchanged menu animation/listener blocks remain verified. Light/dark Login and Result fixtures from the successful run were decoded, PNG-validated and visually inspected. Native all-layout inflation covers all 95 production layouts; each screen's source status is in screens.md. It is not a live signed-in production walkthrough.
+
+Existing Lottie artwork palettes remain unchanged pending the already-asked color-choice question; no full Lottie hue-normalization claim is made. Android controls system-rendered notification/toast presentation; strict Poppins and geometry are not certified there. Native DatePicker internals and real API 24–30 devices remain unverified. The gallery's 11 static geometry candidates are review candidates, not ignored native failures. Preserve the owner's exact system hues despite the small-text ratios listed in contrast-inventory.md. The 17 declared retained other-hue tokens remain listed above.
