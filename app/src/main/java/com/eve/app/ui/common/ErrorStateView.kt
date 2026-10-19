@@ -52,31 +52,19 @@ class ErrorStateView @JvmOverloads constructor(
         applyDisplayMode()
     }
 
-    private fun dpToPx(dp: Int): Int =
-        (dp * context.resources.displayMetrics.density).toInt()
-
     private fun applyDisplayMode() {
         val density = context.resources.displayMetrics.density
+        val padding = resources.getDimensionPixelSize(com.eve.app.R.dimen.design_card_padding)
         when (displayMode) {
             DisplayMode.FULL -> {
-                binding.layoutErrorRoot.setPadding(
-                    (24 * density).toInt(),
-                    (24 * density).toInt(),
-                    (24 * density).toInt(),
-                    (24 * density).toInt()
-                )
+                binding.layoutErrorRoot.setPadding(padding, padding, padding, padding)
                 binding.lottieView.layoutParams.width = (180 * density).toInt()
                 binding.lottieView.layoutParams.height = (180 * density).toInt()
                 binding.lottieView.requestLayout()
                 binding.tvErrorTitle.visibility = View.VISIBLE
             }
             DisplayMode.COMPACT -> {
-                binding.layoutErrorRoot.setPadding(
-                    (12 * density).toInt(),
-                    (12 * density).toInt(),
-                    (12 * density).toInt(),
-                    (12 * density).toInt()
-                )
+                binding.layoutErrorRoot.setPadding(padding, padding, padding, padding)
                 binding.lottieView.layoutParams.width = (72 * density).toInt()
                 binding.lottieView.layoutParams.height = (72 * density).toInt()
                 binding.lottieView.requestLayout()

@@ -145,7 +145,7 @@ class ApprovedUiRenderingTest {
         b.panelHomeBanner.visibility = View.VISIBLE
         HomeAppearance.clipBanner(b.panelHomeBanner)
         b.vpHomeBanners.visibility = View.INVISIBLE // no network banner image in fixture
-        b.homeBannerMatte.setBackgroundColor(context.getColor(R.color.text_primary))
+        b.homeBannerMatte.setBackgroundColor(context.getColor(R.color.surface_inset))
         val categories = HomeAppearance.categories(listOf("SSC", "Other", "Banking"))
         assertEquals(listOf("All", "Other", "Banking", "SSC"), categories)
         var clicked = false
@@ -283,7 +283,7 @@ class ApprovedUiRenderingTest {
             assertEquals(dp(32), p.cardCircle.layoutParams.height)
             assertEquals(dp(32) / 2f, p.cardCircle.radius, 0.01f)
             assertEquals(0, p.cardCircle.strokeWidth)
-            assertEquals(foreground, p.cardCircle.strokeColor)
+            assertEquals(context.getColor(R.color.hairline), p.cardCircle.strokeColor)
             // Palette spacing rounds its total 8dp once, then distributes pixels.
             assertEquals(dp(8) / 2, p.root.paddingLeft)
             assertEquals(dp(8) - dp(8) / 2, p.root.paddingRight)
@@ -357,7 +357,7 @@ class ApprovedUiRenderingTest {
                     image.getPixel(cornerX, b.tabLayoutResult.paddingTop + dp(1)))
             }
             val colors = b.tabLayoutResult.tabTextColors!!
-            assertEquals(context.getColor(R.color.text_primary), colors.getColorForState(intArrayOf(android.R.attr.state_selected), 0))
+            assertEquals(context.getColor(R.color.on_accent), colors.getColorForState(intArrayOf(android.R.attr.state_selected), 0))
             assertEquals(context.getColor(R.color.text_primary), colors.defaultColor)
             save(b.root, "result-${name.lowercase()}")
         }

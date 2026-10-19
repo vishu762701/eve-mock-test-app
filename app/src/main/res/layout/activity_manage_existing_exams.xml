@@ -17,7 +17,7 @@
         </LinearLayout>
     </com.eve.app.designsystem.DesignCardView>
     <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-        <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvExams" android:layout_width="match_parent" android:layout_height="match_parent" android:layoutAnimation="@anim/layout_enter" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />
+        <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvExams" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />
         <com.eve.app.designsystem.DesignLoadingView android:id="@+id/loadingExams" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" />
         <LinearLayout android:id="@+id/emptyGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:orientation="vertical" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
             <com.airbnb.lottie.LottieAnimationView android:id="@+id/lottieEmpty" android:layout_width="140dp" android:layout_height="140dp" android:background="@android:color/transparent" app:lottie_autoPlay="false" app:lottie_loop="false" app:lottie_rawRes="@raw/search" />

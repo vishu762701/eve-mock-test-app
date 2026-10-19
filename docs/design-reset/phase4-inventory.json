@@ -4,11 +4,11 @@
     "hex_color_occurrences": 566,
     "literal_dp_occurrences": 708,
     "literal_sp_occurrences": 222,
-    "style_definitions_including_qualifiers": 365,
-    "drawable_files_including_qualifiers": 160,
+    "style_definitions_including_qualifiers": 367,
+    "drawable_files_including_qualifiers": 163,
     "font_files_including_xml_families": 11,
     "layout_files_including_qualifiers": 96,
-    "kotlin_files": 260
+    "kotlin_files": 261
   },
   "layouts": [
     "app/src/main/res/layout/activity_about.xml",

@@ -300,13 +300,13 @@ class ProfileActivity : EveBaseActivity() {
         val builder = AlertDialog.Builder(this)
         val layout = android.widget.LinearLayout(this).apply {
             orientation = android.widget.LinearLayout.HORIZONTAL
-            val space = (24 * resources.displayMetrics.density).toInt()
+            val space = resources.getDimensionPixelSize(R.dimen.design_card_padding)
             setPadding(space, space, space, space)
             gravity = android.view.Gravity.CENTER_VERTICAL
             addView(ProgressBar(this@ProfileActivity))
             addView(TextView(this@ProfileActivity).apply {
                 text = msg
-                setPadding((16 * resources.displayMetrics.density).toInt(), 0, 0, 0)
+                setPadding(resources.getDimensionPixelSize(R.dimen.design_section_gap), 0, 0, 0)
                 androidx.core.widget.TextViewCompat.setTextAppearance(this, com.eve.app.R.style.TextAppearance_Eve_Token_Body)
             })
         }

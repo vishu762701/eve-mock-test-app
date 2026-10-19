@@ -22,7 +22,7 @@ object ResultCutoffPresentation {
             binding.tvCutoffValue.text = "Cutoff: $cutoffStr"
             if (score >= cutoff) {
                 binding.tvCutoffVerdict.text = "Qualified ✓"
-                com.eve.app.ui.common.EveGlassPill.setCapsuleBackground(binding.tvCutoffVerdict, R.drawable.design_badge_green)
+                com.eve.app.designsystem.DesignSurfaces.badge(binding.tvCutoffVerdict, R.drawable.design_badge_green)
                 binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(binding.root.context, R.color.system_green))
                 val diff = score - cutoff
                 binding.tvCutoffRelationship.text = if (diff >= 0.05) {
@@ -32,7 +32,7 @@ object ResultCutoffPresentation {
                 }
             } else {
                 binding.tvCutoffVerdict.text = "Not Qualified ✗"
-                com.eve.app.ui.common.EveGlassPill.setCapsuleBackground(binding.tvCutoffVerdict, R.drawable.design_badge_red)
+                com.eve.app.designsystem.DesignSurfaces.badge(binding.tvCutoffVerdict, R.drawable.design_badge_red)
                 binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(binding.root.context, R.color.system_red))
                 val diff = cutoff - score
                 binding.tvCutoffRelationship.text = "You are ${String.format(java.util.Locale.US, "%.1f", diff)} marks below the $category cutoff threshold."
@@ -40,7 +40,7 @@ object ResultCutoffPresentation {
         } else {
             binding.tvCutoffValue.text = "Cutoff unavailable"
             binding.tvCutoffVerdict.text = "No Cutoff Set"
-            com.eve.app.ui.common.EveGlassPill.setCapsuleBackground(binding.tvCutoffVerdict, R.drawable.design_badge_neutral)
+            com.eve.app.designsystem.DesignSurfaces.badge(binding.tvCutoffVerdict, R.drawable.design_badge_neutral)
             binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(binding.root.context, R.color.text_secondary))
             binding.tvCutoffRelationship.text = "No cutoff is configured for $category. Qualification cannot be determined."
         }

@@ -81,7 +81,7 @@ class TaskBToEVerificationTest {
     fun testLayoutsIncludeRequiredPolishUpgrades() {
         val mistakesLayout = File("src/main/res/layout/activity_mistakes.xml").readText()
         assertTrue("Mistakes layout should use illustration_empty_all_caught_up", mistakesLayout.contains("illustration_empty_all_caught_up"))
-        assertTrue("Mistakes layout should use layout_enter animation", mistakesLayout.contains("@anim/layout_enter"))
+        assertFalse("Shared activity motion owns entry; list rows stay settled", mistakesLayout.contains("@anim/layout_enter"))
 
         val notificationsLayout = File("src/main/res/layout/activity_notifications.xml").readText()
         assertTrue("Notifications layout should reference notification_bell", notificationsLayout.contains("@raw/notification_bell"))

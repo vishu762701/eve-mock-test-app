@@ -34,7 +34,6 @@ import com.eve.app.util.AppBulletin
 import com.eve.app.util.AttemptKey
 import com.eve.app.util.Constants
 import com.eve.app.util.LanguageManager
-import com.eve.app.util.NumberCountUpHelper
 import com.eve.app.util.SecurityHelper
 import com.eve.app.util.ShareCardHelper
 import com.eve.app.util.TopicAccuracyHelper
@@ -250,22 +249,10 @@ class ResultActivity : EveBaseActivity() {
         val scorePct = if (total > 0) (currentScore * 100.0 / total).coerceAtLeast(0.0) else 0.0
         binding.tvScorePercentage.text = String.format(java.util.Locale.US, "%.1f%% Score", scorePct)
 
-        // Number count-up animation for hero score (decelerating over 800ms)
-        NumberCountUpHelper.animateScoreCountUp(
-            textView = binding.tvScore,
-            targetScore = currentScore,
-            total = total,
-            durationMs = 800L,
-            onFinished = {
-                NumberCountUpHelper.animateStatsCountUp(
-                    textView = binding.tvStats,
-                    correct = correct,
-                    wrong = wrong,
-                    unattempted = unattempted,
-                    durationMs = 650L
-                )
-            }
-        )
+        val displayedScore = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString()
+            else String.format(java.util.Locale.US, "%.2f", currentScore)
+        binding.tvScore.text = "$displayedScore / $total"
+        binding.tvStats.text = "Correct: $correct   Wrong: $wrong   Unattempted: $unattempted"
 
         // Share Card Button
         binding.btnShare.setOnClickListener {

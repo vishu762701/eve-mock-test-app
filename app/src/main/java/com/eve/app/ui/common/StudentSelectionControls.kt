@@ -22,9 +22,9 @@ object StudentSelectionControls {
         chipMinHeight = resources.getDimension(R.dimen.design_pill_height)
         chipCornerRadius = chipMinHeight / 2
         chipStrokeWidth = 0f
+        com.eve.app.designsystem.DesignType.apply(this, com.eve.app.designsystem.DesignType.Role.CHIP)
         chipBackgroundColor = ContextCompat.getColorStateList(context, R.color.accent)
         setTextColor(ContextCompat.getColorStateList(context, R.color.on_accent))
-        com.eve.app.designsystem.DesignType.apply(this, com.eve.app.designsystem.DesignType.Role.CHIP)
         chipStartPadding = resources.getDimension(R.dimen.design_pill_padding)
         chipEndPadding = chipStartPadding
     }

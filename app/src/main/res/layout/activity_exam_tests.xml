@@ -12,7 +12,7 @@
     </LinearLayout>
     <com.eve.app.ui.common.ErrorStateView android:id="@+id/compactErrorView" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone" />
     <FrameLayout android:layout_width="match_parent" android:layout_height="@dimen/design_zero" android:layout_weight="1" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-        <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvTests" android:layout_width="match_parent" android:layout_height="match_parent" android:layoutAnimation="@anim/layout_enter" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />
+        <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvTests" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />
         <TextView android:id="@+id/tvEmpty" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:text="No tests available yet." android:visibility="gone" />
     </FrameLayout>
 </LinearLayout>

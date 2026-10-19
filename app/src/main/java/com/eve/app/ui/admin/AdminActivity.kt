@@ -467,7 +467,8 @@ class AdminActivity : EveBaseActivity() {
             setText(exam.examName)
             setSelection(text.length)
             hint = "Enter new exam name"
-            setPadding(50, 40, 50, 40)
+            val padding = resources.getDimensionPixelSize(R.dimen.design_input_padding)
+            setPadding(padding, 0, padding, 0)
         }
 
         AlertDialog.Builder(this)
@@ -906,13 +907,13 @@ class AdminActivity : EveBaseActivity() {
             hint = "https://t.me/..."
             inputType = InputType.TYPE_TEXT_VARIATION_URI
             isSingleLine = true
-            val padding = (16 * resources.displayMetrics.density).toInt()
-            setPadding(padding, padding, padding, padding)
+            val padding = resources.getDimensionPixelSize(R.dimen.design_input_padding)
+            setPadding(padding, 0, padding, 0)
         }
 
         val container = FrameLayout(this).apply {
-            val marginH = (20 * resources.displayMetrics.density).toInt()
-            val marginV = (8 * resources.displayMetrics.density).toInt()
+            val marginH = resources.getDimensionPixelSize(R.dimen.design_card_padding)
+            val marginV = resources.getDimensionPixelSize(R.dimen.design_card_padding)
             setPadding(marginH, marginV, marginH, marginV)
             addView(input)
         }
@@ -1083,13 +1084,14 @@ class AdminActivity : EveBaseActivity() {
     private fun showEditPostDialog(post: FeedbackPost) {
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(48, 32, 48, 16)
+            val padding = resources.getDimensionPixelSize(R.dimen.design_card_padding)
+            setPadding(padding, padding, padding, padding)
         }
         val etTitle = com.google.android.material.textfield.TextInputEditText(this).apply {
             hint = "Post Title"
             setText(post.title)
         }
-        val tilTitle = com.google.android.material.textfield.TextInputLayout(this, null, com.google.android.material.R.attr.textInputOutlinedStyle).apply {
+        val tilTitle = com.eve.app.designsystem.DesignInputLayout(this).apply {
             hint = "Post Title"
             addView(etTitle)
         }
@@ -1098,7 +1100,7 @@ class AdminActivity : EveBaseActivity() {
             setText(post.message)
             minLines = 3
         }
-        val tilMessage = com.google.android.material.textfield.TextInputLayout(this, null, com.google.android.material.R.attr.textInputOutlinedStyle).apply {
+        val tilMessage = com.eve.app.designsystem.DesignInputLayout(this).apply {
             hint = "Message / Prompt"
             val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                 topMargin = 24

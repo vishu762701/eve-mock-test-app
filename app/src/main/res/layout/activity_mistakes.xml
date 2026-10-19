@@ -23,6 +23,6 @@
             <TextView android:id="@+id/tvEmptyTitle" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_shadow_room" android:text="All Caught Up!" />
             <TextView android:id="@+id/tvEmptySubtitle" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center" android:text="No mistakes recorded. Questions you answer incorrectly or skip will automatically appear here." />
         </LinearLayout>
-        <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvMistakes" android:layout_width="match_parent" android:layout_height="match_parent" android:layoutAnimation="@anim/layout_enter" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />
+        <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvMistakes" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />
     </FrameLayout>
 </LinearLayout>

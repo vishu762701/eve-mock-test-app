@@ -71,5 +71,7 @@
   "ic_warning": "alert-triangle",
   "ic_add": "plus",
   "ic_save": "device-floppy",
-  "ic_visibility_off": "eye-off"
+  "ic_visibility_off": "eye-off",
+  "ic_checkbox_checked": "square-check",
+  "ic_checkbox_unchecked": "square"
 }

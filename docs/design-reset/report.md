@@ -435,3 +435,33 @@ fixture day literals with resolved green/yellow tokens. Restored the protected
 menu theme-icon view unchanged; the enclosing clickable row supplies its tap
 area. All four local Android gates passed again (31s); 15 Python checks passed.
 No native success is claimed until the new commit completes hosted verification.
+
+Phase 4 final runtime audit: retired the old list-layout entrance, score count-up,
+login decorative shake/zoom and drawer ripple callers. The same final scores,
+error messages, timers, loading branches, form/navigation actions and drawer
+listeners remain. Shared 320ms token motion now serves expandable cards, form
+mode changes and timed bulletin/Undo presentation; their display/Undo deadlines
+are unchanged. Programmatic admin inputs, error/progress dialogs and empty/error
+state padding use shared tokens. Year-chip typography is applied before its
+on-accent color. Rank/cutoff badges share token capsule geometry. Stock checkbox,
+radio, input-error and password/dropdown glyphs use the licensed Tabler set.
+Tabler mapping inventory now has 75 resources, including square/square-check.
+
+Notification/worker inventory: no app widget or RemoteViews layout exists.
+Notifications retain Android's system template, content, channels and intents;
+the app-owned small icon is migrated. The OS controls notification typography,
+so Poppins in system-rendered notification text is UNVERIFIED/unavailable through
+the standard notification API. Lottie illustrations and playback remain retained
+under the owner's later preservation instruction, with no raw resource changes.
+
+Two additional obsolete native fixture expectations were found by source audit:
+an invisible palette stroke expected primary instead of hairline, and selected
+tab text expected primary instead of on-accent. Updated those presentation roles;
+selection/navigation, recycling, lifecycle and reveal assertions remain.
+
+Final runtime audit local verification: assembleDebug, testDebugUnitTest,
+lintDebug and assembleDebugAndroidTest PASS (latest incremental run 7s;
+preceding complete source recompilation 46s). Lint zero errors. Python workflow
+contracts: 15 PASS. git diff --check PASS. Protected core Kotlin/menu behavior
+and raw Lottie resources have zero diff from the verified Phase 3 commit.
+Hosted native results remain pending, so Phase 4 is implemented, not certified.

@@ -6,136 +6,136 @@ Phase 4 XML/shared-component migration is implemented and passes local build/JVM
 
 | Source / layout | Status |
 | --- | --- |
-| `app/src/main/java/com/eve/app/service/EveMessagingService.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/about/AboutActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/about/ContentDisplayActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/ActivityLogActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/AdminActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/AdminAnalyticsActivity.kt` | Pending |
+| `app/src/main/java/com/eve/app/service/EveMessagingService.kt` | Feature logic retained; system notification template uses migrated icon; OS controls template typography |
+| `app/src/main/java/com/eve/app/ui/about/AboutActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/about/ContentDisplayActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/ActivityLogActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/AdminActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/AdminAnalyticsActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/admin/AdminAnalyticsViewModel.kt` | Data/state logic retained; no UI migration required |
-| `app/src/main/java/com/eve/app/ui/admin/AdminBannerAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/AdminDeleteFlow.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/AdminEmailAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/AdminPremiumUserAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/AdminSyllabusAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/AdminTransactionAdapter.kt` | Pending |
+| `app/src/main/java/com/eve/app/ui/admin/AdminBannerAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/AdminDeleteFlow.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/AdminEmailAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/AdminPremiumUserAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/AdminSyllabusAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/AdminTransactionAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/admin/AdminViewModel.kt` | Data/state logic retained; no UI migration required |
-| `app/src/main/java/com/eve/app/ui/admin/AnalyticsExamAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/AnalyticsQuestionAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/ApiUsageActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/AppConfigActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/AuditLogAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/EditAboutActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/EditExamActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/ExamAttemptsBarChartView.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/ExistingExamsAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/FeedbackMessagesActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/FeedbackMessagesAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/FlaggedQuestionsActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/FlaggedQuestionsAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/GeneratedTestAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/GeneratedTestsActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/ManageExamsActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/ManageExistingExamsActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/ManagePollsActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/ManagePremiumActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/ManageSyllabusActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/ManageUsersActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/PollsAdminAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/PostRepliesAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/QuestionManageAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/SendNotificationActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/SentBroadcastAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/SystemMonitorActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/admin/UserAdminAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/bookmarks/BookmarkAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/bookmarks/BookmarksActivity.kt` | Pending |
+| `app/src/main/java/com/eve/app/ui/admin/AnalyticsExamAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/AnalyticsQuestionAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/ApiUsageActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/AppConfigActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/AuditLogAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/EditAboutActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/EditExamActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/ExamAttemptsBarChartView.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/ExistingExamsAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/FeedbackMessagesActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/FeedbackMessagesAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/FlaggedQuestionsActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/FlaggedQuestionsAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/GeneratedTestAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/GeneratedTestsActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/ManageExamsActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/ManageExistingExamsActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/ManagePollsActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/ManagePremiumActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/ManageSyllabusActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/ManageUsersActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/PollsAdminAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/PostRepliesAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/QuestionManageAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/SendNotificationActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/SentBroadcastAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/SystemMonitorActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/admin/UserAdminAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/bookmarks/BookmarkAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/bookmarks/BookmarksActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/bookmarks/BookmarksViewModel.kt` | Data/state logic retained; no UI migration required |
-| `app/src/main/java/com/eve/app/ui/common/CircularCountdownView.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/common/CircularTimerView.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/common/CompletedExamBottomSheet.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/common/EmptyStateView.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/common/ErrorStateView.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/common/EveBaseActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/common/EveGlassButton.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/common/EveGlassPill.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/common/EveGlassSegmentedControl.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/common/EveGlassTabLayout.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/common/EveGlassToolbar.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/common/EveLiquidGlassView.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/common/ExpandableCardHelper.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/common/FlameAnimationView.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/common/QuestionPaletteAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/common/ReportQuestionDialog.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/common/ShimmerSkeletonView.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/common/SparkleView.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/common/StudentSelectionControls.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/common/TelegramRadioButton.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/feedback/FeedbackActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/history/HistoryActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/history/HistoryAdapter.kt` | Pending |
+| `app/src/main/java/com/eve/app/ui/common/CircularCountdownView.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/common/CircularTimerView.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/common/CompletedExamBottomSheet.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/common/EmptyStateView.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/common/ErrorStateView.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/common/EveBaseActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/common/EveGlassButton.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
+| `app/src/main/java/com/eve/app/ui/common/EveGlassPill.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
+| `app/src/main/java/com/eve/app/ui/common/EveGlassSegmentedControl.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
+| `app/src/main/java/com/eve/app/ui/common/EveGlassTabLayout.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
+| `app/src/main/java/com/eve/app/ui/common/EveGlassToolbar.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/common/EveLiquidGlassView.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
+| `app/src/main/java/com/eve/app/ui/common/ExpandableCardHelper.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/common/FlameAnimationView.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
+| `app/src/main/java/com/eve/app/ui/common/QuestionPaletteAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/common/ReportQuestionDialog.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/common/ShimmerSkeletonView.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
+| `app/src/main/java/com/eve/app/ui/common/SparkleView.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
+| `app/src/main/java/com/eve/app/ui/common/StudentSelectionControls.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/common/TelegramRadioButton.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/feedback/FeedbackActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/history/HistoryActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/history/HistoryAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/history/HistoryViewModel.kt` | Data/state logic retained; no UI migration required |
-| `app/src/main/java/com/eve/app/ui/home/ExamAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/home/ExamLaunchHelper.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/home/ExamTestsActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/home/ExamTestsAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/home/HomeAppearance.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/home/HomeBannerAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/home/HomeCategoryChipGroup.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/home/HomeUiModels.kt` | Pending |
+| `app/src/main/java/com/eve/app/ui/home/ExamAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/home/ExamLaunchHelper.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/home/ExamTestsActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/home/ExamTestsAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/home/HomeAppearance.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/home/HomeBannerAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/home/HomeCategoryChipGroup.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/home/HomeUiModels.kt` | Data/state logic retained; no UI migration required |
 | `app/src/main/java/com/eve/app/ui/home/HomeViewModel.kt` | Data/state logic retained; no UI migration required |
-| `app/src/main/java/com/eve/app/ui/home/MainActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/home/TargetExamsBottomSheet.kt` | Pending |
+| `app/src/main/java/com/eve/app/ui/home/MainActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/home/TargetExamsBottomSheet.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt` | Protected animation/behavior retained; phase 3 native checks passed |
-| `app/src/main/java/com/eve/app/ui/leaderboard/LeaderboardActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/leaderboard/LeaderboardAdapter.kt` | Pending |
+| `app/src/main/java/com/eve/app/ui/leaderboard/LeaderboardActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/leaderboard/LeaderboardAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/leaderboard/LeaderboardViewModel.kt` | Data/state logic retained; no UI migration required |
-| `app/src/main/java/com/eve/app/ui/login/AmbientBackgroundView.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/login/LoginActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/mistakes/MistakesActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/mistakes/MistakesAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/notifications/NotificationAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/notifications/NotificationsActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/performance/PerformanceActivity.kt` | Pending |
+| `app/src/main/java/com/eve/app/ui/login/AmbientBackgroundView.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
+| `app/src/main/java/com/eve/app/ui/login/LoginActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/mistakes/MistakesActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/mistakes/MistakesAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/notifications/NotificationAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/notifications/NotificationsActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/performance/PerformanceActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/performance/PerformanceViewModel.kt` | Data/state logic retained; no UI migration required |
-| `app/src/main/java/com/eve/app/ui/performance/ScoreTrendChartView.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/performance/TopicStatAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/practice/PracticeActivity.kt` | Pending |
+| `app/src/main/java/com/eve/app/ui/performance/ScoreTrendChartView.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/performance/TopicStatAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/practice/PracticeActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/practice/PracticeViewModel.kt` | Data/state logic retained; no UI migration required |
-| `app/src/main/java/com/eve/app/ui/premium/PaymentCheckoutActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/premium/PaymentMethodBottomSheet.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/premium/PremiumActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/premium/PremiumBenefitRows.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/premium/gl/GLIconRenderer.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/premium/gl/Icon3D.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/premium/gl/ObjLoader.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/premium/gl/Telegram3DStarView.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/profile/ProfileActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/pyq/PyqActivity.kt` | Pending |
+| `app/src/main/java/com/eve/app/ui/premium/PaymentCheckoutActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/premium/PaymentMethodBottomSheet.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/premium/PremiumActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/premium/PremiumBenefitRows.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/premium/gl/GLIconRenderer.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
+| `app/src/main/java/com/eve/app/ui/premium/gl/Icon3D.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
+| `app/src/main/java/com/eve/app/ui/premium/gl/ObjLoader.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
+| `app/src/main/java/com/eve/app/ui/premium/gl/Telegram3DStarView.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
+| `app/src/main/java/com/eve/app/ui/profile/ProfileActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/pyq/PyqActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/pyq/PyqViewModel.kt` | Data/state logic retained; no UI migration required |
-| `app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/result/ConfettiView.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/result/QuestionTimeChartView.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/result/ResponsiveResultRow.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/result/ResultActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/result/ResultAnalysisRows.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/result/ResultCutoffPresentation.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/result/ResultDataHolder.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/result/ResultDetailActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/result/ResultSection.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/result/ResultStatisticsGrid.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/result/ResultTabs.kt` | Pending |
+| `app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/result/ConfettiView.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
+| `app/src/main/java/com/eve/app/ui/result/QuestionTimeChartView.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/result/ResponsiveResultRow.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/result/ResultActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/result/ResultAnalysisRows.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/result/ResultCutoffPresentation.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/result/ResultDataHolder.kt` | Data/state logic retained; no UI migration required |
+| `app/src/main/java/com/eve/app/ui/result/ResultDetailActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/result/ResultSection.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/result/ResultStatisticsGrid.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/result/ResultTabs.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/result/ResultViewModel.kt` | Data/state logic retained; no UI migration required |
-| `app/src/main/java/com/eve/app/ui/result/SemiCircleGaugeView.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/settings/SettingsActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/syllabus/SyllabusActivity.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/syllabus/SyllabusAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/test/QuestionAdapter.kt` | Pending |
-| `app/src/main/java/com/eve/app/ui/test/TestActivity.kt` | Pending |
+| `app/src/main/java/com/eve/app/ui/result/SemiCircleGaugeView.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
+| `app/src/main/java/com/eve/app/ui/settings/SettingsActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/syllabus/SyllabusActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/syllabus/SyllabusAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/test/QuestionAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
+| `app/src/main/java/com/eve/app/ui/test/TestActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/test/TestViewModel.kt` | Data/state logic retained; no UI migration required |
-| `app/src/main/java/com/eve/app/util/GlassmorphismHelper.kt` | Pending |
-| `app/src/main/java/com/eve/app/worker/DailyReminderWorker.kt` | Pending |
-| `app/src/main/java/com/eve/app/worker/SubmitWorker.kt` | Pending |
+| `app/src/main/java/com/eve/app/util/GlassmorphismHelper.kt` | Protected popup cleanup support retained; unused glass APIs scheduled for Phase 5 audit |
+| `app/src/main/java/com/eve/app/worker/DailyReminderWorker.kt` | Feature logic retained; system notification template uses migrated icon; OS controls template typography |
+| `app/src/main/java/com/eve/app/worker/SubmitWorker.kt` | Feature logic retained; system notification template uses migrated icon; OS controls template typography |
 | `app/src/main/res/layout/activity_about.xml` | Shared token styles applied; native inflation/render verification pending |
 | `app/src/main/res/layout/activity_activity_log.xml` | Shared token styles applied; native inflation/render verification pending |
 | `app/src/main/res/layout/activity_admin.xml` | Shared token styles applied; native inflation/render verification pending |
@@ -233,3 +233,5 @@ Phase 4 XML/shared-component migration is implemented and passes local build/JVM
 | `app/src/main/res/layout/view_error_state.xml` | Shared token styles applied; native inflation/render verification pending |
 
 | `app/src/main/res/layout/activity_system_monitor.xml` | Shared screen/header/cards migrated; hosted native verification pending |
+
+System Monitor now uses `activity_system_monitor.xml` with shared large-title header and card host. No app-widget provider or RemoteViews layout exists (`rg appWidget/RemoteViews app/src/main`: zero matches). Native fixture coverage is distinct from signed-in end-to-end feature verification.

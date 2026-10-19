@@ -58,7 +58,7 @@
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
         <FrameLayout android:id="@+id/containerTransactions" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-            <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvTransactions" android:layout_width="match_parent" android:layout_height="match_parent" android:layoutAnimation="@anim/layout_enter" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />
+            <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvTransactions" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />
             <TextView android:id="@+id/tvEmptyTransactions" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:text="No transactions found" android:visibility="gone" style="@style/TextAppearance.Eve.Token.Body" />
         </FrameLayout>
         <LinearLayout android:id="@+id/containerUsers" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
@@ -66,7 +66,7 @@
                 <com.google.android.material.button.MaterialButton android:id="@+id/btnGrantManual" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:text="+ Grant Premium Manually" app:icon="@drawable/ic_star_filled" />
             </LinearLayout>
             <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvPremiumUsers" android:layout_width="match_parent" android:layout_height="match_parent" android:layoutAnimation="@anim/layout_enter" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />
+                <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvPremiumUsers" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />
                 <TextView android:id="@+id/tvEmptyUsers" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:text="No premium users found" android:visibility="gone" style="@style/TextAppearance.Eve.Token.Body" />
             </FrameLayout>
         </LinearLayout>

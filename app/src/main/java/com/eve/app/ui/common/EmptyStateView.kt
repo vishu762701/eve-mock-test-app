@@ -33,26 +33,17 @@ class EmptyStateView @JvmOverloads constructor(
 
     private fun applyDisplayMode() {
         val density = context.resources.displayMetrics.density
+        val padding = resources.getDimensionPixelSize(com.eve.app.R.dimen.design_card_padding)
         when (displayMode) {
             DisplayMode.FULL -> {
-                binding.layoutEmptyRoot.setPadding(
-                    (24 * density).toInt(),
-                    (24 * density).toInt(),
-                    (24 * density).toInt(),
-                    (24 * density).toInt()
-                )
+                binding.layoutEmptyRoot.setPadding(padding, padding, padding, padding)
                 binding.lottieEmpty.layoutParams.width = (140 * density).toInt()
                 binding.lottieEmpty.layoutParams.height = (140 * density).toInt()
                 binding.lottieEmpty.requestLayout()
                 com.eve.app.designsystem.DesignType.apply(binding.tvEmptyTitle, com.eve.app.designsystem.DesignType.Role.HEADING)
             }
             DisplayMode.COMPACT -> {
-                binding.layoutEmptyRoot.setPadding(
-                    (12 * density).toInt(),
-                    (12 * density).toInt(),
-                    (12 * density).toInt(),
-                    (12 * density).toInt()
-                )
+                binding.layoutEmptyRoot.setPadding(padding, padding, padding, padding)
                 binding.lottieEmpty.layoutParams.width = (76 * density).toInt()
                 binding.lottieEmpty.layoutParams.height = (76 * density).toInt()
                 binding.lottieEmpty.requestLayout()

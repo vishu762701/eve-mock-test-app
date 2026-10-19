@@ -73,7 +73,6 @@ import com.eve.app.util.CrashlyticsHelper
 import com.eve.app.util.NetworkUtil
 import com.eve.app.util.NotificationHelper
 import com.eve.app.util.NotificationStore
-import com.eve.app.util.RippleHelper
 import com.eve.app.util.ProfilePhotoManager
 import com.eve.app.util.ReminderScheduler
 import com.eve.app.util.ThemeManager
@@ -1074,9 +1073,6 @@ class MainActivity : EveBaseActivity() {
                     binding.rvExams.visibility = View.VISIBLE
                     binding.messageGroup.visibility = View.GONE
                 } else {
-                    if (binding.rvExams.layoutAnimation == null) {
-                        binding.rvExams.layoutAnimation = android.view.animation.AnimationUtils.loadLayoutAnimation(this, R.anim.layout_enter)
-                    }
                     binding.loadingHome.visibility = View.VISIBLE
                     binding.rvExams.visibility = View.GONE
                     binding.progressGroup.visibility = View.GONE
@@ -1182,14 +1178,13 @@ class MainActivity : EveBaseActivity() {
         // Drawer content is opaque; retain listener and animation ownership unchanged.
         binding.ivDrawerGlassBlurBackground.setImageDrawable(null)
         binding.ivDrawerGlassBlurBackground.setBackgroundColor(
-            com.eve.app.designsystem.EveDesignSystem.Colors.secondarySystemBackground(this))
+            com.eve.app.designsystem.EveDesignSystem.Colors.surface(this))
     }
 
     private fun setupDrawer(user: com.google.firebase.auth.FirebaseUser) {
         updateDrawerHeader(user)
         prepareDrawerSurface()
 
-        val isDark = ThemeManager.isDarkMode(this)
         // The existing outside scrim preserves the drawer interaction.
         val scrimColor = com.eve.app.designsystem.EveDesignSystem.Colors.drawerScrim(this)
         binding.drawerLayout.setScrimColor(scrimColor)
@@ -1216,14 +1211,12 @@ class MainActivity : EveBaseActivity() {
 
         setupDrawerPremiumStar()
 
-        // FIX 7: Telegram-style premium masked, bounded RippleDrawable on avatar and drawer rows
-        binding.ivDrawerAvatar.foreground = RippleHelper.createPremiumRippleDrawable(this, cornerRadiusDp = -1f, isDark = isDark)
+        com.eve.app.designsystem.DesignPress.bind(binding.ivDrawerAvatar)
         binding.ivDrawerAvatar.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
             com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, ProfileActivity::class.java), binding.ivDrawerAvatar)
         }
 
-        val drawerRowRadiusDp = resources.getDimension(R.dimen.design_radius_inner) / resources.displayMetrics.density
         val drawerRows = listOf(
             binding.layoutDrawerProfile,
             binding.layoutDrawerPremium,
@@ -1234,7 +1227,7 @@ class MainActivity : EveBaseActivity() {
             binding.layoutDrawerSettings
         )
         drawerRows.forEach { row ->
-            row.foreground = RippleHelper.createPremiumRippleDrawable(this, cornerRadiusDp = drawerRowRadiusDp, isDark = isDark)
+            com.eve.app.designsystem.DesignPress.bind(row)
         }
 
         binding.layoutDrawerProfile.setOnClickListener {

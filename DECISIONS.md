@@ -1161,3 +1161,15 @@ substitution, autosizing or data callback changes. Actual Lottie assets/playback
 remain; legacy non-Lottie renderer/effect callers retire before unused-code cleanup.
 Official Tabler v3.49.0 eye-off SVG read after its bundled MIT license:
 https://raw.githubusercontent.com/tabler/tabler-icons/v3.49.0/icons/outline/eye-off.svg
+
+### Locked reset: final runtime presentation audit
+
+Retire the remaining decorative list/count-up/login/ripple callers; preserve their
+values, callbacks, loading branches and navigation destinations. Reuse the locked
+320ms motion token and curve for the surviving shared transitions. Native Material
+1.12.0 AAR XML was inspected for dialogPreferredPadding, title-panel style and
+MaterialCheckBox buttonCompat/buttonIcon slots before applying shared token roles.
+Source: https://raw.githubusercontent.com/material-components/material-components-android/1.12.0/lib/java/com/google/android/material/checkbox/MaterialCheckBox.java
+Additional outline sources square/square-check were read at Tabler v3.49.0 after
+its bundled MIT license. Standard notifications remain OS-rendered; their template
+font cannot be set to Poppins with the existing notification API.

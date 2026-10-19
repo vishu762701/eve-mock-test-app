@@ -1013,11 +1013,10 @@ class ManageExamsActivity : EveBaseActivity() {
         }
 
         val context = this@ManageExamsActivity
-        val density = resources.displayMetrics.density
         val container = android.widget.LinearLayout(context).apply {
             orientation = android.widget.LinearLayout.VERTICAL
-            val padH = (24 * density).toInt()
-            val padV = (8 * density).toInt()
+            val padH = resources.getDimensionPixelSize(R.dimen.design_card_padding)
+            val padV = resources.getDimensionPixelSize(R.dimen.design_card_padding)
             setPadding(padH, padV, padH, padV)
         }
 
@@ -1040,7 +1039,7 @@ class ManageExamsActivity : EveBaseActivity() {
             com.eve.app.designsystem.DesignType.apply(this, com.eve.app.designsystem.DesignType.Role.SECONDARY)
             setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.text_secondary))
             setTextIsSelectable(true)
-            val topMargin = (16 * density).toInt()
+            val topMargin = resources.getDimensionPixelSize(R.dimen.design_section_gap)
             layoutParams = android.widget.LinearLayout.LayoutParams(
                 android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
                 android.widget.LinearLayout.LayoutParams.WRAP_CONTENT

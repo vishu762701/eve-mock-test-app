@@ -6,8 +6,6 @@ import android.content.ContextWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AccelerateInterpolator
-import android.view.animation.OvershootInterpolator
 import android.widget.TextView
 import com.eve.app.R
 import com.eve.app.ui.common.CircularCountdownView
@@ -91,16 +89,16 @@ class AppUndoBar private constructor(
 
         decorView.addView(view)
 
-        // Slide up with spring/overshoot easing
-        val startOffset = 120 * activity.resources.displayMetrics.density
+        // Shared token motion; message lifetime and action callbacks stay unchanged.
+        val startOffset = activity.resources.getDimension(R.dimen.design_section_gap)
         card.translationY = startOffset
         card.alpha = 0f
 
         card.animate()
             .translationY(0f)
             .alpha(1f)
-            .setDuration(280)
-            .setInterpolator(OvershootInterpolator(1.15f))
+            .setDuration(if (com.eve.app.designsystem.DesignMotion.enabled(activity)) activity.resources.getInteger(R.integer.design_transition_duration).toLong() else 0L)
+            .setInterpolator(com.eve.app.designsystem.DesignMotion.interpolator(activity))
             .start()
 
         // Start smooth depleting countdown; on expiration, simply dismiss since item is already deleted
@@ -125,12 +123,12 @@ class AppUndoBar private constructor(
             return
         }
 
-        val exitOffset = 100 * activity.resources.displayMetrics.density
+        val exitOffset = activity.resources.getDimension(R.dimen.design_section_gap)
         card.animate()
             .translationY(exitOffset)
             .alpha(0f)
-            .setDuration(200)
-            .setInterpolator(AccelerateInterpolator())
+            .setDuration(if (com.eve.app.designsystem.DesignMotion.enabled(activity)) activity.resources.getInteger(R.integer.design_transition_duration).toLong() else 0L)
+            .setInterpolator(com.eve.app.designsystem.DesignMotion.interpolator(activity))
             .withEndAction {
                 (view.parent as? ViewGroup)?.removeView(view)
                 barView = null

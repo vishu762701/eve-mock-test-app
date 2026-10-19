@@ -77,7 +77,7 @@ class ExamTestsActivity : EveBaseActivity() {
         }
 
         binding.rvTests.layoutManager = LinearLayoutManager(this)
-        val spacingPx = (12 * resources.displayMetrics.density).toInt()
+        val spacingPx = resources.getDimensionPixelSize(R.dimen.design_card_gap)
         binding.rvTests.addItemDecoration(object : RecyclerView.ItemDecoration() {
             override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
                 val position = parent.getChildAdapterPosition(view)

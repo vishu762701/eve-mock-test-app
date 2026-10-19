@@ -1,13 +1,11 @@
 package com.eve.app.ui.common
 
 import android.graphics.Rect
-import android.provider.Settings
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.widget.NestedScrollView
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.transition.ChangeBounds
 import androidx.transition.Fade
 import androidx.transition.TransitionManager
@@ -15,7 +13,7 @@ import androidx.transition.TransitionSet
 
 /**
  * Reusable helper for collapsible cards on the Result Overview screen.
- * - Animates height in place with ChangeBounds + Fade (~280ms).
+ * - Animates height in place with ChangeBounds + Fade (shared 320ms).
  * - Rotates chevron by 180°.
  * - Scrolls card into view if bottom edge is off-screen upon expansion.
  * - State survives rotation and tab switches.
@@ -61,22 +59,13 @@ class ExpandableCardHelper(
 
     private fun applyState(animate: Boolean) {
         val context = cardView.context
-        val animScale = try {
-            Settings.Global.getFloat(
-                context.contentResolver,
-                Settings.Global.ANIMATOR_DURATION_SCALE,
-                1f
-            )
-        } catch (_: Exception) {
-            1f
-        }
-        val shouldAnimate = animate && animScale > 0f
+        val shouldAnimate = animate && com.eve.app.designsystem.DesignMotion.enabled(context)
 
         if (shouldAnimate) {
             val transition = TransitionSet().apply {
                 ordering = TransitionSet.ORDERING_TOGETHER
-                duration = 280L
-                interpolator = FastOutSlowInInterpolator()
+                duration = context.resources.getInteger(com.eve.app.R.integer.design_transition_duration).toLong()
+                interpolator = com.eve.app.designsystem.DesignMotion.interpolator(context)
                 addTransition(ChangeBounds())
                 addTransition(Fade())
             }
@@ -97,8 +86,8 @@ class ExpandableCardHelper(
         if (shouldAnimate) {
             chevronView.animate()
                 .rotation(targetRotation)
-                .setDuration(280L)
-                .setInterpolator(FastOutSlowInInterpolator())
+                .setDuration(context.resources.getInteger(com.eve.app.R.integer.design_transition_duration).toLong())
+                .setInterpolator(com.eve.app.designsystem.DesignMotion.interpolator(context))
                 .start()
         } else {
             chevronView.animate().cancel()

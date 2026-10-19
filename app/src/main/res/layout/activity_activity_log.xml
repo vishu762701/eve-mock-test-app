@@ -18,7 +18,7 @@
             <com.google.android.material.chip.Chip android:id="@+id/chipAllTime" style="@style/Widget.Eve.Token.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="All time" />
         </com.google.android.material.chip.ChipGroup>
         <FrameLayout android:layout_width="match_parent" android:layout_height="@dimen/design_zero" android:layout_weight="1" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-            <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvAuditLogs" android:layout_width="match_parent" android:layout_height="match_parent" android:layoutAnimation="@anim/layout_enter" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />
+            <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvAuditLogs" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />
             <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/progressBar" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:visibility="gone" style="@style/Widget.Eve.Token.Ring" android:indeterminate="true" />
             <TextView android:id="@+id/tvEmpty" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:text="No activity logs recorded for this period." android:visibility="gone" />
         </FrameLayout>

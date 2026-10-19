@@ -17,7 +17,7 @@
         </LinearLayout>
     </com.eve.app.designsystem.DesignCardView>
     <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-        <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvUsers" android:layout_width="match_parent" android:layout_height="match_parent" android:layoutAnimation="@anim/layout_enter" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />
+        <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvUsers" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />
         <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/progressBar" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:visibility="gone" style="@style/Widget.Eve.Token.Ring" android:indeterminate="true" />
         <LinearLayout android:id="@+id/emptyGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:orientation="vertical" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
             <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:src="@drawable/ic_users" app:tint="@color/text_secondary" />

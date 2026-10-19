@@ -1,6 +1,5 @@
 package com.eve.app.ui.login
 
-import android.animation.ObjectAnimator
 import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
@@ -8,7 +7,6 @@ import android.view.HapticFeedbackConstants
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.BuildConfig
 import com.eve.app.R
@@ -19,7 +17,7 @@ import com.eve.app.ui.home.MainActivity
 import com.eve.app.util.AnalyticsHelper
 import com.eve.app.util.CrashlyticsHelper
 import com.eve.app.util.DebugCrashReporter
-import com.eve.app.util.EveMotionHelper
+import com.eve.app.designsystem.DesignMotion
 import com.eve.app.util.SystemBarHelper
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -55,14 +53,14 @@ class LoginActivity : EveBaseActivity() {
                 val idToken = account.idToken
                 if (idToken == null) {
                     setLoading(false)
-                    showError("Google token not received", isGoogle = true)
+                    showError("Google token not received")
                 } else {
                     firebaseLoginWithGoogle(idToken)
                 }
             } catch (e: ApiException) {
                 setLoading(false)
                 if (e.statusCode != 12501) {
-                    showError("Sign-in failed (code ${e.statusCode}). Please try again.", isGoogle = true)
+                    showError("Sign-in failed (code ${e.statusCode}). Please try again.")
                 }
             }
         }
@@ -119,19 +117,6 @@ class LoginActivity : EveBaseActivity() {
                 false
             }
         }
-        playEntranceAnimation()
-    }
-
-    private fun playEntranceAnimation() {
-        if (!EveMotionHelper.areAnimationsEnabled(this)) return
-        binding.cardLogin.alpha = 0f
-        binding.cardLogin.translationY = 14f * resources.displayMetrics.density
-        binding.cardLogin.animate()
-            .alpha(1f)
-            .translationY(0f)
-            .setDuration(EveMotionHelper.DURATION_STANDARD_MS)
-            .setInterpolator(EveMotionHelper.standardInterpolator)
-            .start()
     }
 
     private fun launchGoogleSignIn() {
@@ -149,10 +134,10 @@ class LoginActivity : EveBaseActivity() {
     private fun toggleMode() {
         isSignUpMode = !isSignUpMode
         binding.tvError.visibility = View.GONE
-        if (EveMotionHelper.areAnimationsEnabled(this)) {
+        if (DesignMotion.enabled(this)) {
             val transition = androidx.transition.AutoTransition().apply {
-                duration = 200
-                interpolator = FastOutSlowInInterpolator()
+                duration = resources.getInteger(R.integer.design_transition_duration).toLong()
+                interpolator = DesignMotion.interpolator(this@LoginActivity)
             }
             androidx.transition.TransitionManager.beginDelayedTransition(binding.cardLogin, transition)
         }
@@ -183,27 +168,27 @@ class LoginActivity : EveBaseActivity() {
         val name = binding.etName.text?.toString()?.trim().orEmpty()
 
         if (isSignUpMode && name.isEmpty()) {
-            showError("Please enter your name.", isGoogle = false)
+            showError("Please enter your name.")
             binding.etName.requestFocus()
             return
         }
         if (email.isEmpty()) {
-            showError("Please enter your email address.", isGoogle = false)
+            showError("Please enter your email address.")
             binding.etEmail.requestFocus()
             return
         }
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            showError("Please enter a valid email address.", isGoogle = false)
+            showError("Please enter a valid email address.")
             binding.etEmail.requestFocus()
             return
         }
         if (password.isEmpty()) {
-            showError("Please enter your password.", isGoogle = false)
+            showError("Please enter your password.")
             binding.etPassword.requestFocus()
             return
         }
         if (password.length < 6) {
-            showError("Password must be at least 6 characters.", isGoogle = false)
+            showError("Password must be at least 6 characters.")
             binding.etPassword.requestFocus()
             return
         }
@@ -227,7 +212,7 @@ class LoginActivity : EveBaseActivity() {
                 }
             } catch (e: Exception) {
                 setLoading(false, isGoogle = false)
-                handleAuthError(e, isGoogle = false)
+                handleAuthError(e)
             }
         }
     }
@@ -241,7 +226,7 @@ class LoginActivity : EveBaseActivity() {
                 onAuthSuccess(result.user)
             } catch (e: Exception) {
                 setLoading(false, isGoogle = true)
-                handleAuthError(e, isGoogle = true)
+                handleAuthError(e)
             }
         }
     }
@@ -258,21 +243,10 @@ class LoginActivity : EveBaseActivity() {
             CrashlyticsHelper.identify(user.uid, isAdmin = isAdmin)
         }
 
-        if (EveMotionHelper.areAnimationsEnabled(this)) {
-            binding.contentLayout.animate()
-                .alpha(0f)
-                .scaleX(1.02f)
-                .scaleY(1.02f)
-                .setDuration(240)
-                .setInterpolator(FastOutSlowInInterpolator())
-                .withEndAction { goHome() }
-                .start()
-        } else {
-            goHome()
-        }
+        goHome()
     }
 
-    private fun handleAuthError(e: Exception, isGoogle: Boolean) {
+    private fun handleAuthError(e: Exception) {
         val friendlyMessage = when (e) {
             is FirebaseAuthInvalidUserException,
             is FirebaseAuthInvalidCredentialsException -> "Incorrect email or password."
@@ -282,7 +256,7 @@ class LoginActivity : EveBaseActivity() {
             is FirebaseTooManyRequestsException -> "Too many attempts. Please try again later."
             else -> e.localizedMessage ?: "Authentication failed. Please try again."
         }
-        showError(friendlyMessage, isGoogle)
+        showError(friendlyMessage)
     }
 
     private suspend fun recordUserStats(user: FirebaseUser) {
@@ -329,27 +303,9 @@ class LoginActivity : EveBaseActivity() {
         }
     }
 
-    private fun showError(message: String, isGoogle: Boolean = lastAttemptedGoogle) {
+    private fun showError(message: String) {
         binding.tvError.text = message
         binding.tvError.visibility = View.VISIBLE
-        val target = if (isGoogle) binding.layoutBtnGoogle else binding.layoutBtnSubmit
-        if (EveMotionHelper.areAnimationsEnabled(this)) {
-            val density = resources.displayMetrics.density
-            ObjectAnimator.ofFloat(
-                target,
-                "translationX",
-                0f,
-                -8f * density,
-                8f * density,
-                -4f * density,
-                4f * density,
-                0f
-            ).apply {
-                duration = 260
-                interpolator = FastOutSlowInInterpolator()
-                start()
-            }
-        }
     }
 
     private fun goHome() {
