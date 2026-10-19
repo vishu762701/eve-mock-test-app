@@ -10,7 +10,7 @@ This report replaces the earlier chronological task notes. Current authority is 
 | 3 Navigation/icons/motion | Verified on hosted devices | 6761cf64bf309f1dcd9d9824be37a2d41b157346, run 39216050826; all six jobs success |
 | 4 All screens | Implemented; final native certification pending | screens.md; 95 XML layouts, runtime/custom-view migration; recovery fixes in Phase 5 |
 | 5 Remove old | Local gates verified | cleanup-evidence.json; deleted-files.md; phase5-inventory.json |
-| 6 Enforce/final APK | Pending | No final APK is claimed at this boundary |
+| 6 Enforce/final APK | Local checks verified; hosted delivery pending | scripts/design_check.sh PASS; no final APK is claimed at this boundary |
 
 ## Checks and actual hosted state
 
@@ -47,3 +47,54 @@ ThemeSwitchAnimator.kt and ThemeManager.kt remain byte-identical to baseline. Te
 All screen/source entries are listed in screens.md. “Implemented” is source migration, not authenticated production end-to-end verification. Native fixtures cover light/dark, gesture/three-button navigation, responsive type, layouts, popup behavior and theme reveal; final rerun remains required. Notifications use Android’s standard template: app-owned icons are migrated, but the OS controls notification typography. No app widget/RemoteViews layout exists. Native DatePicker internals and all authenticated production data states have not been individually certified. Test/auth headers retain their functional screen structure; a pixel-perfect large-title assertion for these specific screens is unverified.
 
 Retained hues and small system-color text contrast inventory are finalized with Phase 6. Never infer final completion from a prior progress message.
+
+## Phase 6 enforcement and final local checks
+
+`scripts/design_check.sh` delegates to the adjacent Python checker, exits non-zero on violations and prints PASS only after scanning production XML/Kotlin/Java, deleted-resource references, old design tokens, layout type/font literals, corner/elevation literals, divider views, Poppins inventory, identical sw360/sw600 size-token copies and baseline hashes of protected core/sun/moon/raw Lottie resources. It is deliberately not wired into CI. Nine temporary negative fixtures were each rejected (hex, text size, font family, typeface, elevation, radius, divider, deleted reference and old token); fixtures were then removed and the clean tree rechecked PASS. Protected animation files/resources are the explicit owner exception. FastBlurHelper's unchanged channel masks are image arithmetic, not chosen UI colors; its hash is checked against baseline.
+
+Existing Lottie color lookups moved unchanged into DesignLottieTokens.kt; callbacks delegate with the same original color, stroke/fill flag, alpha and theme target. No playback logic or assets changed. Whether to normalize the preserved artwork palette remains the already-asked product choice, so this checker PASS does not assert Lottie hue normalization.
+
+Final local four Android gates PASS (32s, 86 tasks); 261 JVM tests and lint zero errors. The baseline warning volume was reduced by removing obsolete resources; existing compiler SDK/deprecation warnings remain. Full type/geometry integration certification still depends on the hosted native jobs. No successful job is rerun manually.
+
+Small system-color text on white, including conditional runtime states, is listed in [contrast-inventory.md](contrast-inventory.md); machine-readable source details are in contrast-evidence.json. Exact system colors remain as specified despite their measured ratios below 4.5:1.
+
+### Retained other hues
+
+These seventeen cyan/teal/mint/pink-family colors are retained in the root derived token files; this lists declared tokens, including tokens without a remaining active caller. The same RGBs are present in both qualifiers; they are not remapped to a different hue. Existing Lottie artwork colors are separately retained pending the product choice above.
+
+| Token | RGB |
+| --- | --- |
+| `retained_hue_ff007987` | `#007987` |
+| `retained_hue_ff008299` | `#008299` |
+| `retained_hue_ff00c0e8` | `#00C0E8` |
+| `retained_hue_ff00c3d0` | `#00C3D0` |
+| `retained_hue_ff00c8b3` | `#00C8B3` |
+| `retained_hue_ff00d2e0` | `#00D2E0` |
+| `retained_hue_ff00dac3` | `#00DAC3` |
+| `retained_hue_ff0c817b` | `#0C817B` |
+| `retained_hue_ff142e2c` | `#142E2C` |
+| `retained_hue_ff3cd3fe` | `#3CD3FE` |
+| `retained_hue_ff40cbe0` | `#40CBE0` |
+| `retained_hue_ff63e6e2` | `#63E6E2` |
+| `retained_hue_ffd30f45` | `#D30F45` |
+| `retained_hue_ffe5f9f6` | `#E5F9F6` |
+| `retained_hue_ffff2d55` | `#FF2D55` |
+| `retained_hue_ffff375f` | `#FF375F` |
+| `retained_hue_ffff6482` | `#FF6482` |
+
+### Before/after counts
+
+Reproduced with `python3 scripts/design_inventory.py`; includes token definitions/comments, all qualifiers and XML font families. These are source occurrences, not hardcoded-color violations.
+
+| Metric | Baseline | Phase 6 |
+| --- | --- | --- |
+| hex_color_occurrences | 496 | 137 |
+| literal_dp_occurrences | 3007 | 664 |
+| literal_sp_occurrences | 181 | 42 |
+| style_definitions_including_qualifiers | 279 | 114 |
+| drawable_files_including_qualifiers | 133 | 103 |
+| font_files_including_xml_families | 8 | 4 |
+| layout_files_including_qualifiers | 95 | 95 |
+| kotlin_files | 237 | 240 |
+
+Commands and local log hashes: phase6-verification.json. The four local gates use the configured JDK 21, Gradle 8.7 and Android SDK with the session proxy/trust store; no signing or workflow configuration was changed.

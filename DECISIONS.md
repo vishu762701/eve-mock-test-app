@@ -1192,3 +1192,8 @@ hang; hosted execution is required to certify the result.
 Official source read: https://raw.githubusercontent.com/material-components/material-components-android/1.12.0/lib/java/com/google/android/material/tabs/TabLayout.java
 The existing BlurView 2.0.6 controller source was also inspected and does not
 invalidate from its OnPreDraw callback; no speculative blur renderer change was made.
+
+
+## Root reset enforcement boundary
+
+The standalone design checker stays outside CI as the owner requested. Protected core/sun/moon and raw/Lottie exceptions are backed by baseline SHA-256 checks; unchanged channel-mask arithmetic is not a UI color. Existing artwork lookups were moved verbatim to a shared token object without changing playback or output. Exact system hues remain even where small text on white falls below 4.5:1; the report inventories those cases instead of altering the locked palette. Hosted native success is required before publishing the final APK.

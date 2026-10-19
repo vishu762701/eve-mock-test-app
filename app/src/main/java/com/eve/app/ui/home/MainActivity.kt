@@ -843,8 +843,7 @@ class MainActivity : EveBaseActivity() {
         val isDark = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
         val keyPathAll = KeyPath("**")
 
-        // Dark mode: remap #000000 and #231f20 (RGB) to ContextCompat.getColor(this, R.color.text_primary).
-        // Light mode: remap #ffffff and #fcfcfc to ContextCompat.getColor(this, R.color.hairline).
+        // Preserve the existing artwork palette through shared lookup tokens.
         val targetColor = if (isDark) {
             ContextCompat.getColor(this, R.color.text_primary)
         } else {
@@ -853,20 +852,7 @@ class MainActivity : EveBaseActivity() {
 
         val callback = SimpleLottieValueCallback<Int> { frameInfo ->
             val orig = frameInfo?.startValue ?: return@SimpleLottieValueCallback 0
-            val rgb = orig and 0x00FFFFFF
-            val alpha = orig and 0xFF000000.toInt()
-
-            if (isDark) {
-                when (rgb) {
-                    0x000000, 0x231F20 -> alpha or (targetColor and 0x00FFFFFF)
-                    else -> orig
-                }
-            } else {
-                when (rgb) {
-                    0xFFFFFF, 0xFCFCFC -> alpha or (targetColor and 0x00FFFFFF)
-                    else -> orig
-                }
-            }
+            com.eve.app.designsystem.DesignLottieTokens.airplaneColor(orig, isDark, targetColor)
         }
 
         binding.lottieFloatingAirplane.addValueCallback(keyPathAll, LottieProperty.COLOR, callback)

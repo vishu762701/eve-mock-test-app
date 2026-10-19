@@ -1,0 +1,43 @@
+{
+  "local_gates": {
+    "./gradlew assembleDebug testDebugUnitTest lintDebug assembleDebugAndroidTest": {
+      "result": "PASS",
+      "scratch_log": "phase6-gates.log",
+      "sha256": "d7226ee5b5863cd1b854d5014980f048fb0806e814ee8bf1e770aa384d5d1637"
+    },
+    "scripts/design_check.sh": {
+      "result": "PASS",
+      "scratch_log": "phase6-checker.log",
+      "sha256": "2fafa4b91313e4fbed3fb58c7d922308247ca417c3f845a02126caab1ba92435"
+    },
+    "python3 -B -m unittest discover -s .github/scripts/tests -v": {
+      "result": "PASS",
+      "scratch_log": "phase6-python.log",
+      "sha256": "35054a2ef914aca820a1188911c58bf1161b6a1d491453e8204927b6377d6e1f"
+    },
+    "node --test .github/scripts/gdrive-sync/test/scanner.test.mjs": {
+      "result": "PASS",
+      "scratch_log": "phase6-scanner.log",
+      "sha256": "a1081f7ecadb17c641293c90b84438be28b8d986d9753984c7c05ea82b73a0c0"
+    },
+    "node .github/scripts/verify-docs.mjs": {
+      "result": "PASS",
+      "scratch_log": "phase6-docs.log",
+      "sha256": "197503838bf5771563adf420ff0fb1e92644118f750e3bd19e320fda427d604e"
+    }
+  },
+  "negative_checker_probes": {
+    "hex": "rejected",
+    "textSize": "rejected",
+    "fontFamily": "rejected",
+    "typeface": "rejected",
+    "elevation": "rejected",
+    "radius": "rejected",
+    "divider": "rejected",
+    "deleted_resource": "rejected",
+    "old_token": "rejected"
+  },
+  "protected_diff": "git diff 6761cf6 -- ThemeSwitchAnimator.kt ThemeManager.kt TelegramMenuPopup.kt res/raw assets/lottie produced no changes; checker also validates baseline hashes of core/sun/moon/raw assets",
+  "hosted_native": "Pending for this commit; previous run 39252548325 failed; no APK published",
+  "CI_integration": "Standalone checker is not wired to CI, as requested"
+}

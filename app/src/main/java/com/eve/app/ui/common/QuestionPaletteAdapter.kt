@@ -115,8 +115,9 @@ class QuestionPaletteAdapter(
 
             if (approvedTestStyle) {
                 // Explicit padding also keeps the approved 8dp gap on API 24/25.
-                val halfGap = Math.round(8f * density) / 2
-                b.root.setPadding(halfGap, halfGap, Math.round(8f * density) - halfGap, Math.round(8f * density) - halfGap)
+                val gap = ctx.resources.getDimensionPixelSize(R.dimen.design_chip_gap)
+                val halfGap = gap / 2
+                b.root.setPadding(halfGap, halfGap, gap - halfGap, gap - halfGap)
                 b.cardCircle.layoutParams = b.cardCircle.layoutParams.apply {
                     width = ctx.resources.getDimensionPixelSize(R.dimen.design_pill_height)
                     height = ctx.resources.getDimensionPixelSize(R.dimen.design_pill_height)
@@ -147,7 +148,7 @@ class QuestionPaletteAdapter(
                 b.cardCircle.strokeWidth = 0
                 b.cardCircle.strokeColor = strokeColor
             }
-            b.cardCircle.cardElevation = 0f
+            b.cardCircle.cardElevation = ctx.resources.getDimension(R.dimen.design_zero)
 
             // Dot indicator for marked for review (orange dot)
             if (item.state == PaletteState.MARKED || item.state == PaletteState.ANSWERED_MARKED) {

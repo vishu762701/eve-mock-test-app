@@ -1,0 +1,745 @@
+{
+  "method": "XML styles inherited through root token styles; nearest solid background; runtime bindings independently traced",
+  "static_white": [
+    {
+      "layout": "item_syllabus.xml",
+      "view": "tvCategory",
+      "hue": "blue",
+      "size": "14sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_performance.xml",
+      "view": "tvTotalAttempts",
+      "hue": "blue",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_performance.xml",
+      "view": "tvOverallAccuracy",
+      "hue": "green",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_performance.xml",
+      "view": "\u26a0 Weak Areas",
+      "hue": "red",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_performance.xml",
+      "view": "tvWeakAreas",
+      "hue": "red",
+      "size": "14sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "item_poll_admin.xml",
+      "view": "tvTapToView",
+      "hue": "blue",
+      "size": "14sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "item_bookmark_card.xml",
+      "view": "tvExamTag",
+      "hue": "blue",
+      "size": "14sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "item_bookmark_card.xml",
+      "view": "Tap to open in test",
+      "hue": "blue",
+      "size": "14sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "item_analytics_question.xml",
+      "view": "tvStats",
+      "hue": "red",
+      "size": "14sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_content_display.xml",
+      "view": "tvEmailValue",
+      "hue": "blue",
+      "size": "14sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_content_display.xml",
+      "view": "tvPhoneValue",
+      "hue": "blue",
+      "size": "14sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_content_display.xml",
+      "view": "tvWebsiteValue",
+      "hue": "blue",
+      "size": "14sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "item_audit_log.xml",
+      "view": "tvActionBadge",
+      "hue": "blue",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_edit_exam.xml",
+      "view": "Exam Information",
+      "hue": "blue",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_edit_exam.xml",
+      "view": "Category Cutoffs (Optional)",
+      "hue": "blue",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_edit_exam.xml",
+      "view": "tvQuestionsHeader",
+      "hue": "blue",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "item_mistake.xml",
+      "view": "tvMistakeType",
+      "hue": "red",
+      "size": "14sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_result_detail.xml",
+      "view": "tvStatCorrectMarks",
+      "hue": "green",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_result_detail.xml",
+      "view": "tvStatWrongMarks",
+      "hue": "red",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_result_detail.xml",
+      "view": "tvPerfDetailPercentile",
+      "hue": "blue",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_admin_analytics.xml",
+      "view": "Crashlytics Active",
+      "hue": "green",
+      "size": "14sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_admin_analytics.xml",
+      "view": "tvCrashFreePercentage",
+      "hue": "green",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "dialog_reply_feedback.xml",
+      "view": "tvOriginalSenderName",
+      "hue": "blue",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "item_answer.xml",
+      "view": "tvQuestionStatusLabel",
+      "hue": "green",
+      "size": "14sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "item_answer.xml",
+      "view": "tvCorrectAnswer",
+      "hue": "green",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "item_answer.xml",
+      "view": "KEY POINTS",
+      "hue": "blue",
+      "size": "14sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_admin.xml",
+      "view": "tvOnlineUsers",
+      "hue": "green",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_admin.xml",
+      "view": "Tap to manage users & view test history \u2192",
+      "hue": "blue",
+      "size": "14sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_admin.xml",
+      "view": "tvVersionStatusBadge",
+      "hue": "green",
+      "size": "14sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_admin.xml",
+      "view": "tvLiveMaintenanceStatus",
+      "hue": "green",
+      "size": "14sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "item_manage_question.xml",
+      "view": "tvCorrect",
+      "hue": "green",
+      "size": "14sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_main.xml",
+      "view": "tvDrawerPremiumStatus",
+      "hue": "green",
+      "size": "14sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "bottom_sheet_completed_exam.xml",
+      "view": "tvCompletedScore",
+      "hue": "green",
+      "size": "14sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_premium.xml",
+      "view": "\u2713 All eligible tests unlocked",
+      "hue": "green",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_premium.xml",
+      "view": "\u2713 Unlimited eligible test reattempts",
+      "hue": "green",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_premium.xml",
+      "view": "\u2713 3-attempt restriction bypassed",
+      "hue": "green",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "item_flagged_question.xml",
+      "view": "tvExamName",
+      "hue": "blue",
+      "size": "14sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "item_flagged_question.xml",
+      "view": "tvFlagCount",
+      "hue": "red",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "item_sent_broadcast.xml",
+      "view": "tvBroadcastTarget",
+      "hue": "blue",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "item_user_admin.xml",
+      "view": "tvUserStatusBadge",
+      "hue": "green",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "item_analytics_exam.xml",
+      "view": "tvCategoryBadge",
+      "hue": "blue",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "item_analytics_exam.xml",
+      "view": "tvMeta",
+      "hue": "blue",
+      "size": "14sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "item_analytics_exam.xml",
+      "view": "tvEngagementBadge",
+      "hue": "red",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "item_generated_test.xml",
+      "view": "tvScheduledTime",
+      "hue": "blue",
+      "size": "14sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_app_config.xml",
+      "view": "Live Backend Controls",
+      "hue": "blue",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_app_config.xml",
+      "view": "Firebase Console Remote Config Guide",
+      "hue": "blue",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "item_leaderboard.xml",
+      "view": "tvScore",
+      "hue": "blue",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_settings.xml",
+      "view": "Delete Account",
+      "hue": "red",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "item_existing_exam_admin.xml",
+      "view": "tvCategoryBadge",
+      "hue": "blue",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "item_exam_test.xml",
+      "view": "tvStatus",
+      "hue": "blue",
+      "size": "14sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_api_usage.xml",
+      "view": "tvGeminiCallsCount",
+      "hue": "blue",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    },
+    {
+      "layout": "activity_api_usage.xml",
+      "view": "tvDocsCreatedCount",
+      "hue": "green",
+      "size": "17sp",
+      "background": "@color/surface",
+      "resolved_background": "#FFFFFF"
+    }
+  ],
+  "runtime": [
+    {
+      "source": "ui/home/ExamAdapter.kt",
+      "binding": "tvExamTime after submission (shared Colors.statusRightText)",
+      "colors_and_contrast": "green 2.22:1"
+    },
+    {
+      "source": "ui/home/ExamTestsAdapter.kt",
+      "binding": "tvStatus: Submitted / Live / Start",
+      "colors_and_contrast": "green 2.22:1; blue 3.52:1"
+    },
+    {
+      "source": "ui/history/HistoryAdapter.kt",
+      "binding": "tvScore: pass/fail threshold",
+      "colors_and_contrast": "green 2.22:1; red 3.57:1"
+    },
+    {
+      "source": "ui/result/AnswerAdapter.kt",
+      "binding": "tvQuestionStatusLabel: correct/incorrect; tvYourAnswer; tvCorrectAnswer",
+      "colors_and_contrast": "green 2.22:1; red 3.57:1"
+    },
+    {
+      "source": "ui/result/ResultActivity.kt",
+      "binding": "cutoff-selection sheet item.tvSub: Qualified / Not Qualified",
+      "colors_and_contrast": "green 2.22:1; red 3.57:1"
+    },
+    {
+      "source": "ui/result/ResultAnalysisRows.kt",
+      "binding": "topic row tvTopicResult when hosted in the Analytics solid card",
+      "colors_and_contrast": "green 2.22:1; orange 2.31:1; red 3.57:1"
+    },
+    {
+      "source": "ui/performance/TopicStatAdapter.kt",
+      "binding": "tvTopicAccuracy when hosted in the white topic card",
+      "colors_and_contrast": "green 2.22:1; orange 2.31:1; red 3.57:1"
+    },
+    {
+      "source": "ui/mistakes/MistakesAdapter.kt",
+      "binding": "tvMistakeType for wrong-answer state",
+      "colors_and_contrast": "red 3.57:1"
+    },
+    {
+      "source": "ui/premium/PaymentCheckoutActivity.kt",
+      "binding": "cardStatus.tvStatusText after payment success",
+      "colors_and_contrast": "green 2.22:1"
+    },
+    {
+      "source": "ui/admin/AdminPremiumUserAdapter.kt",
+      "binding": "tvUserStatusBadge: ACTIVE / EXPIRED / REVOKED",
+      "colors_and_contrast": "green 2.22:1; red 3.57:1"
+    },
+    {
+      "source": "ui/admin/AdminTransactionAdapter.kt",
+      "binding": "tvOrderStatus: SUCCESS / PENDING / EXPIRED / REFUNDED",
+      "colors_and_contrast": "green 2.22:1; orange 2.31:1; red 3.57:1; blue 3.52:1"
+    },
+    {
+      "source": "ui/admin/UserAdminAdapter.kt",
+      "binding": "tvUserStatusBadge: Active / Banned",
+      "colors_and_contrast": "green 2.22:1; red 3.57:1"
+    },
+    {
+      "source": "ui/admin/PollsAdminAdapter.kt",
+      "binding": "tvPollStatus: Active / Expired",
+      "colors_and_contrast": "green 2.22:1; orange 2.31:1"
+    },
+    {
+      "source": "ui/admin/AnalyticsExamAdapter.kt",
+      "binding": "tvEngagementBadge: no/low/active engagement",
+      "colors_and_contrast": "red 3.57:1; orange 2.31:1; green 2.22:1"
+    },
+    {
+      "source": "ui/admin/AdminActivity.kt",
+      "binding": "tvLiveMaintenanceStatus; tvVersionStatusBadge (within their solid card)",
+      "colors_and_contrast": "green 2.22:1; red 3.57:1"
+    },
+    {
+      "source": "designsystem/DesignInputLayout.kt",
+      "binding": "14sp error helper whenever an input is hosted in a white form card, dialog or sheet",
+      "colors_and_contrast": "red 3.57:1"
+    }
+  ],
+  "excluded_nonwhite_static": [
+    {
+      "layout": "activity_payment_checkout.xml",
+      "view": "Payment session expired",
+      "hue": "red",
+      "size": "17sp",
+      "background": "@color/bg_app",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "item_mistake.xml",
+      "view": "Your Answer:",
+      "hue": "red",
+      "size": "14sp",
+      "background": "@color/surface_inset",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "item_mistake.xml",
+      "view": "Correct Answer:",
+      "hue": "green",
+      "size": "14sp",
+      "background": "@color/surface_inset",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_result_detail.xml",
+      "view": "tvStatRightCount",
+      "hue": "green",
+      "size": "17sp",
+      "background": "@color/surface_inset",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_result_detail.xml",
+      "view": "Right",
+      "hue": "green",
+      "size": "14sp",
+      "background": "@color/surface_inset",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_result_detail.xml",
+      "view": "tvStatWrongCount",
+      "hue": "red",
+      "size": "17sp",
+      "background": "@color/surface_inset",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_result_detail.xml",
+      "view": "Wrong",
+      "hue": "red",
+      "size": "14sp",
+      "background": "@color/surface_inset",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_result_detail.xml",
+      "view": "tvStatAccuracyPct",
+      "hue": "orange",
+      "size": "17sp",
+      "background": "@color/surface_inset",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_result_detail.xml",
+      "view": "Accuracy",
+      "hue": "orange",
+      "size": "14sp",
+      "background": "@color/surface_inset",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_result_detail.xml",
+      "view": "tvPerfTopperScore",
+      "hue": "green",
+      "size": "17sp",
+      "background": "@color/surface_inset",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_login.xml",
+      "view": "tvError",
+      "hue": "red",
+      "size": "14sp",
+      "background": "@color/bg_app",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_admin_analytics.xml",
+      "view": "tvMostAttempted",
+      "hue": "blue",
+      "size": "17sp",
+      "background": "@color/bg_app",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_result.xml",
+      "view": "View Details \u203a",
+      "hue": "blue",
+      "size": "17sp",
+      "background": "@color/bg_app",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_result.xml",
+      "view": "tvCorrectCount",
+      "hue": "green",
+      "size": "17sp",
+      "background": "@color/bg_app",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_result.xml",
+      "view": "Right",
+      "hue": "green",
+      "size": "14sp",
+      "background": "@color/bg_app",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_result.xml",
+      "view": "tvWrongCount",
+      "hue": "red",
+      "size": "17sp",
+      "background": "@color/bg_app",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_result.xml",
+      "view": "Wrong",
+      "hue": "red",
+      "size": "14sp",
+      "background": "@color/bg_app",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_result.xml",
+      "view": "tvAccuracy",
+      "hue": "orange",
+      "size": "17sp",
+      "background": "@color/bg_app",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_result.xml",
+      "view": "Accuracy",
+      "hue": "orange",
+      "size": "14sp",
+      "background": "@color/bg_app",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_result.xml",
+      "view": "View Details \u203a",
+      "hue": "blue",
+      "size": "17sp",
+      "background": "@color/bg_app",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_result.xml",
+      "view": "View Details \u203a",
+      "hue": "blue",
+      "size": "17sp",
+      "background": "@color/bg_app",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_result.xml",
+      "view": "tvAnalysisAccuracy",
+      "hue": "green",
+      "size": "17sp",
+      "background": "@color/surface_inset",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "dialog_report_question.xml",
+      "view": "tvCommentError",
+      "hue": "red",
+      "size": "14sp",
+      "background": "@color/bg_app",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_mistakes.xml",
+      "view": "tvOfflineBanner",
+      "hue": "orange",
+      "size": "17sp",
+      "background": "@color/bg_app",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "dialog_manage_banners.xml",
+      "view": "tvBannerUploadError",
+      "hue": "red",
+      "size": "14sp",
+      "background": "@color/bg_app",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_main.xml",
+      "view": "tvOfflineBanner",
+      "hue": "orange",
+      "size": "14sp",
+      "background": "@color/bg_app",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "item_poll_option_result.xml",
+      "view": "tvOptionPercent",
+      "hue": "blue",
+      "size": "14sp",
+      "background": "@color/bg_app",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_manage_syllabus.xml",
+      "view": "tvSyllabusCount",
+      "hue": "blue",
+      "size": "14sp",
+      "background": "@color/bg_app",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_bookmarks.xml",
+      "view": "tvOfflineBanner",
+      "hue": "orange",
+      "size": "17sp",
+      "background": "@color/bg_app",
+      "resolved_background": "#F5F5F5"
+    },
+    {
+      "layout": "activity_api_usage.xml",
+      "view": "tvCurrentMonth",
+      "hue": "blue",
+      "size": "14sp",
+      "background": "@color/bg_app",
+      "resolved_background": "#F5F5F5"
+    }
+  ]
+}
