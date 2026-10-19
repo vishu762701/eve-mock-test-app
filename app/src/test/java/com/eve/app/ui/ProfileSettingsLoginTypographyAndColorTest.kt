@@ -121,8 +121,7 @@ class ProfileSettingsLoginTypographyAndColorTest {
         val root = loadXml("src/main/res/layout/activity_settings.xml")
 
         val tvFontValue = findElementById(root, "tvFontValue")
-        assertNotNull("tvFontValue must exist", tvFontValue)
-        assertEquals("@style/TextAppearance.Eve.Footnote", tvFontValue?.getAttribute("style"))
+        assertEquals("Owner retired the device-font setting", null, tvFontValue)
 
         val tvDailyGoalValue = findElementById(root, "tvDailyGoalValue")
         assertNotNull("tvDailyGoalValue must exist", tvDailyGoalValue)

@@ -1,26 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- App-Wide Authoritative Color Tokens (Light Theme) -->
-    <color name="bg_app">#F5F5F5</color>
-    <color name="surface">#FFFFFF</color>
 
     <!-- Authoritative System Hue Tokens (Light Theme) -->
-    <color name="system_red">#FF383C</color>
-    <color name="system_green">#34C759</color>
-    <color name="system_blue">#0088FF</color>
-    <color name="system_indigo">#6155F5</color>
-    <color name="system_orange">#FF8D28</color>
-    <color name="system_purple">#CB30E0</color>
-    <color name="system_yellow">#FFCC00</color>
 
     <!-- Pale Tinted Container Tokens (Light Theme: 12% alpha = 0x1F) -->
-    <color name="system_red_container">#1FFF383C</color>
-    <color name="system_green_container">#1F34C759</color>
-    <color name="system_blue_container">#1F0088FF</color>
-    <color name="system_indigo_container">#1F6155F5</color>
-    <color name="system_orange_container">#1FFF8D28</color>
-    <color name="system_purple_container">#1FCB30E0</color>
-    <color name="system_yellow_container">#1FFFCC00</color>
 
     <!-- Apple Semantic Background Hierarchy (Light Theme) -->
     <!-- Standard Backgrounds -->

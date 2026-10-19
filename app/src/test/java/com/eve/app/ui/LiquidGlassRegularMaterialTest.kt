@@ -103,21 +103,21 @@ class LiquidGlassRegularMaterialTest {
     }
 
     @Test
-    fun testDialogAndBottomSheetThemes_enableWindowBackgroundBlurOnApi31() {
+    fun testDialogAndBottomSheetThemes_disableWindowBackgroundBlurOnApi31() {
         val doc = loadXml("src/main/res/values-v31/materials.xml")
 
         // Theme.Eve.Dialog
         val dialogStyle = findStyle(doc, "Theme.Eve.Dialog")
         assertNotNull("Theme.Eve.Dialog must exist in values-v31/materials.xml", dialogStyle)
-        assertEquals("true", findItem(dialogStyle!!, "android:windowIsTranslucent"))
-        assertEquals("@dimen/eve_modal_blur_radius", findItem(dialogStyle, "android:windowBackgroundBlurRadius"))
+        assertEquals("false", findItem(dialogStyle!!, "android:windowIsTranslucent"))
+        assertEquals("@dimen/design_zero", findItem(dialogStyle, "android:windowBackgroundBlurRadius"))
         assertEquals("false", findItem(dialogStyle, "android:windowBlurBehindEnabled"))
 
         // Theme.Eve.BottomSheetDialog
         val sheetStyle = findStyle(doc, "Theme.Eve.BottomSheetDialog")
         assertNotNull("Theme.Eve.BottomSheetDialog must exist in values-v31/materials.xml", sheetStyle)
-        assertEquals("true", findItem(sheetStyle!!, "android:windowIsTranslucent"))
-        assertEquals("@dimen/eve_modal_blur_radius", findItem(sheetStyle, "android:windowBackgroundBlurRadius"))
+        assertEquals("false", findItem(sheetStyle!!, "android:windowIsTranslucent"))
+        assertEquals("@dimen/design_zero", findItem(sheetStyle, "android:windowBackgroundBlurRadius"))
         assertEquals("@style/Widget.Eve.BottomSheet.Modal", findItem(sheetStyle, "bottomSheetStyle"))
     }
 
@@ -198,17 +198,17 @@ class LiquidGlassRegularMaterialTest {
         val themesDoc = loadXml("src/main/res/values/themes.xml")
         val themeStyle = findStyle(themesDoc, "Theme.Eve.Dialog.SubmitConfirmation")
         assertNotNull("Theme.Eve.Dialog.SubmitConfirmation must exist in values/themes.xml", themeStyle)
-        assertEquals("@drawable/bg_dialog_submit_confirmation", findItem(themeStyle!!, "android:windowBackground"))
+        assertEquals("@drawable/design_surface_panel", findItem(themeStyle!!, "android:windowBackground"))
         assertEquals("true", findItem(themeStyle, "android:windowIsFloating"))
 
         // Theme.Eve.Dialog.SubmitConfirmation in values-v31/materials.xml
         val v31Doc = loadXml("src/main/res/values-v31/materials.xml")
         val v31Style = findStyle(v31Doc, "Theme.Eve.Dialog.SubmitConfirmation")
         assertNotNull("Theme.Eve.Dialog.SubmitConfirmation must exist in values-v31/materials.xml", v31Style)
-        assertEquals("@drawable/bg_dialog_submit_confirmation", findItem(v31Style!!, "android:windowBackground"))
+        assertEquals("@drawable/design_surface_panel", findItem(v31Style!!, "android:windowBackground"))
         assertEquals("true", findItem(v31Style, "android:windowIsFloating"))
-        assertEquals("true", findItem(v31Style, "android:windowIsTranslucent"))
-        assertEquals("@dimen/eve_modal_blur_radius", findItem(v31Style, "android:windowBackgroundBlurRadius"))
+        assertEquals("false", findItem(v31Style, "android:windowIsTranslucent"))
+        assertEquals("@dimen/design_zero", findItem(v31Style, "android:windowBackgroundBlurRadius"))
         assertEquals("false", findItem(v31Style, "android:windowBlurBehindEnabled"))
     }
 

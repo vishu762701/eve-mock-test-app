@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="design_press_in_duration">100</integer>
+    <integer name="design_press_out_duration">140</integer>
+    <integer name="design_transition_duration">320</integer>
+    <item name="design_press_scale" type="dimen" format="float">0.96</item>
+</resources>

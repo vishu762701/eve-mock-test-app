@@ -110,3 +110,42 @@ when Phase 1 resumes. No font substitution was made.
 2. Confirm that the app currently switches typography after recreation.
 3. Decide whether this feature should be retired for mandatory Poppins or retained
    as a second explicit exception. No redesigned APK is available at this boundary.
+
+## Phase 1 — root implementation (supersedes the font blocker above)
+
+The owner explicitly chose **remove Device font; Poppins everywhere**. The old
+Settings font row and picker entry point are removed. The font lifecycle override
+and font-version recreation loop are removed; all other settings remain intact.
+Font resource cleanup stays in Phase 5 with the required deletion proof.
+
+- Canonical day/night palette moved to `design_colors.xml`; new inset, text,
+  hairline, track, Mono, shadow and glass tokens added with exact owner values
+  (fractional alpha rounded to the nearest 8-bit channel).
+- Bundled Regular 400 / Medium 500 / Bold 700 Poppins binaries and XML family;
+  complete SIL OFL 1.1 included in APK assets and quoted in third-party notices.
+- Locked sizes, type/line heights, shapes, elevation, motion durations and press
+  scale defined; identical size resources supplied for sw360dp and sw600dp.
+- Root Material 3/2, AppCompat/framework typography, palette, background, control,
+  link, selection/cursor, ripple, shape and transparent system-bar defaults bound.
+  `DesignTokens` resolves theme colors for custom Views without caching themes.
+- Default button, card, chip, input, switch/control tint and ring styles installed.
+  Shared runtime behavior and exact switch geometry remain Phase 2.
+- Default modal themes are solid, 26dp, with API 31+ modal blur disabled.
+- Depth mapping: elevation 9dp; intended y=6dp/blur=20dp. API 28+ ambient/spot
+  shadow colors black 16% light / 60% dark, multipliers 1.0. API 24–27 platform
+  black shadows use ambient/spot alpha .16 light / .60 dark. Platform shadow
+  geometry approximates the requested blur; clipping remediation is Phase 2.
+- Old per-screen styling is deliberately still pending; this phase does not
+  certify every screen or remove any old resources.
+
+Checks run before this phase's commit: all resource XML parsed; all three size
+copies compared equal; TrueType OS/2 weights checked as 400/500/700; 15 Python
+contract tests passed; `git diff --check` passed; protected toggle code/resources
+have an empty diff. A native light/dark default-widget test was added. JVM UI
+assertions changed only for the retired font setting, new theme token bindings
+and explicitly disabled modal blur; all other checks remain enabled.
+
+Local Gradle 8.7 and Android SDK tools/platform 36 were installed outside the
+repository. `./gradlew assembleDebug` is running with the local tool PATH and
+session HTTP proxy; the existing AGP 8.5.2 compileSdk 36 compatibility warning is
+recorded, not suppressed. Build/lint/native results are pending at commit time.

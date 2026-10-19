@@ -291,19 +291,19 @@ class EveDesignSystemTest {
             itemMap[item.getAttribute("name")] = item.textContent.trim()
         }
 
-        assertEquals("@color/eve_color_background", itemMap["eveColorBackground"])
-        assertEquals("@color/eve_color_card", itemMap["eveColorCard"])
-        assertEquals("@color/eve_color_text_primary", itemMap["eveColorTextPrimary"])
-        assertEquals("@color/eve_color_text_secondary", itemMap["eveColorTextSecondary"])
-        assertEquals("@color/eve_color_hairline", itemMap["eveColorHairline"])
-        assertEquals("@color/eve_color_tab_track", itemMap["eveColorTabTrack"])
-        assertEquals("@color/eve_color_accent", itemMap["eveColorAccent"])
-        assertEquals("@color/eve_color_on_accent", itemMap["eveColorOnAccent"])
-        assertEquals("@color/eve_color_success", itemMap["eveColorSuccess"])
-        assertEquals("@color/eve_color_error", itemMap["eveColorError"])
-        assertEquals("@color/eve_color_warning", itemMap["eveColorWarning"])
-        assertEquals("@color/eve_color_floating_bar_bg", itemMap["eveColorFloatingBarBg"])
-        assertEquals("@color/eve_color_card_shadow", itemMap["eveColorCardShadow"])
+        assertEquals("@color/bg_app", itemMap["eveColorBackground"])
+        assertEquals("@color/surface", itemMap["eveColorCard"])
+        assertEquals("@color/text_primary", itemMap["eveColorTextPrimary"])
+        assertEquals("@color/text_secondary", itemMap["eveColorTextSecondary"])
+        assertEquals("@color/hairline", itemMap["eveColorHairline"])
+        assertEquals("@color/track", itemMap["eveColorTabTrack"])
+        assertEquals("@color/accent", itemMap["eveColorAccent"])
+        assertEquals("@color/on_accent", itemMap["eveColorOnAccent"])
+        assertEquals("@color/system_green", itemMap["eveColorSuccess"])
+        assertEquals("@color/system_red", itemMap["eveColorError"])
+        assertEquals("@color/system_orange", itemMap["eveColorWarning"])
+        assertEquals("@color/glass_tint", itemMap["eveColorFloatingBarBg"])
+        assertEquals("@color/card_shadow", itemMap["eveColorCardShadow"])
     }
 
     @Test

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Widget.Eve.Token.Text" parent="Widget.AppCompat.TextView">
+        <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Body</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+    <style name="Widget.Eve.Token.Button" parent="Widget.Material3.Button">
+        <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Button</item>
+        <item name="android:fontFamily">@font/poppins_bold</item><item name="fontFamily">@font/poppins_bold</item>
+        <item name="android:textSize">@dimen/design_type_button</item>
+        <item name="android:includeFontPadding">false</item><item name="android:textAllCaps">false</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:minHeight">@dimen/design_touch_min</item>
+        <item name="android:insetTop">@dimen/design_button_touch_inset</item><item name="android:insetBottom">@dimen/design_button_touch_inset</item>
+        <item name="backgroundTint">@color/design_button_fill</item>
+        <item name="android:textColor">@color/design_button_text</item><item name="iconTint">@color/design_button_text</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Eve.Token.Capsule</item>
+        <item name="strokeWidth">@dimen/design_zero</item><item name="android:elevation">@dimen/design_zero</item>
+        <item name="rippleColor">@color/track</item>
+    </style>
+    <style name="Widget.Eve.Token.Button.Secondary" parent="Widget.Eve.Token.Button">
+        <item name="backgroundTint">@color/track</item><item name="android:textColor">@color/design_secondary_text</item>
+    </style>
+    <style name="Widget.Eve.Token.Input" parent="Widget.Material3.TextInputEditText.FilledBox">
+        <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Body</item>
+        <item name="android:fontFamily">@font/poppins_regular</item><item name="fontFamily">@font/poppins_regular</item>
+        <item name="android:includeFontPadding">false</item><item name="android:textSize">@dimen/design_type_body</item>
+        <item name="android:minHeight">@dimen/design_input_height</item>
+        <item name="android:paddingStart">@dimen/design_input_padding</item><item name="android:paddingEnd">@dimen/design_input_padding</item>
+        <item name="android:paddingTop">@dimen/design_zero</item><item name="android:paddingBottom">@dimen/design_zero</item>
+        <item name="android:background">@drawable/design_input_background</item>
+        <item name="android:textColor">@color/text_primary</item><item name="android:textColorHint">@color/text_secondary</item>
+        <item name="android:textCursorDrawable">@drawable/design_cursor</item><item name="android:textColorHighlight">@color/track</item>
+    </style>
+    <style name="Widget.Eve.Token.TextInput" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="shapeAppearance">@style/ShapeAppearance.Eve.Token.Capsule</item>
+        <item name="boxBackgroundColor">@color/surface_inset</item><item name="boxStrokeColor">@color/design_input_stroke</item>
+        <item name="boxStrokeWidth">@dimen/design_zero</item><item name="boxStrokeWidthFocused">@dimen/design_focus_stroke</item>
+        <item name="boxStrokeErrorColor">@color/system_red</item>
+        <item name="hintTextColor">@color/text_secondary</item><item name="android:textColorHint">@color/text_secondary</item>
+        <item name="errorTextColor">@color/system_red</item><item name="errorTextAppearance">@style/TextAppearance.Eve.Token.Secondary</item>
+        <item name="helperTextTextAppearance">@style/TextAppearance.Eve.Token.Secondary</item>
+        <item name="endIconTint">@color/text_secondary</item><item name="startIconTint">@color/text_secondary</item>
+    </style>
+    <style name="Widget.Eve.Token.Card.Base" parent="Widget.Material3.CardView.Elevated">
+        <item name="shapeAppearance">@style/ShapeAppearance.Eve.Token.Card</item>
+        <item name="cardCornerRadius">@dimen/design_radius_card</item><item name="cardBackgroundColor">@color/surface</item>
+        <item name="cardElevation">@dimen/design_card_elevation</item><item name="cardMaxElevation">@dimen/design_card_elevation</item>
+        <item name="strokeWidth">@dimen/design_zero</item><item name="contentPadding">@dimen/design_card_padding</item>
+        <item name="cardUseCompatPadding">false</item>
+    </style>
+    <style name="Widget.Eve.Token.Card" parent="Widget.Eve.Token.Card.Base" />
+    <style name="Widget.Eve.Token.Chip" parent="Widget.Material3.Chip.Assist">
+        <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Chip</item>
+        <item name="android:includeFontPadding">false</item><item name="android:textColor">@color/on_accent</item>
+        <item name="chipBackgroundColor">@color/accent</item><item name="chipStrokeWidth">@dimen/design_zero</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Eve.Token.Capsule</item>
+        <item name="chipMinHeight">@dimen/design_pill_height</item>
+        <item name="chipStartPadding">@dimen/design_pill_padding</item><item name="chipEndPadding">@dimen/design_pill_padding</item>
+        <item name="ensureMinTouchTargetSize">true</item><item name="chipMinTouchTargetSize">@dimen/design_touch_min</item>
+        <item name="chipIconTint">@color/on_accent</item><item name="closeIconTint">@color/on_accent</item>
+        <item name="rippleColor">@color/track</item>
+    </style>
+    <style name="Widget.Eve.Token.Checkbox" parent="Widget.Material3.CompoundButton.CheckBox">
+        <item name="useMaterialThemeColors">false</item><item name="buttonTint">@color/design_control_tint</item>
+        <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Body</item>
+        <item name="android:includeFontPadding">false</item><item name="android:minHeight">@dimen/design_touch_min</item>
+    </style>
+    <style name="Widget.Eve.Token.Radio" parent="Widget.Material3.CompoundButton.RadioButton">
+        <item name="useMaterialThemeColors">false</item><item name="buttonTint">@color/design_control_tint</item>
+        <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Body</item>
+        <item name="android:includeFontPadding">false</item><item name="android:minHeight">@dimen/design_touch_min</item>
+    </style>
+    <style name="Widget.Eve.Token.Switch" parent="Widget.Material3.CompoundButton.MaterialSwitch">
+        <item name="thumbTint">@color/solid_white</item><item name="trackTint">@color/design_switch_tint</item>
+        <item name="thumbIcon">@null</item><item name="trackDecoration">@null</item>
+        <item name="switchMinWidth">@dimen/design_switch_width</item>
+        <item name="android:minHeight">@dimen/design_touch_min</item>
+        <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Body</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+    <style name="Widget.Eve.Token.Progress" parent="Widget.AppCompat.ProgressBar">
+        <item name="android:indeterminateTint">@color/accent</item><item name="android:progressTint">@color/accent</item>
+        <item name="android:progressBackgroundTint">@color/track</item>
+    </style>
+    <style name="Widget.Eve.Token.Ring" parent="Widget.Material3.CircularProgressIndicator">
+        <item name="indicatorColor">@color/accent</item><item name="trackColor">@color/track</item>
+        <item name="indicatorSize">@dimen/design_ring_size</item><item name="indicatorInset">@dimen/design_zero</item>
+        <item name="trackThickness">@dimen/design_ring_stroke</item><item name="trackCornerRadius">@dimen/design_ring_stroke</item>
+    </style>
+    <style name="Widget.Eve.Token.Snackbar" parent="Widget.Material3.Snackbar">
+        <item name="backgroundTint">@color/surface</item><item name="shapeAppearance">@style/ShapeAppearance.Eve.Token.Card</item>
+    </style>
+</resources>

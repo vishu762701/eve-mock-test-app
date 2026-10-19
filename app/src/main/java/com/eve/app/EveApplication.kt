@@ -18,7 +18,6 @@ class EveApplication : Application() {
         // Saved dark/light choice sabse pehle apply karo, koi Activity dikhne se pehle
         ThemeManager.applySavedMode(this)
         com.eve.app.util.DebugCrashReporter.init(this)
-        com.eve.app.util.FontManager.registerLifecycleCallbacks(this)
         com.eve.app.util.ThemeSwitchAnimator.ensureLifecycleRegistered(this)
         com.eve.app.util.SystemBarHelper.init(this)
         try {

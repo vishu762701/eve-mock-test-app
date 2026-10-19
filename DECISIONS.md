@@ -988,3 +988,34 @@ Official sources actually fetched/read during preparation:
 - Material 1.12.0 typography resources: https://github.com/material-components/material-components-android/blob/1.12.0/lib/java/com/google/android/material/typography/res/values/styles.xml
 - Material 1.12.0 shape attributes: https://github.com/material-components/material-components-android/blob/1.12.0/lib/java/com/google/android/material/shape/res/values/attrs.xml
 - Poppins license: https://github.com/google/fonts/blob/main/ofl/poppins/OFL.txt
+
+## Locked reset — root foundation and single-font decision
+
+The owner explicitly selected removal of the Device font preference. Remove its
+Settings row and font-picker entry point, lifecycle font overrides and font-version
+recreation bookkeeping. Ignore the retired saved preference by removing all runtime
+readers; no unrelated preferences or storage are cleared. Keep unused resource
+removal for the lint/reference/build proof phase. `FontManager` now resolves bundled
+Poppins Regular 400, Medium 500 and Bold 700 with no substituted typeface. Actual
+font OS/2 weight records and the packaged SIL OFL 1.1 notice are verified in tests.
+
+Use `design_colors.xml` as the canonical palette, separate resource files for type,
+size, shape, elevation and motion, identical size copies at sw360dp/sw600dp, and
+all Material 2/3, AppCompat and framework text-appearance slots bound at the root.
+Legacy resource aliases and explicit screen styles remain for phased screen
+migration. Compose is absent. No dependency/plugin/SDK version changes.
+
+Depth mapping: 9dp native elevation, token intent y=6dp/blur=20dp; native shadow
+geometry is platform-rendered, not an exact Gaussian blur contract. On API 28+,
+ambient/spot shadow tints are black at 16% light / 60% dark and window alpha
+multipliers are both 1.0. On API 24–27, unavailable shadow tint is represented by
+window ambient/spot multipliers .16/.60 and default black native shadow color.
+Clip-host spacing is addressed in the component phase before screen migration.
+
+Dialogs/sheets use solid surface with 26dp shapes; qualified API 31 modal window
+blur is zero. Chrome glass, shared touch geometry, runtime clipping and screen
+transition changes remain later phases, not implied by root resource creation.
+
+Material 1.12.0 official AAR resource symbols were read to verify referenced widget
+styles/attributes against the installed version:
+https://dl.google.com/dl/android/maven2/com/google/android/material/material/1.12.0/material-1.12.0.aar

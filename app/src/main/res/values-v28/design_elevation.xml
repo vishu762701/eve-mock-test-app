@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Before API 28, platform shadow alpha replaces unavailable shadow tint. -->
+    <item name="design_shadow_platform_alpha" type="dimen" format="float">1.0</item>
+</resources>

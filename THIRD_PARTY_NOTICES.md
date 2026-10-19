@@ -30,3 +30,13 @@ This project incorporates code and assets from the following open source project
 ### Distribution & Licensing Notice
 Portions of this software are derived from Telegram for Android, copyright (c) 2013-present Telegram FZ-LLC / DrKLO and Nikolai Kudashov. These components and derivative works are provided under the terms of the GNU General Public License version 2 as published by the Free Software Foundation.
 Any distribution of binary artifacts containing these ported components must comply with the terms of the GPLv2.
+
+## Poppins
+
+- Source: https://github.com/google/fonts/tree/main/ofl/poppins
+- Copyright 2020 The Poppins Project Authors (https://github.com/itfoundry/Poppins).
+- License: SIL Open Font License 1.1; full notice distributed in
+  `app/src/main/assets/licenses/Poppins-OFL.txt`.
+- Bundled, unmodified font binaries: Poppins Regular 400, Medium 500, Bold 700.
+
+> This Font Software is licensed under the SIL Open Font License, Version 1.1.

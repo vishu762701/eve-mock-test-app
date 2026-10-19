@@ -11,17 +11,16 @@
 
 ## Current UI design authority
 
-ADR-009 (Full-screen iOS 26 geometry) records explicit user authorization for shapes
-on every screen, superseding older geometry-protected rules. Only radii, padding,
-row heights and backgrounds may alter geometry; preserve screen regions and behavior.
-Capsules use half-height radii; Eve chooses 26dp fixed cards/menus and 34dp modal
-containers. Concentric children use parent radius minus padding, minimum 4dp.
-Glass is restricted to navigation/top bars, tab bars, popup menus, sheets and dialogs;
-content cards, banners and list rows remain opaque. Sign In's outside area is clear.
-Home/Login/Test use plain system backgrounds; Settings/Profile/Admin lists/Result/
-Leaderboard/About use grouped backgrounds. Interactive blue aliases use systemBlue,
-with the user's documented normal-text contrast exception. See EVE_IOS26_UI_CONTRACT.md.
-All protected behavior, answer-state colours, Lottie and icon assets remain invariant.
+The owner's locked root design-reset specification supersedes historical UI
+numeric requirements, protected color palettes, icons and Lottie restrictions.
+Use the exact light/dark palette, bundled Poppins 400/500/700, 26dp solid cards,
+sheets and dialogs, capsule controls, 12dp screen margins, 10dp card padding,
+and 9dp native card elevation. Glass is allowed only on top bars, bottom bars
+and menus (14dp backdrop blur; 55% tint or 94% fallback). No list dividers.
+The device-font preference is explicitly retired by the owner; Poppins is the
+single font. Only the Telegram theme-toggle animation/behavior and its resources
+remain protected. UI migration must preserve business logic, data, navigation
+flow, and all other features. Token resources are in `design_*.xml`.
 
 ## 1. Repository identity
 - Remote origin: `git@github.com:vishu762701/eve-mock-test-app.git`
@@ -61,13 +60,9 @@ All protected behavior, answer-state colours, Lottie and icon assets remain inva
 - Lockfile rule: `functions/package-lock.json` is untracked and ignored. Never stage, commit, overwrite or delete it.
 
 ## 3. Permanent invariants (never break these)
-1. Color system:
-   - Light backgrounds: pure `#FFFFFF` standard canvas, `#F2F2F7` grouped canvas (per ADR-007). Dark standard/grouped canvases: `#000000`.
-   - Semantic tokens (never decorative):
-     - Right / Answered: light fill `#C9F0B8`, text `#1F6B3A`; dark fill `#293B27`, text `#7FE3A5`.
-     - Wrong: light fill `#FFC1BB`, text `#9B2C26`; dark fill `#602625`, text `#FF9A92`.
-     - Medium / Accuracy / Marked: light fill `#FEE3AA`, text `#7A4F00`; dark fill `#634416`, text `#F2C26B`.
-   - Lime `#E3FF3B` is banned everywhere in `app/` and `backend/`.
+1. Colors: use the owner's locked `design_colors.xml` day/night tokens and
+   matching system hue tokens, preserving alpha and meaning. Legacy color aliases
+   are transitional until the screen migration and evidence-based cleanup finish.
 2. The Telegram-style circular reveal Day/Night transition must never be degraded.
 3. Server-side test timer, question layout fitting, and submit mechanics must never be replaced by client-only logic.
 4. Blur is applied only to the allowed chrome and modal backdrop layers, never over foreground text, images, icons or Lottie animations.
