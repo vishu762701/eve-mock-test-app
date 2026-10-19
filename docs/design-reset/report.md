@@ -338,3 +338,18 @@ Header Save/Create/Reattempt actions retain MaterialButton APIs and IDs but use
 icon-only drawing. Original/dynamic labels remain available as accessibility
 labels and long-press tooltips. Added plus/save outline sources from the same
 Tabler release. No business callback, eligibility check, or click wiring changed.
+
+Phase 3 caller audit found EveNavigationHelper's source-bound scale-up options
+overriding the theme window animation. Its animation options now use the same
+shared slide/fade resources; intents, requestCode dispatch and native back-stack
+finish calls are unchanged. This necessary follow-up is verified before push.
+
+Phase 3 hosted run 39214474736 passed build/lint/JVM and the new real compositor
+blur test, but found two obsolete native fixture assumptions: icon-only null
+backgrounds were cast to ColorDrawable, and the popup handoff test waited for a
+retired whole-window blur animator event. Bare-action checks now accept no paint
+or transparent paint. Handoff coverage now taps a real partially-entered BlurView
+frame and checks its actual renderer is disabled at cancellation. All original
+reveal event ordering, single callback, measured layers, frame fences, ownership,
+scroll restoration and cleanup assertions remain. Detach explicitly disables the
+shared blur renderer. No protected production animation/listener code changed.

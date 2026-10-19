@@ -492,24 +492,21 @@ class RepairRegressionTest {
                     val blurRunning = java.util.concurrent.CountDownLatch(1)
                     val failures = java.util.concurrent.CopyOnWriteArrayList<String>()
                     var calls = 0
-                    var runningTapped = false
                     lateinit var popup: com.eve.app.ui.home.TelegramMenuPopup
                     instrumentation.runOnMainSync {
                         manager.setEventObserverForTest { stage, id, view ->
                             events.add(stage)
                             eventIds[stage] = id
-                            if (stage.startsWith("popup_blur_update:") && "popup_work_cancelled" in events) {
-                                failures.add("Blur changed after popup cancellation: $stage")
-                            }
-                            if (popupPhase == "running" && !runningTapped && stage.startsWith("popup_blur_update:") &&
-                                (stage.substringAfter(':').toIntOrNull() ?: 0) > 1) {
-                                // Tap in the animator's frame, before returning to instrumentation.
-                                // ActivityScenario.onActivity waits for idle and can miss this interval.
-                                runningTapped = true
-                                if (popup.contentView.alpha >= 1f) failures.add("Entrance settled before its first blur frame")
-                                popup.contentView.findViewById<View>(R.id.cardTheme).performClick()
-                                popup.contentView.findViewById<View>(R.id.cardTheme).performClick()
-                                blurRunning.countDown()
+                            if (stage == "popup_work_cancelled") {
+                                // Container blur is now BlurView, not a whole-window blur animator.
+                                val blur = popup.contentView as eightbitlab.com.blurview.BlurView
+                                val controller = eightbitlab.com.blurview.BlurView::class.java
+                                    .getDeclaredField("blurController").apply { isAccessible = true }.get(blur)
+                                if (controller.javaClass.simpleName != "NoOpController") {
+                                    val enabled = controller.javaClass.getDeclaredField("blurEnabled")
+                                        .apply { isAccessible = true }.getBoolean(controller)
+                                    if (enabled) failures.add("Backdrop renderer remained enabled after popup cancellation")
+                                }
                             }
                             if (stage == "target_layers_ready" || stage == "protection_cover_removal") {
                                 val decor = view?.rootView as? android.view.ViewGroup
@@ -544,6 +541,24 @@ class RepairRegressionTest {
                                 onThemeToggle = { x, y, w, h -> calls++; ThemeSwitchAnimator.animateAt(act, x, y, !startDark, w, h) },
                                 onHistory = {}, onBookmarks = {}, onTopic = {}, onPyq = {}, onLogout = {})
                             popup.show(act.homeBinding!!.btnOverflow)
+                            if (popupPhase == "running") {
+                                val view = popup.contentView
+                                view.viewTreeObserver.addOnPreDrawListener(object : android.view.ViewTreeObserver.OnPreDrawListener {
+                                    override fun onPreDraw(): Boolean {
+                                        if (view.alpha > 0f && view.alpha < 1f) {
+                                            view.viewTreeObserver.removeOnPreDrawListener(this)
+                                            assertTrue("Mid-entrance tap uses an attached real backdrop", view.isAttachedToWindow && view.isHardwareAccelerated)
+                                            val controller = eightbitlab.com.blurview.BlurView::class.java
+                                                .getDeclaredField("blurController").apply { isAccessible = true }.get(view)
+                                            assertTrue(controller.javaClass.getDeclaredField("blurEnabled").apply { isAccessible = true }.getBoolean(controller))
+                                            view.findViewById<View>(R.id.cardTheme).performClick()
+                                            view.findViewById<View>(R.id.cardTheme).performClick()
+                                            blurRunning.countDown()
+                                        }
+                                        return true
+                                    }
+                                })
+                            }
                             if (popupPhase == "pending") {
                                 // Same turn: entrance setup is still queued, and blur work must be canceled.
                                 popup.contentView.findViewById<View>(R.id.cardTheme).performClick()
@@ -552,9 +567,8 @@ class RepairRegressionTest {
                             }
                         }
                         if (popupPhase == "running") {
-                            // Screen recording and software GPU scheduling can delay the first blur frame.
-                            // Still require a real >1px window-blur update, without faking the callback.
-                            assertTrue("Entrance blur never started ($direction, phase=$popupPhase, events=$events)",
+                            // Observe a real partially-entered frame of the new backdrop container.
+                            assertTrue("No live backdrop frame during entrance ($direction, phase=$popupPhase, events=$events)",
                                 blurRunning.await(4, java.util.concurrent.TimeUnit.SECONDS))
                         } else if (popupPhase == "settled") {
                             // Test-only wait for the documented 220ms entrance; production has no delay.

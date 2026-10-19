@@ -67,7 +67,7 @@ open class DesignGlassLayout @JvmOverloads constructor(context: Context, attrs: 
     }
     override fun onDetachedFromWindow() {
         removeCallbacks(configureAfterAttach)
-        facade?.setBlurAutoUpdate(false)
+        facade?.setBlurEnabled(false)
         super.onDetachedFromWindow()
     }
     private fun configureBackdrop() {

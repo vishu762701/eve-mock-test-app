@@ -71,7 +71,8 @@ class ApprovedUiRenderingTest {
     }
     private inline fun Bitmap.useBitmap(block: (Bitmap) -> Unit) { try { block(this) } finally { recycle() } }
     private fun bare(view: View) {
-        assertEquals(Color.TRANSPARENT, (view.background as ColorDrawable).color)
+        assertTrue("Icon-only actions have no painted background",
+            view.background == null || (view.background is ColorDrawable && (view.background as ColorDrawable).color == Color.TRANSPARENT))
         assertTrue(view.layoutParams.width >= dp(48))
         assertTrue(view.layoutParams.height >= dp(48))
     }

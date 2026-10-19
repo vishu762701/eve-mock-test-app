@@ -1118,3 +1118,10 @@ Official sources read:
 Risks addressed: avoid doubled bottom insets by retaining the shared inset dispatch;
 exclude foreground children via BlurView rather than a whole-view RenderEffect;
 preserve protected menu handoff/listeners while replacing its container capture.
+
+Phase 3 navigation caller audit: AndroidX Core 1.13.1 ActivityOptionsCompat source
+was read from the official sources JAR. makeCustomAnimation loads enter/exit
+resources from the supplied Context; the source view contributes only that
+Context, not scale-up bounds. ActivityCompat start/for-result/finish dispatch is
+unchanged. Native popup tests follow BlurView renderer lifecycle after the
+authorized container restyle, preserving all protected reveal-order assertions.

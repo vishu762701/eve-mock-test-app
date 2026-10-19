@@ -7,11 +7,7 @@ import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityOptionsCompat
 
-/**
- * iOS 26-inspired contextual and fluid navigation system (Part F).
- * Provides source-aware contextual scaling/expansion from tap origin when a source element
- * exists, and falls back to fluid scale/fade window transitions when no specific source is provided.
- */
+/** Shared slide/fade options; activity destinations, request codes and back-stack semantics stay native. */
 object EveNavigationHelper {
 
     fun navigate(
@@ -20,23 +16,13 @@ object EveNavigationHelper {
         sourceView: View? = null,
         requestCode: Int? = null
     ) {
-        val optionsBundle: Bundle? = if (EveMotionHelper.areAnimationsEnabled(activity) &&
-            sourceView != null && sourceView.isAttachedToWindow && sourceView.width > 0 && sourceView.height > 0
-        ) {
-            try {
-                ActivityOptionsCompat.makeScaleUpAnimation(
-                    sourceView,
-                    0,
-                    0,
-                    sourceView.width,
-                    sourceView.height
-                ).toBundle()
-            } catch (_: Throwable) {
-                null
-            }
-        } else {
-            null
-        }
+        // The source supplies only its resource context, never a competing scale animation.
+        // WindowManager applies the system transition animation scale to these resources.
+        val animationContext = sourceView?.context ?: activity
+        val optionsBundle: Bundle? = ActivityOptionsCompat.makeCustomAnimation(
+            animationContext, com.eve.app.R.anim.design_screen_enter,
+            com.eve.app.R.anim.design_screen_recede
+        ).toBundle()
 
         if (requestCode != null) {
             ActivityCompat.startActivityForResult(activity, intent, requestCode, optionsBundle)
@@ -46,7 +32,7 @@ object EveNavigationHelper {
     }
 
     /**
-     * Contextual reverse back navigation returning smoothly toward the source origin.
+     * Native back navigation uses the matching shared close animations.
      */
     fun finishWithTransition(activity: Activity) {
         ActivityCompat.finishAfterTransition(activity)
