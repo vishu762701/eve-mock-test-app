@@ -16,8 +16,8 @@ object DesignTokens {
         return if (value.resourceId != 0) ContextCompat.getColor(context, value.resourceId) else value.data
     }
 
-    fun primary(context: Context): Int = color(context, R.attr.textPrimary)
-    fun secondary(context: Context): Int = color(context, R.attr.textSecondary)
-    fun accent(context: Context): Int = color(context, R.attr.accent)
-    fun track(context: Context): Int = color(context, R.attr.track)
+    fun primary(context: Context): Int = color(context, R.attr.designTextPrimary)
+    fun secondary(context: Context): Int = color(context, R.attr.designTextSecondary)
+    fun accent(context: Context): Int = color(context, R.attr.designAccent)
+    fun track(context: Context): Int = color(context, R.attr.designTrack)
 }

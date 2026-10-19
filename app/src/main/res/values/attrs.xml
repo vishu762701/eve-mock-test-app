@@ -64,11 +64,11 @@
     <attr name="systemOrangeContainer" format="color" />
     <attr name="systemPurpleContainer" format="color" />
     <attr name="systemYellowContainer" format="color" />
-    <attr name="surfaceInset" format="color" />
-    <attr name="textPrimary" format="color" />
-    <attr name="textSecondary" format="color" />
-    <attr name="hairline" format="color" />
-    <attr name="track" format="color" />
-    <attr name="accent" format="color" />
-    <attr name="onAccent" format="color" />
+    <attr name="designSurfaceInset" format="color" />
+    <attr name="designTextPrimary" format="color" />
+    <attr name="designTextSecondary" format="color" />
+    <attr name="designHairline" format="color" />
+    <attr name="designTrack" format="color" />
+    <attr name="designAccent" format="color" />
+    <attr name="designOnAccent" format="color" />
 </resources>

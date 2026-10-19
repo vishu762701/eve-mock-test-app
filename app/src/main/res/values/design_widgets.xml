@@ -20,6 +20,7 @@
     </style>
     <style name="Widget.Eve.Token.Button.Secondary" parent="Widget.Eve.Token.Button">
         <item name="backgroundTint">@color/track</item><item name="android:textColor">@color/design_secondary_text</item>
+        <item name="iconTint">@color/design_secondary_text</item>
     </style>
     <style name="Widget.Eve.Token.Input" parent="Widget.Material3.TextInputEditText.FilledBox">
         <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Body</item>

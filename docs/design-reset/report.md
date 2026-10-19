@@ -149,3 +149,12 @@ Local Gradle 8.7 and Android SDK tools/platform 36 were installed outside the
 repository. `./gradlew assembleDebug` is running with the local tool PATH and
 session HTTP proxy; the existing AGP 8.5.2 compileSdk 36 compatibility warning is
 recorded, not suppressed. Build/lint/native results are pending at commit time.
+
+Root resource verification caught and fixed an AppCompat `track` attribute name
+collision (custom color attributes now use the `design` prefix), and verified the
+framework's public `ambientShadowAlpha` / `spotShadowAlpha` attribute names using
+the installed SDK 36's resources. Resource merge/link and Kotlin compilation now
+pass locally. The next local Java step found missing `jlink` in the environment's
+Java installation; a complete JDK is being installed outside the repository.
+This does not establish a successful APK build yet. The first root CI run failed
+on the fixed resource collision; a new run is required for the correction commit.
