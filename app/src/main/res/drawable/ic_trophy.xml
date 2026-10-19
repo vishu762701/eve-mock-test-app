@@ -1,12 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Tabler Icons v3.49.0 / trophy; MIT, bundled Tabler-LICENSE.txt. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp"
-    android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
-    <path
-        android:pathData="M6,4 L18,4 L18,10 C18,13.3 15.3,16 12,16 C8.7,16 6,13.3 6,10 Z M6,6 L3.5,6 C2.7,6 2,6.7 2,7.5 C2,9.5 3.5,11 5.5,11 L6,11 M18,6 L20.5,6 C21.3,6 22,6.7 22,7.5 C22,9.5 20.5,11 18.5,11 L18,11 M12,16 L12,19 M8.5,19 L15.5,19"
-        android:strokeWidth="1.6"
-        android:strokeColor="@color/eve_text"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
+    android:width="@dimen/design_icon_size" android:height="@dimen/design_icon_size"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
+        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M8 21l8 0" />
+    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
+        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M12 17l0 4" />
+    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
+        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M7 4l10 0" />
+    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
+        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M17 4v8a5 5 0 0 1 -10 0v-8" />
+    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
+        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M3 9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
+        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M17 9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
 </vector>

@@ -1,137 +1,39 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/eve_system_grouped_background"
-    android:clickable="true"
-    android:focusable="true"
-    android:orientation="vertical">
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/eve_system_grouped_background" android:clickable="true" android:focusable="true" android:orientation="vertical">
 
     <!-- Top App Bar -->
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-<LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="56dp"
-        android:background="@android:color/transparent"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="4dp"
-        android:paddingVertical="8dp">
+<LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:minHeight="56dp" android:background="@android:color/transparent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingVertical="8dp">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Back"
-            android:padding="12dp"
-            android:src="@drawable/ic_back"
-            app:tint="@color/eve_text" />
+        <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
 
-        <TextView
-            style="@style/TextAppearance.Eve.Headline"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:paddingStart="4dp"
-            android:text="Activity &amp; Audit Log"
-            android:textColor="@color/eve_text" />
-
-        <ImageButton
-            android:id="@+id/btnRefresh"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Refresh"
-            android:padding="12dp"
-            android:src="@drawable/ic_refresh"
-            app:tint="@color/eve_text" />
+        <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1"/><ImageButton android:id="@+id/btnRefresh" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Refresh" android:src="@drawable/ic_refresh" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
     </LinearLayout>
 </com.eve.app.ui.common.EveGlassToolbar>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingBottom="@dimen/design_section_gap"><TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingStart="4dp" android:text="Activity &amp; Audit Log"/>
 
-        <TextView
-            style="@style/TextAppearance.Eve.Caption1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Read-only activity trail recording exam changes, broadcast dispatch, feedback moderation, and maintenance events."
-            android:textColor="@color/eve_text_secondary" />
+        </LinearLayout><LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="16dp">
+
+        <TextView style="@style/TextAppearance.Eve.Caption1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Read-only activity trail recording exam changes, broadcast dispatch, feedback moderation, and maintenance events." android:textColor="@color/eve_text_secondary"/>
 
         <!-- Date Filtering Chips -->
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chipGroupAuditFilter"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="8dp"
-            app:singleSelection="true">
+        <com.google.android.material.chip.ChipGroup android:id="@+id/chipGroupAuditFilter" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:layout_marginBottom="8dp" app:singleSelection="true">
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipToday"
-                style="@style/Widget.Eve.CategoryChip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Today" />
+            <com.google.android.material.chip.Chip android:id="@+id/chipToday" style="@style/Widget.Eve.CategoryChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Today"/>
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipLast7Days"
-                style="@style/Widget.Eve.CategoryChip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Last 7 days" />
+            <com.google.android.material.chip.Chip android:id="@+id/chipLast7Days" style="@style/Widget.Eve.CategoryChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Last 7 days"/>
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipAllTime"
-                style="@style/Widget.Eve.CategoryChip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="All time" />
+            <com.google.android.material.chip.Chip android:id="@+id/chipAllTime" style="@style/Widget.Eve.CategoryChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="All time"/>
         </com.google.android.material.chip.ChipGroup>
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+        <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:clipChildren="false">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvAuditLogs"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layoutAnimation="@anim/layout_enter"
-                android:clipToPadding="false"
-                android:paddingBottom="16dp"
-            android:clipChildren="false"/>
+            <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvAuditLogs" android:layout_width="match_parent" android:layout_height="match_parent" android:layoutAnimation="@anim/layout_enter" android:clipToPadding="false" android:paddingBottom="16dp" android:clipChildren="false"/>
 
-            <ProgressBar
-                android:id="@+id/progressBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:visibility="gone" />
+            <ProgressBar android:id="@+id/progressBar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:visibility="gone"/>
 
-            <TextView
-                android:id="@+id/tvEmpty"
-                style="@style/TextAppearance.Eve.BodySmall"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:text="No activity logs recorded for this period."
-                android:textColor="@color/eve_text_secondary"
-                android:visibility="gone" />
+            <TextView android:id="@+id/tvEmpty" style="@style/TextAppearance.Eve.BodySmall" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:text="No activity logs recorded for this period." android:textColor="@color/eve_text_secondary" android:visibility="gone"/>
         </FrameLayout>
     </LinearLayout>
 </LinearLayout>

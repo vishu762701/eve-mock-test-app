@@ -1,19 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.eve.app.designsystem.DesignGlassLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/menuContainer"
     android:layout_width="250dp"
     android:layout_height="wrap_content"
-    android:clipToOutline="true"
-    app:cardBackgroundColor="@android:color/transparent"
-    app:shapeAppearanceOverlay="@style/ShapeAppearance.Eve.Menu"
-    app:cardCornerRadius="@dimen/eve_radius_menu"
-    app:cardElevation="4dp"
-    app:cardMaxElevation="6dp"
-    app:cardPreventCornerOverlap="false"
-    app:cardUseCompatPadding="false"
-    app:strokeColor="@color/eve_shape_border"
-    app:strokeWidth="1dp">
+    android:clipToOutline="true">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -22,6 +13,7 @@
         <!-- Layer 1: Heavily blurred background slice of content directly behind menu -->
         <ImageView
             android:id="@+id/ivGlassBlurBackground"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
@@ -30,6 +22,7 @@
         <!-- Layer 2: Frosted glass tint overlay ensuring perfect contrast -->
         <View
             android:id="@+id/viewGlassTintOverlay"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/eve_menu_glass_bg" />
@@ -254,4 +247,4 @@
         </LinearLayout>
     </LinearLayout>
     </FrameLayout>
-</com.google.android.material.card.MaterialCardView>
+</com.eve.app.designsystem.DesignGlassLayout>

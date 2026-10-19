@@ -176,4 +176,13 @@
         <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Body</item>
         <item name="android:textColor">@color/text_primary</item><item name="android:includeFontPadding">false</item>
     </style>
+    <style name="Widget.Eve.Token.IconAction" parent="Widget.Eve.Token.Button">
+        <item name="backgroundTint">@color/transparent</item>
+        <item name="iconTint">@color/design_secondary_text</item>
+        <item name="iconPadding">@dimen/design_zero</item>
+        <item name="android:minWidth">@dimen/design_touch_min</item>
+        <item name="android:padding">@dimen/design_screen_margin</item>
+        <item name="android:insetTop">@dimen/design_zero</item>
+        <item name="android:insetBottom">@dimen/design_zero</item>
+    </style>
 </resources>

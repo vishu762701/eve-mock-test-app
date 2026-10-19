@@ -1,330 +1,94 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/eve_system_grouped_background"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/eve_system_grouped_background" android:clipToPadding="false" android:clipChildren="false">
 
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-<LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="56dp"
-        android:background="@android:color/transparent"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="4dp"
-        android:paddingVertical="8dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+<LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:minHeight="56dp" android:background="@android:color/transparent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingVertical="8dp" android:clipToPadding="false" android:clipChildren="false">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/bg_circle_translucent"
-            android:contentDescription="Back"
-            android:padding="12dp"
-            android:src="@drawable/ic_back"
-            app:tint="?attr/eveLabelPrimary" />
+        <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="?attr/eveLabelPrimary" style="@style/Widget.Eve.Token.IconButton"/>
 
-        <TextView
-            style="@style/TextAppearance.Eve.Headline"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:paddingStart="4dp"
-            android:text="Performance Insights"
-            android:textColor="?attr/eveLabelPrimary" />
-    </LinearLayout>
+        <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1"/></LinearLayout>
 </com.eve.app.ui.common.EveGlassToolbar>
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="@color/eve_system_grouped_background"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingBottom="@dimen/design_section_gap"><TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingStart="4dp" android:text="Performance Insights"/>
+    </LinearLayout><FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@color/eve_system_grouped_background" android:clipToPadding="false" android:clipChildren="false">
 
-        <ScrollView
-            android:id="@+id/contentGroup"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:visibility="gone"
-            android:overScrollMode="ifContentScrolls"
-            android:background="@color/eve_system_grouped_background"
-            android:clipChildren="false"
-            >
+        <ScrollView android:id="@+id/contentGroup" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:visibility="gone" android:overScrollMode="ifContentScrolls" android:background="@color/eve_system_grouped_background" android:clipChildren="false">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
 
                 <!-- Overview -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false">
 
-                    <com.google.android.material.card.MaterialCardView
-                        style="@style/Widget.Eve.Card.Group"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1">
+                    <com.google.android.material.card.MaterialCardView style="@style/Widget.Eve.Card.Group" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1">
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:orientation="vertical"
-                            android:padding="16dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
 
-                            <TextView
-                                android:id="@+id/tvTotalAttempts"
-                                style="@style/TextAppearance.Eve.Analytics.MetricValue"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/eve_accent_text" />
+                            <TextView android:id="@+id/tvTotalAttempts" style="@style/TextAppearance.Eve.Analytics.MetricValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/eve_accent_text"/>
 
-                            <TextView
-                                style="@style/TextAppearance.Eve.Analytics.MetricLabel"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="Tests attempted" />
+                            <TextView style="@style/TextAppearance.Eve.Analytics.MetricLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Tests attempted"/>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
-                    <com.google.android.material.card.MaterialCardView
-                        style="@style/Widget.Eve.Card.Group"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
-                        android:layout_weight="1">
+                    <com.google.android.material.card.MaterialCardView style="@style/Widget.Eve.Card.Group" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1">
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:orientation="vertical"
-                            android:padding="16dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
 
-                            <TextView
-                                android:id="@+id/tvOverallAccuracy"
-                                style="@style/TextAppearance.Eve.Analytics.MetricValue"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/eve_status_success_text" />
+                            <TextView android:id="@+id/tvOverallAccuracy" style="@style/TextAppearance.Eve.Analytics.MetricValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/eve_status_success_text"/>
 
-                            <TextView
-                                style="@style/TextAppearance.Eve.Analytics.MetricLabel"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="Overall accuracy" />
+                            <TextView style="@style/TextAppearance.Eve.Analytics.MetricLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Overall accuracy"/>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
 
                 <!-- Score trend -->
-                <com.google.android.material.card.MaterialCardView
-                    style="@style/Widget.Eve.Card.Group"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp">
+                <com.google.android.material.card.MaterialCardView style="@style/Widget.Eve.Card.Group" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
 
-                        <TextView
-                            style="@style/TextAppearance.Eve.Headline"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Score Trend" />
+                        <TextView style="@style/TextAppearance.Eve.Headline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Score Trend"/>
 
-                        <TextView
-                            style="@style/TextAppearance.Eve.Footnote"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="Accuracy % across previous attempts — oldest to newest, left to right" />
+                        <TextView style="@style/TextAppearance.Eve.Footnote" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Accuracy % across previous attempts — oldest to newest, left to right"/>
 
-                        <com.eve.app.ui.performance.ScoreTrendChartView
-                            android:id="@+id/chartTrend"
-                            android:layout_width="match_parent"
-                            android:layout_height="160dp"
-                            android:layout_marginTop="12dp" />
+                        <com.eve.app.ui.performance.ScoreTrendChartView android:id="@+id/chartTrend" android:layout_width="match_parent" android:layout_height="160dp" android:layout_marginTop="12dp"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
                 <!-- Weak areas -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardWeakAreas"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:visibility="gone"
-                    app:cardBackgroundColor="@color/eve_error_bg"
-                    app:cardCornerRadius="@dimen/eve_radius_card"
-                    app:cardElevation="0dp"
-                    app:strokeWidth="0dp">
+                <com.google.android.material.card.MaterialCardView android:id="@+id/cardWeakAreas" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:visibility="gone" app:cardBackgroundColor="@color/eve_error_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="0dp">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
 
-                        <TextView
-                            style="@style/TextAppearance.Eve.Headline"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="⚠ Weak Areas"
-                            android:textColor="@color/eve_status_error_text" />
+                        <TextView style="@style/TextAppearance.Eve.Headline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="⚠ Weak Areas" android:textColor="@color/eve_status_error_text"/>
 
-                        <TextView
-                            android:id="@+id/tvWeakAreas"
-                            style="@style/TextAppearance.Eve.Footnote"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            android:lineSpacingExtra="4dp"
-                            android:textColor="@color/eve_error_text" />
+                        <TextView android:id="@+id/tvWeakAreas" style="@style/TextAppearance.Eve.Footnote" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:lineSpacingExtra="4dp" android:textColor="@color/eve_error_text"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
                 <!-- Topic-wise breakdown -->
-                <TextView
-                    style="@style/TextAppearance.Eve.Headline"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:text="Topic-wise Accuracy" />
+                <TextView style="@style/TextAppearance.Eve.Headline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:text="Topic-wise Accuracy"/>
 
-                <TextView
-                    android:id="@+id/tvNoTopics"
-                    style="@style/TextAppearance.Eve.Footnote"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:text="No topic tags found in questions — Admin can add topics when creating or editing questions."
-                    android:visibility="gone" />
+                <TextView android:id="@+id/tvNoTopics" style="@style/TextAppearance.Eve.Footnote" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="No topic tags found in questions — Admin can add topics when creating or editing questions." android:visibility="gone"/>
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvTopics"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layoutAnimation="@anim/layout_enter"
-                    android:layout_marginTop="4dp"
-                    android:nestedScrollingEnabled="false"
-            android:clipToPadding="false"
-            android:clipChildren="false"/>
+                <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvTopics" android:layout_width="match_parent" android:layout_height="wrap_content" android:layoutAnimation="@anim/layout_enter" android:layout_marginTop="4dp" android:nestedScrollingEnabled="false" android:clipToPadding="false" android:clipChildren="false"/>
             </LinearLayout>
         </ScrollView>
 
-        <LinearLayout
-            android:id="@+id/progressGroup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:orientation="vertical"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+        <LinearLayout android:id="@+id/progressGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
 
-            <ProgressBar
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+            <ProgressBar android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 
-            <TextView
-                style="@style/TextAppearance.Eve.Footnote"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Loading performance data…" />
+            <TextView style="@style/TextAppearance.Eve.Footnote" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Loading performance data…"/>
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/messageGroup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="24dp"
-            android:visibility="gone"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+        <LinearLayout android:id="@+id/messageGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:orientation="vertical" android:padding="24dp" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false">
 
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/ivMessageIcon"
-                android:layout_width="160dp"
-                android:layout_height="160dp"
-                android:background="@android:color/transparent"
-                app:lottie_autoPlay="false"
-                app:lottie_loop="false"
-                app:lottie_rawRes="@raw/error_404" />
+            <com.airbnb.lottie.LottieAnimationView android:id="@+id/ivMessageIcon" android:layout_width="160dp" android:layout_height="160dp" android:background="@android:color/transparent" app:lottie_autoPlay="false" app:lottie_loop="false" app:lottie_rawRes="@raw/error_404"/>
 
-            <TextView
-                android:id="@+id/tvMessage"
-                style="@style/TextAppearance.Eve.Headline"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:gravity="center" />
+            <TextView android:id="@+id/tvMessage" style="@style/TextAppearance.Eve.Headline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:gravity="center"/>
 
-            <TextView
-                android:id="@+id/tvMessageSub"
-                style="@style/TextAppearance.Eve.Footnote"
-                android:layout_width="260dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:gravity="center" />
+            <TextView android:id="@+id/tvMessageSub" style="@style/TextAppearance.Eve.Footnote" android:layout_width="260dp" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:gravity="center"/>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnRetry"
-                style="@style/Widget.Eve.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Retry"
-                android:visibility="gone" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnRetry" style="@style/Widget.Eve.OutlinedButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Retry" android:visibility="gone"/>
         </LinearLayout>
     </FrameLayout>
 </LinearLayout>

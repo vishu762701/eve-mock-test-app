@@ -1,226 +1,55 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/eve_system_grouped_background"
-    android:clickable="true"
-    android:focusable="true"
-    android:orientation="vertical"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/eve_system_grouped_background" android:clickable="true" android:focusable="true" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
 
     <!-- Top Bar -->
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-<LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="12dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+<LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:background="@android:color/transparent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingVertical="12dp" android:clipToPadding="false" android:clipChildren="false">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Back"
-            android:padding="8dp"
-            android:src="@drawable/ic_back"
-            app:tint="@color/eve_text" />
+        <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
 
-        <TextView
-            style="@style/TextAppearance.Eve.Headline"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:text="Admin Dashboard" />
-
-        <ProgressBar
-            android:id="@+id/progressBarAdmin"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:indeterminate="true"
-            android:visibility="gone" />
+        <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1"/><ProgressBar android:id="@+id/progressBarAdmin" android:layout_width="24dp" android:layout_height="24dp" android:indeterminate="true" android:visibility="gone"/>
     </LinearLayout>
 </com.eve.app.ui.common.EveGlassToolbar>
 
-    <!-- Tabs: 1. Create Exam, 2. Manage Questions, 3. Admins -->
-    <com.eve.app.ui.common.EveGlassTabLayout
-        android:id="@+id/tabLayoutAdmin"
-        style="@style/Widget.Eve.InlineSectionTabs"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        app:tabMode="scrollable"
-        app:tabGravity="start"
-        app:tabMinWidth="80dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingBottom="@dimen/design_section_gap"><TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Admin Dashboard"/>
 
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Exams" />
+        </LinearLayout><!-- Tabs: 1. Create Exam, 2. Manage Questions, 3. Admins -->
+    <com.eve.app.ui.common.EveGlassTabLayout android:id="@+id/tabLayoutAdmin" style="@style/Widget.Eve.InlineSectionTabs" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="16dp" android:layout_marginTop="8dp" android:layout_marginBottom="8dp" app:tabMode="scrollable" app:tabGravity="start" app:tabMinWidth="80dp">
 
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Manage Questions" />
+        <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Exams"/>
 
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Admins" />
+        <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Manage Questions"/>
+
+        <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Admins"/>
 
     </com.eve.app.ui.common.EveGlassTabLayout>
 
     <!-- Container for Tab Contents -->
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:clipChildren="false">
 
         <!-- ========================================================= -->
         <!-- TAB 1: CREATE EXAM & CONTENT MANAGEMENT                  -->
         <!-- ========================================================= -->
-        <ScrollView
-            android:id="@+id/scrollTabCreateExam"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fillViewport="true"
-            android:visibility="visible"
-            android:clipToPadding="false"
-            android:clipChildren="false"
-            >
+        <ScrollView android:id="@+id/scrollTabCreateExam" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:visibility="visible" android:clipToPadding="false" android:clipChildren="false">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
 
                 <!-- CONTENT MANAGEMENT SECTION -->
-                <TextView
-                    style="@style/TextAppearance.Eve.Admin.SectionHeader"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:letterSpacing="0.08"
-                    android:text="CONTENT MANAGEMENT"
-                    android:textColor="@color/eve_text_secondary" />
+                <TextView style="@style/TextAppearance.Eve.Admin.SectionHeader" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:letterSpacing="0.08" android:text="CONTENT MANAGEMENT" android:textColor="@color/eve_text_secondary"/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnManageExistingExams"
-                    style="@style/Widget.Eve.Button"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical|start"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="12dp"
-                    android:text="Manage Existing Exams"
-                    app:icon="@drawable/ic_exam_placeholder"
-                    app:iconPadding="12dp"
-                    app:iconSize="20dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnManageExistingExams" style="@style/Widget.Eve.Button" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical|start" android:paddingHorizontal="16dp" android:paddingVertical="12dp" android:text="Manage Existing Exams" app:icon="@drawable/ic_exam_placeholder" app:iconPadding="12dp" app:iconSize="20dp"/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnManageExams"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical|start"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="12dp"
-                    android:text="Manage Exams"
-                    app:icon="@drawable/ic_edit"
-                    app:iconPadding="12dp"
-                    app:iconSize="20dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnManageExams" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical|start" android:paddingHorizontal="16dp" android:paddingVertical="12dp" android:text="Manage Exams" app:icon="@drawable/ic_edit" app:iconPadding="12dp" app:iconSize="20dp"/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnGeneratedTests"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical|start"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="12dp"
-                    android:text="AI Generated Tests"
-                    app:icon="@drawable/ic_robot"
-                    app:iconPadding="12dp"
-                    app:iconSize="20dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnGeneratedTests" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical|start" android:paddingHorizontal="16dp" android:paddingVertical="12dp" android:text="AI Generated Tests" app:icon="@drawable/ic_robot" app:iconPadding="12dp" app:iconSize="20dp"/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnHomeBanner"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical|start"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="12dp"
-                    android:text="Home Banner"
-                    app:icon="@drawable/ic_image"
-                    app:iconPadding="12dp"
-                    app:iconSize="20dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnHomeBanner" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical|start" android:paddingHorizontal="16dp" android:paddingVertical="12dp" android:text="Home Banner" app:icon="@drawable/ic_image" app:iconPadding="12dp" app:iconSize="20dp"/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnFloatingLink"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical|start"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="12dp"
-                    android:text="Floating Link"
-                    app:icon="@drawable/ic_link"
-                    app:iconPadding="12dp"
-                    app:iconSize="20dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnFloatingLink" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical|start" android:paddingHorizontal="16dp" android:paddingVertical="12dp" android:text="Floating Link" app:icon="@drawable/ic_link" app:iconPadding="12dp" app:iconSize="20dp"/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnManagePremium"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical|start"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="12dp"
-                    android:text="Premium Management"
-                    app:icon="@drawable/ic_star_filled"
-                    app:iconPadding="12dp"
-                    app:iconSize="20dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnManagePremium" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical|start" android:paddingHorizontal="16dp" android:paddingVertical="12dp" android:text="Premium Management" app:icon="@drawable/ic_star_filled" app:iconPadding="12dp" app:iconSize="20dp"/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnManageSyllabus"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical|start"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="12dp"
-                    android:text="Manage Syllabus"
-                    app:icon="@drawable/ic_syllabus"
-                    app:iconPadding="12dp"
-                    app:iconSize="20dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnManageSyllabus" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical|start" android:paddingHorizontal="16dp" android:paddingVertical="12dp" android:text="Manage Syllabus" app:icon="@drawable/ic_syllabus" app:iconPadding="12dp" app:iconSize="20dp"/>
 
             </LinearLayout>
         </ScrollView>
@@ -228,180 +57,52 @@
         <!-- ========================================================= -->
         <!-- TAB 2: MANAGE QUESTIONS (Sections 2 & 3 Combined)        -->
         <!-- ========================================================= -->
-        <ScrollView
-            android:id="@+id/scrollTabManageQuestions"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fillViewport="true"
-            android:visibility="gone"
-            android:clipToPadding="false"
-            android:clipChildren="false"
-            >
+        <ScrollView android:id="@+id/scrollTabManageQuestions" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
 
                 <!-- 2. Select Exam -->
-                <TextView
-                    style="@style/TextAppearance.Eve.Headline"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="2. Select Exam (to manage questions)"
-                    android:textColor="@color/eve_text" />
+                <TextView style="@style/TextAppearance.Eve.Headline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2. Select Exam (to manage questions)" android:textColor="@color/eve_text"/>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false">
 
-                    <Spinner
-                        android:id="@+id/spExam"
-                        android:layout_width="0dp"
-                        android:layout_height="48dp"
-                        android:layout_weight="1" />
+                    <Spinner android:id="@+id/spExam" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1"/>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnEditExamImage"
-                        style="@style/Widget.Eve.OutlinedButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:text="Image" />
+                    <com.google.android.material.button.MaterialButton android:id="@+id/btnEditExamImage" style="@style/Widget.Eve.OutlinedButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="Image"/>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnRenameExam"
-                        style="@style/Widget.Eve.OutlinedButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:text="Rename" />
+                    <com.google.android.material.button.MaterialButton android:id="@+id/btnRenameExam" style="@style/Widget.Eve.OutlinedButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="Rename"/>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnDeleteExam"
-                        style="@style/Widget.Eve.OutlinedButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:text="Delete"
-                        android:textColor="@color/selector_eve_destructive_text"
-                        app:strokeColor="@color/eve_shape_border" />
+                    <com.google.android.material.button.MaterialButton android:id="@+id/btnDeleteExam" style="@style/Widget.Eve.OutlinedButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="Delete" android:textColor="@color/selector_eve_destructive_text" app:strokeColor="@color/eve_shape_border"/>
                 </LinearLayout>
 
                 <!-- 3. Questions in Selected Exam -->
-                <TextView
-                    style="@style/TextAppearance.Eve.Headline"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:text="3. Questions in Selected Exam"
-                    android:textColor="@color/eve_text" />
+                <TextView style="@style/TextAppearance.Eve.Headline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="3. Questions in Selected Exam" android:textColor="@color/eve_text"/>
 
                 <!-- Action Buttons: Manual Single-Question Add + Bulk Upload -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnAddQuestionManual"
-                        style="@style/Widget.Eve.Button"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"
-                        android:layout_weight="1"
-                        android:text="+ Add Question" />
+                    <com.google.android.material.button.MaterialButton android:id="@+id/btnAddQuestionManual" style="@style/Widget.Eve.Button" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginEnd="4dp" android:layout_weight="1" android:text="+ Add Question"/>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnBulkUploadSelectedExam"
-                        style="@style/Widget.Eve.OutlinedButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:layout_weight="1"
-                        android:text="📥 Bulk Upload" />
+                    <com.google.android.material.button.MaterialButton android:id="@+id/btnBulkUploadSelectedExam" style="@style/Widget.Eve.OutlinedButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:layout_weight="1" android:text="📥 Bulk Upload"/>
                 </LinearLayout>
 
                 <!-- Distinct Empty States Container -->
-                <LinearLayout
-                    android:id="@+id/layoutEmptyQuestions"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:paddingHorizontal="24dp"
-                    android:paddingVertical="36dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                <LinearLayout android:id="@+id/layoutEmptyQuestions" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:paddingHorizontal="24dp" android:paddingVertical="36dp" android:clipToPadding="false" android:clipChildren="false">
 
-                    <com.airbnb.lottie.LottieAnimationView
-                        android:id="@+id/ivEmptyStateFolder"
-                        android:layout_width="88dp"
-                        android:layout_height="88dp"
-                        android:background="@android:color/transparent"
-                        android:contentDescription="No exam selected placeholder"
-                        app:lottie_autoPlay="false"
-                        app:lottie_loop="false"
-                        app:lottie_rawRes="@raw/search" />
+                    <com.airbnb.lottie.LottieAnimationView android:id="@+id/ivEmptyStateFolder" android:layout_width="88dp" android:layout_height="88dp" android:background="@android:color/transparent" android:contentDescription="No exam selected placeholder" app:lottie_autoPlay="false" app:lottie_loop="false" app:lottie_rawRes="@raw/search"/>
 
-                    <TextView
-                        android:id="@+id/tvEmptyQuestionsTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:gravity="center"
-                        android:text="Select an exam above to view its questions"
-                        android:textColor="@color/eve_text" />
+                    <TextView android:id="@+id/tvEmptyQuestionsTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:gravity="center" android:text="Select an exam above to view its questions" android:textColor="@color/eve_text"/>
 
-                    <TextView
-                        style="@style/TextAppearance.Eve.Footnote"
-                        android:id="@+id/tvEmptyQuestionsSubtitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:gravity="center"
-                        android:text="Choose an exam from the dropdown to manage questions or upload new ones."
-                        android:textColor="@color/eve_text_secondary" />
+                    <TextView style="@style/TextAppearance.Eve.Footnote" android:id="@+id/tvEmptyQuestionsSubtitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:gravity="center" android:text="Choose an exam from the dropdown to manage questions or upload new ones." android:textColor="@color/eve_text_secondary"/>
 
 
                 </LinearLayout>
 
                 <!-- Kept for backward compatibility if referenced -->
-                <TextView
-                    android:id="@+id/tvNoQuestions"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="12dp"
-                    android:text="No questions uploaded yet"
-                    android:textColor="@color/eve_text_secondary"
-                    android:visibility="gone" />
+                <TextView android:id="@+id/tvNoQuestions" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp" android:text="No questions uploaded yet" android:textColor="@color/eve_text_secondary" android:visibility="gone"/>
 
                 <!-- Questions RecyclerView -->
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvQuestions"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layoutAnimation="@anim/layout_enter"
-                    android:nestedScrollingEnabled="false"
-                    android:visibility="gone"
-            android:clipToPadding="false"
-            android:clipChildren="false"/>
+                <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvQuestions" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layoutAnimation="@anim/layout_enter" android:nestedScrollingEnabled="false" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false"/>
 
             </LinearLayout>
         </ScrollView>
@@ -409,642 +110,152 @@
         <!-- ========================================================= -->
         <!-- TAB 3: ADMINS & DASHBOARD MONITORING                     -->
         <!-- ========================================================= -->
-        <ScrollView
-            android:id="@+id/scrollTabAdmins"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fillViewport="true"
-            android:visibility="gone"
-            android:clipToPadding="false"
-            android:clipChildren="false"
-            >
+        <ScrollView android:id="@+id/scrollTabAdmins" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
 
                 <!-- 1. USER MANAGEMENT -->
-                <TextView
-                    style="@style/TextAppearance.Eve.Admin.SectionHeader"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:letterSpacing="0.08"
-                    android:text="USER MANAGEMENT"
-                    android:textColor="@color/eve_text_secondary" />
+                <TextView style="@style/TextAppearance.Eve.Admin.SectionHeader" android:layout_width="wrap_content" android:layout_height="wrap_content" android:letterSpacing="0.08" android:text="USER MANAGEMENT" android:textColor="@color/eve_text_secondary"/>
 
                 <!-- Stats Card (Tappable -> Manage Users) -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardUserStats"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardBackgroundColor="@color/eve_card_bg"
-                    app:cardCornerRadius="@dimen/eve_radius_card"
-                    app:cardElevation="0dp"
-                    app:strokeWidth="1dp">
+                <com.google.android.material.card.MaterialCardView android:id="@+id/cardUserStats" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" app:cardBackgroundColor="@color/eve_card_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="14dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="14dp" android:clipToPadding="false" android:clipChildren="false">
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false">
 
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
 
-                                <TextView
-                                    style="@style/TextAppearance.Eve.Admin.CardValue"
-                                    android:id="@+id/tvTotalUsers"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="—"
-                                    android:textColor="@color/eve_text" />
+                                <TextView style="@style/TextAppearance.Eve.Admin.CardValue" android:id="@+id/tvTotalUsers" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" android:textColor="@color/eve_text"/>
 
-                                <TextView
-                                    style="@style/TextAppearance.Eve.Caption1"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Total Signups"
-                                    android:textColor="@color/eve_text_secondary" />
+                                <TextView style="@style/TextAppearance.Eve.Caption1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Signups" android:textColor="@color/eve_text_secondary"/>
                             </LinearLayout>
 
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
 
-                                <TextView
-                                    style="@style/TextAppearance.Eve.Admin.CardValue"
-                                    android:id="@+id/tvOnlineUsers"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="—"
-                                    android:textColor="@color/eve_status_success_text" />
+                                <TextView style="@style/TextAppearance.Eve.Admin.CardValue" android:id="@+id/tvOnlineUsers" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" android:textColor="@color/eve_status_success_text"/>
 
-                                <TextView
-                                    style="@style/TextAppearance.Eve.Caption1"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Online Now"
-                                    android:textColor="@color/eve_text_secondary" />
+                                <TextView style="@style/TextAppearance.Eve.Caption1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Online Now" android:textColor="@color/eve_text_secondary"/>
                             </LinearLayout>
 
-                            <ImageButton
-                                android:id="@+id/btnRefreshStats"
-                                android:layout_width="48dp"
-                                android:layout_height="48dp"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:contentDescription="Refresh stats"
-                                android:padding="6dp"
-                                android:src="@drawable/ic_refresh"
-                                app:tint="@color/eve_text_secondary" />
+                            <ImageButton android:id="@+id/btnRefreshStats" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Refresh stats" android:src="@drawable/ic_refresh" app:tint="@color/eve_text_secondary" style="@style/Widget.Eve.Token.IconButton"/>
                         </LinearLayout>
 
-                        <TextView
-                            style="@style/TextAppearance.Eve.Footnote.Medium"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Tap to manage users &amp; view test history →"
-                            android:textColor="@color/eve_accent_text" />
+                        <TextView style="@style/TextAppearance.Eve.Footnote.Medium" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Tap to manage users &amp; view test history →" android:textColor="@color/eve_accent_text"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnManageUsers"
-                    style="@style/Widget.Eve.Button"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical|start"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="12dp"
-                    android:text="Manage Users List"
-                    app:icon="@drawable/ic_users"
-                    app:iconPadding="12dp"
-                    app:iconSize="20dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnManageUsers" style="@style/Widget.Eve.Button" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical|start" android:paddingHorizontal="16dp" android:paddingVertical="12dp" android:text="Manage Users List" app:icon="@drawable/ic_users" app:iconPadding="12dp" app:iconSize="20dp"/>
 
                 <!-- 4. Manage Admins Section -->
-                <TextView
-                    style="@style/TextAppearance.Eve.Headline"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="28dp"
-                    android:text="4. Manage Admins"
-                    android:textColor="@color/eve_text" />
+                <TextView style="@style/TextAppearance.Eve.Headline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:text="4. Manage Admins" android:textColor="@color/eve_text"/>
 
-                <TextView
-                    style="@style/TextAppearance.Eve.Footnote"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginBottom="8dp"
-                    android:text="Add new admin emails dynamically without requiring an app update."
-                    android:textColor="@color/eve_text_secondary" />
+                <TextView style="@style/TextAppearance.Eve.Footnote" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:layout_marginBottom="8dp" android:text="Add new admin emails dynamically without requiring an app update." android:textColor="@color/eve_text_secondary"/>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false">
 
-                    <EditText
-                        style="@style/TextAppearance.Eve.BodySmall"
-                        android:id="@+id/etAdminEmail"
-                        android:layout_width="0dp"
-                        android:layout_height="48dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_edit_text_rounded"
-                        android:hint="new-admin@gmail.com"
-                        android:inputType="textEmailAddress"
-                        android:paddingHorizontal="12dp"
-                        android:textColor="@color/eve_text"
-                        android:textColorHint="@color/eve_text_secondary" />
+                    <EditText style="@style/TextAppearance.Eve.BodySmall" android:id="@+id/etAdminEmail" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:background="@drawable/bg_edit_text_rounded" android:hint="new-admin@gmail.com" android:inputType="textEmailAddress" android:paddingHorizontal="12dp" android:textColor="@color/eve_text" android:textColorHint="@color/eve_text_secondary"/>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnAddAdmin"
-                        style="@style/Widget.Eve.Button.Primary"
-                        android:layout_width="wrap_content"
-                        android:layout_height="48dp"
-                        android:layout_marginStart="8dp"
-                        android:text="Add" />
+                    <com.google.android.material.button.MaterialButton android:id="@+id/btnAddAdmin" style="@style/Widget.Eve.Button.Primary" android:layout_width="wrap_content" android:layout_height="48dp" android:layout_marginStart="8dp" android:text="Add"/>
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/tvNoAdmins"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:padding="8dp"
-                    android:text="No extra dynamic admins added"
-                    android:textColor="@color/eve_text_secondary"
-                    android:visibility="gone" />
+                <TextView android:id="@+id/tvNoAdmins" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:padding="8dp" android:text="No extra dynamic admins added" android:textColor="@color/eve_text_secondary" android:visibility="gone"/>
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvAdmins"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layoutAnimation="@anim/layout_enter"
-                    android:layout_marginTop="4dp"
-                    android:nestedScrollingEnabled="false"
-            android:clipToPadding="false"
-            android:clipChildren="false"/>
+                <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvAdmins" android:layout_width="match_parent" android:layout_height="wrap_content" android:layoutAnimation="@anim/layout_enter" android:layout_marginTop="4dp" android:nestedScrollingEnabled="false" android:clipToPadding="false" android:clipChildren="false"/>
 
                 <!-- COMMUNICATION SECTION -->
-                <TextView
-                    style="@style/TextAppearance.Eve.Admin.SectionHeader"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="28dp"
-                    android:letterSpacing="0.08"
-                    android:text="COMMUNICATION"
-                    android:textColor="@color/eve_text_secondary" />
+                <TextView style="@style/TextAppearance.Eve.Admin.SectionHeader" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:letterSpacing="0.08" android:text="COMMUNICATION" android:textColor="@color/eve_text_secondary"/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnSendNotification"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical|start"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="12dp"
-                    android:text="Broadcast Notification (High-Risk)"
-                    android:textColor="@color/selector_eve_destructive_text"
-                    app:icon="@drawable/ic_broadcast"
-                    app:iconPadding="12dp"
-                    app:iconSize="20dp"
-                    app:iconTint="@color/selector_eve_destructive_text"
-                    app:strokeColor="@color/eve_shape_border"
-                    app:strokeWidth="1dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnSendNotification" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical|start" android:paddingHorizontal="16dp" android:paddingVertical="12dp" android:text="Broadcast Notification (High-Risk)" android:textColor="@color/selector_eve_destructive_text" app:icon="@drawable/ic_broadcast" app:iconPadding="12dp" app:iconSize="20dp" app:iconTint="@color/selector_eve_destructive_text" app:strokeColor="@color/eve_shape_border" app:strokeWidth="1dp"/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnFlaggedQuestions"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical|start"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="12dp"
-                    android:text="Flagged Questions Inbox"
-                    app:icon="@drawable/ic_flag"
-                    app:iconPadding="12dp"
-                    app:iconSize="20dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnFlaggedQuestions" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical|start" android:paddingHorizontal="16dp" android:paddingVertical="12dp" android:text="Flagged Questions Inbox" app:icon="@drawable/ic_flag" app:iconPadding="12dp" app:iconSize="20dp"/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnFeedbackReplies"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical|start"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="12dp"
-                    android:text="Feedback Replies"
-                    app:icon="@drawable/ic_message_dots"
-                    app:iconPadding="12dp"
-                    app:iconSize="20dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnFeedbackReplies" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical|start" android:paddingHorizontal="16dp" android:paddingVertical="12dp" android:text="Feedback Replies" app:icon="@drawable/ic_message_dots" app:iconPadding="12dp" app:iconSize="20dp"/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnCreateFeedbackPost"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical|start"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="12dp"
-                    android:text="Create Feedback Post"
-                    app:icon="@drawable/ic_campaign"
-                    app:iconPadding="12dp"
-                    app:iconSize="20dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnCreateFeedbackPost" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical|start" android:paddingHorizontal="16dp" android:paddingVertical="12dp" android:text="Create Feedback Post" app:icon="@drawable/ic_campaign" app:iconPadding="12dp" app:iconSize="20dp"/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnManageFeedbackPosts"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical|start"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="12dp"
-                    android:text="Manage Feedback Posts"
-                    app:icon="@drawable/ic_edit"
-                    app:iconPadding="12dp"
-                    app:iconSize="20dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnManageFeedbackPosts" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical|start" android:paddingHorizontal="16dp" android:paddingVertical="12dp" android:text="Manage Feedback Posts" app:icon="@drawable/ic_edit" app:iconPadding="12dp" app:iconSize="20dp"/>
 
                 <!-- ANALYTICS & MONITORING SECTION -->
-                <TextView
-                    style="@style/TextAppearance.Eve.Admin.SectionHeader"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="28dp"
-                    android:letterSpacing="0.08"
-                    android:text="ANALYTICS &amp; MONITORING"
-                    android:textColor="@color/eve_text_secondary" />
+                <TextView style="@style/TextAppearance.Eve.Admin.SectionHeader" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:letterSpacing="0.08" android:text="ANALYTICS &amp; MONITORING" android:textColor="@color/eve_text_secondary"/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnSystemMonitor"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="System Health &amp; Operations" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnSystemMonitor" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="System Health &amp; Operations"/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnAnalyticsAdmin"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical|start"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="12dp"
-                    android:text="Admin Analytics &amp; Crash Reports"
-                    app:icon="@drawable/ic_analytics"
-                    app:iconPadding="12dp"
-                    app:iconSize="20dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnAnalyticsAdmin" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical|start" android:paddingHorizontal="16dp" android:paddingVertical="12dp" android:text="Admin Analytics &amp; Crash Reports" app:icon="@drawable/ic_analytics" app:iconPadding="12dp" app:iconSize="20dp"/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnActivityLog"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical|start"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="12dp"
-                    android:text="Activity &amp; Audit Log"
-                    app:icon="@drawable/ic_history"
-                    app:iconPadding="12dp"
-                    app:iconSize="20dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnActivityLog" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical|start" android:paddingHorizontal="16dp" android:paddingVertical="12dp" android:text="Activity &amp; Audit Log" app:icon="@drawable/ic_history" app:iconPadding="12dp" app:iconSize="20dp"/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnApiUsage"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical|start"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="12dp"
-                    android:text="API Usage &amp; Cost Monitor"
-                    app:icon="@drawable/ic_analytics"
-                    app:iconPadding="12dp"
-                    app:iconSize="20dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnApiUsage" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical|start" android:paddingHorizontal="16dp" android:paddingVertical="12dp" android:text="API Usage &amp; Cost Monitor" app:icon="@drawable/ic_analytics" app:iconPadding="12dp" app:iconSize="20dp"/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnExportData"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical|start"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="12dp"
-                    android:text="Export All Exam Data (JSON)"
-                    app:icon="@drawable/ic_download"
-                    app:iconPadding="12dp"
-                    app:iconSize="20dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnExportData" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical|start" android:paddingHorizontal="16dp" android:paddingVertical="12dp" android:text="Export All Exam Data (JSON)" app:icon="@drawable/ic_download" app:iconPadding="12dp" app:iconSize="20dp"/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnAppConfig"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical|start"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="12dp"
-                    android:text="App Config &amp; Maintenance Mode"
-                    app:icon="@drawable/ic_maintenance"
-                    app:iconPadding="12dp"
-                    app:iconSize="20dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnAppConfig" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical|start" android:paddingHorizontal="16dp" android:paddingVertical="12dp" android:text="App Config &amp; Maintenance Mode" app:icon="@drawable/ic_maintenance" app:iconPadding="12dp" app:iconSize="20dp"/>
 
                 <!-- APP VERSION & BUILD STATUS SECTION -->
-                <TextView
-                    style="@style/TextAppearance.Eve.Admin.SectionHeader"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="28dp"
-                    android:letterSpacing="0.08"
-                    android:text="APP VERSION &amp; BUILD STATUS"
-                    android:textColor="@color/eve_text_secondary" />
+                <TextView style="@style/TextAppearance.Eve.Admin.SectionHeader" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:letterSpacing="0.08" android:text="APP VERSION &amp; BUILD STATUS" android:textColor="@color/eve_text_secondary"/>
 
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    app:cardBackgroundColor="@color/eve_card_bg"
-                    app:cardCornerRadius="@dimen/eve_radius_card"
-                    app:cardElevation="0dp"
-                    app:strokeWidth="1dp">
+                <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" app:cardBackgroundColor="@color/eve_card_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false">
 
-                            <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:contentDescription="Build Info"
-                                android:src="@drawable/ic_info"
-                                app:tint="@color/eve_system_blue" />
+                            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:contentDescription="Build Info" android:src="@drawable/ic_info" app:tint="@color/eve_system_blue"/>
 
-                            <TextView
-                                style="@style/TextAppearance.Eve.Subheadline.Medium"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                android:layout_weight="1"
-                                android:text="Version Enforcement Status"
-                                android:textColor="@color/eve_text" />
+                            <TextView style="@style/TextAppearance.Eve.Subheadline.Medium" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:layout_weight="1" android:text="Version Enforcement Status" android:textColor="@color/eve_text"/>
 
-                            <TextView
-                                style="@style/TextAppearance.Eve.Footnote.Medium"
-                                android:id="@+id/tvVersionStatusBadge"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:background="@drawable/bg_stat_mini"
-                                android:paddingHorizontal="8dp"
-                                android:paddingVertical="3dp"
-                                android:text="Active"
-                                android:textColor="@color/eve_status_success_text" />
+                            <TextView style="@style/TextAppearance.Eve.Footnote.Medium" android:id="@+id/tvVersionStatusBadge" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_stat_mini" android:paddingHorizontal="8dp" android:paddingVertical="3dp" android:text="Active" android:textColor="@color/eve_status_success_text"/>
                         </LinearLayout>
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:orientation="horizontal"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false">
 
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
 
-                                <TextView
-                                    style="@style/TextAppearance.Eve.Footnote"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Installed Version"
-                                    android:textColor="@color/eve_text_secondary" />
+                                <TextView style="@style/TextAppearance.Eve.Footnote" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Installed Version" android:textColor="@color/eve_text_secondary"/>
 
-                                <TextView
-                                    style="@style/TextAppearance.Eve.Footnote.Medium"
-                                    android:id="@+id/tvInstalledVersion"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="v1.0 (Code 1)"
-                                    android:textColor="@color/eve_text" />
+                                <TextView style="@style/TextAppearance.Eve.Footnote.Medium" android:id="@+id/tvInstalledVersion" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="v1.0 (Code 1)" android:textColor="@color/eve_text"/>
                             </LinearLayout>
 
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
 
-                                <TextView
-                                    style="@style/TextAppearance.Eve.Footnote"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Min Supported Code"
-                                    android:textColor="@color/eve_text_secondary" />
+                                <TextView style="@style/TextAppearance.Eve.Footnote" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Min Supported Code" android:textColor="@color/eve_text_secondary"/>
 
-                                <TextView
-                                    style="@style/TextAppearance.Eve.Footnote.Medium"
-                                    android:id="@+id/tvMinSupportedVersion"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="1"
-                                    android:textColor="@color/eve_text" />
+                                <TextView style="@style/TextAppearance.Eve.Footnote.Medium" android:id="@+id/tvMinSupportedVersion" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1" android:textColor="@color/eve_text"/>
                             </LinearLayout>
                         </LinearLayout>
 
-                        <TextView
-                            style="@style/TextAppearance.Eve.Footnote"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:text="To enforce an immediate update on older student devices, update 'minimum_supported_version_code' in Firebase Remote Config or using App Config."
-                            android:textColor="@color/eve_text_secondary" />
+                        <TextView style="@style/TextAppearance.Eve.Footnote" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="To enforce an immediate update on older student devices, update 'minimum_supported_version_code' in Firebase Remote Config or using App Config." android:textColor="@color/eve_text_secondary"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
                 <!-- MAINTENANCE MODE CONTROL PANEL -->
-                <TextView
-                    style="@style/TextAppearance.Eve.Admin.SectionHeader"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="28dp"
-                    android:letterSpacing="0.08"
-                    android:text="SYSTEM MAINTENANCE"
-                    android:textColor="@color/eve_text_secondary" />
+                <TextView style="@style/TextAppearance.Eve.Admin.SectionHeader" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:letterSpacing="0.08" android:text="SYSTEM MAINTENANCE" android:textColor="@color/eve_text_secondary"/>
 
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="24dp"
-                    app:cardBackgroundColor="@color/eve_card_bg"
-                    app:cardCornerRadius="@dimen/eve_radius_card"
-                    app:cardElevation="0dp"
-                    app:strokeWidth="1dp">
+                <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layout_marginBottom="24dp" app:cardBackgroundColor="@color/eve_card_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false">
 
-                            <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:contentDescription="Maintenance Mode"
-                                android:src="@drawable/ic_maintenance"
-                                app:tint="@color/eve_status_error_text" />
+                            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:contentDescription="Maintenance Mode" android:src="@drawable/ic_maintenance" app:tint="@color/eve_status_error_text"/>
 
-                            <TextView
-                                style="@style/TextAppearance.Eve.Headline"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                android:layout_weight="1"
-                                android:text="Maintenance Mode"
-                                android:textColor="@color/eve_text" />
+                            <TextView style="@style/TextAppearance.Eve.Headline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:layout_weight="1" android:text="Maintenance Mode" android:textColor="@color/eve_text"/>
 
-                            <TextView
-                                style="@style/TextAppearance.Eve.Footnote.Medium"
-                                android:id="@+id/tvLiveMaintenanceStatus"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:background="@drawable/bg_stat_mini"
-                                android:paddingHorizontal="8dp"
-                                android:paddingVertical="3dp"
-                                android:text="OFF (Live)"
-                                android:textColor="@color/eve_status_success_text" />
+                            <TextView style="@style/TextAppearance.Eve.Footnote.Medium" android:id="@+id/tvLiveMaintenanceStatus" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_stat_mini" android:paddingHorizontal="8dp" android:paddingVertical="3dp" android:text="OFF (Live)" android:textColor="@color/eve_status_success_text"/>
                         </LinearLayout>
 
-                        <TextView
-                            style="@style/TextAppearance.Eve.Caption1"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            android:text="When active, all students are immediately blocked by a maintenance screen with your custom message."
-                            android:textColor="@color/eve_text_secondary" />
+                        <TextView style="@style/TextAppearance.Eve.Caption1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="When active, all students are immediately blocked by a maintenance screen with your custom message." android:textColor="@color/eve_text_secondary"/>
 
-                        <com.google.android.material.materialswitch.MaterialSwitch
-                            android:id="@+id/switchMaintenanceMode"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:text="Enable Maintenance Mode"
-                            android:textColor="@color/eve_text" />
+                        <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchMaintenanceMode" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Enable Maintenance Mode" android:textColor="@color/eve_text"/>
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.Eve.TextInput.Outlined"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:hint="Custom Maintenance Notice Message">
+                        <com.google.android.material.textfield.TextInputLayout style="@style/Widget.Eve.TextInput.Outlined" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:hint="Custom Maintenance Notice Message">
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                style="@style/TextAppearance.Eve.Footnote"
-                                android:id="@+id/etMaintenanceMessage"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:gravity="top|start"
-                                android:lines="2"
-                                android:maxLines="4" />
+                            <com.google.android.material.textfield.TextInputEditText style="@style/TextAppearance.Eve.Footnote" android:id="@+id/etMaintenanceMessage" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="top|start" android:lines="2" android:maxLines="4"/>
                         </com.google.android.material.textfield.TextInputLayout>
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnApplyMaintenance"
-                            style="@style/Widget.Eve.Button"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="14dp"
-                            android:text="Publish Maintenance Settings" />
+                        <com.google.android.material.button.MaterialButton android:id="@+id/btnApplyMaintenance" style="@style/Widget.Eve.Button" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Publish Maintenance Settings"/>
 
-                        <ProgressBar
-                            android:id="@+id/progressBarMaintenance"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_gravity="center"
-                            android:layout_marginTop="8dp"
-                            android:indeterminate="true"
-                            android:visibility="gone" />
+                        <ProgressBar android:id="@+id/progressBarMaintenance" android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:layout_marginTop="8dp" android:indeterminate="true" android:visibility="gone"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 

@@ -1,12 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Tabler Icons v3.49.0 / camera; MIT, bundled Tabler-LICENSE.txt. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp"
-    android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
-    <path
-        android:pathData="M9,4.5 L7.5,6.5 L4.5,6.5 C3.7,6.5 3,7.2 3,8 L3,18.5 C3,19.3 3.7,20 4.5,20 L19.5,20 C20.3,20 21,19.3 21,18.5 L21,8 C21,7.2 20.3,7.2 19.5,6.5 L16.5,6.5 L15,4.5 Z M12,9 A4,4 0 1,1 12,17 A4,4 0 0,1 12,9 Z"
-        android:strokeWidth="1.6"
-        android:strokeColor="@color/eve_text"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
+    android:width="@dimen/design_icon_size" android:height="@dimen/design_icon_size"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
+        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2" />
+    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
+        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
 </vector>

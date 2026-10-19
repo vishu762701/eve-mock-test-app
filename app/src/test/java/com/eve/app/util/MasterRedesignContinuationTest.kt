@@ -55,10 +55,10 @@ class MasterRedesignContinuationTest {
         val lightThemes = File("src/main/res/values/themes.xml").readText()
         val darkThemes = File("src/main/res/values-night/themes.xml").readText()
 
-        assertTrue("Eve.WindowAnimation must use fluid_scale_enter", lightThemes.contains("@anim/fluid_scale_enter"))
-        assertTrue("Eve.WindowAnimation must use fluid_scale_fade_out", lightThemes.contains("@anim/fluid_scale_fade_out"))
-        assertTrue("Eve.WindowAnimation must use fluid_scale_fade_in", lightThemes.contains("@anim/fluid_scale_fade_in"))
-        assertTrue("Eve.WindowAnimation must use fluid_scale_exit", lightThemes.contains("@anim/fluid_scale_exit"))
+        assertTrue("Eve.WindowAnimation must use design_screen_enter", lightThemes.contains("@anim/design_screen_enter"))
+        assertTrue("Eve.WindowAnimation must use design_screen_recede", lightThemes.contains("@anim/design_screen_recede"))
+        assertTrue("Eve.WindowAnimation must use design_screen_return", lightThemes.contains("@anim/design_screen_return"))
+        assertTrue("Eve.WindowAnimation must use design_screen_exit", lightThemes.contains("@anim/design_screen_exit"))
 
         assertFalse("Obsolete slide_in_right must not be in light themes", lightThemes.contains("@anim/slide_in_right"))
         assertFalse("Obsolete slide_out_right must not be in light themes", lightThemes.contains("@anim/slide_out_right"))

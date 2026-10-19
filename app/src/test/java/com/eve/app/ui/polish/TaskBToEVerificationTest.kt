@@ -90,7 +90,7 @@ class TaskBToEVerificationTest {
         assertTrue("Main layout greeting should use LargeTitle, HeadlineLarge, or HomePageTitle",
             mainLayout.contains("TextAppearance.Eve.LargeTitle") ||
             mainLayout.contains("TextAppearance.Eve.M3.HeadlineLarge") ||
-            mainLayout.contains("TextAppearance.Eve.Home.PageTitle"))
+            mainLayout.contains("TextAppearance.Eve.Token.Title"))
         assertTrue("Main layout should contain the single Home Banner surface", mainLayout.contains("@+id/panelHomeBanner"))
         assertFalse("Legacy Home Hero content container must be removed", mainLayout.contains("layoutHomeHeroContent"))
         assertFalse("Legacy second banner card must be removed", mainLayout.contains("@+id/cardHomeBanner"))

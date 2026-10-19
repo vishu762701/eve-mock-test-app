@@ -1,111 +1,27 @@
-<?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="10dp"
-    app:cardBackgroundColor="@color/eve_card_bg"
-    app:cardCornerRadius="@dimen/eve_radius_card"
-    app:cardElevation="0dp"
-    app:strokeWidth="1dp"
-    android:minHeight="@dimen/eve_list_row_min">
+<?xml version='1.0' encoding='utf-8'?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" app:cardBackgroundColor="@color/eve_card_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp" android:minHeight="@dimen/eve_list_row_min">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="10dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:padding="10dp">
 
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/ivBannerThumb"
-            android:layout_width="72dp"
-            android:layout_height="44dp"
-            android:adjustViewBounds="true"
-            android:background="@color/eve_surface_variant"
-            android:contentDescription="Banner thumbnail"
-            android:scaleType="centerCrop"
-            app:shapeAppearanceOverlay="@style/ShapeCircle" />
+        <com.google.android.material.imageview.ShapeableImageView android:id="@+id/ivBannerThumb" android:layout_width="72dp" android:layout_height="44dp" android:adjustViewBounds="true" android:background="@color/eve_surface_variant" android:contentDescription="Banner thumbnail" android:scaleType="centerCrop" app:shapeAppearanceOverlay="@style/ShapeCircle"/>
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tvBannerOrder"
-                style="@style/TextAppearance.Eve.Admin.ItemTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Banner #1"
-                android:textColor="@color/eve_text" />
+            <TextView android:id="@+id/tvBannerOrder" style="@style/TextAppearance.Eve.Admin.ItemTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Banner #1" android:textColor="@color/eve_text"/>
 
-            <TextView
-                android:id="@+id/tvBannerDate"
-                style="@style/TextAppearance.Eve.Admin.ItemSubtitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="Uploaded today"
-                android:textColor="@color/eve_text_secondary" />
+            <TextView android:id="@+id/tvBannerDate" style="@style/TextAppearance.Eve.Admin.ItemSubtitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Uploaded today" android:textColor="@color/eve_text_secondary"/>
 
-            <TextView
-                android:id="@+id/tvBannerLink"
-                style="@style/TextAppearance.Eve.Caption1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:textColor="@color/eve_text_secondary"
-                android:visibility="gone" />
+            <TextView android:id="@+id/tvBannerLink" style="@style/TextAppearance.Eve.Caption1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:ellipsize="end" android:maxLines="1" android:textColor="@color/eve_text_secondary" android:visibility="gone"/>
         </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/btnEditBannerLink"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginEnd="2dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Edit banner link"
-            android:src="@drawable/ic_link"
-            app:tint="@color/eve_text" />
+        <ImageButton android:id="@+id/btnEditBannerLink" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:layout_marginEnd="2dp" android:contentDescription="Edit banner link" android:src="@drawable/ic_link" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
 
         <!-- Up / Down Reorder buttons -->
-        <ImageButton
-            android:id="@+id/btnMoveUp"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Move up"
-            android:src="@drawable/ic_back"
-            android:rotation="90"
-            app:tint="@color/eve_text" />
+        <ImageButton android:id="@+id/btnMoveUp" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Move up" android:src="@drawable/ic_back" android:rotation="90" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
 
-        <ImageButton
-            android:id="@+id/btnMoveDown"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="2dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Move down"
-            android:src="@drawable/ic_back"
-            android:rotation="270"
-            app:tint="@color/eve_text" />
+        <ImageButton android:id="@+id/btnMoveDown" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="2dp" android:contentDescription="Move down" android:src="@drawable/ic_back" android:rotation="270" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
 
         <!-- Delete button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnDeleteBanner"
-            style="@style/Widget.Eve.OutlinedButton"
-            android:textAppearance="@style/TextAppearance.Eve.Footnote.Medium"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:layout_marginStart="6dp"
-            android:paddingHorizontal="10dp"
-            android:text="Delete"
-            android:textColor="@color/selector_eve_destructive_text"
-            app:strokeColor="@color/eve_shape_border" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnDeleteBanner" style="@style/Widget.Eve.OutlinedButton" android:textAppearance="@style/TextAppearance.Eve.Footnote.Medium" android:layout_width="wrap_content" android:layout_height="48dp" android:layout_marginStart="6dp" android:paddingHorizontal="10dp" android:text="Delete" android:textColor="@color/selector_eve_destructive_text" app:strokeColor="@color/eve_shape_border"/>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -1,94 +1,28 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/eve_system_grouped_background"
-    android:orientation="vertical">
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/eve_system_grouped_background" android:orientation="vertical">
 
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-<LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="56dp"
-        android:background="@android:color/transparent"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="4dp"
-        android:paddingVertical="8dp">
+<LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:minHeight="56dp" android:background="@android:color/transparent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingVertical="8dp">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Back"
-            android:padding="12dp"
-            android:src="@drawable/ic_back"
-            app:tint="@color/eve_text" />
+        <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
 
-        <TextView
-            style="@style/TextAppearance.Eve.Headline"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:paddingStart="4dp"
-            android:text="Feedback Messages"
-            android:textColor="@color/eve_text" />
-
-        <ImageButton
-            android:id="@+id/btnRefresh"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Refresh"
-            android:padding="12dp"
-            android:src="@drawable/ic_refresh"
-            app:tint="@color/eve_text" />
+        <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1"/><ImageButton android:id="@+id/btnRefresh" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Refresh" android:src="@drawable/ic_refresh" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
     </LinearLayout>
 </com.eve.app.ui.common.EveGlassToolbar>
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingBottom="@dimen/design_section_gap"><TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingStart="4dp" android:text="Feedback Messages"/>
 
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/swipeRefresh"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+        </LinearLayout><FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvFeedbackMessages"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:paddingTop="8dp"
-                android:paddingBottom="24dp"
-            android:clipChildren="false"/>
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout android:id="@+id/swipeRefresh" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false">
+
+            <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvFeedbackMessages" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:paddingTop="8dp" android:paddingBottom="24dp" android:clipChildren="false"/>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-        <com.eve.app.ui.common.EmptyStateView
-            android:id="@+id/emptyStateView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone" />
+        <com.eve.app.ui.common.EmptyStateView android:id="@+id/emptyStateView" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone"/>
 
-        <com.eve.app.ui.common.ErrorStateView
-            android:id="@+id/errorStateView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone" />
+        <com.eve.app.ui.common.ErrorStateView android:id="@+id/errorStateView" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone"/>
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone" />
+        <ProgressBar android:id="@+id/progressBar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:visibility="gone"/>
     </FrameLayout>
 </LinearLayout>

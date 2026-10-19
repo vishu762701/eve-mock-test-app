@@ -419,7 +419,7 @@ class EveDesignSystemTest {
         // Welcome greeting uses 29sp Bold HomePageTitle and primary ink
         val tvWelcome = findElementById(root, "tvWelcome")
         assertNotNull("tvWelcome must exist", tvWelcome)
-        assertEquals("@style/TextAppearance.Eve.Home.PageTitle", tvWelcome?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Title", tvWelcome?.getAttribute("style"))
         assertEquals("@color/eve_home_text_primary", tvWelcome?.getAttribute("android:textColor"))
 
         // Top bar hairline
@@ -434,23 +434,23 @@ class EveDesignSystemTest {
         assertEquals("false", rvExams?.getAttribute("android:clipToPadding"))
         assertEquals("@dimen/eve_home_screen_margin", rvExams?.getAttribute("android:paddingHorizontal"))
 
-        // Floating solid capsule bottom bar
+        // Floating Medium glass capsule bottom bar
         val bottomBar = findElementById(root, "cardHomeBottomBar")
         assertNotNull("cardHomeBottomBar must exist", bottomBar)
-        assertEquals("@dimen/eve_home_bottom_bar_height", bottomBar?.getAttribute("android:layout_height"))
-        assertEquals("@dimen/eve_home_bottom_bar_radius", bottomBar?.getAttribute("app:cardCornerRadius"))
-        assertEquals("@color/eve_home_floating_bar_bg", bottomBar?.getAttribute("app:cardBackgroundColor"))
-        assertEquals("@dimen/eve_home_hairline_stroke", bottomBar?.getAttribute("app:strokeWidth"))
-        assertEquals("@color/eve_home_hairline", bottomBar?.getAttribute("app:strokeColor"))
+        assertEquals("@dimen/design_bottom_bar_height", bottomBar?.getAttribute("android:layout_height"))
+        assertEquals("com.eve.app.designsystem.DesignGlassLayout", bottomBar?.tagName)
+        assertEquals("true", bottomBar?.getAttribute("app:designGlassCapsule"))
+        assertEquals("@dimen/design_screen_margin", bottomBar?.getAttribute("android:layout_marginHorizontal"))
+        assertEquals("@dimen/design_bottom_bar_margin", bottomBar?.getAttribute("android:layout_marginBottom"))
 
         // 4 Bottom Bar destinations with 22dp icons
         val btnHome = findElementById(bottomBar!!, "btnBottomNavHome")
         assertNotNull("btnBottomNavHome must exist", btnHome)
         val ivHome = findElementById(btnHome!!, "ivBottomNavHome")
         assertNotNull("ivBottomNavHome must exist", ivHome)
-        assertEquals("@dimen/eve_home_bottom_bar_icon_size", ivHome?.getAttribute("android:layout_width"))
-        assertEquals("@dimen/eve_home_bottom_bar_icon_size", ivHome?.getAttribute("android:layout_height"))
-        assertEquals("@color/eve_home_accent", ivHome?.getAttribute("app:tint"))
+        assertEquals("@dimen/design_icon_size", ivHome?.getAttribute("android:layout_width"))
+        assertEquals("@dimen/design_icon_size", ivHome?.getAttribute("android:layout_height"))
+        assertEquals("@color/accent", ivHome?.getAttribute("app:tint"))
 
         val btnHistory = findElementById(bottomBar, "btnBottomNavHistory")
         assertNotNull("btnBottomNavHistory must exist", btnHistory)

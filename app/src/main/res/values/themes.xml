@@ -298,10 +298,10 @@
     <style name="ShapeRounded14" parent=""><item name="cornerFamily">rounded</item><item name="cornerSize">@dimen/eve_radius_input</item></style>
 
     <style name="Eve.WindowAnimation" parent="@android:style/Animation.Activity">
-        <item name="android:activityOpenEnterAnimation">@anim/fluid_scale_enter</item>
-        <item name="android:activityOpenExitAnimation">@anim/fluid_scale_fade_out</item>
-        <item name="android:activityCloseEnterAnimation">@anim/fluid_scale_fade_in</item>
-        <item name="android:activityCloseExitAnimation">@anim/fluid_scale_exit</item>
+        <item name="android:activityOpenEnterAnimation">@anim/design_screen_enter</item>
+        <item name="android:activityOpenExitAnimation">@anim/design_screen_recede</item>
+        <item name="android:activityCloseEnterAnimation">@anim/design_screen_return</item>
+        <item name="android:activityCloseExitAnimation">@anim/design_screen_exit</item>
     </style>
 
     <style name="Eve.WindowAnimation.ProfileLeft" parent="@style/Eve.WindowAnimation" />

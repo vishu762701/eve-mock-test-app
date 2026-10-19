@@ -3,7 +3,6 @@ package com.eve.app.ui.home
 import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
@@ -43,7 +42,7 @@ class TelegramMenuPopup(
         height = ViewGroup.LayoutParams.WRAP_CONTENT
         isFocusable = true
         isOutsideTouchable = true
-        elevation = 10f
+        elevation = context.resources.getDimension(R.dimen.design_card_elevation)
         setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         setupThemeCard()
@@ -172,45 +171,10 @@ class TelegramMenuPopup(
         // Align right edge of popup with right edge of 3-dot anchor icon, right beneath it
         val xOffset = -(measuredW - anchorView.width)
 
-        // Capture background slice directly behind popup rect for strong frosted blur
+        // Medium glass belongs to the container; the reveal handoff below is unchanged.
         val activity = (anchorView.context as? Activity) ?: (context as? Activity)
-        if (activity != null) {
-            try {
-                val decor = activity.window.decorView
-                if (decor.width > 0 && decor.height > 0) {
-                    val anchorLoc = IntArray(2)
-                    anchorView.getLocationOnScreen(anchorLoc)
-                    val popupX = (anchorLoc[0] + xOffset).coerceIn(0, (decor.width - measuredW).coerceAtLeast(0))
-                    val popupY = (anchorLoc[1] + anchorView.height + 4).coerceIn(0, (decor.height - measuredH).coerceAtLeast(0))
-
-                    val scale = 4
-                    val sampleW = (measuredW / scale).coerceAtLeast(1)
-                    val sampleH = (measuredH / scale).coerceAtLeast(1)
-                    val bmp = Bitmap.createBitmap(sampleW, sampleH, Bitmap.Config.ARGB_8888)
-                    val canvas = Canvas(bmp)
-                    canvas.scale(1f / scale, 1f / scale)
-                    canvas.translate(-popupX.toFloat(), -popupY.toFloat())
-                    decor.draw(canvas)
-
-                    val blurred = if (android.os.Build.VERSION.SDK_INT >= 31) bmp else null
-                    if (android.os.Build.VERSION.SDK_INT >= 31) {
-                        com.eve.app.util.EveBlurHelper.applyRenderEffect(binding.ivGlassBlurBackground, 20f)
-                    } else {
-                        binding.viewGlassTintOverlay.setBackgroundColor(
-                            androidx.core.content.ContextCompat.getColor(context, com.eve.app.R.color.eve_secondary_system_background))
-                    }
-                    blurBitmap = blurred
-                    binding.ivGlassBlurBackground.setImageBitmap(blurred)
-                }
-            } catch (_: Throwable) {
-                // Fallback gracefully
-            }
-        }
-
+        binding.root.backdropRoot = activity?.findViewById(android.R.id.content)
         showAsDropDown(anchorView, xOffset, 4)
-
-        // Task C: Apply animated background blur on supported Android versions
-        GlassmorphismHelper.applyWindowBlur(binding.root, blurRadius = GlassmorphismHelper.DEFAULT_BLUR_RADIUS, animate = true)
 
         // Upgrade 7: Telegram-style anchored scale+fade popup entrance (ActionBarPopupWindow pattern)
         TelegramPopupHelper.animateEntrance(binding.root, anchorView)

@@ -293,3 +293,48 @@ The legacy primary-button selector still paired dark Mono's white fill with
 white legacy text. Its enabled text now resolves on_accent and its disabled fill
 and text resolve track/text_secondary; callbacks and enabled-state logic stay
 unchanged. This fixes the home-feedback Reply label's 1:1 dark contrast.
+
+## Phase 2 final evidence
+
+Run [39196346487](https://github.com/vishu762701/eve-mock-test-app/actions/runs/39196346487)
+completed successfully for build/lint/JVM, native gesture, native three-button,
+backend, functions and verified APK publishing at
+`bf97f7f2f5999bb700ae8436c18ca062afc0d2df`. Actual checkout/build/upload logs and
+artifact metadata agree on this SHA. Downloaded `Eve-debug-apk` ZIP SHA-256 matches
+GitHub `935a704d65a9cd9045ecb86bd5ab7069e668c1f83457a626de0d7f20c6701223`;
+its `app-debug.apk` passes ZIP integrity and APK v2 signature verification. No
+additional delivery commit or rerun was needed.
+
+## Phase 3 implementation
+
+- Transparent status/navigation bars over bg_app; owner-approved black navigation
+  fallback on API 24–25 light mode only. Existing reveal icon timing is unchanged.
+- Normal push/pop animations: horizontal slide + fade, 320ms, curve
+  (0.2,0.8,0.2,1). Intentional auth redirect and protected theme no-animation
+  handoffs remain unchanged.
+- 72 icon resource IDs now use MIT Tabler v3.49.0 outline paths, 24-unit grid,
+  2.75 stroke, round caps/joins. Source mapping and full bundled license provided.
+  Runtime artwork/Lottie screen migration and unused launcher PNG deletion belong
+  to the following screen/cleanup phases; they are not falsely marked removed.
+- Shared toolbar observes scrolling without replacing feature listeners; it uses
+  transparent chrome at top and Medium glass while content is scrolled. Existing
+  large headings move below the back/action row and use the locked title role.
+- Home bottom bar uses the shared live glass capsule, 54dp height, 12dp side
+  margins, 10dp bottom margin, 24dp icons and existing inset/action dispatch.
+- Image buttons share the icon-only 48dp target with 12dp internal padding (24dp
+  drawing), and the shared press animator.
+- Telegram menu container uses shared backdrop glass. setupThemeCard and the
+  entire setupListeners function compare byte-identical to the previous commit;
+  ThemeManager, ThemeSwitchAnimator, sun/moon vectors and reveal Lottie have no diff.
+- Added native PixelCopy verification of 55% real backdrop blur, a softened source
+  edge, untinted/sharp foreground children and live source updates in both themes.
+  Compilation is verified locally; compositor execution awaits hosted native CI.
+
+Local assembleDebug/testDebugUnitTest/lintDebug/assembleDebugAndroidTest and Python
+contracts are checked before the phase commit. Hosted checks remain pending until
+that commit is pushed. Full screen migration and cleanup/design_check are pending.
+
+Header Save/Create/Reattempt actions retain MaterialButton APIs and IDs but use
+icon-only drawing. Original/dynamic labels remain available as accessibility
+labels and long-press tooltips. Added plus/save outline sources from the same
+Tabler release. No business callback, eligibility check, or click wiring changed.

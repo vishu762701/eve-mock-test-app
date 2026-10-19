@@ -1,93 +1,24 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/eve_system_grouped_background"
-    android:orientation="vertical">
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/eve_system_grouped_background" android:orientation="vertical">
 
     <!-- Top Bar -->
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-<LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="12dp">
+<LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:background="@android:color/transparent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingVertical="12dp">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/bg_circle_translucent"
-            android:contentDescription="Back"
-            android:padding="12dp"
-            android:src="@drawable/ic_back"
-            app:tint="?attr/eveLabelPrimary" />
+        <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="?attr/eveLabelPrimary" style="@style/Widget.Eve.Token.IconButton"/>
 
-        <TextView
-            android:id="@+id/tvTitle"
-            style="@style/TextAppearance.Eve.Headline"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="1"
-            tools:text="Exam Name"
-            android:textColor="?attr/eveLabelPrimary" />
-
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:visibility="gone" />
+        <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1"/><ProgressBar android:id="@+id/progressBar" android:layout_width="24dp" android:layout_height="24dp" android:visibility="gone"/>
     </LinearLayout>
 </com.eve.app.ui.common.EveGlassToolbar>
 
-    <com.eve.app.ui.common.ErrorStateView
-        android:id="@+id/compactErrorView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingBottom="@dimen/design_section_gap"><TextView android:id="@+id/tvTitle" style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" tools:text="Exam Name"/>
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="@color/eve_system_grouped_background"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+        </LinearLayout><com.eve.app.ui.common.ErrorStateView android:id="@+id/compactErrorView" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone"/>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvTests"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layoutAnimation="@anim/layout_enter"
-            android:clipToPadding="false"
-            android:padding="@dimen/eve_space_16"
-            android:background="@color/eve_system_grouped_background"
-            android:paddingHorizontal="16dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="24dp"
-            android:clipChildren="false"/>
+    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@color/eve_system_grouped_background" android:clipToPadding="false" android:clipChildren="false">
 
-        <TextView
-            android:id="@+id/tvEmpty"
-            style="@style/TextAppearance.Eve.M3.HeadlineSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:padding="24dp"
-            android:text="No tests available yet."
-            android:textColor="?attr/eveLabelPrimary"
-            android:textStyle="bold"
-            android:visibility="gone" />
+        <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvTests" android:layout_width="match_parent" android:layout_height="match_parent" android:layoutAnimation="@anim/layout_enter" android:clipToPadding="false" android:padding="@dimen/eve_space_16" android:background="@color/eve_system_grouped_background" android:paddingHorizontal="16dp" android:paddingTop="12dp" android:paddingBottom="24dp" android:clipChildren="false"/>
+
+        <TextView android:id="@+id/tvEmpty" style="@style/TextAppearance.Eve.M3.HeadlineSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:padding="24dp" android:text="No tests available yet." android:textColor="?attr/eveLabelPrimary" android:textStyle="bold" android:visibility="gone"/>
     </FrameLayout>
 </LinearLayout>

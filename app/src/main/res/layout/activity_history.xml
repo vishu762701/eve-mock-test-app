@@ -1,150 +1,40 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/eve_system_grouped_background">
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/eve_system_grouped_background">
 
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-<LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="56dp"
-        android:background="@android:color/transparent"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="4dp"
-        android:paddingVertical="8dp">
+<LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:minHeight="56dp" android:background="@android:color/transparent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingVertical="8dp">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/bg_circle_translucent"
-            android:contentDescription="Back"
-            android:padding="12dp"
-            android:src="@drawable/ic_back"
-            app:tint="?attr/eveLabelPrimary" />
+        <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="?attr/eveLabelPrimary" style="@style/Widget.Eve.Token.IconButton"/>
 
-        <TextView
-            style="@style/TextAppearance.Eve.Headline"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:paddingStart="4dp"
-            android:text="Test History"
-            android:textColor="?attr/eveLabelPrimary" />
-    </LinearLayout>
+        <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1"/></LinearLayout>
 </com.eve.app.ui.common.EveGlassToolbar>
 
-    <TextView
-        android:id="@+id/tvOfflineBanner"
-        style="@style/TextAppearance.Eve.Test.OfflineBanner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/eve_offline_bg"
-        android:paddingVertical="6dp"
-        android:text="@string/offline_banner_text"
-        android:visibility="gone" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingBottom="@dimen/design_section_gap"><TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingStart="4dp" android:text="Test History"/>
+    </LinearLayout><TextView android:id="@+id/tvOfflineBanner" style="@style/TextAppearance.Eve.Test.OfflineBanner" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/eve_offline_bg" android:paddingVertical="6dp" android:text="@string/offline_banner_text" android:visibility="gone"/>
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:clipChildren="false"
-        android:clipToPadding="false"
-        android:background="@color/eve_system_grouped_background">
+    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipChildren="false" android:clipToPadding="false" android:background="@color/eve_system_grouped_background">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvHistory"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            android:layoutAnimation="@anim/layout_enter"
-            android:paddingHorizontal="16dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="24dp"
-            android:background="@color/eve_system_grouped_background" />
+        <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvHistory" android:layout_width="match_parent" android:layout_height="match_parent" android:clipChildren="false" android:clipToPadding="false" android:layoutAnimation="@anim/layout_enter" android:paddingHorizontal="16dp" android:paddingTop="12dp" android:paddingBottom="24dp" android:background="@color/eve_system_grouped_background"/>
 
         <!-- Upgrade 3: Telegram-style list shimmer skeleton (LoadingDrawable pattern) -->
-        <com.eve.app.ui.common.ShimmerSkeletonView
-            android:id="@+id/shimmerSkeletonHistory"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone" />
+        <com.eve.app.ui.common.ShimmerSkeletonView android:id="@+id/shimmerSkeletonHistory" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone"/>
 
-        <LinearLayout
-            android:id="@+id/progressGroup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:visibility="gone">
+        <LinearLayout android:id="@+id/progressGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:orientation="vertical" android:visibility="gone">
 
-            <ProgressBar
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+            <ProgressBar android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 
-            <TextView
-                style="@style/TextAppearance.Eve.Footnote"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Loading history…"
-                android:textColor="?attr/eveLabelSecondary" />
+            <TextView style="@style/TextAppearance.Eve.Footnote" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Loading history…" android:textColor="?attr/eveLabelSecondary"/>
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/messageGroup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="24dp"
-            android:visibility="gone">
+        <LinearLayout android:id="@+id/messageGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:orientation="vertical" android:padding="24dp" android:visibility="gone">
 
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/ivMessageIcon"
-                android:layout_width="160dp"
-                android:layout_height="160dp"
-                android:background="@android:color/transparent"
-                app:lottie_autoPlay="false"
-                app:lottie_loop="false"
-                app:lottie_rawRes="@raw/error_404" />
+            <com.airbnb.lottie.LottieAnimationView android:id="@+id/ivMessageIcon" android:layout_width="160dp" android:layout_height="160dp" android:background="@android:color/transparent" app:lottie_autoPlay="false" app:lottie_loop="false" app:lottie_rawRes="@raw/error_404"/>
 
-            <TextView
-                android:id="@+id/tvMessage"
-                style="@style/TextAppearance.Eve.Headline"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:gravity="center"
-                android:textColor="@color/eve_text" />
+            <TextView android:id="@+id/tvMessage" style="@style/TextAppearance.Eve.Headline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:gravity="center" android:textColor="@color/eve_text"/>
 
-            <TextView
-                android:id="@+id/tvMessageSub"
-                style="@style/TextAppearance.Eve.Footnote"
-                android:layout_width="260dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:gravity="center"
-                android:textColor="?attr/eveLabelSecondary" />
+            <TextView android:id="@+id/tvMessageSub" style="@style/TextAppearance.Eve.Footnote" android:layout_width="260dp" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:gravity="center" android:textColor="?attr/eveLabelSecondary"/>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnRetry"
-                style="@style/Widget.Eve.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Retry"
-                android:visibility="gone" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnRetry" style="@style/Widget.Eve.OutlinedButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Retry" android:visibility="gone"/>
         </LinearLayout>
     </FrameLayout>
 </LinearLayout>

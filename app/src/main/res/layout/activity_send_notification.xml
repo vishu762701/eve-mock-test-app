@@ -1,280 +1,77 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/eve_system_grouped_background"
-    android:orientation="vertical"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/eve_system_grouped_background" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
 
     <!-- Top Bar Container -->
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-<FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+<FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content">
 
         <!-- Normal Top Bar -->
-        <LinearLayout
-            android:id="@+id/normalTopBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="12dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+        <LinearLayout android:id="@+id/normalTopBar" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@android:color/transparent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="16dp" android:paddingVertical="12dp" android:clipToPadding="false" android:clipChildren="false">
 
-            <ImageButton
-                android:id="@+id/btnBack"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Back"
-                android:padding="8dp"
-                android:src="@drawable/ic_back"
-                app:tint="@color/eve_text" />
+            <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
 
-            <TextView
-                style="@style/TextAppearance.Eve.Headline"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="Send Notification" />
-        </LinearLayout>
+            </LinearLayout>
 
         <!-- Selection Mode Top Bar -->
-        <LinearLayout
-            android:id="@+id/selectionTopBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="12dp"
-            android:visibility="gone"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+        <LinearLayout android:id="@+id/selectionTopBar" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@android:color/transparent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="16dp" android:paddingVertical="12dp" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false">
 
-            <ImageButton
-                android:id="@+id/btnCancelSelection"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Cancel Selection"
-                android:padding="8dp"
-                android:src="@drawable/ic_close"
-                app:tint="@color/eve_text" />
+            <ImageButton android:id="@+id/btnCancelSelection" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Cancel Selection" android:src="@drawable/ic_close" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
 
-            <TextView
-                style="@style/TextAppearance.Eve.Headline"
-                android:id="@+id/tvSelectedCount"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_weight="1"
-                android:text="0 selected"
-                android:textColor="@color/eve_text" />
+            <TextView style="@style/TextAppearance.Eve.Headline" android:id="@+id/tvSelectedCount" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:text="0 selected" android:textColor="@color/eve_text"/>
 
-            <TextView
-                style="@style/TextAppearance.Eve.Footnote.Medium"
-                android:id="@+id/btnSelectAll"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:clickable="true"
-                android:focusable="true"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="8dp"
-                android:text="Select all"
-                android:textColor="@color/eve_label_primary" />
+            <TextView style="@style/TextAppearance.Eve.Footnote.Medium" android:id="@+id/btnSelectAll" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="?attr/selectableItemBackgroundBorderless" android:clickable="true" android:focusable="true" android:paddingHorizontal="8dp" android:paddingVertical="8dp" android:text="Select all" android:textColor="@color/eve_label_primary"/>
 
-            <ImageButton
-                android:id="@+id/btnDeleteSelected"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="4dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Delete Selected"
-                android:padding="8dp"
-                android:src="@drawable/ic_delete"
-                app:tint="@color/eve_label_primary" />
+            <ImageButton android:id="@+id/btnDeleteSelected" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="4dp" android:contentDescription="Delete Selected" android:src="@drawable/ic_delete" app:tint="@color/eve_label_primary" style="@style/Widget.Eve.Token.IconButton"/>
         </LinearLayout>
     </FrameLayout>
 </com.eve.app.ui.common.EveGlassToolbar>
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="20dp"
-            android:clipToPadding="false"
-            android:clipChildren="false"
-            >
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingBottom="@dimen/design_section_gap"><TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Send Notification"/>
+        </LinearLayout><ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:padding="20dp" android:clipToPadding="false" android:clipChildren="false">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
 
-            <TextView
-                style="@style/TextAppearance.Eve.Title3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Broadcast Push Notification"
-                android:textColor="@color/eve_text" />
+            <TextView style="@style/TextAppearance.Eve.Title3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Broadcast Push Notification" android:textColor="@color/eve_text"/>
 
-            <TextView
-                style="@style/TextAppearance.Eve.Footnote"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="This message will be pushed to all registered users subscribed to the app."
-                android:textColor="@color/eve_text_secondary" />
+            <TextView style="@style/TextAppearance.Eve.Footnote" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="This message will be pushed to all registered users subscribed to the app." android:textColor="@color/eve_text_secondary"/>
 
             <!-- Target Audience / Category Selector -->
-            <TextView
-                style="@style/TextAppearance.Eve.Subheadline.Medium"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Target Audience"
-                android:textColor="@color/eve_text" />
+            <TextView style="@style/TextAppearance.Eve.Subheadline.Medium" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Target Audience" android:textColor="@color/eve_text"/>
 
-            <Spinner
-                android:id="@+id/spTargetCategory"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="6dp" />
+            <Spinner android:id="@+id/spTargetCategory" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="6dp"/>
 
             <!-- Title Field -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilTitle"
-                style="@style/Widget.Eve.TextInput.Filled"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:hint="Notification Title">
+            <com.google.android.material.textfield.TextInputLayout android:id="@+id/tilTitle" style="@style/Widget.Eve.TextInput.Filled" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:hint="Notification Title">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    style="@style/TextAppearance.Eve.BodySmall"
-                    android:id="@+id/etTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textCapSentences"
-                    android:maxLines="1"
-                    android:textColor="@color/eve_text" />
+                <com.google.android.material.textfield.TextInputEditText style="@style/TextAppearance.Eve.BodySmall" android:id="@+id/etTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textCapSentences" android:maxLines="1" android:textColor="@color/eve_text"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Message Field -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilMessage"
-                style="@style/Widget.Eve.TextInput.Filled"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="Message"
-                app:counterEnabled="true"
-                app:counterMaxLength="500">
+            <com.google.android.material.textfield.TextInputLayout android:id="@+id/tilMessage" style="@style/Widget.Eve.TextInput.Filled" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:hint="Message" app:counterEnabled="true" app:counterMaxLength="500">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    style="@style/TextAppearance.Eve.BodySmall"
-                    android:id="@+id/etMessage"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="top|start"
-                    android:inputType="textMultiLine|textCapSentences"
-                    android:maxLength="500"
-                    android:minLines="5"
-                    android:textColor="@color/eve_text" />
+                <com.google.android.material.textfield.TextInputEditText style="@style/TextAppearance.Eve.BodySmall" android:id="@+id/etMessage" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="top|start" android:inputType="textMultiLine|textCapSentences" android:maxLength="500" android:minLines="5" android:textColor="@color/eve_text"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Send Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSend"
-                style="@style/Widget.Eve.Button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="Send to All Users"
-                app:icon="@drawable/ic_send"
-                app:iconGravity="textStart" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnSend" style="@style/Widget.Eve.Button" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="Send to All Users" app:icon="@drawable/ic_send" app:iconGravity="textStart"/>
 
-            <ProgressBar
-                android:id="@+id/progressBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="16dp"
-                android:visibility="gone" />
+            <ProgressBar android:id="@+id/progressBar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:layout_marginTop="16dp" android:visibility="gone"/>
 
             <!-- Divider -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="32dp"
-                android:layout_marginBottom="24dp"
-                android:background="@color/eve_border" />
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginTop="32dp" android:layout_marginBottom="24dp" android:background="@color/eve_border"/>
 
             <!-- Sent Messages Section -->
-            <TextView
-                style="@style/TextAppearance.Eve.Title3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Sent Broadcasts"
-                android:textColor="@color/eve_text" />
+            <TextView style="@style/TextAppearance.Eve.Title3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sent Broadcasts" android:textColor="@color/eve_text"/>
 
-            <TextView
-                style="@style/TextAppearance.Eve.Caption1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Note: Already-delivered push notifications cannot be recalled from a device. Deleting a broadcast removes it from all students' in-app notification lists."
-                android:textColor="@color/eve_text_secondary" />
+            <TextView style="@style/TextAppearance.Eve.Caption1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Note: Already-delivered push notifications cannot be recalled from a device. Deleting a broadcast removes it from all students' in-app notification lists." android:textColor="@color/eve_text_secondary"/>
 
-            <ProgressBar
-                android:id="@+id/progressBarSent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="16dp"
-                android:visibility="gone" />
+            <ProgressBar android:id="@+id/progressBarSent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:layout_marginTop="16dp" android:visibility="gone"/>
 
-            <TextView
-                style="@style/TextAppearance.Eve.Footnote"
-                android:id="@+id/tvNoSentBroadcasts"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="20dp"
-                android:text="No broadcast messages sent yet."
-                android:textColor="@color/eve_text_secondary"
-                android:visibility="gone" />
+            <TextView style="@style/TextAppearance.Eve.Footnote" android:id="@+id/tvNoSentBroadcasts" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:layout_marginTop="20dp" android:text="No broadcast messages sent yet." android:textColor="@color/eve_text_secondary" android:visibility="gone"/>
 
-            <com.eve.app.ui.common.ErrorStateView
-                android:id="@+id/compactErrorView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:visibility="gone" />
+            <com.eve.app.ui.common.ErrorStateView android:id="@+id/compactErrorView" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:visibility="gone"/>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvSentBroadcasts"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:nestedScrollingEnabled="false"
-            android:clipToPadding="false"
-            android:clipChildren="false"/>
+            <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvSentBroadcasts" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:nestedScrollingEnabled="false" android:clipToPadding="false" android:clipChildren="false"/>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

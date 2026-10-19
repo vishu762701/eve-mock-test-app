@@ -1,278 +1,82 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/eve_system_grouped_background"
-    android:orientation="vertical"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/eve_system_grouped_background" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
 
     <!-- Top Bar -->
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-<LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="12dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+<LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:background="@android:color/transparent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingVertical="12dp" android:clipToPadding="false" android:clipChildren="false">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Back"
-            android:padding="8dp"
-            android:src="@drawable/ic_back"
-            app:tint="@color/eve_text" />
+        <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
 
-        <TextView
-            style="@style/TextAppearance.Eve.Headline"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:text="App Config &amp; Maintenance" />
-
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:visibility="gone" />
+        <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1"/><ProgressBar android:id="@+id/progressBar" android:layout_width="24dp" android:layout_height="24dp" android:visibility="gone"/>
     </LinearLayout>
 </com.eve.app.ui.common.EveGlassToolbar>
 
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true"
-            android:clipToPadding="false"
-            android:clipChildren="false"
-            >
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingBottom="@dimen/design_section_gap"><TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="App Config &amp; Maintenance"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+        </LinearLayout><androidx.core.widget.NestedScrollView android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false" android:clipChildren="false">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
 
             <!-- In-App Live Settings Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/eve_card_bg"
-                app:cardCornerRadius="@dimen/eve_radius_card"
-                app:cardElevation="0dp"
-                app:strokeWidth="1dp">
+            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" app:cardBackgroundColor="@color/eve_card_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
 
-                    <TextView
-                        style="@style/TextAppearance.Eve.Headline"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Live Backend Controls"
-                        android:textColor="@color/eve_accent_text" />
+                    <TextView style="@style/TextAppearance.Eve.Headline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Live Backend Controls" android:textColor="@color/eve_accent_text"/>
 
                     <!-- Maintenance Mode Switch -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false">
 
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
 
-                            <TextView
-                                style="@style/TextAppearance.Eve.Headline"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Maintenance Mode"
-                                android:textColor="@color/eve_text" />
+                            <TextView style="@style/TextAppearance.Eve.Headline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Maintenance Mode" android:textColor="@color/eve_text"/>
 
-                            <TextView
-                                style="@style/TextAppearance.Eve.Caption1"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Blocks non-admin users from using the app"
-                                android:textColor="@color/eve_text_secondary" />
+                            <TextView style="@style/TextAppearance.Eve.Caption1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Blocks non-admin users from using the app" android:textColor="@color/eve_text_secondary"/>
                         </LinearLayout>
 
-                        <com.google.android.material.materialswitch.MaterialSwitch
-                            android:id="@+id/switchMaintenanceMode"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
+                        <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchMaintenanceMode" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                     </LinearLayout>
 
                     <!-- Maintenance Message -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:hint="Maintenance Message"
-                        app:boxStrokeColor="@color/selector_shape_border"
-                        app:boxStrokeErrorColor="@color/selector_shape_border"
-                        app:boxStrokeWidth="1dp"
-                        app:boxStrokeWidthFocused="1dp">
+                    <com.google.android.material.textfield.TextInputLayout style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:hint="Maintenance Message" app:boxStrokeColor="@color/selector_shape_border" app:boxStrokeErrorColor="@color/selector_shape_border" app:boxStrokeWidth="1dp" app:boxStrokeWidthFocused="1dp">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etMaintenanceMessage"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="textMultiLine"
-                            android:minLines="2" />
+                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etMaintenanceMessage" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textMultiLine" android:minLines="2"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Minimum Supported Version Code -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:hint="Minimum Supported Version Code"
-                        app:boxStrokeColor="@color/selector_shape_border"
-                        app:boxStrokeErrorColor="@color/selector_shape_border"
-                        app:boxStrokeWidth="1dp"
-                        app:boxStrokeWidthFocused="1dp">
+                    <com.google.android.material.textfield.TextInputLayout style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:hint="Minimum Supported Version Code" app:boxStrokeColor="@color/selector_shape_border" app:boxStrokeErrorColor="@color/selector_shape_border" app:boxStrokeWidth="1dp" app:boxStrokeWidthFocused="1dp">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etMinVersionCode"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="number" />
+                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etMinVersionCode" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="number"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <TextView
-                        style="@style/TextAppearance.Eve.Footnote"
-                        android:id="@+id/tvCurrentVersionNotice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Current installed app version code: 1"
-                        android:textColor="@color/eve_text_secondary" />
+                    <TextView style="@style/TextAppearance.Eve.Footnote" android:id="@+id/tvCurrentVersionNotice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Current installed app version code: 1" android:textColor="@color/eve_text_secondary"/>
 
                     <!-- Default AI Test Publish Mode -->
-                    <TextView
-                        style="@style/TextAppearance.Eve.Headline"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="Default AI Test Status"
-                        android:textColor="@color/eve_text" />
+                    <TextView style="@style/TextAppearance.Eve.Headline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Default AI Test Status" android:textColor="@color/eve_text"/>
 
-                    <TextView
-                        style="@style/TextAppearance.Eve.Caption1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Applies to all exams unless an exam overrides it. Existing tests are not changed."
-                        android:textColor="@color/eve_text_secondary" />
+                    <TextView style="@style/TextAppearance.Eve.Caption1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Applies to all exams unless an exam overrides it. Existing tests are not changed." android:textColor="@color/eve_text_secondary"/>
 
-                    <RadioGroup
-                        android:id="@+id/rgDefaultPublishMode"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp">
+                    <RadioGroup android:id="@+id/rgDefaultPublishMode" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp">
 
-                        <com.google.android.material.radiobutton.MaterialRadioButton
-                            android:id="@+id/rbPublishPaused"
-                            android:textAppearance="@style/TextAppearance.Eve.BodySmall"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Keep new AI tests paused (review first)"
-                            android:textColor="@color/eve_text" />
+                        <com.google.android.material.radiobutton.MaterialRadioButton android:id="@+id/rbPublishPaused" android:textAppearance="@style/TextAppearance.Eve.BodySmall" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Keep new AI tests paused (review first)" android:textColor="@color/eve_text"/>
 
-                        <com.google.android.material.radiobutton.MaterialRadioButton
-                            android:id="@+id/rbPublishLive"
-                            android:textAppearance="@style/TextAppearance.Eve.BodySmall"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Publish new AI tests live automatically"
-                            android:textColor="@color/eve_text" />
+                        <com.google.android.material.radiobutton.MaterialRadioButton android:id="@+id/rbPublishLive" android:textAppearance="@style/TextAppearance.Eve.BodySmall" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Publish new AI tests live automatically" android:textColor="@color/eve_text"/>
                     </RadioGroup>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSaveConfig"
-                        style="@style/Widget.Eve.Button"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="Save &amp; Apply Configuration" />
+                    <com.google.android.material.button.MaterialButton android:id="@+id/btnSaveConfig" style="@style/Widget.Eve.Button" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Save &amp; Apply Configuration"/>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnTestAiHealth"
-                        style="@style/Widget.Eve.OutlinedButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="Test AI Connection"
-                        android:textColor="@color/eve_accent_text" />
+                    <com.google.android.material.button.MaterialButton android:id="@+id/btnTestAiHealth" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Test AI Connection" android:textColor="@color/eve_accent_text"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Firebase Remote Config Documentation Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:cardBackgroundColor="@color/eve_card_bg"
-                app:cardCornerRadius="@dimen/eve_radius_card"
-                app:cardElevation="0dp"
-                app:strokeWidth="1dp">
+            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" app:cardBackgroundColor="@color/eve_card_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
 
-                    <TextView
-                        style="@style/TextAppearance.Eve.Headline"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Firebase Console Remote Config Guide"
-                        android:textColor="@color/eve_accent_text" />
+                    <TextView style="@style/TextAppearance.Eve.Headline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Firebase Console Remote Config Guide" android:textColor="@color/eve_accent_text"/>
 
-                    <TextView
-                        style="@style/TextAppearance.Eve.Caption1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:lineSpacingExtra="3dp"
-                        android:text="To manage safety limits directly in the Firebase Console without changing backend code:\n\n1. Go to Firebase Console -> Engage -> Remote Config.\n\n2. Configure these parameters:\n   • minimum_supported_version_code: (Number, e.g. 2). Users with lower version will see a blocking update prompt.\n   • maintenance_mode: (Boolean: true/false). Halts student access immediately.\n   • maintenance_message: (String). The message displayed to students during maintenance.\n\n3. Click 'Publish Changes' in Firebase Console."
-                        android:textColor="@color/eve_text" />
+                    <TextView style="@style/TextAppearance.Eve.Caption1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:lineSpacingExtra="3dp" android:text="To manage safety limits directly in the Firebase Console without changing backend code:\n\n1. Go to Firebase Console -&gt; Engage -&gt; Remote Config.\n\n2. Configure these parameters:\n   • minimum_supported_version_code: (Number, e.g. 2). Users with lower version will see a blocking update prompt.\n   • maintenance_mode: (Boolean: true/false). Halts student access immediately.\n   • maintenance_message: (String). The message displayed to students during maintenance.\n\n3. Click 'Publish Changes' in Firebase Console." android:textColor="@color/eve_text"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>

@@ -1,33 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="6dp"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:minHeight="@dimen/eve_list_row_min">
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:gravity="center_vertical" android:orientation="horizontal" android:minHeight="@dimen/eve_list_row_min">
 
-    <EditText
-        android:id="@+id/etOptionText"
-        style="@style/TextAppearance.Eve.BodySmall"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:background="@drawable/bg_edit_text_rounded"
-        android:hint="Option text"
-        android:inputType="textCapSentences"
-        android:maxLines="1"
-        android:padding="10dp"
-        android:textColor="@color/eve_text" />
+    <EditText android:id="@+id/etOptionText" style="@style/TextAppearance.Eve.BodySmall" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:background="@drawable/bg_edit_text_rounded" android:hint="Option text" android:inputType="textCapSentences" android:maxLines="1" android:padding="10dp" android:textColor="@color/eve_text"/>
 
-    <ImageButton
-        android:id="@+id/btnRemoveOption"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="6dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Remove option"
-        android:src="@drawable/ic_close"
-        app:tint="@color/eve_text_secondary" />
+    <ImageButton android:id="@+id/btnRemoveOption" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="6dp" android:contentDescription="Remove option" android:src="@drawable/ic_close" app:tint="@color/eve_text_secondary" style="@style/Widget.Eve.Token.IconButton"/>
 </LinearLayout>

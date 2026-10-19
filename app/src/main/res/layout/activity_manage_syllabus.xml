@@ -1,317 +1,83 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/eve_system_grouped_background"
-    android:orientation="vertical"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/eve_system_grouped_background" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
 
     <!-- Top App Bar -->
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-<LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="12dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+<LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:background="@android:color/transparent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingVertical="12dp" android:clipToPadding="false" android:clipChildren="false">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Back"
-            android:padding="8dp"
-            android:src="@drawable/ic_back"
-            app:tint="@color/eve_text" />
+        <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:orientation="vertical"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
-
-            <TextView
-                style="@style/TextAppearance.Eve.Headline"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Manage Syllabus" />
-
-            <TextView
-                style="@style/TextAppearance.Eve.Caption1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Upload, assign and manage syllabus PDFs"
-                android:textColor="@color/eve_label_primary" />
-        </LinearLayout>
-
-        <ProgressBar
-            android:id="@+id/progressBarTop"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:indeterminate="true"
-            android:visibility="gone" />
+        <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1"/><ProgressBar android:id="@+id/progressBarTop" android:layout_width="24dp" android:layout_height="24dp" android:indeterminate="true" android:visibility="gone"/>
     </LinearLayout>
 </com.eve.app.ui.common.EveGlassToolbar>
 
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true"
-            android:clipToPadding="false"
-            android:clipChildren="false"
-            >
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingBottom="@dimen/design_section_gap"><TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Manage Syllabus"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="32dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+            <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Upload, assign and manage syllabus PDFs"/>
+        </LinearLayout><androidx.core.widget.NestedScrollView android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false" android:clipChildren="false">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingBottom="32dp" android:clipToPadding="false" android:clipChildren="false">
 
             <!-- Card: Add / Upload New Syllabus -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="16dp"
-                app:cardBackgroundColor="@color/eve_card_bg"
-                app:cardCornerRadius="@dimen/eve_radius_card"
-                app:cardElevation="0dp"
-                app:strokeWidth="1dp">
+            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="16dp" android:layout_marginTop="16dp" app:cardBackgroundColor="@color/eve_card_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
 
-                    <TextView
-                        style="@style/TextAppearance.Eve.Headline"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Add / Upload New Syllabus"
-                        android:textColor="@color/eve_text" />
+                    <TextView style="@style/TextAppearance.Eve.Headline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Add / Upload New Syllabus" android:textColor="@color/eve_text"/>
 
-                    <TextView
-                        style="@style/TextAppearance.Eve.Caption1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Associate a syllabus PDF (max 20MB) with an exam."
-                        android:textColor="@color/eve_text_secondary" />
+                    <TextView style="@style/TextAppearance.Eve.Caption1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Associate a syllabus PDF (max 20MB) with an exam." android:textColor="@color/eve_text_secondary"/>
 
                     <!-- Step 1: Select Exam -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilSelectExam"
-                        style="@style/Widget.Eve.TextInput.Filled.ExposedDropdownMenu"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:hint="Select Exam">
+                    <com.google.android.material.textfield.TextInputLayout android:id="@+id/tilSelectExam" style="@style/Widget.Eve.TextInput.Filled.ExposedDropdownMenu" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:hint="Select Exam">
 
-                        <AutoCompleteTextView
-                            style="@style/TextAppearance.Eve.BodySmall"
-                            android:id="@+id/actvSelectExam"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="none" />
+                        <AutoCompleteTextView style="@style/TextAppearance.Eve.BodySmall" android:id="@+id/actvSelectExam" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="none"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Step 2: Selected PDF info / Choose PDF -->
-                    <LinearLayout
-                        android:id="@+id/layoutSelectedPdf"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:background="@drawable/bg_stat_mini"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="10dp"
-                        android:visibility="gone"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                    <LinearLayout android:id="@+id/layoutSelectedPdf" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:background="@drawable/bg_stat_mini" android:gravity="center_vertical" android:orientation="horizontal" android:padding="10dp" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false">
 
-                        <ImageView
-                            android:layout_width="22dp"
-                            android:layout_height="22dp"
-                            android:contentDescription="PDF file"
-                            android:src="@drawable/ic_description"
-                            app:tint="@color/eve_system_blue" />
+                        <ImageView android:layout_width="22dp" android:layout_height="22dp" android:contentDescription="PDF file" android:src="@drawable/ic_description" app:tint="@color/eve_system_blue"/>
 
-                        <TextView
-                            style="@style/TextAppearance.Eve.Footnote.Medium"
-                            android:id="@+id/tvNewPdfName"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:layout_weight="1"
-                            android:ellipsize="middle"
-                            android:maxLines="1"
-                            android:textColor="@color/eve_text"
-                            tools:text="sample_syllabus.pdf" />
+                        <TextView style="@style/TextAppearance.Eve.Footnote.Medium" android:id="@+id/tvNewPdfName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:layout_weight="1" android:ellipsize="middle" android:maxLines="1" android:textColor="@color/eve_text" tools:text="sample_syllabus.pdf"/>
 
-                        <ImageButton
-                            android:id="@+id/btnClearSelectedPdf"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:contentDescription="Clear"
-                            android:padding="6dp"
-                            android:src="@drawable/ic_close"
-                            app:tint="@color/eve_text_secondary" />
+                        <ImageButton android:id="@+id/btnClearSelectedPdf" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Clear" android:src="@drawable/ic_close" app:tint="@color/eve_text_secondary" style="@style/Widget.Eve.Token.IconButton"/>
                     </LinearLayout>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnChoosePdf"
-                        style="@style/Widget.Eve.OutlinedButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="Choose PDF Document"
-                        app:icon="@drawable/ic_upload" />
+                    <com.google.android.material.button.MaterialButton android:id="@+id/btnChoosePdf" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Choose PDF Document" app:icon="@drawable/ic_upload"/>
 
-                    <ProgressBar
-                        android:id="@+id/progressBarUpload"
-                        style="?android:attr/progressBarStyleHorizontal"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:indeterminate="true"
-                        android:visibility="gone" />
+                    <ProgressBar android:id="@+id/progressBarUpload" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:indeterminate="true" android:visibility="gone"/>
 
                     <!-- Submit Button -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnUploadSyllabus"
-                        style="@style/Widget.Eve.Button"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:text="Upload &amp; Assign Syllabus" />
+                    <com.google.android.material.button.MaterialButton android:id="@+id/btnUploadSyllabus" style="@style/Widget.Eve.Button" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Upload &amp; Assign Syllabus"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Existing Syllabuses Header -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="24dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="16dp" android:layout_marginTop="24dp" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false">
 
-                <TextView
-                    style="@style/TextAppearance.Eve.Headline"
-                    android:id="@+id/tvExistingHeader"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Existing Syllabuses"
-                    android:textColor="@color/eve_text" />
+                <TextView style="@style/TextAppearance.Eve.Headline" android:id="@+id/tvExistingHeader" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Existing Syllabuses" android:textColor="@color/eve_text"/>
 
-                <TextView
-                    style="@style/TextAppearance.Eve.Caption1.Medium"
-                    android:id="@+id/tvSyllabusCount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_stat_mini"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="3dp"
-                    android:textColor="@color/eve_accent_text"
-                    tools:text="3 Active" />
+                <TextView style="@style/TextAppearance.Eve.Caption1.Medium" android:id="@+id/tvSyllabusCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_stat_mini" android:paddingHorizontal="10dp" android:paddingVertical="3dp" android:textColor="@color/eve_accent_text" tools:text="3 Active"/>
             </LinearLayout>
 
             <!-- Search input -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilSearch"
-                style="@style/Widget.Eve.TextInput.Filled"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="10dp"
-                android:hint="Search syllabus by exam name..."
-                app:startIconDrawable="@drawable/ic_search" app:boxCornerRadiusTopStart="@dimen/eve_radius_pill" app:boxCornerRadiusTopEnd="@dimen/eve_radius_pill" app:boxCornerRadiusBottomStart="@dimen/eve_radius_pill" app:boxCornerRadiusBottomEnd="@dimen/eve_radius_pill">
+            <com.google.android.material.textfield.TextInputLayout android:id="@+id/tilSearch" style="@style/Widget.Eve.TextInput.Filled" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="16dp" android:layout_marginTop="10dp" android:hint="Search syllabus by exam name..." app:startIconDrawable="@drawable/ic_search" app:boxCornerRadiusTopStart="@dimen/eve_radius_pill" app:boxCornerRadiusTopEnd="@dimen/eve_radius_pill" app:boxCornerRadiusBottomStart="@dimen/eve_radius_pill" app:boxCornerRadiusBottomEnd="@dimen/eve_radius_pill">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    style="@style/TextAppearance.Eve.BodySmall"
-                    android:id="@+id/etSearch"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text" />
+                <com.google.android.material.textfield.TextInputEditText style="@style/TextAppearance.Eve.BodySmall" android:id="@+id/etSearch" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="text"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Empty State View -->
-            <LinearLayout
-                android:id="@+id/layoutEmpty"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="32dp"
-                android:visibility="gone"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+            <LinearLayout android:id="@+id/layoutEmpty" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:gravity="center" android:orientation="vertical" android:padding="32dp" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false">
 
-                <ImageView
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:contentDescription="Empty"
-                    android:src="@drawable/ic_syllabus"
-                    app:tint="@color/eve_text_secondary" />
+                <ImageView android:layout_width="64dp" android:layout_height="64dp" android:contentDescription="Empty" android:src="@drawable/ic_syllabus" app:tint="@color/eve_text_secondary"/>
 
-                <TextView
-                    style="@style/TextAppearance.Eve.Headline"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="No Syllabuses Uploaded"
-                    android:textColor="@color/eve_text" />
+                <TextView style="@style/TextAppearance.Eve.Headline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="No Syllabuses Uploaded" android:textColor="@color/eve_text"/>
 
-                <TextView
-                    style="@style/TextAppearance.Eve.Caption1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Choose an exam above to upload and attach its syllabus PDF."
-                    android:textAlignment="center"
-                    android:textColor="@color/eve_text_secondary" />
+                <TextView style="@style/TextAppearance.Eve.Caption1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Choose an exam above to upload and attach its syllabus PDF." android:textAlignment="center" android:textColor="@color/eve_text_secondary"/>
             </LinearLayout>
 
             <!-- Syllabus RecyclerView -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvSyllabuses"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layoutAnimation="@anim/layout_enter"
-                android:layout_marginTop="8dp"
-                android:nestedScrollingEnabled="false"
-                tools:listitem="@layout/item_admin_syllabus"
-            android:clipToPadding="false"
-            android:clipChildren="false"/>
+            <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvSyllabuses" android:layout_width="match_parent" android:layout_height="wrap_content" android:layoutAnimation="@anim/layout_enter" android:layout_marginTop="8dp" android:nestedScrollingEnabled="false" tools:listitem="@layout/item_admin_syllabus" android:clipToPadding="false" android:clipChildren="false"/>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

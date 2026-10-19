@@ -173,29 +173,14 @@ object SystemBarHelper {
 
         val isDarkAppearance = activity.resources.configuration.uiMode and
             android.content.res.Configuration.UI_MODE_NIGHT_MASK == android.content.res.Configuration.UI_MODE_NIGHT_YES
-        // System inset backing follows the same semantic canvas as each screen.
-        val isHome = activity is MainActivity
-        val grouped = isGroupedScreen(activity)
-        val background = ContextCompat.getColor(activity,
-            if (grouped) R.color.eve_system_grouped_background else R.color.eve_system_background)
-
+        val background = ContextCompat.getColor(activity, R.color.bg_app)
         window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(background))
-        // Draw the same screen canvas color behind the padded status, cutout, and navigation insets.
         activity.findViewById<View>(android.R.id.content)?.setBackgroundColor(background)
-
-        if (android.os.Build.VERSION.SDK_INT >= 35) {
-            // Android 15 derives forced navigation appearance from the window
-            // background under enforced edge-to-edge. The regular light-icon
-            // flag alone cannot correct a stale light window background.
-            // PhoneWindow's public setter also clears Android 15's forced-light
-            // navigation appearance. Use transparent for enforced edge-to-edge;
-            // setting an already-forced opaque color can return without clearing it.
-            window.navigationBarColor = android.graphics.Color.TRANSPARENT
-        } else {
-            window.statusBarColor = background
-            window.navigationBarColor = if (isHome || grouped) background else ContextCompat.getColor(activity, R.color.eve_canvas)
-        }
-
+        window.statusBarColor = ContextCompat.getColor(activity, R.color.transparent)
+        // API 24–25 has no dark navigation-button icons. Owner-approved fallback.
+        window.navigationBarColor = ContextCompat.getColor(activity,
+            if (android.os.Build.VERSION.SDK_INT < 26 && !isDarkAppearance)
+                R.color.navigation_legacy_background else R.color.transparent)
         if (android.os.Build.VERSION.SDK_INT >= 29) {
             window.isNavigationBarContrastEnforced = false
         }

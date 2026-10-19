@@ -1,183 +1,56 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/questionScroll"
-    android:fillViewport="true"
-            android:clipToPadding="false"
-            android:clipChildren="false"
-            >
+<?xml version='1.0' encoding='utf-8'?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:id="@+id/questionScroll" android:fillViewport="true" android:clipToPadding="false" android:clipChildren="false">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="6dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingStart="16dp" android:paddingEnd="16dp" android:paddingTop="10dp" android:paddingBottom="6dp">
 
     <!-- Question timer and bare bookmark/report actions -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:layout_marginBottom="6dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:gravity="center_vertical" android:orientation="horizontal" android:layout_marginBottom="6dp">
 
         <!-- Live Per-Question Timer Chip -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_question_timer_chip"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="10dp"
-            android:paddingVertical="5dp">
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_question_timer_chip" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="10dp" android:paddingVertical="5dp">
 
-            <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:contentDescription="Timer"
-                android:src="@drawable/ic_timer"
-                app:tint="@color/eve_text_secondary" />
+            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:contentDescription="Timer" android:src="@drawable/ic_timer" app:tint="@color/eve_text_secondary"/>
 
-            <TextView
-                android:id="@+id/tvQuestionTimer"
-                style="@style/TextAppearance.Eve.Test.QuestionTimer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:text="0:00" />
+            <TextView android:id="@+id/tvQuestionTimer" style="@style/TextAppearance.Eve.Test.QuestionTimer" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="0:00"/>
         </LinearLayout>
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+        <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1"/>
 
         <!-- Bookmark Star Action (48dp touch target) -->
-        <FrameLayout
-            android:id="@+id/layoutBookmark"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:clipChildren="false"
-            android:clipToPadding="false">
+        <FrameLayout android:id="@+id/layoutBookmark" android:layout_width="48dp" android:layout_height="48dp" android:clipChildren="false" android:clipToPadding="false">
 
-            <com.eve.app.ui.common.SparkleView
-                android:id="@+id/sparkleView"
-                android:layout_width="48dp"
-                android:layout_height="48dp" />
+            <com.eve.app.ui.common.SparkleView android:id="@+id/sparkleView" android:layout_width="48dp" android:layout_height="48dp"/>
 
-            <ImageButton
-                android:id="@+id/btnBookmark"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_gravity="center"
-                android:background="@android:color/transparent"
-                android:stateListAnimator="@animator/press_scale"
-                android:contentDescription="Bookmark question"
-                android:padding="13dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_star_outline" />
+            <ImageButton android:id="@+id/btnBookmark" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:layout_gravity="center" android:contentDescription="Bookmark question" android:scaleType="fitCenter" android:src="@drawable/ic_star_outline" style="@style/Widget.Eve.Token.IconButton"/>
         </FrameLayout>
 
         <!-- Report Question Action (48dp touch target, bare icon) -->
-        <FrameLayout
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="4dp">
+        <FrameLayout android:layout_width="48dp" android:layout_height="48dp" android:layout_marginStart="4dp">
 
-            <ImageButton
-                android:id="@+id/btnReport"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_gravity="center"
-                android:background="@android:color/transparent"
-                android:stateListAnimator="@animator/press_scale"
-                android:contentDescription="Report this question"
-                android:padding="13dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_report_flag_premium"
-                app:tint="@color/eve_text_secondary" />
+            <ImageButton android:id="@+id/btnReport" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:layout_gravity="center" android:contentDescription="Report this question" android:scaleType="fitCenter" android:src="@drawable/ic_report_flag_premium" app:tint="@color/eve_text_secondary" style="@style/Widget.Eve.Token.IconButton"/>
         </FrameLayout>
     </LinearLayout>
 
     <!-- Question and options keep their approved sizes inside the scrolling page. -->
-    <FrameLayout
-        android:id="@+id/questionContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="0dp">
+    <FrameLayout android:id="@+id/questionContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="0dp">
 
 
-            <TextView
-                android:id="@+id/tvQuestion"
-                style="@style/TextAppearance.Eve.QuestionText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:lineSpacingMultiplier="1.5"
-                android:gravity="left" />
+            <TextView android:id="@+id/tvQuestion" style="@style/TextAppearance.Eve.QuestionText" android:layout_width="match_parent" android:layout_height="wrap_content" android:lineSpacingMultiplier="1.5" android:gravity="left"/>
 
     </FrameLayout>
 
     <!-- Answer options, 16dp below the question -->
-    <FrameLayout
-        android:id="@+id/optionsMaterialHost"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:clipChildren="false"
-        android:clipToPadding="false">
+    <FrameLayout android:id="@+id/optionsMaterialHost" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:clipChildren="false" android:clipToPadding="false">
 
-        <RadioGroup
-            android:id="@+id/rgOptions"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+        <RadioGroup android:id="@+id/rgOptions" android:layout_width="match_parent" android:layout_height="wrap_content">
 
-        <com.eve.app.ui.common.TelegramRadioButton
-            android:id="@+id/rbA"
-            style="@style/TextAppearance.Eve.Test.Option"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:background="@android:color/transparent"
-            android:paddingVertical="12dp"
-            android:minHeight="56dp"
-            android:paddingEnd="12dp" />
+        <com.eve.app.ui.common.TelegramRadioButton android:id="@+id/rbA" style="@style/TextAppearance.Eve.Test.Option" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:background="@android:color/transparent" android:paddingVertical="12dp" android:minHeight="56dp" android:paddingEnd="12dp"/>
 
-        <com.eve.app.ui.common.TelegramRadioButton
-            android:id="@+id/rbB"
-            style="@style/TextAppearance.Eve.Test.Option"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:background="@android:color/transparent"
-            android:paddingVertical="12dp"
-            android:minHeight="56dp"
-            android:paddingEnd="12dp" />
+        <com.eve.app.ui.common.TelegramRadioButton android:id="@+id/rbB" style="@style/TextAppearance.Eve.Test.Option" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:background="@android:color/transparent" android:paddingVertical="12dp" android:minHeight="56dp" android:paddingEnd="12dp"/>
 
-        <com.eve.app.ui.common.TelegramRadioButton
-            android:id="@+id/rbC"
-            style="@style/TextAppearance.Eve.Test.Option"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:background="@android:color/transparent"
-            android:paddingVertical="12dp"
-            android:minHeight="56dp"
-            android:paddingEnd="12dp" />
+        <com.eve.app.ui.common.TelegramRadioButton android:id="@+id/rbC" style="@style/TextAppearance.Eve.Test.Option" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:background="@android:color/transparent" android:paddingVertical="12dp" android:minHeight="56dp" android:paddingEnd="12dp"/>
 
-        <com.eve.app.ui.common.TelegramRadioButton
-            android:id="@+id/rbD"
-            style="@style/TextAppearance.Eve.Test.Option"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:paddingVertical="12dp"
-            android:minHeight="56dp"
-            android:paddingEnd="12dp" />
+        <com.eve.app.ui.common.TelegramRadioButton android:id="@+id/rbD" style="@style/TextAppearance.Eve.Test.Option" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@android:color/transparent" android:paddingVertical="12dp" android:minHeight="56dp" android:paddingEnd="12dp"/>
         </RadioGroup>
     </FrameLayout>
 </LinearLayout>

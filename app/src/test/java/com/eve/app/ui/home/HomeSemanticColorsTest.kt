@@ -264,8 +264,8 @@ class HomeSemanticColorsTest {
             sheet.getAttribute("android:layout_marginTop"))
         val helper = source("src/main/java/com/eve/app/util/SystemBarHelper.kt")
         assertTrue(helper.contains("activity is MainActivity"))
-        assertTrue(helper.contains("if (grouped) R.color.eve_system_grouped_background else R.color.eve_system_background"))
-        assertTrue(helper.contains("window.navigationBarColor = if (isHome || grouped) background else"))
+        assertTrue(helper.contains("ContextCompat.getColor(activity, R.color.bg_app)"))
+        assertTrue(helper.contains("R.color.navigation_legacy_background else R.color.transparent"))
         assertTrue(helper.contains("activity.findViewById<View>(android.R.id.content)?.setBackgroundColor(background)"))
     }
 

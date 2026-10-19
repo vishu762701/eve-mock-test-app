@@ -458,7 +458,7 @@ class ResultAndTestPolishVerificationTest {
             ?: File("eve-mock-test-app/app/src/main/res/layout/activity_result.xml")
         assertTrue("activity_result.xml must exist", resultFile != null && resultFile.exists())
         val resultContent = resultFile!!.readText()
-        assertTrue("btnReattempt in Result header must use OrangePill", resultContent.contains("style=\"@style/Widget.Eve.Button.OrangePill\""))
+        assertTrue("Reattempt remains an icon-only header action", resultContent.contains("style=\"@style/Widget.Eve.Token.IconAction\""))
 
         val completedSheetFile = File("src/main/res/layout/bottom_sheet_completed_exam.xml").takeIf { it.exists() }
             ?: File("app/src/main/res/layout/bottom_sheet_completed_exam.xml").takeIf { it.exists() }

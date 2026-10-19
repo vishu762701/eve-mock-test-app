@@ -49,3 +49,11 @@ Any distribution of binary artifacts containing these ported components must com
   `app/src/main/assets/licenses/BlurView-LICENSE.txt`.
 - `RenderEffectBlur` is used only on API 31+ with a hardware canvas. Other cases
   use the owner's 94% glass tint. The shared chrome keeps foreground children sharp.
+
+## Tabler Icons v3.49.0
+
+Outline SVG paths converted to Android VectorDrawable on their original 24-unit
+grid, with the owner's 2.75 stroke and round caps/joins. MIT License, Copyright
+(c) 2020–2026 Paweł Kuna. Full license: `app/src/main/assets/licenses/Tabler-LICENSE.txt`.
+Source: https://github.com/tabler/tabler-icons/tree/v3.49.0/icons/outline
+Resource-to-source mapping: `docs/design-reset/tabler-icons.json`.

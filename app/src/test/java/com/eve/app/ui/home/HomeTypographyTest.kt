@@ -245,7 +245,7 @@ class HomeTypographyTest {
 
         val tvWelcome = findElementById(root, "tvWelcome")
         assertNotNull(tvWelcome)
-        assertEquals("@style/TextAppearance.Eve.Home.PageTitle", tvWelcome?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Title", tvWelcome?.getAttribute("style"))
 
         val etSearch = findElementById(root, "etSearch")
         assertNotNull(etSearch)

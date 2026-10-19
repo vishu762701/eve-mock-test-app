@@ -793,15 +793,10 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun setupFloatingBottomBar() {
-        val barHeight = resources.getDimensionPixelSize(R.dimen.eve_home_bottom_bar_height)
-        val barBottomMargin = resources.getDimensionPixelSize(R.dimen.eve_home_bottom_bar_margin_bottom)
-        val clearance = resources.getDimensionPixelSize(R.dimen.eve_home_bottom_bar_margin_horizontal)
+        val barHeight = resources.getDimensionPixelSize(R.dimen.design_bottom_bar_height)
+        val barBottomMargin = resources.getDimensionPixelSize(R.dimen.design_bottom_bar_margin)
+        val clearance = resources.getDimensionPixelSize(R.dimen.design_screen_margin)
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-            val shadowColor = androidx.core.content.ContextCompat.getColor(this, R.color.eve_home_card_shadow)
-            binding.cardHomeBottomBar.outlineAmbientShadowColor = shadowColor
-            binding.cardHomeBottomBar.outlineSpotShadowColor = shadowColor
-        }
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.cardHomeBottomBar) { view, windowInsets ->
             val gestureInsets = windowInsets.getInsets(
@@ -846,8 +841,8 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun updateBottomNavSelection(selectedIndex: Int) {
-        val accentColor = com.eve.app.designsystem.EveDesignSystem.Colors.homeAccent(this)
-        val secondaryColor = com.eve.app.designsystem.EveDesignSystem.Colors.homeTextSecondary(this)
+        val accentColor = com.eve.app.designsystem.DesignTokens.accent(this)
+        val secondaryColor = com.eve.app.designsystem.DesignTokens.secondary(this)
         binding.ivBottomNavHome.imageTintList = android.content.res.ColorStateList.valueOf(if (selectedIndex == 0) accentColor else secondaryColor)
         binding.ivBottomNavHistory.imageTintList = android.content.res.ColorStateList.valueOf(if (selectedIndex == 1) accentColor else secondaryColor)
         binding.ivBottomNavSaved.imageTintList = android.content.res.ColorStateList.valueOf(if (selectedIndex == 2) accentColor else secondaryColor)
@@ -1007,7 +1002,8 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun setupTopBarDepth() {
-        HomeAppearance.applyTopBarDepth(binding.topBarContainer, binding.searchTopBar)
+        binding.topBarContainer.setBackgroundColor(getColor(R.color.transparent))
+        binding.searchTopBar.setBackgroundColor(getColor(R.color.transparent))
     }
 
     private fun renderHomeBannerCta(position: Int) {

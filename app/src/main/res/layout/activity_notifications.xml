@@ -1,104 +1,26 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/eve_system_grouped_background">
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/eve_system_grouped_background">
 
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-<LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="56dp"
-        android:background="@android:color/transparent"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="4dp"
-        android:paddingVertical="8dp">
+<LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:minHeight="56dp" android:background="@android:color/transparent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingVertical="8dp">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/bg_circle_translucent"
-            android:contentDescription="Back"
-            android:padding="12dp"
-            android:src="@drawable/ic_back"
-            app:tint="?attr/eveLabelPrimary" />
+        <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="?attr/eveLabelPrimary" style="@style/Widget.Eve.Token.IconButton"/>
 
-        <TextView
-            style="@style/TextAppearance.Eve.Headline"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:paddingStart="4dp"
-            android:text="Notifications"
-            android:textColor="?attr/eveLabelPrimary" />
-    </LinearLayout>
+        <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1"/></LinearLayout>
 </com.eve.app.ui.common.EveGlassToolbar>
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="@color/eve_system_grouped_background"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingBottom="@dimen/design_section_gap"><TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingStart="4dp" android:text="Notifications"/>
+    </LinearLayout><FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@color/eve_system_grouped_background" android:clipToPadding="false" android:clipChildren="false">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvNotifications"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layoutAnimation="@anim/layout_enter"
-            android:clipToPadding="false"
-            android:paddingTop="12dp"
-            android:paddingBottom="24dp"
-            android:background="@color/eve_system_grouped_background"
-            android:paddingHorizontal="16dp"
-            android:clipChildren="false"/>
+        <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvNotifications" android:layout_width="match_parent" android:layout_height="match_parent" android:layoutAnimation="@anim/layout_enter" android:clipToPadding="false" android:paddingTop="12dp" android:paddingBottom="24dp" android:background="@color/eve_system_grouped_background" android:paddingHorizontal="16dp" android:clipChildren="false"/>
 
-        <LinearLayout
-            android:id="@+id/emptyGroup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:paddingHorizontal="40dp"
-            android:visibility="gone">
+        <LinearLayout android:id="@+id/emptyGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:orientation="vertical" android:paddingHorizontal="40dp" android:visibility="gone">
 
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/lottieEmpty"
-                android:layout_width="140dp"
-                android:layout_height="140dp"
-                android:background="@android:color/transparent"
-                app:lottie_autoPlay="false"
-                app:lottie_loop="false"
-                app:lottie_rawRes="@raw/notification_bell" />
+            <com.airbnb.lottie.LottieAnimationView android:id="@+id/lottieEmpty" android:layout_width="140dp" android:layout_height="140dp" android:background="@android:color/transparent" app:lottie_autoPlay="false" app:lottie_loop="false" app:lottie_rawRes="@raw/notification_bell"/>
 
-            <TextView
-                style="@style/TextAppearance.Eve.M3.HeadlineSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/eve_space_16"
-                android:gravity="center"
-                android:text="No notifications yet"
-                android:textColor="?attr/eveLabelPrimary"
-                android:textStyle="bold" />
+            <TextView style="@style/TextAppearance.Eve.M3.HeadlineSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/eve_space_16" android:gravity="center" android:text="No notifications yet" android:textColor="?attr/eveLabelPrimary" android:textStyle="bold"/>
 
-            <TextView
-                style="@style/TextAppearance.Eve.Body"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:gravity="center"
-                android:text="New exams and updates will appear here"
-                android:textColor="?attr/eveLabelSecondary" />
+            <TextView style="@style/TextAppearance.Eve.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:gravity="center" android:text="New exams and updates will appear here" android:textColor="?attr/eveLabelSecondary"/>
         </LinearLayout>
     </FrameLayout>
 

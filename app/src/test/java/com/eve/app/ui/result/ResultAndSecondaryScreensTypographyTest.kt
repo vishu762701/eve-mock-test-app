@@ -148,7 +148,7 @@ class ResultAndSecondaryScreensTypographyTest {
 
         val btnReattempt = findElementById(root, "btnReattempt")
         assertNotNull("btnReattempt must exist", btnReattempt)
-        assertEquals("@style/Widget.Eve.Button.OrangePill", getStyleOrAppearance(btnReattempt))
+        assertEquals("@style/Widget.Eve.Token.IconAction", getStyleOrAppearance(btnReattempt))
     }
 
     @Test
@@ -157,7 +157,7 @@ class ResultAndSecondaryScreensTypographyTest {
 
         val tvDetailTitle = findElementById(root, "tvDetailTitle")
         assertNotNull("tvDetailTitle must exist", tvDetailTitle)
-        assertEquals("@style/TextAppearance.Eve.Headline", getStyleOrAppearance(tvDetailTitle))
+        assertEquals("@style/TextAppearance.Eve.Token.Title", getStyleOrAppearance(tvDetailTitle))
 
         val tvStatHeroScore = findElementById(root, "tvStatHeroScore")
         assertNotNull("tvStatHeroScore must exist", tvStatHeroScore)

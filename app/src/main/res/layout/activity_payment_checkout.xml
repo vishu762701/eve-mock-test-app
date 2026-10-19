@@ -1,306 +1,85 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/eve_system_grouped_background"
-    android:orientation="vertical"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/eve_system_grouped_background" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
 
     <!-- Top Bar -->
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-<LinearLayout
-        android:id="@+id/topBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="56dp"
-        android:background="@android:color/transparent"
-        android:elevation="0dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="4dp"
-        android:paddingVertical="8dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+<LinearLayout android:id="@+id/topBar" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:minHeight="56dp" android:background="@android:color/transparent" android:elevation="0dp" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingVertical="8dp" android:clipToPadding="false" android:clipChildren="false">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/bg_circle_translucent"
-            android:contentDescription="Back"
-            android:padding="12dp"
-            android:src="@drawable/ic_back"
-            app:tint="?attr/eveLabelPrimary" />
+        <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="?attr/eveLabelPrimary" style="@style/Widget.Eve.Token.IconButton"/>
 
-        <TextView
-            style="@style/TextAppearance.Eve.Headline"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:text="Payment Checkout"
-            android:textColor="?attr/eveLabelPrimary" />
-    </LinearLayout>
+        <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1"/></LinearLayout>
 </com.eve.app.ui.common.EveGlassToolbar>
 
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:clipToPadding="false"
-        android:overScrollMode="ifContentScrolls"
-        android:background="@color/eve_system_grouped_background"
-            android:clipChildren="false"
-            >
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingBottom="@dimen/design_section_gap"><TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Payment Checkout"/>
+    </LinearLayout><androidx.core.widget.NestedScrollView android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false" android:overScrollMode="ifContentScrolls" android:background="@color/eve_system_grouped_background" android:clipChildren="false">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:padding="20dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_horizontal" android:orientation="vertical" android:padding="20dp" android:clipToPadding="false" android:clipChildren="false">
 
             <!-- Order Summary Card -->
-            <com.google.android.material.card.MaterialCardView
-                style="@style/Widget.Eve.Card.Group"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+            <com.google.android.material.card.MaterialCardView style="@style/Widget.Eve.Card.Group" android:layout_width="match_parent" android:layout_height="wrap_content">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
 
-                    <TextView
-                        android:id="@+id/tvPlanName"
-                        style="@style/TextAppearance.Eve.Subheadline"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        tools:text="Premium Pro" />
+                    <TextView android:id="@+id/tvPlanName" style="@style/TextAppearance.Eve.Subheadline" android:layout_width="wrap_content" android:layout_height="wrap_content" tools:text="Premium Pro"/>
 
-                    <TextView
-                        android:id="@+id/tvAmount"
-                        style="@style/TextAppearance.Eve.Premium.PlanPrice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        tools:text="₹99" />
+                    <TextView android:id="@+id/tvAmount" style="@style/TextAppearance.Eve.Premium.PlanPrice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" tools:text="₹99"/>
 
                     <!-- Countdown Timer Chip -->
-                    <LinearLayout
-                        android:id="@+id/chipTimer"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:background="@drawable/bg_question_timer_chip"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingHorizontal="12dp"
-                        android:paddingVertical="6dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                    <LinearLayout android:id="@+id/chipTimer" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:background="@drawable/bg_question_timer_chip" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="12dp" android:paddingVertical="6dp" android:clipToPadding="false" android:clipChildren="false">
 
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:src="@drawable/ic_timer"
-                            app:tint="@color/eve_text_secondary" />
+                        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_timer" app:tint="@color/eve_text_secondary"/>
 
-                        <TextView
-                            android:id="@+id/tvTimer"
-                            style="@style/TextAppearance.Eve.Footnote.Medium"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="6dp"
-                            tools:text="Complete payment within 09:42" />
+                        <TextView android:id="@+id/tvTimer" style="@style/TextAppearance.Eve.Footnote.Medium" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" tools:text="Complete payment within 09:42"/>
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- 1. QR Code Section -->
-            <LinearLayout
-                android:id="@+id/layoutQrSection"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:visibility="visible"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+            <LinearLayout android:id="@+id/layoutQrSection" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:gravity="center" android:orientation="vertical" android:visibility="visible" android:clipToPadding="false" android:clipChildren="false">
 
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@android:color/white"
-                    app:cardCornerRadius="@dimen/eve_radius_card"
-                    app:cardElevation="0dp"
-                    app:contentPadding="12dp"
-                    app:strokeColor="@color/eve_shape_border"
-                    app:strokeWidth="0dp">
+                <com.google.android.material.card.MaterialCardView android:layout_width="wrap_content" android:layout_height="wrap_content" app:cardBackgroundColor="@android:color/white" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:contentPadding="12dp" app:strokeColor="@color/eve_shape_border" app:strokeWidth="0dp">
 
-                    <ImageView
-                        android:id="@+id/ivQrCode"
-                        android:layout_width="220dp"
-                        android:layout_height="220dp"
-                        android:contentDescription="UPI QR Code"
-                        android:scaleType="fitCenter" />
+                    <ImageView android:id="@+id/ivQrCode" android:layout_width="220dp" android:layout_height="220dp" android:contentDescription="UPI QR Code" android:scaleType="fitCenter"/>
                 </com.google.android.material.card.MaterialCardView>
 
-                <TextView
-                    style="@style/TextAppearance.Eve.Footnote"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:gravity="center"
-                    android:text="Scan with any UPI app (Google Pay, PhonePe, Paytm, BHIM)" />
+                <TextView style="@style/TextAppearance.Eve.Footnote" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:gravity="center" android:text="Scan with any UPI app (Google Pay, PhonePe, Paytm, BHIM)"/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnCopyUpi"
-                    style="@style/Widget.Eve.OutlinedButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="Copy UPI Link" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnCopyUpi" style="@style/Widget.Eve.OutlinedButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Copy UPI Link"/>
             </LinearLayout>
 
             <!-- 2. UPI Intent Section -->
-            <LinearLayout
-                android:id="@+id/layoutUpiSection"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:visibility="gone"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+            <LinearLayout android:id="@+id/layoutUpiSection" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:gravity="center" android:orientation="vertical" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false">
 
-                <ImageView
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:src="@drawable/ic_account_balance"
-                    app:tint="@color/eve_accent" />
+                <ImageView android:layout_width="64dp" android:layout_height="64dp" android:src="@drawable/ic_account_balance" app:tint="@color/eve_accent"/>
 
-                <TextView
-                    style="@style/TextAppearance.Eve.Subheadline"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:gravity="center"
-                    android:text="Tap below to pay directly with any installed UPI app." />
+                <TextView style="@style/TextAppearance.Eve.Subheadline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:gravity="center" android:text="Tap below to pay directly with any installed UPI app."/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnLaunchUpi"
-                    style="@style/Widget.Eve.Button.Primary"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="Pay via UPI App"
-                    android:minHeight="48dp"
-                    android:paddingVertical="8dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnLaunchUpi" style="@style/Widget.Eve.Button.Primary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Pay via UPI App" android:minHeight="48dp" android:paddingVertical="8dp"/>
             </LinearLayout>
 
             <!-- Automatic Polling / Status Section -->
-            <com.google.android.material.card.MaterialCardView
-                style="@style/Widget.Eve.Card.Group"
-                android:id="@+id/cardStatus"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp">
+            <com.google.android.material.card.MaterialCardView style="@style/Widget.Eve.Card.Group" android:id="@+id/cardStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="16dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
 
-                    <ProgressBar
-                        android:id="@+id/progressStatus"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:indeterminateTint="@color/eve_accent" />
+                    <ProgressBar android:id="@+id/progressStatus" android:layout_width="24dp" android:layout_height="24dp" android:indeterminateTint="@color/eve_accent"/>
 
-                    <TextView
-                        android:id="@+id/tvStatusText"
-                        style="@style/TextAppearance.Eve.Footnote"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="14dp"
-                        android:layout_weight="1"
-                        android:text="Waiting for payment... Premium activates automatically once verified." />
+                    <TextView android:id="@+id/tvStatusText" style="@style/TextAppearance.Eve.Footnote" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="14dp" android:layout_weight="1" android:text="Waiting for payment... Premium activates automatically once verified."/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Expired Container -->
-            <LinearLayout
-                android:id="@+id/layoutExpired"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:visibility="gone"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+            <LinearLayout android:id="@+id/layoutExpired" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:gravity="center" android:orientation="vertical" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false">
 
-                <TextView
-                    style="@style/TextAppearance.Eve.Headline"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Payment session expired"
-                    android:textColor="@color/eve_status_error_text" />
+                <TextView style="@style/TextAppearance.Eve.Headline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Payment session expired" android:textColor="@color/eve_status_error_text"/>
 
-                <TextView
-                    style="@style/TextAppearance.Eve.Footnote"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:gravity="center"
-                    android:text="The payment session timed out. Please start a new session." />
+                <TextView style="@style/TextAppearance.Eve.Footnote" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:gravity="center" android:text="The payment session timed out. Please start a new session."/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnRestartPayment"
-                    style="@style/Widget.Eve.Button.Primary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="Start New Payment" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnRestartPayment" style="@style/Widget.Eve.Button.Primary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Start New Payment"/>
             </LinearLayout>
 
             <!-- Sandbox Simulation Button (Requirement 53: Test flow before production) -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSimulateSandbox"
-                style="@style/Widget.Eve.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:text="⚡ Simulate Sandbox Payment (Test Verification)"
-                android:textColor="@color/eve_status_warning_text" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnSimulateSandbox" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="32dp" android:text="⚡ Simulate Sandbox Payment (Test Verification)" android:textColor="@color/eve_status_warning_text"/>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

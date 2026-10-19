@@ -1,813 +1,229 @@
-<?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/eve_system_grouped_background">
+<?xml version='1.0' encoding='utf-8'?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/eve_system_grouped_background">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/eve_system_grouped_background"
-        android:orientation="vertical">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/eve_system_grouped_background" android:orientation="vertical">
 
         <!-- Top App Bar / Header -->
         <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-<LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="16dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp">
+<LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:background="@android:color/transparent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingTop="12dp" android:paddingBottom="12dp">
 
-            <ImageButton
-                android:id="@+id/btnBack"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/bg_circle_translucent"
-                android:stateListAnimator="@animator/press_scale"
-                android:contentDescription="Back"
-                android:padding="12dp"
-                android:src="@drawable/ic_back"
-                app:tint="?attr/eveLabelPrimary" />
+            <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:layout_marginEnd="8dp" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="?attr/eveLabelPrimary" style="@style/Widget.Eve.Token.IconButton"/>
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tvResultTitle"
-                    style="@style/TextAppearance.Eve.Headline"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Test Result"
-                    android:maxLines="2"
-                    android:ellipsize="end"
-                    android:textColor="?attr/eveLabelPrimary" />
-
-                <TextView
-                    android:id="@+id/tvResultSubtitle"
-                    style="@style/TextAppearance.Eve.Footnote"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:textColor="?attr/eveLabelPrimary"
-                    android:visibility="gone" />
-            </LinearLayout>
-
-            <!-- Share Button -->
-            <ImageButton
-                android:id="@+id/btnShare"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/bg_circle_translucent"
-                android:stateListAnimator="@animator/press_scale"
-                android:contentDescription="Share"
-                android:padding="12dp"
-                android:src="@drawable/ic_share"
-                app:tint="?attr/eveLabelPrimary" />
+            <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1"/><!-- Share Button -->
+            <ImageButton android:id="@+id/btnShare" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:layout_marginEnd="8dp" android:contentDescription="Share" android:src="@drawable/ic_share" app:tint="?attr/eveLabelPrimary" style="@style/Widget.Eve.Token.IconButton"/>
 
             <!-- Compact 48dp reattempt action with visible refresh icon and accessible label. -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnReattempt"
-                style="@style/Widget.Eve.Button.OrangePill"
-                android:layout_width="48dp"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:minWidth="0dp"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="8dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:gravity="center"
-                android:fontFamily="sans-serif-medium"
-                android:stateListAnimator="@animator/press_scale"
-                android:contentDescription="@string/reattempt"
-                android:tooltipText="@string/reattempt"
-                android:textAppearance="@style/TextAppearance.Eve.Footnote.Medium"
-                app:icon="@drawable/ic_refresh"
-                app:iconSize="20dp"
-                app:iconGravity="textStart"
-                app:iconPadding="0dp"
-                android:visibility="gone" />
+            <com.eve.app.designsystem.DesignIconActionButton android:id="@+id/btnReattempt" style="@style/Widget.Eve.Token.IconAction" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="@string/reattempt" app:icon="@drawable/ic_refresh" android:visibility="gone"/>
 
             <!-- Legacy IDs preserved in comments for test compatibility: android:id="@+id/layoutActionCluster" android:id="@+id/btnHome" -->
         </LinearLayout>
 </com.eve.app.ui.common.EveGlassToolbar>
 
-        <!-- Viewport holding scrolling content and floating tab strip -->
-        <FrameLayout
-            android:id="@+id/layoutResultViewport"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:clipChildren="false"
-            android:clipToPadding="false">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingBottom="@dimen/design_section_gap"><TextView android:id="@+id/tvResultTitle" style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Test Result"/>
+
+                <TextView android:id="@+id/tvResultSubtitle" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:visibility="gone"/>
+            </LinearLayout><!-- Viewport holding scrolling content and floating tab strip -->
+        <FrameLayout android:id="@+id/layoutResultViewport" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipChildren="false" android:clipToPadding="false">
 
             <!-- Content Container -->
-            <FrameLayout
-                android:id="@+id/layoutResultContentContainer"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipChildren="false"
-                android:clipToPadding="false"
-                android:background="@color/eve_system_grouped_background">
+            <FrameLayout android:id="@+id/layoutResultContentContainer" android:layout_width="match_parent" android:layout_height="match_parent" android:clipChildren="false" android:clipToPadding="false" android:background="@color/eve_system_grouped_background">
 
                 <!-- ========================================================== -->
                 <!-- SECTION 1: OVERVIEW (Tab 1)                                -->
                 <!-- Compact Single-Screen Dashboard (No page scroll on normal screen) -->
                 <!-- ========================================================== -->
-                <androidx.core.widget.NestedScrollView
-                    android:id="@+id/scrollResultContent"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:clipToPadding="false"
-                    android:clipChildren="false"
-                    android:paddingTop="@dimen/eve_result_tab_strip_total_height"
-                    android:paddingBottom="36dp"
-                    android:fillViewport="true"
-                    android:overScrollMode="ifContentScrolls"
-                    android:scrollbars="vertical"
-                    android:visibility="visible"
-                    android:background="@color/eve_system_grouped_background">
+                <androidx.core.widget.NestedScrollView android:id="@+id/scrollResultContent" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" android:paddingTop="@dimen/eve_result_tab_strip_total_height" android:paddingBottom="36dp" android:fillViewport="true" android:overScrollMode="ifContentScrolls" android:scrollbars="vertical" android:visibility="visible" android:background="@color/eve_system_grouped_background">
 
-                    <LinearLayout
-                        android:id="@+id/sectionOverview"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:clipChildren="false"
-                        android:clipToPadding="false"
-                        android:orientation="vertical"
-                        android:paddingHorizontal="16dp"
-                        android:paddingTop="12dp"
-                        android:paddingBottom="24dp">
+                    <LinearLayout android:id="@+id/sectionOverview" android:layout_width="match_parent" android:layout_height="wrap_content" android:clipChildren="false" android:clipToPadding="false" android:orientation="vertical" android:paddingHorizontal="16dp" android:paddingTop="12dp" android:paddingBottom="24dp">
 
                     <!-- Content-measured score hero; clipping and fill share one shape. -->
-                    <com.eve.app.ui.common.EveLiquidGlassView
-                        android:id="@+id/cardResultHero"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:minHeight="0dp"
-                        android:layout_marginBottom="12dp"
-                        app:eveCornerRadius="@dimen/eve_radius_card"
-                        app:eveHasHighlight="false"
-                        app:eveTactile="false">
+                    <com.eve.app.ui.common.EveLiquidGlassView android:id="@+id/cardResultHero" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="0dp" android:layout_marginBottom="12dp" app:eveCornerRadius="@dimen/eve_radius_card" app:eveHasHighlight="false" app:eveTactile="false">
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:orientation="vertical"
-                            android:paddingHorizontal="20dp"
-                            android:layout_gravity="center"
-                            android:paddingVertical="18dp">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:paddingHorizontal="20dp" android:layout_gravity="center" android:paddingVertical="18dp">
 
-                            <TextView
-                                style="@style/TextAppearance.Eve.Result.HeroLabel"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="TOTAL SCORE" />
+                            <TextView style="@style/TextAppearance.Eve.Result.HeroLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="TOTAL SCORE"/>
 
-                            <TextView
-                                android:id="@+id/tvScore"
-                                style="@style/TextAppearance.Eve.Result.HeroScore"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp" />
+                            <TextView android:id="@+id/tvScore" style="@style/TextAppearance.Eve.Result.HeroScore" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp"/>
 
-                            <TextView
-                                android:id="@+id/tvScorePercentage"
-                                style="@style/TextAppearance.Eve.Result.ScoreBadge"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="6dp"
-                                android:background="@drawable/bg_recovery_badge"
-                                android:paddingHorizontal="12dp"
-                                android:paddingVertical="4dp"
-                                android:text="--% Score" />
+                            <TextView android:id="@+id/tvScorePercentage" style="@style/TextAppearance.Eve.Result.ScoreBadge" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:background="@drawable/bg_recovery_badge" android:paddingHorizontal="12dp" android:paddingVertical="4dp" android:text="--% Score"/>
 
-                            <TextView
-                                android:id="@+id/tvStats"
-                                style="@style/TextAppearance.Eve.Caption1"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="6dp"
-                                android:gravity="center"
-                                android:textColor="?attr/eveLabelSecondary"
-                                android:visibility="gone" />
+                            <TextView android:id="@+id/tvStats" style="@style/TextAppearance.Eve.Caption1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:gravity="center" android:textColor="?attr/eveLabelSecondary" android:visibility="gone"/>
                         </LinearLayout>
                     </com.eve.app.ui.common.EveLiquidGlassView>
 
                     <!-- Block 2: Statistics Summary (Header + 4-Tile Row) -->
-                    <LinearLayout
-                        android:id="@+id/headerOverviewStatistics"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingVertical="6dp">
+                    <LinearLayout android:id="@+id/headerOverviewStatistics" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:background="?attr/selectableItemBackground" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:orientation="horizontal" android:paddingVertical="6dp">
 
-                        <TextView
-                            style="@style/TextAppearance.Eve.Heading"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Statistics"
-                            android:textColor="?attr/eveLabelPrimary" />
+                        <TextView style="@style/TextAppearance.Eve.Heading" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Statistics" android:textColor="?attr/eveLabelPrimary"/>
 
-                        <TextView
-                            style="@style/TextAppearance.Eve.Result.ActionLink"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="View Details ›" />
+                        <TextView style="@style/TextAppearance.Eve.Result.ActionLink" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View Details ›"/>
                     </LinearLayout>
 
                     <!-- Equal-width responsive metrics; rows expand for accessible text. -->
-                    <com.eve.app.ui.result.ResultStatisticsGrid
-                        android:id="@+id/rowOverviewStatisticsTiles"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:baselineAligned="false"
-                        android:orientation="horizontal">
+                    <com.eve.app.ui.result.ResultStatisticsGrid android:id="@+id/rowOverviewStatisticsTiles" android:layout_width="match_parent" android:layout_height="wrap_content" android:baselineAligned="false" android:orientation="horizontal">
 
                         <!-- Tile 1: Right -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:minHeight="96dp"
-                            android:layout_marginEnd="12dp"
-                            android:background="@drawable/bg_result_metric_right"
-                            android:gravity="center"
-                            android:orientation="vertical"
-                            android:padding="14dp">
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:minHeight="96dp" android:layout_marginEnd="12dp" android:background="@drawable/bg_result_metric_right" android:gravity="center" android:orientation="vertical" android:padding="14dp">
 
-                            <TextView
-                                android:id="@+id/tvCorrectCount"
-                                style="@style/TextAppearance.Eve.Result.MetricCount"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="0"
-                                android:textColor="@color/eve_tile_right_text" />
+                            <TextView android:id="@+id/tvCorrectCount" style="@style/TextAppearance.Eve.Result.MetricCount" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="0" android:textColor="@color/eve_tile_right_text"/>
 
-                            <TextView
-                                style="@style/TextAppearance.Eve.Result.MetricLabel"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="Right"
-                                android:textColor="@color/eve_tile_right_text" />
+                            <TextView style="@style/TextAppearance.Eve.Result.MetricLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Right" android:textColor="@color/eve_tile_right_text"/>
                         </LinearLayout>
 
                         <!-- Tile 2: Wrong -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:minHeight="96dp"
-                            android:layout_marginEnd="12dp"
-                            android:background="@drawable/bg_result_metric_wrong"
-                            android:gravity="center"
-                            android:orientation="vertical"
-                            android:padding="14dp">
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:minHeight="96dp" android:layout_marginEnd="12dp" android:background="@drawable/bg_result_metric_wrong" android:gravity="center" android:orientation="vertical" android:padding="14dp">
 
-                            <TextView
-                                android:id="@+id/tvWrongCount"
-                                style="@style/TextAppearance.Eve.Result.MetricCount"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="0"
-                                android:textColor="@color/eve_tile_wrong_text" />
+                            <TextView android:id="@+id/tvWrongCount" style="@style/TextAppearance.Eve.Result.MetricCount" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="0" android:textColor="@color/eve_tile_wrong_text"/>
 
-                            <TextView
-                                style="@style/TextAppearance.Eve.Result.MetricLabel"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="Wrong"
-                                android:textColor="@color/eve_tile_wrong_text" />
+                            <TextView style="@style/TextAppearance.Eve.Result.MetricLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Wrong" android:textColor="@color/eve_tile_wrong_text"/>
                         </LinearLayout>
 
                         <!-- Tile 3: Unattempted -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:minHeight="96dp"
-                            android:layout_marginEnd="12dp"
-                            android:background="@drawable/bg_result_metric_unattempted"
-                            android:gravity="center"
-                            android:orientation="vertical"
-                            android:padding="14dp">
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:minHeight="96dp" android:layout_marginEnd="12dp" android:background="@drawable/bg_result_metric_unattempted" android:gravity="center" android:orientation="vertical" android:padding="14dp">
 
-                            <TextView
-                                android:id="@+id/tvUnattemptedCount"
-                                style="@style/TextAppearance.Eve.Result.MetricCount"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="0"
-                                android:textColor="?attr/eveLabelPrimary" />
+                            <TextView android:id="@+id/tvUnattemptedCount" style="@style/TextAppearance.Eve.Result.MetricCount" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="0" android:textColor="?attr/eveLabelPrimary"/>
 
-                            <TextView
-                                style="@style/TextAppearance.Eve.Result.MetricLabel"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="Unattempted"
-                                android:textColor="?attr/eveLabelSecondary" />
+                            <TextView style="@style/TextAppearance.Eve.Result.MetricLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Unattempted" android:textColor="?attr/eveLabelSecondary"/>
                         </LinearLayout>
 
                         <!-- Tile 4: Accuracy -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:minHeight="96dp"
-                            android:background="@drawable/bg_result_metric_medium"
-                            android:gravity="center"
-                            android:orientation="vertical"
-                            android:padding="14dp">
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:minHeight="96dp" android:background="@drawable/bg_result_metric_medium" android:gravity="center" android:orientation="vertical" android:padding="14dp">
 
-                            <TextView
-                                android:id="@+id/tvAccuracy"
-                                style="@style/TextAppearance.Eve.Result.MetricCount"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="--%"
-                                android:textColor="@color/eve_tile_medium_text" />
+                            <TextView android:id="@+id/tvAccuracy" style="@style/TextAppearance.Eve.Result.MetricCount" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="--%" android:textColor="@color/eve_tile_medium_text"/>
 
-                            <TextView
-                                style="@style/TextAppearance.Eve.Result.MetricLabel"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="Accuracy"
-                                android:textColor="@color/eve_tile_medium_text" />
+                            <TextView style="@style/TextAppearance.Eve.Result.MetricLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Accuracy" android:textColor="@color/eve_tile_medium_text"/>
                         </LinearLayout>
                     </com.eve.app.ui.result.ResultStatisticsGrid>
 
                     <!-- Block 3: Performance Summary (Header + Card) -->
-                    <LinearLayout
-                        android:id="@+id/headerOverviewPerformance"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginBottom="8dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingVertical="6dp">
+                    <LinearLayout android:id="@+id/headerOverviewPerformance" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:layout_marginBottom="8dp" android:background="?attr/selectableItemBackground" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:orientation="horizontal" android:paddingVertical="6dp">
 
-                        <TextView
-                            style="@style/TextAppearance.Eve.Heading"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Performance Standing"
-                            android:textColor="?attr/eveLabelPrimary" />
+                        <TextView style="@style/TextAppearance.Eve.Heading" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Performance Standing" android:textColor="?attr/eveLabelPrimary"/>
 
-                        <TextView
-                            style="@style/TextAppearance.Eve.Result.ActionLink"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="View Details ›" />
+                        <TextView style="@style/TextAppearance.Eve.Result.ActionLink" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View Details ›"/>
                     </LinearLayout>
 
-                    <com.google.android.material.card.MaterialCardView
-                        style="@style/Widget.Eve.Card.Group"
-                        android:id="@+id/cardPerformanceStanding"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:minHeight="0dp"
-                        android:layout_marginBottom="12dp"
-                        android:clickable="true"
-                        android:focusable="true">
+                    <com.google.android.material.card.MaterialCardView style="@style/Widget.Eve.Card.Group" android:id="@+id/cardPerformanceStanding" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="0dp" android:layout_marginBottom="12dp" android:clickable="true" android:focusable="true">
 
-                        <com.eve.app.ui.result.ResponsiveResultRow
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:baselineAligned="false"
-                            android:orientation="horizontal"
-                            android:padding="14dp">
+                        <com.eve.app.ui.result.ResponsiveResultRow android:layout_width="match_parent" android:layout_height="wrap_content" android:baselineAligned="false" android:orientation="horizontal" android:padding="14dp">
 
                             <!-- Left: Rank & Percentile -->
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginEnd="8dp"
-                                android:orientation="vertical">
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginEnd="8dp" android:orientation="vertical">
 
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginBottom="8dp"
-                                    android:background="@drawable/bg_recovery_inset"
-                                    android:orientation="vertical"
-                                    android:paddingHorizontal="12dp"
-                                    android:paddingVertical="8dp">
+                                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:background="@drawable/bg_recovery_inset" android:orientation="vertical" android:paddingHorizontal="12dp" android:paddingVertical="8dp">
 
-                                    <TextView
-                                        style="@style/TextAppearance.Eve.Result.InsetLabel"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:text="Overall Rank" />
+                                    <TextView style="@style/TextAppearance.Eve.Result.InsetLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Overall Rank"/>
 
-                                    <TextView
-                                        android:id="@+id/tvRank"
-                                        style="@style/TextAppearance.Eve.Result.InsetValue"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="2dp"
-                                        android:text="-- / --" />
+                                    <TextView android:id="@+id/tvRank" style="@style/TextAppearance.Eve.Result.InsetValue" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="-- / --"/>
                                 </LinearLayout>
 
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:background="@drawable/bg_recovery_inset"
-                                    android:orientation="vertical"
-                                    android:paddingHorizontal="12dp"
-                                    android:paddingVertical="8dp">
+                                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_recovery_inset" android:orientation="vertical" android:paddingHorizontal="12dp" android:paddingVertical="8dp">
 
-                                    <TextView
-                                        style="@style/TextAppearance.Eve.Result.InsetLabel"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:text="Percentile Score" />
+                                    <TextView style="@style/TextAppearance.Eve.Result.InsetLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Percentile Score"/>
 
-                                    <TextView
-                                        android:id="@+id/tvPercentile"
-                                        style="@style/TextAppearance.Eve.Result.InsetValue"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="2dp"
-                                        android:text="--%" />
+                                    <TextView android:id="@+id/tvPercentile" style="@style/TextAppearance.Eve.Result.InsetValue" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="--%"/>
                                 </LinearLayout>
                             </LinearLayout>
 
                             <!-- Right: Batch & Historical -->
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginStart="8dp"
-                                android:orientation="vertical">
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="8dp" android:orientation="vertical">
 
-                                <LinearLayout
-                                    android:id="@+id/pillBatchPerformance"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:minHeight="40dp"
-                                    android:layout_marginBottom="8dp"
-                                    android:background="@drawable/bg_recovery_inset"
-                                    android:gravity="center_vertical"
-                                    android:orientation="vertical"
-                                    android:paddingHorizontal="10dp"
-                                    android:paddingVertical="4dp">
+                                <LinearLayout android:id="@+id/pillBatchPerformance" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="40dp" android:layout_marginBottom="8dp" android:background="@drawable/bg_recovery_inset" android:gravity="center_vertical" android:orientation="vertical" android:paddingHorizontal="10dp" android:paddingVertical="4dp">
 
-                                    <TextView
-                                        style="@style/TextAppearance.Eve.Result.InsetLabel"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:text="Batch Performance"
-                                        android:textColor="?attr/eveLabelPrimary" />
+                                    <TextView style="@style/TextAppearance.Eve.Result.InsetLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Batch Performance" android:textColor="?attr/eveLabelPrimary"/>
 
-                                    <TextView
-                                        android:id="@+id/tvTopperAvg"
-                                        style="@style/TextAppearance.Eve.Caption1"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="2dp"
-                                        android:text="Topper: -- • Avg: --"
-                                        android:textColor="?attr/eveLabelSecondary" />
+                                    <TextView android:id="@+id/tvTopperAvg" style="@style/TextAppearance.Eve.Caption1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Topper: -- • Avg: --" android:textColor="?attr/eveLabelSecondary"/>
                                 </LinearLayout>
 
-                                <LinearLayout
-                                    android:id="@+id/pillHistoricalPerformance"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:minHeight="40dp"
-                                    android:background="@drawable/bg_recovery_inset"
-                                    android:gravity="center_vertical"
-                                    android:orientation="vertical"
-                                    android:paddingHorizontal="10dp"
-                                    android:paddingVertical="4dp">
+                                <LinearLayout android:id="@+id/pillHistoricalPerformance" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="40dp" android:background="@drawable/bg_recovery_inset" android:gravity="center_vertical" android:orientation="vertical" android:paddingHorizontal="10dp" android:paddingVertical="4dp">
 
-                                    <TextView
-                                        style="@style/TextAppearance.Eve.Result.InsetLabel"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:text="Historical Best &amp; Avg"
-                                        android:textColor="?attr/eveLabelPrimary" />
+                                    <TextView style="@style/TextAppearance.Eve.Result.InsetLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Historical Best &amp; Avg" android:textColor="?attr/eveLabelPrimary"/>
 
-                                    <TextView
-                                        android:id="@+id/tvHistoryBestAvg"
-                                        style="@style/TextAppearance.Eve.Caption1"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="2dp"
-                                        android:text="-- / --"
-                                        android:textColor="?attr/eveLabelSecondary" />
+                                    <TextView android:id="@+id/tvHistoryBestAvg" style="@style/TextAppearance.Eve.Caption1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="-- / --" android:textColor="?attr/eveLabelSecondary"/>
                                 </LinearLayout>
                             </LinearLayout>
                         </com.eve.app.ui.result.ResponsiveResultRow>
                     </com.google.android.material.card.MaterialCardView>
 
                     <!-- Block 4: Cutoff Summary -->
-                    <LinearLayout
-                        android:id="@+id/sectionCutoff"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:clipChildren="false"
-                        android:clipToPadding="false"
-                        android:orientation="vertical">
+                    <LinearLayout android:id="@+id/sectionCutoff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:clipChildren="false" android:clipToPadding="false" android:orientation="vertical">
 
-                        <com.google.android.material.card.MaterialCardView
-                            style="@style/Widget.Eve.Card.Group"
-                            android:id="@+id/cardCutoffVerdict"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="12dp">
+                        <com.google.android.material.card.MaterialCardView style="@style/Widget.Eve.Card.Group" android:id="@+id/cardCutoffVerdict" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp">
 
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:padding="16dp">
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
 
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center_vertical"
-                                    android:orientation="vertical">
+                                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="vertical">
 
-                                    <TextView
-                                        style="@style/TextAppearance.Eve.Result.InsetLabel"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:text="Selected Category:" />
+                                    <TextView style="@style/TextAppearance.Eve.Result.InsetLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Selected Category:"/>
 
-                                    <TextView
-                                        android:id="@+id/tvCutoffSelectedCategory"
-                                        style="@style/TextAppearance.Eve.Caption1.Medium"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="8dp"
-                                        android:minHeight="48dp"
-                                        android:background="@drawable/bg_recovery_inset"
-                                        android:clickable="true"
-                                        android:focusable="true"
-                                        android:gravity="center_vertical"
-                                        android:paddingHorizontal="12dp"
-                                        android:paddingVertical="6dp"
-                                        android:text="General"
-                                        android:textColor="?attr/eveLabelPrimary"
-                                        app:drawableEndCompat="@drawable/ic_chevron_down"
-                                        app:drawableTint="@color/eve_text"
-                                        android:drawablePadding="6dp" />
+                                    <TextView android:id="@+id/tvCutoffSelectedCategory" style="@style/TextAppearance.Eve.Caption1.Medium" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:minHeight="48dp" android:background="@drawable/bg_recovery_inset" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:paddingHorizontal="12dp" android:paddingVertical="6dp" android:text="General" android:textColor="?attr/eveLabelPrimary" app:drawableEndCompat="@drawable/ic_chevron_down" app:drawableTint="@color/eve_text" android:drawablePadding="6dp"/>
 
-                                    <View
-                                        android:layout_width="0dp"
-                                        android:layout_height="0dp"
-                                        android:layout_weight="1" />
+                                    <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1"/>
 
-                                    <TextView
-                                        android:id="@+id/tvCutoffVerdict"
-                                        style="@style/TextAppearance.Eve.Caption1.Medium"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:background="@drawable/bg_recovery_inset"
-                                        android:paddingHorizontal="10dp"
-                                        android:paddingVertical="4dp"
-                                        android:text="Checking..."
-                                        android:textColor="?attr/eveLabelSecondary" />
+                                    <TextView android:id="@+id/tvCutoffVerdict" style="@style/TextAppearance.Eve.Caption1.Medium" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_recovery_inset" android:paddingHorizontal="10dp" android:paddingVertical="4dp" android:text="Checking..." android:textColor="?attr/eveLabelSecondary"/>
                                 </LinearLayout>
 
-                                <View
-                                    android:layout_width="match_parent"
-                                    android:layout_height="1dp"
-                                    android:layout_marginVertical="12dp"
-                                    android:background="@color/eve_stroke" />
+                                <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginVertical="12dp" android:background="@color/eve_stroke"/>
 
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal">
+                                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
 
-                                    <LinearLayout
-                                        android:layout_width="0dp"
-                                        android:layout_height="wrap_content"
-                                        android:layout_weight="1"
-                                        android:orientation="vertical">
+                                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
 
-                                        <TextView
-                                            style="@style/TextAppearance.Eve.Result.InsetLabel"
-                                            android:layout_width="match_parent"
-                                            android:layout_height="wrap_content"
-                                            android:text="Required Cutoff" />
+                                        <TextView style="@style/TextAppearance.Eve.Result.InsetLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Required Cutoff"/>
 
-                                        <TextView
-                                            android:id="@+id/tvCutoffValue"
-                                            style="@style/TextAppearance.Eve.Result.InsetValue"
-                                            android:layout_width="match_parent"
-                                            android:layout_height="wrap_content"
-                                            android:layout_marginTop="3dp"
-                                            android:text="Cutoff: --"
-                                            android:textColor="@color/eve_text" />
+                                        <TextView android:id="@+id/tvCutoffValue" style="@style/TextAppearance.Eve.Result.InsetValue" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="Cutoff: --" android:textColor="@color/eve_text"/>
                                     </LinearLayout>
 
-                                    <LinearLayout
-                                        android:layout_width="0dp"
-                                        android:layout_height="wrap_content"
-                                        android:layout_weight="1"
-                                        android:orientation="vertical">
+                                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
 
-                                        <TextView
-                                            style="@style/TextAppearance.Eve.Result.InsetLabel"
-                                            android:layout_width="match_parent"
-                                            android:layout_height="wrap_content"
-                                            android:text="Your Score" />
+                                        <TextView style="@style/TextAppearance.Eve.Result.InsetLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Your Score"/>
 
-                                        <TextView
-                                            android:id="@+id/tvCutoffScore"
-                                            style="@style/TextAppearance.Eve.Result.InsetValue"
-                                            android:layout_width="match_parent"
-                                            android:layout_height="wrap_content"
-                                            android:layout_marginTop="3dp"
-                                            android:text="Score: --"
-                                            android:textColor="@color/eve_text" />
+                                        <TextView android:id="@+id/tvCutoffScore" style="@style/TextAppearance.Eve.Result.InsetValue" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="Score: --" android:textColor="@color/eve_text"/>
                                     </LinearLayout>
                                 </LinearLayout>
 
-                                <TextView
-                                    android:id="@+id/tvCutoffRelationship"
-                                    style="@style/TextAppearance.Eve.Footnote"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="10dp"
-                                    android:lineSpacingExtra="2dp"
-                                    android:text="Qualification verdict message."
-                                    android:textColor="?attr/eveLabelSecondary" />
+                                <TextView android:id="@+id/tvCutoffRelationship" style="@style/TextAppearance.Eve.Footnote" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:lineSpacingExtra="2dp" android:text="Qualification verdict message." android:textColor="?attr/eveLabelSecondary"/>
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
                     </LinearLayout>
 
                     <!-- Block 5: Analytics Summary (Header + Gauge & Metrics Card) -->
-                    <LinearLayout
-                        android:id="@+id/headerOverviewAnalytics"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginBottom="8dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingVertical="6dp">
+                    <LinearLayout android:id="@+id/headerOverviewAnalytics" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:layout_marginBottom="8dp" android:background="?attr/selectableItemBackground" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:orientation="horizontal" android:paddingVertical="6dp">
 
-                        <TextView
-                            style="@style/TextAppearance.Eve.Heading"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Analytics &amp; Insights"
-                            android:textColor="?attr/eveLabelPrimary" />
+                        <TextView style="@style/TextAppearance.Eve.Heading" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Analytics &amp; Insights" android:textColor="?attr/eveLabelPrimary"/>
 
-                        <TextView
-                            style="@style/TextAppearance.Eve.Result.ActionLink"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="View Details ›" />
+                        <TextView style="@style/TextAppearance.Eve.Result.ActionLink" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View Details ›"/>
                     </LinearLayout>
 
-                    <com.google.android.material.card.MaterialCardView
-                        style="@style/Widget.Eve.Card.Group"
-                        android:id="@+id/cardOverviewAnalytics"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:clickable="true"
-                        android:focusable="true">
+                    <com.google.android.material.card.MaterialCardView style="@style/Widget.Eve.Card.Group" android:id="@+id/cardOverviewAnalytics" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:clickable="true" android:focusable="true">
 
-                        <com.eve.app.ui.result.ResponsiveResultRow
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:baselineAligned="false"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:padding="16dp"
-                            app:eveHorizontalBreakpoint="366dp">
+                        <com.eve.app.ui.result.ResponsiveResultRow android:layout_width="match_parent" android:layout_height="wrap_content" android:baselineAligned="false" android:gravity="center_vertical" android:orientation="horizontal" android:padding="16dp" app:eveHorizontalBreakpoint="366dp">
 
                             <!-- Semicircle Gauge -->
-                            <com.eve.app.ui.result.SemiCircleGaugeView
-                                android:id="@+id/gaugeTopicAccuracy"
-                                android:layout_width="92dp"
-                                android:layout_height="62dp"
-                                android:layout_marginEnd="14dp" />
+                            <com.eve.app.ui.result.SemiCircleGaugeView android:id="@+id/gaugeTopicAccuracy" android:layout_width="92dp" android:layout_height="62dp" android:layout_marginEnd="14dp"/>
 
                             <!-- 3 Mini Stats -->
-                            <com.eve.app.ui.result.ResponsiveResultRow
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:baselineAligned="false"
-                                android:orientation="horizontal">
+                            <com.eve.app.ui.result.ResponsiveResultRow android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:baselineAligned="false" android:orientation="horizontal">
 
-                                <LinearLayout
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:layout_marginEnd="6dp"
-                                    android:background="@drawable/bg_recovery_inset"
-                                    android:gravity="center"
-                                    android:orientation="vertical"
-                                    android:padding="8dp">
+                                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginEnd="6dp" android:background="@drawable/bg_recovery_inset" android:gravity="center" android:orientation="vertical" android:padding="8dp">
 
-                                    <TextView
-                                        android:id="@+id/tvAnalysisAttempted"
-                                        style="@style/TextAppearance.Eve.Result.InsetValue"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:gravity="center"
-                                        android:text="0%" />
+                                    <TextView android:id="@+id/tvAnalysisAttempted" style="@style/TextAppearance.Eve.Result.InsetValue" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="0%"/>
 
-                                    <TextView
-                                        style="@style/TextAppearance.Eve.Caption1.Medium"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="2dp"
-                                        android:gravity="center"
-                                        android:text="Attempted"
-                                        android:textColor="?attr/eveLabelSecondary" />
+                                    <TextView style="@style/TextAppearance.Eve.Caption1.Medium" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:gravity="center" android:text="Attempted" android:textColor="?attr/eveLabelSecondary"/>
                                 </LinearLayout>
 
-                                <LinearLayout
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:layout_marginEnd="6dp"
-                                    android:background="@drawable/bg_recovery_inset"
-                                    android:gravity="center"
-                                    android:orientation="vertical"
-                                    android:padding="8dp">
+                                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginEnd="6dp" android:background="@drawable/bg_recovery_inset" android:gravity="center" android:orientation="vertical" android:padding="8dp">
 
-                                    <TextView
-                                        android:id="@+id/tvAnalysisAccuracy"
-                                        style="@style/TextAppearance.Eve.Result.InsetValue"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:gravity="center"
-                                        android:text="0%"
-                                        android:textColor="@color/eve_tile_right_text" />
+                                    <TextView android:id="@+id/tvAnalysisAccuracy" style="@style/TextAppearance.Eve.Result.InsetValue" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="0%" android:textColor="@color/eve_tile_right_text"/>
 
-                                    <TextView
-                                        style="@style/TextAppearance.Eve.Caption1.Medium"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="2dp"
-                                        android:gravity="center"
-                                        android:text="Accuracy"
-                                        android:textColor="?attr/eveLabelSecondary" />
+                                    <TextView style="@style/TextAppearance.Eve.Caption1.Medium" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:gravity="center" android:text="Accuracy" android:textColor="?attr/eveLabelSecondary"/>
                                 </LinearLayout>
 
-                                <LinearLayout
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:background="@drawable/bg_recovery_inset"
-                                    android:gravity="center"
-                                    android:orientation="vertical"
-                                    android:padding="8dp">
+                                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:background="@drawable/bg_recovery_inset" android:gravity="center" android:orientation="vertical" android:padding="8dp">
 
-                                    <TextView
-                                        android:id="@+id/tvAnalysisAvgTime"
-                                        style="@style/TextAppearance.Eve.Result.InsetValue"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:gravity="center"
-                                        android:text="0s" />
+                                    <TextView android:id="@+id/tvAnalysisAvgTime" style="@style/TextAppearance.Eve.Result.InsetValue" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="0s"/>
 
-                                    <TextView
-                                        style="@style/TextAppearance.Eve.Caption1.Medium"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="2dp"
-                                        android:gravity="center"
-                                        android:text="Avg / Q"
-                                        android:textColor="?attr/eveLabelSecondary" />
+                                    <TextView style="@style/TextAppearance.Eve.Caption1.Medium" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:gravity="center" android:text="Avg / Q" android:textColor="?attr/eveLabelSecondary"/>
                                 </LinearLayout>
                             </com.eve.app.ui.result.ResponsiveResultRow>
                         </com.eve.app.ui.result.ResponsiveResultRow>
@@ -820,204 +236,63 @@
             <!-- SECTION 2: ANSWER REVIEW (Tab 0)                           -->
             <!-- No page-level scroll! Pinned palette, chips, bounded viewport -->
             <!-- ========================================================== -->
-            <LinearLayout
-                android:id="@+id/sectionReview"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipChildren="false"
-                android:clipToPadding="false"
-                android:paddingTop="@dimen/eve_result_tab_strip_total_height"
-                android:orientation="vertical"
-                android:visibility="gone">
+            <LinearLayout android:id="@+id/sectionReview" android:layout_width="match_parent" android:layout_height="match_parent" android:clipChildren="false" android:clipToPadding="false" android:paddingTop="@dimen/eve_result_tab_strip_total_height" android:orientation="vertical" android:visibility="gone">
 
                 <!-- Question Palette Navigation (Pinned at top, compact) -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
-                    android:background="@color/eve_surface"
-                    android:orientation="vertical"
-                    android:paddingTop="6dp"
-                    android:paddingBottom="4dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:clipChildren="false" android:clipToPadding="false" android:background="@color/eve_surface" android:orientation="vertical" android:paddingTop="6dp" android:paddingBottom="4dp">
 
-                    <com.eve.app.ui.result.ResponsiveResultRow
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        app:eveHorizontalBreakpoint="300dp"
-                        android:paddingHorizontal="16dp">
+                    <com.eve.app.ui.result.ResponsiveResultRow android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" app:eveHorizontalBreakpoint="300dp" android:paddingHorizontal="16dp">
 
-                        <TextView
-                            android:id="@+id/tvReviewPaletteTitle"
-                            style="@style/TextAppearance.Eve.Subheadline.Medium"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Question Palette"
-                            android:textColor="@color/eve_text" />
+                        <TextView android:id="@+id/tvReviewPaletteTitle" style="@style/TextAppearance.Eve.Subheadline.Medium" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Question Palette" android:textColor="@color/eve_text"/>
 
                         <!-- Palette Legend -->
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
 
                             <!-- Correct Dot -->
-                            <View
-                                android:layout_width="7dp"
-                                android:layout_height="7dp"
-                                android:background="@drawable/ic_status_circle_right" />
+                            <View android:layout_width="7dp" android:layout_height="7dp" android:background="@drawable/ic_status_circle_right"/>
 
-                            <TextView
-                                style="@style/TextAppearance.Eve.Caption1.Medium"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="4dp"
-                                android:layout_marginEnd="8dp"
-                                android:text="Right"
-                                android:textColor="?attr/eveLabelSecondary" />
+                            <TextView style="@style/TextAppearance.Eve.Caption1.Medium" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:layout_marginEnd="8dp" android:text="Right" android:textColor="?attr/eveLabelSecondary"/>
 
                             <!-- Wrong Dot -->
-                            <View
-                                android:layout_width="7dp"
-                                android:layout_height="7dp"
-                                android:background="@drawable/ic_status_circle_wrong" />
+                            <View android:layout_width="7dp" android:layout_height="7dp" android:background="@drawable/ic_status_circle_wrong"/>
 
-                            <TextView
-                                style="@style/TextAppearance.Eve.Caption1.Medium"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="4dp"
-                                android:layout_marginEnd="8dp"
-                                android:text="Wrong"
-                                android:textColor="?attr/eveLabelSecondary" />
+                            <TextView style="@style/TextAppearance.Eve.Caption1.Medium" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:layout_marginEnd="8dp" android:text="Wrong" android:textColor="?attr/eveLabelSecondary"/>
 
                             <!-- Skipped Dot -->
-                            <View
-                                android:layout_width="7dp"
-                                android:layout_height="7dp"
-                                android:background="@drawable/ic_status_circle_unattempted" />
+                            <View android:layout_width="7dp" android:layout_height="7dp" android:background="@drawable/ic_status_circle_unattempted"/>
 
-                            <TextView
-                                style="@style/TextAppearance.Eve.Caption1.Medium"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="4dp"
-                                android:text="Skipped"
-                                android:textColor="?attr/eveLabelSecondary" />
+                            <TextView style="@style/TextAppearance.Eve.Caption1.Medium" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:text="Skipped" android:textColor="?attr/eveLabelSecondary"/>
                         </LinearLayout>
                     </com.eve.app.ui.result.ResponsiveResultRow>
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rvResultPalette"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:clipChildren="false"
-                        android:clipToPadding="false"
-                        android:orientation="horizontal"
-                        android:paddingHorizontal="12dp"
-                        android:paddingTop="3dp"
-                        android:paddingBottom="2dp"
-                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+                    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvResultPalette" android:layout_width="match_parent" android:layout_height="wrap_content" android:clipChildren="false" android:clipToPadding="false" android:orientation="horizontal" android:paddingHorizontal="12dp" android:paddingTop="3dp" android:paddingBottom="2dp" app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
                 </LinearLayout>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/eve_stroke" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/eve_stroke"/>
 
                 <!-- Review Filter Chips: Right, Wrong, Unattempted (Pinned at top, compact) -->
-                <HorizontalScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
-                    android:layout_marginTop="3dp"
-                    android:layout_marginBottom="2dp"
-                    android:scrollbars="none">
+                <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:clipChildren="false" android:clipToPadding="false" android:layout_marginTop="3dp" android:layout_marginBottom="2dp" android:scrollbars="none">
 
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/chipGroupFilter"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="16dp"
-                        app:singleLine="true"
-                        app:singleSelection="true">
+                    <com.google.android.material.chip.ChipGroup android:id="@+id/chipGroupFilter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" app:singleLine="true" app:singleSelection="true">
 
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipCorrect"
-                            style="@style/Widget.Eve.CategoryChip"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Right" />
+                        <com.google.android.material.chip.Chip android:id="@+id/chipCorrect" style="@style/Widget.Eve.CategoryChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Right"/>
 
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipWrong"
-                            style="@style/Widget.Eve.CategoryChip"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Wrong" />
+                        <com.google.android.material.chip.Chip android:id="@+id/chipWrong" style="@style/Widget.Eve.CategoryChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Wrong"/>
 
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipNotAttempted"
-                            style="@style/Widget.Eve.CategoryChip"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Unattempted" />
+                        <com.google.android.material.chip.Chip android:id="@+id/chipNotAttempted" style="@style/Widget.Eve.CategoryChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Unattempted"/>
                     </com.google.android.material.chip.ChipGroup>
                 </HorizontalScrollView>
 
                 <!-- Isolated Question Review Area (Bounded Viewport with internal scroll) -->
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
-                    android:background="@color/eve_system_grouped_background">
+                <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipChildren="false" android:clipToPadding="false" android:background="@color/eve_system_grouped_background">
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rvAnswers"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:clipChildren="false"
-                        android:clipToPadding="false"
-                        android:nestedScrollingEnabled="true"
-                        android:paddingHorizontal="14dp"
-                        android:paddingTop="2dp"
-                        android:paddingBottom="16dp" />
+                    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvAnswers" android:layout_width="match_parent" android:layout_height="match_parent" android:clipChildren="false" android:clipToPadding="false" android:nestedScrollingEnabled="true" android:paddingHorizontal="14dp" android:paddingTop="2dp" android:paddingBottom="16dp"/>
 
-                    <LinearLayout
-                        android:id="@+id/layoutEmptyFilter"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:padding="32dp"
-                        android:visibility="gone">
+                    <LinearLayout android:id="@+id/layoutEmptyFilter" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:orientation="vertical" android:padding="32dp" android:visibility="gone">
 
-                        <TextView
-                            android:id="@+id/tvEmptyFilterTitle"
-                            style="@style/TextAppearance.Eve.Headline"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="No questions found"
-                            android:textColor="@color/eve_text" />
+                        <TextView android:id="@+id/tvEmptyFilterTitle" style="@style/TextAppearance.Eve.Headline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="No questions found" android:textColor="@color/eve_text"/>
 
-                        <TextView
-                            android:id="@+id/tvEmptyFilterSub"
-                            style="@style/TextAppearance.Eve.Footnote"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            android:gravity="center"
-                            android:text="Select another filter above or tap any question on the palette."
-                            android:textColor="?attr/eveLabelSecondary" />
+                        <TextView android:id="@+id/tvEmptyFilterSub" style="@style/TextAppearance.Eve.Footnote" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:gravity="center" android:text="Select another filter above or tap any question on the palette." android:textColor="?attr/eveLabelSecondary"/>
                     </LinearLayout>
                 </FrameLayout>
             </LinearLayout>
@@ -1025,119 +300,31 @@
             <!-- ========================================================== -->
             <!-- SECTION 3: LEADERBOARD (Tab 2)                             -->
             <!-- ========================================================== -->
-            <androidx.core.widget.NestedScrollView
-                android:id="@+id/scrollLeaderboard"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipChildren="false"
-                android:clipToPadding="false"
-                android:paddingTop="@dimen/eve_result_tab_strip_total_height"
-                android:paddingBottom="36dp"
-                android:fillViewport="true"
-                android:visibility="gone"
-                android:overScrollMode="ifContentScrolls"
-                android:background="@color/eve_system_grouped_background">
+            <androidx.core.widget.NestedScrollView android:id="@+id/scrollLeaderboard" android:layout_width="match_parent" android:layout_height="match_parent" android:clipChildren="false" android:clipToPadding="false" android:paddingTop="@dimen/eve_result_tab_strip_total_height" android:paddingBottom="36dp" android:fillViewport="true" android:visibility="gone" android:overScrollMode="ifContentScrolls" android:background="@color/eve_system_grouped_background">
 
-                <LinearLayout
-                    android:id="@+id/sectionLeaderboard"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                <LinearLayout android:id="@+id/sectionLeaderboard" android:layout_width="match_parent" android:layout_height="wrap_content" android:clipChildren="false" android:clipToPadding="false" android:orientation="vertical" android:padding="16dp">
 
-                    <com.google.android.material.card.MaterialCardView
-                        style="@style/Widget.Eve.Card.Group"
-                        android:id="@+id/cardLeaderboardHero"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp">
+                    <com.google.android.material.card.MaterialCardView style="@style/Widget.Eve.Card.Group" android:id="@+id/cardLeaderboardHero" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp">
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_horizontal"
-                            android:orientation="vertical"
-                            android:padding="20dp">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_horizontal" android:orientation="vertical" android:padding="20dp">
 
-                            <FrameLayout
-                                android:layout_width="48dp"
-                                android:layout_height="48dp"
-                                android:background="@drawable/bg_circle_badge">
+                            <FrameLayout android:layout_width="48dp" android:layout_height="48dp" android:background="@drawable/bg_circle_badge">
 
-                                <ImageView
-                                    android:layout_width="32dp"
-                                    android:layout_height="32dp"
-                                    android:layout_gravity="center"
-                                    android:contentDescription="Leaderboard Trophy"
-                                    android:src="@drawable/ic_trophy"
-                                    app:tint="@color/eve_gold" />
+                                <ImageView android:layout_width="32dp" android:layout_height="32dp" android:layout_gravity="center" android:contentDescription="Leaderboard Trophy" android:src="@drawable/ic_trophy" app:tint="@color/eve_gold"/>
                             </FrameLayout>
 
-                            <TextView
-                                android:id="@+id/tvLeaderboardTabRank"
-                                style="@style/TextAppearance.Eve.Leaderboard.HeroRank"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="16dp"
-                                android:text="-- / --" />
+                            <TextView android:id="@+id/tvLeaderboardTabRank" style="@style/TextAppearance.Eve.Leaderboard.HeroRank" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="-- / --"/>
 
-                            <TextView
-                                android:id="@+id/tvLeaderboardTabSubtitle"
-                                style="@style/TextAppearance.Eve.Subheadline"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:gravity="center"
-                                android:text="See how you rank against all students who took this exam."
-                                android:textColor="?attr/eveLabelSecondary" />
+                            <TextView android:id="@+id/tvLeaderboardTabSubtitle" style="@style/TextAppearance.Eve.Subheadline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:gravity="center" android:text="See how you rank against all students who took this exam." android:textColor="?attr/eveLabelSecondary"/>
 
-                            <com.eve.app.ui.result.ResponsiveResultRow
-                                android:id="@+id/layoutLeaderboardChips"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="16dp"
-                                android:gravity="center"
-                                android:orientation="horizontal">
+                            <com.eve.app.ui.result.ResponsiveResultRow android:id="@+id/layoutLeaderboardChips" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:gravity="center" android:orientation="horizontal">
 
-                                <TextView
-                                    android:id="@+id/tvLeaderboardScoreChip"
-                                    style="@style/TextAppearance.Eve.Caption1.Medium"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginEnd="8dp"
-                                    android:background="@drawable/bg_recovery_badge"
-                                    android:paddingHorizontal="12dp"
-                                    android:paddingVertical="@dimen/eve_space_4"
-                                    android:text="Score: --"
-                                    android:textColor="?attr/eveLabelPrimary"
-                                    android:textStyle="bold" />
+                                <TextView android:id="@+id/tvLeaderboardScoreChip" style="@style/TextAppearance.Eve.Caption1.Medium" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginEnd="8dp" android:background="@drawable/bg_recovery_badge" android:paddingHorizontal="12dp" android:paddingVertical="@dimen/eve_space_4" android:text="Score: --" android:textColor="?attr/eveLabelPrimary" android:textStyle="bold"/>
 
-                                <TextView
-                                    android:id="@+id/tvLeaderboardPercentileChip"
-                                    style="@style/TextAppearance.Eve.Caption1.Medium"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:background="@drawable/bg_recovery_badge"
-                                    android:paddingHorizontal="12dp"
-                                    android:paddingVertical="@dimen/eve_space_4"
-                                    android:text="Percentile: --%"
-                                    android:textColor="?attr/eveLabelPrimary"
-                                    android:textStyle="bold" />
+                                <TextView android:id="@+id/tvLeaderboardPercentileChip" style="@style/TextAppearance.Eve.Caption1.Medium" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_recovery_badge" android:paddingHorizontal="12dp" android:paddingVertical="@dimen/eve_space_4" android:text="Percentile: --%" android:textColor="?attr/eveLabelPrimary" android:textStyle="bold"/>
                             </com.eve.app.ui.result.ResponsiveResultRow>
 
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnOpenLeaderboard"
-                                style="@style/Widget.Eve.RecoveryPrimary"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="20dp"
-                                android:minHeight="48dp"
-                                android:text="View Full Leaderboard"
-                                app:icon="@drawable/ic_trophy"
-                                app:iconGravity="textStart"
-                                app:iconPadding="8dp" />
+                            <com.google.android.material.button.MaterialButton android:id="@+id/btnOpenLeaderboard" style="@style/Widget.Eve.RecoveryPrimary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:minHeight="48dp" android:text="View Full Leaderboard" app:icon="@drawable/ic_trophy" app:iconGravity="textStart" app:iconPadding="8dp"/>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
@@ -1146,65 +333,19 @@
         </FrameLayout>
 
             <!-- Segmented Navigation: 3 Tabs (Overview | Review | Leaderboard) floating above content -->
-            <FrameLayout
-                android:id="@+id/layoutResultTabContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="6dp"
-                android:layout_marginBottom="6dp"
-                android:elevation="@dimen/eve_home_card_elevation"
-                android:translationZ="@dimen/eve_home_card_elevation"
-                android:clipChildren="false"
-                android:clipToPadding="false">
+            <FrameLayout android:id="@+id/layoutResultTabContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="top" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" android:layout_marginTop="6dp" android:layout_marginBottom="6dp" android:elevation="@dimen/eve_home_card_elevation" android:translationZ="@dimen/eve_home_card_elevation" android:clipChildren="false" android:clipToPadding="false">
 
-                <com.eve.app.ui.common.EveGlassTabLayout
-                    android:id="@+id/tabLayoutResult"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/eve_segment_min_height"
-                    android:elevation="@dimen/eve_home_card_elevation"
-                    android:translationZ="@dimen/eve_home_card_elevation"
-                    android:background="@drawable/bg_result_segmented_track"
-                    app:tabGravity="fill"
-                    app:tabIndicator="@drawable/bg_result_segmented_indicator"
-                    app:tabIndicatorAnimationMode="elastic"
-                    app:tabIndicatorAnimationDuration="220"
-                    app:tabIndicatorColor="@android:color/transparent"
-                    app:tabIndicatorFullWidth="true"
-                    app:tabIndicatorGravity="stretch"
-                    app:tabMaxWidth="0dp"
-                    app:tabMode="fixed"
-                    app:tabPaddingStart="4dp"
-                    app:tabPaddingEnd="4dp"
-                    app:tabRippleColor="@null"
-                    app:tabSelectedTextColor="@color/eve_result_tab_selected_text"
-                    android:padding="4dp"
-                    app:tabTextAppearance="@style/TextAppearance.Eve.ResultTabSegment"
-                    app:tabTextColor="@color/eve_result_tab_text">
+                <com.eve.app.ui.common.EveGlassTabLayout android:id="@+id/tabLayoutResult" android:layout_width="match_parent" android:layout_height="@dimen/eve_segment_min_height" android:elevation="@dimen/eve_home_card_elevation" android:translationZ="@dimen/eve_home_card_elevation" android:background="@drawable/bg_result_segmented_track" app:tabGravity="fill" app:tabIndicator="@drawable/bg_result_segmented_indicator" app:tabIndicatorAnimationMode="elastic" app:tabIndicatorAnimationDuration="220" app:tabIndicatorColor="@android:color/transparent" app:tabIndicatorFullWidth="true" app:tabIndicatorGravity="stretch" app:tabMaxWidth="0dp" app:tabMode="fixed" app:tabPaddingStart="4dp" app:tabPaddingEnd="4dp" app:tabRippleColor="@null" app:tabSelectedTextColor="@color/eve_result_tab_selected_text" android:padding="4dp" app:tabTextAppearance="@style/TextAppearance.Eve.ResultTabSegment" app:tabTextColor="@color/eve_result_tab_text">
 
-                    <com.google.android.material.tabs.TabItem
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Overview" />
+                    <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Overview"/>
 
-                    <com.google.android.material.tabs.TabItem
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Review" />
+                    <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Review"/>
 
-                    <com.google.android.material.tabs.TabItem
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Leaderboard" />
+                    <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Leaderboard"/>
                 </com.eve.app.ui.common.EveGlassTabLayout>
             </FrameLayout>
         </FrameLayout>
     </LinearLayout>
 
-    <com.eve.app.ui.result.ConfettiView
-        android:id="@+id/confettiView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <com.eve.app.ui.result.ConfettiView android:id="@+id/confettiView" android:layout_width="match_parent" android:layout_height="match_parent"/>
 </FrameLayout>

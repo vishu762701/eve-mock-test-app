@@ -1092,3 +1092,29 @@ https://dl.google.com/dl/android/maven2/androidx/core/core/1.13.1/core-1.13.1-so
 The owner chose to retain API 24–25 support and allow only those versions a
 black navigation area in light mode, since dark navigation icons are unavailable.
 No minSdk change. Phase 3 will implement this explicit platform exception.
+
+## Locked reset — Phase 3 navigation, icons and transitions
+
+VERIFIED in source: keep the existing push/pop, auth redirect and theme handoff;
+replace only the shared normal activity animation resources with 320ms horizontal
+slide + fade, curve (0.2,0.8,0.2,1). Framework window animations retain system scale.
+Use existing BlurView 2.0.6 through the shared glass host, rather than adding a
+second dependency or blurring a foreground view. Toolbar scroll observers do not
+replace feature scroll listeners and are removed on detach. Home bottom actions
+and popup action IDs/callbacks stay intact. Large titles move below the action row.
+
+The owner-approved Android-7-only black navigation fallback is now implemented;
+API 26+ bars are transparent over bg_app with the existing theme-transition icon
+handoff timing retained. minSdk stays 24. The menu container switches to live
+backdrop glass; setupThemeCard/setupListeners remain byte-identical.
+
+Official sources read:
+- Tabler v3.49.0 MIT LICENSE and 62 distinct outline SVG sources for 70 resource IDs:
+  https://github.com/tabler/tabler-icons/tree/v3.49.0/icons/outline
+- AOSP Android 15 PixelCopy window capture contract, used only for native compositor
+  verification of live background blur and sharp foreground children:
+  https://raw.githubusercontent.com/aosp-mirror/platform_frameworks_base/android-15.0.0_r1/graphics/java/android/view/PixelCopy.java
+
+Risks addressed: avoid doubled bottom insets by retaining the shared inset dispatch;
+exclude foreground children via BlurView rather than a whole-view RenderEffect;
+preserve protected menu handoff/listeners while replacing its container capture.

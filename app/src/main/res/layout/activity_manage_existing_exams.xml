@@ -1,165 +1,42 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/eve_system_grouped_background"
-    android:orientation="vertical"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/eve_system_grouped_background" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
 
     <!-- Top Bar -->
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-<LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="12dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+<LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:background="@android:color/transparent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingVertical="12dp" android:clipToPadding="false" android:clipChildren="false">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Back"
-            android:padding="8dp"
-            android:src="@drawable/ic_back"
-            app:tint="@color/eve_text" />
+        <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
 
-        <TextView
-            style="@style/TextAppearance.Eve.Headline"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:text="Manage Existing Exams" />
-
-        <ImageButton
-            android:id="@+id/btnRefresh"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Refresh"
-            android:padding="8dp"
-            android:src="@drawable/ic_refresh"
-            app:tint="@color/eve_text" />
+        <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1"/><ImageButton android:id="@+id/btnRefresh" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Refresh" android:src="@drawable/ic_refresh" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
     </LinearLayout>
 </com.eve.app.ui.common.EveGlassToolbar>
 
-    <!-- Search Bar -->
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="8dp"
-        app:cardBackgroundColor="@color/eve_card_bg"
-        app:cardCornerRadius="@dimen/eve_radius_card"
-        app:cardElevation="0dp"
-        app:strokeWidth="1dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingBottom="@dimen/design_section_gap"><TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Manage Existing Exams"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="12dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+        </LinearLayout><!-- Search Bar -->
+    <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="16dp" android:layout_marginTop="12dp" android:layout_marginBottom="8dp" app:cardBackgroundColor="@color/eve_card_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp">
 
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:contentDescription="Search"
-                android:src="@drawable/ic_search"
-                app:tint="@color/eve_text_secondary" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="12dp" android:clipToPadding="false" android:clipChildren="false">
 
-            <EditText
-                style="@style/TextAppearance.Eve.BodySmall"
-                android:id="@+id/etSearchExam"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginStart="8dp"
-                android:background="@null"
-                android:hint="Search by exam name or category..."
-                android:imeOptions="actionSearch"
-                android:inputType="text"
-                android:maxLines="1"
-                android:textColor="@color/eve_text"
-                android:textColorHint="@color/eve_text_secondary" />
+            <ImageView android:layout_width="20dp" android:layout_height="20dp" android:contentDescription="Search" android:src="@drawable/ic_search" app:tint="@color/eve_text_secondary"/>
+
+            <EditText style="@style/TextAppearance.Eve.BodySmall" android:id="@+id/etSearchExam" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_marginStart="8dp" android:background="@null" android:hint="Search by exam name or category..." android:imeOptions="actionSearch" android:inputType="text" android:maxLines="1" android:textColor="@color/eve_text" android:textColorHint="@color/eve_text_secondary"/>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+    <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvExams"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layoutAnimation="@anim/layout_enter"
-            android:clipToPadding="false"
-            android:paddingVertical="@dimen/eve_space_8"
-            android:clipChildren="false"/>
+        <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvExams" android:layout_width="match_parent" android:layout_height="match_parent" android:layoutAnimation="@anim/layout_enter" android:clipToPadding="false" android:paddingVertical="@dimen/eve_space_8" android:clipChildren="false"/>
 
-        <com.eve.app.ui.common.ShimmerSkeletonView
-            android:id="@+id/shimmerSkeletonExams"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone" />
+        <com.eve.app.ui.common.ShimmerSkeletonView android:id="@+id/shimmerSkeletonExams" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone"/>
 
-        <LinearLayout
-            android:id="@+id/emptyGroup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="28dp"
-            android:visibility="gone"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+        <LinearLayout android:id="@+id/emptyGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:orientation="vertical" android:padding="28dp" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false">
 
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/lottieEmpty"
-                android:layout_width="140dp"
-                android:layout_height="140dp"
-                android:background="@android:color/transparent"
-                app:lottie_autoPlay="false"
-                app:lottie_loop="false"
-                app:lottie_rawRes="@raw/search" />
+            <com.airbnb.lottie.LottieAnimationView android:id="@+id/lottieEmpty" android:layout_width="140dp" android:layout_height="140dp" android:background="@android:color/transparent" app:lottie_autoPlay="false" app:lottie_loop="false" app:lottie_rawRes="@raw/search"/>
 
-            <TextView
-                style="@style/TextAppearance.Eve.Headline"
-                android:id="@+id/tvEmptyTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="No exams found"
-                android:textColor="@color/eve_text" />
+            <TextView style="@style/TextAppearance.Eve.Headline" android:id="@+id/tvEmptyTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="No exams found" android:textColor="@color/eve_text"/>
 
-            <TextView
-                style="@style/TextAppearance.Eve.Footnote"
-                android:id="@+id/tvEmptyMessage"
-                android:layout_width="260dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:gravity="center"
-                android:text="No existing exams match your search or filter."
-                android:textColor="@color/eve_text_secondary" />
+            <TextView style="@style/TextAppearance.Eve.Footnote" android:id="@+id/tvEmptyMessage" android:layout_width="260dp" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:gravity="center" android:text="No existing exams match your search or filter." android:textColor="@color/eve_text_secondary"/>
         </LinearLayout>
     </FrameLayout>
 </LinearLayout>

@@ -1,350 +1,103 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/eve_system_grouped_background"
-    android:orientation="vertical"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/eve_system_grouped_background" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
 
     <!-- Top Bar -->
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-<LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="12dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+<LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:background="@android:color/transparent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingVertical="12dp" android:clipToPadding="false" android:clipChildren="false">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Back"
-            android:padding="8dp"
-            android:src="@drawable/ic_back"
-            app:tint="@color/eve_text" />
+        <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
 
-        <TextView
-            android:id="@+id/tvToolbarTitle"
-            style="@style/TextAppearance.Eve.Headline"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:text="Edit Exam" />
-
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:indeterminate="true"
-            android:visibility="gone" />
+        <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1"/><ProgressBar android:id="@+id/progressBar" android:layout_width="24dp" android:layout_height="24dp" android:indeterminate="true" android:visibility="gone"/>
     </LinearLayout>
 </com.eve.app.ui.common.EveGlassToolbar>
 
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true"
-            android:clipToPadding="false"
-            android:clipChildren="false"
-            >
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingBottom="@dimen/design_section_gap"><TextView android:id="@+id/tvToolbarTitle" style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Edit Exam"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+        </LinearLayout><androidx.core.widget.NestedScrollView android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false" android:clipChildren="false">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
 
             <!-- Exam Details Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/eve_card_bg"
-                app:cardCornerRadius="@dimen/eve_radius_card"
-                app:cardElevation="0dp"
-                app:strokeWidth="1dp">
+            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" app:cardBackgroundColor="@color/eve_card_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
 
-                    <TextView
-                        style="@style/TextAppearance.Eve.Headline"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Exam Information"
-                        android:textColor="@color/eve_accent_text" />
+                    <TextView style="@style/TextAppearance.Eve.Headline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Exam Information" android:textColor="@color/eve_accent_text"/>
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.Eve.TextInput.Outlined"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:hint="Exam Name">
+                    <com.google.android.material.textfield.TextInputLayout style="@style/Widget.Eve.TextInput.Outlined" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:hint="Exam Name">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etExamName"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="textCapWords" />
+                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etExamName" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textCapWords"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.Eve.TextInput.Outlined"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:hint="Time Limit (minutes)">
+                    <com.google.android.material.textfield.TextInputLayout style="@style/Widget.Eve.TextInput.Outlined" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:hint="Time Limit (minutes)">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etExamMinutes"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="number" />
+                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etExamMinutes" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="number"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <TextView
-                        style="@style/TextAppearance.Eve.Caption1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:text="Category"
-                        android:textColor="@color/eve_text_secondary" />
+                    <TextView style="@style/TextAppearance.Eve.Caption1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Category" android:textColor="@color/eve_text_secondary"/>
 
-                    <Spinner
-                        android:id="@+id/spCategory"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_marginTop="4dp" />
+                    <Spinner android:id="@+id/spCategory" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="4dp"/>
 
-                    <TextView
-                        style="@style/TextAppearance.Eve.Subheadline.Medium"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="Category Cutoffs (Optional)"
-                        android:textColor="@color/eve_accent_text" />
+                    <TextView style="@style/TextAppearance.Eve.Subheadline.Medium" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Category Cutoffs (Optional)" android:textColor="@color/eve_accent_text"/>
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:orientation="horizontal"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false">
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.Eve.TextInput.Outlined"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="4dp"
-                            android:layout_weight="1"
-                            android:hint="General">
+                        <com.google.android.material.textfield.TextInputLayout style="@style/Widget.Eve.TextInput.Outlined" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginEnd="4dp" android:layout_weight="1" android:hint="General">
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/etCutoffGeneral"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="numberDecimal" />
+                            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etCutoffGeneral" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="numberDecimal"/>
                         </com.google.android.material.textfield.TextInputLayout>
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.Eve.TextInput.Outlined"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:layout_weight="1"
-                            android:hint="OBC">
+                        <com.google.android.material.textfield.TextInputLayout style="@style/Widget.Eve.TextInput.Outlined" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:layout_weight="1" android:hint="OBC">
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/etCutoffObc"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="numberDecimal" />
+                            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etCutoffObc" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="numberDecimal"/>
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:orientation="horizontal"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false">
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.Eve.TextInput.Outlined"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="4dp"
-                            android:layout_weight="1"
-                            android:hint="SC">
+                        <com.google.android.material.textfield.TextInputLayout style="@style/Widget.Eve.TextInput.Outlined" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginEnd="4dp" android:layout_weight="1" android:hint="SC">
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/etCutoffSc"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="numberDecimal" />
+                            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etCutoffSc" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="numberDecimal"/>
                         </com.google.android.material.textfield.TextInputLayout>
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.Eve.TextInput.Outlined"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:layout_weight="1"
-                            android:hint="ST">
+                        <com.google.android.material.textfield.TextInputLayout style="@style/Widget.Eve.TextInput.Outlined" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:layout_weight="1" android:hint="ST">
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/etCutoffSt"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="numberDecimal" />
+                            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etCutoffSt" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="numberDecimal"/>
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.Eve.TextInput.Outlined"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:hint="EWS Cutoff">
+                    <com.google.android.material.textfield.TextInputLayout style="@style/Widget.Eve.TextInput.Outlined" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:hint="EWS Cutoff">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etCutoffEws"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="numberDecimal" />
+                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etCutoffEws" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="numberDecimal"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSaveExamDetails"
-                        style="@style/Widget.Eve.Button"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="Save Exam Details" />
+                    <com.google.android.material.button.MaterialButton android:id="@+id/btnSaveExamDetails" style="@style/Widget.Eve.Button" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Save Exam Details"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Questions Management Section -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:cardBackgroundColor="@color/eve_card_bg"
-                app:cardCornerRadius="@dimen/eve_radius_card"
-                app:cardElevation="0dp"
-                app:strokeWidth="1dp">
+            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" app:cardBackgroundColor="@color/eve_card_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false">
 
-                        <TextView
-                            style="@style/TextAppearance.Eve.Headline"
-                            android:id="@+id/tvQuestionsHeader"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Questions (0)"
-                            android:textColor="@color/eve_accent_text" />
+                        <TextView style="@style/TextAppearance.Eve.Headline" android:id="@+id/tvQuestionsHeader" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Questions (0)" android:textColor="@color/eve_accent_text"/>
                     </LinearLayout>
 
                     <!-- Action buttons -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:orientation="horizontal"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false">
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnAddQuestion"
-                            style="@style/Widget.Eve.OutlinedButton"
-                            android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginEnd="6dp"
-                            android:text="+ Add Question" />
+                        <com.google.android.material.button.MaterialButton android:id="@+id/btnAddQuestion" style="@style/Widget.Eve.OutlinedButton" android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginEnd="6dp" android:text="+ Add Question"/>
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnBulkUpload"
-                            style="@style/Widget.Eve.Button"
-                            android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="6dp"
-                            android:text="📥 Bulk Upload" />
+                        <com.google.android.material.button.MaterialButton android:id="@+id/btnBulkUpload" style="@style/Widget.Eve.Button" android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="6dp" android:text="📥 Bulk Upload"/>
                     </LinearLayout>
 
-                    <TextView
-                        style="@style/TextAppearance.Eve.Footnote"
-                        android:id="@+id/tvFormatHelp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Expected format: Question, OptionA, OptionB, OptionC, OptionD, CorrectOption, Explanation"
-                        android:textColor="@color/eve_text_secondary" />
+                    <TextView style="@style/TextAppearance.Eve.Footnote" android:id="@+id/tvFormatHelp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Expected format: Question, OptionA, OptionB, OptionC, OptionD, CorrectOption, Explanation" android:textColor="@color/eve_text_secondary"/>
 
-                    <TextView
-                        style="@style/TextAppearance.Eve.Footnote"
-                        android:id="@+id/tvNoQuestions"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="20dp"
-                        android:layout_marginBottom="16dp"
-                        android:gravity="center"
-                        android:text="No questions added yet. Add manually or bulk upload via CSV/Excel."
-                        android:textColor="@color/eve_text_secondary"
-                        android:visibility="gone" />
+                    <TextView style="@style/TextAppearance.Eve.Footnote" android:id="@+id/tvNoQuestions" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:layout_marginBottom="16dp" android:gravity="center" android:text="No questions added yet. Add manually or bulk upload via CSV/Excel." android:textColor="@color/eve_text_secondary" android:visibility="gone"/>
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rvQuestions"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:nestedScrollingEnabled="false"
-            android:clipToPadding="false"
-            android:clipChildren="false"/>
+                    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvQuestions" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:nestedScrollingEnabled="false" android:clipToPadding="false" android:clipChildren="false"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>

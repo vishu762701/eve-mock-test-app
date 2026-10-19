@@ -13,4 +13,5 @@
     <color name="glass_tint">#8CFFFFFF</color>
     <color name="glass_fallback">#F0FFFFFF</color>
     <color name="card_shadow">#29000000</color>
+    <color name="navigation_legacy_background">#000000</color>
 </resources>

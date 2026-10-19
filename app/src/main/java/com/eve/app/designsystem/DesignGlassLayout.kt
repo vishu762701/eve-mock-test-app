@@ -23,7 +23,7 @@ import eightbitlab.com.blurview.BlurViewFacade
 import eightbitlab.com.blurview.RenderEffectBlur
 
 /** Backdrop-only glass. Foreground children stay sharp and are excluded from capture. */
-class DesignGlassLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : BlurView(context, attrs) {
+open class DesignGlassLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : BlurView(context, attrs) {
     private val border = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         color = ContextCompat.getColor(context, R.color.hairline)
@@ -59,6 +59,7 @@ class DesignGlassLayout @JvmOverloads constructor(context: Context, attrs: Attri
         clipToOutline = true
         setBackgroundColor(ContextCompat.getColor(context, R.color.glass_fallback))
     }
+    protected fun useSquareCorners() { radius = resources.getDimension(R.dimen.design_zero) }
     private fun drawnRadius(): Float = if (capsule) minOf(width, height) / 2f else radius
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()

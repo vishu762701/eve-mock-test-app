@@ -1,9 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Tabler Icons v3.49.0 / dots-vertical; MIT, bundled Tabler-LICENSE.txt. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp"
-    android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
-    <path
-        android:pathData="M12,5.5 A1.5,1.5 0 1,1 12,5.49 Z M12,12 A1.5,1.5 0 1,1 12,11.99 Z M12,18.5 A1.5,1.5 0 1,1 12,18.49 Z"
-        android:fillColor="@color/eve_text" />
+    android:width="@dimen/design_icon_size" android:height="@dimen/design_icon_size"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
+        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
+        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M11 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
+        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M11 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
 </vector>
