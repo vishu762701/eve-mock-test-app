@@ -281,3 +281,15 @@ The owner explicitly allows a black navigation-area fallback only on Android 7
 (API 24–25) in light mode. Keep minSdk 24. All other supported versions retain
 the requested transparent navigation bar and appropriate icon contrast. This
 resolves the question above; implementation belongs to Phase 3.
+
+### Phase 2 second hosted follow-up
+
+Run 39195476165 passed build/lint/JVM but exposed two later native assertions.
+Material 1.12.0 deliberately assigns its boxBackground object to the EditText
+(`updateEditTextBoxBackgroundIfNeeded` / `getEditTextBoxBackground` in official
+TextInputLayout.java). The native contract now asserts object identity, proving
+there is one shared field box rather than incorrectly demanding a null drawable.
+The legacy primary-button selector still paired dark Mono's white fill with
+white legacy text. Its enabled text now resolves on_accent and its disabled fill
+and text resolve track/text_secondary; callbacks and enabled-state logic stay
+unchanged. This fixes the home-feedback Reply label's 1:1 dark contrast.
