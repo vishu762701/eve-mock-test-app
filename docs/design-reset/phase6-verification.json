@@ -38,6 +38,20 @@
     "old_token": "rejected"
   },
   "protected_diff": "git diff 6761cf6 -- ThemeSwitchAnimator.kt ThemeManager.kt TelegramMenuPopup.kt res/raw assets/lottie produced no changes; checker also validates baseline hashes of core/sun/moon/raw assets",
-  "hosted_native": "Pending for this commit; previous run 39252548325 failed; no APK published",
-  "CI_integration": "Standalone checker is not wired to CI, as requested"
+  "hosted_native": "Run 39335399036 at 3989010 completed 40 tests per mode with two failing cases per mode. Targeted bindings fixed locally; final hosted rerun pending.",
+  "CI_integration": "Standalone checker is not wired to CI, as requested",
+  "native_recovery_local": {
+    "phase6-final-bindings-corrected-gates.log": {
+      "result": "PASS",
+      "sha256": "d19860586204508a022fada3682f60f2c5982611b34aea84d624a2f4cc1179af"
+    },
+    "phase6-final-bindings-python.log": {
+      "result": "PASS",
+      "sha256": "9f40d8a7e5f1ffcf7a7e720a3efd9fa94afcee612b3a16d13280dc62315eb90c"
+    },
+    "phase6-final-bindings-docs.log": {
+      "result": "PASS",
+      "sha256": "197503838bf5771563adf420ff0fb1e92644118f750e3bd19e320fda427d604e"
+    }
+  }
 }

@@ -16,8 +16,8 @@
                     <TextView android:id="@+id/tvPlanName" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" ns2:text="Premium Pro" />
                     <TextView android:id="@+id/tvAmount" style="@style/TextAppearance.Eve.Token.Title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" ns2:text="₹99" />
                     <LinearLayout android:id="@+id/chipTimer" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.PillGroup">
-                        <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:src="@drawable/ic_timer" app:tint="@color/text_secondary" />
-                        <TextView android:id="@+id/tvTimer" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_row_gap" ns2:text="Complete payment within 09:42" />
+                        <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:src="@drawable/ic_timer" app:tint="@color/on_accent" />
+                        <TextView android:id="@+id/tvTimer" style="@style/TextAppearance.Eve.Token.Chip.OnAccent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_row_gap" ns2:text="Complete payment within 09:42" />
                     </LinearLayout>
                 </LinearLayout>
             </com.eve.app.designsystem.DesignCardView>

@@ -2,9 +2,9 @@
   "scope": "app/src/main: XML/Kotlin/Java/JSON text; dp/sp count includes comments and token definitions; hex includes #RGB/#ARGB/#RRGGBB/#AARRGGBB and 0xAARRGGBB",
   "counts": {
     "hex_color_occurrences": 137,
-    "literal_dp_occurrences": 664,
+    "literal_dp_occurrences": 658,
     "literal_sp_occurrences": 42,
-    "style_definitions_including_qualifiers": 114,
+    "style_definitions_including_qualifiers": 116,
     "drawable_files_including_qualifiers": 103,
     "font_files_including_xml_families": 4,
     "layout_files_including_qualifiers": 95,

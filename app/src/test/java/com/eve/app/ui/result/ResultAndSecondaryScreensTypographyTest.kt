@@ -195,12 +195,17 @@ class ResultAndSecondaryScreensTypographyTest {
         for (letter in listOf("A", "B", "C", "D")) {
             val badge = findElementById(root, "tvBadgeOption$letter")
             assertNotNull("tvBadgeOption$letter must exist", badge)
-            assertEquals("@style/TextAppearance.Eve.Token.Heading", getStyleOrAppearance(badge))
+            assertEquals("@style/Widget.Eve.Token.ChoiceKey", getStyleOrAppearance(badge))
 
             val text = findElementById(root, "tvOption$letter")
             assertNotNull("tvOption$letter must exist", text)
             assertEquals("@style/TextAppearance.Eve.Token.Body", getStyleOrAppearance(text))
         }
+
+        val styles = loadXml("src/main/res/values/design_widgets.xml").getElementsByTagName("style")
+        val keyStyle = (0 until styles.length).map { styles.item(it) as Element }
+            .first { it.getAttribute("name") == "Widget.Eve.Token.ChoiceKey" }
+        assertEquals("TextAppearance.Eve.Token.Heading", keyStyle.getAttribute("parent"))
 
         val tvCorrectSummary = findElementById(root, "tvCorrectSummary")
         assertNotNull("tvCorrectSummary must exist", tvCorrectSummary)

@@ -89,9 +89,9 @@ Reproduced with `python3 scripts/design_inventory.py`; includes token definition
 | Metric | Baseline | Phase 6 |
 | --- | --- | --- |
 | hex_color_occurrences | 496 | 137 |
-| literal_dp_occurrences | 3007 | 664 |
+| literal_dp_occurrences | 3007 | 658 |
 | literal_sp_occurrences | 181 | 42 |
-| style_definitions_including_qualifiers | 279 | 114 |
+| style_definitions_including_qualifiers | 279 | 116 |
 | drawable_files_including_qualifiers | 133 | 103 |
 | font_files_including_xml_families | 8 | 4 |
 | layout_files_including_qualifiers | 95 | 95 |
@@ -107,3 +107,10 @@ Run 39334405207 at 06df86d39dbdad9348b58ee4f7e18cc7bc668a48 verified build/backe
 Recovery preserves every original feature assertion. The blur fixture now waits for real window attachment before seeding native blur, captures asynchronous assertion failures and reports them on the test thread. Transparent track pixels allow only the already-measured 8-bit alpha premultiplication rounding; the underlying drawable still requires the exact track token. Palette row measurement now accounts for both its weighted Poppins heading and nested legend, avoiding the verified 320dp wrap. Chip maximum width uses the configuration's app width and two exact 12dp margins; the obsolete 32dp fixture expectation was replaced by the margin token. Native failure XML is printed on failure with the original non-zero exit status retained, so further problems include their source lines.
 
 All four local Android gates PASS (1m24s, 86 tasks); Python 15 PASS; design_check PASS. Native rerun remains required before final publishing. No protected animation or Lottie playback code changed in this recovery.
+
+
+Run 39335399036 at 3989010 completed all 40 native tests in each mode with two failing test cases per mode; build/backend/functions passed and publication was skipped. The earlier track/heading/window-attachment failures cleared. Full failure XML identified four remaining geometry bindings: the overview tiles still used Column instead of the shared Tile role, review letter keys had fixed 28dp heights, the rank inset host was fixed at 44dp including its padding, and the exam spinner row allowed multiline text inside a single-line input. They now use shared Tile padding, minimum-sized/wrapping key and compact-tile roles, and the shared single-line SpinnerItem respectively. The payment timer capsule's secondary text was also a measured contrast defect; its existing accent capsule now uses the specified on-accent chip label and icon tokens. All values come from the locked roles; no palette substitution or weakened text/contrast checks.
+
+The existing hardware capture now verifies only the category text area (excluding the selected-check icon) and emits home-attached light/dark fixtures for review. This distinguishes real attached rendering from early offscreen Material font callbacks. Final native certification remains pending for these minimal bindings.
+
+Final binding verification: all four Android gates PASS in 17s (261 JVM tests, lint zero errors), standalone design checker PASS, 15 Python contracts PASS, documentation validation PASS, bash syntax PASS and git diff --check PASS. The single updated JVM expectation now checks the new shared ChoiceKey binding and independently asserts that it inherits the unchanged locked Heading type role.

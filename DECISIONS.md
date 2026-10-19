@@ -1202,3 +1202,6 @@ The standalone design checker stays outside CI as the owner requested. Protected
 ## Native recovery: measure current content, preserve hard gates
 
 Official Android Configuration.screenWidthDp and View.measure documentation were opened and read: https://developer.android.com/reference/android/content/res/Configuration#screenWidthDp and https://developer.android.com/reference/android/view/View#measure(int,int). Use the current app configuration width for chip caps, rather than physical display width; include all competing row children in desired-width measurement before stacking. The native fixture retains its no-wrap/no-overflow assertions. Posted-frame test assertions are captured and rethrown on the test thread so a failure cannot crash the remaining instrumentation. Failing JUnit XML is printed without modifying the job's original exit status or publication dependencies.
+
+
+The final native fixture checks only Chip text bounds using total padding; Android TextView.getTotalPaddingLeft/getTotalPaddingTop documentation was opened/read at https://developer.android.com/reference/android/widget/TextView . Total padding includes compound content and gravity offsets, so the selected-check icon cannot satisfy the label-ink assertion. Production text and contrast assertions are retained.

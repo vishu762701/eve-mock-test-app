@@ -1,2 +1,2 @@
-<?xml version='1.0' encoding='utf-8'?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp" android:gravity="center_vertical" android:drawableEnd="@drawable/ic_chevron_down" android:drawableTint="@color/system_blue" android:drawablePadding="@dimen/design_screen_margin" />
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android" style="@style/Widget.Eve.Token.SpinnerItem" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="@dimen/design_input_height" />

@@ -58,4 +58,5 @@
     <dimen name="design_capsule_radius">999dp</dimen>
     <dimen name="design_compact_gap">4dp</dimen>
     <dimen name="design_banner_height">160dp</dimen>
+    <dimen name="design_choice_key_min">28dp</dimen>
 </resources>

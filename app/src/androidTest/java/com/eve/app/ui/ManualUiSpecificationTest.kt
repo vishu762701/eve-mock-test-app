@@ -71,9 +71,12 @@ class ManualUiSpecificationTest {
                 scenario.onActivity {
                     val chip = home.chipGroupCategory.getChildAt(0) as Chip
                     val position = IntArray(2).also { chip.getLocationOnScreen(it) }
-                    val inset = Math.round(8f * chip.resources.displayMetrics.density)
-                    bounds = android.graphics.Rect(position[0] + inset, position[1] + inset,
-                        position[0] + chip.width - inset, position[1] + chip.height - inset)
+                    // Check glyphs, not the white selected-check icon. Total padding
+                    // includes ChipDrawable's icon space and its real text insets.
+                    bounds = android.graphics.Rect(position[0] + chip.totalPaddingLeft,
+                        position[1] + chip.totalPaddingTop,
+                        position[0] + chip.width - chip.totalPaddingRight,
+                        position[1] + chip.height - chip.totalPaddingBottom)
                     ink = chip.currentTextColor
                 }
                 val committed = java.util.concurrent.CountDownLatch(1)

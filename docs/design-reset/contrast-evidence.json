@@ -610,7 +610,7 @@
       "view": "tvCorrectCount",
       "hue": "green",
       "size": "17sp",
-      "background": "@color/bg_app",
+      "background": "@color/surface_inset",
       "resolved_background": "#F5F5F5"
     },
     {
@@ -618,7 +618,7 @@
       "view": "Right",
       "hue": "green",
       "size": "14sp",
-      "background": "@color/bg_app",
+      "background": "@color/surface_inset",
       "resolved_background": "#F5F5F5"
     },
     {
@@ -626,7 +626,7 @@
       "view": "tvWrongCount",
       "hue": "red",
       "size": "17sp",
-      "background": "@color/bg_app",
+      "background": "@color/surface_inset",
       "resolved_background": "#F5F5F5"
     },
     {
@@ -634,7 +634,7 @@
       "view": "Wrong",
       "hue": "red",
       "size": "14sp",
-      "background": "@color/bg_app",
+      "background": "@color/surface_inset",
       "resolved_background": "#F5F5F5"
     },
     {
@@ -642,7 +642,7 @@
       "view": "tvAccuracy",
       "hue": "orange",
       "size": "17sp",
-      "background": "@color/bg_app",
+      "background": "@color/surface_inset",
       "resolved_background": "#F5F5F5"
     },
     {
@@ -650,7 +650,7 @@
       "view": "Accuracy",
       "hue": "orange",
       "size": "14sp",
-      "background": "@color/bg_app",
+      "background": "@color/surface_inset",
       "resolved_background": "#F5F5F5"
     },
     {

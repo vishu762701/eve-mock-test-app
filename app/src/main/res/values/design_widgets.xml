@@ -299,4 +299,13 @@
     <style name="Widget.Eve.Token.Lottie" parent=""><item name="android:background">@null</item></style>
     <style name="Widget.Eve.Token.AppBar" parent="Widget.Material3.AppBarLayout"><item name="android:background">@null</item><item name="android:elevation">@dimen/design_zero</item><item name="android:stateListAnimator">@null</item></style>
     <style name="Widget.Eve.Token.MarkedDot" parent=""><item name="android:background">@drawable/design_marked_dot</item></style>
+    <style name="Widget.Eve.Token.ChoiceKey" parent="TextAppearance.Eve.Token.Heading">
+        <item name="android:minWidth">@dimen/design_choice_key_min</item>
+        <item name="android:minHeight">@dimen/design_choice_key_min</item>
+        <item name="android:gravity">center</item>
+    </style>
+    <style name="Widget.Eve.Token.CompactTile" parent="Widget.Eve.Token.Tile">
+        <item name="android:minWidth">@dimen/design_input_height</item>
+        <item name="android:minHeight">@dimen/design_input_height</item>
+    </style>
 </resources>

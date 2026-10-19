@@ -11,7 +11,7 @@
     </LinearLayout>
     <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:id="@+id/cardYourRank" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:layout_marginBottom="@dimen/design_card_gap" android:visibility="gone">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-            <FrameLayout android:layout_width="@dimen/design_input_height" android:layout_height="@dimen/design_input_height" style="@style/Widget.Eve.Token.Tile" android:clipChildren="false" android:clipToPadding="false">
+            <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/Widget.Eve.Token.CompactTile" android:clipChildren="false" android:clipToPadding="false">
                 <TextView android:id="@+id/tvRankMedallion" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" />
             </FrameLayout>
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_pill_padding" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
