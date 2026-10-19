@@ -280,7 +280,9 @@ class ManualUiSpecificationTest {
                             assertEquals(1f, button.alpha, 0f)
                             assertEquals(!read, button.isEnabled)
                             assertEquals(0, button.strokeWidth)
-                            assertEquals(context.getColor(R.color.transparent), button.strokeColor!!.getColorForState(button.drawableState, 0))
+                            // Material leaves an absent, zero-width stroke color unset.
+                            assertEquals(context.getColor(R.color.transparent), button.strokeColor?.getColorForState(button.drawableState, 0)
+                                ?: context.getColor(R.color.transparent))
                             assertEquals(255, Color.alpha(button.currentTextColor))
                             assertEquals(context.getColor(if (read) R.color.text_secondary else R.color.text_primary), button.currentTextColor)
                             assertTrue(androidx.core.graphics.ColorUtils.calculateContrast(button.currentTextColor,
