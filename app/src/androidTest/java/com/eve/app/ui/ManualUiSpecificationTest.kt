@@ -247,7 +247,7 @@ class ManualUiSpecificationTest {
                     }
                     for (i in 1 until options.size) assertEquals(dp(6), options[i].top - options[i-1].bottom)
                     // Existing inherited and stateful outlines, including disabled/focused controls.
-                    val styled = LayoutInflater.from(context).inflate(R.layout.activity_app_config, FrameLayout(context), false)
+                    val styled = LayoutInflater.from(context).inflate(R.layout.activity_app_config, FrameLayout(context), false).apply { isFocusableInTouchMode = true }
                     fun visit(view: View) {
                         if (view is TextInputLayout) {
                             assertEquals(context.resources.getDimensionPixelSize(R.dimen.design_focus_stroke), view.boxStrokeWidth)
@@ -265,6 +265,8 @@ class ManualUiSpecificationTest {
                             view.error = null
                             view.editText?.requestFocus()
                             assertEquals(context.getColor(R.color.accent), actualBox.strokeColor!!.defaultColor)
+                            assertTrue("Fixture focus sink must take focus", styled.requestFocus())
+                            assertEquals("Clearing focus removes the previous ring", context.getColor(R.color.transparent), actualBox.strokeColor!!.defaultColor)
                         }
                         if (view is ViewGroup) for (i in 0 until view.childCount) visit(view.getChildAt(i))
                     }

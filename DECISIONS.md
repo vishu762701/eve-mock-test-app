@@ -1205,3 +1205,6 @@ Official Android Configuration.screenWidthDp and View.measure documentation were
 
 
 The final native fixture checks only Chip text bounds using total padding; Android TextView.getTotalPaddingLeft/getTotalPaddingTop documentation was opened/read at https://developer.android.com/reference/android/widget/TextView . Total padding includes compound content and gravity offsets, so the selected-check icon cannot satisfy the label-ink assertion. Production text and contrast assertions are retained.
+
+
+Material 1.12 TextInputLayout.java (the already inspected official release source in the design-source archive) confirms canDrawStroke rejects Color.TRANSPARENT, and outlined dropdown backgrounds end in the real box drawable. Update that existing public EditText background's box stroke explicitly when returning to neutral, preserving native error/counter behavior. Keep strong error/focus/neutral assertions; use an explicit focus sink rather than assuming clearFocus defeats Android's default-focus reassignment. The shortened sandbox display caption retains its full accessible purpose and original action.

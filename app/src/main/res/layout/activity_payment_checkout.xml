@@ -44,7 +44,7 @@
                 <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:gravity="center" android:text="The payment session timed out. Please start a new session." />
                 <com.google.android.material.button.MaterialButton android:id="@+id/btnRestartPayment" style="@style/Widget.Eve.Token.Button" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_screen_margin" android:text="Start New Payment" />
             </LinearLayout>
-            <com.google.android.material.button.MaterialButton android:id="@+id/btnSimulateSandbox" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_pill_height" android:text="⚡ Simulate Sandbox Payment (Test Verification)" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnSimulateSandbox" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_pill_height" android:text="Test Sandbox Payment" android:contentDescription="Simulate Sandbox Payment (Test Verification)" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>

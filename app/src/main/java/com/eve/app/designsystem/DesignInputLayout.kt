@@ -21,6 +21,35 @@ class DesignInputLayout @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = com.google.android.material.R.attr.textInputStyle
 ) : TextInputLayout(context, attrs, defStyleAttr) {
+    // Material 1.12 skips setStroke when the requested color is transparent.
+    // Update the existing public background drawable as well, so clearing focus
+    // or an error actually clears its previously painted outline.
+    private fun updateTokenStroke() {
+        val field = editText ?: return
+        val background = field.background
+        val box = when (background) {
+            is com.google.android.material.shape.MaterialShapeDrawable -> background
+            is android.graphics.drawable.LayerDrawable -> if (background.numberOfLayers > 0)
+                background.getDrawable(background.numberOfLayers - 1) as? com.google.android.material.shape.MaterialShapeDrawable else null
+            else -> null
+        } ?: return
+        val color = when {
+            !isEnabled -> R.color.transparent
+            !error.isNullOrEmpty() -> R.color.system_red
+            isCounterEnabled && counterMaxLength > 0 && field.length() > counterMaxLength -> R.color.system_red
+            field.hasFocus() -> R.color.accent
+            else -> R.color.transparent
+        }
+        box.setStroke(resources.getDimension(R.dimen.design_focus_stroke), ContextCompat.getColor(context, color))
+    }
+    override fun drawableStateChanged() {
+        super.drawableStateChanged()
+        updateTokenStroke()
+    }
+    override fun setError(errorText: CharSequence?) {
+        super.setError(errorText)
+        updateTokenStroke()
+    }
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         editText?.let { TouchTargets.ensure(it) }
@@ -28,6 +57,7 @@ class DesignInputLayout @JvmOverloads constructor(
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
         styleHelpers(this)
+        updateTokenStroke()
     }
     private fun styleHelpers(group: ViewGroup) {
         for (i in 0 until group.childCount) {
@@ -80,6 +110,12 @@ class DesignInputLayout @JvmOverloads constructor(
             } else if (layout.endIconMode == END_ICON_PASSWORD_TOGGLE) {
                 layout.setEndIconDrawable(R.drawable.design_password_toggle)
             }
+            updateTokenStroke()
+            field.addTextChangedListener(object : android.text.TextWatcher {
+                override fun beforeTextChanged(text: CharSequence?, start: Int, count: Int, after: Int) = Unit
+                override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) = Unit
+                override fun afterTextChanged(text: android.text.Editable?) { updateTokenStroke() }
+            })
         }
     }
 }

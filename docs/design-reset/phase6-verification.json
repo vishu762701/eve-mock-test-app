@@ -38,7 +38,7 @@
     "old_token": "rejected"
   },
   "protected_diff": "git diff 6761cf6 -- ThemeSwitchAnimator.kt ThemeManager.kt TelegramMenuPopup.kt res/raw assets/lottie produced no changes; checker also validates baseline hashes of core/sun/moon/raw assets",
-  "hosted_native": "Run 39335399036 at 3989010 completed 40 tests per mode with two failing cases per mode. Targeted bindings fixed locally; final hosted rerun pending.",
+  "hosted_native": "Run 39336905960 at fda21cc completed 40 tests per mode with two failing cases per mode. Latest targeted input/action fixes pass local gates; hosted rerun pending.",
   "CI_integration": "Standalone checker is not wired to CI, as requested",
   "native_recovery_local": {
     "phase6-final-bindings-corrected-gates.log": {
@@ -52,6 +52,16 @@
     "phase6-final-bindings-docs.log": {
       "result": "PASS",
       "sha256": "197503838bf5771563adf420ff0fb1e92644118f750e3bd19e320fda427d604e"
+    }
+  },
+  "input_actions_local": {
+    "phase6-input-actions-final-gates.log": {
+      "result": "PASS",
+      "sha256": "9ff783fed7a0a0f66919940801e150dc71aa757b4ce318867791269ce6513416"
+    },
+    "phase6-input-actions-python.log": {
+      "result": "PASS",
+      "sha256": "64a4c37ddd035f8ec9f162adf25ace356f44f3034a14c2bda08ac65d83b451ae"
     }
   }
 }

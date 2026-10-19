@@ -82,7 +82,7 @@ Each entry names the actual binding or shared role. Recycled rows are listed for
 | `ui/admin/PollsAdminAdapter.kt` | tvPollStatus: Active / Expired | green 2.22:1; orange 2.31:1 |
 | `ui/admin/AnalyticsExamAdapter.kt` | tvEngagementBadge: no/low/active engagement | red 3.57:1; orange 2.31:1; green 2.22:1 |
 | `ui/admin/AdminActivity.kt` | tvLiveMaintenanceStatus; tvVersionStatusBadge (within their solid card) | green 2.22:1; red 3.57:1 |
-| `designsystem/DesignInputLayout.kt` | 14sp error helper whenever an input is hosted in a white form card, dialog or sheet | red 3.57:1 |
+| `designsystem/DesignInputLayout.kt` | 14sp error/counter helper whenever an input is hosted in a white form card, dialog or sheet | red 3.57:1 |
 
 ## Scope exclusions and uncertainty
 

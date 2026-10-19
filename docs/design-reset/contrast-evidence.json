@@ -496,7 +496,7 @@
     },
     {
       "source": "designsystem/DesignInputLayout.kt",
-      "binding": "14sp error helper whenever an input is hosted in a white form card, dialog or sheet",
+      "binding": "14sp error/counter helper whenever an input is hosted in a white form card, dialog or sheet",
       "colors_and_contrast": "red 3.57:1"
     }
   ],
