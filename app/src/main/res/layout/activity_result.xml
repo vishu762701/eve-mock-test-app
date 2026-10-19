@@ -128,11 +128,11 @@
                         <com.eve.app.ui.result.ResponsiveResultRow android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" app:eveHorizontalBreakpoint="300dp" android:clipChildren="false" android:clipToPadding="false">
                             <TextView android:id="@+id/tvReviewPaletteTitle" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Question Palette" />
                             <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-                                <View android:layout_width="7dp" android:layout_height="7dp" />
+                                <View style="@style/Widget.Eve.Token.StatusDot.Success" android:layout_width="7dp" android:layout_height="7dp" />
                                 <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:layout_marginEnd="@dimen/design_card_gap" android:text="Right" />
-                                <View android:layout_width="7dp" android:layout_height="7dp" />
+                                <View style="@style/Widget.Eve.Token.StatusDot.Error" android:layout_width="7dp" android:layout_height="7dp" />
                                 <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:layout_marginEnd="@dimen/design_card_gap" android:text="Wrong" />
-                                <View android:layout_width="7dp" android:layout_height="7dp" />
+                                <View style="@style/Widget.Eve.Token.StatusDot.Neutral" android:layout_width="7dp" android:layout_height="7dp" />
                                 <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:text="Skipped" />
                             </LinearLayout>
                         </com.eve.app.ui.result.ResponsiveResultRow>

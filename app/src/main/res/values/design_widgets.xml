@@ -308,4 +308,7 @@
         <item name="android:minWidth">@dimen/design_input_height</item>
         <item name="android:minHeight">@dimen/design_input_height</item>
     </style>
+    <style name="Widget.Eve.Token.StatusDot.Success" parent="Widget.Eve.Token.MarkedDot"><item name="android:backgroundTint">@color/system_green</item></style>
+    <style name="Widget.Eve.Token.StatusDot.Error" parent="Widget.Eve.Token.MarkedDot"><item name="android:backgroundTint">@color/system_red</item></style>
+    <style name="Widget.Eve.Token.StatusDot.Neutral" parent="Widget.Eve.Token.MarkedDot"><item name="android:backgroundTint">@color/text_secondary</item></style>
 </resources>

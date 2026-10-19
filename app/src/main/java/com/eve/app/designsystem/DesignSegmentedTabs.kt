@@ -30,6 +30,8 @@ class DesignSegmentedTabs @JvmOverloads constructor(
         })
     }
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        // Labels must be installed and sized before Material measures its strip.
+        applyTypography()
         val height = resolveSize(resources.getDimensionPixelSize(R.dimen.design_tab_height), heightMeasureSpec)
         super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY))
         val strip = getChildAt(0) as? ViewGroup ?: return
@@ -37,10 +39,6 @@ class DesignSegmentedTabs @JvmOverloads constructor(
         val innerWidth = if (tabMode == MODE_FIXED) available else maxOf(available, strip.measuredWidth)
         strip.measure(MeasureSpec.makeMeasureSpec(innerWidth, MeasureSpec.EXACTLY),
             MeasureSpec.makeMeasureSpec((measuredHeight - paddingTop - paddingBottom).coerceAtLeast(0), MeasureSpec.EXACTLY))
-    }
-    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        super.onLayout(changed, left, top, right, bottom)
-        applyTypography()
     }
     private fun applyTypography() {
         val strip = getChildAt(0) as? ViewGroup ?: return
@@ -52,6 +50,8 @@ class DesignSegmentedTabs @JvmOverloads constructor(
                     id = android.R.id.text1
                     text = tab.text
                     gravity = Gravity.CENTER
+                    maxLines = 1
+                    ellipsize = android.text.TextUtils.TruncateAt.END
                     DesignType.apply(this, DesignType.Role.TAB)
                 }
             }

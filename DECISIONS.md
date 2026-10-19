@@ -1208,3 +1208,6 @@ The final native fixture checks only Chip text bounds using total padding; Andro
 
 
 Material 1.12 TextInputLayout.java (the already inspected official release source in the design-source archive) confirms canDrawStroke rejects Color.TRANSPARENT, and outlined dropdown backgrounds end in the real box drawable. Update that existing public EditText background's box stroke explicitly when returning to neutral, preserving native error/counter behavior. Keep strong error/focus/neutral assertions; use an explicit focus sink rather than assuming clearFocus defeats Android's default-focus reassignment. The shortened sandbox display caption retains its full accessible purpose and original action.
+
+
+Native ManualUiSpecificationTest exposed a custom tab label without completed layout at enlarged fonts. Prepare custom labels before Material TabLayout.onMeasure and set maxLines before assigning the custom slot, so Material captures the intended line policy and the measured layout is not invalidated afterwards. Existing TouchTargets bindings already observe global-layout changes; no second touch mechanism is needed. Restore plain legend markers through generic root meaning styles, and use the existing 4dp compact token on each review-card edge to total the locked 8dp gap.
