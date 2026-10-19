@@ -966,3 +966,25 @@ On the Result screen (and consistently across other screens in the app), three c
    - Maintained all existing elevation, blur, and offset parameters.
    - Zero alterations to colors, component sizes, typography/fonts, text strings, animations, or runtime logic.
    - Protected Telegram reveal toggle, Lottie assets/triggers, and SVG icon vector geometries remain completely untouched.
+
+## Design reset baseline and font requirement conflict
+
+The current owner's locked design-reset request supersedes earlier UI numerical
+specifications. Preserve feature/data/navigation logic and the Telegram theme
+reveal. Use explicit resource/theme migration rather than runtime view-tree
+rewrites to avoid overriding semantic states and the reveal. Phase 0 records the
+source/resource inventory and original-HEAD `pre-design-reset` tag.
+
+A working Settings device-font preference conflicts with mandatory Poppins/no
+substitutions and preservation of every feature. Stop before the root phase until
+the owner selects which requirement takes precedence; do not silently remove the
+preference or turn it into an ineffective control. Font download preflight passed;
+Poppins Regular/Medium/Bold and the SIL OFL 1.1 were fetched from the official
+Google Fonts repository. No production implementation or dependency changes yet.
+See `docs/design-reset/report.md` for exact verification limits.
+
+Official sources actually fetched/read during preparation:
+- Android Fonts in XML: https://developer.android.com/guide/topics/ui/look-and-feel/fonts-in-xml
+- Material 1.12.0 typography resources: https://github.com/material-components/material-components-android/blob/1.12.0/lib/java/com/google/android/material/typography/res/values/styles.xml
+- Material 1.12.0 shape attributes: https://github.com/material-components/material-components-android/blob/1.12.0/lib/java/com/google/android/material/shape/res/values/attrs.xml
+- Poppins license: https://github.com/google/fonts/blob/main/ofl/poppins/OFL.txt

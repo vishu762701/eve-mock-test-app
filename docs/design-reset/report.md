@@ -35,3 +35,78 @@ fix clipping in shared hosts, and verify runtime color/font bindings per screen.
 Phases 1–6, light/dark device verification, final shadow mapping, font/icon license
 report, unmapped hue audit, small colored text contrast listing, deleted-resource
 proof and `scripts/design_check.sh` PASS remain pending. No screen is marked migrated.
+
+## Phase boundary and requirement conflict
+
+**BLOCKED before Phase 1; no production files changed.** Settings exposes a working
+font-choice feature (`SettingsActivity.showFontPickerBottomSheet`,
+`bottom_sheet_font_picker.xml`, `FontManager.typeface/mediumTypeface`). Device mode
+uses the platform typeface; default mode uses bundled fonts. The locked request
+both mandates Poppins with no substitution/only one protected exception and requires
+every feature to keep working. Retiring this preference changes a feature; retaining
+it introduces another font exception. The product owner must choose precedence.
+A clarification has been requested; no preference has been silently removed,
+disabled or made ineffective.
+
+| Phase | Status |
+| --- | --- |
+| 0 — baseline | DONE-VERIFIED: inventory, original-HEAD tag, static checks, direct-main push |
+| 1 — root | BLOCKED on font-preference conflict; font download preflight succeeded |
+| 2 — components | Pending |
+| 3 — navigation/icons/transitions | Pending |
+| 4 — every screen | Pending; all sources/layouts listed in `screens.md` |
+| 5 — remove old | Pending; no files deleted |
+| 6 — enforce | Pending; no design-check PASS claimed |
+
+| Production metric | Before | At Phase 0 boundary |
+| --- | ---: | ---: |
+| Hex color occurrences | 496 | 496 |
+| Literal dp occurrences | 3007 | 3007 |
+| Literal sp occurrences | 181 | 181 |
+| Style definitions including qualifiers | 279 | 279 |
+| Drawables including qualifiers | 133 | 133 |
+| Font resources including XML families | 8 | 8 |
+| Layouts | 95 | 95 |
+| Kotlin sources | 237 | 237 |
+
+### Font preflight
+
+Regular 400, Medium 500 and Bold 700 TrueType files downloaded successfully from
+Google Fonts' official `google/fonts` repository, `ofl/poppins/Poppins-Regular.ttf`,
+`Poppins-Medium.ttf`, `Poppins-Bold.ttf`. `file` identifies all three as Poppins
+TrueType fonts. These files are in workspace scratch only, not bundled into the app
+before the root phase. The official `ofl/poppins/OFL.txt` was fetched and read:
+
+> Copyright 2020 The Poppins Project Authors (https://github.com/itfoundry/Poppins)
+>
+> This Font Software is licensed under the SIL Open Font License, Version 1.1.
+>
+> The OFL allows the licensed fonts to be used, studied, modified and
+> redistributed freely as long as they are not sold by themselves.
+
+The full copyright notice and license must be distributed with the bundled fonts
+when Phase 1 resumes. No font substitution was made.
+
+### Checks and limits
+
+- `git diff --check`: PASS.
+- `git diff pre-design-reset -- app/src/main`: empty, including all protected
+  animation files and resources. Their behavior has not been modified.
+- `git ls-remote origin refs/heads/main refs/tags/pre-design-reset` verified the
+  Phase 0 commit on remote main and original HEAD as the remote tag.
+- Actions run https://github.com/vishu762701/eve-mock-test-app/actions/runs/39186602486
+  was checked after push: in progress. Backend and Firebase Functions jobs passed;
+  Android build/lint/native gesture and three-button jobs were still running.
+  This is baseline CI, not evidence of a migrated UI.
+- Light/dark rendering, lint delta, final `assembleDebug`, new design enforcement,
+  zero-old-token grep, shadow values and contrast audit have **not** been verified.
+- Unmapped hues and every small system-colored text use on white remain unaudited;
+  no color migration has occurred. No resource-deletion evidence is claimed.
+- No new library added, no CI changes made, and no backend or feature changes made.
+
+### Test on phone
+
+1. Open Settings, tap the font preference, and choose Device font.
+2. Confirm that the app currently switches typography after recreation.
+3. Decide whether this feature should be retired for mandatory Poppins or retained
+   as a second explicit exception. No redesigned APK is available at this boundary.
