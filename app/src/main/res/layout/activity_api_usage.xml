@@ -1,74 +1,45 @@
 <?xml version='1.0' encoding='utf-8'?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/eve_system_grouped_background" android:clickable="true" android:focusable="true" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
-
-    <!-- Top Bar -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:clickable="true" android:focusable="true" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Screen">
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-<LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:minHeight="56dp" android:background="@android:color/transparent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingVertical="8dp" android:clipToPadding="false" android:clipChildren="false">
-
-        <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
-
-        <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1"/><ImageButton android:id="@+id/btnRefresh" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Refresh" android:src="@drawable/ic_refresh" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.ToolbarRow">
+            <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/text_primary" style="@style/Widget.Eve.Token.IconButton" />
+            <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1" />
+            <ImageButton android:id="@+id/btnRefresh" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Refresh" android:src="@drawable/ic_refresh" app:tint="@color/text_primary" style="@style/Widget.Eve.Token.IconButton" />
+        </LinearLayout>
+    </com.eve.app.ui.common.EveGlassToolbar>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
+        <TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="API Usage &amp; Cost Monitor" />
     </LinearLayout>
-</com.eve.app.ui.common.EveGlassToolbar>
-
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingBottom="@dimen/design_section_gap"><TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingStart="4dp" android:text="API Usage &amp; Cost Monitor"/>
-
-        </LinearLayout><ScrollView android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false" android:clipChildren="false">
-
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
-
-            <!-- Current Month Badge -->
-            <TextView style="@style/TextAppearance.Eve.Footnote.Medium" android:id="@+id/tvCurrentMonth" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_category_chip" android:paddingHorizontal="12dp" android:paddingVertical="4dp" android:text="📅 September 2026" android:textColor="@color/eve_accent_text"/>
-
-            <!-- Gemini AI Calls Card -->
-            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" app:cardBackgroundColor="@color/eve_card_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp">
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
-
-                    <TextView style="@style/TextAppearance.Eve.Headline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="✨ Gemini AI Generation Calls" android:textColor="@color/eve_text"/>
-
-                    <TextView style="@style/TextAppearance.Eve.Analytics.MetricValue" android:id="@+id/tvGeminiCallsCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="0" android:textColor="@color/eve_accent_text"/>
-
-                    <TextView style="@style/TextAppearance.Eve.Caption1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Total AI question generation calls this month (both scheduled auto-gen and manual 'Generate Now'). Resets automatically each calendar month." android:textColor="@color/eve_text_secondary"/>
+    <ScrollView android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+            <TextView style="@style/TextAppearance.Eve.Token.Secondary.blue" android:id="@+id/tvCurrentMonth" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📅 September 2026" />
+            <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                    <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="✨ Gemini AI Generation Calls" />
+                    <TextView style="@style/TextAppearance.Eve.Token.Heading.blue" android:id="@+id/tvGeminiCallsCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:text="0" />
+                    <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Total AI question generation calls this month (both scheduled auto-gen and manual 'Generate Now'). Resets automatically each calendar month." />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Database Writes Proxy Card -->
-            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" app:cardBackgroundColor="@color/eve_card_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp">
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
-
-                    <TextView style="@style/TextAppearance.Eve.Headline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📝 Total Documents Created (Writes Proxy)" android:textColor="@color/eve_text"/>
-
-                    <TextView style="@style/TextAppearance.Eve.Title1" android:id="@+id/tvDocsCreatedCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="0" android:textColor="@color/eve_status_success_text"/>
-
-                    <TextView style="@style/TextAppearance.Eve.Caption1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Documents created across exams, questions, broadcasts, and feedback posts this month. Serves as an early indicator for Firestore database write volume." android:textColor="@color/eve_text_secondary"/>
+            </com.eve.app.designsystem.DesignCardView>
+            <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                    <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📝 Total Documents Created (Writes Proxy)" />
+                    <TextView style="@style/TextAppearance.Eve.Token.Heading.green" android:id="@+id/tvDocsCreatedCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:text="0" />
+                    <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Documents created across exams, questions, broadcasts, and feedback posts this month. Serves as an early indicator for Firestore database write volume." />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Database Reads Proxy Card -->
-            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" app:cardBackgroundColor="@color/eve_card_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp">
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
-
-                    <TextView style="@style/TextAppearance.Eve.Headline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="👥 Student Test Submissions (Reads Proxy)" android:textColor="@color/eve_text"/>
-
-                    <TextView style="@style/TextAppearance.Eve.Title1" android:id="@+id/tvSubmissionsCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="0" android:textColor="@color/eve_text"/>
-
-                    <TextView style="@style/TextAppearance.Eve.Caption1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Total completed test attempts submitted by students this month. Correlates directly with student read operations and active engagement." android:textColor="@color/eve_text_secondary"/>
+            </com.eve.app.designsystem.DesignCardView>
+            <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                    <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="👥 Student Test Submissions (Reads Proxy)" />
+                    <TextView style="@style/TextAppearance.Eve.Token.Heading" android:id="@+id/tvSubmissionsCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:text="0" />
+                    <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Total completed test attempts submitted by students this month. Correlates directly with student read operations and active engagement." />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Authoritative Billing Disclaimer Note -->
-            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" app:cardBackgroundColor="@color/eve_surface_variant" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp">
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="14dp" android:clipToPadding="false" android:clipChildren="false">
-
-                    <ImageView android:layout_width="20dp" android:layout_height="20dp" android:layout_marginTop="2dp" android:src="@drawable/ic_info" app:tint="@color/eve_system_blue"/>
-
-                    <TextView style="@style/TextAppearance.Eve.Caption1" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="10dp" android:layout_weight="1" android:lineSpacingExtra="2dp" android:text="Note: Check actual usage and billing in the Google Cloud Console and Firebase Console directly for precise, authoritative numbers. This in-app counter is an approximate early-warning indicator, not a billing source of truth." android:textColor="@color/eve_text_secondary"/>
+            </com.eve.app.designsystem.DesignCardView>
+            <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                    <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:layout_marginTop="2dp" android:src="@drawable/ic_info" app:tint="@color/system_blue" />
+                    <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_card_padding" android:layout_weight="1" android:text="Note: Check actual usage and billing in the Google Cloud Console and Firebase Console directly for precise, authoritative numbers. This in-app counter is an approximate early-warning indicator, not a billing source of truth." />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+            </com.eve.app.designsystem.DesignCardView>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

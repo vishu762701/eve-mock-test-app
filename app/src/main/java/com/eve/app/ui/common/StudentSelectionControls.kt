@@ -19,13 +19,13 @@ object StudentSelectionControls {
         isCheckable = true
         isCheckedIconVisible = false
         setEnsureMinTouchTargetSize(true)
-        chipMinHeight = 40f * resources.displayMetrics.density
+        chipMinHeight = resources.getDimension(R.dimen.design_pill_height)
         chipCornerRadius = chipMinHeight / 2
         chipStrokeWidth = 0f
-        chipBackgroundColor = ContextCompat.getColorStateList(context, R.color.selector_eve_inset_chip_bg)
-        setTextColor(ContextCompat.getColorStateList(context, R.color.selector_recovery_chip_text))
-        textSize = 14f
-        chipStartPadding = 14f * resources.displayMetrics.density
+        chipBackgroundColor = ContextCompat.getColorStateList(context, R.color.accent)
+        setTextColor(ContextCompat.getColorStateList(context, R.color.on_accent))
+        com.eve.app.designsystem.DesignType.apply(this, com.eve.app.designsystem.DesignType.Role.CHIP)
+        chipStartPadding = resources.getDimension(R.dimen.design_pill_padding)
         chipEndPadding = chipStartPadding
     }
 }

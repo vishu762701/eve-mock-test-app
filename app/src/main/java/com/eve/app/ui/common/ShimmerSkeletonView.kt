@@ -72,8 +72,8 @@ class ShimmerSkeletonView @JvmOverloads constructor(
 
     private fun updateShader(width: Float, height: Float) {
         if (width <= 0 || height <= 0) return
-        val baseColor = ContextCompat.getColor(context, R.color.eve_shimmer_base)
-        val highlightColor = ContextCompat.getColor(context, R.color.eve_shimmer_highlight)
+        val baseColor = ContextCompat.getColor(context, R.color.text_primary)
+        val highlightColor = ContextCompat.getColor(context, R.color.text_primary)
 
         val gradientWidth = width * 0.7f
         val shader = LinearGradient(
@@ -127,7 +127,7 @@ class ShimmerSkeletonView @JvmOverloads constructor(
 
     private fun drawQuestionSkeleton(canvas: Canvas, w: Float, h: Float) {
         val pad = 16f * density
-        val lineRadius = resources.getDimension(com.eve.app.R.dimen.eve_radius_pill)
+        val lineRadius = resources.getDimension(com.eve.app.R.dimen.design_input_height)
 
         // Question header line
         rectF.set(pad, 16f * density, pad + 120f * density, 32f * density)
@@ -146,7 +146,7 @@ class ShimmerSkeletonView @JvmOverloads constructor(
         val spacing = 10f * density
         for (i in 0 until 4) {
             rectF.set(pad, top, w - pad, top + optH)
-            canvas.drawRoundRect(rectF, resources.getDimension(com.eve.app.R.dimen.eve_radius_input), resources.getDimension(com.eve.app.R.dimen.eve_radius_input), paint)
+            canvas.drawRoundRect(rectF, resources.getDimension(com.eve.app.R.dimen.design_radius_inner), resources.getDimension(com.eve.app.R.dimen.design_radius_inner), paint)
             top += optH + spacing
         }
     }

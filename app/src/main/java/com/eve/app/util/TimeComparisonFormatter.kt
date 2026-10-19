@@ -31,9 +31,9 @@ object TimeComparisonFormatter {
         }
 
         val colorRes = when {
-            !isCorrect -> R.color.eve_status_error
-            isFaster -> R.color.eve_status_success
-            else -> R.color.eve_status_warning
+            !isCorrect -> R.color.system_red
+            isFaster -> R.color.system_green
+            else -> R.color.system_orange
         }
 
         return ComparisonResult(

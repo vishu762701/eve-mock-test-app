@@ -115,8 +115,8 @@ class ManageExamsActivity : EveBaseActivity() {
             val view = super.getView(position, convertView, parent) as TextView
             val item = getItem(position)
             view.text = item?.displayLabel.orEmpty()
-            view.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.eve_text))
-            view.setBackgroundColor(androidx.core.content.ContextCompat.getColor(context, R.color.eve_surface))
+            view.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.text_primary))
+            view.setBackgroundColor(androidx.core.content.ContextCompat.getColor(context, R.color.surface))
             return view
         }
 
@@ -674,7 +674,7 @@ class ManageExamsActivity : EveBaseActivity() {
     private fun updateTimePickerState(enabled: Boolean) {
         binding.btnPickTime.isEnabled = enabled
         binding.btnPickTime.alpha = 1f
-        val labelColor = androidx.core.content.ContextCompat.getColor(this, R.color.eve_text)
+        val labelColor = androidx.core.content.ContextCompat.getColor(this, R.color.text_primary)
         binding.btnPickTime.setTextColor(androidx.core.graphics.ColorUtils.setAlphaComponent(labelColor, if (enabled) 255 else 128))
     }
 
@@ -719,7 +719,7 @@ class ManageExamsActivity : EveBaseActivity() {
         when {
             isNewMainExamMode -> {
                 binding.tvActiveContextBadge.text = "NEW MAIN EXAM"
-                binding.tvActiveContextBadge.setBackgroundResource(R.drawable.bg_active_context_badge)
+                binding.tvActiveContextBadge.setBackgroundResource(R.drawable.design_tab_segment)
                 binding.tvActiveContextTitle.text = "Creating New Main Exam"
                 binding.tvActiveContextSubtitle.text = "Save this exam before generating tests or configuring schedules."
                 binding.tvGenTestsSectionTitle.text = "Generated Tests"
@@ -727,7 +727,7 @@ class ManageExamsActivity : EveBaseActivity() {
             isNewSubExamMode -> {
                 val parentName = selectedMainExam?.examName.orEmpty()
                 binding.tvActiveContextBadge.text = "NEW SUB-EXAM"
-                binding.tvActiveContextBadge.setBackgroundResource(R.drawable.bg_active_context_badge)
+                binding.tvActiveContextBadge.setBackgroundResource(R.drawable.design_tab_segment)
                 binding.tvActiveContextTitle.text = if (parentName.isNotBlank()) "Creating Sub-Exam under $parentName" else "Creating Sub-Exam"
                 binding.tvActiveContextSubtitle.text = "Save this sub-exam before generating tests or configuring schedules."
                 binding.tvGenTestsSectionTitle.text = "Generated Tests"
@@ -736,7 +736,7 @@ class ManageExamsActivity : EveBaseActivity() {
                 val subName = selectedSubExam!!.examName
                 val parentName = selectedMainExam?.examName.orEmpty()
                 binding.tvActiveContextBadge.text = "SUB-EXAM"
-                binding.tvActiveContextBadge.setBackgroundResource(R.drawable.bg_active_context_badge)
+                binding.tvActiveContextBadge.setBackgroundResource(R.drawable.design_tab_segment)
                 binding.tvActiveContextTitle.text = if (parentName.isNotBlank()) "$subName (under $parentName)" else subName
                 binding.tvActiveContextSubtitle.text = "Test rules, syllabus prompt, and on-demand generation apply to '$subName'."
                 binding.tvGenTestsSectionTitle.text = "Generated Tests for $subName"
@@ -744,14 +744,14 @@ class ManageExamsActivity : EveBaseActivity() {
             selectedMainExam != null -> {
                 val mainName = selectedMainExam!!.examName
                 binding.tvActiveContextBadge.text = "MAIN EXAM"
-                binding.tvActiveContextBadge.setBackgroundResource(R.drawable.bg_active_context_badge)
+                binding.tvActiveContextBadge.setBackgroundResource(R.drawable.design_tab_segment)
                 binding.tvActiveContextTitle.text = mainName
                 binding.tvActiveContextSubtitle.text = "Test rules, syllabus prompt, and on-demand generation apply directly to '$mainName'."
                 binding.tvGenTestsSectionTitle.text = "Generated Tests for $mainName (Direct)"
             }
             else -> {
                 binding.tvActiveContextBadge.text = "EXAM"
-                binding.tvActiveContextBadge.setBackgroundResource(R.drawable.bg_active_context_badge)
+                binding.tvActiveContextBadge.setBackgroundResource(R.drawable.design_tab_segment)
                 binding.tvActiveContextTitle.text = "No Exam Selected"
                 binding.tvActiveContextSubtitle.text = "Select an existing exam or create a new one above."
                 binding.tvGenTestsSectionTitle.text = "Generated Tests"
@@ -1024,7 +1024,7 @@ class ManageExamsActivity : EveBaseActivity() {
         val tvMsg = android.widget.TextView(context).apply {
             text = friendlyMessage
             textSize = 15f
-            setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.eve_text))
+            setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.text_primary))
             setLineSpacing(0f, 1.2f)
         }
         container.addView(tvMsg)
@@ -1039,7 +1039,7 @@ class ManageExamsActivity : EveBaseActivity() {
         val tvDetails = android.widget.TextView(context).apply {
             text = techLine
             textSize = 12f
-            setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.eve_text_secondary))
+            setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.text_secondary))
             setTextIsSelectable(true)
             val topMargin = (16 * density).toInt()
             layoutParams = android.widget.LinearLayout.LayoutParams(

@@ -1,5 +1,6 @@
 package com.eve.app.ui
 
+import com.eve.app.designsystem.designAttribute
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -339,10 +340,10 @@ class AppWideTypographyAndColorRolesTest {
             val file = File(layoutDir, filename)
             assertTrue("$filename must exist", file.exists())
             val root = loadXml(file)
-            val bg = root.getAttribute("android:background")
+            val bg = root.designAttribute("android:background")
             assertEquals(
                 "$filename root background must be @color/eve_system_grouped_background",
-                "@color/eve_system_grouped_background",
+                "@color/bg_app",
                 bg
             )
         }
@@ -355,10 +356,10 @@ class AppWideTypographyAndColorRolesTest {
             val file = File(layoutDir, filename)
             assertTrue("$filename must exist", file.exists())
             val root = loadXml(file)
-            val bg = root.getAttribute("android:background")
+            val bg = root.designAttribute("android:background")
             assertEquals(
                 "$filename root background must be @color/eve_system_background",
-                "@color/eve_system_background",
+                "@color/bg_app",
                 bg
             )
         }

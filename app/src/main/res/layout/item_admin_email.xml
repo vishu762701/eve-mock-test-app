@@ -1,26 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:paddingVertical="8dp"
-    android:minHeight="@dimen/eve_list_row_min">
-
-    <TextView
-        android:id="@+id/tvEmail"
-        style="@style/TextAppearance.Eve.Admin.ItemTitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:textColor="@color/eve_text" />
-
-    <TextView
-        android:id="@+id/btnRemove"
-        style="@style/TextAppearance.Eve.Footnote.Medium"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="6dp"
-        android:text="Remove"
-        android:textColor="@color/selector_eve_destructive_text" />
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:minHeight="@dimen/eve_list_row_min" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+    <TextView android:id="@+id/tvEmail" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_weight="1" />
+    <TextView android:id="@+id/btnRemove" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Remove" />
 </LinearLayout>

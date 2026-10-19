@@ -26,9 +26,9 @@ class TopicStatAdapter : RecyclerView.Adapter<TopicStatAdapter.VH>() {
             b.tvTopicCount.text = "${stat.correct}/${stat.total} correct"
 
             val colorRes = when {
-                stat.accuracy >= 70 -> R.color.eve_status_success_text
-                stat.accuracy >= 40 -> R.color.eve_status_warning_text
-                else -> R.color.eve_status_error_text
+                stat.accuracy >= 70 -> R.color.system_green
+                stat.accuracy >= 40 -> R.color.system_orange
+                else -> R.color.system_red
             }
             val color = ContextCompat.getColor(b.root.context, colorRes)
             b.tvTopicAccuracy.setTextColor(color)

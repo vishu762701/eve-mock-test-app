@@ -27,8 +27,8 @@ import com.eve.app.ui.test.TestActivity
 object SystemBarHelper {
 
     enum class ScreenCanvasRole(@ColorRes val colorRes: Int) {
-        PLAIN(R.color.eve_system_background),
-        GROUPED(R.color.eve_system_grouped_background)
+        PLAIN(R.color.bg_app),
+        GROUPED(R.color.bg_app)
     }
 
     /**
@@ -81,8 +81,8 @@ object SystemBarHelper {
                 return ScreenCanvasRole.GROUPED
             }
             val lightGrouped = (root.background as? android.graphics.drawable.ColorDrawable)?.color
-            if (lightGrouped != null && lightGrouped == ContextCompat.getColor(activity, R.color.eve_system_grouped_background) &&
-                lightGrouped != ContextCompat.getColor(activity, R.color.eve_system_background)
+            if (lightGrouped != null && lightGrouped == ContextCompat.getColor(activity, R.color.bg_app) &&
+                lightGrouped != ContextCompat.getColor(activity, R.color.bg_app)
             ) {
                 return ScreenCanvasRole.GROUPED
             }

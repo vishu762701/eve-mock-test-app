@@ -1,42 +1,28 @@
 <?xml version='1.0' encoding='utf-8'?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/eve_system_grouped_background" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
-
-    <!-- Top Bar -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Screen">
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-<LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:background="@android:color/transparent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingVertical="12dp" android:clipToPadding="false" android:clipChildren="false">
-
-        <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
-
-        <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1"/><ImageButton android:id="@+id/btnRefresh" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Refresh" android:src="@drawable/ic_refresh" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
-    </LinearLayout>
-</com.eve.app.ui.common.EveGlassToolbar>
-
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingBottom="@dimen/design_section_gap"><TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Manage Users"/>
-
-        </LinearLayout><!-- Search Bar -->
-    <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="16dp" android:layout_marginTop="12dp" android:layout_marginBottom="8dp" app:cardBackgroundColor="@color/eve_card_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp">
-
-        <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="12dp" android:clipToPadding="false" android:clipChildren="false">
-
-            <ImageView android:layout_width="20dp" android:layout_height="20dp" android:contentDescription="Search" android:src="@drawable/ic_search" app:tint="@color/eve_text_secondary"/>
-
-            <EditText style="@style/TextAppearance.Eve.BodySmall" android:id="@+id/etSearchUser" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_marginStart="8dp" android:background="@null" android:hint="Search by student name or email..." android:imeOptions="actionSearch" android:inputType="text" android:maxLines="1" android:textColor="@color/eve_text" android:textColorHint="@color/eve_text_secondary"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.ToolbarRow">
+            <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/text_primary" style="@style/Widget.Eve.Token.IconButton" />
+            <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1" />
+            <ImageButton android:id="@+id/btnRefresh" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Refresh" android:src="@drawable/ic_refresh" app:tint="@color/text_primary" style="@style/Widget.Eve.Token.IconButton" />
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false">
-
-        <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvUsers" android:layout_width="match_parent" android:layout_height="match_parent" android:layoutAnimation="@anim/layout_enter" android:clipToPadding="false" android:paddingVertical="@dimen/eve_space_8" android:clipChildren="false"/>
-
-        <ProgressBar android:id="@+id/progressBar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:visibility="gone"/>
-
-        <LinearLayout android:id="@+id/emptyGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:orientation="vertical" android:padding="28dp" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false">
-
-            <ImageView android:layout_width="80dp" android:layout_height="80dp" android:src="@drawable/ic_users" app:tint="@color/eve_text_secondary"/>
-
-            <TextView style="@style/TextAppearance.Eve.Headline" android:id="@+id/tvEmptyTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="No students found" android:textColor="@color/eve_text"/>
-
-            <TextView style="@style/TextAppearance.Eve.Footnote" android:id="@+id/tvEmptyMessage" android:layout_width="260dp" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:gravity="center" android:text="No registered users match your search." android:textColor="@color/eve_text_secondary"/>
+    </com.eve.app.ui.common.EveGlassToolbar>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
+        <TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Manage Users" />
+    </LinearLayout>
+    <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:layout_marginBottom="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+            <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Search" android:src="@drawable/ic_search" app:tint="@color/text_secondary" />
+            <EditText style="@style/Widget.Eve.Token.Input" android:id="@+id/etSearchUser" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:layout_marginStart="@dimen/design_card_gap" android:hint="Search by student name or email..." android:imeOptions="actionSearch" android:inputType="text" android:maxLines="1" />
+        </LinearLayout>
+    </com.eve.app.designsystem.DesignCardView>
+    <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+        <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvUsers" android:layout_width="match_parent" android:layout_height="match_parent" android:layoutAnimation="@anim/layout_enter" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />
+        <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/progressBar" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:visibility="gone" style="@style/Widget.Eve.Token.Ring" android:indeterminate="true" />
+        <LinearLayout android:id="@+id/emptyGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:orientation="vertical" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+            <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:src="@drawable/ic_users" app:tint="@color/text_secondary" />
+            <TextView style="@style/TextAppearance.Eve.Token.Heading" android:id="@+id/tvEmptyTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_section_gap" android:text="No students found" />
+            <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvEmptyMessage" android:layout_width="260dp" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:gravity="center" android:text="No registered users match your search." />
         </LinearLayout>
     </FrameLayout>
 </LinearLayout>

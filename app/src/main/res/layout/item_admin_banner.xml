@@ -1,27 +1,15 @@
 <?xml version='1.0' encoding='utf-8'?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" app:cardBackgroundColor="@color/eve_card_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp" android:minHeight="@dimen/eve_list_row_min">
-
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:padding="10dp">
-
-        <com.google.android.material.imageview.ShapeableImageView android:id="@+id/ivBannerThumb" android:layout_width="72dp" android:layout_height="44dp" android:adjustViewBounds="true" android:background="@color/eve_surface_variant" android:contentDescription="Banner thumbnail" android:scaleType="centerCrop" app:shapeAppearanceOverlay="@style/ShapeCircle"/>
-
-        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical">
-
-            <TextView android:id="@+id/tvBannerOrder" style="@style/TextAppearance.Eve.Admin.ItemTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Banner #1" android:textColor="@color/eve_text"/>
-
-            <TextView android:id="@+id/tvBannerDate" style="@style/TextAppearance.Eve.Admin.ItemSubtitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Uploaded today" android:textColor="@color/eve_text_secondary"/>
-
-            <TextView android:id="@+id/tvBannerLink" style="@style/TextAppearance.Eve.Caption1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:ellipsize="end" android:maxLines="1" android:textColor="@color/eve_text_secondary" android:visibility="gone"/>
+<com.eve.app.designsystem.DesignCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap" android:minHeight="@dimen/eve_list_row_min" style="@style/Widget.Eve.Token.Card">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <com.google.android.material.imageview.ShapeableImageView android:id="@+id/ivBannerThumb" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_input_height" android:adjustViewBounds="true" android:contentDescription="Banner thumbnail" android:scaleType="centerCrop" app:shapeAppearanceOverlay="@style/ShapeCircle" />
+        <LinearLayout android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_screen_margin" android:layout_weight="1" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <TextView android:id="@+id/tvBannerOrder" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Banner #1" />
+            <TextView android:id="@+id/tvBannerDate" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Uploaded today" />
+            <TextView android:id="@+id/tvBannerLink" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:ellipsize="end" android:maxLines="1" android:visibility="gone" />
         </LinearLayout>
-
-        <ImageButton android:id="@+id/btnEditBannerLink" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:layout_marginEnd="2dp" android:contentDescription="Edit banner link" android:src="@drawable/ic_link" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
-
-        <!-- Up / Down Reorder buttons -->
-        <ImageButton android:id="@+id/btnMoveUp" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Move up" android:src="@drawable/ic_back" android:rotation="90" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
-
-        <ImageButton android:id="@+id/btnMoveDown" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="2dp" android:contentDescription="Move down" android:src="@drawable/ic_back" android:rotation="270" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
-
-        <!-- Delete button -->
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnDeleteBanner" style="@style/Widget.Eve.OutlinedButton" android:textAppearance="@style/TextAppearance.Eve.Footnote.Medium" android:layout_width="wrap_content" android:layout_height="48dp" android:layout_marginStart="6dp" android:paddingHorizontal="10dp" android:text="Delete" android:textColor="@color/selector_eve_destructive_text" app:strokeColor="@color/eve_shape_border"/>
+        <ImageButton android:id="@+id/btnEditBannerLink" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:layout_marginEnd="2dp" android:contentDescription="Edit banner link" android:src="@drawable/ic_link" app:tint="@color/text_primary" style="@style/Widget.Eve.Token.IconButton" />
+        <ImageButton android:id="@+id/btnMoveUp" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Move up" android:src="@drawable/ic_back" android:rotation="90" app:tint="@color/text_primary" style="@style/Widget.Eve.Token.IconButton" />
+        <ImageButton android:id="@+id/btnMoveDown" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="2dp" android:contentDescription="Move down" android:src="@drawable/ic_back" android:rotation="270" app:tint="@color/text_primary" style="@style/Widget.Eve.Token.IconButton" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnDeleteBanner" style="@style/Widget.Eve.Token.Button.Destructive" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_row_gap" android:text="Delete" />
     </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+</com.eve.app.designsystem.DesignCardView>

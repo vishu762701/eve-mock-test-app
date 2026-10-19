@@ -99,35 +99,35 @@ class MockTestTypographyTest {
 
         val tvTestTitle = findElementById(root, "tvTestTitle")
         assertNotNull("tvTestTitle must exist", tvTestTitle)
-        assertEquals("@style/TextAppearance.Eve.Test.Title", tvTestTitle?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading", tvTestTitle?.getAttribute("style"))
 
         val tvOfflineBanner = findElementById(root, "tvOfflineBanner")
         assertNotNull("tvOfflineBanner must exist", tvOfflineBanner)
-        assertEquals("@style/TextAppearance.Eve.Test.OfflineBanner", tvOfflineBanner?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Body", tvOfflineBanner?.getAttribute("style"))
 
         val tvMessage = findElementById(root, "tvMessage")
         assertNotNull("tvMessage must exist", tvMessage)
-        assertEquals("@style/TextAppearance.Eve.Test.Message", tvMessage?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Body", tvMessage?.getAttribute("style"))
 
         val tvMessageSub = findElementById(root, "tvMessageSub")
         assertNotNull("tvMessageSub must exist", tvMessageSub)
-        assertEquals("@style/TextAppearance.Eve.Test.MessageSub", tvMessageSub?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Secondary", tvMessageSub?.getAttribute("style"))
 
         val btnClear = findElementById(root, "btnClear")
         assertNotNull("btnClear must exist", btnClear)
-        assertEquals("@style/Widget.Eve.ApprovedTestAction", btnClear?.getAttribute("style"))
+        assertEquals("@style/Widget.Eve.Token.Button.Secondary", btnClear?.getAttribute("style"))
 
         val btnMarkReview = findElementById(root, "btnMarkReview")
         assertNotNull("btnMarkReview must exist", btnMarkReview)
-        assertEquals("@style/Widget.Eve.ApprovedTestAction", btnMarkReview?.getAttribute("style"))
+        assertEquals("@style/Widget.Eve.Token.Button.Review", btnMarkReview?.getAttribute("style"))
 
         val btnPrev = findElementById(root, "btnPrev")
         assertNotNull("btnPrev must exist", btnPrev)
-        assertEquals("@style/Widget.Eve.ApprovedTestNavigation", btnPrev?.getAttribute("style"))
+        assertEquals("@style/Widget.Eve.Token.Button.Secondary", btnPrev?.getAttribute("style"))
 
         val btnNext = findElementById(root, "btnNext")
         assertNotNull("btnNext must exist", btnNext)
-        assertEquals("@style/Widget.Eve.ApprovedTestNext", btnNext?.getAttribute("style"))
+        assertEquals("@style/Widget.Eve.Token.Button", btnNext?.getAttribute("style"))
     }
 
     @Test
@@ -136,19 +136,19 @@ class MockTestTypographyTest {
 
         val tvQuestion = findElementById(root, "tvQuestion")
         assertNotNull("tvQuestion must exist", tvQuestion)
-        assertEquals("@style/TextAppearance.Eve.QuestionText", tvQuestion?.getAttribute("style"))
-        assertEquals("1.5", tvQuestion?.getAttribute("android:lineSpacingMultiplier"))
+        assertEquals("@style/TextAppearance.Eve.Token.Body", tvQuestion?.getAttribute("style"))
+        assertEquals("", tvQuestion?.getAttribute("android:lineSpacingMultiplier"))
 
         val tvQuestionTimer = findElementById(root, "tvQuestionTimer")
         assertNotNull("tvQuestionTimer must exist", tvQuestionTimer)
-        assertEquals("@style/TextAppearance.Eve.Test.QuestionTimer", tvQuestionTimer?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading", tvQuestionTimer?.getAttribute("style"))
 
         for (optionId in listOf("rbA", "rbB", "rbC", "rbD")) {
             val rb = findElementById(root, optionId)
             assertNotNull("$optionId must exist", rb)
             assertEquals(
                 "$optionId must use TextAppearance.Eve.Test.Option",
-                "@style/TextAppearance.Eve.Test.Option",
+                "@style/Widget.Eve.Token.Choice",
                 rb?.getAttribute("style")
             )
         }
@@ -160,7 +160,7 @@ class MockTestTypographyTest {
 
         val tvCircleNumber = findElementById(root, "tvCircleNumber")
         assertNotNull("tvCircleNumber must exist", tvCircleNumber)
-        assertEquals("@style/TextAppearance.Eve.Test.PaletteNumber", tvCircleNumber?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Chip", tvCircleNumber?.getAttribute("style"))
     }
 
     @Test
@@ -174,9 +174,9 @@ class MockTestTypographyTest {
         assertFalse("item_question.xml must not contain BlurView", questionContent.contains("BlurView"))
         assertFalse("btnLanguage must not exist in test header", testContent.contains("android:id=\"@+id/btnLanguage\""))
         assertTrue("questionScroll must exist", questionContent.contains("@+id/questionScroll"))
-        assertTrue("android:lineSpacingMultiplier=\"1.5\" must remain", questionContent.contains("android:lineSpacingMultiplier=\"1.5\""))
-        assertTrue("Widget.Eve.ApprovedTestAction must remain", testContent.contains("Widget.Eve.ApprovedTestAction"))
-        assertTrue("Widget.Eve.ApprovedTestNavigation must remain", testContent.contains("Widget.Eve.ApprovedTestNavigation"))
-        assertTrue("Widget.Eve.ApprovedTestNext must remain", testContent.contains("Widget.Eve.ApprovedTestNext"))
+        assertFalse("Question leading comes from the shared body role", questionContent.contains("android:lineSpacingMultiplier"))
+        assertTrue("Widget.Eve.ApprovedTestAction must remain", testContent.contains("Widget.Eve.Token.Button.Secondary"))
+        assertTrue("Widget.Eve.ApprovedTestNavigation must remain", testContent.contains("Widget.Eve.Token.Button.Secondary"))
+        assertTrue("Widget.Eve.ApprovedTestNext must remain", testContent.contains("Widget.Eve.Token.Button"))
     }
 }

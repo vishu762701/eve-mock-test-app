@@ -64,7 +64,7 @@ object EveBlurHelper {
         overlayColor: Int? = null
     ) {
         val tint = overlayColor ?: androidx.core.content.ContextCompat.getColor(
-            blurView.context, com.eve.app.R.color.eve_material_regular)
+            blurView.context, com.eve.app.R.color.glass_fallback)
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             blurView.setBackgroundColor(androidx.core.graphics.ColorUtils.setAlphaComponent(tint, 255))
             return
@@ -72,7 +72,7 @@ object EveBlurHelper {
         try {
             blurView.setupWith(rootView, RenderEffectBlur())
                 .setFrameClearDrawable(android.graphics.drawable.ColorDrawable(
-                    androidx.core.content.ContextCompat.getColor(blurView.context, com.eve.app.R.color.eve_system_background)))
+                    androidx.core.content.ContextCompat.getColor(blurView.context, com.eve.app.R.color.bg_app)))
                 .setBlurRadius(radiusDp.coerceIn(1f, 25f))
                 .setBlurAutoUpdate(true)
                 .setOverlayColor(tint)

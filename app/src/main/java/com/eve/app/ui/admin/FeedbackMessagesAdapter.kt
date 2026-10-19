@@ -36,15 +36,15 @@ class FeedbackMessagesAdapter(
 
             if (!item.read) {
                 binding.tvUnreadBadge.visibility = View.VISIBLE
-                binding.cardMessage.strokeWidth = Math.round(binding.root.resources.displayMetrics.density).coerceAtLeast(1)
+                binding.cardMessage.strokeWidth = 0
                 binding.cardMessage.setStrokeColor(
-                    androidx.core.content.ContextCompat.getColor(binding.root.context, com.eve.app.R.color.eve_shape_border)
+                    androidx.core.content.ContextCompat.getColor(binding.root.context, com.eve.app.R.color.hairline)
                 )
             } else {
                 binding.tvUnreadBadge.visibility = View.GONE
-                binding.cardMessage.strokeWidth = Math.round(binding.root.resources.displayMetrics.density).coerceAtLeast(1)
+                binding.cardMessage.strokeWidth = 0
                 binding.cardMessage.setStrokeColor(
-                    androidx.core.content.ContextCompat.getColor(binding.root.context, com.eve.app.R.color.eve_shape_border)
+                    androidx.core.content.ContextCompat.getColor(binding.root.context, com.eve.app.R.color.hairline)
                 )
             }
 

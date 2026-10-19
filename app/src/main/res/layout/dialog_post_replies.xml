@@ -1,88 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="20dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
-
-    <TextView
-        android:id="@+id/tvPostRepliesTitle"
-        style="@style/TextAppearance.Eve.Headline"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Replies to Post"
-        android:textColor="@color/eve_text" />
-
-    <TextView
-        android:id="@+id/tvPostRepliesSnippet"
-        style="@style/TextAppearance.Eve.Footnote"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="Post message preview..."
-        android:textColor="@color/eve_text_secondary" />
-
-    <ProgressBar
-        android:id="@+id/progressBarReplies"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="16dp"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/tvNoReplies"
-        style="@style/TextAppearance.Eve.Footnote"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        android:gravity="center"
-        android:text="No replies yet for this post."
-        android:textColor="@color/eve_text_secondary"
-        android:visibility="gone" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvReplies"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="12dp"
-        android:layout_weight="1"
-        android:maxHeight="360dp"
-        android:nestedScrollingEnabled="true"
-            android:clipToPadding="false"
-            android:clipChildren="false"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:orientation="horizontal"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnDeletePostFromReplies"
-            style="@style/Widget.Eve.OutlinedButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="8dp"
-            android:text="Delete Post"
-            android:textColor="@color/selector_eve_destructive_text"
-            app:strokeColor="@color/eve_shape_border" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCloseReplies"
-            style="@style/Widget.Eve.OutlinedButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Close" />
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Modal">
+    <TextView android:id="@+id/tvPostRepliesTitle" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Replies to Post" />
+    <TextView android:id="@+id/tvPostRepliesSnippet" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Post message preview..." />
+    <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/progressBarReplies" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center_horizontal" android:layout_marginTop="@dimen/design_section_gap" android:visibility="gone" style="@style/Widget.Eve.Token.Ring" android:indeterminate="true" />
+    <TextView android:id="@+id/tvNoReplies" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_section_gap" android:layout_marginBottom="@dimen/design_section_gap" android:gravity="center" android:text="No replies yet for this post." android:visibility="gone" />
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvReplies" android:layout_width="match_parent" android:layout_height="@dimen/design_zero" android:layout_marginTop="@dimen/design_screen_margin" android:layout_weight="1" android:maxHeight="360dp" android:nestedScrollingEnabled="true" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnDeletePostFromReplies" style="@style/Widget.Eve.Token.Button.Destructive" android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_touch_min" android:layout_weight="1" android:layout_marginEnd="@dimen/design_card_gap" android:text="Delete Post" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnCloseReplies" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_touch_min" android:layout_weight="1" android:text="Close" />
     </LinearLayout>
 </LinearLayout>

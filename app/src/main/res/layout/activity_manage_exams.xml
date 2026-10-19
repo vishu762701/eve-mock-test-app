@@ -1,174 +1,102 @@
 <?xml version='1.0' encoding='utf-8'?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/eve_system_grouped_background" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
-
-    <!-- Top Bar -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:ns2="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Screen">
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-<LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:background="@android:color/transparent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingVertical="12dp" android:clipToPadding="false" android:clipChildren="false">
-
-        <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
-
-        <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1"/><ProgressBar android:id="@+id/progressBar" android:layout_width="24dp" android:layout_height="24dp" android:visibility="gone"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.ToolbarRow">
+            <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/text_primary" style="@style/Widget.Eve.Token.IconButton" />
+            <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1" />
+            <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/progressBar" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:visibility="gone" style="@style/Widget.Eve.Token.Ring" android:indeterminate="true" />
+        </LinearLayout>
+    </com.eve.app.ui.common.EveGlassToolbar>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
+        <TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Manage Exam" />
     </LinearLayout>
-</com.eve.app.ui.common.EveGlassToolbar>
-
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingBottom="@dimen/design_section_gap"><TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Manage Exam"/>
-
-        </LinearLayout><ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true" android:clipToPadding="false" android:clipChildren="false">
-
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="16dp" android:paddingVertical="16dp" android:clipToPadding="false" android:clipChildren="false">
-
-            <!-- Card 1: Exam & Sub-Exam Selection -->
-            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="14dp" app:cardBackgroundColor="@color/eve_card_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp">
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="@dimen/eve_card_padding_inner" android:clipToPadding="false" android:clipChildren="false">
-
-                    <TextView style="@style/TextAppearance.Eve.Footnote.Medium" android:id="@+id/tvLabelMainExam" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Main Exam" android:textColor="@color/eve_text" android:textStyle="bold"/>
-
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false">
-
-                        <com.google.android.material.textfield.TextInputLayout android:id="@+id/tilSelectExam" style="@style/Widget.Eve.TextInput.Filled.ExposedDropdownMenu" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1">
-
-                            <com.google.android.material.textfield.MaterialAutoCompleteTextView style="@style/TextAppearance.Eve.BodySmall" android:id="@+id/actvExam" android:layout_width="match_parent" android:layout_height="52dp" android:hint="Select main exam" android:inputType="textCapWords" android:maxLines="1" android:popupBackground="@color/eve_surface" android:singleLine="true" android:textColor="@color/eve_text"/>
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.google.android.material.button.MaterialButton android:id="@+id/btnNewExam" style="@style/Widget.Eve.OutlinedButton" android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium" android:layout_width="wrap_content" android:layout_height="52dp" android:layout_marginStart="8dp" android:contentDescription="Create New Main Exam" android:minWidth="48dp" android:text="+ New Main Exam"/>
+    <ScrollView android:layout_width="match_parent" android:layout_height="@dimen/design_zero" android:layout_weight="1" android:fillViewport="true" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+            <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                    <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvLabelMainExam" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Main Exam" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                        <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilSelectExam" style="@style/Widget.Eve.Token.TextInput" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_weight="1">
+                            <com.eve.app.designsystem.DesignAutoComplete style="@style/Widget.Eve.Token.Input" android:id="@+id/actvExam" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:hint="Select main exam" android:inputType="textCapWords" android:maxLines="1" android:popupBackground="@color/surface" android:singleLine="true" />
+                        </com.eve.app.designsystem.DesignInputLayout>
+                        <com.google.android.material.button.MaterialButton android:id="@+id/btnNewExam" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_card_gap" android:contentDescription="Create New Main Exam" android:minWidth="@dimen/design_touch_min" android:text="+ New Main Exam" />
                     </LinearLayout>
-
-                    <TextView style="@style/TextAppearance.Eve.Footnote.Medium" android:id="@+id/tvLabelSubExam" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Sub-Exam / Subject (optional)" android:textColor="@color/eve_text" android:textStyle="bold"/>
-
-                    <LinearLayout android:id="@+id/layoutSubExamContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:gravity="top" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false">
-
-                        <com.google.android.material.textfield.TextInputLayout android:id="@+id/tilParentExam" style="@style/Widget.Eve.TextInput.Filled.ExposedDropdownMenu" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" app:helperText="Choose a sub-exam or Direct Test." app:helperTextTextColor="@color/eve_text_secondary">
-
-                            <com.google.android.material.textfield.MaterialAutoCompleteTextView style="@style/TextAppearance.Eve.BodySmall" android:id="@+id/actvParentExam" android:layout_width="match_parent" android:layout_height="52dp" android:hint="Sub-Exam / Subject" android:inputType="textCapWords" android:popupBackground="@color/eve_surface" android:textColor="@color/eve_text"/>
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.google.android.material.button.MaterialButton android:id="@+id/btnAddSubExam" style="@style/Widget.Eve.OutlinedButton" android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium" android:layout_width="wrap_content" android:layout_height="52dp" android:layout_marginStart="8dp" android:contentDescription="Add Sub-Exam" android:minWidth="48dp" android:text="+ Add Sub-Exam"/>
+                    <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvLabelSubExam" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_pill_padding" android:text="Sub-Exam / Subject (optional)" />
+                    <LinearLayout android:id="@+id/layoutSubExamContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:gravity="top" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                        <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilParentExam" style="@style/Widget.Eve.Token.TextInput" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_weight="1" app:helperText="Choose a sub-exam or Direct Test." app:helperTextTextColor="@color/text_secondary">
+                            <com.eve.app.designsystem.DesignAutoComplete style="@style/Widget.Eve.Token.Input" android:id="@+id/actvParentExam" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:hint="Sub-Exam / Subject" android:inputType="textCapWords" android:popupBackground="@color/surface" />
+                        </com.eve.app.designsystem.DesignInputLayout>
+                        <com.google.android.material.button.MaterialButton android:id="@+id/btnAddSubExam" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_card_gap" android:contentDescription="Add Sub-Exam" android:minWidth="@dimen/design_touch_min" android:text="+ Add Sub-Exam" />
                     </LinearLayout>
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Card 2: Active Target Banner -->
-            <com.google.android.material.card.MaterialCardView android:id="@+id/cardActiveContext" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="14dp" app:cardBackgroundColor="@color/eve_card_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp">
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="@dimen/eve_card_padding_inner" android:clipToPadding="false" android:clipChildren="false">
-
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false">
-
-                        <TextView style="@style/TextAppearance.Eve.Caption2" android:id="@+id/tvActiveContextBadge" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_active_context_badge" android:paddingHorizontal="10dp" android:paddingVertical="4dp" android:text="MAIN EXAM" android:textColor="@color/eve_text" android:textStyle="bold"/>
-
-                        <TextView style="@style/TextAppearance.Eve.Subheadline.Medium" android:id="@+id/tvActiveContextTitle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="10dp" android:layout_weight="1" android:ellipsize="end" android:maxLines="1" android:textColor="@color/eve_text" android:textStyle="bold" tools:text="Rajasthan CET"/>
+            </com.eve.app.designsystem.DesignCardView>
+            <com.eve.app.designsystem.DesignCardView android:id="@+id/cardActiveContext" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                        <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvActiveContextBadge" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="MAIN EXAM" />
+                        <TextView style="@style/TextAppearance.Eve.Token.Body" android:id="@+id/tvActiveContextTitle" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_card_padding" android:layout_weight="1" android:ellipsize="end" android:maxLines="1" ns2:text="Rajasthan CET" />
                     </LinearLayout>
-
-                    <TextView style="@style/TextAppearance.Eve.Caption1" android:id="@+id/tvActiveContextSubtitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="All test rules, prompt configuration, and test generation apply directly to this entity." android:textColor="@color/eve_text_secondary"/>
+                    <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvActiveContextSubtitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:text="All test rules, prompt configuration, and test generation apply directly to this entity." />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Card 3: Test Rules & Timing -->
-            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="14dp" app:cardBackgroundColor="@color/eve_card_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp">
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="@dimen/eve_card_padding_inner" android:clipToPadding="false" android:clipChildren="false">
-
-                    <TextView style="@style/TextAppearance.Eve.Admin.ItemTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Test Rules &amp; Timing" android:textColor="@color/eve_text" android:textStyle="bold"/>
-
-                    <!-- Duration and Test Number Row -->
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false">
-
-                        <com.google.android.material.textfield.TextInputLayout android:id="@+id/tilDuration" style="@style/Widget.Eve.TextInput.Filled" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginEnd="6dp" android:layout_weight="1" app:helperText="1 - 600 min">
-
-                            <com.google.android.material.textfield.TextInputEditText style="@style/TextAppearance.Eve.BodySmall" android:id="@+id/etDuration" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Duration (min)" android:inputType="number" android:maxLength="3" android:maxLines="1" android:textColor="@color/eve_text"/>
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.google.android.material.textfield.TextInputLayout android:id="@+id/tilTestNumber" style="@style/Widget.Eve.TextInput.Filled" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:layout_weight="1" app:helperText="e.g. Test 1">
-
-                            <com.google.android.material.textfield.TextInputEditText style="@style/TextAppearance.Eve.BodySmall" android:id="@+id/etTestNumber" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Test Number" android:inputType="textCapWords" android:maxLines="1" android:textColor="@color/eve_text"/>
-                        </com.google.android.material.textfield.TextInputLayout>
+            </com.eve.app.designsystem.DesignCardView>
+            <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                    <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Test Rules &amp; Timing" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                        <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilDuration" style="@style/Widget.Eve.Token.TextInput" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginEnd="@dimen/design_row_gap" android:layout_weight="1" app:helperText="1 - 600 min">
+                            <com.google.android.material.textfield.TextInputEditText style="@style/Widget.Eve.Token.Input" android:id="@+id/etDuration" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:hint="Duration (min)" android:inputType="number" android:maxLength="3" android:maxLines="1" />
+                        </com.eve.app.designsystem.DesignInputLayout>
+                        <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilTestNumber" style="@style/Widget.Eve.Token.TextInput" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_row_gap" android:layout_weight="1" app:helperText="e.g. Test 1">
+                            <com.google.android.material.textfield.TextInputEditText style="@style/Widget.Eve.Token.Input" android:id="@+id/etTestNumber" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:hint="Test Number" android:inputType="textCapWords" android:maxLines="1" />
+                        </com.eve.app.designsystem.DesignInputLayout>
                     </LinearLayout>
-
-                    <!-- Question Count and Negative Marking Row -->
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false">
-
-                        <com.google.android.material.textfield.TextInputLayout android:id="@+id/tilQuestionCount" style="@style/Widget.Eve.TextInput.Filled" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginEnd="6dp" android:layout_weight="1" app:helperText="1 - 200 questions">
-
-                            <com.google.android.material.textfield.TextInputEditText style="@style/TextAppearance.Eve.BodySmall" android:id="@+id/etQuestionCount" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Questions" android:inputType="number" android:maxLines="1" android:textColor="@color/eve_text"/>
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.google.android.material.textfield.TextInputLayout android:id="@+id/tilNegativeMarking" style="@style/Widget.Eve.TextInput.Filled" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:layout_weight="1" app:helperText="e.g. 1/3, 0.25, 0">
-
-                            <com.google.android.material.textfield.TextInputEditText style="@style/TextAppearance.Eve.BodySmall" android:id="@+id/etNegativeMarking" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Negative Mark" android:inputType="text" android:maxLength="10" android:maxLines="1" android:singleLine="true" android:textColor="@color/eve_text"/>
-                        </com.google.android.material.textfield.TextInputLayout>
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                        <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilQuestionCount" style="@style/Widget.Eve.Token.TextInput" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginEnd="@dimen/design_row_gap" android:layout_weight="1" app:helperText="1 - 200 questions">
+                            <com.google.android.material.textfield.TextInputEditText style="@style/Widget.Eve.Token.Input" android:id="@+id/etQuestionCount" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:hint="Questions" android:inputType="number" android:maxLines="1" />
+                        </com.eve.app.designsystem.DesignInputLayout>
+                        <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilNegativeMarking" style="@style/Widget.Eve.Token.TextInput" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_row_gap" android:layout_weight="1" app:helperText="e.g. 1/3, 0.25, 0">
+                            <com.google.android.material.textfield.TextInputEditText style="@style/Widget.Eve.Token.Input" android:id="@+id/etNegativeMarking" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:hint="Negative Mark" android:inputType="text" android:maxLength="10" android:maxLines="1" android:singleLine="true" />
+                        </com.eve.app.designsystem.DesignInputLayout>
                     </LinearLayout>
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Card 4: AI Generation & Schedule -->
-            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="14dp" app:cardBackgroundColor="@color/eve_card_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp">
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="@dimen/eve_card_padding_inner" android:clipToPadding="false" android:clipChildren="false">
-
-                    <TextView style="@style/TextAppearance.Eve.Admin.ItemTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AI Generation &amp; Schedule" android:textColor="@color/eve_text" android:textStyle="bold"/>
-
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false">
-
-                        <com.google.android.material.button.MaterialButton android:id="@+id/btnPickTime" style="@style/Widget.Eve.OutlinedButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Time: 00:00 (IST)"/>
-
-                        <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchAutoGen" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="14dp" android:text="Auto-generation" android:textColor="@color/eve_text"/>
+            </com.eve.app.designsystem.DesignCardView>
+            <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                    <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AI Generation &amp; Schedule" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                        <com.google.android.material.button.MaterialButton android:id="@+id/btnPickTime" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_touch_min" android:layout_weight="1" android:text="Time: 00:00 (IST)" />
+                        <com.eve.app.designsystem.DesignSwitch android:id="@+id/switchAutoGen" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_pill_padding" android:text="Auto-generation" android:textColor="@color/text_primary" style="@style/Widget.Eve.Token.Switch" />
                     </LinearLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout android:id="@+id/tilPublishMode" style="@style/Widget.Eve.TextInput.Outlined.ExposedDropdownMenu" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:hint="New AI Tests Status">
-
-                        <com.google.android.material.textfield.MaterialAutoCompleteTextView style="@style/TextAppearance.Eve.BodySmall" android:id="@+id/actvPublishMode" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="none" android:textColor="@color/eve_text"/>
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <TextView style="@style/TextAppearance.Eve.Caption1" android:id="@+id/tvPublishModeHelper" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/eve_text_secondary" tools:text="Follows the global setting in App Config."/>
-
-                    <TextView style="@style/TextAppearance.Eve.Caption1" android:id="@+id/tvLastRunStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textColor="@color/eve_text_secondary" tools:text="Last run: Success on 24 Sep 2026, 05:00 AM"/>
-
-                    <com.google.android.material.button.MaterialButton android:id="@+id/btnGenerateNow" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="⚡ Generate Test Now (Admin On-Demand)" android:textColor="@color/eve_accent_text"/>
+                    <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilPublishMode" style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:hint="New AI Tests Status">
+                        <com.eve.app.designsystem.DesignAutoComplete style="@style/Widget.Eve.Token.Input" android:id="@+id/actvPublishMode" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="none" />
+                    </com.eve.app.designsystem.DesignInputLayout>
+                    <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvPublishModeHelper" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" ns2:text="Follows the global setting in App Config." />
+                    <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvLastRunStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" ns2:text="Last run: Success on 24 Sep 2026, 05:00 AM" />
+                    <com.google.android.material.button.MaterialButton android:id="@+id/btnGenerateNow" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_screen_margin" android:text="⚡ Generate Test Now (Admin On-Demand)" />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Card 5: AI Prompt -->
-            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="14dp" app:cardBackgroundColor="@color/eve_card_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp">
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="@dimen/eve_card_padding_inner" android:clipToPadding="false" android:clipChildren="false">
-
-                    <TextView style="@style/TextAppearance.Eve.Admin.ItemTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AI Syllabus &amp; Custom Prompt" android:textColor="@color/eve_text" android:textStyle="bold"/>
-
-                    <TextView style="@style/TextAppearance.Eve.Caption1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Main instructions used by AI to generate this entity's questions." android:textColor="@color/eve_text_secondary"/>
-
-                    <com.google.android.material.textfield.TextInputLayout android:id="@+id/tilGenerationPrompt" style="@style/Widget.Eve.TextInput.Filled" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" app:counterEnabled="true" app:counterMaxLength="20000">
-
-                        <com.google.android.material.textfield.TextInputEditText style="@style/TextAppearance.Eve.BodySmall" android:id="@+id/etGenerationPrompt" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="top|start" android:hint="Custom syllabus topics, focus areas, pattern notes..." android:inputType="textMultiLine|textCapSentences" android:maxLength="20000" android:minHeight="180dp" android:scrollbars="vertical" android:textColor="@color/eve_text"/>
-                    </com.google.android.material.textfield.TextInputLayout>
+            </com.eve.app.designsystem.DesignCardView>
+            <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                    <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AI Syllabus &amp; Custom Prompt" />
+                    <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Main instructions used by AI to generate this entity's questions." />
+                    <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilGenerationPrompt" style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" app:counterEnabled="true" app:counterMaxLength="20000">
+                        <com.google.android.material.textfield.TextInputEditText style="@style/Widget.Eve.Token.Input" android:id="@+id/etGenerationPrompt" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="top|start" android:hint="Custom syllabus topics, focus areas, pattern notes..." android:inputType="textMultiLine|textCapSentences" android:maxLength="20000" android:scrollbars="vertical" />
+                    </com.eve.app.designsystem.DesignInputLayout>
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Card 6: Generated Tests for this entity -->
-            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="14dp" app:cardBackgroundColor="@color/eve_card_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp">
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="@dimen/eve_card_padding_inner" android:clipToPadding="false" android:clipChildren="false">
-
-                    <TextView style="@style/TextAppearance.Eve.Admin.ItemTitle" android:id="@+id/tvGenTestsSectionTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Generated Tests" android:textColor="@color/eve_text" android:textStyle="bold"/>
-
-                    <TextView style="@style/TextAppearance.Eve.Caption1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Review or delete AI-generated question batches for this exam." android:textColor="@color/eve_text_secondary"/>
-
-                    <ProgressBar android:id="@+id/progressBarGenTests" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:layout_marginTop="8dp" android:visibility="gone"/>
-
-                    <TextView style="@style/TextAppearance.Eve.Caption1" android:id="@+id/tvNoGenTests" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="No generated tests for this exam yet." android:textColor="@color/eve_text_secondary" android:visibility="gone"/>
-
-                    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvGeneratedTestsForExam" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:nestedScrollingEnabled="false" android:clipToPadding="false" android:clipChildren="false"/>
+            </com.eve.app.designsystem.DesignCardView>
+            <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                    <TextView style="@style/TextAppearance.Eve.Token.Heading" android:id="@+id/tvGenTestsSectionTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Generated Tests" />
+                    <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Review or delete AI-generated question batches for this exam." />
+                    <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/progressBarGenTests" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center_horizontal" android:layout_marginTop="@dimen/design_card_gap" android:visibility="gone" style="@style/Widget.Eve.Token.Ring" android:indeterminate="true" />
+                    <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvNoGenTests" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:text="No generated tests for this exam yet." android:visibility="gone" />
+                    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvGeneratedTestsForExam" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:nestedScrollingEnabled="false" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll.Inner" />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
+            </com.eve.app.designsystem.DesignCardView>
         </LinearLayout>
     </ScrollView>
-
-    <!-- Sticky Save Button Bar at Bottom -->
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/eve_surface" android:elevation="8dp" android:orientation="vertical" android:paddingHorizontal="20dp" android:paddingVertical="12dp" android:clipToPadding="false" android:clipChildren="false">
-
-        <com.eve.app.ui.common.ErrorStateView android:id="@+id/compactErrorView" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:visibility="gone"/>
-
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnSave" style="@style/Widget.Eve.Button" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Save Exam Settings"/>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+        <com.eve.app.ui.common.ErrorStateView android:id="@+id/compactErrorView" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap" android:visibility="gone" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnSave" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:text="Save Exam Settings" />
     </LinearLayout>
 </LinearLayout>

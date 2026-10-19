@@ -1,192 +1,38 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:maxHeight="520dp"
-            android:clipToPadding="false"
-            android:clipChildren="false"
-            >
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Eve.TextInput.Outlined"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Question Text">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etQuestionText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textMultiLine"
-                android:minLines="2" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Options A, B, C, D -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Eve.TextInput.Outlined"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="Option A">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etOptionA"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Eve.TextInput.Outlined"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="Option B">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etOptionB"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Eve.TextInput.Outlined"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="Option C">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etOptionC"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Eve.TextInput.Outlined"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="Option D">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etOptionD"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <TextView
-            style="@style/TextAppearance.Eve.Footnote.Medium"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Correct Answer"
-            android:textColor="@color/eve_text" />
-
-        <RadioGroup
-            android:id="@+id/rgCorrectAnswer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <RadioButton
-                android:id="@+id/rbA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="A" />
-
-            <RadioButton
-                android:id="@+id/rbB"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="B" />
-
-            <RadioButton
-                android:id="@+id/rbC"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="C" />
-
-            <RadioButton
-                android:id="@+id/rbD"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="D" />
+<?xml version='1.0' encoding='utf-8'?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:maxHeight="520dp" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Question Text">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etQuestionText" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textMultiLine" android:minLines="2" style="@style/Widget.Eve.Token.Input" />
+        </com.eve.app.designsystem.DesignInputLayout>
+        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="Option A">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etOptionA" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" style="@style/Widget.Eve.Token.Input" />
+        </com.eve.app.designsystem.DesignInputLayout>
+        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="Option B">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etOptionB" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" style="@style/Widget.Eve.Token.Input" />
+        </com.eve.app.designsystem.DesignInputLayout>
+        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="Option C">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etOptionC" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" style="@style/Widget.Eve.Token.Input" />
+        </com.eve.app.designsystem.DesignInputLayout>
+        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="Option D">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etOptionD" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" style="@style/Widget.Eve.Token.Input" />
+        </com.eve.app.designsystem.DesignInputLayout>
+        <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:text="Correct Answer" />
+        <RadioGroup android:id="@+id/rgCorrectAnswer" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+            <RadioButton android:id="@+id/rbA" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:text="A" style="@style/Widget.Eve.Token.Radio" />
+            <RadioButton android:id="@+id/rbB" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:text="B" style="@style/Widget.Eve.Token.Radio" />
+            <RadioButton android:id="@+id/rbC" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:text="C" style="@style/Widget.Eve.Token.Radio" />
+            <RadioButton android:id="@+id/rbD" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:text="D" style="@style/Widget.Eve.Token.Radio" />
         </RadioGroup>
-
-        <!-- Explanation with Reformat with AI button -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                style="@style/TextAppearance.Eve.Footnote.Medium"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Explanation"
-                android:textColor="@color/eve_text" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnReformatAi"
-                style="@style/Widget.Eve.TextButton"
-                android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minWidth="0dp"
-                android:text="✨ Reformat with AI"
-                android:textColor="@color/eve_accent_text" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_pill_padding" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_weight="1" android:text="Explanation" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnReformatAi" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:minWidth="@dimen/design_zero" android:text="✨ Reformat with AI" />
         </LinearLayout>
-
-        <ProgressBar
-            android:id="@+id/pbReformat"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="center"
-            android:indeterminate="true"
-            android:visibility="gone" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Eve.TextInput.Outlined"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:hint="Explanation (Key Points format)">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etExplanation"
-                style="@style/TextAppearance.Eve.Footnote"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="top|start"
-                android:inputType="textMultiLine"
-                android:minLines="3" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Eve.TextInput.Outlined"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="Topic (Optional)">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etTopic"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/pbReformat" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:indeterminate="true" android:visibility="gone" style="@style/Widget.Eve.Token.Ring" />
+        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:hint="Explanation (Key Points format)">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etExplanation" style="@style/Widget.Eve.Token.Input" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="top|start" android:inputType="textMultiLine" android:minLines="3" />
+        </com.eve.app.designsystem.DesignInputLayout>
+        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="Topic (Optional)">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etTopic" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" style="@style/Widget.Eve.Token.Input" />
+        </com.eve.app.designsystem.DesignInputLayout>
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

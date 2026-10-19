@@ -1,107 +1,62 @@
 <?xml version='1.0' encoding='utf-8'?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/eve_system_grouped_background" android:orientation="vertical">
-
-    <!-- Top Bar -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:ns2="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" style="@style/Widget.Eve.Token.Screen" android:clipChildren="false" android:clipToPadding="false">
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-<LinearLayout android:id="@+id/topBar" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:minHeight="56dp" android:background="@android:color/transparent" android:elevation="0dp" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingVertical="8dp">
-
-        <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="?attr/eveLabelPrimary" style="@style/Widget.Eve.Token.IconButton"/>
-
-        <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1"/></LinearLayout>
-</com.eve.app.ui.common.EveGlassToolbar>
-
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingBottom="@dimen/design_section_gap"><TextView android:id="@+id/tvTitle" style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Premium"/>
-    </LinearLayout><FrameLayout android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false">
-
-        <ProgressBar android:id="@+id/progressBar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:indeterminateTint="@color/eve_accent" android:visibility="gone"/>
-
-        <androidx.core.widget.NestedScrollView android:id="@+id/scrollView" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false" android:overScrollMode="ifContentScrolls" android:background="@color/eve_system_grouped_background" android:clipChildren="false">
-
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
-
-                <!-- 1. NOT PREMIUM CONTAINER -->
-                <LinearLayout android:id="@+id/layoutNotPremium" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="visible" android:clipToPadding="false" android:clipChildren="false">
-
-                    <!-- Header Art / Star (96dp visible size, no circle/badge/ring) -->
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:paddingVertical="8dp">
-
-                        <FrameLayout android:layout_width="96dp" android:layout_height="96dp" android:clipToPadding="false" android:clipChildren="false">
-
-                            <ImageView android:id="@+id/ivHeaderStarFallback" android:layout_width="match_parent" android:layout_height="match_parent" android:src="@drawable/ic_star_filled" android:visibility="gone" app:tint="@color/eve_status_warning"/>
-
-                            <com.eve.app.ui.premium.gl.Telegram3DStarView android:id="@+id/starViewNotPremium" android:layout_width="match_parent" android:layout_height="match_parent"/>
+        <LinearLayout android:id="@+id/topBar" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.ToolbarRow">
+            <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="?attr/eveLabelPrimary" style="@style/Widget.Eve.Token.IconButton" />
+            <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1" />
+        </LinearLayout>
+    </com.eve.app.ui.common.EveGlassToolbar>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
+        <TextView android:id="@+id/tvTitle" style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Premium" />
+    </LinearLayout>
+    <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+        <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/progressBar" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:visibility="gone" style="@style/Widget.Eve.Token.Ring" android:indeterminate="true" />
+        <androidx.core.widget.NestedScrollView android:id="@+id/scrollView" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false" android:overScrollMode="ifContentScrolls" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+                <LinearLayout android:id="@+id/layoutNotPremium" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="visible" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+                        <FrameLayout android:layout_width="96dp" android:layout_height="96dp" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                            <ImageView android:id="@+id/ivHeaderStarFallback" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:src="@drawable/ic_star_filled" android:visibility="gone" app:tint="@color/system_orange" />
+                            <com.eve.app.ui.premium.gl.Telegram3DStarView android:id="@+id/starViewNotPremium" android:layout_width="match_parent" android:layout_height="match_parent" />
                         </FrameLayout>
-
-                        <TextView android:id="@+id/tvPlanTitle" style="@style/TextAppearance.Eve.Title3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="EVE Premium"/>
-
-                        <TextView android:id="@+id/tvPlanDescription" style="@style/TextAppearance.Eve.Footnote" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:gravity="center" android:text="Unlock all eligible tests &amp; unlimited reattempts without the 3-attempt restriction."/>
+                        <TextView android:id="@+id/tvPlanTitle" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:text="EVE Premium" />
+                        <TextView android:id="@+id/tvPlanDescription" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:gravity="center" android:text="Unlock all eligible tests &amp; unlimited reattempts without the 3-attempt restriction." />
                     </LinearLayout>
-
-                    <!-- Benefits Card -->
-                    <com.google.android.material.card.MaterialCardView style="@style/Widget.Eve.Card.Group" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp">
-
-                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
-
-                            <TextView style="@style/TextAppearance.Eve.Headline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Premium Benefits"/>
-
-                            <LinearLayout android:id="@+id/layoutBenefitsList" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:orientation="vertical"/>
+                    <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+                            <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Premium Benefits" />
+                            <LinearLayout android:id="@+id/layoutBenefitsList" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column" />
                         </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <!-- Pricing Card -->
-                    <com.google.android.material.card.MaterialCardView style="@style/Widget.Eve.Card.Group" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp">
-
-                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:padding="14dp">
-
-                            <TextView android:id="@+id/tvPrice" style="@style/TextAppearance.Eve.Premium.PlanPrice" android:layout_width="wrap_content" android:layout_height="wrap_content" tools:text="₹99"/>
-
-                            <TextView android:id="@+id/tvValidity" style="@style/TextAppearance.Eve.Footnote" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" tools:text="Validity: 30 Days"/>
-
-                            <TextView android:id="@+id/tvPaymentMethodsNote" style="@style/TextAppearance.Eve.Caption1.Medium" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Supported: QR Code • UPI App" android:textColor="?attr/eveAccentText"/>
+                    </com.eve.app.designsystem.DesignCardView>
+                    <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+                            <TextView android:id="@+id/tvPrice" style="@style/TextAppearance.Eve.Token.Title" android:layout_width="wrap_content" android:layout_height="wrap_content" ns2:text="₹99" />
+                            <TextView android:id="@+id/tvValidity" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" ns2:text="Validity: 30 Days" />
+                            <TextView android:id="@+id/tvPaymentMethodsNote" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Supported: QR Code • UPI App" />
                         </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <!-- Buy Button -->
-                    <com.google.android.material.button.MaterialButton android:id="@+id/btnBuyPremium" style="@style/Widget.Eve.Button.Primary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Buy Premium" android:minHeight="48dp" android:paddingVertical="8dp"/>
+                    </com.eve.app.designsystem.DesignCardView>
+                    <com.google.android.material.button.MaterialButton android:id="@+id/btnBuyPremium" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_pill_padding" android:text="Buy Premium" />
                 </LinearLayout>
-
-                <!-- 2. PREMIUM ACTIVE CONTAINER -->
-                <LinearLayout android:id="@+id/layoutPremiumActive" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false">
-
-                    <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" app:cardBackgroundColor="@color/surface" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeColor="@color/eve_shape_border" app:strokeWidth="0dp">
-
-                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:padding="24dp">
-
-                            <FrameLayout android:layout_width="140dp" android:layout_height="140dp" android:clipToPadding="false" android:clipChildren="false">
-
-                                <ImageView android:id="@+id/ivActiveStarFallback" android:layout_width="56dp" android:layout_height="56dp" android:layout_gravity="center" android:src="@drawable/ic_star_filled" android:visibility="gone" app:tint="@color/eve_status_warning"/>
-
-                                <com.eve.app.ui.premium.gl.Telegram3DStarView android:id="@+id/starViewPremiumActive" android:layout_width="match_parent" android:layout_height="match_parent"/>
+                <LinearLayout android:id="@+id/layoutPremiumActive" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                    <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/Widget.Eve.Token.Card">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+                            <FrameLayout android:layout_width="140dp" android:layout_height="140dp" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                                <ImageView android:id="@+id/ivActiveStarFallback" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:layout_gravity="center" android:src="@drawable/ic_star_filled" android:visibility="gone" app:tint="@color/system_orange" />
+                                <com.eve.app.ui.premium.gl.Telegram3DStarView android:id="@+id/starViewPremiumActive" android:layout_width="match_parent" android:layout_height="match_parent" />
                             </FrameLayout>
-
-                            <TextView android:id="@+id/tvActiveTitle" style="@style/TextAppearance.Eve.Title2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Premium Active"/>
-
-                            <TextView android:id="@+id/tvActiveExpiry" style="@style/TextAppearance.Eve.Subheadline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" tools:text="Expires: 29 Oct 2026"/>
+                            <TextView android:id="@+id/tvActiveTitle" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:text="Premium Active" />
+                            <TextView android:id="@+id/tvActiveExpiry" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" ns2:text="Expires: 29 Oct 2026" />
                         </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <!-- Unlocked Benefits List -->
-                    <com.google.android.material.card.MaterialCardView style="@style/Widget.Eve.Card.Group" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp">
-
-                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="18dp">
-
-                            <TextView style="@style/TextAppearance.Eve.Headline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Active Entitlements"/>
-
-                            <TextView style="@style/TextAppearance.Eve.Subheadline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="✓ All eligible tests unlocked" android:textColor="@color/eve_status_success_text"/>
-
-                            <TextView style="@style/TextAppearance.Eve.Subheadline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="✓ Unlimited eligible test reattempts" android:textColor="@color/eve_status_success_text"/>
-
-                            <TextView style="@style/TextAppearance.Eve.Subheadline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="✓ 3-attempt restriction bypassed" android:textColor="@color/eve_status_success_text"/>
+                    </com.eve.app.designsystem.DesignCardView>
+                    <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+                            <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Active Entitlements" />
+                            <TextView style="@style/TextAppearance.Eve.Token.Body.green" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:text="✓ All eligible tests unlocked" />
+                            <TextView style="@style/TextAppearance.Eve.Token.Body.green" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:text="✓ Unlimited eligible test reattempts" />
+                            <TextView style="@style/TextAppearance.Eve.Token.Body.green" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:text="✓ 3-attempt restriction bypassed" />
                         </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <!-- Extend Plan Button (optional) -->
-                    <com.google.android.material.button.MaterialButton android:id="@+id/btnExtendPlan" style="@style/Widget.Eve.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="Extend Premium Plan" android:minHeight="48dp" android:paddingVertical="8dp"/>
+                    </com.eve.app.designsystem.DesignCardView>
+                    <com.google.android.material.button.MaterialButton android:id="@+id/btnExtendPlan" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_icon_size" android:text="Extend Premium Plan" />
                 </LinearLayout>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>

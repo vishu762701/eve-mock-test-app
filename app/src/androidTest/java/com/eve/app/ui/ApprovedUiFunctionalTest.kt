@@ -125,7 +125,7 @@ class ApprovedUiFunctionalTest {
                 b.rbA.layout(0, 0, width, height)
                 val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
                 b.rbA.draw(Canvas(bitmap))
-                val expectedBorder = context.getColor(R.color.eve_test_foreground)
+                val expectedBorder = context.getColor(R.color.text_primary)
                 val actualBorder = bitmap.getPixel((31f * density).toInt(), height / 2)
                 // At low density a curved edge shares a pixel with the green surface.
                 // Allow antialiasing, while rejecting a selected fill covering the ring.

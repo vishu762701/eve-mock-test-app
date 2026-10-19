@@ -38,15 +38,20 @@ class SystemMonitorActivity : EveBaseActivity() {
         val scroll = ScrollView(this)
         content = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(32, 32, 32, 32)
-            setBackgroundColor(getColor(R.color.eve_bg))
+            val pad = resources.getDimensionPixelSize(R.dimen.design_screen_margin)
+            setPadding(pad, pad, pad, resources.getDimensionPixelSize(R.dimen.design_scroll_clearance))
+            setBackgroundColor(getColor(R.color.bg_app))
         }
         scroll.addView(content)
         setContentView(scroll)
-        text(content, "System Health & Operations", 22f)
+        text(content, "System Health & Operations", com.eve.app.designsystem.DesignType.Role.TITLE)
         button(content, "Back") { finish() }
         refresh = button(content, "Refresh / Retry") { offset = 0; load() }
-        progress = ProgressBar(this).also { content.addView(it) }
+        progress = com.google.android.material.progressindicator.CircularProgressIndicator(this).also {
+            it.isIndeterminate = true
+            val size = resources.getDimensionPixelSize(R.dimen.design_ring_size)
+            content.addView(it, LinearLayout.LayoutParams(size, size))
+        }
         overview = section("Dashboard overview")
         health = section("System health")
         operations = section("Generation & submission monitor")
@@ -55,21 +60,22 @@ class SystemMonitorActivity : EveBaseActivity() {
     }
 
     private fun section(title: String): LinearLayout {
-        text(content, title, 19f)
+        text(content, title, com.eve.app.designsystem.DesignType.Role.HEADING)
         return LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }.also { content.addView(it) }
     }
 
-    private fun text(parent: LinearLayout, value: String, size: Float = 15f) {
+    private fun text(parent: LinearLayout, value: String, role: com.eve.app.designsystem.DesignType.Role = com.eve.app.designsystem.DesignType.Role.BODY) {
         parent.addView(TextView(this).apply {
             text = value
-            textSize = size
-            setTextColor(getColor(R.color.eve_text))
-            setPadding(0, 12, 0, 12)
+            com.eve.app.designsystem.DesignType.apply(this, role)
+            setTextColor(getColor(R.color.text_primary))
+            val gap = resources.getDimensionPixelSize(R.dimen.design_row_gap)
+            setPadding(0, gap, 0, gap)
         })
     }
 
     private fun button(parent: LinearLayout, value: String, action: () -> Unit): MaterialButton =
-        MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
+        MaterialButton(this).apply {
             text = value
             setOnClickListener { action() }
         }.also { parent.addView(it) }

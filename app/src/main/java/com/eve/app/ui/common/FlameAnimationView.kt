@@ -135,7 +135,7 @@ class FlameAnimationView @JvmOverloads constructor(
         if (w <= 0f || h <= 0f) return
 
         // Resolve theme-aware color
-        val color = ContextCompat.getColor(context, R.color.eve_text)
+        val color = ContextCompat.getColor(context, R.color.text_primary)
         flamePaint.color = color
 
         // Subtly scale and sway (0.95x to 1.05x, gentle vertical breathing)

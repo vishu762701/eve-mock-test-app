@@ -67,19 +67,19 @@ class PollsAdminAdapter(
             when {
                 poll.isExpired -> {
                     binding.tvPollStatus.text = "Expired"
-                    binding.tvPollStatus.setTextColor(ContextCompat.getColor(context, R.color.eve_status_warning_text))
+                    binding.tvPollStatus.setTextColor(ContextCompat.getColor(context, R.color.system_orange))
                     binding.btnToggleActive.isEnabled = false
                     binding.btnToggleActive.text = "Expired"
                 }
                 poll.active -> {
                     binding.tvPollStatus.text = "Active"
-                    binding.tvPollStatus.setTextColor(ContextCompat.getColor(context, R.color.eve_status_success_text))
+                    binding.tvPollStatus.setTextColor(ContextCompat.getColor(context, R.color.system_green))
                     binding.btnToggleActive.isEnabled = true
                     binding.btnToggleActive.text = "Close Poll"
                 }
                 else -> {
                     binding.tvPollStatus.text = "Closed"
-                    binding.tvPollStatus.setTextColor(ContextCompat.getColor(context, R.color.eve_text_secondary))
+                    binding.tvPollStatus.setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
                     binding.btnToggleActive.isEnabled = true
                     binding.btnToggleActive.text = "Reopen Poll"
                 }

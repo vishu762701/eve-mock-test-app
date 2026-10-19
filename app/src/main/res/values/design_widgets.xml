@@ -10,6 +10,7 @@
         <item name="android:textSize">@dimen/design_type_button</item>
         <item name="android:includeFontPadding">false</item><item name="android:textAllCaps">false</item>
         <item name="android:letterSpacing">0</item>
+        <item name="android:paddingStart">@dimen/design_pill_padding</item><item name="android:paddingEnd">@dimen/design_pill_padding</item>
         <item name="android:minHeight">@dimen/design_touch_min</item>
         <item name="android:insetTop">@dimen/design_button_touch_inset</item><item name="android:insetBottom">@dimen/design_button_touch_inset</item>
         <item name="backgroundTint">@color/design_button_fill</item>
@@ -164,9 +165,10 @@
     </style>
     <style name="Widget.Eve.Token.Badge" parent="Widget.Eve.Token.Text">
         <item name="android:background">@drawable/design_tab_segment</item>
-        <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Secondary</item>
+        <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Chip</item>
         <item name="android:textColor">@color/on_accent</item><item name="android:gravity">center</item>
-        <item name="android:paddingStart">@dimen/design_chip_gap</item><item name="android:paddingEnd">@dimen/design_chip_gap</item>
+        <item name="android:minHeight">@dimen/design_pill_height</item>
+        <item name="android:paddingStart">@dimen/design_pill_padding</item><item name="android:paddingEnd">@dimen/design_pill_padding</item>
     </style>
     <style name="Widget.Eve.Token.Dialog.Title" parent="MaterialAlertDialog.Material3.Title.Text">
         <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Title</item>
@@ -185,4 +187,92 @@
         <item name="android:insetTop">@dimen/design_zero</item>
         <item name="android:insetBottom">@dimen/design_zero</item>
     </style>
-</resources>
+
+    <style name="Widget.Eve.Token.Screen" parent="">
+        <item name="android:background">@color/bg_app</item>
+        <item name="android:clipChildren">false</item><item name="android:clipToPadding">false</item>
+    </style>
+    <style name="Widget.Eve.Token.Column" parent="">
+        <item name="android:clipChildren">false</item><item name="android:clipToPadding">false</item>
+    </style>
+    <style name="Widget.Eve.Token.Tile" parent="Widget.Eve.Token.Column">
+        <item name="android:background">@drawable/design_tile_surface</item>
+        <item name="android:padding">@dimen/design_card_padding</item>
+    </style>
+    <style name="Widget.Eve.Token.Modal" parent="Widget.Eve.Token.Column">
+        <item name="android:background">@drawable/design_surface_panel</item>
+        <item name="android:padding">@dimen/design_card_padding</item>
+    </style>
+    <style name="Widget.Eve.Token.Sheet" parent="Widget.Eve.Token.Modal">
+        <item name="android:background">@drawable/design_sheet_surface</item>
+    </style>
+    <style name="Widget.Eve.Token.Scroll" parent="Widget.Eve.Token.Column">
+        <item name="android:paddingLeft">@dimen/design_screen_margin</item>
+        <item name="android:paddingRight">@dimen/design_screen_margin</item>
+        <item name="android:paddingBottom">@dimen/design_scroll_clearance</item>
+    </style>
+    <style name="Widget.Eve.Token.Scroll.Inner" parent="Widget.Eve.Token.Column" />
+    <style name="Widget.Eve.Token.Choice" parent="Widget.Eve.Token.Radio">
+        <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Body</item>
+        <item name="android:background">@drawable/design_option_surface</item>
+        <item name="android:padding">@dimen/design_card_padding</item>
+        <item name="android:stateListAnimator">@animator/design_press_scale</item>
+    </style>
+
+    <style name="Widget.Eve.Token.Spinner" parent="Widget.AppCompat.Spinner">
+        <item name="android:background">@drawable/design_input_background</item>
+        <item name="android:popupBackground">@drawable/design_menu_fallback</item>
+        <item name="android:minHeight">@dimen/design_input_height</item>
+        <item name="android:paddingStart">@dimen/design_input_padding</item>
+        <item name="android:paddingEnd">@dimen/design_input_padding</item>
+        <item name="android:dropDownVerticalOffset">@dimen/design_chip_gap</item>
+    </style>
+    <style name="Widget.Eve.Token.NativePopup" parent="Widget.Material3.PopupMenu">
+        <item name="android:popupBackground">@drawable/design_menu_fallback</item>
+        <item name="android:popupElevation">@dimen/design_card_elevation</item>
+    </style>
+    <style name="Widget.Eve.Token.ListPopup" parent="Widget.AppCompat.ListPopupWindow">
+        <item name="android:popupBackground">@drawable/design_menu_fallback</item>
+        <item name="android:popupElevation">@dimen/design_card_elevation</item>
+    </style>
+    <style name="Widget.Eve.Token.DropDownList" parent="Widget.AppCompat.ListView.DropDown">
+        <item name="android:divider">@null</item><item name="android:dividerHeight">@dimen/design_zero</item>
+        <item name="android:background">@null</item>
+    </style>
+    <style name="Widget.Eve.Token.DropDownItem" parent="Widget.AppCompat.DropDownItem.Spinner">
+        <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Body</item>
+        <item name="android:fontFamily">@font/poppins_regular</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:minHeight">@dimen/design_row_with_gap</item>
+        <item name="android:paddingStart">@dimen/design_card_padding</item><item name="android:paddingEnd">@dimen/design_card_padding</item>
+        <item name="android:paddingBottom">@dimen/design_row_gap</item>
+    </style>
+    <style name="Widget.Eve.Token.Palette" parent="Widget.Eve.Token.Card.Inner">
+        <item name="shapeAppearance">@style/ShapeAppearance.Eve.Token.Capsule</item>
+        <item name="contentPadding">@dimen/design_zero</item>
+        <item name="cardCornerRadius">@dimen/design_radius_inner</item>
+    </style>
+    <style name="Widget.Eve.Token.Panel" parent="Widget.Eve.Token.Modal">
+        <item name="android:elevation">@dimen/design_card_elevation</item>
+    </style>
+    <style name="Widget.Eve.Token.LargeTitleBlock" parent="Widget.Eve.Token.Column">
+        <item name="android:paddingStart">@dimen/design_screen_margin</item><item name="android:paddingEnd">@dimen/design_screen_margin</item>
+        <item name="android:paddingBottom">@dimen/design_section_gap</item>
+    </style>
+    <style name="Widget.Eve.Token.ToolbarRow" parent="Widget.Eve.Token.Column">
+        <item name="android:minHeight">@dimen/design_touch_min</item>
+        <item name="android:paddingStart">@dimen/design_screen_margin</item><item name="android:paddingEnd">@dimen/design_screen_margin</item>
+    </style>
+    <style name="Widget.Eve.Token.PillGroup" parent="Widget.Eve.Token.Column">
+        <item name="android:background">@drawable/design_tab_segment</item>
+        <item name="android:minHeight">@dimen/design_pill_height</item>
+        <item name="android:paddingStart">@dimen/design_pill_padding</item><item name="android:paddingEnd">@dimen/design_pill_padding</item>
+    </style>
+    <style name="Widget.Eve.Token.Card.Clear" parent="Widget.Eve.Token.Palette">
+        <item name="cardBackgroundColor">@color/transparent</item>
+    </style>
+    <style name="Widget.Eve.Token.Tile.Green" parent="Widget.Eve.Token.Tile"><item name="android:background">@drawable/design_tile_green</item></style>
+    <style name="Widget.Eve.Token.Tile.Red" parent="Widget.Eve.Token.Tile"><item name="android:background">@drawable/design_tile_red</item></style>
+    <style name="Widget.Eve.Token.Tile.Orange" parent="Widget.Eve.Token.Tile"><item name="android:background">@drawable/design_tile_orange</item></style>
+    <style name="Widget.Eve.Token.Tile.Yellow" parent="Widget.Eve.Token.Tile"><item name="android:background">@drawable/design_tile_yellow</item></style>
+<style name="Widget.Eve.Token.Button.Review" parent="Widget.Eve.Token.Button.Secondary"><item name="backgroundTint">@color/design_review_fill</item><item name="android:textColor">@color/design_review_text</item></style></resources>

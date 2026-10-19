@@ -17,12 +17,12 @@ object ExamCategoryTintHelper {
     )
 
     private val PALETTE = listOf(
-        TintColors(R.color.eve_category_tint_lilac_bg, R.color.eve_category_tint_lilac_fg),
-        TintColors(R.color.eve_category_tint_green_bg, R.color.eve_category_tint_green_fg),
-        TintColors(R.color.eve_category_tint_amber_bg, R.color.eve_category_tint_amber_fg),
-        TintColors(R.color.eve_category_tint_rose_bg, R.color.eve_category_tint_rose_fg),
-        TintColors(R.color.eve_category_tint_blue_bg, R.color.eve_category_tint_blue_fg),
-        TintColors(R.color.eve_category_tint_teal_bg, R.color.eve_category_tint_teal_fg)
+        TintColors(R.color.design_role_category_tint_lilac_bg, R.color.design_role_category_tint_lilac_fg),
+        TintColors(R.color.design_role_category_tint_green_bg, R.color.system_green),
+        TintColors(R.color.design_role_category_tint_amber_bg, R.color.system_orange),
+        TintColors(R.color.design_role_category_tint_rose_bg, R.color.system_red),
+        TintColors(R.color.design_role_category_tint_blue_bg, R.color.system_blue),
+        TintColors(R.color.design_role_category_tint_teal_bg, R.color.design_role_category_tint_teal_fg)
     )
 
     fun getTintForCategory(category: String?): TintColors {

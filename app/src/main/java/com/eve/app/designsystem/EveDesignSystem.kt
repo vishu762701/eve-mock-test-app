@@ -70,61 +70,61 @@ object EveDesignSystem {
         // Screen Canvases (ADR-007, ADR-009, ADR-013)
         @ColorInt
         fun systemBackground(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_system_background)
+            ContextCompat.getColor(context, R.color.bg_app)
 
         @ColorInt
         fun systemGroupedBackground(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_system_grouped_background)
+            ContextCompat.getColor(context, R.color.bg_app)
 
         // Semantic Surface Hierarchy (ADR-008, ADR-009)
         @ColorInt
         fun secondarySystemBackground(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_secondary_system_background)
+            ContextCompat.getColor(context, R.color.surface_inset)
 
         @ColorInt
         fun tertiarySystemBackground(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_tertiary_system_background)
+            ContextCompat.getColor(context, R.color.surface_inset)
 
         @ColorInt
         fun secondarySystemGroupedBackground(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_secondary_system_grouped_background)
+            ContextCompat.getColor(context, R.color.surface_inset)
 
         @ColorInt
         fun tertiarySystemGroupedBackground(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_tertiary_system_grouped_background)
+            ContextCompat.getColor(context, R.color.surface_inset)
 
         @ColorInt
         fun cardBackground(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_card_bg)
+            ContextCompat.getColor(context, R.color.surface)
 
         @ColorInt
         fun contentCardBackground(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_secondary_background)
+            ContextCompat.getColor(context, R.color.surface_inset)
 
         // Label Typography Roles (ADR-008)
         @ColorInt
         fun labelPrimary(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_label_primary)
+            ContextCompat.getColor(context, R.color.text_primary)
 
         @ColorInt
         fun labelSecondary(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_label_secondary)
+            ContextCompat.getColor(context, R.color.text_secondary)
 
         @ColorInt
         fun labelTertiary(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_label_tertiary)
+            ContextCompat.getColor(context, R.color.text_secondary)
 
         @ColorInt
         fun labelQuaternary(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_label_quaternary)
+            ContextCompat.getColor(context, R.color.text_secondary)
 
         @ColorInt
         fun placeholderText(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_placeholder_text)
+            ContextCompat.getColor(context, R.color.text_secondary)
 
         @ColorInt
         fun headerInkText(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_header_ink_text)
+            ContextCompat.getColor(context, R.color.text_primary)
 
         // Authoritative Locked Color Hex Constants (ADR-014)
         const val HEX_LIGHT_CANVAS = "#FFFFFF"
@@ -199,108 +199,108 @@ object EveDesignSystem {
         // Home Locked Color Accessors
         @ColorInt
         fun homeBackground(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_home_background)
+            ContextCompat.getColor(context, R.color.bg_app)
 
         @ColorInt
         fun homeCard(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_home_card)
+            ContextCompat.getColor(context, R.color.surface)
 
         @ColorInt
         fun homeTextPrimary(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_home_text_primary)
+            ContextCompat.getColor(context, R.color.text_primary)
 
         @ColorInt
         fun homeTextSecondary(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_home_text_secondary)
+            ContextCompat.getColor(context, R.color.text_secondary)
 
         @ColorInt
         fun homeHairline(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_home_hairline)
+            ContextCompat.getColor(context, R.color.hairline)
 
         @ColorInt
         fun homeTabTrack(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_home_tab_track)
+            ContextCompat.getColor(context, R.color.track)
 
         @ColorInt
         fun homeAccent(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_home_accent)
+            ContextCompat.getColor(context, R.color.text_primary)
 
         @ColorInt
         fun homeOnAccent(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_home_on_accent)
+            ContextCompat.getColor(context, R.color.on_accent)
 
         @ColorInt
         fun homeSuccess(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_home_success)
+            ContextCompat.getColor(context, R.color.system_green)
 
         @ColorInt
         fun homeError(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_home_error)
+            ContextCompat.getColor(context, R.color.system_red)
 
         @ColorInt
         fun homeWarning(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_home_warning)
+            ContextCompat.getColor(context, R.color.system_orange)
 
         @ColorInt
         fun homeFloatingBarBg(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_home_floating_bar_bg)
+            ContextCompat.getColor(context, R.color.glass_fallback)
 
         @ColorInt
         fun homeCardShadow(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_home_card_shadow)
+            ContextCompat.getColor(context, R.color.card_shadow)
 
         // App-Wide Locked Color Accessors (ADR-019)
         @ColorInt
         fun appBackground(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_color_background)
+            ContextCompat.getColor(context, R.color.bg_app)
 
         @ColorInt
         fun appCard(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_color_card)
+            ContextCompat.getColor(context, R.color.surface)
 
         @ColorInt
         fun appTextPrimary(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_color_text_primary)
+            ContextCompat.getColor(context, R.color.text_primary)
 
         @ColorInt
         fun appTextSecondary(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_color_text_secondary)
+            ContextCompat.getColor(context, R.color.text_secondary)
 
         @ColorInt
         fun appHairline(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_color_hairline)
+            ContextCompat.getColor(context, R.color.hairline)
 
         @ColorInt
         fun appTabTrack(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_color_tab_track)
+            ContextCompat.getColor(context, R.color.track)
 
         @ColorInt
         fun appAccent(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_color_accent)
+            ContextCompat.getColor(context, R.color.text_primary)
 
         @ColorInt
         fun appOnAccent(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_color_on_accent)
+            ContextCompat.getColor(context, R.color.on_accent)
 
         @ColorInt
         fun appSuccess(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_color_success)
+            ContextCompat.getColor(context, R.color.system_green)
 
         @ColorInt
         fun appError(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_color_error)
+            ContextCompat.getColor(context, R.color.system_red)
 
         @ColorInt
         fun appWarning(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_color_warning)
+            ContextCompat.getColor(context, R.color.system_orange)
 
         @ColorInt
         fun appFloatingBarBg(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_color_floating_bar_bg)
+            ContextCompat.getColor(context, R.color.glass_fallback)
 
         @ColorInt
         fun appCardShadow(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_color_card_shadow)
+            ContextCompat.getColor(context, R.color.design_role_color_card_shadow)
 
         // Authoritative App-Wide Color Tokens (ADR-020)
         @ColorInt
@@ -370,142 +370,142 @@ object EveDesignSystem {
         // Accent & Interactive Blue (ADR-008, ADR-009)
         @ColorInt
         fun systemBlue(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_system_blue)
+            ContextCompat.getColor(context, R.color.system_blue)
 
         @ColorInt
         fun accentText(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_accent_text)
+            ContextCompat.getColor(context, R.color.system_blue)
 
         @ColorInt
         fun accentContainer(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_accent_container)
+            ContextCompat.getColor(context, R.color.system_blue_container)
 
         @ColorInt
         fun onAccentContainer(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_on_accent_container)
+            ContextCompat.getColor(context, R.color.on_accent)
 
         // Authoritative System Status Colors (ADR-014)
         @ColorInt
         fun systemGreen(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_system_green)
+            ContextCompat.getColor(context, R.color.system_green)
 
         @ColorInt
         fun systemRed(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_system_red)
+            ContextCompat.getColor(context, R.color.system_red)
 
         @ColorInt
         fun systemOrange(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_system_orange)
+            ContextCompat.getColor(context, R.color.system_orange)
 
         @ColorInt
         fun statusSuccess(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_status_success)
+            ContextCompat.getColor(context, R.color.system_green)
 
         @ColorInt
         fun statusError(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_status_error)
+            ContextCompat.getColor(context, R.color.system_red)
 
         @ColorInt
         fun statusWarning(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_status_warning)
+            ContextCompat.getColor(context, R.color.system_orange)
 
         // Protected Test State & Semantic Feedback Colors (Invariants)
         @ColorInt
         fun statusRightFill(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_tile_right_fill)
+            ContextCompat.getColor(context, R.color.system_green)
 
         @ColorInt
         fun statusRightText(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_tile_right_text)
+            ContextCompat.getColor(context, R.color.system_green)
 
         @ColorInt
         fun statusWrongFill(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_tile_wrong_fill)
+            ContextCompat.getColor(context, R.color.system_red)
 
         @ColorInt
         fun statusWrongText(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_tile_wrong_text)
+            ContextCompat.getColor(context, R.color.system_red)
 
         @ColorInt
         fun statusReviewFill(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_tile_medium_fill)
+            ContextCompat.getColor(context, R.color.system_orange)
 
         @ColorInt
         fun statusReviewText(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_tile_medium_text)
+            ContextCompat.getColor(context, R.color.system_orange)
 
         @ColorInt
         fun destructiveText(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_destructive_text)
+            ContextCompat.getColor(context, R.color.system_red)
 
         @ColorInt
         fun disabledFill(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_disabled_fill)
+            ContextCompat.getColor(context, R.color.track)
 
         @ColorInt
         fun disabledText(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_disabled_text)
+            ContextCompat.getColor(context, R.color.text_secondary)
 
         // Strokes, Borders & Separators
         @ColorInt
         fun shapeBorder(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_shape_border)
+            ContextCompat.getColor(context, R.color.hairline)
 
         @ColorInt
         fun separator(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_separator)
+            ContextCompat.getColor(context, R.color.hairline)
 
         @ColorInt
         fun opaqueSeparator(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_opaque_separator)
+            ContextCompat.getColor(context, R.color.hairline)
 
         // Material Tints
         @ColorInt
         fun materialRegular(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_material_regular)
+            ContextCompat.getColor(context, R.color.glass_fallback)
 
         @ColorInt
         fun materialThin(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_material_thin)
+            ContextCompat.getColor(context, R.color.glass_fallback)
 
         @ColorInt
         fun materialUltraThin(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_material_ultra_thin)
+            ContextCompat.getColor(context, R.color.text_primary)
 
         @ColorInt
         fun materialThick(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_material_thick)
+            ContextCompat.getColor(context, R.color.glass_fallback)
 
         @ColorInt
         fun drawerScrim(context: Context): Int =
-            ContextCompat.getColor(context, R.color.eve_drawer_scrim)
+            ContextCompat.getColor(context, R.color.text_primary)
     }
 
     /**
      * Canonical Apple iOS 26 dynamic typography tokens and helpers.
      */
     object Typography {
-        @StyleRes val LargeTitle: Int = R.style.TextAppearance_Eve_LargeTitle
-        @StyleRes val Title1: Int = R.style.TextAppearance_Eve_Title1
-        @StyleRes val Title2: Int = R.style.TextAppearance_Eve_Title2
-        @StyleRes val Title3: Int = R.style.TextAppearance_Eve_Title3
-        @StyleRes val Headline: Int = R.style.TextAppearance_Eve_Headline
-        @StyleRes val Body: Int = R.style.TextAppearance_Eve_Body
-        @StyleRes val Callout: Int = R.style.TextAppearance_Eve_Callout
-        @StyleRes val Subheadline: Int = R.style.TextAppearance_Eve_Subheadline
-        @StyleRes val SubheadlineMedium: Int = R.style.TextAppearance_Eve_Subheadline_Medium
-        @StyleRes val Footnote: Int = R.style.TextAppearance_Eve_Footnote
-        @StyleRes val FootnoteMedium: Int = R.style.TextAppearance_Eve_Footnote_Medium
-        @StyleRes val Caption1: Int = R.style.TextAppearance_Eve_Caption1
-        @StyleRes val Caption1Medium: Int = R.style.TextAppearance_Eve_Caption1_Medium
-        @StyleRes val Caption2: Int = R.style.TextAppearance_Eve_Caption2
-        @StyleRes val Eyebrow: Int = R.style.TextAppearance_Eve_Eyebrow
-        @StyleRes val Search: Int = R.style.TextAppearance_Eve_Search
+        @StyleRes val LargeTitle: Int = R.style.TextAppearance_Eve_Token_Title
+        @StyleRes val Title1: Int = R.style.TextAppearance_Eve_Token_Heading
+        @StyleRes val Title2: Int = R.style.TextAppearance_Eve_Token_Heading
+        @StyleRes val Title3: Int = R.style.TextAppearance_Eve_Token_Heading
+        @StyleRes val Headline: Int = R.style.TextAppearance_Eve_Token_Heading
+        @StyleRes val Body: Int = R.style.TextAppearance_Eve_Token_Body
+        @StyleRes val Callout: Int = R.style.TextAppearance_Eve_Token_Body
+        @StyleRes val Subheadline: Int = R.style.TextAppearance_Eve_Token_Body
+        @StyleRes val SubheadlineMedium: Int = R.style.TextAppearance_Eve_Token_Body
+        @StyleRes val Footnote: Int = R.style.TextAppearance_Eve_Token_Secondary
+        @StyleRes val FootnoteMedium: Int = R.style.TextAppearance_Eve_Token_Secondary
+        @StyleRes val Caption1: Int = R.style.TextAppearance_Eve_Token_Secondary
+        @StyleRes val Caption1Medium: Int = R.style.TextAppearance_Eve_Token_Secondary
+        @StyleRes val Caption2: Int = R.style.TextAppearance_Eve_Token_Secondary
+        @StyleRes val Eyebrow: Int = R.style.TextAppearance_Eve_Token_Secondary
+        @StyleRes val Search: Int = R.style.TextAppearance_Eve_Token_Body
 
         // Emphasized & Variant Styles
-        @StyleRes val Title1Bold: Int = R.style.TextAppearance_Eve_Title1_Bold
-        @StyleRes val Title2Bold: Int = R.style.TextAppearance_Eve_Title2_Bold
-        @StyleRes val Title3Semibold: Int = R.style.TextAppearance_Eve_Title3_Semibold
+        @StyleRes val Title1Bold: Int = R.style.TextAppearance_Eve_Token_Heading
+        @StyleRes val Title2Bold: Int = R.style.TextAppearance_Eve_Token_Heading
+        @StyleRes val Title3Semibold: Int = R.style.TextAppearance_Eve_Token_Heading
 
         // Authoritative Locked Text Hierarchy Roles (ADR-014)
         @StyleRes val Title: Int = Title1Bold           // 28sp bold -> Title 1
@@ -514,12 +514,12 @@ object EveDesignSystem {
         @StyleRes val Caption: Int = Footnote           // 13sp regular -> Footnote
 
         // Eve Design System Locked Foundation Typography (Home Screen)
-        @StyleRes val HomePageTitle: Int = R.style.TextAppearance_Eve_Home_PageTitle
-        @StyleRes val HomeCardTitle: Int = R.style.TextAppearance_Eve_Home_CardTitle
-        @StyleRes val HomeCardBody: Int = R.style.TextAppearance_Eve_Home_CardBody
-        @StyleRes val HomeSecondary: Int = R.style.TextAppearance_Eve_Home_Secondary
-        @StyleRes val HomeTabLabel: Int = R.style.TextAppearance_Eve_Home_TabLabel
-        @StyleRes val HomePillLabel: Int = R.style.TextAppearance_Eve_Home_PillLabel
+        @StyleRes val HomePageTitle: Int = R.style.TextAppearance_Eve_Token_Title
+        @StyleRes val HomeCardTitle: Int = R.style.TextAppearance_Eve_Token_Heading
+        @StyleRes val HomeCardBody: Int = R.style.TextAppearance_Eve_Token_Body
+        @StyleRes val HomeSecondary: Int = R.style.TextAppearance_Eve_Token_Secondary
+        @StyleRes val HomeTabLabel: Int = R.style.TextAppearance_Eve_Token_Body
+        @StyleRes val HomePillLabel: Int = R.style.TextAppearance_Eve_Token_Secondary
 
         fun applyStyle(textView: TextView, @StyleRes styleResId: Int) {
             TextViewCompat.setTextAppearance(textView, styleResId)
@@ -559,13 +559,13 @@ object EveDesignSystem {
         const val HOME_MIN_TOUCH_TARGET_DP = 48f
 
         fun homeCardRadius(resources: Resources): Float =
-            resources.getDimension(R.dimen.eve_home_card_radius)
+            resources.getDimension(R.dimen.design_radius_card)
 
         fun cardRadius(resources: Resources): Float =
-            resources.getDimension(R.dimen.eve_radius_card)
+            resources.getDimension(R.dimen.design_radius_card)
 
         fun sheetRadius(resources: Resources): Float =
-            resources.getDimension(R.dimen.eve_radius_bottom_sheet)
+            resources.getDimension(R.dimen.design_radius_card)
 
         fun concentricRadius(parentDp: Float, paddingDp: Float): Float =
             EveShapes.concentric(parentDp, paddingDp)
@@ -630,14 +630,9 @@ object EveDesignSystem {
      * Elevation specification in Light and Dark modes.
      */
     object Elevation {
-        fun cardElevation(context: Context): Float {
-            val isDark = Colors.isDark(context)
-            val resId = if (isDark) R.dimen.eve_card_elevation_dark else R.dimen.eve_card_elevation_light
-            return context.resources.getDimension(resId)
-        }
+        fun cardElevation(context: Context): Float = context.resources.getDimension(R.dimen.design_card_elevation)
+        fun homeCardElevation(context: Context): Float = cardElevation(context)
 
-        fun homeCardElevation(context: Context): Float =
-            context.resources.getDimension(R.dimen.eve_home_card_elevation)
     }
 
     /**
@@ -701,39 +696,17 @@ object EveDesignSystem {
          * Applies the canonical Eve Card foundation to a MaterialCardView.
          */
         fun applyCard(card: MaterialCardView, isGrouped: Boolean = false) {
-            val ctx = card.context
-            val radius = Shapes.cardRadius(card.resources)
-            card.radius = radius
-            card.strokeColor = Colors.shapeBorder(ctx)
-            card.strokeWidth = 0
-            val bgRes = if (isGrouped) {
-                R.color.eve_secondary_system_grouped_background
-            } else {
-                R.color.eve_secondary_background
+            applyHomeCard(card)
+            if (isGrouped) {
+                card.radius = card.resources.getDimension(R.dimen.design_radius_inner)
+                card.setCardBackgroundColor(ContextCompat.getColor(card.context, R.color.surface_inset))
+                card.cardElevation = 0f
             }
-            card.setCardBackgroundColor(ContextCompat.getColor(ctx, bgRes))
-            card.cardElevation = Elevation.cardElevation(ctx)
         }
 
         /**
          * Applies concentric corner geometry to a nested icon container tile.
          */
-        fun applyConcentricIconContainer(
-            container: MaterialCardView,
-            categoryTint: ExamCategoryTintHelper.TintColors? = null,
-            parentPaddingDp: Float = 18f
-        ) {
-            val ctx = container.context
-            val concentricDp = Shapes.concentricRadius(Shapes.RADIUS_CARD_DP, parentPaddingDp)
-            val density = container.resources.displayMetrics.density
-            container.radius = concentricDp * density
-            container.strokeColor = Colors.shapeBorder(ctx)
-            container.strokeWidth = 0
-            container.cardElevation = 0f
-            if (categoryTint != null) {
-                container.setCardBackgroundColor(ContextCompat.getColor(ctx, categoryTint.bgRes))
-            }
-        }
 
         /**
          * Builds an Eve Design System category outline pill.
@@ -749,28 +722,22 @@ object EveDesignSystem {
             text = category
             isCheckable = true
             isChecked = isSelected
-            val density = resources.displayMetrics.density
-            chipStrokeWidth = resources.getDimension(R.dimen.eve_home_pill_border_width)
-            chipStrokeColor = ContextCompat.getColorStateList(context, R.color.selector_home_pill_stroke)
-            chipBackgroundColor = ContextCompat.getColorStateList(context, R.color.selector_home_pill_bg)
-            setTextColor(ContextCompat.getColorStateList(context, R.color.selector_home_pill_text))
-            isCheckedIconVisible = false
-            setEnsureMinTouchTargetSize(false)
-            setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.eve_home_type_pill_label))
-            typeface = androidx.core.content.res.ResourcesCompat.getFont(context, R.font.dm_sans_medium) ?: Typography.sansSerifMedium()
-            includeFontPadding = false
-            val padH = resources.getDimension(R.dimen.eve_home_pill_padding_horizontal)
-            chipStartPadding = padH
-            chipEndPadding = padH
+            DesignType.apply(this, DesignType.Role.CHIP)
+            chipStrokeWidth = 0f
+            chipBackgroundColor = ContextCompat.getColorStateList(context, R.color.accent)
+            setTextColor(ContextCompat.getColor(context, R.color.on_accent))
+            setCheckedIconResource(R.drawable.ic_target_exam_checked)
+            checkedIconTint = ContextCompat.getColorStateList(context, R.color.on_accent)
+            isCheckedIconVisible = true
+            setEnsureMinTouchTargetSize(true)
+            chipMinHeight = resources.getDimension(R.dimen.design_pill_height)
+            chipStartPadding = resources.getDimension(R.dimen.design_pill_padding)
+            chipEndPadding = chipStartPadding
             textStartPadding = 0f
             textEndPadding = 0f
-            setPaddingRelative(Math.round(padH), 0, Math.round(padH), 0)
-            val pillH = resources.getDimension(R.dimen.eve_home_pill_height)
-            chipMinHeight = pillH
-            chipCornerRadius = resources.getDimension(R.dimen.eve_home_pill_radius)
-            minWidth = Math.round(48f * density)
-            minHeight = Math.round(pillH)
-            maxWidth = Math.round(maxOf(64, resources.configuration.screenWidthDp - 32) * density)
+            shapeAppearanceModel = shapeAppearanceModel.withCornerSize(com.google.android.material.shape.RelativeCornerSize(.5f))
+            maxWidth = resources.displayMetrics.widthPixels - 2 * resources.getDimensionPixelSize(R.dimen.design_screen_margin)
+            DesignPress.bind(this)
             isSingleLine = true
             ellipsize = android.text.TextUtils.TruncateAt.END
             contentDescription = category
@@ -786,14 +753,14 @@ object EveDesignSystem {
         fun applyHomeCard(card: MaterialCardView) {
             val ctx = card.context
             val res = card.resources
-            card.radius = res.getDimension(R.dimen.eve_home_card_radius)
+            card.radius = res.getDimension(R.dimen.design_radius_card)
             card.cardElevation = Elevation.homeCardElevation(ctx)
             card.maxCardElevation = Elevation.homeCardElevation(ctx)
-            card.setCardBackgroundColor(ContextCompat.getColor(ctx, R.color.eve_home_card))
+            card.setCardBackgroundColor(ContextCompat.getColor(ctx, R.color.surface))
             card.strokeWidth = 0
             card.strokeColor = Color.TRANSPARENT
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                val shadowColor = ContextCompat.getColor(ctx, R.color.eve_home_card_shadow)
+                val shadowColor = ContextCompat.getColor(ctx, R.color.card_shadow)
                 card.outlineAmbientShadowColor = shadowColor
                 card.outlineSpotShadowColor = shadowColor
             }
@@ -805,19 +772,19 @@ object EveDesignSystem {
         fun applyStreakPill(pillContainer: View, textView: TextView, summaryText: CharSequence) {
             val ctx = pillContainer.context
             textView.text = summaryText
-            Typography.applyStyle(textView, Typography.FootnoteMedium)
-            textView.setTextColor(Colors.labelPrimary(ctx))
+            DesignType.apply(textView, DesignType.Role.CHIP)
+            textView.setTextColor(Colors.homeOnAccent(ctx))
         }
 
         /**
          * Styles the Admin Dashboard button on the Home screen.
          */
         fun applyAdminButton(button: MaterialButton) {
-            val ctx = button.context
-            button.backgroundTintList = ContextCompat.getColorStateList(ctx, R.color.selector_home_admin_surface)
-            button.strokeColor = ContextCompat.getColorStateList(ctx, R.color.eve_shape_border)
-            button.strokeWidth = Spacing.dpToPx(button.resources, 1)
-            button.minHeight = Spacing.dpToPx(button.resources, 52)
+            button.backgroundTintList = ContextCompat.getColorStateList(button.context, R.color.track)
+            button.setTextColor(ContextCompat.getColorStateList(button.context, R.color.design_secondary_text))
+            button.strokeWidth = 0
+            button.minHeight = button.resources.getDimensionPixelSize(R.dimen.design_touch_min)
+            DesignType.apply(button, DesignType.Role.BUTTON)
         }
 
         /**
@@ -853,14 +820,8 @@ object EveDesignSystem {
          * Applies Home top bar depth with adaptive cross-window blur support (ADR-016).
          */
         fun applyHomeTopBarDepth(topBarContainer: View, searchTopBar: View? = null) {
-            val context = topBarContainer.context
-            val hasBlur = Materials.isCrossWindowBlurSupported(context)
-            val topBarBg = ContextCompat.getColor(
-                context,
-                if (hasBlur) R.color.eve_home_blur_tint else R.color.eve_home_solid_tint
-            )
-            topBarContainer.setBackgroundColor(topBarBg)
-            searchTopBar?.setBackgroundColor(topBarBg)
+            topBarContainer.setBackgroundColor(Color.TRANSPARENT)
+            searchTopBar?.setBackgroundColor(Color.TRANSPARENT)
         }
     }
 }

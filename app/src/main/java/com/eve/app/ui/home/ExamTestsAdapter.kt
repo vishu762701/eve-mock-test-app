@@ -106,7 +106,7 @@ class ExamTestsAdapter(
                 item.isLocked -> {
                     binding.tvSubtitle.text = item.opensText
                     binding.tvStatus.text = "Locked"
-                    binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.eve_text_secondary))
+                    binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
                     binding.cardContainer.setOnClickListener {
                         onLockedClick(item.test, item.opensText)
                     }
@@ -114,7 +114,7 @@ class ExamTestsAdapter(
                 item.isCompleted -> {
                     binding.tvSubtitle.text = item.subtitle
                     binding.tvStatus.text = "Completed"
-                    binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.eve_status_success_text))
+                    binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.system_green))
                     binding.cardContainer.setOnClickListener {
                         onTestClick(item.test, item.isCompleted)
                     }
@@ -122,7 +122,7 @@ class ExamTestsAdapter(
                 item.isResume -> {
                     binding.tvSubtitle.text = item.subtitle
                     binding.tvStatus.text = "Resume"
-                    binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.eve_accent_text))
+                    binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.system_blue))
                     binding.cardContainer.setOnClickListener {
                         onTestClick(item.test, item.isCompleted)
                     }
@@ -130,7 +130,7 @@ class ExamTestsAdapter(
                 else -> {
                     binding.tvSubtitle.text = item.subtitle
                     binding.tvStatus.text = "Start"
-                    binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.eve_accent_text))
+                    binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.system_blue))
                     binding.cardContainer.setOnClickListener {
                         onTestClick(item.test, item.isCompleted)
                     }

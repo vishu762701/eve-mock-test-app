@@ -23,7 +23,7 @@ class CircularCountdownView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    private val strokePx = 2.5f * resources.displayMetrics.density
+    private val strokePx = resources.getDimension(R.dimen.design_ring_stroke)
 
     private val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
@@ -47,14 +47,16 @@ class CircularCountdownView @JvmOverloads constructor(
         oval.set(pad, pad, w.toFloat() - pad, h.toFloat() - pad)
 
         // Center the trash icon with padding inside the ring
-        val iconPad = (w * 0.28f).toInt()
-        iconDrawable?.setBounds(iconPad, iconPad, w - iconPad, h - iconPad)
+        val iconSize = resources.getDimensionPixelSize(R.dimen.design_icon_size)
+        val left = (w - iconSize) / 2
+        val top = (h - iconSize) / 2
+        iconDrawable?.setBounds(left, top, left + iconSize, top + iconSize)
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        val fgColor = ContextCompat.getColor(context, R.color.eve_bulletin_text)
-        val trackColor = ColorUtils.setAlphaComponent(fgColor, 60)
+        val fgColor = com.eve.app.designsystem.DesignTokens.accent(context)
+        val trackColor = com.eve.app.designsystem.DesignTokens.track(context)
         trackPaint.color = trackColor
         progressPaint.color = fgColor
         iconDrawable?.setTint(fgColor)

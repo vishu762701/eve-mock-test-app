@@ -26,7 +26,7 @@ class EveGlassPill @JvmOverloads constructor(
         fun setCapsuleBackground(view: android.view.View, @androidx.annotation.DrawableRes resource: Int) {
             view.setBackgroundResource(resource)
             val background = view.background.mutate() as android.graphics.drawable.GradientDrawable
-            background.cornerRadius = view.resources.getDimension(R.dimen.eve_radius_pill)
+            background.cornerRadius = view.resources.getDimension(R.dimen.design_input_height)
             view.background = background
         }
     }
@@ -38,8 +38,8 @@ class EveGlassPill @JvmOverloads constructor(
         val padH = (12f * density).toInt()
         val padV = (6f * density).toInt()
         setPadding(padH, padV, padH, padV)
-        setTextColor(ContextCompat.getColor(context, R.color.eve_text))
-        androidx.core.widget.TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Footnote_Medium)
+        setTextColor(ContextCompat.getColor(context, R.color.text_primary))
+        androidx.core.widget.TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Token_Secondary)
         EveTouchHelper.attachTactileFeedback(this, pressScale = 0.97f)
     }
 }

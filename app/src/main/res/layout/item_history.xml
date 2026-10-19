@@ -1,55 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    style="@style/Widget.Eve.Card.Group"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginHorizontal="0dp"
-    android:layout_marginVertical="@dimen/eve_space_8"
-    android:clickable="true"
-    android:focusable="true"
-    android:stateListAnimator="@animator/press_scale"
-    app:rippleColor="@color/eve_ripple"
-    android:minHeight="@dimen/eve_list_row_min">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="@dimen/eve_space_16">
-
-        <TextView
-            android:id="@+id/tvExamName"
-            style="@style/TextAppearance.Eve.Secondary.ItemTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textColor="@color/eve_text" />
-
-        <TextView
-            android:id="@+id/tvMeta"
-            style="@style/TextAppearance.Eve.Secondary.ItemSubtitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="?attr/eveLabelSecondary" />
-
-        <TextView
-            android:id="@+id/tvScore"
-            style="@style/TextAppearance.Eve.Secondary.Body"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textStyle="bold"
-            android:textColor="?attr/eveLabelPrimary" />
-
-        <TextView
-            android:id="@+id/tvBreakdown"
-            style="@style/TextAppearance.Eve.Secondary.ItemSubtitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:textColor="?attr/eveLabelSecondary" />
+<?xml version='1.0' encoding='utf-8'?>
+<com.eve.app.designsystem.DesignCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" style="@style/Widget.Eve.Token.Card" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginVertical="@dimen/design_zero" android:clickable="true" android:focusable="true" app:rippleColor="@color/design_role_ripple" android:minHeight="@dimen/eve_list_row_min" android:layout_marginBottom="@dimen/design_card_gap">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <TextView android:id="@+id/tvExamName" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="match_parent" android:layout_height="wrap_content" />
+        <TextView android:id="@+id/tvMeta" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" />
+        <TextView android:id="@+id/tvScore" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" />
+        <TextView android:id="@+id/tvBreakdown" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" />
     </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+</com.eve.app.designsystem.DesignCardView>

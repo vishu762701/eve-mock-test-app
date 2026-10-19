@@ -132,7 +132,12 @@
         <item name="chipStyle">@style/Widget.Eve.Token.Chip</item>
         <item name="materialCardViewStyle">@style/Widget.Eve.Token.Card</item>
         <item name="bottomSheetDialogTheme">@style/Theme.Eve.BottomSheetDialog</item>
-        <item name="popupMenuStyle">@style/Widget.Eve.PopupMenu</item>
+        <item name="spinnerStyle">@style/Widget.Eve.Token.Spinner</item>
+        <item name="listPopupWindowStyle">@style/Widget.Eve.Token.ListPopup</item>
+        <item name="dropDownListViewStyle">@style/Widget.Eve.Token.DropDownList</item>
+        <item name="android:dropDownItemStyle">@style/Widget.Eve.Token.DropDownItem</item>
+        <item name="android:listDivider">@null</item>
+        <item name="popupMenuStyle">@style/Widget.Eve.Token.NativePopup</item>
         <item name="alertDialogTheme">@style/Theme.Eve.Dialog</item>
         <item name="materialAlertDialogTheme">@style/Theme.Eve.Dialog</item>
         <item name="android:windowAnimationStyle">@style/Eve.WindowAnimation</item>
@@ -267,7 +272,7 @@
 
     <!-- Scoped Home Screen Theme (iOS 26 Depth & Motion: 0dp card elevation, no shadows, 24dp blur/tint popup menu) -->
     <style name="Theme.Eve.Home" parent="Theme.Eve">
-        <item name="popupMenuStyle">@style/Widget.Eve.Home.PopupMenu</item>
+        <item name="popupMenuStyle">@style/Widget.Eve.Token.NativePopup</item>
     </style>
 
     <style name="Widget.Eve.Home.PopupMenu" parent="Widget.Material3.PopupMenu">

@@ -26,23 +26,23 @@ class LeaderboardAdapter(
             b.tvRank.text = "#$rank"
             when (rank) {
                 1 -> {
-                    com.eve.app.ui.common.EveGlassPill.setCapsuleBackground(b.tvRank, R.drawable.bg_tile_medium)
-                    b.tvRank.setTextColor(ContextCompat.getColor(ctx, R.color.eve_tile_medium_text))
+                    com.eve.app.ui.common.EveGlassPill.setCapsuleBackground(b.tvRank, R.drawable.design_badge_orange)
+                    b.tvRank.setTextColor(ContextCompat.getColor(ctx, R.color.system_orange))
                     b.tvRank.setPadding((6 * ctx.resources.displayMetrics.density).toInt(), (2 * ctx.resources.displayMetrics.density).toInt(), (6 * ctx.resources.displayMetrics.density).toInt(), (2 * ctx.resources.displayMetrics.density).toInt())
                 }
                 2, 3 -> {
-                    com.eve.app.ui.common.EveGlassPill.setCapsuleBackground(b.tvRank, R.drawable.bg_tile_surface2)
-                    b.tvRank.setTextColor(ContextCompat.getColor(ctx, R.color.eve_text_secondary))
+                    com.eve.app.ui.common.EveGlassPill.setCapsuleBackground(b.tvRank, R.drawable.design_badge_neutral)
+                    b.tvRank.setTextColor(ContextCompat.getColor(ctx, R.color.text_secondary))
                     b.tvRank.setPadding((6 * ctx.resources.displayMetrics.density).toInt(), (2 * ctx.resources.displayMetrics.density).toInt(), (6 * ctx.resources.displayMetrics.density).toInt(), (2 * ctx.resources.displayMetrics.density).toInt())
                 }
                 else -> {
                     b.tvRank.background = null
-                    b.tvRank.setTextColor(ContextCompat.getColor(ctx, R.color.eve_text_secondary))
+                    b.tvRank.setTextColor(ContextCompat.getColor(ctx, R.color.text_secondary))
                     b.tvRank.setPadding(0, 0, 0, 0)
                 }
             }
 
-            val avatar = com.eve.app.util.AvatarDrawable.create(entry.displayName, entry.userId)
+            val avatar = com.eve.app.util.AvatarDrawable.create(ctx, entry.displayName, entry.userId)
             (b.tvAvatarInitial.parent as? android.view.View)?.background = avatar
             b.tvAvatarInitial.text = ""
             b.tvScore.text = "${entry.scoreText}/${entry.total}"
@@ -50,9 +50,9 @@ class LeaderboardAdapter(
             val isMe = currentUserId != null && entry.userId == currentUserId
             b.tvName.text = if (isMe) "${entry.displayName} (You)" else entry.displayName
             b.root.setCardBackgroundColor(
-                ContextCompat.getColor(ctx, if (isMe) R.color.eve_accent_container else R.color.eve_secondary_system_grouped_background)
+                ContextCompat.getColor(ctx, if (isMe) R.color.system_blue_container else R.color.surface_inset)
             )
-            b.root.strokeColor = ContextCompat.getColor(ctx, R.color.eve_shape_border)
+            b.root.strokeColor = ContextCompat.getColor(ctx, R.color.hairline)
             b.root.strokeWidth = 0
         }
     }

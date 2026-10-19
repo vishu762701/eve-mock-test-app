@@ -1,66 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/undoContainer"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_gravity="bottom|center_horizontal"
-    android:clipToPadding="false"
-    android:paddingHorizontal="16dp"
-    android:paddingBottom="24dp"
-        android:clipChildren="false"
-        >
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardUndo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        app:cardBackgroundColor="@color/eve_bulletin_bg"
-        app:cardCornerRadius="@dimen/eve_radius_card"
-        app:cardElevation="0dp"
-        app:cardPreventCornerOverlap="false"
-        app:cardUseCompatPadding="false"
-        app:strokeWidth="1dp">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="10dp">
-
-            <com.eve.app.ui.common.CircularCountdownView
-                android:id="@+id/countdownView"
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:layout_marginEnd="12dp" />
-
-            <TextView
-                style="@style/TextAppearance.Eve.BodySmall"
-                android:id="@+id/tvUndoMessage"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:maxWidth="240dp"
-                android:textColor="@color/eve_bulletin_text" />
-
-            <TextView
-                style="@style/TextAppearance.Eve.Footnote.Medium"
-                android:id="@+id/btnUndoAction"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:clickable="true"
-                android:focusable="true"
-                android:paddingHorizontal="6dp"
-                android:paddingVertical="2dp"
-                android:text="UNDO"
-                android:textAllCaps="true"
-                android:textColor="@color/eve_bulletin_action"
-                android:textStyle="bold" />
+<?xml version='1.0' encoding='utf-8'?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/undoContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="bottom|center_horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+    <com.eve.app.designsystem.DesignCardView android:id="@+id/cardUndo" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" style="@style/Widget.Eve.Token.Card">
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <com.eve.app.ui.common.CircularCountdownView android:id="@+id/countdownView" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_marginEnd="@dimen/design_screen_margin" />
+            <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvUndoMessage" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_weight="1" android:maxWidth="240dp" />
+            <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/btnUndoAction" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_section_gap" android:clickable="true" android:focusable="true" android:text="UNDO" android:textAllCaps="true" />
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+    </com.eve.app.designsystem.DesignCardView>
 </FrameLayout>

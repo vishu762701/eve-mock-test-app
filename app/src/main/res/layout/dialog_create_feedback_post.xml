@@ -1,84 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="20dp">
-
-    <TextView
-        style="@style/TextAppearance.Eve.Secondary.SectionHeader"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="📢 Create Feedback Post"
-        android:textColor="@color/eve_text" />
-
-    <TextView
-        style="@style/TextAppearance.Eve.Secondary.ItemSubtitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="Publish a feedback inquiry or question for students on the Home screen."
-        android:textColor="@color/eve_text_secondary" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/tilPostTitle"
-        style="@style/Widget.Eve.TextInput.Outlined"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:hint="Post Title *">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etPostTitle"
-            style="@style/TextAppearance.Eve.Callout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textCapSentences"
-            android:maxLines="2" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/tilPostMessage"
-        style="@style/Widget.Eve.TextInput.Outlined"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:hint="Message / Prompt *">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etPostMessage"
-            style="@style/TextAppearance.Eve.Callout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="top|start"
-            android:inputType="textMultiLine|textCapSentences"
-            android:minLines="3" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCancelPost"
-            style="@style/Widget.Eve.TextButton"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            android:text="Cancel"
-            android:textColor="@color/eve_text_secondary" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnPublishPost"
-            style="@style/Widget.Eve.Button"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="12dp"
-            android:layout_weight="1.5"
-            android:text="Publish Post" />
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Modal">
+    <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📢 Create Feedback Post" />
+    <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Publish a feedback inquiry or question for students on the Home screen." />
+    <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilPostTitle" style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_section_gap" android:hint="Post Title *">
+        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etPostTitle" style="@style/Widget.Eve.Token.Input" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="textCapSentences" android:maxLines="2" />
+    </com.eve.app.designsystem.DesignInputLayout>
+    <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilPostMessage" style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:hint="Message / Prompt *">
+        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etPostMessage" style="@style/Widget.Eve.Token.Input" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="top|start" android:inputType="textMultiLine|textCapSentences" android:minLines="3" />
+    </com.eve.app.designsystem.DesignInputLayout>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_icon_size" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnCancelPost" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_touch_min" android:layout_weight="1" android:text="Cancel" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnPublishPost" style="@style/Widget.Eve.Token.Button" android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_screen_margin" android:layout_weight="1.5" android:text="Publish Post" />
     </LinearLayout>
 </LinearLayout>

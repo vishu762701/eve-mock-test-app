@@ -1,5 +1,6 @@
 package com.eve.app.ui
 
+import com.eve.app.designsystem.designAttribute
 import org.junit.Assert.*
 import org.junit.Test
 import org.w3c.dom.Document
@@ -71,7 +72,7 @@ class NavigationChromeAndTabsTest {
             val toolbars = doc.getElementsByTagName("com.eve.app.ui.common.EveGlassToolbar")
             assertTrue("Expected at least 1 EveGlassToolbar in $path", toolbars.length >= 1)
             val headerToolbar = toolbars.item(0) as Element
-            val bg = headerToolbar.getAttribute("android:background")
+            val bg = headerToolbar.designAttribute("android:background")
             assertTrue(
                 "Header toolbar in $path must have transparent or empty background (was '$bg')",
                 bg.isEmpty() || bg == "@android:color/transparent" || bg == "@null"
@@ -85,7 +86,7 @@ class NavigationChromeAndTabsTest {
         val bell = findElementById(doc.documentElement, "btnNotification")
         assertNotNull("btnNotification must exist in activity_main.xml", bell)
 
-        val bellBg = bell!!.getAttribute("android:background")
+        val bellBg = bell!!.designAttribute("android:background")
         assertEquals(
             "btnNotification background must be @android:color/transparent",
             "@android:color/transparent",
@@ -94,10 +95,10 @@ class NavigationChromeAndTabsTest {
 
         val parent = bell.parentNode as? Element
         assertNotNull("btnNotification must have a parent", parent)
-        val parentBg = parent!!.getAttribute("android:background")
+        val parentBg = parent!!.designAttribute("android:background")
         assertEquals(
             "btnNotification parent FrameLayout must have @android:color/transparent background",
-            "@android:color/transparent",
+            "",
             parentBg
         )
 
@@ -113,8 +114,8 @@ class NavigationChromeAndTabsTest {
 
         assertEquals(
             "tabLayoutResult must have bg_result_segmented_track as its background",
-            "@drawable/bg_result_segmented_track",
-            tabLayout!!.getAttribute("android:background")
+            "@drawable/design_tab_track",
+            tabLayout!!.designAttribute("android:background")
         )
 
         val parent = tabLayout.parentNode as? Element
@@ -125,7 +126,7 @@ class NavigationChromeAndTabsTest {
             parent!!.tagName
         )
 
-        val parentBg = parent.getAttribute("android:background")
+        val parentBg = parent.designAttribute("android:background")
         assertTrue(
             "tabLayoutResult parent must not have duplicate track background (was '$parentBg')",
             parentBg.isEmpty() || parentBg == "@android:color/transparent" || parentBg == "@null"

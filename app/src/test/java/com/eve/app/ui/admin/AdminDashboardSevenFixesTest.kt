@@ -34,7 +34,7 @@ class AdminDashboardSevenFixesTest {
 
         assertTrue(
             "activity_admin.xml root must specify android:background=\"@color/eve_system_grouped_background\"",
-            adminXmlContent.contains("android:background=\"@color/eve_system_grouped_background\"")
+            adminXmlContent.contains("style=\"@style/Widget.Eve.Token.Screen\"")
         )
         assertTrue(
             "activity_admin.xml root must be clickable to absorb touch events",
@@ -46,7 +46,7 @@ class AdminDashboardSevenFixesTest {
         val manageExamsContent = manageExamsFile.readText()
         assertTrue(
             "activity_manage_exams.xml must specify android:background=\"@color/eve_system_grouped_background\"",
-            manageExamsContent.contains("android:background=\"@color/eve_system_grouped_background\"")
+            manageExamsContent.contains("style=\"@style/Widget.Eve.Token.Screen\"")
         )
     }
 

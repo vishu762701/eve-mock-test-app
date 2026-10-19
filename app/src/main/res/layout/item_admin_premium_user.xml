@@ -1,90 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    app:cardBackgroundColor="@color/eve_card_bg"
-    app:cardCornerRadius="@dimen/eve_radius_card"
-    app:cardElevation="0dp"
-    app:strokeWidth="1dp"
-    android:minHeight="@dimen/eve_list_row_min">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="14dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/tvUserDisplayName"
-                style="@style/TextAppearance.Eve.Admin.ItemTitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textColor="@color/eve_text"
-                tools:text="Student Name" />
-
-            <TextView
-                android:id="@+id/tvUserStatusBadge"
-                style="@style/TextAppearance.Eve.Admin.Badge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="3dp"
-                tools:text="ACTIVE" />
+<?xml version='1.0' encoding='utf-8'?>
+<com.eve.app.designsystem.DesignCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:ns1="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap" android:minHeight="@dimen/eve_list_row_min" style="@style/Widget.Eve.Token.Card">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <TextView android:id="@+id/tvUserDisplayName" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_weight="1" ns1:text="Student Name" />
+            <TextView android:id="@+id/tvUserStatusBadge" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" ns1:text="ACTIVE" />
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvUserEmail"
-            style="@style/TextAppearance.Eve.Admin.ItemSubtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/eve_text_secondary"
-            tools:text="student@gmail.com" />
-
-        <TextView
-            android:id="@+id/tvPlanAndExpiry"
-            style="@style/TextAppearance.Eve.Caption1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="@color/eve_text"
-            tools:text="Premium Pro • Expires: 29 Oct 2026 (Source: PAYMENT)" />
-
-        <!-- Actions Row -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:gravity="end"
-            android:orientation="horizontal">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnExtendUser"
-                style="@style/Widget.Eve.OutlinedButton"
-                android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:text="+30 Days" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnRevokeUser"
-                style="@style/Widget.Eve.OutlinedButton"
-                android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_marginStart="8dp"
-                android:text="Revoke"
-                android:textColor="@color/selector_eve_destructive_text"
-                app:strokeColor="@color/eve_shape_border" />
+        <TextView android:id="@+id/tvUserEmail" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" ns1:text="student@gmail.com" />
+        <TextView android:id="@+id/tvPlanAndExpiry" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" ns1:text="Premium Pro • Expires: 29 Oct 2026 (Source: PAYMENT)" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:gravity="end" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnExtendUser" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:text="+30 Days" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnRevokeUser" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_card_gap" android:text="Revoke" />
         </LinearLayout>
     </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+</com.eve.app.designsystem.DesignCardView>

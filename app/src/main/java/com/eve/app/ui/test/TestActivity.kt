@@ -449,7 +449,7 @@ class TestActivity : EveBaseActivity() {
             .setNegativeButton("Cancel", null)
             .create()
 
-        com.eve.app.util.EveLiquidGlass.applySubmitConfirmationGlass(dialog)
+        com.eve.app.designsystem.DesignSurfaces.dialog(dialog)
         dialog.show()
     }
 

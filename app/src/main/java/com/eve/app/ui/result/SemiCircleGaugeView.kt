@@ -18,7 +18,7 @@ class SemiCircleGaugeView @JvmOverloads constructor(
     private val density = resources.displayMetrics.density
     private var percentage: Float = 0f
 
-    private val strokePx = 8f * density
+    private val strokePx = resources.getDimension(R.dimen.design_ring_stroke)
     private val arcRect = RectF()
 
     private val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -33,13 +33,15 @@ class SemiCircleGaugeView @JvmOverloads constructor(
 
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textAlign = Paint.Align.CENTER
-        textSize = 15f * resources.displayMetrics.scaledDensity
-        isFakeBoldText = true
+        typeface = com.eve.app.util.FontManager.typeface(context, bold = false)
+        textSize = resources.getDimension(com.eve.app.R.dimen.design_type_heading)
+        typeface = com.eve.app.util.FontManager.typeface(context, bold = true)
     }
 
     private val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        typeface = com.eve.app.util.FontManager.typeface(context, bold = false)
         textAlign = Paint.Align.CENTER
-        textSize = 10f * resources.displayMetrics.scaledDensity
+        textSize = resources.getDimension(com.eve.app.R.dimen.design_type_secondary)
     }
 
     init {
@@ -53,13 +55,13 @@ class SemiCircleGaugeView @JvmOverloads constructor(
     }
 
     private fun resolveColors() {
-        val colorBg = ContextCompat.getColor(context, R.color.eve_surface_2)
-        val colorText = ContextCompat.getColor(context, R.color.eve_text)
-        val colorSubText = ContextCompat.getColor(context, R.color.eve_text_secondary)
+        val colorBg = com.eve.app.designsystem.DesignTokens.color(context, com.eve.app.R.attr.designTrack)
+        val colorText = com.eve.app.designsystem.DesignTokens.color(context, com.eve.app.R.attr.designTextPrimary)
+        val colorSubText = com.eve.app.designsystem.DesignTokens.color(context, com.eve.app.R.attr.designTextSecondary)
         val colorProgress = when {
-            percentage >= 70f -> ContextCompat.getColor(context, R.color.eve_tile_right_text)
-            percentage >= 40f -> ContextCompat.getColor(context, R.color.eve_tile_medium_text)
-            else -> ContextCompat.getColor(context, R.color.eve_tile_wrong_text)
+            percentage >= 70f -> com.eve.app.designsystem.DesignTokens.color(context, com.eve.app.R.attr.systemGreen)
+            percentage >= 40f -> com.eve.app.designsystem.DesignTokens.color(context, com.eve.app.R.attr.systemOrange)
+            else -> com.eve.app.designsystem.DesignTokens.color(context, com.eve.app.R.attr.systemRed)
         }
 
         bgPaint.color = colorBg

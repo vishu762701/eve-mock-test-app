@@ -24,9 +24,9 @@ object ResultAnalysisRows {
             tvTopicName.text = accuracy.topic
             tvTopicResult.text = "${accuracy.accuracy}% (${accuracy.correct}/${accuracy.total})"
             tvTopicResult.setTextColor(ContextCompat.getColor(context, when {
-                accuracy.accuracy >= 70.0 -> R.color.eve_status_success_text
-                accuracy.accuracy >= 40.0 -> R.color.eve_status_warning_text
-                else -> R.color.eve_status_error_text
+                accuracy.accuracy >= 70.0 -> R.color.system_green
+                accuracy.accuracy >= 40.0 -> R.color.system_orange
+                else -> R.color.system_red
             }))
         }.root
 
@@ -34,13 +34,13 @@ object ResultAnalysisRows {
         layoutParams = params(context)
         val status = when { answer.isCorrect -> "Correct"; answer.isAttempted -> "Wrong"; else -> "Skipped" }
         text = "Q${answer.number}: ${answer.timeTakenSeconds}s • $status"
-        TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Footnote_Medium)
+        TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Token_Secondary)
         setTextColor(ContextCompat.getColor(context, when {
-            answer.isCorrect -> R.color.eve_status_success_text
-            answer.isAttempted -> R.color.eve_status_error_text
-            else -> R.color.eve_text_secondary
+            answer.isCorrect -> R.color.system_green
+            answer.isAttempted -> R.color.system_red
+            else -> R.color.text_secondary
         }))
-        setBackgroundResource(R.drawable.bg_student_inset)
+        setBackgroundResource(R.drawable.design_tile_surface)
         val padding = (12 * resources.displayMetrics.density).toInt()
         setPadding(padding, padding, padding, padding)
     }

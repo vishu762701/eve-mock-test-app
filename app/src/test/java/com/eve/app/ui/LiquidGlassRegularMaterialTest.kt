@@ -233,8 +233,8 @@ class LiquidGlassRegularMaterialTest {
             testActivitySource.contains(".setNegativeButton(\"Cancel\", null)")
         )
         assertTrue(
-            "confirmSubmit() must apply EveLiquidGlass.applySubmitConfirmationGlass",
-            testActivitySource.contains("applySubmitConfirmationGlass(dialog)")
+            "confirmSubmit() must apply the solid dialog surface",
+            testActivitySource.contains("DesignSurfaces.dialog(dialog)")
         )
         assertTrue(
             "calculateSubmitDialogCounts must be preserved",

@@ -193,7 +193,7 @@ class SettingsActivity : EveBaseActivity() {
             addView(TextView(this@SettingsActivity).apply {
                 text = msg
                 setPadding((16 * resources.displayMetrics.density).toInt(), 0, 0, 0)
-                androidx.core.widget.TextViewCompat.setTextAppearance(this, com.eve.app.R.style.TextAppearance_Eve_Subheadline_Primary)
+                androidx.core.widget.TextViewCompat.setTextAppearance(this, com.eve.app.R.style.TextAppearance_Eve_Token_Body)
             })
         }
         builder.setView(layout)

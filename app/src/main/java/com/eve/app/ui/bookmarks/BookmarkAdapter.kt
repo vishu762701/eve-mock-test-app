@@ -68,8 +68,8 @@ class BookmarkAdapter(
             }
 
             // Options styling
-            val greenColor = ContextCompat.getColor(context, R.color.eve_status_success_text)
-            val defaultColor = ContextCompat.getColor(context, R.color.eve_text)
+            val greenColor = ContextCompat.getColor(context, R.color.system_green)
+            val defaultColor = ContextCompat.getColor(context, R.color.text_primary)
 
             fun styleOption(tv: android.widget.TextView, letter: String) {
                 val optText = item.displayOptionText(letter, hindi)

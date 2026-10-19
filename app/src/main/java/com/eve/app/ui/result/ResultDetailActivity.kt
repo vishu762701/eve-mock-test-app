@@ -209,7 +209,7 @@ class ResultDetailActivity : EveBaseActivity() {
         } else {
             val emptyTv = TextView(this).apply {
                 text = "No topic metadata recorded for this test."
-                androidx.core.widget.TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Footnote)
+                androidx.core.widget.TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Token_Secondary)
             }
             binding.layoutTopicList.addView(emptyTv)
             binding.btnPracticeWeakest.visibility = View.GONE
@@ -243,7 +243,7 @@ class ResultDetailActivity : EveBaseActivity() {
         } else {
             val emptyTv = TextView(this).apply {
                 text = "No timed questions recorded."
-                androidx.core.widget.TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Footnote)
+                androidx.core.widget.TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Token_Secondary)
             }
             binding.layoutSlowestList.addView(emptyTv)
         }

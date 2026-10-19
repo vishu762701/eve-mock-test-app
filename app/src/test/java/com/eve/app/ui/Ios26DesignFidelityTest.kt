@@ -1,5 +1,6 @@
 package com.eve.app.ui
 
+import com.eve.app.designsystem.designAttribute
 import com.eve.app.util.SystemBarHelper
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -59,8 +60,8 @@ class Ios26DesignFidelityTest {
                 SystemBarHelper.resolveCanvasRoleForNames(activityName, layoutFile.removeSuffix(".xml"))
             )
             val root = loadXml("src/main/res/layout/$layoutFile")
-            val bg = root.getAttribute("android:background")
-            assertTrue(bg in setOf("@color/eve_system_background", "@color/eve_canvas", "@color/eve_bg", "@color/eve_test_background", "@color/eve_plain_canvas", "@color/eve_home_background"))
+            val bg = root.designAttribute("android:background")
+            assertTrue(bg in setOf("@color/bg_app", "@color/eve_system_background", "@color/eve_canvas", "@color/eve_bg", "@color/eve_test_background", "@color/eve_plain_canvas", "@color/eve_home_background"))
         }
 
         val groupedScreens = listOf(
@@ -106,7 +107,7 @@ class Ios26DesignFidelityTest {
                 SystemBarHelper.resolveCanvasRoleForNames(activityName, layoutFile.removeSuffix(".xml"))
             )
             val root = loadXml("src/main/res/layout/$layoutFile")
-            assertEquals("@color/eve_system_grouped_background", root.getAttribute("android:background"))
+            assertEquals("@color/bg_app", root.designAttribute("android:background"))
         }
 
         assertEquals(SystemBarHelper.ScreenCanvasRole.GROUPED, SystemBarHelper.resolveCanvasRoleForNames("SystemMonitorActivity"))
@@ -164,7 +165,7 @@ class Ios26DesignFidelityTest {
             val descendants = root.getElementsByTagName("*")
             val tabElement = (0 until descendants.length).map { descendants.item(it) as Element }
                 .single { it.getAttribute("android:id") == "@+id/$id" }
-            assertEquals("Tab $id in $path must be EveGlassTabLayout", "com.eve.app.ui.common.EveGlassTabLayout", tabElement.tagName)
+            assertEquals("Tab $id in $path must be EveGlassTabLayout", "com.eve.app.designsystem.DesignSegmentedTabs", tabElement.tagName)
         }
     }
 

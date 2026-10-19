@@ -1,63 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    style="@style/Widget.Eve.Card.Group"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginHorizontal="0dp"
-    android:layout_marginVertical="4dp"
-    android:minHeight="@dimen/eve_list_row_min">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="10dp">
-
-        <TextView
-            android:id="@+id/tvRank"
-            style="@style/TextAppearance.Eve.Leaderboard.Rank"
-            android:layout_width="34dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textStyle="bold"
-            android:textColor="?attr/eveLabelPrimary" />
-
-        <FrameLayout
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginStart="6dp"
-            android:background="@drawable/bg_circle_primary">
-
-            <TextView
-                android:id="@+id/tvAvatarInitial"
-                style="@style/TextAppearance.Eve.Subheadline.Medium"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:textColor="@color/eve_on_primary" />
+<?xml version='1.0' encoding='utf-8'?>
+<com.eve.app.designsystem.DesignCardView xmlns:android="http://schemas.android.com/apk/res/android" style="@style/Widget.Eve.Token.Card" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginVertical="@dimen/design_zero" android:minHeight="@dimen/eve_list_row_min" android:layout_marginBottom="@dimen/design_card_gap">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <TextView android:id="@+id/tvRank" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="34dp" android:layout_height="wrap_content" android:gravity="center" />
+        <FrameLayout android:layout_width="36dp" android:layout_height="36dp" android:layout_marginStart="@dimen/design_row_gap" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <TextView android:id="@+id/tvAvatarInitial" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" />
         </FrameLayout>
-
-        <TextView
-            android:id="@+id/tvName"
-            style="@style/TextAppearance.Eve.Leaderboard.Name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="@color/eve_text" />
-
-        <TextView
-            android:id="@+id/tvScore"
-            style="@style/TextAppearance.Eve.Leaderboard.Score"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:textColor="@color/eve_accent_text"
-            android:textStyle="bold" />
+        <TextView android:id="@+id/tvName" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_screen_margin" android:layout_weight="1" android:ellipsize="end" android:maxLines="1" />
+        <TextView android:id="@+id/tvScore" style="@style/TextAppearance.Eve.Token.Body.blue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_card_gap" />
     </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+</com.eve.app.designsystem.DesignCardView>

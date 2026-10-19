@@ -353,3 +353,51 @@ frame and checks its actual renderer is disabled at cancellation. All original
 reveal event ordering, single callback, measured layers, frame fences, ownership,
 scroll restoration and cleanup assertions remain. Detach explicitly disables the
 shared blur renderer. No protected production animation/listener code changed.
+
+
+## Phase 3 final verification
+
+VERIFIED: commit 6761cf64bf309f1dcd9d9824be37a2d41b157346, run
+https://github.com/vishu762701/eve-mock-test-app/actions/runs/39216050826.
+All six jobs succeeded: build, backend, firebase-functions, Native UI (gesture),
+Native UI (three-button), Publish verified debug APK. The unexpired
+Eve-debug-apk artifact is ID 12169419288, 14,686,239 bytes, associated with that
+exact commit. This is the Phase 3 APK, not certification of Phase 4.
+
+## Phase 4 implementation and verification in progress
+
+All 95 app layout files now use shared type/widget/surface roles. XML dividers
+removed: topBarHairline and menuDivider. A baseline/current ID comparison found
+no other removed feature IDs. Shared cards have solid surface fill, 26dp corners,
+10dp content padding and native 9dp shadows; inner tiles use inset fill/16dp.
+Screen hosts release clipping and scrolling surfaces reserve bottom clearance.
+Syllabus's native toolbar retains its navigation listener while gaining the
+shared glass host and separate large title. Native spinner/auto-complete/menu
+adapters, filters and listeners remain native; shared popup decoration uses the
+public WindowInspector API only on API 31+, with the specified fallback below.
+
+Runtime answer-radio drawing now uses shared Poppins/body type, inset tiles,
+Mono selection, Tabler native indicators and the shared press animator. Question
+answer state, RadioGroup suppression/recycling, server timer inputs, warning
+predicates and all callbacks stay unchanged. Countdown rings use themed paints,
+72dp boxes and 4dp round strokes. Charts use theme attributes and Poppins.
+Export cards and generated initials use Poppins and solid surfaces. Meaningful
+review/answer/cutoff colors remain system hue tokens; Mark-for-review retains its
+yellow selected-state feedback.
+
+Latest preservation instruction applied: existing Lottie assets and triggers
+remain. git diff on all raw resources is empty. No phase-4 changes to
+ThemeSwitchAnimator.kt, ThemeManager.kt or TelegramMenuPopup.kt. The latter's
+phase-3 menu-container restyle is the already-verified authorized exception.
+
+VERIFIED locally with the configured Temurin 21/Gradle 8.7/Android SDK:
+`./gradlew assembleDebug testDebugUnitTest lintDebug assembleDebugAndroidTest`
+passed (281 JVM tests; lint zero errors). `git diff --check` and the 15 Python
+workflow/static tests passed. Historical UI assertions were updated to the new
+shared tokens/styles; functional/reveal assertions remain. Added native all-layout
+light/dark inflation and real popup selection/dismissal tests. They compile but
+require hosted emulator execution; native rendering is not yet certified.
+
+Phase 4 is still open pending hosted rendering/lifecycle results and the final
+runtime/custom-effect inventory. Phase 5 deletion evidence and Phase 6 enforcement
+are not complete. No design_check PASS or final APK is claimed for this work.

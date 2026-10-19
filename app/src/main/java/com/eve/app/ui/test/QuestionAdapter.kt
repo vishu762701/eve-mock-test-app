@@ -53,7 +53,7 @@ class QuestionAdapter(
             b.rgOptions.isSaveEnabled = false
             listOf(b.rbA, b.rbB, b.rbC, b.rbD).forEach {
                 it.isSaveEnabled = false
-                it.enableApprovedTestStyle()
+                it.applyChoiceStyle()
             }
         }
 

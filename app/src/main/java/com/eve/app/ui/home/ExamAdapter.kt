@@ -50,7 +50,7 @@ class ExamAdapter(
     inner class HeaderVH(private val b: ItemCategoryHeaderBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(header: HomeListItem.Header) {
             b.tvCategoryHeader.text = header.title
-            b.tvCategoryHeader.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Home_Secondary)
+            b.tvCategoryHeader.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Token_Secondary)
             b.tvCategoryHeader.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.homeTextSecondary(b.root.context))
         }
     }
@@ -61,7 +61,7 @@ class ExamAdapter(
 
         init {
             val ctx = b.root.context
-            b.examIconContainer.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.eve_exam_icon_tile_bg))
+            b.examIconContainer.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.surface_inset))
             b.examIconContainer.strokeColor = com.eve.app.designsystem.EveDesignSystem.Colors.shapeBorder(ctx)
             b.examIconContainer.strokeWidth = 0
             HomeAppearance.applyCard(b.root)
@@ -82,9 +82,9 @@ class ExamAdapter(
 
             val ctx = b.root.context
             HomeAppearance.applyCard(b.root)
-            b.tvExamName.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Home_CardTitle)
+            b.tvExamName.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Token_Heading)
             b.tvExamName.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.homeTextPrimary(ctx))
-            b.tvExamTime.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Home_Secondary)
+            b.tvExamTime.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Token_Secondary)
             if (attempted) {
                 b.tvExamTime.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.statusRightText(ctx))
             } else {
@@ -176,13 +176,13 @@ class ExamAdapter(
         fun bind(post: FeedbackPost) {
             HomeAppearance.applyCard(b.root)
             b.tvFeedbackPostTitle.text = post.title
-            b.tvFeedbackPostTitle.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Home_CardTitle)
+            b.tvFeedbackPostTitle.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Token_Heading)
             b.tvFeedbackPostTitle.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.homeTextPrimary(b.root.context))
             b.tvFeedbackPostMessage.text = post.message
-            b.tvFeedbackPostMessage.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Home_CardBody)
+            b.tvFeedbackPostMessage.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Token_Body)
             b.tvFeedbackPostMessage.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.homeTextPrimary(b.root.context))
             b.tvFeedbackPostDate.text = formatTimestamp(post.timestamp)
-            b.tvFeedbackPostDate.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Home_Secondary)
+            b.tvFeedbackPostDate.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Token_Secondary)
             b.tvFeedbackPostDate.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.homeTextSecondary(b.root.context))
 
             b.btnSendReply.setOnClickListener {

@@ -62,7 +62,7 @@ class ExistingExamsAdapter(
                         else -> false
                     }
                 }
-                popup.show()
+                com.eve.app.designsystem.DesignPopupGlass.around(view) { popup.show() }
             }
         }
     }

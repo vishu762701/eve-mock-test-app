@@ -41,7 +41,7 @@ class SparkleView @JvmOverloads constructor(
 
     fun startSparkle() {
         reset()
-        val accentColor = ContextCompat.getColor(context, R.color.eve_star_fill)
+        val accentColor = ContextCompat.getColor(context, R.color.system_yellow)
         paint.color = accentColor
 
         animator = ValueAnimator.ofFloat(0f, 1f).apply {

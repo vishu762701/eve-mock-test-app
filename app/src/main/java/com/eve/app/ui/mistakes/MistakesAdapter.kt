@@ -31,11 +31,11 @@ class MistakesAdapter(
             val isSkipped = item.selected.isBlank()
             if (isSkipped) {
                 binding.tvMistakeType.text = "Skipped"
-                binding.tvMistakeType.setTextColor(ContextCompat.getColor(itemView.context, R.color.eve_text_secondary))
+                binding.tvMistakeType.setTextColor(ContextCompat.getColor(itemView.context, R.color.text_secondary))
                 binding.layoutYourAnswer.visibility = View.GONE
             } else {
                 binding.tvMistakeType.text = "Wrong Answer"
-                binding.tvMistakeType.setTextColor(ContextCompat.getColor(itemView.context, R.color.eve_status_error_text))
+                binding.tvMistakeType.setTextColor(ContextCompat.getColor(itemView.context, R.color.system_red))
                 binding.layoutYourAnswer.visibility = View.VISIBLE
                 val ansText = if (hindi && item.selectedTextHi.isNotBlank()) item.selectedTextHi else item.selectedText
                 binding.tvYourAnswer.text = "${item.selected}) $ansText"
@@ -55,16 +55,16 @@ class MistakesAdapter(
             // Learned toggle state
             if (learned) {
                 binding.btnMarkLearned.text = "Learned ✓"
-                binding.btnMarkLearned.setTextColor(ContextCompat.getColor(itemView.context, R.color.eve_status_success_text))
+                binding.btnMarkLearned.setTextColor(ContextCompat.getColor(itemView.context, R.color.system_green))
                 binding.btnMarkLearned.strokeColor = ColorStateList.valueOf(
-                    ContextCompat.getColor(itemView.context, R.color.eve_control_outline)
+                    ContextCompat.getColor(itemView.context, R.color.hairline)
                 )
                 binding.layoutExplanation.alpha = 1.0f
             } else {
                 binding.btnMarkLearned.text = "Mark as learned"
-                binding.btnMarkLearned.setTextColor(ContextCompat.getColor(itemView.context, R.color.eve_accent_text))
+                binding.btnMarkLearned.setTextColor(ContextCompat.getColor(itemView.context, R.color.system_blue))
                 binding.btnMarkLearned.strokeColor = ColorStateList.valueOf(
-                    ContextCompat.getColor(itemView.context, R.color.eve_control_outline)
+                    ContextCompat.getColor(itemView.context, R.color.hairline)
                 )
                 binding.layoutExplanation.alpha = 1.0f
             }

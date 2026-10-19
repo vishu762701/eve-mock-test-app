@@ -1,6 +1,8 @@
 package com.eve.app.designsystem
 
+import com.eve.app.designsystem.designAttribute
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -414,25 +416,21 @@ class EveDesignSystemTest {
         val root = loadXml("src/main/res/layout/activity_main.xml")
 
         // Root is Plain System Background with locked Home token
-        assertEquals("@color/eve_home_background", root.getAttribute("android:background"))
+        assertEquals("@color/bg_app", root.designAttribute("android:background"))
 
         // Welcome greeting uses 29sp Bold HomePageTitle and primary ink
         val tvWelcome = findElementById(root, "tvWelcome")
         assertNotNull("tvWelcome must exist", tvWelcome)
         assertEquals("@style/TextAppearance.Eve.Token.Title", tvWelcome?.getAttribute("style"))
-        assertEquals("@color/eve_home_text_primary", tvWelcome?.getAttribute("android:textColor"))
+        assertEquals("@color/text_primary", tvWelcome?.designAttribute("android:textColor"))
 
-        // Top bar hairline
-        val topBarHairline = findElementById(root, "topBarHairline")
-        assertNotNull("topBarHairline must exist", topBarHairline)
-        assertEquals("@dimen/eve_home_hairline_stroke", topBarHairline?.getAttribute("android:layout_height"))
-        assertEquals("@color/eve_home_hairline", topBarHairline?.getAttribute("android:background"))
+        assertNull("Locked design removes list/chrome separator views", findElementById(root, "topBarHairline"))
 
         // rvExams has 16dp horizontal margin and clipToPadding=false
         val rvExams = findElementById(root, "rvExams")
         assertNotNull("rvExams must exist", rvExams)
         assertEquals("false", rvExams?.getAttribute("android:clipToPadding"))
-        assertEquals("@dimen/eve_home_screen_margin", rvExams?.getAttribute("android:paddingHorizontal"))
+        assertEquals("@dimen/design_screen_margin", rvExams?.designAttribute("android:paddingLeft"))
 
         // Floating Medium glass capsule bottom bar
         val bottomBar = findElementById(root, "cardHomeBottomBar")
@@ -465,29 +463,29 @@ class EveDesignSystemTest {
     @Test
     fun testHomeExamAndFeedbackCardXml_UsesLockedCardStyles() {
         val examCard = loadXml("src/main/res/layout/item_exam.xml")
-        assertEquals("@style/Widget.Eve.Home.Card", examCard.getAttribute("style"))
-        assertEquals("@dimen/eve_home_card_radius", examCard.getAttribute("app:cardCornerRadius"))
-        assertEquals("@dimen/eve_home_card_elevation", examCard.getAttribute("app:cardElevation"))
-        assertEquals("@color/eve_home_card", examCard.getAttribute("app:cardBackgroundColor"))
-        assertEquals("@dimen/eve_home_screen_margin", examCard.getAttribute("android:layout_marginHorizontal"))
-        assertEquals("@dimen/eve_home_card_gap_half", examCard.getAttribute("android:layout_marginVertical"))
+        assertEquals("@style/Widget.Eve.Token.Card", examCard.getAttribute("style"))
+        assertEquals("@dimen/design_radius_card", examCard.designAttribute("app:cardCornerRadius"))
+        assertEquals("@dimen/design_card_elevation", examCard.designAttribute("app:cardElevation"))
+        assertEquals("@color/surface", examCard.designAttribute("app:cardBackgroundColor"))
+        assertEquals("", examCard.getAttribute("android:layout_marginHorizontal"))
+        assertEquals("@dimen/design_zero", examCard.getAttribute("android:layout_marginVertical"))
 
         val tvExamName = findElementById(examCard, "tvExamName")
-        assertEquals("@style/TextAppearance.Eve.Home.CardTitle", tvExamName?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading", tvExamName?.getAttribute("style"))
         assertEquals("1", tvExamName?.getAttribute("android:maxLines"))
         assertEquals("end", tvExamName?.getAttribute("android:ellipsize"))
 
         val tvExamTime = findElementById(examCard, "tvExamTime")
-        assertEquals("@style/TextAppearance.Eve.Home.Secondary", tvExamTime?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Secondary", tvExamTime?.getAttribute("style"))
 
         val feedbackCard = loadXml("src/main/res/layout/item_feedback_post.xml")
-        assertEquals("@style/Widget.Eve.Home.Card", feedbackCard.getAttribute("style"))
-        assertEquals("@dimen/eve_home_card_radius", feedbackCard.getAttribute("app:cardCornerRadius"))
-        assertEquals("@dimen/eve_home_card_elevation", feedbackCard.getAttribute("app:cardElevation"))
-        assertEquals("@color/eve_home_card", feedbackCard.getAttribute("app:cardBackgroundColor"))
+        assertEquals("@style/Widget.Eve.Token.Card", feedbackCard.getAttribute("style"))
+        assertEquals("@dimen/design_radius_card", feedbackCard.designAttribute("app:cardCornerRadius"))
+        assertEquals("@dimen/design_card_elevation", feedbackCard.designAttribute("app:cardElevation"))
+        assertEquals("@color/surface", feedbackCard.designAttribute("app:cardBackgroundColor"))
 
         val tvFeedbackTitle = findElementById(feedbackCard, "tvFeedbackPostTitle")
-        assertEquals("@style/TextAppearance.Eve.Home.CardTitle", tvFeedbackTitle?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading", tvFeedbackTitle?.getAttribute("style"))
     }
 
     @Test

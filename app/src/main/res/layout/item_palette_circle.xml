@@ -1,38 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:minWidth="@dimen/eve_control_min_touch"
-    android:minHeight="@dimen/eve_control_min_touch"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:paddingHorizontal="4dp"
-    android:paddingVertical="4dp">
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardCircle"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:stateListAnimator="@animator/press_scale"
-        app:shapeAppearanceOverlay="@style/ShapeAppearance.Eve.Capsule"
-        app:cardElevation="0dp"
-        app:strokeColor="@color/eve_shape_border"
-        app:strokeWidth="1dp">
-
-        <TextView
-            android:id="@+id/tvCircleNumber"
-            style="@style/TextAppearance.Eve.Test.PaletteNumber"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="1" />
-    </com.google.android.material.card.MaterialCardView>
-
-    <View
-        android:id="@+id/dotMarked"
-        android:layout_width="6dp"
-        android:layout_height="6dp"
-        android:layout_gravity="top|end"
-        android:layout_marginTop="2dp"
-        android:layout_marginEnd="2dp"
-        android:background="@drawable/bg_dot_warning"
-        android:visibility="gone" />
+<?xml version='1.0' encoding='utf-8'?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:minWidth="@dimen/eve_control_min_touch" android:minHeight="@dimen/eve_control_min_touch" android:layout_width="wrap_content" android:layout_height="wrap_content" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+    <com.eve.app.designsystem.DesignCardView android:id="@+id/cardCircle" android:layout_width="@dimen/design_pill_height" android:layout_height="@dimen/design_pill_height" style="@style/Widget.Eve.Token.Palette" android:layout_marginBottom="@dimen/design_card_gap">
+        <TextView android:id="@+id/tvCircleNumber" style="@style/TextAppearance.Eve.Token.Chip" android:layout_width="match_parent" android:layout_height="match_parent" android:text="1" android:gravity="center" />
+    </com.eve.app.designsystem.DesignCardView>
+    <View android:id="@+id/dotMarked" android:layout_width="@dimen/design_row_gap" android:layout_height="@dimen/design_row_gap" android:layout_gravity="top|end" android:layout_marginTop="2dp" android:layout_marginEnd="2dp" android:visibility="gone" android:background="@drawable/design_marked_dot" />
 </FrameLayout>

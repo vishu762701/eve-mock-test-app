@@ -143,8 +143,8 @@ class GLIconRenderer(
 
     fun updateColors(isDark: Boolean) {
         night = forceNight || isDark
-        color1 = ContextCompat.getColor(context, R.color.eve_premium_star_1)
-        color2 = ContextCompat.getColor(context, R.color.eve_premium_star_2)
+        color1 = ContextCompat.getColor(context, R.color.text_primary)
+        color2 = ContextCompat.getColor(context, R.color.system_blue)
         isDarkBackground = isDark
     }
 }

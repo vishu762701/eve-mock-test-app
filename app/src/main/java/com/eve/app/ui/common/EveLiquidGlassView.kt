@@ -90,14 +90,14 @@ class EveLiquidGlassView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
         val radius = effectiveRadius()
-        fillPaint.color = ContextCompat.getColor(context, R.color.eve_card_bg)
+        fillPaint.color = ContextCompat.getColor(context, R.color.surface)
         canvas.drawRoundRect(rectF, radius, radius, fillPaint)
         // Insetting by half the stroke keeps the entire rim inside the same clipping outline.
-        strokePaint.color = ContextCompat.getColor(context, R.color.eve_shape_border)
+        strokePaint.color = ContextCompat.getColor(context, R.color.hairline)
         val borderRadius = (radius - density / 2f).coerceAtLeast(0f)
         canvas.drawRoundRect(borderRect, borderRadius, borderRadius, strokePaint)
         if (hasHighlight) {
-            highlightPaint.color = ContextCompat.getColor(context, R.color.eve_shape_border)
+            highlightPaint.color = ContextCompat.getColor(context, R.color.hairline)
             canvas.drawLine(radius, density / 2f, width - radius, density / 2f, highlightPaint)
         }
         super.onDraw(canvas)

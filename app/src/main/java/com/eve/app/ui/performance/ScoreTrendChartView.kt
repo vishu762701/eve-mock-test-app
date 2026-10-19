@@ -27,27 +27,27 @@ class ScoreTrendChartView @JvmOverloads constructor(
     private var points: List<ScorePoint> = emptyList()
 
     private val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = ContextCompat.getColor(context, com.eve.app.R.color.eve_chart_primary)
+        color = com.eve.app.designsystem.DesignTokens.color(context, com.eve.app.R.attr.systemBlue)
         strokeWidth = 2f * density
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
         strokeJoin = Paint.Join.ROUND
     }
     private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = ContextCompat.getColor(context, com.eve.app.R.color.eve_chart_fill)
+        color = ContextCompat.getColor(context, com.eve.app.R.color.system_blue_alpha_26)
         style = Paint.Style.FILL
     }
     private val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = ContextCompat.getColor(context, com.eve.app.R.color.eve_chart_primary)
+        color = com.eve.app.designsystem.DesignTokens.color(context, com.eve.app.R.attr.systemBlue)
         style = Paint.Style.FILL
     }
     private val gridPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = ContextCompat.getColor(context, com.eve.app.R.color.eve_chart_grid)
+        color = com.eve.app.designsystem.DesignTokens.color(context, com.eve.app.R.attr.designTextPrimary)
         strokeWidth = .5f * density
     }
     private val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = ContextCompat.getColor(context, com.eve.app.R.color.eve_chart_label)
-        textSize = 11f * scaledDensity
+        color = com.eve.app.designsystem.DesignTokens.color(context, com.eve.app.R.attr.designTextPrimary)
+        textSize = resources.getDimension(com.eve.app.R.dimen.design_type_secondary)
         typeface = com.eve.app.util.FontManager.typeface(context, bold = false)
     }
 

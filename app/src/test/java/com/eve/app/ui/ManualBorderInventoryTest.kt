@@ -19,6 +19,11 @@ class ManualBorderInventoryTest {
             // Notification/status dot artwork has a contrast halo, not a UI container outline.
             if (file.name != "bg_dot_red.xml") for (node in elements(file).filter { it.tagName == "stroke" }) {
                 val width = node.getAttribute("android:width")
+                if (file.name == "design_menu_fallback.xml") {
+                    assertEquals("@dimen/design_hairline_width", width)
+                    assertEquals("@color/hairline", node.getAttribute("android:color"))
+                    continue
+                }
                 if (file.name == "design_input_background.xml") {
                     assertEquals("Locked focused input ring", "@dimen/design_focus_stroke", width)
                     assertEquals("@color/accent", node.getAttribute("android:color"))
@@ -73,9 +78,9 @@ class ManualBorderInventoryTest {
             assertFalse(elements(File(res, "drawable/$name")).any { it.tagName == "stroke" })
         }
         val source = File(res.parentFile, "java/com/eve/app/ui/common/TelegramRadioButton.kt").readText()
-        val approved = source.substringAfter("fun enableApprovedTestStyle()").substringBefore("private fun animateCheckProgress")
+        val approved = source.substringAfter("fun applyChoiceStyle()")
         assertFalse(approved.contains("setStroke"))
-        assertTrue(approved.contains("cornerRadius = com.eve.app.util.EveShapes.concentric"))
+        assertTrue(approved.contains("cornerRadius = resources.getDimension(R.dimen.design_radius_inner)"))
         val next = elements(File(res, "values/approved_ui_styles.xml")).first { it.tagName == "style" && it.getAttribute("name") == "Widget.Eve.ApprovedTestNext" }
         assertTrue(next.textContent.contains("0dp"))
     }

@@ -1,68 +1,43 @@
 <?xml version='1.0' encoding='utf-8'?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/eve_system_grouped_background" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
-
-    <!-- Top Bar -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Screen">
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-<LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:background="@android:color/transparent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingVertical="12dp" android:clipToPadding="false" android:clipChildren="false">
-
-        <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
-
-        <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1"/><com.eve.app.designsystem.DesignIconActionButton android:id="@+id/btnSave" style="@style/Widget.Eve.Token.IconAction" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:text="Save" app:icon="@drawable/ic_save"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.ToolbarRow">
+            <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/text_primary" style="@style/Widget.Eve.Token.IconButton" />
+            <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1" />
+            <com.eve.app.designsystem.DesignIconActionButton android:id="@+id/btnSave" style="@style/Widget.Eve.Token.IconAction" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:text="Save" app:icon="@drawable/ic_save" />
+        </LinearLayout>
+    </com.eve.app.ui.common.EveGlassToolbar>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
+        <TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Manage App Content" />
     </LinearLayout>
-</com.eve.app.ui.common.EveGlassToolbar>
-
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingBottom="@dimen/design_section_gap"><TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Manage App Content"/>
-
-        </LinearLayout><!-- Tab Selector -->
-    <com.eve.app.ui.common.EveGlassTabLayout android:id="@+id/tabLayout" style="@style/Widget.Eve.InlineSectionTabs" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="16dp" android:layout_marginTop="8dp" android:layout_marginBottom="8dp" app:tabMode="scrollable">
-
-        <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Privacy"/>
-
-        <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Terms"/>
-
-        <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Contact Us"/>
-
-    </com.eve.app.ui.common.EveGlassTabLayout>
-
-    <ProgressBar android:id="@+id/progressBar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:layout_marginTop="20dp" android:visibility="gone"/>
-
-    <ScrollView android:id="@+id/scrollViewContent" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:padding="20dp" android:clipToPadding="false" android:clipChildren="false">
-
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
-
-            <com.google.android.material.textfield.TextInputLayout android:id="@+id/tilTitle" style="@style/Widget.Eve.TextInput.Filled" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Page Title" app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm" app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm" app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm" app:boxCornerRadiusTopStart="@dimen/eve_radius_sm">
-
-                <com.google.android.material.textfield.TextInputEditText style="@style/TextAppearance.Eve.BodySmall" android:id="@+id/etTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:maxLines="1" android:textColor="@color/eve_text"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Structured Contact Us Fields -->
-            <LinearLayout android:id="@+id/layoutContactFields" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:orientation="vertical" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false">
-
-                <com.google.android.material.textfield.TextInputLayout style="@style/Widget.Eve.TextInput.Filled" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Support Email (Optional)" app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm" app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm" app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm" app:boxCornerRadiusTopStart="@dimen/eve_radius_sm">
-
-                    <com.google.android.material.textfield.TextInputEditText style="@style/TextAppearance.Eve.BodySmall" android:id="@+id/etSupportEmail" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textEmailAddress" android:maxLines="1" android:textColor="@color/eve_text"/>
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout style="@style/Widget.Eve.TextInput.Filled" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:hint="Support Phone (Optional)" app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm" app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm" app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm" app:boxCornerRadiusTopStart="@dimen/eve_radius_sm">
-
-                    <com.google.android.material.textfield.TextInputEditText style="@style/TextAppearance.Eve.BodySmall" android:id="@+id/etPhone" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="phone" android:maxLines="1" android:textColor="@color/eve_text"/>
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout style="@style/Widget.Eve.TextInput.Filled" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:hint="Website URL (Optional)" app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm" app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm" app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm" app:boxCornerRadiusTopStart="@dimen/eve_radius_sm">
-
-                    <com.google.android.material.textfield.TextInputEditText style="@style/TextAppearance.Eve.BodySmall" android:id="@+id/etWebsite" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textUri" android:maxLines="1" android:textColor="@color/eve_text"/>
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout style="@style/Widget.Eve.TextInput.Filled" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:hint="Office Address (Optional)" app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm" app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm" app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm" app:boxCornerRadiusTopStart="@dimen/eve_radius_sm">
-
-                    <com.google.android.material.textfield.TextInputEditText style="@style/TextAppearance.Eve.BodySmall" android:id="@+id/etAddress" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textPostalAddress" android:maxLines="2" android:textColor="@color/eve_text"/>
-                </com.google.android.material.textfield.TextInputLayout>
+    <com.eve.app.designsystem.DesignSegmentedTabs android:id="@+id/tabLayout" style="@style/Widget.Eve.Token.SegmentedTabs" android:layout_width="match_parent" android:layout_height="@dimen/design_tab_height" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginTop="@dimen/design_card_gap" android:layout_marginBottom="@dimen/design_card_gap" app:tabMode="scrollable">
+        <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Privacy" />
+        <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Terms" />
+        <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Contact Us" />
+    </com.eve.app.designsystem.DesignSegmentedTabs>
+    <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/progressBar" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:layout_marginTop="@dimen/design_shadow_room" android:visibility="gone" style="@style/Widget.Eve.Token.Ring" android:indeterminate="true" />
+    <ScrollView android:id="@+id/scrollViewContent" android:layout_width="match_parent" android:layout_height="@dimen/design_zero" android:layout_weight="1" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+            <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilTitle" style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Page Title">
+                <com.google.android.material.textfield.TextInputEditText style="@style/Widget.Eve.Token.Input" android:id="@+id/etTitle" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:maxLines="1" />
+            </com.eve.app.designsystem.DesignInputLayout>
+            <LinearLayout android:id="@+id/layoutContactFields" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_section_gap" android:orientation="vertical" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Support Email (Optional)">
+                    <com.google.android.material.textfield.TextInputEditText style="@style/Widget.Eve.Token.Input" android:id="@+id/etSupportEmail" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="textEmailAddress" android:maxLines="1" />
+                </com.eve.app.designsystem.DesignInputLayout>
+                <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:hint="Support Phone (Optional)">
+                    <com.google.android.material.textfield.TextInputEditText style="@style/Widget.Eve.Token.Input" android:id="@+id/etPhone" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="phone" android:maxLines="1" />
+                </com.eve.app.designsystem.DesignInputLayout>
+                <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:hint="Website URL (Optional)">
+                    <com.google.android.material.textfield.TextInputEditText style="@style/Widget.Eve.Token.Input" android:id="@+id/etWebsite" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="textUri" android:maxLines="1" />
+                </com.eve.app.designsystem.DesignInputLayout>
+                <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:hint="Office Address (Optional)">
+                    <com.google.android.material.textfield.TextInputEditText style="@style/Widget.Eve.Token.Input" android:id="@+id/etAddress" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="textPostalAddress" android:maxLines="2" />
+                </com.eve.app.designsystem.DesignInputLayout>
             </LinearLayout>
-
-            <com.google.android.material.textfield.TextInputLayout android:id="@+id/tilBody" style="@style/Widget.Eve.TextInput.Filled" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:hint="Body Content" app:boxCornerRadiusBottomEnd="@dimen/eve_radius_sm" app:boxCornerRadiusBottomStart="@dimen/eve_radius_sm" app:boxCornerRadiusTopEnd="@dimen/eve_radius_sm" app:boxCornerRadiusTopStart="@dimen/eve_radius_sm">
-
-                <com.google.android.material.textfield.TextInputEditText style="@style/TextAppearance.Eve.BodySmall" android:id="@+id/etBody" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="top|start" android:inputType="textMultiLine|textCapSentences" android:minLines="5" android:textColor="@color/eve_text"/>
-            </com.google.android.material.textfield.TextInputLayout>
+            <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilBody" style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_section_gap" android:hint="Body Content">
+                <com.google.android.material.textfield.TextInputEditText style="@style/Widget.Eve.Token.Input" android:id="@+id/etBody" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="top|start" android:inputType="textMultiLine|textCapSentences" android:minLines="5" />
+            </com.eve.app.designsystem.DesignInputLayout>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

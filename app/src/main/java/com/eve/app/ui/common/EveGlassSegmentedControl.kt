@@ -106,8 +106,8 @@ class EveGlassSegmentedControl @JvmOverloads constructor(
     fun getSelectedIndex(): Int = selectedIndex
 
     private fun updateTextColors() {
-        val selectedColor = ContextCompat.getColor(context, R.color.eve_tab_selected_text)
-        val unselectedColor = ContextCompat.getColor(context, R.color.eve_tab_unselected_text)
+        val selectedColor = ContextCompat.getColor(context, R.color.text_primary)
+        val unselectedColor = ContextCompat.getColor(context, R.color.text_primary)
 
         for (i in 0 until tabsContainer.childCount) {
             val tv = tabsContainer.getChildAt(i) as? TextView ?: continue

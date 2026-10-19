@@ -1,12 +1,2 @@
-<?xml version="1.0" encoding="utf-8"?>
-<TextView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/tvCategoryHeader"
-    style="@style/TextAppearance.Eve.Subheadline.Medium"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginStart="8dp"
-    android:layout_marginTop="14dp"
-    android:layout_marginEnd="8dp"
-    android:layout_marginBottom="4dp"
-    android:textColor="?attr/eveLabelSecondary" />
+<?xml version='1.0' encoding='utf-8'?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/tvCategoryHeader" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_card_gap" android:layout_marginTop="@dimen/design_pill_padding" android:layout_marginEnd="@dimen/design_card_gap" android:layout_marginBottom="4dp" />

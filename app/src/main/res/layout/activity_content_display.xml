@@ -1,79 +1,49 @@
 <?xml version='1.0' encoding='utf-8'?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/eve_system_background" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
-
-    <!-- Top Bar -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:ns2="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Screen">
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-<LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:background="@android:color/transparent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingVertical="12dp" android:clipToPadding="false" android:clipChildren="false">
-
-        <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="?attr/eveLabelPrimary" style="@style/Widget.Eve.Token.IconButton"/>
-
-        <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1"/></LinearLayout>
-</com.eve.app.ui.common.EveGlassToolbar>
-
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingBottom="@dimen/design_section_gap"><TextView android:id="@+id/tvHeaderTitle" style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" tools:text="Privacy Policy"/>
-    </LinearLayout><ProgressBar android:id="@+id/progressBar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:layout_marginTop="32dp" android:visibility="gone"/>
-
-    <ScrollView android:id="@+id/scrollView" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:padding="20dp" android:clipToPadding="false" android:overScrollMode="ifContentScrolls" android:clipChildren="false">
-
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
-
-            <TextView android:id="@+id/tvTitle" style="@style/TextAppearance.Eve.Title2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="?attr/eveLabelPrimary" tools:text="Privacy Policy"/>
-
-            <TextView android:id="@+id/tvLastUpdated" style="@style/TextAppearance.Eve.Caption1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="?attr/eveLabelSecondary" tools:text="Last updated: 24 Sep 2026"/>
-
-            <!-- Structured Contact Us Container -->
-            <LinearLayout android:id="@+id/layoutContactActions" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:orientation="vertical" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false">
-
-                <!-- Support Email Card -->
-                <com.google.android.material.card.MaterialCardView style="@style/Widget.Eve.Card.Content" android:id="@+id/cardEmail" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp">
-
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:padding="14dp" android:clipToPadding="false" android:clipChildren="false">
-
-                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:contentDescription="Email" android:src="@drawable/ic_email" app:tint="@color/eve_system_blue"/>
-
-                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="14dp" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
-
-                            <TextView style="@style/TextAppearance.Eve.Footnote" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Support Email" android:textColor="?attr/eveLabelSecondary"/>
-
-                            <TextView android:id="@+id/tvEmailValue" style="@style/TextAppearance.Eve.Secondary.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/eve_accent_text" tools:text="pronlike9@gmail.com"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.ToolbarRow">
+            <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="?attr/eveLabelPrimary" style="@style/Widget.Eve.Token.IconButton" />
+            <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1" />
+        </LinearLayout>
+    </com.eve.app.ui.common.EveGlassToolbar>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
+        <TextView android:id="@+id/tvHeaderTitle" style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" ns2:text="Privacy Policy" />
+    </LinearLayout>
+    <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/progressBar" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:layout_marginTop="@dimen/design_pill_height" android:visibility="gone" style="@style/Widget.Eve.Token.Ring" android:indeterminate="true" />
+    <ScrollView android:id="@+id/scrollView" android:layout_width="match_parent" android:layout_height="@dimen/design_zero" android:layout_weight="1" android:clipToPadding="false" android:overScrollMode="ifContentScrolls" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+            <TextView android:id="@+id/tvTitle" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" ns2:text="Privacy Policy" />
+            <TextView android:id="@+id/tvLastUpdated" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" ns2:text="Last updated: 24 Sep 2026" />
+            <LinearLayout android:id="@+id/layoutContactActions" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_section_gap" android:orientation="vertical" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:id="@+id/cardEmail" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                        <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Email" android:src="@drawable/ic_email" app:tint="@color/system_blue" />
+                        <LinearLayout android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_pill_padding" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                            <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Support Email" />
+                            <TextView android:id="@+id/tvEmailValue" style="@style/TextAppearance.Eve.Token.Secondary.blue" android:layout_width="wrap_content" android:layout_height="wrap_content" ns2:text="pronlike9@gmail.com" />
                         </LinearLayout>
                     </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Phone Card -->
-                <com.google.android.material.card.MaterialCardView style="@style/Widget.Eve.Card.Content" android:id="@+id/cardPhone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp">
-
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:padding="14dp" android:clipToPadding="false" android:clipChildren="false">
-
-                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:contentDescription="Phone" android:src="@drawable/ic_phone" app:tint="@color/eve_system_blue"/>
-
-                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="14dp" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
-
-                            <TextView style="@style/TextAppearance.Eve.Footnote" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Support Phone" android:textColor="?attr/eveLabelSecondary"/>
-
-                            <TextView android:id="@+id/tvPhoneValue" style="@style/TextAppearance.Eve.Secondary.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/eve_accent_text" tools:text="+91 9876543210"/>
+                </com.eve.app.designsystem.DesignCardView>
+                <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:id="@+id/cardPhone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                        <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Phone" android:src="@drawable/ic_phone" app:tint="@color/system_blue" />
+                        <LinearLayout android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_pill_padding" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                            <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Support Phone" />
+                            <TextView android:id="@+id/tvPhoneValue" style="@style/TextAppearance.Eve.Token.Secondary.blue" android:layout_width="wrap_content" android:layout_height="wrap_content" ns2:text="+91 9876543210" />
                         </LinearLayout>
                     </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Website Card -->
-                <com.google.android.material.card.MaterialCardView style="@style/Widget.Eve.Card.Content" android:id="@+id/cardWebsite" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp">
-
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:padding="14dp" android:clipToPadding="false" android:clipChildren="false">
-
-                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:contentDescription="Website" android:src="@drawable/ic_language" app:tint="@color/eve_system_blue"/>
-
-                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="14dp" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
-
-                            <TextView style="@style/TextAppearance.Eve.Footnote" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Official Website" android:textColor="?attr/eveLabelSecondary"/>
-
-                            <TextView android:id="@+id/tvWebsiteValue" style="@style/TextAppearance.Eve.Secondary.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/eve_accent_text" tools:text="https://vishu762701.github.io"/>
+                </com.eve.app.designsystem.DesignCardView>
+                <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:id="@+id/cardWebsite" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                        <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Website" android:src="@drawable/ic_language" app:tint="@color/system_blue" />
+                        <LinearLayout android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_pill_padding" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                            <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Official Website" />
+                            <TextView android:id="@+id/tvWebsiteValue" style="@style/TextAppearance.Eve.Token.Secondary.blue" android:layout_width="wrap_content" android:layout_height="wrap_content" ns2:text="https://vishu762701.github.io" />
                         </LinearLayout>
                     </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                </com.eve.app.designsystem.DesignCardView>
             </LinearLayout>
-
-            <TextView android:id="@+id/tvBody" style="@style/TextAppearance.Eve.Secondary.Body" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:lineSpacingExtra="4dp" android:textColor="?attr/eveLabelPrimary"/>
+            <TextView android:id="@+id/tvBody" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_section_gap" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

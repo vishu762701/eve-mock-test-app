@@ -305,7 +305,7 @@ class MainActivity : EveBaseActivity() {
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
 
-        com.eve.app.designsystem.EveDesignSystem.Motion.attachTactileFeedback(binding.ivProfile) {
+        com.eve.app.designsystem.DesignPress.bind(binding.ivProfile) {
             prepareDrawerSurface()
             binding.drawerLayout.openDrawer(GravityCompat.START)
         }
@@ -668,7 +668,7 @@ class MainActivity : EveBaseActivity() {
             com.eve.app.util.AppBulletin.showSuccess(this, msg)
             true
         }
-        popup.show()
+        com.eve.app.designsystem.DesignPopupGlass.around(anchorView) { popup.show() }
     }
 
     private fun openFeedbackForPost(post: com.eve.app.data.model.FeedbackPost) {
@@ -770,9 +770,9 @@ class MainActivity : EveBaseActivity() {
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.cardFloatingAirplane) { view, windowInsets ->
             val navInsets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
-            val baseMarginPx = resources.getDimensionPixelSize(R.dimen.eve_home_screen_margin)
-            val barHeight = resources.getDimensionPixelSize(R.dimen.eve_home_bottom_bar_height)
-            val barMargin = resources.getDimensionPixelSize(R.dimen.eve_home_bottom_bar_margin_bottom)
+            val baseMarginPx = resources.getDimensionPixelSize(R.dimen.design_screen_margin)
+            val barHeight = resources.getDimensionPixelSize(R.dimen.design_bottom_bar_height)
+            val barMargin = resources.getDimensionPixelSize(R.dimen.design_bottom_bar_margin)
             (view.layoutParams as? ViewGroup.MarginLayoutParams)?.let { lp ->
                 lp.bottomMargin = barHeight + barMargin + navInsets.bottom + baseMarginPx
                 lp.marginEnd = baseMarginPx + navInsets.right
@@ -781,8 +781,8 @@ class MainActivity : EveBaseActivity() {
             windowInsets
         }
 
-        com.eve.app.util.EveTouchHelper.attachTactileFeedback(binding.cardFloatingAirplane) {
-            val url = activeFloatingLinkUrl ?: return@attachTactileFeedback
+        com.eve.app.designsystem.DesignPress.bind(binding.cardFloatingAirplane) {
+            val url = activeFloatingLinkUrl ?: return@bind
             try {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                 startActivity(intent)
@@ -853,12 +853,12 @@ class MainActivity : EveBaseActivity() {
         val isDark = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
         val keyPathAll = KeyPath("**")
 
-        // Dark mode: remap #000000 and #231f20 (RGB) to ContextCompat.getColor(this, R.color.eve_text).
-        // Light mode: remap #ffffff and #fcfcfc to ContextCompat.getColor(this, R.color.eve_stroke).
+        // Dark mode: remap #000000 and #231f20 (RGB) to ContextCompat.getColor(this, R.color.text_primary).
+        // Light mode: remap #ffffff and #fcfcfc to ContextCompat.getColor(this, R.color.hairline).
         val targetColor = if (isDark) {
-            ContextCompat.getColor(this, R.color.eve_text)
+            ContextCompat.getColor(this, R.color.text_primary)
         } else {
-            ContextCompat.getColor(this, R.color.eve_stroke)
+            ContextCompat.getColor(this, R.color.hairline)
         }
 
         val callback = SimpleLottieValueCallback<Int> { frameInfo ->
@@ -1045,7 +1045,7 @@ class MainActivity : EveBaseActivity() {
 
     private fun loadProfilePhoto(user: com.google.firebase.auth.FirebaseUser) {
         ProfilePhotoManager.applyTo(
-            this, binding.ivProfile, user.photoUrl?.toString(), R.drawable.bg_circle_translucent
+            this, binding.ivProfile, user.photoUrl?.toString(), R.drawable.design_avatar_surface
         )
     }
 
@@ -1241,7 +1241,7 @@ class MainActivity : EveBaseActivity() {
             com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, ProfileActivity::class.java), binding.ivDrawerAvatar)
         }
 
-        val drawerRowRadiusDp = resources.getDimension(R.dimen.eve_radius_input) / resources.displayMetrics.density
+        val drawerRowRadiusDp = resources.getDimension(R.dimen.design_radius_inner) / resources.displayMetrics.density
         val drawerRows = listOf(
             binding.layoutDrawerProfile,
             binding.layoutDrawerPremium,
@@ -1293,7 +1293,7 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun updateDrawerHeader(user: com.google.firebase.auth.FirebaseUser) {
-        ProfilePhotoManager.applyTo(this, binding.ivDrawerAvatar, user.photoUrl?.toString(), R.drawable.bg_circle_translucent)
+        ProfilePhotoManager.applyTo(this, binding.ivDrawerAvatar, user.photoUrl?.toString(), R.drawable.design_avatar_surface)
         binding.tvDrawerUserName.text = user.displayName?.takeIf { it.isNotBlank() } ?: "Student"
         binding.tvDrawerUserEmail.text = user.email ?: ""
 

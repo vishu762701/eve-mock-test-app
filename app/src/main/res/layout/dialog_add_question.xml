@@ -1,152 +1,33 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="16dp"
-            android:clipToPadding="false"
-            android:clipChildren="false"
-            >
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Eve.TextInput.Modal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Question Text">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etQuestionText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textMultiLine"
-                android:minLines="2" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Eve.TextInput.Modal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="Option A">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etOptionA"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Eve.TextInput.Modal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="Option B">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etOptionB"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Eve.TextInput.Modal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="Option C">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etOptionC"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Eve.TextInput.Modal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="Option D">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etOptionD"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <TextView
-            style="@style/TextAppearance.Eve.Footnote.Medium"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Correct Answer"
-            android:textColor="@color/eve_text" />
-
-        <RadioGroup
-            android:id="@+id/rgCorrectAnswer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <RadioButton
-                android:id="@+id/rbA"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:checked="true"
-                android:text="A" />
-
-            <RadioButton
-                android:id="@+id/rbB"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="B" />
-
-            <RadioButton
-                android:id="@+id/rbC"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="C" />
-
-            <RadioButton
-                android:id="@+id/rbD"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="D" />
+<?xml version='1.0' encoding='utf-8'?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Question Text">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etQuestionText" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textMultiLine" android:minLines="2" style="@style/Widget.Eve.Token.Input" />
+        </com.eve.app.designsystem.DesignInputLayout>
+        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="Option A">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etOptionA" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" style="@style/Widget.Eve.Token.Input" />
+        </com.eve.app.designsystem.DesignInputLayout>
+        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="Option B">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etOptionB" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" style="@style/Widget.Eve.Token.Input" />
+        </com.eve.app.designsystem.DesignInputLayout>
+        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="Option C">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etOptionC" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" style="@style/Widget.Eve.Token.Input" />
+        </com.eve.app.designsystem.DesignInputLayout>
+        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="Option D">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etOptionD" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" style="@style/Widget.Eve.Token.Input" />
+        </com.eve.app.designsystem.DesignInputLayout>
+        <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:text="Correct Answer" />
+        <RadioGroup android:id="@+id/rgCorrectAnswer" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+            <RadioButton android:id="@+id/rbA" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_weight="1" android:checked="true" android:text="A" style="@style/Widget.Eve.Token.Radio" />
+            <RadioButton android:id="@+id/rbB" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_weight="1" android:text="B" style="@style/Widget.Eve.Token.Radio" />
+            <RadioButton android:id="@+id/rbC" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_weight="1" android:text="C" style="@style/Widget.Eve.Token.Radio" />
+            <RadioButton android:id="@+id/rbD" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_weight="1" android:text="D" style="@style/Widget.Eve.Token.Radio" />
         </RadioGroup>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Eve.TextInput.Modal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="Explanation (Optional)">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etExplanation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Eve.TextInput.Modal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="Topic / Subject Tag (Optional)">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etTopic"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </com.google.android.material.textfield.TextInputLayout>
+        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="Explanation (Optional)">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etExplanation" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" style="@style/Widget.Eve.Token.Input" />
+        </com.eve.app.designsystem.DesignInputLayout>
+        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="Topic / Subject Tag (Optional)">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etTopic" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" style="@style/Widget.Eve.Token.Input" />
+        </com.eve.app.designsystem.DesignInputLayout>
     </LinearLayout>
 </ScrollView>

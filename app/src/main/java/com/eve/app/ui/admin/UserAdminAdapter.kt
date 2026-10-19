@@ -30,7 +30,7 @@ class UserAdminAdapter(
             binding.tvUserName.text = name
             binding.tvUserEmail.text = user.email.ifBlank { "No email" }
 
-            binding.ivUserAvatar.setImageDrawable(AvatarDrawable.create(name, user.id))
+            binding.ivUserAvatar.setImageDrawable(AvatarDrawable.create(binding.root.context, name, user.id))
 
             val joinedStr = if (user.createdAt > 0) dateFormat.format(Date(user.createdAt)) else "Unknown"
             val activeStr = formatRelativeActive(user.lastActive)
@@ -39,12 +39,12 @@ class UserAdminAdapter(
             if (user.disabled) {
                 binding.tvUserStatusBadge.text = "Banned"
                 binding.tvUserStatusBadge.setTextColor(
-                    ContextCompat.getColor(binding.root.context, R.color.eve_status_error_text)
+                    ContextCompat.getColor(binding.root.context, R.color.system_red)
                 )
             } else {
                 binding.tvUserStatusBadge.text = "Active"
                 binding.tvUserStatusBadge.setTextColor(
-                    ContextCompat.getColor(binding.root.context, R.color.eve_status_success_text)
+                    ContextCompat.getColor(binding.root.context, R.color.system_green)
                 )
             }
 
@@ -72,7 +72,7 @@ class UserAdminAdapter(
                         else -> false
                     }
                 }
-                popup.show()
+                com.eve.app.designsystem.DesignPopupGlass.around(view) { popup.show() }
             }
         }
 

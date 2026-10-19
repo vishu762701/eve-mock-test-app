@@ -54,12 +54,12 @@ class GeneratedTestAdapter(
 
             b.tvStatusBadge.text = test.status.uppercase()
             b.tvStatusBadge.setBackgroundResource(
-                if (isLive) R.drawable.bg_tile_right else R.drawable.bg_tile_medium
+                if (isLive) R.drawable.design_badge_green else R.drawable.design_badge_orange
             )
             b.tvStatusBadge.setTextColor(
                 ContextCompat.getColor(
                     itemView.context,
-                    if (isLive) R.color.eve_tile_right_text else R.color.eve_tile_medium_text
+                    if (isLive) R.color.system_green else R.color.system_orange
                 )
             )
 

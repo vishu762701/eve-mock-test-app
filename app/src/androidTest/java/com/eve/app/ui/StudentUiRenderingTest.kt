@@ -104,7 +104,7 @@ class StudentUiRenderingTest {
                         }
                         assertTrue("$name has a usable native viewport", root.width > 0 && root.height > 0)
                         if (!baseline && name != "mock-test") {
-                            try { checkText(root, "$name $width/$font", root.context.getColor(R.color.eve_canvas)) }
+                            try { checkText(root, "$name $width/$font", root.context.getColor(R.color.bg_app)) }
                             catch (error: AssertionError) { failures.add(error.message.orEmpty()); android.util.Log.e("EveStudentUi", error.message.orEmpty()) }
                         }
                         if (width == 360 || (width == 320 && name in listOf("login", "signup", "settings", "practice", "statistics", "bookmarks", "payment", "review"))) {
@@ -126,8 +126,9 @@ class StudentUiRenderingTest {
     }
 
     @Test fun avatarInitialsRemainReadableAcrossIdentityGradients() {
+        val context = android.view.ContextThemeWrapper(InstrumentationRegistry.getInstrumentation().targetContext, R.style.Theme_Eve)
         for (index in -1..15) {
-            val avatar = com.eve.app.util.AvatarDrawable("AS", index)
+            val avatar = com.eve.app.util.AvatarDrawable(context, "AS", index)
             avatar.setBounds(0, 0, 128, 128)
             val bitmap = Bitmap.createBitmap(128, 128, Bitmap.Config.ARGB_8888)
             try {
@@ -228,7 +229,7 @@ class StudentUiRenderingTest {
             "feedback-error" -> root.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.tilFeedback).error = "Please enter your message"
             "feedback-loading" -> { text(R.id.etFeedbackMessage, "Please add more reasoning practice."); show(R.id.progressBar); root.findViewById<View>(R.id.btnSendFeedback).isEnabled = false }
             "notifications-empty" -> { HomeAppearance.tintNotificationBell(root.findViewById(R.id.lottieEmpty)); show(R.id.emptyGroup); show(R.id.rvNotifications, false) }
-            "payment-success" -> { text(R.id.tvStatusText, "Payment received"); root.findViewById<TextView>(R.id.tvStatusText).setTextColor(context.getColor(R.color.eve_status_success_text)) }
+            "payment-success" -> { text(R.id.tvStatusText, "Payment received"); root.findViewById<TextView>(R.id.tvStatusText).setTextColor(context.getColor(R.color.system_green)) }
             "payment-expired" -> { show(R.id.layoutQrSection, false); show(R.id.layoutExpired); show(R.id.cardStatus, false) }
             "about" -> text(R.id.tvVersion, "Version 1.0")
             "payment-method" -> text(R.id.tvSheetSubtitle, "Select how you would like to pay ₹99")
@@ -291,7 +292,7 @@ class StudentUiRenderingTest {
                 for (line in 0 until view.lineCount) assertEquals("Action label must fit: $label / ${view.text}", 0, view.layout.getEllipsisCount(line))
             }
             val foreground = androidx.core.graphics.ColorUtils.compositeColors(androidx.core.graphics.ColorUtils.setAlphaComponent(view.currentTextColor, Math.round(android.graphics.Color.alpha(view.currentTextColor) * alpha)), background)
-            val largeOrPrimary = view.currentTextColor == view.context.getColor(R.color.eve_on_primary) ||
+            val largeOrPrimary = view.currentTextColor == view.context.getColor(R.color.on_accent) ||
                 (view.textSize / view.resources.displayMetrics.scaledDensity >= if (view.typeface?.isBold == true) 18f else 24f)
             val ratio = androidx.core.graphics.ColorUtils.calculateContrast(foreground, background)
             val lockedSystemColors = listOf(R.color.system_red, R.color.system_green, R.color.system_blue,
@@ -344,7 +345,7 @@ class StudentUiRenderingTest {
     private fun capture(name: String, root: View) {
         val bitmap = Bitmap.createBitmap(root.width, root.height, Bitmap.Config.ARGB_8888)
         try {
-            val canvas = Canvas(bitmap); canvas.drawColor(root.context.getColor(R.color.eve_canvas)); root.draw(canvas)
+            val canvas = Canvas(bitmap); canvas.drawColor(root.context.getColor(R.color.bg_app)); root.draw(canvas)
             val values = android.content.ContentValues().apply {
                 put(android.provider.MediaStore.Images.Media.DISPLAY_NAME, "$name.png")
                 put(android.provider.MediaStore.Images.Media.MIME_TYPE, "image/png")

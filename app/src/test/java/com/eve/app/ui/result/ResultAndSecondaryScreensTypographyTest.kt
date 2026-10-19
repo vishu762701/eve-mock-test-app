@@ -124,27 +124,27 @@ class ResultAndSecondaryScreensTypographyTest {
 
         val tvScore = findElementById(root, "tvScore")
         assertNotNull("tvScore must exist", tvScore)
-        assertEquals("@style/TextAppearance.Eve.Result.HeroScore", getStyleOrAppearance(tvScore))
+        assertEquals("@style/TextAppearance.Eve.Token.Title", getStyleOrAppearance(tvScore))
 
         val tvScorePercentage = findElementById(root, "tvScorePercentage")
         assertNotNull("tvScorePercentage must exist", tvScorePercentage)
-        assertEquals("@style/TextAppearance.Eve.Result.ScoreBadge", getStyleOrAppearance(tvScorePercentage))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading", getStyleOrAppearance(tvScorePercentage))
 
         val tvCorrectCount = findElementById(root, "tvCorrectCount")
         assertNotNull("tvCorrectCount must exist", tvCorrectCount)
-        assertEquals("@style/TextAppearance.Eve.Result.MetricCount", getStyleOrAppearance(tvCorrectCount))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading.green", getStyleOrAppearance(tvCorrectCount))
 
         val tvWrongCount = findElementById(root, "tvWrongCount")
         assertNotNull("tvWrongCount must exist", tvWrongCount)
-        assertEquals("@style/TextAppearance.Eve.Result.MetricCount", getStyleOrAppearance(tvWrongCount))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading.red", getStyleOrAppearance(tvWrongCount))
 
         val tvUnattemptedCount = findElementById(root, "tvUnattemptedCount")
         assertNotNull("tvUnattemptedCount must exist", tvUnattemptedCount)
-        assertEquals("@style/TextAppearance.Eve.Result.MetricCount", getStyleOrAppearance(tvUnattemptedCount))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading", getStyleOrAppearance(tvUnattemptedCount))
 
         val tvAccuracy = findElementById(root, "tvAccuracy")
         assertNotNull("tvAccuracy must exist", tvAccuracy)
-        assertEquals("@style/TextAppearance.Eve.Result.MetricCount", getStyleOrAppearance(tvAccuracy))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading.orange", getStyleOrAppearance(tvAccuracy))
 
         val btnReattempt = findElementById(root, "btnReattempt")
         assertNotNull("btnReattempt must exist", btnReattempt)
@@ -161,27 +161,27 @@ class ResultAndSecondaryScreensTypographyTest {
 
         val tvStatHeroScore = findElementById(root, "tvStatHeroScore")
         assertNotNull("tvStatHeroScore must exist", tvStatHeroScore)
-        assertEquals("@style/TextAppearance.Eve.Result.HeroScore", getStyleOrAppearance(tvStatHeroScore))
+        assertEquals("@style/TextAppearance.Eve.Token.Title", getStyleOrAppearance(tvStatHeroScore))
 
         val tvStatHeroPercentage = findElementById(root, "tvStatHeroPercentage")
         assertNotNull("tvStatHeroPercentage must exist", tvStatHeroPercentage)
-        assertEquals("@style/TextAppearance.Eve.Result.ScoreBadge", getStyleOrAppearance(tvStatHeroPercentage))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading", getStyleOrAppearance(tvStatHeroPercentage))
 
         val tvStatRightCount = findElementById(root, "tvStatRightCount")
         assertNotNull("tvStatRightCount must exist", tvStatRightCount)
-        assertEquals("@style/TextAppearance.Eve.Result.MetricCount", getStyleOrAppearance(tvStatRightCount))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading.green", getStyleOrAppearance(tvStatRightCount))
 
         val tvStatWrongCount = findElementById(root, "tvStatWrongCount")
         assertNotNull("tvStatWrongCount must exist", tvStatWrongCount)
-        assertEquals("@style/TextAppearance.Eve.Result.MetricCount", getStyleOrAppearance(tvStatWrongCount))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading.red", getStyleOrAppearance(tvStatWrongCount))
 
         val tvStatUnattemptedTileCount = findElementById(root, "tvStatUnattemptedTileCount")
         assertNotNull("tvStatUnattemptedTileCount must exist", tvStatUnattemptedTileCount)
-        assertEquals("@style/TextAppearance.Eve.Result.MetricCount", getStyleOrAppearance(tvStatUnattemptedTileCount))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading", getStyleOrAppearance(tvStatUnattemptedTileCount))
 
         val tvStatAccuracyPct = findElementById(root, "tvStatAccuracyPct")
         assertNotNull("tvStatAccuracyPct must exist", tvStatAccuracyPct)
-        assertEquals("@style/TextAppearance.Eve.Result.MetricCount", getStyleOrAppearance(tvStatAccuracyPct))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading.orange", getStyleOrAppearance(tvStatAccuracyPct))
     }
 
     @Test
@@ -190,25 +190,25 @@ class ResultAndSecondaryScreensTypographyTest {
 
         val tvQ = findElementById(root, "tvQ")
         assertNotNull("tvQ must exist", tvQ)
-        assertEquals("@style/TextAppearance.Eve.QuestionText", getStyleOrAppearance(tvQ))
+        assertEquals("@style/TextAppearance.Eve.Token.Body", getStyleOrAppearance(tvQ))
 
         for (letter in listOf("A", "B", "C", "D")) {
             val badge = findElementById(root, "tvBadgeOption$letter")
             assertNotNull("tvBadgeOption$letter must exist", badge)
-            assertEquals("@style/TextAppearance.Eve.Result.OptionKey", getStyleOrAppearance(badge))
+            assertEquals("@style/TextAppearance.Eve.Token.Heading", getStyleOrAppearance(badge))
 
             val text = findElementById(root, "tvOption$letter")
             assertNotNull("tvOption$letter must exist", text)
-            assertEquals("@style/TextAppearance.Eve.Result.OptionText", getStyleOrAppearance(text))
+            assertEquals("@style/TextAppearance.Eve.Token.Body", getStyleOrAppearance(text))
         }
 
         val tvCorrectSummary = findElementById(root, "tvCorrectSummary")
         assertNotNull("tvCorrectSummary must exist", tvCorrectSummary)
-        assertEquals("@style/TextAppearance.Eve.Result.ExplanationHeader", getStyleOrAppearance(tvCorrectSummary))
+        assertEquals("@style/TextAppearance.Eve.Token.Body", getStyleOrAppearance(tvCorrectSummary))
 
         val tvExplanation = findElementById(root, "tvExplanation")
         assertNotNull("tvExplanation must exist", tvExplanation)
-        assertEquals("@style/TextAppearance.Eve.Result.ExplanationBody", getStyleOrAppearance(tvExplanation))
+        assertEquals("@style/TextAppearance.Eve.Token.Body", getStyleOrAppearance(tvExplanation))
     }
 
     @Test
@@ -217,28 +217,28 @@ class ResultAndSecondaryScreensTypographyTest {
 
         val tvRankMedallion = findElementById(root, "tvRankMedallion")
         assertNotNull("tvRankMedallion must exist", tvRankMedallion)
-        assertEquals("@style/TextAppearance.Eve.Subheadline.Medium", getStyleOrAppearance(tvRankMedallion))
+        assertEquals("@style/TextAppearance.Eve.Token.Body", getStyleOrAppearance(tvRankMedallion))
 
         val tvYourRank = findElementById(root, "tvYourRank")
         assertNotNull("tvYourRank must exist", tvYourRank)
-        assertEquals("@style/TextAppearance.Eve.Title3", getStyleOrAppearance(tvYourRank))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading", getStyleOrAppearance(tvYourRank))
 
         val tvYourScore = findElementById(root, "tvYourScore")
         assertNotNull("tvYourScore must exist", tvYourScore)
-        assertEquals("@style/TextAppearance.Eve.Title3", getStyleOrAppearance(tvYourScore))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading", getStyleOrAppearance(tvYourScore))
 
         val itemRoot = loadXml("src/main/res/layout/item_leaderboard.xml")
         val tvRank = findElementById(itemRoot, "tvRank")
         assertNotNull("tvRank must exist", tvRank)
-        assertEquals("@style/TextAppearance.Eve.Leaderboard.Rank", getStyleOrAppearance(tvRank))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading", getStyleOrAppearance(tvRank))
 
         val tvName = findElementById(itemRoot, "tvName")
         assertNotNull("tvName must exist", tvName)
-        assertEquals("@style/TextAppearance.Eve.Leaderboard.Name", getStyleOrAppearance(tvName))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading", getStyleOrAppearance(tvName))
 
         val tvScore = findElementById(itemRoot, "tvScore")
         assertNotNull("tvScore must exist", tvScore)
-        assertEquals("@style/TextAppearance.Eve.Leaderboard.Score", getStyleOrAppearance(tvScore))
+        assertEquals("@style/TextAppearance.Eve.Token.Body.blue", getStyleOrAppearance(tvScore))
     }
 
     @Test
@@ -246,26 +246,26 @@ class ResultAndSecondaryScreensTypographyTest {
         val syllabusRoot = loadXml("src/main/res/layout/activity_syllabus.xml")
         val etSearch = findElementById(syllabusRoot, "etSearch")
         assertNotNull("etSearch must exist", etSearch)
-        assertEquals("@style/TextAppearance.Eve.Search", getStyleOrAppearance(etSearch))
+        assertEquals("@style/Widget.Eve.Token.Input", getStyleOrAppearance(etSearch))
 
         val syllabusItemRoot = loadXml("src/main/res/layout/item_syllabus.xml")
         val tvExamName = findElementById(syllabusItemRoot, "tvExamName")
         assertNotNull("tvExamName must exist", tvExamName)
-        assertEquals("@style/TextAppearance.Eve.Secondary.ItemTitle", getStyleOrAppearance(tvExamName))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading", getStyleOrAppearance(tvExamName))
 
         val feedbackRoot = loadXml("src/main/res/layout/activity_feedback.xml")
         val etFeedbackMessage = findElementById(feedbackRoot, "etFeedbackMessage")
         assertNotNull("etFeedbackMessage must exist", etFeedbackMessage)
-        assertEquals("@style/TextAppearance.Eve.Callout", getStyleOrAppearance(etFeedbackMessage))
+        assertEquals("@style/Widget.Eve.Token.Input", getStyleOrAppearance(etFeedbackMessage))
 
         val aboutRoot = loadXml("src/main/res/layout/activity_about.xml")
         val tvAppName = findElementById(aboutRoot, "tvAppName")
         assertNotNull("tvAppName must exist", tvAppName)
-        assertEquals("@style/TextAppearance.Eve.Secondary.SectionHeader", getStyleOrAppearance(tvAppName))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading", getStyleOrAppearance(tvAppName))
 
         val contentDisplayRoot = loadXml("src/main/res/layout/activity_content_display.xml")
         val tvTitle = findElementById(contentDisplayRoot, "tvTitle")
         assertNotNull("tvTitle must exist", tvTitle)
-        assertEquals("@style/TextAppearance.Eve.Title2", getStyleOrAppearance(tvTitle))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading", getStyleOrAppearance(tvTitle))
     }
 }

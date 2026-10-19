@@ -307,7 +307,7 @@ class ProfileActivity : EveBaseActivity() {
             addView(TextView(this@ProfileActivity).apply {
                 text = msg
                 setPadding((16 * resources.displayMetrics.density).toInt(), 0, 0, 0)
-                androidx.core.widget.TextViewCompat.setTextAppearance(this, com.eve.app.R.style.TextAppearance_Eve_Subheadline_Primary)
+                androidx.core.widget.TextViewCompat.setTextAppearance(this, com.eve.app.R.style.TextAppearance_Eve_Token_Body)
             })
         }
         builder.setView(layout)
@@ -326,7 +326,7 @@ class ProfileActivity : EveBaseActivity() {
             this,
             binding.ivProfilePhoto,
             user.photoUrl?.toString(),
-            R.drawable.bg_circle_primary
+            R.drawable.design_avatar_surface
         )
     }
 

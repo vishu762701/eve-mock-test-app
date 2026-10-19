@@ -1,5 +1,6 @@
 package com.eve.app.ui.home
 
+import com.eve.app.designsystem.designAttribute
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -249,31 +250,31 @@ class HomeTypographyTest {
 
         val etSearch = findElementById(root, "etSearch")
         assertNotNull(etSearch)
-        assertEquals("@style/TextAppearance.Eve.Search", etSearch?.getAttribute("style"))
+        assertEquals("@style/Widget.Eve.Token.Input", etSearch?.getAttribute("style"))
 
         val tvStreakSummary = findElementById(root, "tvStreakSummary")
         assertNotNull(tvStreakSummary)
-        assertEquals("@style/TextAppearance.Eve.Footnote.Medium", tvStreakSummary?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Chip", tvStreakSummary?.getAttribute("style"))
 
         val tvOfflineBanner = findElementById(root, "tvOfflineBanner")
         assertNotNull(tvOfflineBanner)
-        assertEquals("@style/TextAppearance.Eve.Caption1.Medium", tvOfflineBanner?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Secondary.orange", tvOfflineBanner?.getAttribute("style"))
 
         val tvDrawerUserName = findElementById(root, "tvDrawerUserName")
         assertNotNull(tvDrawerUserName)
-        assertEquals("@style/TextAppearance.Eve.Headline", tvDrawerUserName?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading", tvDrawerUserName?.getAttribute("style"))
 
         val tvDrawerUserEmail = findElementById(root, "tvDrawerUserEmail")
         assertNotNull(tvDrawerUserEmail)
-        assertEquals("@style/TextAppearance.Eve.Footnote", tvDrawerUserEmail?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Secondary", tvDrawerUserEmail?.getAttribute("style"))
 
         val tvMessage = findElementById(root, "tvMessage")
         assertNotNull(tvMessage)
-        assertEquals("@style/TextAppearance.Eve.Title3", tvMessage?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading", tvMessage?.getAttribute("style"))
 
         val tvMessageSub = findElementById(root, "tvMessageSub")
         assertNotNull(tvMessageSub)
-        assertEquals("@style/TextAppearance.Eve.Subheadline", tvMessageSub?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Body", tvMessageSub?.getAttribute("style"))
     }
 
     @Test
@@ -282,12 +283,12 @@ class HomeTypographyTest {
 
         val tvExamName = findElementById(root, "tvExamName")
         assertNotNull(tvExamName)
-        assertEquals("@style/TextAppearance.Eve.Home.CardTitle", tvExamName?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading", tvExamName?.getAttribute("style"))
         assertTrue("tvExamName must not have hardcoded textSize", tvExamName?.getAttribute("android:textSize").isNullOrEmpty())
 
         val tvExamTime = findElementById(root, "tvExamTime")
         assertNotNull(tvExamTime)
-        assertEquals("@style/TextAppearance.Eve.Home.Secondary", tvExamTime?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Secondary", tvExamTime?.getAttribute("style"))
         assertTrue("tvExamTime must not have hardcoded textSize", tvExamTime?.getAttribute("android:textSize").isNullOrEmpty())
     }
 
@@ -296,7 +297,7 @@ class HomeTypographyTest {
         val root = loadXml("src/main/res/layout/item_category_header.xml")
         val tvCategoryHeader = findElementById(root, "tvCategoryHeader")
         assertNotNull(tvCategoryHeader)
-        assertEquals("@style/TextAppearance.Eve.Subheadline.Medium", tvCategoryHeader?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Body", tvCategoryHeader?.getAttribute("style"))
         assertTrue("tvCategoryHeader must not have hardcoded textSize", tvCategoryHeader?.getAttribute("android:textSize").isNullOrEmpty())
     }
 }

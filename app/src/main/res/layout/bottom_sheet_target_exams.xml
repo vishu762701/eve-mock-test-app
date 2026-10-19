@@ -1,83 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/bg_recovery_sheet"
-    android:fillViewport="true"
-    android:clipToPadding="false"
-    android:overScrollMode="ifContentScrolls"
-            android:clipChildren="false"
-            >
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingHorizontal="20dp"
-        android:paddingTop="12dp"
-        android:paddingBottom="24dp">
-
-        <View
-            android:layout_width="36dp"
-            android:layout_height="4dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/bg_bottom_sheet_drag_handle" />
-
-        <TextView
-            android:id="@+id/tvSheetTitle"
-            style="@style/TextAppearance.Eve.Title3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Which exams are you preparing for?" />
-
-        <TextView
-            android:id="@+id/tvSheetSubtitle"
-            style="@style/TextAppearance.Eve.Subheadline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Select your target exams to personalize your test feed and recommendations." />
-
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chipGroupExams"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:chipSpacingHorizontal="8dp"
-            app:chipSpacingVertical="8dp" />
-
-        <com.eve.app.ui.result.ResponsiveResultRow
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:orientation="horizontal">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSkip"
-                style="@style/Widget.Eve.RecoverySecondary"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="6dp"
-                android:layout_weight="1"
-                android:minHeight="52dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:text="Skip" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnContinue"
-                style="@style/Widget.Eve.RecoveryPrimary"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:layout_weight="1"
-                android:minHeight="52dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:text="Continue" />
+<?xml version='1.0' encoding='utf-8'?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:fillViewport="true" android:clipToPadding="false" android:overScrollMode="ifContentScrolls" android:clipChildren="false" style="@style/Widget.Eve.Token.Sheet">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <View android:layout_width="36dp" android:layout_height="4dp" android:layout_gravity="center_horizontal" android:layout_marginBottom="@dimen/design_section_gap" />
+        <TextView android:id="@+id/tvSheetTitle" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Which exams are you preparing for?" />
+        <TextView android:id="@+id/tvSheetSubtitle" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Select your target exams to personalize your test feed and recommendations." />
+        <com.google.android.material.chip.ChipGroup android:id="@+id/chipGroupExams" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_section_gap" app:chipSpacingHorizontal="@dimen/design_card_gap" app:chipSpacingVertical="@dimen/design_card_gap" />
+        <com.eve.app.ui.result.ResponsiveResultRow android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_icon_size" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false">
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnSkip" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_touch_min" android:layout_marginEnd="@dimen/design_row_gap" android:layout_weight="1" android:text="Skip" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnContinue" style="@style/Widget.Eve.Token.Button" android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_row_gap" android:layout_weight="1" android:text="Continue" />
         </com.eve.app.ui.result.ResponsiveResultRow>
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

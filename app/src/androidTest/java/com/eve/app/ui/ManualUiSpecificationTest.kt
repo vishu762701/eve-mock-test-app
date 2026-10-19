@@ -125,9 +125,8 @@ class ManualUiSpecificationTest {
                             view.layout(0, 0, view.measuredWidth, view.measuredHeight)
                         }
                     }
-                    val border = Color.parseColor(if (night == Configuration.UI_MODE_NIGHT_YES) "#3B3F4A" else "#D9DDE5")
-                    assertEquals(border, context.getColor(R.color.eve_shape_border))
-                    val controlOutline = context.getColor(R.color.hairline)
+                    val border = Color.parseColor(if (night == Configuration.UI_MODE_NIGHT_YES) "#2EFFFFFF" else "#1F000000")
+                    assertEquals(border, context.getColor(R.color.hairline))
                     val home = ActivityMainBinding.inflate(LayoutInflater.from(context))
                     home.panelHomeBanner.visibility = View.VISIBLE
                     HomeAppearance.clipBanner(home.panelHomeBanner)
@@ -136,7 +135,7 @@ class ManualUiSpecificationTest {
                     }
                     chips.forEach { home.chipGroupCategory.addView(it) }
                     layout(home.root)
-                    assertEquals(dp(width - 32), home.panelHomeBanner.width)
+                    assertEquals(dp(width - 24), home.panelHomeBanner.width)
                     assertEquals(dp(160), home.panelHomeBanner.height)
                     val outline = Outline()
                     home.panelHomeBanner.outlineProvider.getOutline(home.panelHomeBanner, outline)
@@ -144,14 +143,15 @@ class ManualUiSpecificationTest {
                     assertTrue(home.panelHomeBanner.clipToOutline)
                     if (font == 1f) {
                         assertTrue(chips[0].width >= dp(48))
-                        assertEquals(dp(32), chips[0].height)
+                        assertEquals(dp(32).toFloat(), chips[0].chipMinHeight, .01f)
+                        assertEquals(dp(48), chips[0].height)
                     }
                     for (chip in chips) {
                         assertEquals(chip.chipMinHeight / 2f, chip.chipCornerRadius, 0.01f)
-                        assertEquals(1f * density, chip.chipStrokeWidth, 0.01f)
+                        assertEquals(0f, chip.chipStrokeWidth, 0.01f)
                         for (checked in listOf(false, true, false)) {
                             chip.isChecked = checked
-                            assertEquals(context.getColor(if (checked) R.color.eve_home_accent else android.R.color.transparent),
+                            assertEquals(context.getColor(R.color.accent),
                                 chip.chipBackgroundColor!!.getColorForState(chip.drawableState, 0))
                         }
                         assertTrue(chip.height >= dp(32))
@@ -162,18 +162,26 @@ class ManualUiSpecificationTest {
                     val result = ActivityResultBinding.inflate(LayoutInflater.from(context))
                     ResultTabs.bind(result) {}
                     layout(result.root)
-                    assertEquals(dp(width - 32), result.tabLayoutResult.width)
-                    assertTrue(result.tabLayoutResult.height >= dp(56))
-                    assertEquals(dp(4), result.tabLayoutResult.paddingTop)
-                    assertEquals(dp(4), result.tabLayoutResult.paddingStart)
+                    assertEquals(dp(width - 24), result.tabLayoutResult.width)
+                    assertTrue(result.tabLayoutResult.height == dp(40))
+                    assertEquals(dp(3), result.tabLayoutResult.paddingTop)
+                    assertEquals(dp(3), result.tabLayoutResult.paddingStart)
                     val tabStrip = result.tabLayoutResult.getChildAt(0) as ViewGroup
+                    fun tabText(index: Int): TextView {
+                        fun find(view: View): TextView? {
+                            if (view is TextView) return view
+                            if (view is ViewGroup) for (i in 0 until view.childCount) find(view.getChildAt(i))?.let { return it }
+                            return null
+                        }
+                        return requireNotNull(find(tabStrip.getChildAt(index)))
+                    }
                     val available = result.tabLayoutResult.width - result.tabLayoutResult.paddingLeft - result.tabLayoutResult.paddingRight
                     if (font > 1.2f && width < 600) {
                         assertEquals(com.google.android.material.tabs.TabLayout.MODE_SCROLLABLE, result.tabLayoutResult.tabMode)
                         assertTrue("Enlarged labels must scroll without compressing", tabStrip.width >= available)
                         assertTrue("Content-sized segments stay inside their strip", tabStrip.getChildAt(tabStrip.childCount - 1).right <= tabStrip.width)
                         for (index in 0 until result.tabLayoutResult.tabCount) {
-                            val tabLabel = result.tabLayoutResult.getTabAt(index)!!.customView as TextView
+                            val tabLabel = tabText(index)
                             assertEquals(1, tabLabel.lineCount)
                             assertEquals("Full enlarged label must fit", 0, tabLabel.layout.getEllipsisCount(0))
                         }
@@ -185,33 +193,33 @@ class ManualUiSpecificationTest {
                     val grid = result.rowOverviewStatisticsTiles
                     val minimum = Math.round(124f * density * font)
                     val expectedColumns = when {
-                        grid.width >= minimum * 4 + dp(12) * 3 -> 4
-                        grid.width >= minimum * 2 + dp(12) -> 2
+                        grid.width >= minimum * 4 + dp(8) * 3 -> 4
+                        grid.width >= minimum * 2 + dp(8) -> 2
                         else -> 1
                     }
                     assertEquals(expectedColumns, grid.columnCount)
                     if (font == 1f && width <= 412) assertEquals(2, grid.columnCount)
                     for (i in 0 until grid.childCount) {
                         val tile = grid.getChildAt(i)
-                        assertTrue(kotlin.math.abs(tile.width * grid.columnCount + dp(12) * (grid.columnCount - 1) - grid.width) < grid.columnCount)
+                        assertTrue(kotlin.math.abs(tile.width * grid.columnCount + dp(8) * (grid.columnCount - 1) - grid.width) < grid.columnCount)
                         assertTrue(tile.height >= dp(96))
                         if (font == 1f) assertEquals(dp(96), tile.height)
-                        assertEquals(dp(14), tile.paddingStart)
+                        assertEquals(dp(10), tile.paddingStart)
                         assertTrue(tile.right <= grid.width)
                         if (i % grid.columnCount != 0) {
-                            assertEquals(dp(12), tile.left - grid.getChildAt(i - 1).right)
+                            assertEquals(dp(8), tile.left - grid.getChildAt(i - 1).right)
                         } else if (i >= grid.columnCount) {
-                            assertEquals(dp(12), tile.top - grid.getChildAt(i - grid.columnCount).bottom)
+                            assertEquals(dp(8), tile.top - grid.getChildAt(i - grid.columnCount).bottom)
                         }
                         val surface = tile.background as GradientDrawable
-                        assertEquals(dp(26).toFloat(), surface.cornerRadius, 0.01f)
+                        assertEquals(dp(16).toFloat(), surface.cornerRadius, 0.01f)
                     }
                     repeat(12) { index ->
                         result.tabLayoutResult.getTabAt(index % 3)!!.select()
                         assertEquals(index % 3, result.tabLayoutResult.selectedTabPosition)
                     }
-                    val label = result.tabLayoutResult.getTabAt(0)!!.customView as TextView
-                    assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP, 13f,
+                    val label = tabText(0)
+                    assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP, 14f,
                         context.resources.displayMetrics), label.textSize, 0.51f)
                     val adapter = QuestionAdapter(listOf(Question(questionText = "हिंदी / English", optionA = "A long answer ".repeat(30))),
                         { "B" }, { _, _ -> }, { false }, {}, { false }, {}, { 0L })
@@ -221,36 +229,36 @@ class ManualUiSpecificationTest {
                     layout(question.root)
                     val options = listOf(question.rbA, question.rbB, question.rbC, question.rbD)
                     for (option in options) {
-                        assertEquals(dp(width - 32), option.width)
-                        assertEquals(dp(56), option.minHeight)
-                        assertTrue(option.height >= dp(56))
+                        assertEquals(dp(width - 24), option.width)
+                        assertEquals(dp(48), option.minHeight)
+                        assertTrue(option.height >= dp(48))
                         for (checked in listOf(false, true, false)) {
                             option.isChecked = checked
                             option.jumpDrawablesToCurrentState()
                             val surface = (option.background as StateListDrawable).current as GradientDrawable
-                            assertEquals(14f * density, surface.cornerRadius, 0.01f)
+                            assertEquals(16f * density, surface.cornerRadius, 0.01f)
                         }
                     }
-                    for (i in 1 until options.size) assertEquals(dp(10), options[i].top - options[i-1].bottom)
+                    for (i in 1 until options.size) assertEquals(dp(6), options[i].top - options[i-1].bottom)
                     // Existing inherited and stateful outlines, including disabled/focused controls.
                     val styled = LayoutInflater.from(context).inflate(R.layout.activity_app_config, FrameLayout(context), false)
                     fun visit(view: View) {
                         if (view is TextInputLayout) {
-                            assertEquals(dp(1), view.boxStrokeWidth)
-                            assertEquals(dp(1), view.boxStrokeWidthFocused)
+                            assertEquals(context.resources.getDimensionPixelSize(R.dimen.design_focus_stroke), view.boxStrokeWidth)
+                            assertEquals(context.resources.getDimensionPixelSize(R.dimen.design_focus_stroke), view.boxStrokeWidthFocused)
                             val actualBox = TextInputLayout::class.java.getDeclaredField("boxBackground").apply {
                                 isAccessible = true
                             }.get(view) as com.google.android.material.shape.MaterialShapeDrawable
                             for (enabled in listOf(true, false, true)) {
                                 view.isEnabled = enabled
-                                assertEquals(border, actualBox.strokeColor!!.defaultColor)
-                                assertEquals(dp(1).toFloat(), actualBox.strokeWidth, 0.01f)
+                                assertEquals(context.getColor(R.color.transparent), actualBox.strokeColor!!.defaultColor)
+                                assertEquals(context.resources.getDimension(R.dimen.design_focus_stroke), actualBox.strokeWidth, density / 2)
                             }
                             view.error = "Fixture error"
-                            assertEquals(border, actualBox.strokeColor!!.defaultColor)
+                            assertEquals(context.getColor(R.color.system_red), actualBox.strokeColor!!.defaultColor)
                             view.error = null
                             view.editText?.requestFocus()
-                            assertEquals(border, actualBox.strokeColor!!.defaultColor)
+                            assertEquals(context.getColor(R.color.accent), actualBox.strokeColor!!.defaultColor)
                         }
                         if (view is ViewGroup) for (i in 0 until view.childCount) visit(view.getChildAt(i))
                     }
@@ -263,12 +271,12 @@ class ManualUiSpecificationTest {
                             replyHolder.bind(com.eve.app.data.model.FeedbackPostReply(read = read))
                             assertEquals(1f, button.alpha, 0f)
                             assertEquals(!read, button.isEnabled)
-                            assertEquals(dp(1), button.strokeWidth)
-                            assertEquals(controlOutline, button.strokeColor!!.getColorForState(button.drawableState, 0))
+                            assertEquals(0, button.strokeWidth)
+                            assertEquals(context.getColor(R.color.transparent), button.strokeColor!!.getColorForState(button.drawableState, 0))
                             assertEquals(255, Color.alpha(button.currentTextColor))
-                            assertEquals(context.getColor(if (read) R.color.eve_disabled_text else R.color.eve_text), button.currentTextColor)
+                            assertEquals(context.getColor(if (read) R.color.text_secondary else R.color.text_primary), button.currentTextColor)
                             assertTrue(androidx.core.graphics.ColorUtils.calculateContrast(button.currentTextColor,
-                                context.getColor(R.color.eve_card_bg)) >= 4.5)
+                                context.getColor(R.color.surface)) >= 4.5)
                         }
                         val toggle = com.google.android.material.materialswitch.MaterialSwitch(context)
                         for (enabled in listOf(true, false, true)) for (checked in listOf(false, true, false)) {

@@ -22,8 +22,8 @@ object ResultCutoffPresentation {
             binding.tvCutoffValue.text = "Cutoff: $cutoffStr"
             if (score >= cutoff) {
                 binding.tvCutoffVerdict.text = "Qualified ✓"
-                com.eve.app.ui.common.EveGlassPill.setCapsuleBackground(binding.tvCutoffVerdict, R.drawable.bg_tile_right)
-                binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(binding.root.context, R.color.eve_tile_right_text))
+                com.eve.app.ui.common.EveGlassPill.setCapsuleBackground(binding.tvCutoffVerdict, R.drawable.design_badge_green)
+                binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(binding.root.context, R.color.system_green))
                 val diff = score - cutoff
                 binding.tvCutoffRelationship.text = if (diff >= 0.05) {
                     "You cleared the $category cutoff mark by +${String.format(java.util.Locale.US, "%.1f", diff)} marks."
@@ -32,16 +32,16 @@ object ResultCutoffPresentation {
                 }
             } else {
                 binding.tvCutoffVerdict.text = "Not Qualified ✗"
-                com.eve.app.ui.common.EveGlassPill.setCapsuleBackground(binding.tvCutoffVerdict, R.drawable.bg_tile_wrong)
-                binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(binding.root.context, R.color.eve_tile_wrong_text))
+                com.eve.app.ui.common.EveGlassPill.setCapsuleBackground(binding.tvCutoffVerdict, R.drawable.design_badge_red)
+                binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(binding.root.context, R.color.system_red))
                 val diff = cutoff - score
                 binding.tvCutoffRelationship.text = "You are ${String.format(java.util.Locale.US, "%.1f", diff)} marks below the $category cutoff threshold."
             }
         } else {
             binding.tvCutoffValue.text = "Cutoff unavailable"
             binding.tvCutoffVerdict.text = "No Cutoff Set"
-            com.eve.app.ui.common.EveGlassPill.setCapsuleBackground(binding.tvCutoffVerdict, R.drawable.bg_tile_surface2)
-            binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(binding.root.context, R.color.eve_text_secondary))
+            com.eve.app.ui.common.EveGlassPill.setCapsuleBackground(binding.tvCutoffVerdict, R.drawable.design_badge_neutral)
+            binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(binding.root.context, R.color.text_secondary))
             binding.tvCutoffRelationship.text = "No cutoff is configured for $category. Qualification cannot be determined."
         }
     }

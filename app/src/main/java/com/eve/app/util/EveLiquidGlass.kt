@@ -94,7 +94,7 @@ object EveLiquidGlass {
                         val drawable = ContextCompat.getDrawable(context, R.drawable.bg_dialog_submit_confirmation)?.mutate()
                         if (drawable is android.graphics.drawable.InsetDrawable) {
                             val inner = drawable.drawable as? android.graphics.drawable.GradientDrawable
-                            inner?.setColor(ContextCompat.getColor(context, R.color.eve_secondary_system_background))
+                            inner?.setColor(ContextCompat.getColor(context, R.color.surface_inset))
                         }
                         window.setBackgroundDrawable(drawable)
                     }
@@ -127,7 +127,7 @@ object EveLiquidGlass {
      */
     @ColorInt
     fun getRegularTint(context: Context): Int {
-        return ContextCompat.getColor(context, R.color.eve_material_regular)
+        return ContextCompat.getColor(context, R.color.glass_fallback)
     }
 
     /**
@@ -135,6 +135,6 @@ object EveLiquidGlass {
      */
     @ColorInt
     fun getRimBorderColor(context: Context): Int {
-        return ContextCompat.getColor(context, R.color.eve_shape_border)
+        return ContextCompat.getColor(context, R.color.hairline)
     }
 }

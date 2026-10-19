@@ -699,12 +699,12 @@ class ResultActivity : EveBaseActivity() {
                 item.tvSub.setTextColor(
                     ContextCompat.getColor(
                         this,
-                        if (qualified) R.color.eve_status_success_text else R.color.eve_status_error_text
+                        if (qualified) R.color.system_green else R.color.system_red
                     )
                 )
             } else {
                 item.tvSub.text = "No cutoff configured"
-                item.tvSub.setTextColor(ContextCompat.getColor(this, R.color.eve_text_secondary))
+                item.tvSub.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
             }
 
             item.row.setOnClickListener {
@@ -742,7 +742,7 @@ class ResultActivity : EveBaseActivity() {
             dialog.setOnShowListener {
                 val confirmBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 val cancelBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-                confirmBtn.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.eve_status_error_text))
+                confirmBtn.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.system_red))
 
                 confirmBtn.setOnClickListener {
                     confirmBtn.isEnabled = false

@@ -1125,3 +1125,27 @@ resources from the supplied Context; the source view contributes only that
 Context, not scale-up bounds. ActivityCompat start/for-result/finish dispatch is
 unchanged. Native popup tests follow BlurView renderer lifecycle after the
 authorized container restyle, preserving all protected reveal-order assertions.
+
+
+### Locked reset Phase 4: native screen and popup migration
+
+Choose shared token styles plus native adapters over replacing screen controllers
+or popup selection/filtering implementations. WindowInspector's public window
+list decorates only newly-created native list popup windows on API 31+; unknown
+hosts retain the 94% fallback. No private popup reflection in production. The
+source observer is removed on popup detach. Native selection, keyboard/filtering,
+accessibility and feature callbacks remain owned by Android/Material.
+
+Official source read (Android 15 API, WindowInspector is available since API 29):
+https://raw.githubusercontent.com/aosp-mirror/platform_frameworks_base/android-15.0.0_r1/core/java/android/view/inspector/WindowInspector.java
+Existing AppCompat 1.7.0 and Material 1.12.0 sources were inspected for the native
+spinner/dropdown/style contracts; no new dependency was added.
+
+Pre-mortem: (1) popup reparenting could break list selection or leak backdrop
+observers: wrap only native popup containers, retain the list and test a real
+selection/dismissal; (2) constructor/radio recycling could overwrite saved answer
+state: retain RadioGroup behavior and all existing suppression/state callbacks;
+(3) Poppins/role changes could clip large-font controls: retain adaptive grids,
+scrolling and accessibility labels, compile all layouts and run both native modes.
+The owner's later instruction to preserve Lottie animations takes precedence over
+the earlier permission to remove their artwork; raw assets/triggers remain.

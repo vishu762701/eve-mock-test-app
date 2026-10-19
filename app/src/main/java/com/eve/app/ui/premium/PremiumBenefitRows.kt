@@ -22,14 +22,14 @@ object PremiumBenefitRows {
             row.addView(ImageView(context).apply {
                 layoutParams = LinearLayout.LayoutParams((18 * density).toInt(), (18 * density).toInt())
                 setImageResource(R.drawable.ic_check_circle)
-                setColorFilter(ContextCompat.getColor(context, R.color.eve_text))
+                setColorFilter(ContextCompat.getColor(context, R.color.text_primary))
             })
             row.addView(TextView(context).apply {
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
                     marginStart = (10 * density).toInt()
                 }
                 text = benefit
-                setTextColor(ContextCompat.getColor(context, R.color.eve_text))
+                setTextColor(ContextCompat.getColor(context, R.color.text_primary))
                 textSize = 13.5f
             })
             container.addView(row)

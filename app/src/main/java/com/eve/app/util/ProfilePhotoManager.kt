@@ -91,7 +91,7 @@ object ProfilePhotoManager {
                 imageView.background = null
                 imageView.setPadding(0, 0, 0, 0)
                 imageView.scaleType = ImageView.ScaleType.CENTER_CROP
-                val fallbackDrawable = AvatarDrawable.create(effectiveName, effectiveId)
+                val fallbackDrawable = AvatarDrawable.create(imageView.context, effectiveName, effectiveId)
                 imageView.load(googlePhotoUrl) {
                     placeholder(fallbackDrawable)
                     error(fallbackDrawable)
@@ -101,7 +101,7 @@ object ProfilePhotoManager {
                 imageView.background = null
                 imageView.setPadding(0, 0, 0, 0)
                 imageView.scaleType = ImageView.ScaleType.CENTER_CROP
-                imageView.setImageDrawable(AvatarDrawable.create(effectiveName, effectiveId))
+                imageView.setImageDrawable(AvatarDrawable.create(imageView.context, effectiveName, effectiveId))
             }
         }
     }

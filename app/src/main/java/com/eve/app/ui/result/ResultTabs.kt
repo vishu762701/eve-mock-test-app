@@ -11,28 +11,12 @@ object ResultTabs {
         val scrollable = track.resources.configuration.fontScale > 1.2f && track.resources.configuration.screenWidthDp < 600
         track.tabMode = if (scrollable) TabLayout.MODE_SCROLLABLE else TabLayout.MODE_FIXED
         track.tabGravity = if (scrollable) TabLayout.GRAVITY_START else TabLayout.GRAVITY_FILL
-        var readableHeight = track.resources.getDimensionPixelSize(com.eve.app.R.dimen.eve_segment_min_height)
-        for (index in 0 until track.tabCount) {
-            val tab = track.getTabAt(index) ?: continue
-            val label = android.widget.TextView(track.context).apply {
-                id = android.R.id.text1
-                text = tab.text
-                contentDescription = tab.text
-                textSize = 13f
-                typeface = android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.BOLD)
-                gravity = android.view.Gravity.CENTER
-                val horizontalPadding = if (scrollable) Math.round(12f * resources.displayMetrics.density) else 0
-                setPadding(horizontalPadding, 0, horizontalPadding, 0)
-                maxLines = if (scrollable) 1 else 2
-                ellipsize = android.text.TextUtils.TruncateAt.END
-                setTextColor(track.tabTextColors)
-                // Keep 13sp when wrapping; TabLayout's built-in label can auto-shrink.
-            }
-            tab.customView = label
-            readableHeight = maxOf(readableHeight,
-                kotlin.math.ceil(label.paint.fontSpacing * (if (scrollable) 1 else 2) + 8f * track.resources.displayMetrics.density).toInt())
+        track.layoutParams = track.layoutParams.apply {
+            height = track.resources.getDimensionPixelSize(com.eve.app.R.dimen.design_tab_height)
         }
-        track.layoutParams = track.layoutParams.apply { height = readableHeight }
+        com.eve.app.designsystem.ShadowHost.reserveTabStrip(track, binding.scrollResultContent)
+        com.eve.app.designsystem.ShadowHost.reserveTabStrip(track, binding.scrollLeaderboard)
+        com.eve.app.designsystem.ShadowHost.reserveTabStrip(track, binding.sectionReview)
 
         fun show(position: Int) {
             val section = ResultSection.fromTab(position)

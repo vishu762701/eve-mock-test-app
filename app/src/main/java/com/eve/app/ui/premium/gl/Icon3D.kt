@@ -283,10 +283,10 @@ class Icon3D(context: Context, val type: Int = TYPE_STAR) {
     }
 
     private fun generateTexture(context: Context) {
-        val c1 = ContextCompat.getColor(context, R.color.eve_premium_gradient_1)
-        val c2 = ContextCompat.getColor(context, R.color.eve_premium_gradient_2)
-        val c3 = ContextCompat.getColor(context, R.color.eve_premium_gradient_3)
-        val c4 = ContextCompat.getColor(context, R.color.eve_premium_gradient_4)
+        val c1 = ContextCompat.getColor(context, R.color.system_blue)
+        val c2 = ContextCompat.getColor(context, R.color.system_purple)
+        val c3 = ContextCompat.getColor(context, R.color.system_purple)
+        val c4 = ContextCompat.getColor(context, R.color.system_orange)
 
         val bmp = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bmp)

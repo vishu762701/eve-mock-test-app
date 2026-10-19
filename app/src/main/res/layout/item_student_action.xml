@@ -1,12 +1,2 @@
-<com.google.android.material.button.MaterialButton
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/Widget.Eve.Button.Soft"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:minHeight="56dp"
-    android:minWidth="0dp"
-    android:paddingHorizontal="20dp"
-    android:paddingVertical="14dp"
-    android:singleLine="false"
-    android:gravity="start|center_vertical"
-    android:textAlignment="viewStart" />
+<?xml version='1.0' encoding='utf-8'?>
+<com.google.android.material.button.MaterialButton xmlns:android="http://schemas.android.com/apk/res/android" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:minWidth="@dimen/design_zero" android:singleLine="false" android:gravity="start|center_vertical" android:textAlignment="viewStart" />

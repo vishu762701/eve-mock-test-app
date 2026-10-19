@@ -36,26 +36,23 @@ object ShareCardHelper {
         val darkContext = context.createConfigurationContext(darkConfiguration)
         val bgDark = androidx.core.content.ContextCompat.getColor(darkContext, com.eve.app.R.color.bg_app)
         val surfaceDark = androidx.core.content.ContextCompat.getColor(darkContext, com.eve.app.R.color.surface)
-        val borderDark = androidx.core.content.ContextCompat.getColor(darkContext, com.eve.app.R.color.eve_opaque_separator)
-        val labelSecDark = androidx.core.content.ContextCompat.getColor(darkContext, com.eve.app.R.color.eve_label_secondary)
-        val labelTerDark = androidx.core.content.ContextCompat.getColor(darkContext, com.eve.app.R.color.eve_label_tertiary)
+        val labelSecDark = androidx.core.content.ContextCompat.getColor(darkContext, com.eve.app.R.color.text_secondary)
+        val labelTerDark = androidx.core.content.ContextCompat.getColor(darkContext, com.eve.app.R.color.text_secondary)
         val accentContainerDark = androidx.core.content.ContextCompat.getColor(darkContext, com.eve.app.R.color.system_blue_container)
         val successDark = androidx.core.content.ContextCompat.getColor(darkContext, com.eve.app.R.color.system_green)
         val errorDark = androidx.core.content.ContextCompat.getColor(darkContext, com.eve.app.R.color.system_red)
         val systemBlue = androidx.core.content.ContextCompat.getColor(darkContext, com.eve.app.R.color.system_blue)
 
-        val cardRadius = context.resources.getDimension(com.eve.app.R.dimen.eve_radius_card) /
+        val cardRadius = context.resources.getDimension(com.eve.app.R.dimen.design_radius_card) /
             context.resources.displayMetrics.density * (width / 360f)
 
-        val boldTypeface = try {
-            androidx.core.content.res.ResourcesCompat.getFont(context, com.eve.app.R.font.source_serif_4_bold) ?: Typeface.DEFAULT_BOLD
-        } catch (_: Throwable) {
-            Typeface.DEFAULT_BOLD
-        }
-        val regularTypeface = try {
-            androidx.core.content.res.ResourcesCompat.getFont(context, com.eve.app.R.font.source_serif_4_regular) ?: Typeface.DEFAULT
-        } catch (_: Throwable) {
-            Typeface.DEFAULT
+        val boldTypeface = FontManager.typeface(context, bold = true)
+        val regularTypeface = FontManager.typeface(context, bold = false)
+        // Export on a fixed 360dp design canvas, independently of the device density.
+        fun typeSize(token: Int): Float {
+            val value = android.util.TypedValue()
+            context.resources.getValue(token, value, true)
+            return android.util.TypedValue.complexToFloat(value.data) * (width / 360f)
         }
 
         // 1. Dark Background
@@ -70,19 +67,14 @@ object ShareCardHelper {
             color = surfaceDark
             style = Paint.Style.FILL
         }
-        val cardStrokePaint = Paint().apply {
-            color = borderDark
-            style = Paint.Style.STROKE
-            strokeWidth = 3f
-        }
+
         val cardRect = RectF(60f, 60f, width - 60f, height - 60f)
         canvas.drawRoundRect(cardRect, cardRadius, cardRadius, cardPaint)
-        canvas.drawRoundRect(cardRect, cardRadius, cardRadius, cardStrokePaint)
 
         // 3. App Title / Header
         val brandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = systemBlue
-            textSize = 34f
+            textSize = typeSize(com.eve.app.R.dimen.design_type_heading)
             typeface = boldTypeface
             letterSpacing = 0.15f
         }
@@ -90,32 +82,25 @@ object ShareCardHelper {
 
         // 4. Test Name
         val titlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.WHITE
-            textSize = 50f
+            color = androidx.core.content.ContextCompat.getColor(darkContext, com.eve.app.R.color.text_primary)
+            textSize = typeSize(com.eve.app.R.dimen.design_type_title)
             typeface = boldTypeface
         }
         val truncatedName = if (examName.length > 36) examName.take(33) + "..." else examName
         canvas.drawText(truncatedName, 120f, 220f, titlePaint)
 
-        // Subtle divider
-        val divPaint = Paint().apply {
-            color = borderDark
-            strokeWidth = 2f
-        }
-        canvas.drawLine(120f, 260f, width - 120f, 260f, divPaint)
-
         // 5. Score Label & Value
         val scoreLabelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = labelSecDark
-            textSize = 30f
+            textSize = typeSize(com.eve.app.R.dimen.design_type_secondary)
             typeface = regularTypeface
             letterSpacing = 0.08f
         }
         canvas.drawText("TOTAL SCORE", 120f, 330f, scoreLabelPaint)
 
         val scoreValuePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.WHITE
-            textSize = 100f
+            color = androidx.core.content.ContextCompat.getColor(darkContext, com.eve.app.R.color.text_primary)
+            textSize = typeSize(com.eve.app.R.dimen.design_type_title)
             typeface = boldTypeface
         }
         canvas.drawText(scoreText, 120f, 440f, scoreValuePaint)
@@ -127,7 +112,7 @@ object ShareCardHelper {
         }
         val pillTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = systemBlue
-            textSize = 28f
+            textSize = typeSize(com.eve.app.R.dimen.design_type_secondary)
             typeface = boldTypeface
         }
         val pill1Rect = RectF(120f, 475f, 340f, 530f)
@@ -143,9 +128,9 @@ object ShareCardHelper {
         val boxY = 570f
         val boxH = 160f
 
-        drawStatBox(canvas, 120f, boxY, boxWidth, boxH, "Correct", correctCount.toString(), successDark, boldTypeface, regularTypeface, cardRadius, bgDark, borderDark, labelSecDark)
-        drawStatBox(canvas, 120f + boxWidth + 20f, boxY, boxWidth, boxH, "Wrong", wrongCount.toString(), errorDark, boldTypeface, regularTypeface, cardRadius, bgDark, borderDark, labelSecDark)
-        drawStatBox(canvas, 120f + (boxWidth + 20f) * 2, boxY, boxWidth, boxH, "Skipped", skippedCount.toString(), labelSecDark, boldTypeface, regularTypeface, cardRadius, bgDark, borderDark, labelSecDark)
+        drawStatBox(canvas, 120f, boxY, boxWidth, boxH, "Correct", correctCount.toString(), successDark, boldTypeface, regularTypeface, cardRadius, bgDark, labelSecDark, typeSize(com.eve.app.R.dimen.design_type_heading), typeSize(com.eve.app.R.dimen.design_type_secondary))
+        drawStatBox(canvas, 120f + boxWidth + 20f, boxY, boxWidth, boxH, "Wrong", wrongCount.toString(), errorDark, boldTypeface, regularTypeface, cardRadius, bgDark, labelSecDark, typeSize(com.eve.app.R.dimen.design_type_heading), typeSize(com.eve.app.R.dimen.design_type_secondary))
+        drawStatBox(canvas, 120f + (boxWidth + 20f) * 2, boxY, boxWidth, boxH, "Skipped", skippedCount.toString(), labelSecDark, boldTypeface, regularTypeface, cardRadius, bgDark, labelSecDark, typeSize(com.eve.app.R.dimen.design_type_heading), typeSize(com.eve.app.R.dimen.design_type_secondary))
 
         // 7. Standing Card
         val standingRect = RectF(120f, 770f, width - 120f, 910f)
@@ -154,11 +139,10 @@ object ShareCardHelper {
             style = Paint.Style.FILL
         }
         canvas.drawRoundRect(standingRect, cardRadius, cardRadius, standingPaint)
-        canvas.drawRoundRect(standingRect, cardRadius, cardRadius, cardStrokePaint)
 
         val standLabelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = labelSecDark
-            textSize = 26f
+            textSize = typeSize(com.eve.app.R.dimen.design_type_secondary)
             typeface = regularTypeface
             letterSpacing = 0.05f
         }
@@ -166,7 +150,7 @@ object ShareCardHelper {
 
         val standValuePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = systemBlue
-            textSize = 42f
+            textSize = typeSize(com.eve.app.R.dimen.design_type_heading)
             typeface = boldTypeface
         }
         canvas.drawText(rankText, 160f, 880f, standValuePaint)
@@ -174,7 +158,7 @@ object ShareCardHelper {
         // 8. Eve App Footer
         val footerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = labelTerDark
-            textSize = 24f
+            textSize = typeSize(com.eve.app.R.dimen.design_type_secondary)
             typeface = regularTypeface
             textAlign = Paint.Align.CENTER
         }
@@ -213,25 +197,21 @@ object ShareCardHelper {
         regularTypeface: Typeface,
         cardRadius: Float,
         bgDark: Int,
-        borderDark: Int,
-        labelSecDark: Int
+        labelSecDark: Int,
+        headingSize: Float,
+        secondarySize: Float
     ) {
         val rect = RectF(x, y, x + w, y + h)
         val fillPaint = Paint().apply {
             color = bgDark
             style = Paint.Style.FILL
         }
-        val borderPaint = Paint().apply {
-            color = borderDark
-            style = Paint.Style.STROKE
-            strokeWidth = 2f
-        }
+
         canvas.drawRoundRect(rect, cardRadius, cardRadius, fillPaint)
-        canvas.drawRoundRect(rect, cardRadius, cardRadius, borderPaint)
 
         val valPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = colorInt
-            textSize = 46f
+            textSize = headingSize
             typeface = boldTypeface
             textAlign = Paint.Align.CENTER
         }
@@ -239,7 +219,7 @@ object ShareCardHelper {
 
         val lblPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = labelSecDark
-            textSize = 22f
+            textSize = secondarySize
             typeface = regularTypeface
             textAlign = Paint.Align.CENTER
         }

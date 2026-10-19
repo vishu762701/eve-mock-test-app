@@ -69,9 +69,9 @@ class AnswerAdapter(
             b.tvQ.text = item.displayQuestionText(hindi)
 
             val (statusText, badgeColor) = when {
-                !item.isAttempted -> Pair("Unattempted", R.color.eve_recovery_text_secondary)
-                item.isCorrect -> Pair("Correct", R.color.eve_tile_right_text)
-                else -> Pair("Incorrect", R.color.eve_tile_wrong_text)
+                !item.isAttempted -> Pair("Unattempted", R.color.text_secondary)
+                item.isCorrect -> Pair("Correct", R.color.system_green)
+                else -> Pair("Incorrect", R.color.system_red)
             }
             b.tvQuestionStatusLabel.text = statusText
             b.tvQuestionStatusLabel.setTextColor(ContextCompat.getColor(ctx, badgeColor))
@@ -106,46 +106,46 @@ class AnswerAdapter(
                 if (isExpanded) {
                     when {
                         isCorrect -> {
-                            layout.setBackgroundResource(R.drawable.bg_option_review_correct)
-                            badge.setBackgroundResource(R.drawable.bg_option_badge_correct)
-                            badge.setTextColor(ContextCompat.getColor(ctx, R.color.eve_tile_right_text))
-                            textView.setTextColor(ContextCompat.getColor(ctx, R.color.eve_tile_right_text))
+                            layout.setBackgroundResource(R.drawable.design_tile_green)
+                            badge.setBackgroundResource(R.drawable.design_badge_green)
+                            badge.setTextColor(ContextCompat.getColor(ctx, R.color.system_green))
+                            textView.setTextColor(ContextCompat.getColor(ctx, R.color.system_green))
                             statusIv.visibility = View.VISIBLE
                             statusIv.setImageResource(R.drawable.ic_check_circle)
                             statusIv.imageTintList = android.content.res.ColorStateList.valueOf(
-                                ContextCompat.getColor(ctx, R.color.eve_tile_right_text)
+                                ContextCompat.getColor(ctx, R.color.system_green)
                             )
                         }
                         isSelected -> {
-                            layout.setBackgroundResource(R.drawable.bg_option_review_wrong)
-                            badge.setBackgroundResource(R.drawable.bg_option_badge_wrong)
-                            badge.setTextColor(ContextCompat.getColor(ctx, R.color.eve_tile_wrong_text))
-                            textView.setTextColor(ContextCompat.getColor(ctx, R.color.eve_tile_wrong_text))
+                            layout.setBackgroundResource(R.drawable.design_tile_red)
+                            badge.setBackgroundResource(R.drawable.design_badge_red)
+                            badge.setTextColor(ContextCompat.getColor(ctx, R.color.system_red))
+                            textView.setTextColor(ContextCompat.getColor(ctx, R.color.system_red))
                             statusIv.visibility = View.VISIBLE
                             statusIv.setImageResource(R.drawable.ic_close)
                             statusIv.imageTintList = android.content.res.ColorStateList.valueOf(
-                                ContextCompat.getColor(ctx, R.color.eve_tile_wrong_text)
+                                ContextCompat.getColor(ctx, R.color.system_red)
                             )
                         }
                         else -> {
-                            layout.setBackgroundResource(R.drawable.bg_option_review_default)
-                            badge.setBackgroundResource(R.drawable.bg_option_badge_default)
-                            badge.setTextColor(ContextCompat.getColor(ctx, R.color.eve_recovery_text_secondary))
-                            textView.setTextColor(ContextCompat.getColor(ctx, R.color.eve_recovery_text_secondary))
+                            layout.setBackgroundResource(R.drawable.design_review_neutral)
+                            badge.setBackgroundResource(R.drawable.design_badge_neutral)
+                            badge.setTextColor(ContextCompat.getColor(ctx, R.color.text_secondary))
+                            textView.setTextColor(ContextCompat.getColor(ctx, R.color.text_secondary))
                             statusIv.visibility = View.GONE
                         }
                     }
                 } else {
                     if (isSelected) {
-                        layout.setBackgroundResource(R.drawable.bg_option_review_selected)
-                        badge.setBackgroundResource(R.drawable.bg_option_badge_selected)
-                        badge.setTextColor(ContextCompat.getColor(ctx, R.color.eve_recovery_on_accent))
-                        textView.setTextColor(ContextCompat.getColor(ctx, R.color.eve_text))
+                        layout.setBackgroundResource(R.drawable.design_review_selected)
+                        badge.setBackgroundResource(R.drawable.design_tab_segment)
+                        badge.setTextColor(ContextCompat.getColor(ctx, R.color.on_accent))
+                        textView.setTextColor(ContextCompat.getColor(ctx, R.color.text_primary))
                     } else {
-                        layout.setBackgroundResource(R.drawable.bg_option_review_default)
-                        badge.setBackgroundResource(R.drawable.bg_option_badge_default)
-                        badge.setTextColor(ContextCompat.getColor(ctx, R.color.eve_text))
-                        textView.setTextColor(ContextCompat.getColor(ctx, R.color.eve_text))
+                        layout.setBackgroundResource(R.drawable.design_review_neutral)
+                        badge.setBackgroundResource(R.drawable.design_badge_neutral)
+                        badge.setTextColor(ContextCompat.getColor(ctx, R.color.text_primary))
+                        textView.setTextColor(ContextCompat.getColor(ctx, R.color.text_primary))
                     }
                     statusIv.visibility = View.GONE
                 }
@@ -181,19 +181,19 @@ class AnswerAdapter(
             when {
                 !item.isAttempted -> {
                     b.tvYourAnswer.text = "Your answer: Not attempted"
-                    b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.eve_recovery_text_secondary))
+                    b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.text_secondary))
                 }
                 item.isCorrect -> {
                     b.tvYourAnswer.text = "Your answer: ${item.selected}. ${item.displaySelectedText(hindi)}  ✓ Correct"
-                    b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.eve_tile_right_text))
+                    b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.system_green))
                 }
                 else -> {
                     b.tvYourAnswer.text = "Your answer: ${item.selected}. ${item.displaySelectedText(hindi)}  ✗ Incorrect"
-                    b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.eve_tile_wrong_text))
+                    b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.system_red))
                 }
             }
             b.tvCorrectAnswer.text = "Correct answer: ${item.correct}. ${item.displayCorrectText(hindi)}  ✓"
-            b.tvCorrectAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.eve_tile_right_text))
+            b.tvCorrectAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.system_green))
 
             // X% got this right stat
             val stat = questionStats[item.questionId]
@@ -225,7 +225,7 @@ class AnswerAdapter(
                 val statusColor = ContextCompat.getColor(ctx, comparison.statusColorRes)
                 b.pbTimeYou.progressTintList = android.content.res.ColorStateList.valueOf(statusColor)
                 b.pbTimeAvg.progressTintList = android.content.res.ColorStateList.valueOf(
-                    ContextCompat.getColor(ctx, R.color.eve_text_secondary)
+                    ContextCompat.getColor(ctx, R.color.text_secondary)
                 )
 
                 b.tvTimeYou.text = "${timeSpent}s"
@@ -233,9 +233,9 @@ class AnswerAdapter(
 
                 b.tvTimeInsightMessage.text = comparison.message
                 val messageColor = when (comparison.statusColorRes) {
-                    R.color.eve_status_success -> R.color.eve_tile_right_text
-                    R.color.eve_status_error -> R.color.eve_tile_wrong_text
-                    else -> R.color.eve_tile_medium_text
+                    R.color.system_green -> R.color.system_green
+                    R.color.system_red -> R.color.system_red
+                    else -> R.color.system_orange
                 }
                 b.tvTimeInsightMessage.setTextColor(ContextCompat.getColor(ctx, messageColor))
             } else {

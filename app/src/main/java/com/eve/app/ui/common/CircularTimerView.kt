@@ -26,12 +26,12 @@ class CircularTimerView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
     private val density = resources.displayMetrics.density
-    private val strokePx = 2f * density
+    private val strokePx = resources.getDimension(R.dimen.design_ring_stroke)
     private val normalColor: Int
-        get() = ContextCompat.getColor(context, R.color.eve_test_foreground)
+        get() = com.eve.app.designsystem.DesignTokens.accent(context)
 
     private val warningColor: Int
-        get() = ContextCompat.getColor(context, R.color.eve_timer_warning)
+        get() = com.eve.app.designsystem.DesignTokens.color(context, R.attr.systemRed)
 
     private val progressPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
@@ -43,10 +43,15 @@ class CircularTimerView @JvmOverloads constructor(
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textAlign = Paint.Align.CENTER
         color = normalColor
-        textSize = sp(12f)
-        typeface = ResourcesCompat.getFont(context, R.font.poppins_semibold) ?: Typeface.DEFAULT_BOLD
+        textSize = resources.getDimension(R.dimen.design_type_secondary)
+        typeface = com.eve.app.util.FontManager.typeface(context, bold = false)
     }
 
+    private val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = strokePx
+        strokeCap = Paint.Cap.ROUND
+    }
     private val oval = RectF()
     private val argbEvaluator = ArgbEvaluator()
 
@@ -60,11 +65,10 @@ class CircularTimerView @JvmOverloads constructor(
     private var displayText: String = "--:--"
     private var totalSeconds: Long = -1L
 
-    private fun sp(value: Float): Float = value * resources.displayMetrics.scaledDensity
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        textPaint.textSize = sp(12f)
+        textPaint.textSize = resources.getDimension(R.dimen.design_type_secondary)
         val pad = strokePx / 2f
         val diameter = minOf(w, h).toFloat()
         val cx = w / 2f
@@ -77,10 +81,8 @@ class CircularTimerView @JvmOverloads constructor(
         super.onDraw(canvas)
         if (oval.isEmpty) return
 
-        canvas.drawColor(ContextCompat.getColor(context, R.color.eve_bg))
-        // The approved 2dp ring is the countdown arc. A full foreground-color
-        // track underneath it would conceal progress as the timer depletes.
-        // Preserve the existing warning color when time is low.
+        trackPaint.color = com.eve.app.designsystem.DesignTokens.track(context)
+        canvas.drawOval(oval, trackPaint)
         val sweepAngle = 360f * currentProgress
         canvas.drawArc(oval, -90f, sweepAngle, false, progressPaint)
 

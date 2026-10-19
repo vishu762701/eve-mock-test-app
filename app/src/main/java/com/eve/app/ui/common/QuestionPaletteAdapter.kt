@@ -80,35 +80,35 @@ class QuestionPaletteAdapter(
             val strokeW: Int
 
             if (item.isActive && !approvedTestStyle) {
-                bgColor = ContextCompat.getColor(ctx, R.color.eve_surface)
-                textColor = ContextCompat.getColor(ctx, R.color.eve_text)
-                strokeColor = ContextCompat.getColor(ctx, R.color.eve_shape_border)
+                bgColor = ContextCompat.getColor(ctx, R.color.surface)
+                textColor = ContextCompat.getColor(ctx, R.color.text_primary)
+                strokeColor = ContextCompat.getColor(ctx, R.color.hairline)
                 strokeW = borderWidthPx
             } else {
                 strokeW = Math.round(density).coerceAtLeast(1)
                 when (item.state) {
                     PaletteState.CORRECT,
                     PaletteState.ANSWERED -> {
-                        bgColor = ContextCompat.getColor(ctx, R.color.eve_tile_right_fill)
-                        textColor = ContextCompat.getColor(ctx, R.color.eve_tile_right_text)
-                        strokeColor = ContextCompat.getColor(ctx, R.color.eve_shape_border)
+                        bgColor = ContextCompat.getColor(ctx, R.color.system_green_container)
+                        textColor = ContextCompat.getColor(ctx, R.color.system_green)
+                        strokeColor = ContextCompat.getColor(ctx, R.color.hairline)
                     }
                     PaletteState.WRONG -> {
-                        bgColor = ContextCompat.getColor(ctx, R.color.eve_tile_wrong_fill)
-                        textColor = ContextCompat.getColor(ctx, R.color.eve_tile_wrong_text)
-                        strokeColor = ContextCompat.getColor(ctx, R.color.eve_shape_border)
+                        bgColor = ContextCompat.getColor(ctx, R.color.system_red_container)
+                        textColor = ContextCompat.getColor(ctx, R.color.system_red)
+                        strokeColor = ContextCompat.getColor(ctx, R.color.hairline)
                     }
                     PaletteState.MARKED,
                     PaletteState.ANSWERED_MARKED -> {
-                        bgColor = ContextCompat.getColor(ctx, R.color.eve_tile_medium_fill)
-                        textColor = ContextCompat.getColor(ctx, R.color.eve_tile_medium_text)
-                        strokeColor = ContextCompat.getColor(ctx, R.color.eve_shape_border)
+                        bgColor = ContextCompat.getColor(ctx, R.color.system_orange_container)
+                        textColor = ContextCompat.getColor(ctx, R.color.system_orange)
+                        strokeColor = ContextCompat.getColor(ctx, R.color.hairline)
                     }
                     PaletteState.UNATTEMPTED,
                     PaletteState.VISITED -> {
-                        bgColor = ContextCompat.getColor(ctx, R.color.eve_surface_2)
-                        textColor = ContextCompat.getColor(ctx, R.color.eve_text_secondary)
-                        strokeColor = ContextCompat.getColor(ctx, R.color.eve_shape_border)
+                        bgColor = ContextCompat.getColor(ctx, R.color.surface)
+                        textColor = ContextCompat.getColor(ctx, R.color.text_secondary)
+                        strokeColor = ContextCompat.getColor(ctx, R.color.hairline)
                     }
                 }
             }
@@ -118,33 +118,33 @@ class QuestionPaletteAdapter(
                 val halfGap = Math.round(8f * density) / 2
                 b.root.setPadding(halfGap, halfGap, Math.round(8f * density) - halfGap, Math.round(8f * density) - halfGap)
                 b.cardCircle.layoutParams = b.cardCircle.layoutParams.apply {
-                    width = Math.round(38f * density)
-                    height = Math.round(38f * density)
+                    width = ctx.resources.getDimensionPixelSize(R.dimen.design_pill_height)
+                    height = ctx.resources.getDimensionPixelSize(R.dimen.design_pill_height)
                 }
-                b.cardCircle.radius = Math.round(38f * density) / 2f
-                b.tvCircleNumber.textSize = 12f
+                b.cardCircle.radius = ctx.resources.getDimensionPixelSize(R.dimen.design_pill_height) / 2f
+                com.eve.app.designsystem.DesignType.apply(b.tvCircleNumber, com.eve.app.designsystem.DesignType.Role.CHIP)
                 val fill = when (item.state) {
-                    PaletteState.ANSWERED -> R.color.eve_test_selected
-                    PaletteState.MARKED, PaletteState.ANSWERED_MARKED -> R.color.eve_test_review
-                    PaletteState.UNATTEMPTED, PaletteState.VISITED -> R.color.eve_test_option_bg
+                    PaletteState.ANSWERED -> R.color.system_green
+                    PaletteState.MARKED, PaletteState.ANSWERED_MARKED -> R.color.system_yellow
+                    PaletteState.UNATTEMPTED, PaletteState.VISITED -> R.color.surface_inset
                     else -> null
                 }
                 b.cardCircle.setCardBackgroundColor(fill?.let { ContextCompat.getColor(ctx, it) }
                     ?: bgColor)
-                b.tvCircleNumber.setTextColor(if (fill == R.color.eve_test_selected || fill == R.color.eve_test_review) android.graphics.Color.BLACK
-                    else if (fill == R.color.eve_test_option_bg) ContextCompat.getColor(ctx, R.color.eve_test_foreground) else textColor)
-                b.cardCircle.strokeWidth = Math.round(density).coerceAtLeast(1)
-                b.cardCircle.strokeColor = ContextCompat.getColor(ctx, R.color.eve_test_shape_border)
+                b.tvCircleNumber.setTextColor(if (fill == R.color.system_green || fill == R.color.system_yellow) ContextCompat.getColor(ctx, R.color.solid_black)
+                    else if (fill == R.color.surface_inset) ContextCompat.getColor(ctx, R.color.text_primary) else textColor)
+                b.cardCircle.strokeWidth = 0
+                b.cardCircle.strokeColor = ContextCompat.getColor(ctx, R.color.hairline)
                 // Active position must not erase answer/review state or add an extra outline.
-                b.tvCircleNumber.typeface = android.graphics.Typeface.create(
-                    "sans-serif", if (item.isActive) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
+                b.tvCircleNumber.typeface = if (item.isActive) com.eve.app.util.FontManager.typeface(ctx, bold = true)
+                    else com.eve.app.util.FontManager.mediumTypeface(ctx)
                 b.root.isSelected = item.isActive
                 b.root.contentDescription = "Question ${item.number}, ${item.state.name.lowercase().replace('_', ' ')}" +
                     if (item.isActive) ", current" else ""
             } else {
                 b.cardCircle.setCardBackgroundColor(bgColor)
                 b.tvCircleNumber.setTextColor(textColor)
-                b.cardCircle.strokeWidth = strokeW
+                b.cardCircle.strokeWidth = 0
                 b.cardCircle.strokeColor = strokeColor
             }
             b.cardCircle.cardElevation = 0f

@@ -14,28 +14,28 @@ class TaskBToEVerificationTest {
     @Test
     fun testCategoryTintHelperReturnsAllCuratedTints() {
         val sscTint = ExamCategoryTintHelper.getTintForCategory("SSC CGL")
-        assertEquals(R.color.eve_category_tint_lilac_bg, sscTint.bgRes)
-        assertEquals(R.color.eve_category_tint_lilac_fg, sscTint.fgRes)
+        assertEquals(R.color.design_role_category_tint_lilac_bg, sscTint.bgRes)
+        assertEquals(R.color.design_role_category_tint_lilac_fg, sscTint.fgRes)
 
         val railwayTint = ExamCategoryTintHelper.getTintForCategory("RRB NTPC")
-        assertEquals(R.color.eve_category_tint_blue_bg, railwayTint.bgRes)
-        assertEquals(R.color.eve_category_tint_blue_fg, railwayTint.fgRes)
+        assertEquals(R.color.design_role_category_tint_blue_bg, railwayTint.bgRes)
+        assertEquals(R.color.system_blue, railwayTint.fgRes)
 
         val defenceTint = ExamCategoryTintHelper.getTintForCategory("NDA Exam")
-        assertEquals(R.color.eve_category_tint_green_bg, defenceTint.bgRes)
-        assertEquals(R.color.eve_category_tint_green_fg, defenceTint.fgRes)
+        assertEquals(R.color.design_role_category_tint_green_bg, defenceTint.bgRes)
+        assertEquals(R.color.system_green, defenceTint.fgRes)
 
         val bankingTint = ExamCategoryTintHelper.getTintForCategory("IBPS PO")
-        assertEquals(R.color.eve_category_tint_amber_bg, bankingTint.bgRes)
-        assertEquals(R.color.eve_category_tint_amber_fg, bankingTint.fgRes)
+        assertEquals(R.color.design_role_category_tint_amber_bg, bankingTint.bgRes)
+        assertEquals(R.color.system_orange, bankingTint.fgRes)
 
         val teachingTint = ExamCategoryTintHelper.getTintForCategory("CTET Paper 1")
-        assertEquals(R.color.eve_category_tint_rose_bg, teachingTint.bgRes)
-        assertEquals(R.color.eve_category_tint_rose_fg, teachingTint.fgRes)
+        assertEquals(R.color.design_role_category_tint_rose_bg, teachingTint.bgRes)
+        assertEquals(R.color.system_red, teachingTint.fgRes)
 
         val upscTint = ExamCategoryTintHelper.getTintForCategory("UPSC Civil Services")
-        assertEquals(R.color.eve_category_tint_teal_bg, upscTint.bgRes)
-        assertEquals(R.color.eve_category_tint_teal_fg, upscTint.fgRes)
+        assertEquals(R.color.design_role_category_tint_teal_bg, upscTint.bgRes)
+        assertEquals(R.color.design_role_category_tint_teal_fg, upscTint.fgRes)
 
         val defaultTint = ExamCategoryTintHelper.getTintForCategory(null)
         assertNotNull(defaultTint)
@@ -101,7 +101,7 @@ class TaskBToEVerificationTest {
         assertTrue("Result layout should contain Analytics & Insights heading", resultLayout.contains("android:text=\"Analytics &amp; Insights\""))
 
         val examItemLayout = File("src/main/res/layout/item_exam.xml").readText()
-        assertTrue("Exam item layout should use press_scale animator", examItemLayout.contains("@animator/press_scale"))
-        assertTrue("Exam item layout should use eve_space_8 margin", examItemLayout.contains("@dimen/eve_space_8"))
+        assertTrue("Exam item layout should use press_scale animator", File("src/main/res/values/design_widgets.xml").readText().contains("@animator/design_press_scale"))
+        assertTrue("Exam item layout should use eve_space_8 margin", examItemLayout.contains("@dimen/design_card_gap"))
     }
 }

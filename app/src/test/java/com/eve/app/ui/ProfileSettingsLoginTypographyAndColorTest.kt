@@ -1,5 +1,6 @@
 package com.eve.app.ui
 
+import com.eve.app.designsystem.designAttribute
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -89,31 +90,31 @@ class ProfileSettingsLoginTypographyAndColorTest {
 
         val tvName = findElementById(root, "tvName")
         assertNotNull("tvName must exist", tvName)
-        assertEquals("@style/TextAppearance.Eve.Title2", tvName?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading", tvName?.getAttribute("style"))
 
         val tvEmail = findElementById(root, "tvEmail")
         assertNotNull("tvEmail must exist", tvEmail)
-        assertEquals("@style/TextAppearance.Eve.Subheadline", tvEmail?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Body", tvEmail?.getAttribute("style"))
 
         val tvEveId = findElementById(root, "tvEveId")
         assertNotNull("tvEveId must exist", tvEveId)
-        assertEquals("@style/TextAppearance.Eve.Footnote.Medium", tvEveId?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Secondary", tvEveId?.getAttribute("style"))
 
         val etName = findElementById(root, "etName")
         assertNotNull("etName must exist", etName)
-        assertEquals("@style/TextAppearance.Eve.Body", etName?.getAttribute("style"))
+        assertEquals("@style/Widget.Eve.Token.Input", etName?.getAttribute("style"))
 
         val etDob = findElementById(root, "etDob")
         assertNotNull("etDob must exist", etDob)
-        assertEquals("@style/TextAppearance.Eve.Body", etDob?.getAttribute("style"))
+        assertEquals("@style/Widget.Eve.Token.Input", etDob?.getAttribute("style"))
 
         val chipGeneral = findElementById(root, "chipGeneral")
         assertNotNull("chipGeneral must exist", chipGeneral)
-        assertEquals("@style/TextAppearance.Eve.Footnote.Medium", chipGeneral?.getAttribute("android:textAppearance"))
+        assertEquals("@style/TextAppearance.Eve.Token.Chip", chipGeneral?.designAttribute("android:textAppearance"))
 
         val btnSaveProfile = findElementById(root, "btnSaveProfile")
         assertNotNull("btnSaveProfile must exist", btnSaveProfile)
-        assertEquals("@style/TextAppearance.Eve.Headline", btnSaveProfile?.getAttribute("android:textAppearance"))
+        assertEquals("@style/TextAppearance.Eve.Token.Button", btnSaveProfile?.designAttribute("android:textAppearance"))
     }
 
     @Test
@@ -125,11 +126,11 @@ class ProfileSettingsLoginTypographyAndColorTest {
 
         val tvDailyGoalValue = findElementById(root, "tvDailyGoalValue")
         assertNotNull("tvDailyGoalValue must exist", tvDailyGoalValue)
-        assertEquals("@style/TextAppearance.Eve.Footnote", tvDailyGoalValue?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Secondary", tvDailyGoalValue?.getAttribute("style"))
 
         val tvLanguageValue = findElementById(root, "tvLanguageValue")
         assertNotNull("tvLanguageValue must exist", tvLanguageValue)
-        assertEquals("@style/TextAppearance.Eve.Footnote", tvLanguageValue?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Secondary", tvLanguageValue?.getAttribute("style"))
 
         val rowDeleteAccount = findElementById(root, "rowDeleteAccount")
         assertNotNull("rowDeleteAccount must exist", rowDeleteAccount)
@@ -141,19 +142,19 @@ class ProfileSettingsLoginTypographyAndColorTest {
 
         val tvEveDefaultTitle = findElementById(root, "tvEveDefaultTitle")
         assertNotNull("tvEveDefaultTitle must exist", tvEveDefaultTitle)
-        assertEquals("@style/TextAppearance.Eve.Headline", tvEveDefaultTitle?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading", tvEveDefaultTitle?.getAttribute("style"))
 
         val tvEveDefaultSample = findElementById(root, "tvEveDefaultSample")
         assertNotNull("tvEveDefaultSample must exist", tvEveDefaultSample)
-        assertEquals("@style/TextAppearance.Eve.Footnote", tvEveDefaultSample?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Secondary", tvEveDefaultSample?.getAttribute("style"))
 
         val tvDeviceFontTitle = findElementById(root, "tvDeviceFontTitle")
         assertNotNull("tvDeviceFontTitle must exist", tvDeviceFontTitle)
-        assertEquals("@style/TextAppearance.Eve.Headline", tvDeviceFontTitle?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Heading", tvDeviceFontTitle?.getAttribute("style"))
 
         val tvDeviceFontSample = findElementById(root, "tvDeviceFontSample")
         assertNotNull("tvDeviceFontSample must exist", tvDeviceFontSample)
-        assertEquals("@style/TextAppearance.Eve.Footnote", tvDeviceFontSample?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Secondary", tvDeviceFontSample?.getAttribute("style"))
     }
 
     @Test
@@ -162,44 +163,44 @@ class ProfileSettingsLoginTypographyAndColorTest {
 
         val tvLogo = findElementById(root, "tvLogo")
         assertNotNull("tvLogo must exist", tvLogo)
-        assertEquals("@style/TextAppearance.Eve.Eyebrow", tvLogo?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Secondary", tvLogo?.getAttribute("style"))
 
         val tvTagline = findElementById(root, "tvTagline")
         assertNotNull("tvTagline must exist", tvTagline)
-        assertEquals("@style/TextAppearance.Eve.LargeTitle", tvTagline?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Title", tvTagline?.getAttribute("style"))
 
         val tvSubtitle = findElementById(root, "tvSubtitle")
         assertNotNull("tvSubtitle must exist", tvSubtitle)
-        assertEquals("@style/TextAppearance.Eve.Subheadline", tvSubtitle?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Body", tvSubtitle?.getAttribute("style"))
 
         val etName = findElementById(root, "etName")
         assertNotNull("etName must exist", etName)
-        assertEquals("@style/TextAppearance.Eve.Callout", etName?.getAttribute("style"))
+        assertEquals("@style/Widget.Eve.Token.Input", etName?.getAttribute("style"))
 
         val etEmail = findElementById(root, "etEmail")
         assertNotNull("etEmail must exist", etEmail)
-        assertEquals("@style/TextAppearance.Eve.Callout", etEmail?.getAttribute("style"))
+        assertEquals("@style/Widget.Eve.Token.Input", etEmail?.getAttribute("style"))
 
         val etPassword = findElementById(root, "etPassword")
         assertNotNull("etPassword must exist", etPassword)
-        assertEquals("@style/TextAppearance.Eve.Callout", etPassword?.getAttribute("style"))
+        assertEquals("@style/Widget.Eve.Token.Input", etPassword?.getAttribute("style"))
 
         val tvError = findElementById(root, "tvError")
         assertNotNull("tvError must exist", tvError)
-        assertEquals("@style/TextAppearance.Eve.Footnote", tvError?.getAttribute("style"))
-        assertEquals("@color/eve_destructive_text", tvError?.getAttribute("android:textColor"))
+        assertEquals("@style/TextAppearance.Eve.Token.Secondary.red", tvError?.getAttribute("style"))
+        assertEquals("@color/system_red", tvError?.designAttribute("android:textColor"))
 
         val btnSubmit = findElementById(root, "btnSubmit")
         assertNotNull("btnSubmit must exist", btnSubmit)
-        assertEquals("@style/TextAppearance.Eve.Headline", btnSubmit?.getAttribute("android:textAppearance"))
+        assertEquals("@style/TextAppearance.Eve.Token.Button", btnSubmit?.designAttribute("android:textAppearance"))
 
         val btnGoogle = findElementById(root, "btnGoogle")
         assertNotNull("btnGoogle must exist", btnGoogle)
-        assertEquals("@style/TextAppearance.Eve.Subheadline.Medium", btnGoogle?.getAttribute("android:textAppearance"))
+        assertEquals("@style/TextAppearance.Eve.Token.Button", btnGoogle?.designAttribute("android:textAppearance"))
 
         val btnToggleMode = findElementById(root, "btnToggleMode")
         assertNotNull("btnToggleMode must exist", btnToggleMode)
-        assertEquals("@style/TextAppearance.Eve.Subheadline.Medium", btnToggleMode?.getAttribute("android:textAppearance"))
+        assertEquals("@style/TextAppearance.Eve.Token.Button", btnToggleMode?.designAttribute("android:textAppearance"))
     }
 
     @Test
@@ -265,12 +266,12 @@ class ProfileSettingsLoginTypographyAndColorTest {
         val profile = loadXml("src/main/res/layout/activity_profile.xml")
         val formSurface = loadXml("src/main/res/drawable/bg_student_group.xml")
         val formSolid = formSurface.getElementsByTagName("solid").item(0) as Element
-        assertEquals("@color/eve_system_grouped_background", profile.getAttribute("android:background"))
+        assertEquals("@color/bg_app", profile.designAttribute("android:background"))
         assertEquals("@color/eve_secondary_system_grouped_background", formSolid.getAttribute("android:color"))
 
         // The Profile header is the sharp foreground of the allowed glass toolbar.
         val header = profile.getElementsByTagName("LinearLayout").item(0) as Element
-        assertEquals("@android:color/transparent", header.getAttribute("android:background"))
+        assertEquals("", header.designAttribute("android:background"))
         assertEquals("com.eve.app.ui.common.EveGlassToolbar", (header.parentNode as Element).tagName)
 
         fun hex(resourcePath: String, token: String): String {

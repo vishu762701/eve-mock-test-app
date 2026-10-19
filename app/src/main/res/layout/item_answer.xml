@@ -1,508 +1,75 @@
-<?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    style="@style/Widget.Eve.Card.Group"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:minHeight="0dp"
-    android:layout_marginHorizontal="0dp"
-    android:layout_marginTop="0dp"
-    android:layout_marginBottom="12dp">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="14dp">
-
-        <!-- A flexible label column leaves both header actions reachable at large text sizes. -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-                    <ImageView
-                        android:id="@+id/ivStatusCircle"
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:contentDescription="Question status"
-                        android:src="@drawable/ic_status_circle_right" />
-                    <TextView
-                        android:id="@+id/tvQuestionNum"
-                        style="@style/TextAppearance.Eve.Subheadline.Medium"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="8dp"
-                        android:text="Question 1"
-                        android:textColor="@color/eve_text" />
+<?xml version='1.0' encoding='utf-8'?>
+<com.eve.app.designsystem.DesignCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" style="@style/Widget.Eve.Token.Card" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="@dimen/design_zero" android:layout_marginTop="@dimen/design_card_gap" android:layout_marginBottom="@dimen/design_card_gap">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <LinearLayout android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+                    <ImageView android:id="@+id/ivStatusCircle" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Question status" android:src="@drawable/ic_status_circle_right" />
+                    <TextView android:id="@+id/tvQuestionNum" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="@dimen/design_card_gap" android:text="Question 1" />
                 </LinearLayout>
-                <TextView
-                    android:id="@+id/tvQuestionStatusLabel"
-                    style="@style/TextAppearance.Eve.Footnote.Medium"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Correct"
-                    android:textColor="@color/eve_tile_right_text" />
+                <TextView android:id="@+id/tvQuestionStatusLabel" style="@style/TextAppearance.Eve.Token.Secondary.green" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Correct" />
             </LinearLayout>
-            <ImageView
-                android:id="@+id/ivBookmark"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:contentDescription="Bookmarked"
-                android:padding="12dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_star_bookmark_filled"
-                android:visibility="gone" />
-            <ImageView
-                android:id="@+id/ivReportQuestion"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:stateListAnimator="@animator/press_scale"
-                android:contentDescription="Report this question"
-                android:padding="12dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_report_flag_premium"
-                app:tint="@color/eve_recovery_text_secondary" />
+            <ImageView android:id="@+id/ivBookmark" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Bookmarked" android:scaleType="fitCenter" android:src="@drawable/ic_star_bookmark_filled" android:visibility="gone" />
+            <ImageView android:id="@+id/ivReportQuestion" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:stateListAnimator="@animator/design_press_scale" android:contentDescription="Report this question" android:scaleType="fitCenter" android:src="@drawable/ic_report_flag_premium" app:tint="@color/text_secondary" />
         </LinearLayout>
-
-        <!-- 2. Question Text: Receives Primary Focus -->
-        <TextView
-            android:id="@+id/tvQ"
-            style="@style/TextAppearance.Eve.QuestionText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textColor="?attr/eveLabelPrimary" />
-
-        <!-- Review Options Container (Shows complete question with options) -->
-        <LinearLayout
-            android:id="@+id/layoutOptionsContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="vertical">
-
-            <!-- Option A -->
-            <LinearLayout
-                android:id="@+id/layoutOptionA"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp"
-                android:background="@drawable/bg_option_review_default"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="10dp">
-
-                <TextView
-                    android:id="@+id/tvBadgeOptionA"
-                    style="@style/TextAppearance.Eve.Result.OptionKey"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:background="@drawable/bg_option_badge_default"
-                    android:text="A" />
-
-                <TextView
-                    android:id="@+id/tvOptionA"
-                    style="@style/TextAppearance.Eve.Result.OptionText"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="1" />
-
-                <ImageView
-                    android:id="@+id/ivOptionAStatus"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_marginStart="8dp"
-                    android:contentDescription="Status"
-                    android:visibility="gone" />
+        <TextView android:id="@+id/tvQ" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" />
+        <LinearLayout android:id="@+id/layoutOptionsContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <LinearLayout android:id="@+id/layoutOptionA" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_row_gap" android:gravity="center_vertical" android:orientation="horizontal" style="@style/Widget.Eve.Token.Tile" android:clipChildren="false" android:clipToPadding="false">
+                <TextView android:id="@+id/tvBadgeOptionA" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="28dp" android:layout_height="28dp" android:text="A" />
+                <TextView android:id="@+id/tvOptionA" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_card_padding" android:layout_weight="1" />
+                <ImageView android:id="@+id/ivOptionAStatus" android:layout_width="@dimen/design_shadow_room" android:layout_height="@dimen/design_shadow_room" android:layout_marginStart="@dimen/design_card_gap" android:contentDescription="Status" android:visibility="gone" />
             </LinearLayout>
-
-            <!-- Option B -->
-            <LinearLayout
-                android:id="@+id/layoutOptionB"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp"
-                android:background="@drawable/bg_option_review_default"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="10dp">
-
-                <TextView
-                    android:id="@+id/tvBadgeOptionB"
-                    style="@style/TextAppearance.Eve.Result.OptionKey"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:background="@drawable/bg_option_badge_default"
-                    android:text="B" />
-
-                <TextView
-                    android:id="@+id/tvOptionB"
-                    style="@style/TextAppearance.Eve.Result.OptionText"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="1" />
-
-                <ImageView
-                    android:id="@+id/ivOptionBStatus"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_marginStart="8dp"
-                    android:contentDescription="Status"
-                    android:visibility="gone" />
+            <LinearLayout android:id="@+id/layoutOptionB" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_row_gap" android:gravity="center_vertical" android:orientation="horizontal" style="@style/Widget.Eve.Token.Tile" android:clipChildren="false" android:clipToPadding="false">
+                <TextView android:id="@+id/tvBadgeOptionB" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="28dp" android:layout_height="28dp" android:text="B" />
+                <TextView android:id="@+id/tvOptionB" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_card_padding" android:layout_weight="1" />
+                <ImageView android:id="@+id/ivOptionBStatus" android:layout_width="@dimen/design_shadow_room" android:layout_height="@dimen/design_shadow_room" android:layout_marginStart="@dimen/design_card_gap" android:contentDescription="Status" android:visibility="gone" />
             </LinearLayout>
-
-            <!-- Option C -->
-            <LinearLayout
-                android:id="@+id/layoutOptionC"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp"
-                android:background="@drawable/bg_option_review_default"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="10dp">
-
-                <TextView
-                    android:id="@+id/tvBadgeOptionC"
-                    style="@style/TextAppearance.Eve.Result.OptionKey"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:background="@drawable/bg_option_badge_default"
-                    android:text="C" />
-
-                <TextView
-                    android:id="@+id/tvOptionC"
-                    style="@style/TextAppearance.Eve.Result.OptionText"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="1" />
-
-                <ImageView
-                    android:id="@+id/ivOptionCStatus"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_marginStart="8dp"
-                    android:contentDescription="Status"
-                    android:visibility="gone" />
+            <LinearLayout android:id="@+id/layoutOptionC" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_row_gap" android:gravity="center_vertical" android:orientation="horizontal" style="@style/Widget.Eve.Token.Tile" android:clipChildren="false" android:clipToPadding="false">
+                <TextView android:id="@+id/tvBadgeOptionC" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="28dp" android:layout_height="28dp" android:text="C" />
+                <TextView android:id="@+id/tvOptionC" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_card_padding" android:layout_weight="1" />
+                <ImageView android:id="@+id/ivOptionCStatus" android:layout_width="@dimen/design_shadow_room" android:layout_height="@dimen/design_shadow_room" android:layout_marginStart="@dimen/design_card_gap" android:contentDescription="Status" android:visibility="gone" />
             </LinearLayout>
-
-            <!-- Option D -->
-            <LinearLayout
-                android:id="@+id/layoutOptionD"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp"
-                android:background="@drawable/bg_option_review_default"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="10dp">
-
-                <TextView
-                    android:id="@+id/tvBadgeOptionD"
-                    style="@style/TextAppearance.Eve.Result.OptionKey"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:background="@drawable/bg_option_badge_default"
-                    android:text="D" />
-
-                <TextView
-                    android:id="@+id/tvOptionD"
-                    style="@style/TextAppearance.Eve.Result.OptionText"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="1" />
-
-                <ImageView
-                    android:id="@+id/ivOptionDStatus"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_marginStart="8dp"
-                    android:contentDescription="Status"
-                    android:visibility="gone" />
+            <LinearLayout android:id="@+id/layoutOptionD" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_row_gap" android:gravity="center_vertical" android:orientation="horizontal" style="@style/Widget.Eve.Token.Tile" android:clipChildren="false" android:clipToPadding="false">
+                <TextView android:id="@+id/tvBadgeOptionD" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="28dp" android:layout_height="28dp" android:text="D" />
+                <TextView android:id="@+id/tvOptionD" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_card_padding" android:layout_weight="1" />
+                <ImageView android:id="@+id/ivOptionDStatus" android:layout_width="@dimen/design_shadow_room" android:layout_height="@dimen/design_shadow_room" android:layout_marginStart="@dimen/design_card_gap" android:contentDescription="Status" android:visibility="gone" />
             </LinearLayout>
         </LinearLayout>
-
-        <!-- View Solution Button (Initial Review State: Question First, Solution on Demand) -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnViewSolution"
-            style="@style/Widget.Eve.Button.Soft"
-            android:textAppearance="@style/TextAppearance.Eve.Subheadline.Medium"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:layout_marginTop="12dp"
-            android:text="View Solution"
-            app:icon="@drawable/ic_visibility"
-            app:iconGravity="textStart"
-            app:iconPadding="8dp"
-            android:paddingVertical="8dp" />
-
-        <!-- Solution Container (Expanded Inline on Demand) -->
-        <LinearLayout
-            android:id="@+id/layoutSolutionDetails"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="14dp"
-                android:layout_marginBottom="12dp"
-                android:background="@color/eve_stroke" />
-
-        <!-- 3. User's Answer -->
-        <TextView
-            android:id="@+id/tvYourAnswer"
-            style="@style/TextAppearance.Eve.Subheadline.Medium"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:lineSpacingExtra="3dp"
-            android:textColor="?attr/eveLabelPrimary" />
-
-        <!-- 4. Correct Answer -->
-        <TextView
-            android:id="@+id/tvCorrectAnswer"
-            style="@style/TextAppearance.Eve.Subheadline.Medium"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:lineSpacingExtra="3dp"
-            android:textColor="@color/eve_tile_right_text" />
-
-        <!-- Accuracy Stat Badge (% got this right) -->
-        <LinearLayout
-            android:id="@+id/layoutAccuracyStat"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                style="@style/TextAppearance.Eve.Footnote.Medium"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="📊"
-                android:textColor="?attr/eveLabelPrimary" />
-
-            <TextView
-                android:id="@+id/tvAccuracyStat"
-                style="@style/TextAppearance.Eve.Footnote.Medium"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:text="--% got this right"
-                android:textColor="?attr/eveLabelSecondary" />
-        </LinearLayout>
-
-        <!-- 5. Time Information (When Available) -->
-        <LinearLayout
-            android:id="@+id/layoutTimeInsight"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_recovery_inset"
-            android:orientation="vertical"
-            android:padding="12dp">
-
-            <TextView
-                style="@style/TextAppearance.Eve.Overline"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TIME ANALYSIS"
-                android:textColor="?attr/eveLabelSecondary" />
-
-            <!-- You Row -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    style="@style/TextAppearance.Eve.Footnote.Medium"
-                    android:layout_width="32dp"
-                    android:layout_height="wrap_content"
-                    android:text="You"
-                    android:textColor="@color/eve_text" />
-
-                <ProgressBar
-                    android:id="@+id/pbTimeYou"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="0dp"
-                    android:layout_height="6dp"
-                    android:layout_marginHorizontal="8dp"
-                    android:layout_weight="1"
-                    android:max="100" />
-
-                <TextView
-                    android:id="@+id/tvTimeYou"
-                    style="@style/TextAppearance.Eve.Footnote.Medium"
-                    android:layout_width="40dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:textColor="@color/eve_text" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnViewSolution" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_screen_margin" android:text="View Solution" app:icon="@drawable/ic_visibility" app:iconGravity="textStart" app:iconPadding="@dimen/design_card_gap" />
+        <LinearLayout android:id="@+id/layoutSolutionDetails" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <TextView android:id="@+id/tvYourAnswer" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="match_parent" android:layout_height="wrap_content" />
+            <TextView android:id="@+id/tvCorrectAnswer" style="@style/TextAppearance.Eve.Token.Body.green" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" />
+            <LinearLayout android:id="@+id/layoutAccuracyStat" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+                <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📊" />
+                <TextView android:id="@+id/tvAccuracyStat" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_row_gap" android:text="--% got this right" />
             </LinearLayout>
-
-            <!-- Avg Row -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    style="@style/TextAppearance.Eve.Footnote.Medium"
-                    android:layout_width="32dp"
-                    android:layout_height="wrap_content"
-                    android:text="Avg"
-                    android:textColor="?attr/eveLabelSecondary" />
-
-                <ProgressBar
-                    android:id="@+id/pbTimeAvg"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="0dp"
-                    android:layout_height="6dp"
-                    android:layout_marginHorizontal="8dp"
-                    android:layout_weight="1"
-                    android:max="100" />
-
-                <TextView
-                    android:id="@+id/tvTimeAvg"
-                    style="@style/TextAppearance.Eve.Footnote.Medium"
-                    android:layout_width="40dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:textColor="?attr/eveLabelSecondary" />
+            <LinearLayout android:id="@+id/layoutTimeInsight" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:orientation="vertical" style="@style/Widget.Eve.Token.Tile" android:clipChildren="false" android:clipToPadding="false">
+                <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="TIME ANALYSIS" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+                    <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="@dimen/design_pill_height" android:layout_height="wrap_content" android:text="You" />
+                    <ProgressBar android:id="@+id/pbTimeYou" style="?android:attr/progressBarStyleHorizontal" android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_row_gap" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_weight="1" android:max="100" />
+                    <TextView android:id="@+id/tvTimeYou" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="@dimen/design_tab_height" android:layout_height="wrap_content" android:gravity="end" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+                    <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="@dimen/design_pill_height" android:layout_height="wrap_content" android:text="Avg" />
+                    <ProgressBar android:id="@+id/pbTimeAvg" style="?android:attr/progressBarStyleHorizontal" android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_row_gap" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_weight="1" android:max="100" />
+                    <TextView android:id="@+id/tvTimeAvg" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="@dimen/design_tab_height" android:layout_height="wrap_content" android:gravity="end" />
+                </LinearLayout>
+                <TextView android:id="@+id/tvTimeInsightMessage" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" />
             </LinearLayout>
-
-            <!-- Message -->
-            <TextView
-                android:id="@+id/tvTimeInsightMessage"
-                style="@style/TextAppearance.Eve.Footnote"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textColor="?attr/eveLabelPrimary" />
-        </LinearLayout>
-
-        <!-- 6. Explanation / Solution Section -->
-        <LinearLayout
-            android:id="@+id/layoutSolution"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:orientation="vertical">
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginBottom="12dp"
-                android:background="@color/eve_stroke" />
-
-            <!-- One-line correct summary -->
-            <TextView
-                android:id="@+id/tvCorrectSummary"
-                style="@style/TextAppearance.Eve.Result.ExplanationHeader"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/eve_text" />
-
-            <!-- Key Points Header -->
-            <LinearLayout
-                android:id="@+id/layoutKeyPointsHeader"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:contentDescription="Key Points"
-                    android:src="@drawable/ic_key"
-                    app:tint="@color/eve_system_blue" />
-
-                <TextView
-                    style="@style/TextAppearance.Eve.Eyebrow"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:text="KEY POINTS"
-                    android:textColor="@color/eve_accent_text" />
+            <LinearLayout android:id="@+id/layoutSolution" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_pill_padding" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+                <TextView android:id="@+id/tvCorrectSummary" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="match_parent" android:layout_height="wrap_content" />
+                <LinearLayout android:id="@+id/layoutKeyPointsHeader" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+                    <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Key Points" android:src="@drawable/ic_key" app:tint="@color/system_blue" />
+                    <TextView style="@style/TextAppearance.Eve.Token.Secondary.blue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_row_gap" android:text="KEY POINTS" />
+                </LinearLayout>
+                <TextView android:id="@+id/tvExplanation" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" />
             </LinearLayout>
-
-            <!-- Explanation with formatted bulleted concepts -->
-            <TextView
-                android:id="@+id/tvExplanation"
-                style="@style/TextAppearance.Eve.Result.ExplanationBody"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:lineSpacingMultiplier="1.25"
-                android:textColor="@color/eve_text" />
-        </LinearLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnToggleExplanation"
-            style="@style/Widget.Eve.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone" />
-
-        <!-- 7. Footer Report Action Link -->
-        <LinearLayout
-            android:id="@+id/layoutReportAction"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingVertical="4dp"
-            android:minHeight="48dp">
-
-            <ImageView
-                android:layout_width="14dp"
-                android:layout_height="14dp"
-                android:contentDescription="Report"
-                android:src="@drawable/ic_warning"
-                app:tint="@color/eve_status_warning" />
-
-            <TextView
-                style="@style/TextAppearance.Eve.Footnote.Medium"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:text="Report an issue with this question"
-                android:textColor="?attr/eveLabelSecondary" />
-        </LinearLayout>
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnToggleExplanation" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:visibility="gone" />
+            <LinearLayout android:id="@+id/layoutReportAction" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_pill_padding" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:orientation="horizontal" android:minHeight="@dimen/design_touch_min" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+                <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Report" android:src="@drawable/ic_warning" app:tint="@color/system_orange" />
+                <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_row_gap" android:text="Report an issue with this question" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+</com.eve.app.designsystem.DesignCardView>

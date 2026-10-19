@@ -44,7 +44,7 @@ class EmptyStateView @JvmOverloads constructor(
                 binding.lottieEmpty.layoutParams.width = (140 * density).toInt()
                 binding.lottieEmpty.layoutParams.height = (140 * density).toInt()
                 binding.lottieEmpty.requestLayout()
-                binding.tvEmptyTitle.textSize = 17f
+                com.eve.app.designsystem.DesignType.apply(binding.tvEmptyTitle, com.eve.app.designsystem.DesignType.Role.HEADING)
             }
             DisplayMode.COMPACT -> {
                 binding.layoutEmptyRoot.setPadding(
@@ -56,7 +56,7 @@ class EmptyStateView @JvmOverloads constructor(
                 binding.lottieEmpty.layoutParams.width = (76 * density).toInt()
                 binding.lottieEmpty.layoutParams.height = (76 * density).toInt()
                 binding.lottieEmpty.requestLayout()
-                binding.tvEmptyTitle.textSize = 14f
+                com.eve.app.designsystem.DesignType.apply(binding.tvEmptyTitle, com.eve.app.designsystem.DesignType.Role.SECONDARY)
             }
         }
     }

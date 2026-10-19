@@ -1,114 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    style="@style/Widget.Eve.Home.Card"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginHorizontal="@dimen/eve_home_screen_margin"
-    android:layout_marginVertical="@dimen/eve_home_card_gap_half"
-    android:clickable="true"
-    android:focusable="true"
-    app:cardCornerRadius="@dimen/eve_home_card_radius"
-    app:cardElevation="@dimen/eve_home_card_elevation"
-    app:cardMaxElevation="@dimen/eve_home_card_elevation"
-    app:cardBackgroundColor="@color/eve_home_card"
-    app:strokeWidth="@dimen/eve_space_0"
-    app:strokeColor="@android:color/transparent"
-    android:stateListAnimator="@animator/press_scale"
-    app:rippleColor="@color/eve_ripple"
-    android:minHeight="@dimen/eve_list_row_min">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="@dimen/eve_home_card_padding">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                style="@style/TextAppearance.Eve.Home.PillLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="@dimen/eve_home_pill_padding_horizontal"
-                android:paddingVertical="@dimen/eve_space_4"
-                android:text="📢 Feedback"
-                android:textColor="@color/eve_home_accent" />
-
-            <View
-                android:layout_width="@dimen/eve_space_0"
-                android:layout_height="@dimen/eve_home_hairline_stroke"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/tvFeedbackPostDate"
-                style="@style/TextAppearance.Eve.Home.Secondary"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/eve_home_text_secondary" />
+<?xml version='1.0' encoding='utf-8'?>
+<com.eve.app.designsystem.DesignCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" style="@style/Widget.Eve.Token.Card" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginVertical="@dimen/design_zero" android:clickable="true" android:focusable="true" app:rippleColor="@color/design_role_ripple" android:minHeight="@dimen/eve_list_row_min" android:layout_marginBottom="@dimen/design_card_gap">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📢 Feedback" />
+            <View android:layout_width="@dimen/eve_space_0" android:layout_height="@dimen/eve_home_hairline_stroke" android:layout_weight="1" />
+            <TextView android:id="@+id/tvFeedbackPostDate" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" />
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvFeedbackPostTitle"
-            style="@style/TextAppearance.Eve.Home.CardTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/eve_space_8"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="@color/eve_home_text_primary" />
-
-        <TextView
-            android:id="@+id/tvFeedbackPostMessage"
-            style="@style/TextAppearance.Eve.Home.CardBody"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/eve_space_4"
-            android:textColor="@color/eve_home_text_primary" />
-
-        <!-- Inline Reply Box (Task B, Item 4) -->
-        <LinearLayout
-            android:id="@+id/layoutReplyBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/eve_space_12"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/etReplyText"
-                style="@style/TextAppearance.Eve.Footnote"
-                android:layout_width="@dimen/eve_space_0"
-                android:layout_height="wrap_content"
-                android:minHeight="@dimen/eve_segment_min_height"
-                android:layout_weight="1"
-                android:background="@drawable/bg_edit_text_rounded"
-                android:hint="Type your reply..."
-                android:imeOptions="actionSend"
-                android:inputType="textCapSentences"
-                android:maxLength="500"
-                android:maxLines="2"
-                android:paddingHorizontal="@dimen/eve_space_12"
-                android:paddingVertical="@dimen/eve_space_8"
-                android:textColor="@color/eve_text"
-                android:textColorHint="@color/eve_placeholder_text" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSendReply"
-                style="@style/Widget.Eve.Button.Primary"
-                android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/eve_space_8"
-                android:paddingHorizontal="@dimen/eve_space_14"
-                android:text="Reply"
-                android:minHeight="@dimen/eve_control_min_touch"
-                android:paddingVertical="@dimen/eve_space_8" />
+        <TextView android:id="@+id/tvFeedbackPostTitle" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/eve_space_8" android:ellipsize="end" android:maxLines="1" />
+        <TextView android:id="@+id/tvFeedbackPostMessage" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/eve_space_4" />
+        <LinearLayout android:id="@+id/layoutReplyBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/eve_space_12" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <EditText android:id="@+id/etReplyText" style="@style/Widget.Eve.Token.Input" android:layout_width="@dimen/eve_space_0" android:layout_height="@dimen/design_input_height" android:layout_weight="1" android:hint="Type your reply..." android:imeOptions="actionSend" android:inputType="textCapSentences" android:maxLength="500" android:maxLines="2" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnSendReply" style="@style/Widget.Eve.Token.Button" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/eve_space_8" android:text="Reply" />
         </LinearLayout>
     </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+</com.eve.app.designsystem.DesignCardView>

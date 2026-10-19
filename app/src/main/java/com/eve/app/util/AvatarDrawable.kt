@@ -22,22 +22,12 @@ import java.util.Locale
  * and renders centered bold initials with accessible foreground contrast over a circle.
  */
 class AvatarDrawable(
+    private val context: Context,
     private val initials: String,
     private val colorIndex: Int
 ) : Drawable() {
 
     companion object {
-        // Telegram's 7 signature avatar gradient color pairs
-        private val GRADIENTS = arrayOf(
-            intArrayOf(Color.parseColor("#E17076"), Color.parseColor("#FF885E")), // 0: Red
-            intArrayOf(Color.parseColor("#FAA774"), Color.parseColor("#FF7E40")), // 1: Orange
-            intArrayOf(Color.parseColor("#A695E7"), Color.parseColor("#7B62D9")), // 2: Violet
-            intArrayOf(Color.parseColor("#7BC862"), Color.parseColor("#5FA946")), // 3: Green
-            intArrayOf(Color.parseColor("#6EC9CB"), Color.parseColor("#45AEB1")), // 4: Cyan
-            intArrayOf(Color.parseColor("#65AADD"), Color.parseColor("#3F82C6")), // 5: Blue
-            intArrayOf(Color.parseColor("#EE7AAE"), Color.parseColor("#D45591"))  // 6: Pink
-        )
-
         fun extractInitials(name: String?): String {
             val clean = name?.trim() ?: ""
             if (clean.isBlank()) return "?"
@@ -55,20 +45,20 @@ class AvatarDrawable(
 
         fun getColorIndex(key: String?): Int {
             if (key.isNullOrBlank()) return 5 // Default blue
-            return Math.floorMod(key.hashCode(), GRADIENTS.size)
+            return Math.floorMod(key.hashCode(), 7)
         }
 
-        fun create(name: String?, id: String? = null): AvatarDrawable {
+        fun create(context: Context, name: String?, id: String? = null): AvatarDrawable {
             val key = id?.takeIf { it.isNotBlank() } ?: name ?: ""
             val initials = extractInitials(name)
             val index = getColorIndex(key)
-            return AvatarDrawable(initials, index)
+            return AvatarDrawable(context, initials, index)
         }
 
         fun createBitmap(context: Context, sizePx: Int, name: String?, id: String? = null): Bitmap {
             val bmp = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bmp)
-            val drawable = create(name, id)
+            val drawable = create(context, name, id)
             drawable.setTextTypeface(FontManager.typeface(context, bold = true))
             drawable.setBounds(0, 0, sizePx, sizePx)
             drawable.draw(canvas)
@@ -78,9 +68,9 @@ class AvatarDrawable(
 
     private val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.WHITE
+        color = com.eve.app.designsystem.DesignTokens.color(context, R.attr.designOnAccent)
         textAlign = Paint.Align.CENTER
-        typeface = Typeface.DEFAULT_BOLD
+        typeface = FontManager.typeface(context, bold = true)
     }
 
     fun setTextTypeface(tf: Typeface) {
@@ -92,29 +82,11 @@ class AvatarDrawable(
         super.onBoundsChange(bounds)
         if (bounds.width() <= 0 || bounds.height() <= 0) return
 
-        val colors = GRADIENTS[Math.floorMod(colorIndex, GRADIENTS.size)].copyOf()
-        fun minimumContrast(foreground: Int) = colors.minOf { androidx.core.graphics.ColorUtils.calculateContrast(foreground, it) }
-        val whiteContrast = minimumContrast(Color.WHITE)
-        val blackContrast = minimumContrast(Color.BLACK)
-        textPaint.color = if (blackContrast > whiteContrast) Color.BLACK else Color.WHITE
-        if (maxOf(whiteContrast, blackContrast) < 4.5) {
-            // Preserve the identity hue, with an accessible white-label gradient.
-            for (i in colors.indices) {
-                while (androidx.core.graphics.ColorUtils.calculateContrast(Color.WHITE, colors[i]) < 4.5) {
-                    colors[i] = androidx.core.graphics.ColorUtils.blendARGB(colors[i], Color.BLACK, .05f)
-                }
-            }
-            textPaint.color = Color.WHITE
-        }
-        bgPaint.shader = LinearGradient(
-            bounds.left.toFloat(), bounds.top.toFloat(),
-            bounds.right.toFloat(), bounds.bottom.toFloat(),
-            colors, null, Shader.TileMode.CLAMP
-        )
+        bgPaint.shader = null
+        bgPaint.color = com.eve.app.designsystem.DesignTokens.accent(context)
+        textPaint.color = com.eve.app.designsystem.DesignTokens.color(context, R.attr.designOnAccent)
+        textPaint.textSize = context.resources.getDimension(R.dimen.design_type_heading)
 
-        // Text size proportional to avatar radius
-        val diameter = minOf(bounds.width(), bounds.height()).toFloat()
-        textPaint.textSize = if (initials.length > 1) diameter * 0.40f else diameter * 0.46f
     }
 
     override fun draw(canvas: Canvas) {

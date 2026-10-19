@@ -40,9 +40,9 @@ flow, and all other features. Token resources are in `design_*.xml`.
 
 ### A. Native Android client (`app/`)
 - Technology: Kotlin, AndroidX, Material 3, ViewBinding, MVVM.
-- Test engine: `TestActivity.kt`, `CircularTimerView.kt`, `QuestionFitHelper.kt` (rigid no-scroll test viewport, 2x2 action button grid, question palette, Hindi/English font sizing, server-evaluated submissions).
+- Test engine: `TestActivity.kt`, `CircularTimerView.kt`, `QuestionAdapter.kt` (scrollable question/options content, 2x2 action button grid, question palette, server-evaluated submissions).
 - Result and analytics: `ResultActivity.kt`, `ResultDetailActivity.kt` (single-screen summary cards, Statistics, Performance, Analytics, Review tab with isolated scroll, Leaderboard).
-- Home and discovery: `MainActivity.kt`, `HomePanelWashDrawable.kt` (light pastel wash grid, dark surface parity, single rotating banner surface, cached streak pill with looping flame).
+- Home and discovery: `MainActivity.kt`, `HomeAppearance.kt` (plain themed canvas, single rotating content banner surface, cached streak pill with looping flame).
 - Theme and transitions: `ThemeSwitchAnimator.kt`, `SystemBarHelper.kt`, `ThemeManager.kt` (Telegram-style circular reveal Day/Night animation, status/nav bar icon sync).
 - EVE UI Studio (`UiStudioActivity.kt`, `UiStudioRegistry.kt`, `UiStudioEngine.kt`): RETIRED. Do not extend or redesign it. Retain historical migrations and production data.
 
@@ -65,7 +65,7 @@ flow, and all other features. Token resources are in `design_*.xml`.
    are transitional until the screen migration and evidence-based cleanup finish.
 2. The Telegram-style circular reveal Day/Night transition must never be degraded.
 3. Server-side test timer, question layout fitting, and submit mechanics must never be replaced by client-only logic.
-4. Blur is applied only to the allowed chrome and modal backdrop layers, never over foreground text, images, icons or Lottie animations.
+4. Blur is applied only to top bars, bottom bars and menus, never over foreground text, images, icons or Lottie animations. Dialogs and sheets are solid surfaces.
 5. Test scoring, ranking, and answer visibility stay server-authoritative.
 
 ## 4. Verification (run for the layer you changed; both if the change spans both)

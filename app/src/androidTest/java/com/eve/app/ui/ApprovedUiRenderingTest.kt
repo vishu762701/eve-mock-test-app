@@ -44,7 +44,7 @@ class ApprovedUiRenderingTest {
         assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP,
             value.toFloat(), context.resources.displayMetrics), view.textSize, 0.51f)
     private val foreground get() = if (dark) Color.WHITE else Color.BLACK
-    private val canvasBackground get() = if (dark) Color.BLACK else Color.WHITE
+    private val canvasBackground get() = if (dark) Color.BLACK else color("#F5F5F5")
     private val appBackground get() = if (dark) Color.BLACK else color("#F5F5F5")
     private val buttonText get() = if (dark) Color.BLACK else Color.WHITE
     private fun color(value: String) = Color.parseColor(value)
@@ -93,19 +93,19 @@ class ApprovedUiRenderingTest {
             val holder = adapter.onCreateViewHolder(FrameLayout(scaledContext), 0)
             adapter.onBindViewHolder(holder, 0)
             val p = ItemPaletteCircleBinding.bind(holder.itemView)
-            assertEquals(pixels(38), p.cardCircle.layoutParams.width)
-            assertEquals(pixels(38), p.cardCircle.layoutParams.height)
-            assertEquals(pixels(38) / 2f, p.cardCircle.radius, 0.01f)
-            assertEquals(pixels(1), p.cardCircle.strokeWidth)
+            assertEquals(pixels(32), p.cardCircle.layoutParams.width)
+            assertEquals(pixels(32), p.cardCircle.layoutParams.height)
+            assertEquals(pixels(32) / 2f, p.cardCircle.radius, 0.01f)
+            assertEquals(0, p.cardCircle.strokeWidth)
             assertEquals("Total palette gap must be rounded once, not each half", pixels(8), p.root.paddingLeft + p.root.paddingRight)
             val qAdapter = QuestionAdapter(listOf(Question()), { "" }, { _, _ -> }, { false }, {}, { false }, {}, { 0L })
             val qHolder = qAdapter.onCreateViewHolder(FrameLayout(scaledContext), 0)
             qAdapter.onBindViewHolder(qHolder, 0)
             val q = ItemQuestionBinding.bind(qHolder.itemView)
-            assertEquals(pixels(56), q.rbA.minHeight)
-            assertEquals(pixels(12), q.rbA.paddingTop)
-            assertEquals(pixels(12), q.rbA.paddingRight)
-            assertEquals(pixels(44), q.rbA.paddingLeft)
+            assertEquals(pixels(48), q.rbA.minHeight)
+            assertEquals(pixels(10), q.rbA.paddingTop)
+            assertEquals(pixels(10), q.rbA.paddingRight)
+            assertEquals(pixels(10), q.rbA.paddingLeft)
             // XML resolves each 4dp/6dp margin separately at fractional density.
             val footer = ActivityTestBinding.inflate(LayoutInflater.from(scaledContext))
             fun margins(button: View) = (button.parent as View).layoutParams as ViewGroup.MarginLayoutParams
@@ -133,11 +133,11 @@ class ApprovedUiRenderingTest {
 
     private fun verifyHome() {
         val b = ActivityMainBinding.inflate(LayoutInflater.from(context))
-        assertEquals(context.getColor(R.color.eve_home_background), (b.mainContentContainer.background as ColorDrawable).color)
-        assertEquals(appBackground, context.getColor(R.color.eve_bg))
-        assertEquals(canvasBackground, context.getColor(R.color.eve_canvas))
+        assertEquals(context.getColor(R.color.bg_app), (b.root.background as ColorDrawable).color)
+        assertEquals(appBackground, context.getColor(R.color.text_primary))
+        assertEquals(canvasBackground, context.getColor(R.color.bg_app))
         listOf(b.btnSearch, b.btnNotification, b.btnOverflow).forEach { bare(it) }
-        assertEquals(Color.TRANSPARENT, ((b.btnNotification.parent as View).background as ColorDrawable).color)
+        assertNull((b.btnNotification.parent as View).background)
         assertEquals(dp(48), b.ivProfile.layoutParams.width)
         assertEquals(dp(48), b.ivProfile.layoutParams.height)
         assertEquals(View.GONE, b.cardFloatingAirplane.visibility)
@@ -145,13 +145,13 @@ class ApprovedUiRenderingTest {
         b.panelHomeBanner.visibility = View.VISIBLE
         HomeAppearance.clipBanner(b.panelHomeBanner)
         b.vpHomeBanners.visibility = View.INVISIBLE // no network banner image in fixture
-        b.homeBannerMatte.setBackgroundColor(context.getColor(R.color.eve_home_banner_matte))
+        b.homeBannerMatte.setBackgroundColor(context.getColor(R.color.text_primary))
         val categories = HomeAppearance.categories(listOf("SSC", "Other", "Banking"))
         assertEquals(listOf("All", "Other", "Banking", "SSC"), categories)
         var clicked = false
         categories.forEach { category ->
             val chip = HomeAppearance.categoryChip(context, category, "All") { clicked = true }
-            assertEquals(context.resources.getDimension(R.dimen.eve_home_pill_radius), chip.chipCornerRadius, 0.01f)
+            assertEquals(context.resources.getDimension(R.dimen.design_pill_height) / 2, chip.chipCornerRadius, 0.01f)
             b.chipGroupCategory.addView(chip)
         }
         b.chipGroupCategory.getChildAt(1).performClick()
@@ -162,7 +162,7 @@ class ApprovedUiRenderingTest {
         b.rvExams.adapter = adapter
         val holder = adapter.onCreateViewHolder(FrameLayout(context), adapter.getItemViewType(0))
         adapter.onBindViewHolder(holder, 0)
-        assertEquals(context.resources.getDimension(R.dimen.eve_home_card_radius), ItemExamBinding.bind(holder.itemView).root.radius, 0.01f)
+        assertEquals(context.resources.getDimension(R.dimen.design_radius_card), ItemExamBinding.bind(holder.itemView).root.radius, 0.01f)
         measure(b.root)
         val outline = Outline()
         b.panelHomeBanner.outlineProvider.getOutline(b.panelHomeBanner, outline)
@@ -174,21 +174,21 @@ class ApprovedUiRenderingTest {
     private fun button(view: MaterialButton, height: Int, font: Int, stroke: Int) {
         assertEquals(dp(height), view.height)
         sp(view, font)
-        assertEquals(dp(16), view.paddingStart)
-        assertEquals(dp(16), view.paddingEnd)
+        assertEquals(dp(14), view.paddingStart)
+        assertEquals(dp(14), view.paddingEnd)
         assertEquals(dp(stroke), view.strokeWidth)
-        assertEquals(foreground, view.strokeColor!!.defaultColor)
-        assertEquals(foreground, view.backgroundTintList!!.defaultColor)
-        assertEquals(buttonText, view.currentTextColor)
+        val primary = view.id == R.id.btnNext
+        assertEquals(context.getColor(if (primary) R.color.accent else R.color.track), view.backgroundTintList!!.defaultColor)
+        assertEquals(context.getColor(if (primary) R.color.on_accent else R.color.text_primary), view.currentTextColor)
         assertEquals(0f, view.elevation, 0.01f)
-        assertEquals(view.height / 2f, view.shapeAppearanceModel.topLeftCornerSize.getCornerSize(android.graphics.RectF(0f, 0f, view.width.toFloat(), view.height.toFloat())), 1f)
+        assertEquals(context.resources.getDimension(R.dimen.design_button_height) / 2,
+            view.shapeAppearanceModel.topLeftCornerSize.getCornerSize(android.graphics.RectF(0f, 0f, view.width.toFloat(), context.resources.getDimension(R.dimen.design_button_height))), 1f)
     }
 
     private fun verifyMock() {
         val b = ActivityTestBinding.inflate(LayoutInflater.from(context))
-        assertEquals(canvasBackground, (b.root.background as ColorDrawable).color)
-        assertEquals(if (dark) Color.BLACK else color("#EEEEF0"),
-            (b.rvQuestionPalette.background as ColorDrawable).color)
+        assertEquals(appBackground, (b.root.background as ColorDrawable).color)
+        assertNull(b.rvQuestionPalette.background)
         b.tvTestTitle.text = "Practice Test"
         b.circularTimerView.setTime(1800, 1800)
         val questions = List(60) { Question(questionText = "Which number is a prime number?",
@@ -204,10 +204,10 @@ class ApprovedUiRenderingTest {
             0 -> PaletteState.ANSWERED; 1 -> PaletteState.MARKED; else -> PaletteState.UNATTEMPTED }, it == 0) })
         b.rvQuestionPalette.adapter = palette
         measure(b.root)
-        button(b.btnClear, 48, 13, 1)
-        button(b.btnMarkReview, 48, 13, 1)
-        button(b.btnPrev, 48, 14, 1)
-        button(b.btnNext, 48, 14, 0)
+        button(b.btnClear, 48, 16, 0)
+        button(b.btnMarkReview, 48, 16, 0)
+        button(b.btnPrev, 48, 16, 0)
+        button(b.btnNext, 48, 16, 0)
         // At the required 360dp viewport the weighted row can have an odd pixel
         // available at 420dpi: preserve the total width and split it evenly.
         val previousHost = b.btnPrev.parent as View
@@ -217,9 +217,9 @@ class ApprovedUiRenderingTest {
         assertTrue(kotlin.math.abs(previousHost.width - nextHost.width) <= 1)
         assertEquals((previousHost.parent as View).width,
             previousHost.width + nextHost.width + (nextHost.left - previousHost.right))
-        assertEquals(dp(16), b.layoutBottomBar.paddingStart)
-        assertEquals(dp(16), b.layoutBottomBar.paddingEnd)
-        assertEquals(dp(20), b.layoutBottomBar.paddingTop)
+        assertEquals(0, b.layoutBottomBar.paddingStart)
+        assertEquals(0, b.layoutBottomBar.paddingEnd)
+        assertEquals(0, b.layoutBottomBar.paddingTop)
         fun gap(first: View, second: View): Int {
             val a = first.parent as View; val c = second.parent as View
             return c.left - a.right
@@ -231,19 +231,19 @@ class ApprovedUiRenderingTest {
         val actionRow = b.btnClear.parent.parent as View
         assertEquals(dp(20), navigationRow.top - actionRow.bottom)
         b.btnMarkReview.isSelected = true
-        assertEquals(color("#FFCC00"), b.btnMarkReview.backgroundTintList!!.getColorForState(b.btnMarkReview.drawableState, 0))
-        assertEquals(Color.BLACK, b.btnMarkReview.currentTextColor)
+        assertEquals(context.getColor(R.color.system_yellow), b.btnMarkReview.backgroundTintList!!.getColorForState(b.btnMarkReview.drawableState, 0))
+        assertEquals(context.getColor(R.color.solid_black), b.btnMarkReview.currentTextColor)
         b.btnMarkReview.isSelected = false
-        assertEquals(dp(44), b.circularTimerView.width)
+        assertEquals(dp(72), b.circularTimerView.width)
         assertEquals(b.circularTimerView.width, b.circularTimerView.height)
         fun timerPaint(name: String) = CircularTimerView::class.java.getDeclaredField(name).apply { isAccessible = true }
             .get(b.circularTimerView) as Paint
-        assertEquals(2f * density, timerPaint("progressPaint").strokeWidth, 0.01f)
+        assertEquals(4f * density, timerPaint("progressPaint").strokeWidth, 0.01f)
         assertEquals(foreground, timerPaint("progressPaint").color)
-        assertEquals(12f * context.resources.displayMetrics.scaledDensity, timerPaint("textPaint").textSize, 0.01f)
+        assertEquals(14f * context.resources.displayMetrics.scaledDensity, timerPaint("textPaint").textSize, 0.01f)
         bitmap(b.circularTimerView).useBitmap { image ->
-            assertEquals(appBackground, image.getPixel(dp(22), dp(8)))
-            assertEquals(foreground, image.getPixel(dp(22), dp(1)))
+            assertEquals(Color.TRANSPARENT, image.getPixel(dp(36), dp(8)))
+            assertEquals(foreground, image.getPixel(dp(36), dp(2)))
         }
         val holder = adapter.onCreateViewHolder(FrameLayout(context), 0)
         adapter.onBindViewHolder(holder, 0)
@@ -251,8 +251,8 @@ class ApprovedUiRenderingTest {
         measure(q.root, 360, 590)
         assertNull(q.questionContainer.background)
         assertNull(q.tvQuestion.background)
-        sp(q.tvQuestion, 16)
-        assertEquals(1.5f, q.tvQuestion.lineSpacingMultiplier, 0.01f)
+        sp(q.tvQuestion, 17)
+        assertEquals(1f, q.tvQuestion.lineSpacingMultiplier, 0.01f)
         assertEquals(Gravity.LEFT, q.tvQuestion.gravity and Gravity.HORIZONTAL_GRAVITY_MASK)
         assertEquals(dp(16), q.optionsMaterialHost.top - q.questionContainer.bottom)
         listOf(q.btnBookmark, q.btnReport).forEach { bare(it) }
@@ -260,26 +260,18 @@ class ApprovedUiRenderingTest {
         q.btnReport.performClick(); assertTrue(report)
         val options = listOf(q.rbA, q.rbB, q.rbC, q.rbD)
         options.forEachIndexed { index, option ->
-            sp(option, 14)
-            assertEquals(dp(56), option.minHeight)
-            assertEquals(dp(12), option.paddingTop)
-            assertEquals(dp(12), option.paddingBottom)
-            assertEquals(dp(12), option.paddingRight)
-            assertEquals(dp(44), option.paddingLeft) // 12 inset + 20 indicator + 12 text gap
-            if (index < 3) assertEquals(dp(10), options[index + 1].top - option.bottom)
+            sp(option, 17)
+            assertEquals(dp(48), option.minHeight)
+            assertEquals(dp(10), option.paddingTop)
+            assertEquals(dp(10), option.paddingBottom)
+            assertEquals(dp(10), option.paddingRight)
+            assertEquals(dp(10), option.paddingLeft)
+            if (index < 3) assertEquals(dp(6), options[index + 1].top - option.bottom)
             val surface = (option.background as StateListDrawable).current as GradientDrawable
-            assertEquals(14f * density, surface.cornerRadius, 0.01f)
-            assertEquals(if (option.isChecked) color("#34C759") else context.getColor(R.color.eve_test_option_bg), surface.color!!.defaultColor)
-        }
-        assertEquals(if (dark) color("#111111") else color("#F3F3F5"), context.getColor(R.color.eve_test_option_bg))
-        val ring = TelegramRadioButton::class.java.getDeclaredField("ringPaint").apply { isAccessible = true }
-            .get(q.rbA) as Paint
-        bitmap(q.rbA).useBitmap { image ->
-            assertEquals(2f * density, ring.strokeWidth, 0.01f)
-            assertEquals(foreground, ring.color)
-            // Outer diameter 20dp, centered at x=22dp; surrounding surface has no option stroke.
-            assertEquals(context.getColor(R.color.eve_test_option_bg), image.getPixel(dp(10), image.height / 2))
-            assertEquals(context.getColor(R.color.eve_test_option_bg), image.getPixel(dp(34), image.height / 2))
+            assertEquals(16f * density, surface.cornerRadius, 0.01f)
+            assertEquals(context.getColor(if (option.isChecked) R.color.accent else R.color.surface_inset), surface.color!!.defaultColor)
+            assertEquals(context.getColor(if (option.isChecked) R.color.on_accent else R.color.text_primary), option.currentTextColor)
+            assertNotNull(option.buttonDrawable)
         }
         assertEquals(60, palette.itemCount)
         for (state in PaletteState.values()) {
@@ -287,21 +279,21 @@ class ApprovedUiRenderingTest {
             val ph = palette.onCreateViewHolder(FrameLayout(context), 0)
             palette.onBindViewHolder(ph, 0)
             val p = ItemPaletteCircleBinding.bind(ph.itemView)
-            assertEquals(dp(38), p.cardCircle.layoutParams.width)
-            assertEquals(dp(38), p.cardCircle.layoutParams.height)
-            assertEquals(dp(38) / 2f, p.cardCircle.radius, 0.01f)
-            assertEquals(dp(1), p.cardCircle.strokeWidth)
+            assertEquals(dp(32), p.cardCircle.layoutParams.width)
+            assertEquals(dp(32), p.cardCircle.layoutParams.height)
+            assertEquals(dp(32) / 2f, p.cardCircle.radius, 0.01f)
+            assertEquals(0, p.cardCircle.strokeWidth)
             assertEquals(foreground, p.cardCircle.strokeColor)
             // Palette spacing rounds its total 8dp once, then distributes pixels.
             assertEquals(dp(8) / 2, p.root.paddingLeft)
             assertEquals(dp(8) - dp(8) / 2, p.root.paddingRight)
-            sp(p.tvCircleNumber, 12)
+            sp(p.tvCircleNumber, 14)
             val expected = when (state) {
-                PaletteState.ANSWERED -> color("#34C759")
-                PaletteState.MARKED, PaletteState.ANSWERED_MARKED -> color("#FFCC00")
-                PaletteState.UNATTEMPTED, PaletteState.VISITED -> context.getColor(R.color.eve_test_option_bg)
-                PaletteState.CORRECT -> context.getColor(R.color.eve_tile_right_fill)
-                PaletteState.WRONG -> context.getColor(R.color.eve_tile_wrong_fill)
+                PaletteState.ANSWERED -> context.getColor(R.color.system_green)
+                PaletteState.MARKED, PaletteState.ANSWERED_MARKED -> context.getColor(R.color.system_yellow)
+                PaletteState.UNATTEMPTED, PaletteState.VISITED -> context.getColor(R.color.surface_inset)
+                PaletteState.CORRECT -> context.getColor(R.color.system_green_container)
+                PaletteState.WRONG -> context.getColor(R.color.system_red_container)
             }
             assertEquals(expected, p.cardCircle.cardBackgroundColor.defaultColor)
         }
@@ -310,15 +302,15 @@ class ApprovedUiRenderingTest {
         save(b.root, "mock-test")
         // Verify remaining time visibly depletes; the full static track must not conceal it.
         val half = CircularTimerView(context).apply { setTime(900, 1800) }
-        measure(half, 44, 44)
+        measure(half, 72, 72)
         bitmap(half).useBitmap { image ->
             // Native antialiasing blends the curved outer edge with the background.
             // Paint color/stroke assertions above remain exact.
-            val pixel = image.getPixel(dp(43), dp(22))
+            val pixel = image.getPixel(dp(70), dp(36))
             assertTrue("The remaining half-ring must render", listOf(
                 Color.red(pixel) - Color.red(foreground), Color.green(pixel) - Color.green(foreground),
                 Color.blue(pixel) - Color.blue(foreground)).all { kotlin.math.abs(it) <= 16 })
-            assertEquals(appBackground, image.getPixel(dp(1), dp(22)))
+            assertEquals(context.getColor(R.color.track), image.getPixel(dp(2), dp(36)))
         }
         b.viewPager.setCurrentItem(59, false)
         assertEquals(59, b.viewPager.currentItem)
@@ -339,8 +331,8 @@ class ApprovedUiRenderingTest {
         b.tvLeaderboardScoreChip.text = "Score: 78"
         b.tvLeaderboardPercentileChip.text = "Percentile: 97.4%"
         val margins = (b.tabLayoutResult.parent as View).layoutParams as ViewGroup.MarginLayoutParams
-        assertEquals(dp(16), margins.marginStart)
-        assertEquals(dp(16), margins.marginEnd)
+        assertEquals(dp(12), margins.marginStart)
+        assertEquals(dp(12), margins.marginEnd)
         assertEquals(dp(6), margins.topMargin)
         assertEquals(dp(6), margins.bottomMargin)
         assertEquals(0, b.tabLayoutResult.selectedTabPosition)
@@ -356,17 +348,17 @@ class ApprovedUiRenderingTest {
                 val strip = b.tabLayoutResult.getChildAt(0) as ViewGroup
                 assertEquals(image.width - b.tabLayoutResult.paddingLeft - b.tabLayoutResult.paddingRight, strip.width)
                 val x = ((index + 0.5f) * image.width / 3).toInt()
-                assertEquals("Selected pill must render for $name in dark=$dark", context.getColor(R.color.eve_result_tab_selected), image.getPixel(x, dp(8)))
-                assertEquals(context.getColor(R.color.eve_result_tab_track), image.getPixel(image.width / 2, dp(1)))
+                assertEquals("Selected pill must render for $name in dark=$dark", context.getColor(R.color.text_primary), image.getPixel(x, dp(8)))
+                assertEquals(context.getColor(R.color.track), image.getPixel(image.width / 2, dp(1)))
                 val cornerX = b.tabLayoutResult.paddingLeft + strip.getChildAt(index).right - dp(3) - dp(1)
-                val expectedCorner = if (index == 2) Color.TRANSPARENT else context.getColor(R.color.eve_result_tab_track)
+                val expectedCorner = if (index == 2) Color.TRANSPARENT else context.getColor(R.color.track)
                 assertEquals("Selected $name pill must retain its rounded right corner",
                     expectedCorner,
                     image.getPixel(cornerX, b.tabLayoutResult.paddingTop + dp(1)))
             }
             val colors = b.tabLayoutResult.tabTextColors!!
-            assertEquals(context.getColor(R.color.eve_result_tab_selected_text), colors.getColorForState(intArrayOf(android.R.attr.state_selected), 0))
-            assertEquals(context.getColor(R.color.eve_label_primary), colors.defaultColor)
+            assertEquals(context.getColor(R.color.text_primary), colors.getColorForState(intArrayOf(android.R.attr.state_selected), 0))
+            assertEquals(context.getColor(R.color.text_primary), colors.defaultColor)
             save(b.root, "result-${name.lowercase()}")
         }
     }

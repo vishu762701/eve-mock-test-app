@@ -86,14 +86,14 @@ class RepairRegressionTest {
                     return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).also { b.rbA.draw(Canvas(it)) }
                 }
                 pixels().also {
-                    assertEquals("A fresh option must have no animated dot", context.getColor(R.color.eve_test_option_bg), it.getPixel((22 * d).toInt(), height / 2))
+                    assertEquals("A fresh option must have no animated dot", context.getColor(R.color.surface_inset), it.getPixel((22 * d).toInt(), height / 2))
                     it.recycle()
                 }
                 adapter.onBindViewHolder(holder, 0)
                 pixels().also { assertEquals(Color.parseColor("#34C759"), it.getPixel((80 * d).toInt(), (4 * d).toInt())); it.recycle() }
                 b.rbB.performClick()
                 pixels().also {
-                    assertEquals("Changing answer immediately clears the old indicator", context.getColor(R.color.eve_test_option_bg), it.getPixel((22 * d).toInt(), height / 2))
+                    assertEquals("Changing answer immediately clears the old indicator", context.getColor(R.color.surface_inset), it.getPixel((22 * d).toInt(), height / 2))
                     it.recycle()
                 }
                 saved.remove(0); holder.clearSelection(); adapter.onBindViewHolder(holder, 1); adapter.onBindViewHolder(holder, 0)

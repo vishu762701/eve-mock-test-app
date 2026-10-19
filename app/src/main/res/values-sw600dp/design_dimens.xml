@@ -52,4 +52,6 @@
     <dimen name="design_type_button">16sp</dimen>
     <dimen name="design_line_button">22sp</dimen>
     <dimen name="design_button_touch_inset">2dp</dimen>
+    <dimen name="design_scroll_clearance">76dp</dimen>
+    <dimen name="design_row_with_gap">50dp</dimen>
 </resources>

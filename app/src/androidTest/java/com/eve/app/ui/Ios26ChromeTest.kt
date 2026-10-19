@@ -50,7 +50,7 @@ class Ios26ChromeTest {
                     assertEquals(34f * density, context.resources.getDimension(R.dimen.eve_radius_bottom_sheet), .01f)
                     val bitmap = Bitmap.createBitmap(root.width, root.height, Bitmap.Config.ARGB_8888)
                     val canvas = Canvas(bitmap)
-                    canvas.drawColor(context.getColor(R.color.eve_secondary_system_background))
+                    canvas.drawColor(context.getColor(R.color.surface_inset))
                     root.draw(canvas)
                     val values = android.content.ContentValues().apply {
                         put(android.provider.MediaStore.Images.Media.DISPLAY_NAME, "ios26-$name-${if (dark) "dark" else "light"}.png")

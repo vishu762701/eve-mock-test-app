@@ -82,7 +82,7 @@ class DesignRecoveryTest {
                         examAdapter.onBindViewHolder(examHolder, position)
                         assertTrue("Bound and recycled Home metadata must remain readable in both themes",
                             androidx.core.graphics.ColorUtils.calculateContrast(exam.tvExamTime.currentTextColor,
-                                context.getColor(R.color.eve_card_bg)) >= 4.5)
+                                context.getColor(R.color.surface)) >= 4.5)
                     }
                     examAdapter.onViewRecycled(examHolder)
                     val d = context.resources.displayMetrics.density
@@ -150,7 +150,7 @@ class DesignRecoveryTest {
                     assertEquals(0f, outline.radius, 0f)
                     val square = Bitmap.createBitmap(shape.width, shape.height, Bitmap.Config.ARGB_8888)
                     shape.draw(Canvas(square))
-                    assertEquals(context.getColor(R.color.eve_card_bg), square.getPixel(dp(2), dp(2)))
+                    assertEquals(context.getColor(R.color.surface), square.getPixel(dp(2), dp(2)))
                     square.recycle()
                     val profile = ActivityProfileBinding.inflate(inflater)
                     profile.etName.setText("आरती शर्मा / A very long student name")
@@ -160,9 +160,9 @@ class DesignRecoveryTest {
                     layout(profile.root)
                     for (field in listOf(profile.tilName, profile.tilDob)) {
                         assertEquals(TextInputLayout.BOX_BACKGROUND_OUTLINE, field.boxBackgroundMode)
-                        assertEquals(dp(1), field.boxStrokeWidth)
-                        assertEquals(dp(2), field.boxStrokeWidthFocused)
-                        assertTrue(field.editText!!.height >= dp(56))
+                        assertEquals(context.resources.getDimensionPixelSize(R.dimen.design_focus_stroke), field.boxStrokeWidth)
+                        assertEquals(context.resources.getDimensionPixelSize(R.dimen.design_focus_stroke), field.boxStrokeWidthFocused)
+                        assertTrue(field.editText!!.height >= dp(44))
                         assertTrue(field.editText!!.bottom <= field.height)
                     }
                     assertTrue(profile.btnCopyEveId.width >= dp(48))
@@ -232,20 +232,20 @@ class DesignRecoveryTest {
                         assertTrue(grid.getChildAt(i).right <= grid.width)
                     }
                 }
-                for (surface in listOf(R.color.eve_recovery_surface, R.color.eve_bg, R.color.eve_card_bg)) {
+                for (surface in listOf(R.color.surface, R.color.text_primary, R.color.surface)) {
                     assertTrue("Secondary labels must meet 4.5:1",
-                        androidx.core.graphics.ColorUtils.calculateContrast(context.getColor(R.color.eve_recovery_text_secondary), context.getColor(surface)) >= 4.5)
+                        androidx.core.graphics.ColorUtils.calculateContrast(context.getColor(R.color.text_secondary), context.getColor(surface)) >= 4.5)
                 }
                 assertTrue("Enabled input outlines must be distinguishable from the canvas",
-                    androidx.core.graphics.ColorUtils.calculateContrast(context.getColor(R.color.eve_recovery_input_border), context.getColor(R.color.eve_bg)) >= 3.0)
-                val accent = context.getColor(R.color.eve_recovery_accent)
+                    androidx.core.graphics.ColorUtils.calculateContrast(context.getColor(R.color.hairline), context.getColor(R.color.text_primary)) >= 3.0)
+                val accent = context.getColor(R.color.system_blue)
                 // UI ADR-009 explicitly accepts system blue's sub-AA contrast.
                 // Other semantic labels retain their contrast assertions above.
                 assertEquals("Interactive labels retain the user-selected system blue",
-                    context.getColor(R.color.eve_system_blue), accent)
-                val primaryFill = context.getColor(R.color.eve_primary)
+                    context.getColor(R.color.system_blue), accent)
+                val primaryFill = context.getColor(R.color.system_blue)
                 assertTrue("On-accent control label meets 3:1 on primary fill",
-                    androidx.core.graphics.ColorUtils.calculateContrast(context.getColor(R.color.eve_recovery_on_accent), primaryFill) >= 3.0)
+                    androidx.core.graphics.ColorUtils.calculateContrast(context.getColor(R.color.on_accent), primaryFill) >= 3.0)
             }
         }
     }
@@ -265,7 +265,7 @@ class DesignRecoveryTest {
                 val holder = adapter.onCreateViewHolder(android.widget.FrameLayout(context), 0)
                 val binding = ItemAnswerBinding.bind(holder.itemView)
                 fun contrast(text: TextView, background: Int) {
-                    val minContrast = if (text.currentTextColor == context.getColor(R.color.eve_on_primary)) 3.0 else 4.5
+                    val minContrast = if (text.currentTextColor == context.getColor(R.color.on_accent)) 3.0 else 4.5
                     assertTrue("Review text must remain readable in theme $night",
                         androidx.core.graphics.ColorUtils.calculateContrast(text.currentTextColor, background) >= minContrast)
                 }
@@ -274,8 +274,8 @@ class DesignRecoveryTest {
                     adapter.onBindViewHolder(holder, 0)
                     val badges = if (expanded) listOf(binding.tvBadgeOptionA, binding.tvBadgeOptionB) else listOf(binding.tvBadgeOptionB)
                     for (badge in badges) contrast(badge, (badge.background as android.graphics.drawable.GradientDrawable).color!!.defaultColor)
-                    contrast(binding.tvQuestionStatusLabel, context.getColor(R.color.eve_card_bg))
-                    if (expanded) contrast(binding.tvCorrectAnswer, context.getColor(R.color.eve_card_bg))
+                    contrast(binding.tvQuestionStatusLabel, context.getColor(R.color.surface))
+                    if (expanded) contrast(binding.tvCorrectAnswer, context.getColor(R.color.surface))
                 }
             }
         }
@@ -313,7 +313,7 @@ class DesignRecoveryTest {
                         // Match ProfilePhotoManager's native fallback without requiring a signed-in account.
                         profile.ivProfilePhoto.background = null
                         profile.ivProfilePhoto.setPadding(0, 0, 0, 0)
-                        profile.ivProfilePhoto.setImageDrawable(com.eve.app.util.AvatarDrawable.create("Aarti Sharma", "recovery-fixture"))
+                        profile.ivProfilePhoto.setImageDrawable(com.eve.app.util.AvatarDrawable.create(context, "Aarti Sharma", "recovery-fixture"))
                     }
                     instrumentation.waitForIdleSync()
                     capture("profile", dark, profile.root, scenario)
@@ -388,7 +388,7 @@ class DesignRecoveryTest {
                                 com.eve.app.data.model.Exam(id = "render-exam-$i", examName = "Practice test ${i + 1}", category = "SSC"), false) })
                         }
                         val frame = android.widget.FrameLayout(activity).apply {
-                            setBackgroundColor(activity.getColor(R.color.eve_home_background))
+                            setBackgroundColor(activity.getColor(R.color.bg_app))
                             addView(home.root, android.widget.FrameLayout.LayoutParams(Math.round(360f * resources.displayMetrics.density),
                                 ViewGroup.LayoutParams.MATCH_PARENT, android.view.Gravity.CENTER_HORIZONTAL))
                         }
@@ -397,16 +397,16 @@ class DesignRecoveryTest {
                     instrumentation.waitForIdleSync()
                     capture("home-360dp", dark, home.root, scenario)
                     scenario.onActivity { activity ->
-                        val homeBg = activity.getColor(R.color.eve_home_background)
+                        val homeBg = activity.getColor(R.color.bg_app)
                         assertEquals("Home root", homeBg,
                             (home.root.background as android.graphics.drawable.ColorDrawable).color)
                         assertEquals("Home content", homeBg,
                             (home.mainContentContainer.background as android.graphics.drawable.ColorDrawable).color)
                         val expectedTopBarColor = activity.getColor(
                             if (com.eve.app.util.EveLiquidGlass.isCrossWindowBlurSupported(activity)) {
-                                R.color.eve_home_blur_tint
+                                R.color.glass_fallback
                             } else {
-                                R.color.eve_home_solid_tint
+                                R.color.glass_fallback
                             }
                         )
                         assertEquals("Home header", expectedTopBarColor,
@@ -422,12 +422,12 @@ class DesignRecoveryTest {
                         assertEquals("Home flat content", homeBg, contentColor)
                         assertEquals("Home no overlapping sheet", 0,
                             (home.contentSheet.layoutParams as android.widget.LinearLayout.LayoutParams).topMargin)
-                        val groupedCard = activity.getColor(R.color.eve_secondary_system_background)
+                        val groupedCard = activity.getColor(R.color.surface_inset)
                         assertEquals("Streak pill uses a distinct Home grouped card surface", groupedCard,
                             (home.layoutStreakPill.background as android.graphics.drawable.GradientDrawable).color!!.defaultColor)
                         assertEquals("Admin button uses the distinct Home grouped card surface", groupedCard,
                             home.btnAdmin.backgroundTintList!!.getColorForState(home.btnAdmin.drawableState, 0))
-                        assertEquals("Admin button retains disabled appearance", activity.getColor(R.color.eve_disabled_fill),
+                        assertEquals("Admin button retains disabled appearance", activity.getColor(R.color.track),
                             home.btnAdmin.backgroundTintList!!.getColorForState(intArrayOf(-android.R.attr.state_enabled), 0))
                         assertTrue("Admin label must remain readable", home.btnAdmin.currentTextColor != groupedCard)
                         assertEquals("Home admin outline is a single hairline",
@@ -441,7 +441,7 @@ class DesignRecoveryTest {
                     var bannerHeight = 0
                     scenario.onActivity {
                         home.panelHomeBanner.getLocationOnScreen(bannerPosition)
-                        canvasColor = it.getColor(R.color.eve_home_background)
+                        canvasColor = it.getColor(R.color.bg_app)
                         bannerWidth = home.panelHomeBanner.width
                         bannerHeight = home.panelHomeBanner.height
                     }

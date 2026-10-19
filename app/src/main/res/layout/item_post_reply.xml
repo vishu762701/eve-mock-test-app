@@ -1,77 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    app:cardBackgroundColor="@color/eve_card_bg"
-    app:cardCornerRadius="@dimen/eve_radius_card"
-    app:cardElevation="0dp"
-    app:strokeWidth="1dp"
-    android:minHeight="@dimen/eve_list_row_min">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/tvReplyAuthor"
-                style="@style/TextAppearance.Eve.Subheadline.Medium"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Student Name"
-                android:textColor="@color/eve_text" />
-
-            <TextView
-                android:id="@+id/tvReplyTime"
-                style="@style/TextAppearance.Eve.Caption1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Today, 12:00 PM"
-                android:textColor="@color/eve_text_secondary" />
+<?xml version='1.0' encoding='utf-8'?>
+<com.eve.app.designsystem.DesignCardView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap" android:minHeight="@dimen/eve_list_row_min" style="@style/Widget.Eve.Token.Card">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <TextView android:id="@+id/tvReplyAuthor" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_weight="1" android:text="Student Name" />
+            <TextView android:id="@+id/tvReplyTime" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Today, 12:00 PM" />
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvReplyText"
-            style="@style/TextAppearance.Eve.Secondary.Body"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="Reply message text here..."
-            android:textColor="@color/eve_text" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:gravity="center_vertical|end"
-            android:orientation="horizontal">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnMarkRead"
-                style="@style/Widget.Eve.OutlinedButton"
-                android:textAppearance="@style/TextAppearance.Eve.Footnote.Medium"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:paddingHorizontal="10dp"
-                android:text="Mark Read" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnDeleteReply"
-                style="@style/Widget.Eve.ChipButton.Delete"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_marginStart="8dp"
-                android:text="Delete" />
+        <TextView android:id="@+id/tvReplyText" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:text="Reply message text here..." />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical|end" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnMarkRead" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:text="Mark Read" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnDeleteReply" style="@style/Widget.Eve.Token.Button.Destructive" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_card_gap" android:text="Delete" />
         </LinearLayout>
     </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+</com.eve.app.designsystem.DesignCardView>

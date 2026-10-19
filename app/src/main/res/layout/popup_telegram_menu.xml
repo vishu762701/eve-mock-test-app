@@ -1,250 +1,39 @@
-<?xml version="1.0" encoding="utf-8"?>
-<com.eve.app.designsystem.DesignGlassLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/menuContainer"
-    android:layout_width="250dp"
-    android:layout_height="wrap_content"
-    android:clipToOutline="true">
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <!-- Layer 1: Heavily blurred background slice of content directly behind menu -->
-        <ImageView
-            android:id="@+id/ivGlassBlurBackground"
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:importantForAccessibility="no" />
-
-        <!-- Layer 2: Frosted glass tint overlay ensuring perfect contrast -->
-        <View
-            android:id="@+id/viewGlassTintOverlay"
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/eve_menu_glass_bg" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-        <!-- Card 1: Theme Toggle Row (Preserves cardTheme ID for touch & window coords) -->
-        <LinearLayout
-            android:id="@+id/cardTheme"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/eve_list_row_min"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?attr/selectableItemBackground"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="18dp">
-
-            <ImageView
-                android:id="@+id/ivThemeIcon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:background="@android:color/transparent"
-                android:contentDescription="Theme mode"
-                android:src="@drawable/ic_theme_sun"
-                app:tint="@color/eve_text" />
-
-            <TextView
-                android:id="@+id/tvThemeTitle"
-                style="@style/TextAppearance.Eve.Subheadline.Medium"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:text="Dark Mode" />
-        </LinearLayout>
-
-        <!-- Subtle Hairline Frosted Glass Divider -->
-        <View
-            android:id="@+id/menuDivider"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/eve_stroke_hairline"
-            android:background="@color/eve_separator" />
-
-        <!-- Card 2: Main Menu Items (Preserves cardMenuItems ID) -->
-        <LinearLayout
-            android:id="@+id/cardMenuItems"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <!-- Row 1: History -->
-            <LinearLayout
-                android:id="@+id/menuRowHistory"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/eve_list_row_min"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="18dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="History"
-                    android:src="@drawable/ic_history_rounded"
-                    app:tint="@color/eve_text" />
-
-                <TextView
-                    style="@style/TextAppearance.Eve.Subheadline.Medium"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:text="History" />
+<?xml version='1.0' encoding='utf-8'?>
+<com.eve.app.designsystem.DesignGlassLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/menuContainer" android:layout_width="250dp" android:layout_height="wrap_content" android:clipToOutline="true" style="@style/Widget.Eve.Token.Glass.Menu">
+    <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <ImageView android:id="@+id/ivGlassBlurBackground" android:visibility="gone" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerCrop" android:importantForAccessibility="no" />
+        <View android:id="@+id/viewGlassTintOverlay" android:visibility="gone" android:layout_width="match_parent" android:layout_height="match_parent" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <LinearLayout android:id="@+id/cardTheme" android:layout_width="match_parent" android:layout_height="@dimen/eve_list_row_min" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+                <ImageView android:id="@+id/ivThemeIcon" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Theme mode" android:src="@drawable/ic_theme_sun" app:tint="@color/text_primary" />
+                <TextView android:id="@+id/tvThemeTitle" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_shadow_room" android:text="Dark Mode" />
             </LinearLayout>
-
-            <!-- Row 2: Bookmarks -->
-            <LinearLayout
-                android:id="@+id/menuRowBookmarks"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/eve_list_row_min"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="18dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="Bookmarks"
-                    android:src="@drawable/ic_bookmark"
-                    app:tint="@color/eve_text" />
-
-                <TextView
-                    style="@style/TextAppearance.Eve.Subheadline.Medium"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:text="Bookmarks" />
-            </LinearLayout>
-
-            <!-- Row: Mistake Notebook -->
-            <LinearLayout
-                android:id="@+id/menuRowMistakes"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/eve_list_row_min"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="18dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="Mistake Notebook"
-                    android:src="@drawable/ic_close"
-                    app:tint="@color/eve_text" />
-
-                <TextView
-                    style="@style/TextAppearance.Eve.Subheadline.Medium"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:text="Mistake Notebook" />
-            </LinearLayout>
-
-            <!-- Row 3: Topic-wise Test -->
-            <LinearLayout
-                android:id="@+id/menuRowTopic"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/eve_list_row_min"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="18dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="Topic-wise Test"
-                    android:src="@drawable/ic_topic"
-                    app:tint="@color/eve_text" />
-
-                <TextView
-                    style="@style/TextAppearance.Eve.Subheadline.Medium"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:text="Topic-wise Test" />
-            </LinearLayout>
-
-            <!-- Row 4: PYQ -->
-            <LinearLayout
-                android:id="@+id/menuRowPyq"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/eve_list_row_min"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="18dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="PYQ"
-                    android:src="@drawable/ic_pyq"
-                    app:tint="@color/eve_text" />
-
-                <TextView
-                    style="@style/TextAppearance.Eve.Subheadline.Medium"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:text="PYQ" />
-            </LinearLayout>
-
-            <!-- Row 5: Logout (Last row, highlighted) -->
-            <LinearLayout
-                android:id="@+id/menuRowLogout"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/eve_list_row_min"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="18dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="Logout"
-                    android:src="@drawable/ic_logout"
-                    app:tint="@color/eve_label_primary" />
-
-                <TextView
-                    style="@style/TextAppearance.Eve.Subheadline.Medium"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:text="Logout"
-                    android:textColor="@color/eve_label_primary" />
+            <LinearLayout android:id="@+id/cardMenuItems" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+                <LinearLayout android:id="@+id/menuRowHistory" android:layout_width="match_parent" android:layout_height="@dimen/eve_list_row_min" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+                    <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="History" android:src="@drawable/ic_history_rounded" app:tint="@color/text_primary" />
+                    <TextView style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_shadow_room" android:text="History" />
+                </LinearLayout>
+                <LinearLayout android:id="@+id/menuRowBookmarks" android:layout_width="match_parent" android:layout_height="@dimen/eve_list_row_min" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+                    <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Bookmarks" android:src="@drawable/ic_bookmark" app:tint="@color/text_primary" />
+                    <TextView style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_shadow_room" android:text="Bookmarks" />
+                </LinearLayout>
+                <LinearLayout android:id="@+id/menuRowMistakes" android:layout_width="match_parent" android:layout_height="@dimen/eve_list_row_min" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+                    <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Mistake Notebook" android:src="@drawable/ic_close" app:tint="@color/text_primary" />
+                    <TextView style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_shadow_room" android:text="Mistake Notebook" />
+                </LinearLayout>
+                <LinearLayout android:id="@+id/menuRowTopic" android:layout_width="match_parent" android:layout_height="@dimen/eve_list_row_min" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+                    <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Topic-wise Test" android:src="@drawable/ic_topic" app:tint="@color/text_primary" />
+                    <TextView style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_shadow_room" android:text="Topic-wise Test" />
+                </LinearLayout>
+                <LinearLayout android:id="@+id/menuRowPyq" android:layout_width="match_parent" android:layout_height="@dimen/eve_list_row_min" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+                    <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="PYQ" android:src="@drawable/ic_pyq" app:tint="@color/text_primary" />
+                    <TextView style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_shadow_room" android:text="PYQ" />
+                </LinearLayout>
+                <LinearLayout android:id="@+id/menuRowLogout" android:layout_width="match_parent" android:layout_height="@dimen/eve_list_row_min" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+                    <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Logout" android:src="@drawable/ic_logout" app:tint="@color/text_primary" />
+                    <TextView style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_shadow_room" android:text="Logout" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
     </FrameLayout>
 </com.eve.app.designsystem.DesignGlassLayout>

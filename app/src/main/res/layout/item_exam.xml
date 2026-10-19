@@ -1,107 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    style="@style/Widget.Eve.Home.Card"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginHorizontal="@dimen/eve_home_screen_margin"
-    android:layout_marginVertical="@dimen/eve_home_card_gap_half"
-    android:clickable="true"
-    android:focusable="true"
-    app:cardCornerRadius="@dimen/eve_home_card_radius"
-    app:cardElevation="@dimen/eve_home_card_elevation"
-    app:cardMaxElevation="@dimen/eve_home_card_elevation"
-    app:cardBackgroundColor="@color/eve_home_card"
-    app:strokeWidth="@dimen/eve_space_0"
-    app:strokeColor="@android:color/transparent"
-    android:stateListAnimator="@animator/press_scale"
-    app:rippleColor="@color/eve_ripple"
-    android:minHeight="@dimen/eve_list_row_min">
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/eve_home_card_padding"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/examIconContainer"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            app:cardBackgroundColor="@color/eve_exam_icon_tile_bg"
-            app:cardCornerRadius="@dimen/eve_radius_card"
-            app:cardElevation="@dimen/eve_space_0"
-            app:rippleColor="@android:color/transparent"
-            app:strokeColor="@color/eve_shape_border"
-            app:strokeWidth="@dimen/eve_space_0">
-
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/ivExamImage"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@android:color/transparent"
-                android:contentDescription="Exam image"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_exam_placeholder" />
-
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/lottieExamIcon"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="@dimen/eve_space_6"
-                android:visibility="gone"
-                app:lottie_autoPlay="false"
-                app:lottie_loop="false"
-                app:lottie_rawRes="@raw/pencil_writing_on_book" />
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Task D: Pin indicator is icon only (ic_pin), positioned at end without hiding name -->
-        <ImageView
-            android:id="@+id/ivPinned"
-            android:layout_width="@dimen/eve_space_20"
-            android:layout_height="@dimen/eve_space_20"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="@dimen/eve_space_8"
-            android:contentDescription="Pinned test"
-            android:src="@drawable/ic_pin"
-            app:tint="@color/eve_home_text_secondary"
-            android:visibility="gone" />
-
-        <!-- Task C: Exam name is ALWAYS visible in pinned and unpinned states -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="@dimen/eve_space_16"
-            android:layout_marginEnd="@dimen/eve_space_8"
-            android:layout_toEndOf="@id/examIconContainer"
-            android:layout_toStartOf="@id/ivPinned"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tvExamName"
-                style="@style/TextAppearance.Eve.Home.CardTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:textColor="@color/eve_home_text_primary" />
-
-            <TextView
-                android:id="@+id/tvExamTime"
-                style="@style/TextAppearance.Eve.Home.Secondary"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/eve_space_4"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:textColor="@color/eve_home_text_secondary" />
+<?xml version='1.0' encoding='utf-8'?>
+<com.eve.app.designsystem.DesignCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" style="@style/Widget.Eve.Token.Card" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginVertical="@dimen/design_zero" android:clickable="true" android:focusable="true" app:rippleColor="@color/design_role_ripple" android:minHeight="@dimen/eve_list_row_min" android:layout_marginBottom="@dimen/design_card_gap">
+    <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:clipToPadding="false" android:clipChildren="false">
+        <com.eve.app.designsystem.DesignCardView android:id="@+id/examIconContainer" android:layout_width="56dp" android:layout_height="56dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" app:rippleColor="@android:color/transparent" style="@style/Widget.Eve.Token.Card.Inner" android:layout_marginBottom="@dimen/design_card_gap">
+            <com.google.android.material.imageview.ShapeableImageView android:id="@+id/ivExamImage" android:layout_width="match_parent" android:layout_height="match_parent" android:contentDescription="Exam image" android:scaleType="centerCrop" android:src="@drawable/ic_exam_placeholder" />
+            <com.airbnb.lottie.LottieAnimationView android:id="@+id/lottieExamIcon" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="@dimen/eve_space_6" android:visibility="gone" app:lottie_autoPlay="false" app:lottie_loop="false" app:lottie_rawRes="@raw/pencil_writing_on_book" />
+        </com.eve.app.designsystem.DesignCardView>
+        <ImageView android:id="@+id/ivPinned" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:layout_alignParentEnd="true" android:layout_centerVertical="true" android:layout_marginStart="@dimen/eve_space_8" android:contentDescription="Pinned test" android:src="@drawable/ic_pin" app:tint="@color/text_secondary" android:visibility="gone" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_centerVertical="true" android:layout_marginStart="@dimen/eve_space_16" android:layout_marginEnd="@dimen/eve_space_8" android:layout_toEndOf="@id/examIconContainer" android:layout_toStartOf="@id/ivPinned" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <TextView android:id="@+id/tvExamName" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:maxLines="1" />
+            <TextView android:id="@+id/tvExamTime" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/eve_space_4" android:ellipsize="end" android:maxLines="1" />
         </LinearLayout>
     </RelativeLayout>
-</com.google.android.material.card.MaterialCardView>
+</com.eve.app.designsystem.DesignCardView>

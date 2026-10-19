@@ -1,175 +1,25 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:fillViewport="true"
-    android:clipToPadding="false"
-            android:clipChildren="false"
-            >
-
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="20dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
-
-    <TextView
-        style="@style/TextAppearance.Eve.Headline"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Home Banner"
-        android:textColor="@color/eve_text" />
-
-    <TextView
-        style="@style/TextAppearance.Eve.Caption1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:text="Publish image banners, manage their optional links, and reorder or remove them from the Home surface."
-        android:textColor="@color/eve_text_secondary" />
-
-    <!-- Upload Section -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:orientation="vertical"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        >
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnPickBannerImage"
-            style="@style/Widget.Eve.OutlinedButton"
-            android:textAppearance="@style/TextAppearance.Eve.Footnote.Medium"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Choose Banner Image (Max 5MB)" />
-
-        <!-- Preview uses the same centralized footprint as the Home banner. -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardPreviewBanner"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/eve_home_banner_height"
-            android:layout_marginTop="10dp"
-            android:visibility="gone"
-            app:cardBackgroundColor="@color/eve_card_bg"
-            app:cardCornerRadius="@dimen/eve_radius_card"
-            app:cardElevation="0dp"
-            app:strokeWidth="1dp">
-
-            <ImageView
-                android:id="@+id/ivPreviewBanner"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:adjustViewBounds="true"
-                android:contentDescription="Banner live preview"
-                android:scaleType="centerCrop" />
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilBannerLinkUrl"
-            style="@style/Widget.Eve.TextInput.Filled"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:hint="Optional link URL">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etBannerLinkUrl"
-                style="@style/TextAppearance.Eve.BodySmall"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textUri"
-                android:maxLength="2048"
-                android:maxLines="1"
-                android:textColor="@color/eve_text" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilBannerLinkLabel"
-            style="@style/Widget.Eve.TextInput.Filled"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="CTA label"
-            android:visibility="gone">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etBannerLinkLabel"
-                style="@style/TextAppearance.Eve.BodySmall"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textCapSentences"
-                android:maxLength="48"
-                android:maxLines="1"
-                android:textColor="@color/eve_text" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <TextView
-            android:id="@+id/tvBannerUploadError"
-            style="@style/TextAppearance.Eve.Caption1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:textColor="@color/eve_status_error_text"
-            android:visibility="gone" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSaveBanner"
-            style="@style/Widget.Eve.Button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Save &amp; Publish Banner"
-            android:visibility="gone" />
+<?xml version='1.0' encoding='utf-8'?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:fillViewport="true" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+        <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Home Banner" />
+        <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Publish image banners, manage their optional links, and reorder or remove them from the Home surface." />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnPickBannerImage" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:text="Choose Banner Image (Max 5MB)" />
+            <com.eve.app.designsystem.DesignCardView android:id="@+id/cardPreviewBanner" android:layout_width="match_parent" android:layout_height="@dimen/eve_home_banner_height" android:layout_marginTop="@dimen/design_card_gap" android:visibility="gone" style="@style/Widget.Eve.Token.Card">
+                <ImageView android:id="@+id/ivPreviewBanner" android:layout_width="match_parent" android:layout_height="match_parent" android:adjustViewBounds="true" android:contentDescription="Banner live preview" android:scaleType="centerCrop" />
+            </com.eve.app.designsystem.DesignCardView>
+            <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilBannerLinkUrl" style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:hint="Optional link URL">
+                <com.google.android.material.textfield.TextInputEditText android:id="@+id/etBannerLinkUrl" style="@style/Widget.Eve.Token.Input" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="textUri" android:maxLength="2048" android:maxLines="1" />
+            </com.eve.app.designsystem.DesignInputLayout>
+            <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilBannerLinkLabel" style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="CTA label" android:visibility="gone">
+                <com.google.android.material.textfield.TextInputEditText android:id="@+id/etBannerLinkLabel" style="@style/Widget.Eve.Token.Input" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="textCapSentences" android:maxLength="48" android:maxLines="1" />
+            </com.eve.app.designsystem.DesignInputLayout>
+            <TextView android:id="@+id/tvBannerUploadError" style="@style/TextAppearance.Eve.Token.Secondary.red" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:visibility="gone" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnSaveBanner" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:text="Save &amp; Publish Banner" android:visibility="gone" />
+        </LinearLayout>
+        <TextView style="@style/TextAppearance.Eve.Token.Body" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Published banners in this Home surface" />
+        <TextView android:id="@+id/tvNoBanners" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginVertical="@dimen/design_screen_margin" android:gravity="center" android:text="No banners uploaded yet." android:visibility="gone" />
+        <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvAdminBanners" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:maxHeight="240dp" android:nestedScrollingEnabled="true" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll.Inner" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnCloseBannerDialog" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_screen_margin" android:text="Close" />
     </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginVertical="14dp"
-        android:background="@color/eve_stroke" />
-
-    <!-- Current Banners List -->
-    <TextView
-        style="@style/TextAppearance.Eve.Subheadline.Medium"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Published banners in this Home surface"
-        android:textColor="@color/eve_text" />
-
-    <TextView
-        android:id="@+id/tvNoBanners"
-        style="@style/TextAppearance.Eve.Footnote"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginVertical="12dp"
-        android:gravity="center"
-        android:text="No banners uploaded yet."
-        android:textColor="@color/eve_text_secondary"
-        android:visibility="gone" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvAdminBanners"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:maxHeight="240dp"
-        android:nestedScrollingEnabled="true"
-            android:clipToPadding="false"
-            android:clipChildren="false"/>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnCloseBannerDialog"
-        style="@style/Widget.Eve.OutlinedButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="Close" />
-</LinearLayout>
 </androidx.core.widget.NestedScrollView>

@@ -33,21 +33,20 @@ object TargetExamsBottomSheet {
             isCheckable = true
             isChecked = checked
             setCheckedIconResource(com.eve.app.R.drawable.ic_target_exam_checked)
-            checkedIconTint = androidx.core.content.ContextCompat.getColorStateList(context, com.eve.app.R.color.eve_recovery_accent)
+            checkedIconTint = androidx.core.content.ContextCompat.getColorStateList(context, com.eve.app.R.color.on_accent)
             isCheckedIconVisible = true
-            textSize = 14f
-            typeface = android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL)
+            com.eve.app.designsystem.DesignType.apply(this, com.eve.app.designsystem.DesignType.Role.CHIP)
             val density = resources.displayMetrics.density
-            chipMinHeight = maxOf(40f * density, paint.fontMetrics.run { bottom - top } + 20f * density)
-            shapeAppearanceModel = shapeAppearanceModel.withCornerSize(com.google.android.material.shape.RelativeCornerSize(0.5f))
+            chipMinHeight = resources.getDimension(com.eve.app.R.dimen.design_pill_height)
+            shapeAppearanceModel = shapeAppearanceModel.withCornerSize(com.google.android.material.shape.RelativeCornerSize(.5f))
             chipStrokeWidth = 0f
-            chipBackgroundColor = androidx.core.content.ContextCompat.getColorStateList(context, com.eve.app.R.color.selector_recovery_chip_bg)
-            setTextColor(androidx.core.content.ContextCompat.getColorStateList(context, com.eve.app.R.color.selector_recovery_chip_text))
-            chipStartPadding = 12f * density
-            chipEndPadding = 12f * density
+            chipBackgroundColor = androidx.core.content.ContextCompat.getColorStateList(context, com.eve.app.R.color.accent)
+            setTextColor(androidx.core.content.ContextCompat.getColor(context, com.eve.app.R.color.on_accent))
+            chipStartPadding = resources.getDimension(com.eve.app.R.dimen.design_pill_padding)
+            chipEndPadding = chipStartPadding
             setEnsureMinTouchTargetSize(true)
             maxWidth = (Math.round(minOf(resources.configuration.screenWidthDp, 640) * density) -
-                2 * Math.round(20f * density)).coerceAtLeast(Math.round(48f * density))
+                2 * resources.getDimensionPixelSize(com.eve.app.R.dimen.design_screen_margin)).coerceAtLeast(resources.getDimensionPixelSize(com.eve.app.R.dimen.design_touch_min))
             ellipsize = android.text.TextUtils.TruncateAt.END
         }
 
@@ -56,7 +55,7 @@ object TargetExamsBottomSheet {
         exams: List<Exam>,
         onSaved: (Set<String>) -> Unit = {}
     ): BottomSheetDialog {
-        val dialog = BottomSheetDialog(activity, com.eve.app.R.style.Theme_Eve_RecoverySheet)
+        val dialog = BottomSheetDialog(activity, com.eve.app.R.style.Theme_Eve_BottomSheetDialog)
         val binding = BottomSheetTargetExamsBinding.inflate(LayoutInflater.from(activity))
         dialog.setContentView(binding.root)
 
@@ -97,12 +96,9 @@ object TargetExamsBottomSheet {
         dialog.behavior.maxWidth = Math.round(640f * density)
         dialog.behavior.maxHeight = Math.round(activity.resources.displayMetrics.heightPixels * 0.9f)
         dialog.behavior.skipCollapsed = true
-        dialog.setOnDismissListener {
-            dialog.window?.decorView?.let { com.eve.app.util.GlassmorphismHelper.removeWindowBlur(it, animate = false) }
-        }
         dialog.show()
-        val blurRadiusPx = activity.resources.getDimensionPixelSize(com.eve.app.R.dimen.eve_home_blur_radius)
-        dialog.window?.decorView?.let { com.eve.app.util.GlassmorphismHelper.applyWindowBlur(it, blurRadius = blurRadiusPx) }
+        com.eve.app.designsystem.DesignSurfaces.dialog(dialog)
+        com.eve.app.designsystem.DesignSurfaces.sheet(binding.root)
         dialog.behavior.state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
         return dialog
     }

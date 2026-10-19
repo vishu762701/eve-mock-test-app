@@ -284,10 +284,10 @@ class Telegram3DStarView @JvmOverloads constructor(
     private fun updateGradientBackground(w: Int, h: Int) {
         if (w <= 0 || h <= 0) return
         try {
-            val c1 = ContextCompat.getColor(context, R.color.eve_premium_gradient_1)
-            val c2 = ContextCompat.getColor(context, R.color.eve_premium_gradient_2)
-            val c3 = ContextCompat.getColor(context, R.color.eve_premium_gradient_3)
-            val c4 = ContextCompat.getColor(context, R.color.eve_premium_gradient_4)
+            val c1 = ContextCompat.getColor(context, R.color.system_blue)
+            val c2 = ContextCompat.getColor(context, R.color.system_purple)
+            val c3 = ContextCompat.getColor(context, R.color.system_purple)
+            val c4 = ContextCompat.getColor(context, R.color.system_orange)
 
             val size = 100
             val sizeHalf = 50

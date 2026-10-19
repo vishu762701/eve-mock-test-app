@@ -22,10 +22,10 @@ class ExamAttemptsBarChartView @JvmOverloads constructor(
 
     private var items: List<ExamBarData> = emptyList()
 
-    private val primaryColor = ContextCompat.getColor(context, R.color.eve_primary)
-    private val barTrackColor = ContextCompat.getColor(context, R.color.eve_surface)
-    private val textColor = ContextCompat.getColor(context, R.color.eve_text)
-    private val subTextColor = ContextCompat.getColor(context, R.color.eve_text_secondary)
+    private val primaryColor = com.eve.app.designsystem.DesignTokens.color(context, com.eve.app.R.attr.systemBlue)
+    private val barTrackColor = com.eve.app.designsystem.DesignTokens.color(context, com.eve.app.R.attr.designTrack)
+    private val textColor = com.eve.app.designsystem.DesignTokens.color(context, com.eve.app.R.attr.designTextPrimary)
+    private val subTextColor = com.eve.app.designsystem.DesignTokens.color(context, com.eve.app.R.attr.designTextSecondary)
 
     private val barPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = primaryColor
@@ -39,20 +39,20 @@ class ExamAttemptsBarChartView @JvmOverloads constructor(
 
     private val titlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = textColor
-        textSize = dpToPx(13f)
+        textSize = resources.getDimension(com.eve.app.R.dimen.design_type_secondary)
         typeface = com.eve.app.util.FontManager.typeface(context, bold = true)
     }
 
     private val countPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = subTextColor
-        textSize = dpToPx(12f)
+        textSize = resources.getDimension(com.eve.app.R.dimen.design_type_secondary)
         textAlign = Paint.Align.RIGHT
         typeface = com.eve.app.util.FontManager.typeface(context, bold = false)
     }
 
     private val emptyPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = subTextColor
-        textSize = dpToPx(13f)
+        textSize = resources.getDimension(com.eve.app.R.dimen.design_type_secondary)
         textAlign = Paint.Align.CENTER
         typeface = com.eve.app.util.FontManager.typeface(context, bold = false)
     }
@@ -102,7 +102,7 @@ class ExamAttemptsBarChartView @JvmOverloads constructor(
 
         var currentY = dpToPx(18f)
         val barHeight = dpToPx(12f)
-        val cornerRadius = resources.getDimension(com.eve.app.R.dimen.eve_radius_min)
+        val cornerRadius = resources.getDimension(com.eve.app.R.dimen.design_radius_inner)
 
         for (item in items) {
             // Draw title and count

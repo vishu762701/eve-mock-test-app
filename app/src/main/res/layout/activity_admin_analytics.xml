@@ -1,91 +1,58 @@
 <?xml version='1.0' encoding='utf-8'?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/eve_system_grouped_background" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Screen">
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-<LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:minHeight="56dp" android:background="@android:color/transparent" android:gravity="center_vertical" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingVertical="8dp" android:clipToPadding="false" android:clipChildren="false">
-
-        <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
-
-        <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1"/><ImageButton android:id="@+id/btnRefresh" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Refresh" android:src="@drawable/ic_refresh" app:tint="@color/eve_text" style="@style/Widget.Eve.Token.IconButton"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:gravity="center_vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.ToolbarRow">
+            <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/text_primary" style="@style/Widget.Eve.Token.IconButton" />
+            <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1" />
+            <ImageButton android:id="@+id/btnRefresh" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Refresh" android:src="@drawable/ic_refresh" app:tint="@color/text_primary" style="@style/Widget.Eve.Token.IconButton" />
+        </LinearLayout>
+    </com.eve.app.ui.common.EveGlassToolbar>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
+        <TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Admin Analytics" />
     </LinearLayout>
-</com.eve.app.ui.common.EveGlassToolbar>
-
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="@dimen/design_screen_margin" android:paddingBottom="@dimen/design_section_gap"><TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Admin Analytics"/>
-
-        </LinearLayout><FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:clipChildren="false">
-        <ScrollView android:id="@+id/content" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false" android:clipChildren="false">
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
-                <!-- Time Range Filter -->
-                <com.google.android.material.chip.ChipGroup android:id="@+id/chipGroupTimeRange" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:singleSelection="true">
-
-                    <com.google.android.material.chip.Chip android:id="@+id/chipLast7Days" style="@style/Widget.Eve.CategoryChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Last 7 days"/>
-
-                    <com.google.android.material.chip.Chip android:id="@+id/chipLast30Days" style="@style/Widget.Eve.CategoryChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Last 30 days"/>
-
-                    <com.google.android.material.chip.Chip android:id="@+id/chipAllTime" style="@style/Widget.Eve.CategoryChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="All time"/>
+    <FrameLayout android:layout_width="match_parent" android:layout_height="@dimen/design_zero" android:layout_weight="1" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+        <ScrollView android:id="@+id/content" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                <com.google.android.material.chip.ChipGroup android:id="@+id/chipGroupTimeRange" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_screen_margin" app:singleSelection="true">
+                    <com.google.android.material.chip.Chip android:id="@+id/chipLast7Days" style="@style/Widget.Eve.Token.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Last 7 days" />
+                    <com.google.android.material.chip.Chip android:id="@+id/chipLast30Days" style="@style/Widget.Eve.Token.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Last 30 days" />
+                    <com.google.android.material.chip.Chip android:id="@+id/chipAllTime" style="@style/Widget.Eve.Token.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="All time" />
                 </com.google.android.material.chip.ChipGroup>
-
-                <TextView style="@style/TextAppearance.Eve.BodySmall" android:id="@+id/tvSummary" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/eve_text"/>
-
-                <TextView style="@style/TextAppearance.Eve.Subheadline.Medium" android:id="@+id/tvMostAttempted" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:textColor="@color/eve_accent_text" android:textStyle="bold"/>
-
-                <!-- Crash Reports Card -->
-                <com.google.android.material.card.MaterialCardView android:id="@+id/cardCrashReports" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" app:cardBackgroundColor="@color/eve_card_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp">
-
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
-
-                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false">
-
-                            <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_bug_report" app:tint="@color/eve_system_blue"/>
-
-                            <TextView style="@style/TextAppearance.Eve.Headline" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:layout_weight="1" android:text="Crash Reports &amp; Stability" android:textColor="@color/eve_text"/>
-
-                            <TextView style="@style/TextAppearance.Eve.Footnote.Medium" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_category_chip" android:paddingHorizontal="8dp" android:paddingVertical="2dp" android:text="Crashlytics Active" android:textColor="@color/eve_status_success_text"/>
+                <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvSummary" android:layout_width="match_parent" android:layout_height="wrap_content" />
+                <TextView style="@style/TextAppearance.Eve.Token.Body.blue" android:id="@+id/tvMostAttempted" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" />
+                <com.eve.app.designsystem.DesignCardView android:id="@+id/cardCrashReports" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                            <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:src="@drawable/ic_bug_report" app:tint="@color/system_blue" />
+                            <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_card_gap" android:layout_weight="1" android:text="Crash Reports &amp; Stability" />
+                            <TextView style="@style/TextAppearance.Eve.Token.Secondary.green" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Crashlytics Active" />
                         </LinearLayout>
-
-                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false">
-
-                            <TextView style="@style/TextAppearance.Eve.Title1" android:id="@+id/tvCrashFreePercentage" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="99.8%" android:textColor="@color/eve_status_success_text"/>
-
-                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false">
-
-                                <TextView style="@style/TextAppearance.Eve.Footnote.Medium" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Crash-Free Users (7d)" android:textColor="@color/eve_text"/>
-
-                                <TextView style="@style/TextAppearance.Eve.Footnote" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Firebase Crashlytics telemetry" android:textColor="@color/eve_text_secondary"/>
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                            <TextView style="@style/TextAppearance.Eve.Token.Heading.green" android:id="@+id/tvCrashFreePercentage" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="99.8%" />
+                            <LinearLayout android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_screen_margin" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                                <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Crash-Free Users (7d)" />
+                                <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Firebase Crashlytics telemetry" />
                             </LinearLayout>
                         </LinearLayout>
-
-                        <TextView style="@style/TextAppearance.Eve.Caption1.Medium" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Top Issues / Exceptions:" android:textColor="@color/eve_text"/>
-
-                        <TextView style="@style/TextAppearance.Eve.Caption1" android:id="@+id/tvTopCrashIssues" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:lineSpacingExtra="2dp" android:text="• 0 fatal crashes logged in recent 7-day period\n• 0 ANR (Application Not Responding) events\n• Non-fatal network timeouts handled gracefully" android:textColor="@color/eve_text_secondary"/>
-
-                        <com.google.android.material.button.MaterialButton android:id="@+id/btnOpenCrashlyticsConsole" style="@style/Widget.Eve.OutlinedButton" android:textAppearance="@style/TextAppearance.Eve.Caption1.Medium" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="View Full Details in Firebase Console"/>
+                        <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:text="Top Issues / Exceptions:" />
+                        <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvTopCrashIssues" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="• 0 fatal crashes logged in recent 7-day period\n• 0 ANR (Application Not Responding) events\n• Non-fatal network timeouts handled gracefully" />
+                        <com.google.android.material.button.MaterialButton android:id="@+id/btnOpenCrashlyticsConsole" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_screen_margin" android:text="View Full Details in Firebase Console" />
                     </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Bar Chart Section -->
-                <com.google.android.material.card.MaterialCardView android:id="@+id/cardBarChart" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" app:cardBackgroundColor="@color/eve_card_bg" app:cardCornerRadius="@dimen/eve_radius_card" app:cardElevation="0dp" app:strokeWidth="1dp">
-
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:clipToPadding="false" android:clipChildren="false">
-
-                        <TextView style="@style/TextAppearance.Eve.Headline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📊 Exam Attempts Distribution" android:textColor="@color/eve_text"/>
-
-                        <com.eve.app.ui.admin.ExamAttemptsBarChartView android:id="@+id/barChartView" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp"/>
+                </com.eve.app.designsystem.DesignCardView>
+                <com.eve.app.designsystem.DesignCardView android:id="@+id/cardBarChart" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                        <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📊 Exam Attempts Distribution" />
+                        <com.eve.app.ui.admin.ExamAttemptsBarChartView android:id="@+id/barChartView" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" />
                     </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <TextView style="@style/TextAppearance.Eve.Headline" android:id="@+id/tvExamHeading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="22dp" android:text="Exam attempts breakdown" android:textColor="@color/eve_text" android:textStyle="bold"/>
-
-                <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvExams" android:layout_width="match_parent" android:layout_height="wrap_content" android:nestedScrollingEnabled="false" android:layout_marginTop="8dp" android:layoutAnimation="@anim/layout_enter" android:clipToPadding="false" android:clipChildren="false"/>
-
-                <TextView style="@style/TextAppearance.Eve.Headline" android:id="@+id/tvWeakHeading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="22dp" android:text="Weak questions" android:textColor="@color/eve_text" android:textStyle="bold"/>
-
-                <TextView style="@style/TextAppearance.Eve.Caption1" android:id="@+id/tvWeakSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="High wrong-rate questions with enough attempts are shown first." android:textColor="@color/eve_text_secondary"/>
-
-                <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvQuestions" android:layout_width="match_parent" android:layout_height="wrap_content" android:nestedScrollingEnabled="false" android:layout_marginTop="8dp" android:layoutAnimation="@anim/layout_enter" android:clipToPadding="false" android:clipChildren="false"/>
-
-                <TextView style="@style/TextAppearance.Eve.Footnote" android:id="@+id/tvEmpty" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:text="Analytics are not available yet. Data will appear after students submit tests." android:textColor="@color/eve_text_secondary" android:visibility="gone"/>
+                </com.eve.app.designsystem.DesignCardView>
+                <TextView style="@style/TextAppearance.Eve.Token.Heading" android:id="@+id/tvExamHeading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="22dp" android:text="Exam attempts breakdown" />
+                <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvExams" android:layout_width="match_parent" android:layout_height="wrap_content" android:nestedScrollingEnabled="false" android:layout_marginTop="@dimen/design_card_gap" android:layoutAnimation="@anim/layout_enter" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll.Inner" />
+                <TextView style="@style/TextAppearance.Eve.Token.Heading" android:id="@+id/tvWeakHeading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="22dp" android:text="Weak questions" />
+                <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvWeakSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_tab_padding" android:text="High wrong-rate questions with enough attempts are shown first." />
+                <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvQuestions" android:layout_width="match_parent" android:layout_height="wrap_content" android:nestedScrollingEnabled="false" android:layout_marginTop="@dimen/design_card_gap" android:layoutAnimation="@anim/layout_enter" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll.Inner" />
+                <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvEmpty" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_shadow_room" android:text="Analytics are not available yet. Data will appear after students submit tests." android:visibility="gone" />
             </LinearLayout>
         </ScrollView>
-        <ProgressBar android:id="@+id/progress" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:visibility="gone"/>
+        <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/progress" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:visibility="gone" style="@style/Widget.Eve.Token.Ring" android:indeterminate="true" />
     </FrameLayout>
 </LinearLayout>

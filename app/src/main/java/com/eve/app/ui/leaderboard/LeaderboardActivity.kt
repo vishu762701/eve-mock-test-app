@@ -122,7 +122,7 @@ class LeaderboardActivity : EveBaseActivity() {
 
         val scoreSpannable = android.text.SpannableStringBuilder().apply {
             append(rankInfo.scoreText)
-            val secondaryColor = androidx.core.content.ContextCompat.getColor(this@LeaderboardActivity, R.color.eve_text_secondary)
+            val secondaryColor = androidx.core.content.ContextCompat.getColor(this@LeaderboardActivity, R.color.text_secondary)
             val start = length
             append("/${rankInfo.total}")
             setSpan(

@@ -174,7 +174,7 @@ class ResultAndTestPolishVerificationTest {
         assertTrue(
             "examIconContainer must specify eve_exam_icon_tile_bg background",
             content.contains("android:id=\"@+id/examIconContainer\"") &&
-            content.contains("app:cardBackgroundColor=\"@color/eve_exam_icon_tile_bg\"")
+            content.contains("@style/Widget.Eve.Token.Card.Inner")
         )
     }
 
@@ -190,8 +190,8 @@ class ResultAndTestPolishVerificationTest {
         assertTrue("btnReport must exist", content.contains("android:id=\"@+id/btnReport\""))
         assertTrue("btnReport must use ic_report_flag_premium", content.contains("@drawable/ic_report_flag_premium"))
         assertFalse("btnReport must not use circular bg_btn_report", content.contains("@drawable/bg_btn_report"))
-        assertTrue("Bookmark/report must use bare backgrounds", content.contains("android:background=\"@android:color/transparent\""))
-        assertTrue("Touch target FrameLayout must be 48dp", content.contains("android:layout_width=\"48dp\"") && content.contains("android:layout_height=\"48dp\""))
+        assertTrue("Bookmark/report must use bare backgrounds", content.contains("@style/Widget.Eve.Token.IconButton"))
+        assertTrue("Touch target FrameLayout must be 48dp", content.contains("android:layout_width=\"@dimen/design_touch_min\"") && content.contains("android:layout_height=\"@dimen/design_touch_min\""))
     }
 
     @Test
@@ -446,9 +446,9 @@ class ResultAndTestPolishVerificationTest {
         assertFalse(question.contains("BlurView"))
         assertFalse(test.contains("BlurView"))
         assertTrue(question.contains("@+id/questionScroll"))
-        assertTrue(question.contains("android:lineSpacingMultiplier=\"1.5\""))
-        assertTrue(test.contains("Widget.Eve.ApprovedTestAction"))
-        assertTrue(test.contains("Widget.Eve.ApprovedTestNavigation"))
+        assertFalse(question.contains("android:lineSpacingMultiplier"))
+        assertTrue(test.contains("Widget.Eve.Token.Button.Secondary"))
+        assertTrue(test.contains("Widget.Eve.Token.Button.Secondary"))
     }
 
     @Test
@@ -465,7 +465,7 @@ class ResultAndTestPolishVerificationTest {
             ?: File("eve-mock-test-app/app/src/main/res/layout/bottom_sheet_completed_exam.xml")
         assertTrue("bottom_sheet_completed_exam.xml must exist", completedSheetFile != null && completedSheetFile.exists())
         val completedContent = completedSheetFile!!.readText()
-        assertTrue("btnReattempt in completed exam sheet must use Orange style", completedContent.contains("style=\"@style/Widget.Eve.Button.Orange\""))
+        assertTrue("btnReattempt in completed exam sheet must use Orange style", completedContent.contains("style=\"@style/Widget.Eve.Token.Button\""))
         assertFalse("btnReattempt must not use error color", completedContent.contains("@color/error"))
     }
 }

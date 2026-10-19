@@ -13,7 +13,7 @@ class ResultStatisticsGrid @JvmOverloads constructor(context: Context, attrs: At
         val density = resources.displayMetrics.density
         fun dp(value: Int) = Math.round(value * density)
         val available = View.MeasureSpec.getSize(widthMeasureSpec) - paddingLeft - paddingRight
-        val gap = dp(12)
+        val gap = resources.getDimensionPixelSize(com.eve.app.R.dimen.design_card_gap)
         val minimumWidth = Math.round(124f * density * resources.configuration.fontScale.coerceAtLeast(1f))
         val columns = when {
             childCount >= 4 && available >= minimumWidth * 4 + gap * 3 -> 4

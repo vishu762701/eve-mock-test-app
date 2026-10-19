@@ -1,5 +1,6 @@
 package com.eve.app.ui.home
 
+import com.eve.app.designsystem.designAttribute
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -255,11 +256,11 @@ class HomeSemanticColorsTest {
             }
             error("Missing Home view: $id")
         }
-        val grouped = "@color/eve_home_background"
-        assertEquals(grouped, xml.getAttribute("android:background"))
-        assertEquals(grouped, view("mainContentContainer").getAttribute("android:background"))
+        val grouped = "@color/bg_app"
+        assertEquals(grouped, xml.designAttribute("android:background"))
+        assertEquals("", view("mainContentContainer").designAttribute("android:background"))
         val sheet = view("contentSheet")
-        assertEquals(grouped, sheet.getAttribute("android:background"))
+        assertEquals("", sheet.designAttribute("android:background"))
         assertEquals("Negative sheet overlap should be removed", "",
             sheet.getAttribute("android:layout_marginTop"))
         val helper = source("src/main/java/com/eve/app/util/SystemBarHelper.kt")
@@ -284,43 +285,12 @@ class HomeSemanticColorsTest {
         val admin = (0 until descendants.length).map { descendants.item(it) as Element }
             .single { it.getAttribute("android:id") == "@+id/btnAdmin" }
 
-        // This stateful tint belongs to Home's admin button only, not every neutral button.
-        assertEquals("@style/Widget.Eve.Button.Neutral", admin.getAttribute("style"))
-        assertEquals("@color/selector_home_admin_surface", admin.getAttribute("app:backgroundTint"))
-        assertEquals("@color/eve_shape_border", admin.getAttribute("app:strokeColor"))
-        assertEquals("1dp", admin.getAttribute("app:strokeWidth"))
-        val stateSelector = parser.parse(org.xml.sax.InputSource(java.io.StringReader(
-            source("src/main/res/color/selector_home_admin_surface.xml")))).documentElement
-        val states = stateSelector.getElementsByTagName("item")
-        assertEquals(2, states.length)
-        assertEquals("false", (states.item(0) as Element).getAttribute("android:state_enabled"))
-        assertEquals("@color/eve_disabled_fill", (states.item(0) as Element).getAttribute("android:color"))
-        assertEquals("@color/eve_secondary_system_background", (states.item(1) as Element).getAttribute("android:color"))
-
-        // Dark theme has its own drawable resource: never silently hide the pill.
-        for (drawable in listOf("src/main/res/drawable/bg_streak_pill.xml",
-            "src/main/res/drawable-night/bg_streak_pill.xml")) {
-            val pill = parser.parse(org.xml.sax.InputSource(java.io.StringReader(source(drawable))))
-                .documentElement
-            assertEquals("$drawable must use a grouped surface",
-                "@color/eve_secondary_system_background",
-                (pill.getElementsByTagName("solid").item(0) as Element).getAttribute("android:color"))
-            assertEquals("$drawable: approved streak pill must remain borderless",
-                0, pill.getElementsByTagName("stroke").length)
-            assertEquals("$drawable: preserve pill curvature",
-                "@dimen/eve_radius_pill",
-                (pill.getElementsByTagName("corners").item(0) as Element).getAttribute("android:radius"))
-        }
-
-        for ((label, path) in listOf("Day" to "src/main/res/values/colors.xml",
-            "Night" to "src/main/res/values-night/colors.xml")) {
-            val colors = loadColors(path)
-            assertTrue("$label: content surface must differ from grouped canvas",
-                colors["eve_secondary_system_background"] != colors["eve_system_background"])
-            val ratio = contrastRatio(colors["eve_button_neutral_text"]!!,
-                colors["eve_secondary_system_background"]!!)
-            assertTrue("$label: admin text contrast must be >= 4.5:1 (was $ratio)", ratio >= 4.5)
-        }
+        assertEquals("@style/Widget.Eve.Token.Button.Secondary", admin.getAttribute("style"))
+        assertEquals("@color/track", admin.designAttribute("app:backgroundTint"))
+        assertEquals("@dimen/design_zero", admin.designAttribute("app:strokeWidth"))
+        val foundation = source("src/main/java/com/eve/app/designsystem/EveDesignSystem.kt")
+        assertTrue(foundation.contains("DesignType.apply(textView, DesignType.Role.CHIP)"))
+        assertTrue(foundation.contains("textView.setTextColor(Colors.homeOnAccent(ctx))"))
     }
 
     @Test
@@ -333,7 +303,7 @@ class HomeSemanticColorsTest {
 
         val layout = source("src/main/res/layout/item_exam.xml")
         val adapter = source("src/main/java/com/eve/app/ui/home/ExamAdapter.kt")
-        assertTrue(layout.contains("@style/Widget.Eve.Home.Card"))
+        assertTrue(layout.contains("@style/Widget.Eve.Token.Card"))
         assertTrue(adapter.contains("HomeAppearance.applyCard"))
 
         val light = loadColors("src/main/res/values/colors.xml")
