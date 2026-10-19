@@ -223,10 +223,8 @@ class AnswerAdapter(
                 b.pbTimeAvg.progress = avgPct
 
                 val statusColor = ContextCompat.getColor(ctx, comparison.statusColorRes)
-                b.pbTimeYou.progressTintList = android.content.res.ColorStateList.valueOf(statusColor)
-                b.pbTimeAvg.progressTintList = android.content.res.ColorStateList.valueOf(
-                    ContextCompat.getColor(ctx, R.color.text_secondary)
-                )
+                b.pbTimeYou.setIndicatorColor(statusColor)
+                b.pbTimeAvg.setIndicatorColor(com.eve.app.designsystem.DesignTokens.accent(ctx))
 
                 b.tvTimeYou.text = "${timeSpent}s"
                 b.tvTimeAvg.text = "${avgTime}s"

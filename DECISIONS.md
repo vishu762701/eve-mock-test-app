@@ -1149,3 +1149,15 @@ state: retain RadioGroup behavior and all existing suppression/state callbacks;
 scrolling and accessibility labels, compile all layouts and run both native modes.
 The owner's later instruction to preserve Lottie animations takes precedence over
 the earlier permission to remove their artwork; raw assets/triggers remain.
+
+
+Phase 4 native correction: apply answer-tile type before its stateful foreground;
+use a native outlined radio indicator with 10dp visual inset, preserving native
+checked/RadioGroup dispatch. Fixed-size controls keep the mandated type: enlarged
+button labels use a single line and ellipsis with full native accessibility text;
+default-size action labels still must fit. Selected tab labels retain their scaled
+20sp line height with unclipped child bounds inside the fixed 40dp strip. No font
+substitution, autosizing or data callback changes. Actual Lottie assets/playback
+remain; legacy non-Lottie renderer/effect callers retire before unused-code cleanup.
+Official Tabler v3.49.0 eye-off SVG read after its bundled MIT license:
+https://raw.githubusercontent.com/tabler/tabler-icons/v3.49.0/icons/outline/eye-off.svg

@@ -201,7 +201,6 @@ class ResultActivity : EveBaseActivity() {
             }
         }
 
-        val isCounted = intent.getIntExtra("EXTRA_COUNTED", 1)
         val total = if (intent.hasExtra("EXTRA_TOTAL")) intent.getIntExtra("EXTRA_TOTAL", allItems.size) else allItems.size
         val correct = if (intent.hasExtra("EXTRA_CORRECT")) intent.getIntExtra("EXTRA_CORRECT", allItems.count { it.isCorrect }) else allItems.count { it.isCorrect }
         val unattempted = if (intent.hasExtra("EXTRA_UNATTEMPTED")) intent.getIntExtra("EXTRA_UNATTEMPTED", allItems.count { !it.isAttempted }) else allItems.count { !it.isAttempted }
@@ -250,11 +249,6 @@ class ResultActivity : EveBaseActivity() {
 
         val scorePct = if (total > 0) (currentScore * 100.0 / total).coerceAtLeast(0.0) else 0.0
         binding.tvScorePercentage.text = String.format(java.util.Locale.US, "%.1f%% Score", scorePct)
-
-        // Trigger celebratory confetti for high-performing counted attempts (accuracy >= 80%)
-        if (isCounted == 1 && accuracy >= 80.0) {
-            binding.confettiView.startConfetti()
-        }
 
         // Number count-up animation for hero score (decelerating over 800ms)
         NumberCountUpHelper.animateScoreCountUp(

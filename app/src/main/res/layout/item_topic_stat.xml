@@ -4,6 +4,6 @@
         <TextView android:id="@+id/tvTopicName" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_weight="1" android:ellipsize="end" android:maxLines="1" />
         <TextView android:id="@+id/tvTopicAccuracy" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_card_gap" />
     </LinearLayout>
-    <ProgressBar android:id="@+id/pbTopicAccuracy" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="@dimen/design_card_gap" android:layout_marginTop="4dp" android:max="100" />
+    <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/pbTopicAccuracy" style="@style/Widget.Eve.Token.Ring" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_marginTop="4dp" android:max="100" android:indeterminate="false" />
     <TextView android:id="@+id/tvTopicCount" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" />
 </LinearLayout>

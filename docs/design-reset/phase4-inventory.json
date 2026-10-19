@@ -1,14 +1,14 @@
 {
   "scope": "app/src/main: XML/Kotlin/Java/JSON text; dp/sp count includes comments and token definitions; hex includes #RGB/#ARGB/#RRGGBB/#AARRGGBB and 0xAARRGGBB",
   "counts": {
-    "hex_color_occurrences": 564,
-    "literal_dp_occurrences": 713,
+    "hex_color_occurrences": 566,
+    "literal_dp_occurrences": 708,
     "literal_sp_occurrences": 222,
-    "style_definitions_including_qualifiers": 364,
-    "drawable_files_including_qualifiers": 157,
+    "style_definitions_including_qualifiers": 365,
+    "drawable_files_including_qualifiers": 160,
     "font_files_including_xml_families": 11,
-    "layout_files_including_qualifiers": 95,
-    "kotlin_files": 257
+    "layout_files_including_qualifiers": 96,
+    "kotlin_files": 260
   },
   "layouts": [
     "app/src/main/res/layout/activity_about.xml",
@@ -49,6 +49,7 @@
     "app/src/main/res/layout/activity_send_notification.xml",
     "app/src/main/res/layout/activity_settings.xml",
     "app/src/main/res/layout/activity_syllabus.xml",
+    "app/src/main/res/layout/activity_system_monitor.xml",
     "app/src/main/res/layout/activity_test.xml",
     "app/src/main/res/layout/bottom_sheet_category_picker.xml",
     "app/src/main/res/layout/bottom_sheet_completed_exam.xml",
@@ -108,10 +109,12 @@
     "app/src/main/res/layout/view_error_state.xml"
   ],
   "ui_sources": [
+    "app/src/main/java/com/eve/app/designsystem/DesignAccuracyRing.kt",
     "app/src/main/java/com/eve/app/designsystem/DesignAutoComplete.kt",
     "app/src/main/java/com/eve/app/designsystem/DesignCardView.kt",
     "app/src/main/java/com/eve/app/designsystem/DesignGlassLayout.kt",
     "app/src/main/java/com/eve/app/designsystem/DesignImageView.kt",
+    "app/src/main/java/com/eve/app/designsystem/DesignLoadingView.kt",
     "app/src/main/java/com/eve/app/designsystem/DesignViewInflater.kt",
     "app/src/main/java/com/eve/app/designsystem/TouchTargets.kt",
     "app/src/main/java/com/eve/app/service/EveMessagingService.kt",

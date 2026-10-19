@@ -22,7 +22,6 @@
                         </LinearLayout>
                         <com.eve.app.designsystem.DesignSwitch android:id="@+id/switchReminder" android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/Widget.Eve.Token.Switch" />
                     </LinearLayout>
-                    <View android:layout_width="match_parent" android:layout_height="@dimen/eve_stroke_hairline" android:layout_marginStart="58dp" />
                     <LinearLayout android:id="@+id/rowDailyGoal" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="@dimen/design_bottom_bar_height" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                         <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Daily Goal" android:src="@drawable/ic_trophy" app:tint="@color/system_orange" />
                         <LinearLayout android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_pill_padding" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
@@ -31,7 +30,6 @@
                         </LinearLayout>
                         <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:src="@drawable/ic_chevron_right" app:tint="@color/text_secondary" />
                     </LinearLayout>
-                    <View android:layout_width="match_parent" android:layout_height="@dimen/eve_stroke_hairline" android:layout_marginStart="58dp" />
                     <LinearLayout android:id="@+id/rowTargetExams" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="@dimen/design_bottom_bar_height" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                         <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="My Exams" android:src="@drawable/ic_topic" app:tint="@color/system_blue" />
                         <LinearLayout android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_pill_padding" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
@@ -40,7 +38,6 @@
                         </LinearLayout>
                         <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:src="@drawable/ic_chevron_right" app:tint="@color/text_secondary" />
                     </LinearLayout>
-                    <View android:layout_width="match_parent" android:layout_height="@dimen/eve_stroke_hairline" android:layout_marginStart="58dp" />
                     <LinearLayout android:id="@+id/rowLanguage" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="@dimen/design_bottom_bar_height" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                         <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="App Language" android:src="@drawable/ic_language" app:tint="@color/system_blue" />
                         <LinearLayout android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_pill_padding" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">

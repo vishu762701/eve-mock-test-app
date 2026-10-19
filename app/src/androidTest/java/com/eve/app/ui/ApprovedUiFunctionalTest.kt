@@ -106,14 +106,14 @@ class ApprovedUiFunctionalTest {
                 val actions = ActivityTestBinding.inflate(LayoutInflater.from(context))
                 actions.btnMarkReview.isSelected = true
                 val selectedState = intArrayOf(android.R.attr.state_selected)
-                assertEquals(Color.parseColor("#FFCC00"), actions.btnMarkReview.backgroundTintList!!.getColorForState(selectedState, 0))
+                assertEquals(context.getColor(R.color.system_yellow), actions.btnMarkReview.backgroundTintList!!.getColorForState(selectedState, 0))
                 assertEquals(Color.BLACK, actions.btnMarkReview.textColors.getColorForState(selectedState, 0))
-                assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP, 16f,
+                assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP, 17f,
                     context.resources.displayMetrics), b.tvQuestion.textSize, 0.51f)
-                assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP, 14f,
+                assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP, 17f,
                     context.resources.displayMetrics), b.rbA.textSize, 0.51f)
-                assertEquals(1.5f, b.tvQuestion.lineSpacingMultiplier, 0.01f)
-                assertEquals((56f * context.resources.displayMetrics.density + 0.5f).toInt(), b.rbA.minHeight)
+                assertEquals(1f, b.tvQuestion.lineSpacingMultiplier, 0.01f)
+                assertEquals((48f * context.resources.displayMetrics.density + 0.5f).toInt(), b.rbA.minHeight)
                 // A selected fill must not paint over the approved 2dp indicator border.
                 b.rbA.isChecked = true
                 b.rbA.jumpDrawablesToCurrentState()
@@ -125,7 +125,7 @@ class ApprovedUiFunctionalTest {
                 b.rbA.layout(0, 0, width, height)
                 val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
                 b.rbA.draw(Canvas(bitmap))
-                val expectedBorder = context.getColor(R.color.text_primary)
+                val expectedBorder = context.getColor(R.color.on_accent)
                 val actualBorder = bitmap.getPixel((31f * density).toInt(), height / 2)
                 // At low density a curved edge shares a pixel with the green surface.
                 // Allow antialiasing, while rejecting a selected fill covering the ring.
@@ -147,13 +147,13 @@ class ApprovedUiFunctionalTest {
             val adapter = QuestionPaletteAdapter(approvedTestStyle = true) { selected = it }
             val holder = adapter.onCreateViewHolder(FrameLayout(context), 0)
             val b = ItemPaletteCircleBinding.bind(holder.itemView)
-            for ((state, color) in listOf(PaletteState.ANSWERED to "#34C759",
-                PaletteState.MARKED to "#FFCC00", PaletteState.ANSWERED_MARKED to "#FFCC00")) {
+            for ((state, color) in listOf(PaletteState.ANSWERED to R.color.system_green,
+                PaletteState.MARKED to R.color.system_yellow, PaletteState.ANSWERED_MARKED to R.color.system_yellow)) {
                 adapter.submit(listOf(PaletteItem(1, state, isActive = true)))
                 adapter.onBindViewHolder(holder, 0)
-                assertEquals(Color.parseColor(color), b.cardCircle.cardBackgroundColor.defaultColor)
+                assertEquals(context.getColor(color), b.cardCircle.cardBackgroundColor.defaultColor)
                 assertEquals(b.cardCircle.layoutParams.width, b.cardCircle.layoutParams.height)
-                assertEquals((38f * context.resources.displayMetrics.density + 0.5f).toInt(), b.cardCircle.layoutParams.width)
+                assertEquals((32f * context.resources.displayMetrics.density + 0.5f).toInt(), b.cardCircle.layoutParams.width)
                 b.root.performClick()
                 assertEquals(0, selected)
             }

@@ -231,3 +231,5 @@ Phase 4 XML/shared-component migration is implemented and passes local build/JVM
 | `app/src/main/res/layout/popup_telegram_menu.xml` | Shared token styles applied; native inflation/render verification pending |
 | `app/src/main/res/layout/view_empty_state.xml` | Shared token styles applied; native inflation/render verification pending |
 | `app/src/main/res/layout/view_error_state.xml` | Shared token styles applied; native inflation/render verification pending |
+
+| `app/src/main/res/layout/activity_system_monitor.xml` | Shared screen/header/cards migrated; hosted native verification pending |

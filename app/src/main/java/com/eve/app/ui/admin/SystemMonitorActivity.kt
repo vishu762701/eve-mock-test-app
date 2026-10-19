@@ -35,17 +35,10 @@ class SystemMonitorActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val scroll = ScrollView(this)
-        content = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            val pad = resources.getDimensionPixelSize(R.dimen.design_screen_margin)
-            setPadding(pad, pad, pad, resources.getDimensionPixelSize(R.dimen.design_scroll_clearance))
-            setBackgroundColor(getColor(R.color.bg_app))
-        }
-        scroll.addView(content)
-        setContentView(scroll)
-        text(content, "System Health & Operations", com.eve.app.designsystem.DesignType.Role.TITLE)
-        button(content, "Back") { finish() }
+        val binding = com.eve.app.databinding.ActivitySystemMonitorBinding.inflate(layoutInflater)
+        content = binding.layoutMonitorContent
+        setContentView(binding.root)
+        binding.btnBack.setOnClickListener { finish() }
         refresh = button(content, "Refresh / Retry") { offset = 0; load() }
         progress = com.google.android.material.progressindicator.CircularProgressIndicator(this).also {
             it.isIndeterminate = true
@@ -61,7 +54,11 @@ class SystemMonitorActivity : EveBaseActivity() {
 
     private fun section(title: String): LinearLayout {
         text(content, title, com.eve.app.designsystem.DesignType.Role.HEADING)
-        return LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }.also { content.addView(it) }
+        val card = com.eve.app.designsystem.DesignCardView(this)
+        content.addView(card, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+            bottomMargin = resources.getDimensionPixelSize(R.dimen.design_card_gap)
+        })
+        return LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }.also { card.addView(it) }
     }
 
     private fun text(parent: LinearLayout, value: String, role: com.eve.app.designsystem.DesignType.Role = com.eve.app.designsystem.DesignType.Role.BODY) {
@@ -69,8 +66,10 @@ class SystemMonitorActivity : EveBaseActivity() {
             text = value
             com.eve.app.designsystem.DesignType.apply(this, role)
             setTextColor(getColor(R.color.text_primary))
-            val gap = resources.getDimensionPixelSize(R.dimen.design_row_gap)
-            setPadding(0, gap, 0, gap)
+            minimumHeight = resources.getDimensionPixelSize(R.dimen.design_row_min)
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                bottomMargin = resources.getDimensionPixelSize(R.dimen.design_row_gap)
+            }
         })
     }
 

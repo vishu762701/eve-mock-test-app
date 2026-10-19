@@ -10,7 +10,6 @@
         </LinearLayout>
         <ImageView android:id="@+id/ivSheetCheckGeneral" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Selected category" android:src="@drawable/ic_check_circle" app:tint="@color/system_blue" />
     </LinearLayout>
-    <View android:layout_width="match_parent" android:layout_height="@dimen/eve_stroke_hairline" />
     <LinearLayout android:id="@+id/rowSheetObc" android:layout_width="match_parent" android:layout_height="wrap_content" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:minHeight="52dp" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
         <LinearLayout android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
             <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="OBC" />
@@ -18,7 +17,6 @@
         </LinearLayout>
         <ImageView android:id="@+id/ivSheetCheckObc" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Selected category" android:src="@drawable/ic_check_circle" android:visibility="invisible" app:tint="@color/system_blue" />
     </LinearLayout>
-    <View android:layout_width="match_parent" android:layout_height="@dimen/eve_stroke_hairline" />
     <LinearLayout android:id="@+id/rowSheetSc" android:layout_width="match_parent" android:layout_height="wrap_content" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:minHeight="52dp" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
         <LinearLayout android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
             <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SC" />
@@ -26,7 +24,6 @@
         </LinearLayout>
         <ImageView android:id="@+id/ivSheetCheckSc" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Selected category" android:src="@drawable/ic_check_circle" android:visibility="invisible" app:tint="@color/system_blue" />
     </LinearLayout>
-    <View android:layout_width="match_parent" android:layout_height="@dimen/eve_stroke_hairline" />
     <LinearLayout android:id="@+id/rowSheetSt" android:layout_width="match_parent" android:layout_height="wrap_content" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:minHeight="52dp" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
         <LinearLayout android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
             <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="ST" />
@@ -34,7 +31,6 @@
         </LinearLayout>
         <ImageView android:id="@+id/ivSheetCheckSt" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Selected category" android:src="@drawable/ic_check_circle" android:visibility="invisible" app:tint="@color/system_blue" />
     </LinearLayout>
-    <View android:layout_width="match_parent" android:layout_height="@dimen/eve_stroke_hairline" />
     <LinearLayout android:id="@+id/rowSheetEws" android:layout_width="match_parent" android:layout_height="wrap_content" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:minHeight="52dp" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
         <LinearLayout android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
             <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="EWS" />

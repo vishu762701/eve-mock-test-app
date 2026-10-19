@@ -52,6 +52,8 @@ class DesignSegmentedTabs @JvmOverloads constructor(
             if (view.currentTextColor != color) view.setTextColor(color)
             val line = resources.getDimensionPixelSize(R.dimen.design_line_tab)
             if (view.lineHeight != line) TextViewCompat.setLineHeight(view, line)
+            if (view.layoutParams.height != line) view.layoutParams = view.layoutParams.apply { height = line }
+            ShadowHost.releaseClipping(view)
             view.includeFontPadding = false
             if (view.maxLines != 1) view.maxLines = 1
             view.ellipsize = android.text.TextUtils.TruncateAt.END

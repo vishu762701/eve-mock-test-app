@@ -53,7 +53,7 @@ class Telegram3DStarSafetyTest {
         val starView = findElementById(doc.documentElement, "lottieDrawerPremiumStar")
         val fallbackView = findElementById(doc.documentElement, "lottieDrawerPremiumStarFallback")
 
-        assertNotNull("lottieDrawerPremiumStar must exist in activity_main.xml", starView)
+        assertEquals("OpenGL overlay is replaced by the retained Lottie icon", null, starView)
         assertNotNull("lottieDrawerPremiumStarFallback must exist in activity_main.xml", fallbackView)
 
         assertEquals("Fallback must be initially gone", "gone", fallbackView!!.getAttribute("android:visibility"))
@@ -66,14 +66,16 @@ class Telegram3DStarSafetyTest {
         val notPremStar = findElementById(doc.documentElement, "starViewNotPremium")
         val notPremFallback = findElementById(doc.documentElement, "ivHeaderStarFallback")
         assertNotNull("starViewNotPremium must exist", notPremStar)
-        assertNotNull("ivHeaderStarFallback must exist", notPremFallback)
-        assertEquals("Fallback must be initially gone", "gone", notPremFallback!!.getAttribute("android:visibility"))
+        assertEquals(null, notPremFallback)
+        assertEquals("ImageView", notPremStar!!.tagName)
+        assertEquals("@drawable/ic_star_outline", notPremStar.getAttribute("android:src"))
 
         val activePremStar = findElementById(doc.documentElement, "starViewPremiumActive")
         val activePremFallback = findElementById(doc.documentElement, "ivActiveStarFallback")
         assertNotNull("starViewPremiumActive must exist", activePremStar)
-        assertNotNull("ivActiveStarFallback must exist", activePremFallback)
-        assertEquals("Fallback must be initially gone", "gone", activePremFallback!!.getAttribute("android:visibility"))
+        assertEquals(null, activePremFallback)
+        assertEquals("ImageView", activePremStar!!.tagName)
+        assertEquals("@drawable/ic_star_outline", activePremStar.getAttribute("android:src"))
     }
 
     @Test

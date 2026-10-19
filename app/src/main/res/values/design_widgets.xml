@@ -10,6 +10,8 @@
         <item name="android:textSize">@dimen/design_type_button</item>
         <item name="android:includeFontPadding">false</item><item name="android:textAllCaps">false</item>
         <item name="android:letterSpacing">0</item>
+        <item name="android:paddingTop">@dimen/design_zero</item><item name="android:paddingBottom">@dimen/design_zero</item>
+        <item name="android:singleLine">true</item><item name="android:ellipsize">end</item>
         <item name="android:paddingStart">@dimen/design_pill_padding</item><item name="android:paddingEnd">@dimen/design_pill_padding</item>
         <item name="android:minHeight">@dimen/design_touch_min</item>
         <item name="android:insetTop">@dimen/design_button_touch_inset</item><item name="android:insetBottom">@dimen/design_button_touch_inset</item>
@@ -220,11 +222,11 @@
     </style>
 
     <style name="Widget.Eve.Token.Spinner" parent="Widget.AppCompat.Spinner">
-        <item name="android:background">@drawable/design_input_background</item>
+        <item name="android:background">@drawable/design_spinner_background</item>
         <item name="android:popupBackground">@drawable/design_menu_fallback</item>
         <item name="android:minHeight">@dimen/design_input_height</item>
         <item name="android:paddingStart">@dimen/design_input_padding</item>
-        <item name="android:paddingEnd">@dimen/design_input_padding</item>
+        <item name="android:paddingEnd">@dimen/design_dropdown_end_padding</item>
         <item name="android:dropDownVerticalOffset">@dimen/design_chip_gap</item>
     </style>
     <style name="Widget.Eve.Token.NativePopup" parent="Widget.Material3.PopupMenu">
@@ -275,4 +277,10 @@
     <style name="Widget.Eve.Token.Tile.Red" parent="Widget.Eve.Token.Tile"><item name="android:background">@drawable/design_tile_red</item></style>
     <style name="Widget.Eve.Token.Tile.Orange" parent="Widget.Eve.Token.Tile"><item name="android:background">@drawable/design_tile_orange</item></style>
     <style name="Widget.Eve.Token.Tile.Yellow" parent="Widget.Eve.Token.Tile"><item name="android:background">@drawable/design_tile_yellow</item></style>
-<style name="Widget.Eve.Token.Button.Review" parent="Widget.Eve.Token.Button.Secondary"><item name="backgroundTint">@color/design_review_fill</item><item name="android:textColor">@color/design_review_text</item></style></resources>
+<style name="Widget.Eve.Token.Button.Review" parent="Widget.Eve.Token.Button.Secondary"><item name="backgroundTint">@color/design_review_fill</item><item name="android:textColor">@color/design_review_text</item></style><style name="Widget.Eve.Token.SpinnerItem" parent="">
+        <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Body</item>
+        <item name="android:fontFamily">@font/poppins_regular</item><item name="android:textSize">@dimen/design_type_body</item>
+        <item name="android:includeFontPadding">false</item><item name="android:textColor">@color/text_primary</item>
+        <item name="android:gravity">center_vertical|start</item><item name="android:singleLine">true</item><item name="android:ellipsize">end</item>
+    </style>
+</resources>

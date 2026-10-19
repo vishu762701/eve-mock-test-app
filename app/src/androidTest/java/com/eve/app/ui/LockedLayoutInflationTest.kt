@@ -60,6 +60,7 @@ class LockedLayoutInflationTest {
                     R.layout.activity_send_notification,
                     R.layout.activity_settings,
                     R.layout.activity_syllabus,
+                    R.layout.activity_system_monitor,
                     R.layout.activity_test,
                     R.layout.bottom_sheet_category_picker,
                     R.layout.bottom_sheet_completed_exam,

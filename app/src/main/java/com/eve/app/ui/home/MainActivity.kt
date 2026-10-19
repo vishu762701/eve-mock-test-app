@@ -447,9 +447,6 @@ class MainActivity : EveBaseActivity() {
             }
         }
 
-        if (::binding.isInitialized) {
-            binding.flameStreakAnimation.resumeAnimation()
-        }
 
         if (::binding.isInitialized && binding.cardFloatingAirplane.visibility == View.VISIBLE) {
             val animScale = Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
@@ -459,19 +456,11 @@ class MainActivity : EveBaseActivity() {
         }
         if (::binding.isInitialized) {
             setupDrawerPremiumStar()
-            if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                binding.lottieDrawerPremiumStar.setPaused(false)
-                binding.lottieDrawerPremiumStar.updateTheme()
-            }
         }
     }
 
     override fun onPause() {
         super.onPause()
-        if (::binding.isInitialized) {
-            binding.flameStreakAnimation.pauseAnimation()
-            binding.lottieDrawerPremiumStar.setPaused(true)
-        }
         if (::binding.isInitialized && binding.cardFloatingAirplane.visibility == View.VISIBLE) {
             binding.lottieFloatingAirplane.pauseAnimation()
         }
@@ -1081,14 +1070,14 @@ class MainActivity : EveBaseActivity() {
             is UiState.Loading -> {
                 hasEmptyPlayed = false
                 if (lastLoadedItems.isNotEmpty()) {
-                    binding.shimmerSkeletonHome.visibility = View.GONE
+                    binding.loadingHome.visibility = View.GONE
                     binding.rvExams.visibility = View.VISIBLE
                     binding.messageGroup.visibility = View.GONE
                 } else {
                     if (binding.rvExams.layoutAnimation == null) {
                         binding.rvExams.layoutAnimation = android.view.animation.AnimationUtils.loadLayoutAnimation(this, R.anim.layout_enter)
                     }
-                    binding.shimmerSkeletonHome.visibility = View.VISIBLE
+                    binding.loadingHome.visibility = View.VISIBLE
                     binding.rvExams.visibility = View.GONE
                     binding.progressGroup.visibility = View.GONE
                     binding.messageGroup.visibility = View.GONE
@@ -1103,14 +1092,14 @@ class MainActivity : EveBaseActivity() {
                 renderChips(data.categories, data.selectedCategory)
                 applyCurrentList()
                 if (restoreThemeContent) {
-                    com.eve.app.util.ShimmerHelper.showContentImmediately(binding.shimmerSkeletonHome, binding.rvExams)
+                    com.eve.app.designsystem.DesignLoading.showContent(binding.loadingHome, binding.rvExams)
                     binding.rvExams.layoutManager?.onRestoreInstanceState(themeListState)
                     themeListState = null
                     restoreThemeContent = false
                     // Keep the XML layout entrance suppressed for this restored content.
                     // Setting a controller again schedules another entrance on the next layout.
                 } else {
-                    com.eve.app.util.ShimmerHelper.crossFade(binding.shimmerSkeletonHome, binding.rvExams)
+                    com.eve.app.designsystem.DesignLoading.showContent(binding.loadingHome, binding.rvExams)
                 }
                 binding.chipGroupCategory.visibility =
                     if (data.categories.size <= 1 || isSearchActive) View.GONE else View.VISIBLE
@@ -1127,11 +1116,11 @@ class MainActivity : EveBaseActivity() {
             is UiState.Error -> {
                 hasEmptyPlayed = false
                 if (lastLoadedItems.isNotEmpty()) {
-                    binding.shimmerSkeletonHome.visibility = View.GONE
+                    binding.loadingHome.visibility = View.GONE
                     binding.rvExams.visibility = View.VISIBLE
                     binding.messageGroup.visibility = View.GONE
                 } else {
-                    binding.shimmerSkeletonHome.visibility = View.GONE
+                    binding.loadingHome.visibility = View.GONE
                     binding.progressGroup.visibility = View.GONE
                     binding.messageGroup.visibility = View.VISIBLE
                     binding.btnRetry.visibility = View.VISIBLE
@@ -1216,19 +1205,12 @@ class MainActivity : EveBaseActivity() {
 
         // Drawer animation ownership stays here; the drawer surface is opaque.
         binding.drawerLayout.addDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-                if (slideOffset > 0f) {
-                    binding.lottieDrawerPremiumStar.setPaused(false)
-                }
-            }
-
             override fun onDrawerOpened(drawerView: View) {
                 playDrawerPremiumStar()
             }
 
             override fun onDrawerClosed(drawerView: View) {
                 binding.ivDrawerGlassBlurBackground.setImageDrawable(null)
-                binding.lottieDrawerPremiumStar.setPaused(true)
             }
         })
 
@@ -1336,11 +1318,7 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun setupDrawerPremiumStar() {
-        val starView = binding.lottieDrawerPremiumStar
         val fallback = binding.lottieDrawerPremiumStarFallback
-        starView.fallbackView = fallback
-        starView.lazyMode = false
-        starView.animationSpeedMultiplier = 1.5f
         fallback.speed = 1.5f
 
         val isDark = ThemeManager.isDarkMode(this)
@@ -1358,40 +1336,11 @@ class MainActivity : EveBaseActivity() {
         }
         fallback.progress = 1f
 
-        if (starView.isFailed) {
-            fallback.visibility = View.VISIBLE
-            starView.visibility = View.GONE
-        } else {
-            fallback.visibility = View.VISIBLE
-            starView.visibility = View.VISIBLE
-            starView.updateTheme()
-        }
+        fallback.visibility = View.VISIBLE
     }
 
     private fun playDrawerPremiumStar() {
-        val starView = binding.lottieDrawerPremiumStar
         val fallback = binding.lottieDrawerPremiumStarFallback
-
-        if (starView.isFailed || starView.visibility != View.VISIBLE) {
-            fallback.visibility = View.VISIBLE
-            starView.visibility = View.GONE
-            val animScale = Settings.Global.getFloat(
-                contentResolver,
-                Settings.Global.ANIMATOR_DURATION_SCALE,
-                1.0f
-            )
-            if (animScale == 0f) {
-                fallback.progress = 1f
-            } else {
-                fallback.progress = 0f
-                fallback.playAnimation()
-            }
-            return
-        }
-
-        starView.setPaused(false)
-        starView.updateTheme()
-        starView.startEnterAnimation()
 
         if (fallback.visibility == View.VISIBLE) {
             val animScale = Settings.Global.getFloat(

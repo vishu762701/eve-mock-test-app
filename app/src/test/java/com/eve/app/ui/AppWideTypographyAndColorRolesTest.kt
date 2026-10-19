@@ -84,7 +84,7 @@ class AppWideTypographyAndColorRolesTest {
         assertTrue("Layout directory must exist at ${layoutDir.absolutePath}", layoutDir.exists())
 
         val layoutFiles = layoutDir.listFiles { file -> file.extension == "xml" }?.sortedBy { it.name } ?: emptyList()
-        assertEquals("Project must contain exactly 95 layout files", 95, layoutFiles.size)
+        assertEquals("Project includes the new System Monitor layout", 96, layoutFiles.size)
 
         val violations = mutableListOf<String>()
         for (file in layoutFiles) {

@@ -26,7 +26,7 @@ class RepairVerificationActivity : EveBaseActivity() {
             submit(List(40) { i -> com.eve.app.ui.home.HomeListItem.ExamRow(
                 com.eve.app.data.model.Exam(id = "fixture-$i", examName = "Fixture exam $i"), false, false) })
         }
-        com.eve.app.util.ShimmerHelper.showContentImmediately(b.shimmerSkeletonHome, b.rvExams)
+        com.eve.app.designsystem.DesignLoading.showContent(b.loadingHome, b.rvExams)
         b.rvExams.layoutManager?.onRestoreInstanceState(listState)
     }
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -30,7 +30,6 @@
                 <com.google.android.material.chip.Chip android:id="@+id/chipAdmin" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:clickable="false" android:text="Admin" android:visibility="gone" style="@style/Widget.Eve.Token.Chip" />
                 <com.google.android.material.chip.Chip android:id="@+id/chipPremium" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:clickable="true" android:text="Premium Active" android:visibility="gone" app:chipIcon="@drawable/ic_star_filled" app:chipIconTint="@color/design_role_premium_text" style="@style/Widget.Eve.Token.Chip" />
             </LinearLayout>
-            <View android:layout_width="match_parent" android:layout_height="@dimen/eve_stroke_hairline" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginTop="@dimen/design_shadow_room" />
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginTop="18dp" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Panel">
                 <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Personal Information" />
                 <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilName" style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:hint="Full Name">
@@ -48,7 +47,6 @@
                 </com.google.android.material.chip.ChipGroup>
                 <com.google.android.material.button.MaterialButton android:id="@+id/btnSaveProfile" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_section_gap" android:text="Save Profile" />
             </LinearLayout>
-            <View android:layout_width="match_parent" android:layout_height="@dimen/eve_stroke_hairline" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginTop="@dimen/design_shadow_room" />
             <LinearLayout android:id="@+id/rowReminder" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                 <TextView style="@style/TextAppearance.Eve.Token.Body" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_weight="1" android:text="Daily Practice Reminder" />
                 <com.eve.app.designsystem.DesignSwitch android:id="@+id/switchReminder" android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/Widget.Eve.Token.Switch" />

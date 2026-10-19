@@ -39,7 +39,6 @@ class HistoryActivity : EveBaseActivity() {
         hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
         binding = ActivityHistoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.shimmerSkeletonHistory.skeletonType = com.eve.app.ui.common.ShimmerSkeletonView.TYPE_LIST_ITEMS
 
         binding.btnBack.setOnClickListener { finish() }
 
@@ -68,7 +67,7 @@ class HistoryActivity : EveBaseActivity() {
     private fun render(state: UiState<List<TestAttempt>>) {
         when (state) {
             is UiState.Loading -> {
-                binding.shimmerSkeletonHistory.visibility = View.VISIBLE
+                binding.loadingHistory.visibility = View.VISIBLE
                 binding.rvHistory.visibility = View.GONE
                 binding.progressGroup.visibility = View.GONE
                 binding.messageGroup.visibility = View.GONE
@@ -80,7 +79,7 @@ class HistoryActivity : EveBaseActivity() {
                 val empty = state.data.isEmpty()
                 binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
                 if (empty) {
-                    binding.shimmerSkeletonHistory.visibility = View.GONE
+                    binding.loadingHistory.visibility = View.GONE
                     binding.rvHistory.visibility = View.GONE
                     hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(
                         binding.ivMessageIcon,
@@ -90,11 +89,11 @@ class HistoryActivity : EveBaseActivity() {
                     binding.tvMessageSub.text = "Submitted tests will appear here"
                 } else {
                     hasEmptyPlayed = false
-                    com.eve.app.util.ShimmerHelper.crossFade(binding.shimmerSkeletonHistory, binding.rvHistory)
+                    com.eve.app.designsystem.DesignLoading.showContent(binding.loadingHistory, binding.rvHistory)
                 }
             }
             is UiState.Error -> {
-                binding.shimmerSkeletonHistory.visibility = View.GONE
+                binding.loadingHistory.visibility = View.GONE
                 binding.progressGroup.visibility = View.GONE
                 binding.messageGroup.visibility = View.VISIBLE
                 binding.btnRetry.visibility = View.VISIBLE

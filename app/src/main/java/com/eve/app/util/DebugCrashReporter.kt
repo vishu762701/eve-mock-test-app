@@ -174,7 +174,7 @@ object DebugCrashReporter {
             text = crashContent
             setPadding(40, 20, 40, 20)
             setTextIsSelectable(true)
-            textSize = 12f
+            com.eve.app.designsystem.DesignType.apply(this, com.eve.app.designsystem.DesignType.Role.SECONDARY)
         }
         val scrollView = ScrollView(activity).apply {
             addView(textView)

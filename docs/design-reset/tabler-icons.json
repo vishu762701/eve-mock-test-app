@@ -70,5 +70,6 @@
   "ic_visibility": "eye",
   "ic_warning": "alert-triangle",
   "ic_add": "plus",
-  "ic_save": "device-floppy"
+  "ic_save": "device-floppy",
+  "ic_visibility_off": "eye-off"
 }

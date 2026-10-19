@@ -27,19 +27,20 @@ class TelegramRadioButton @JvmOverloads constructor(
             addState(intArrayOf(android.R.attr.state_checked), surface(R.color.accent))
             addState(intArrayOf(), surface(R.color.surface_inset))
         }
+        DesignType.apply(this, DesignType.Role.BODY)
         setTextColor(ColorStateList(
             arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
             intArrayOf(ContextCompat.getColor(context, R.color.on_accent), ContextCompat.getColor(context, R.color.text_primary))
         ))
-        buttonDrawable = ContextCompat.getDrawable(context, R.drawable.design_choice_indicator)
+        val iconInset = resources.getDimensionPixelSize(R.dimen.design_card_padding)
+        buttonDrawable = android.graphics.drawable.InsetDrawable(ContextCompat.getDrawable(context, R.drawable.design_choice_indicator), iconInset, 0, iconInset, 0)
         buttonTintList = ColorStateList(
             arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
             intArrayOf(ContextCompat.getColor(context, R.color.on_accent), ContextCompat.getColor(context, R.color.text_secondary))
         )
-        DesignType.apply(this, DesignType.Role.BODY)
         minHeight = resources.getDimensionPixelSize(R.dimen.design_touch_min)
         val pad = resources.getDimensionPixelSize(R.dimen.design_card_padding)
-        setPaddingRelative(pad, pad, pad, pad)
+        setPaddingRelative(0, pad, pad, pad)
         compoundDrawablePadding = pad
         stateListAnimator = android.animation.AnimatorInflater.loadStateListAnimator(context, R.animator.design_press_scale)
     }

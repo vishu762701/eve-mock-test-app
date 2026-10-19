@@ -74,7 +74,12 @@ class DesignInputLayout @JvmOverloads constructor(
             layout.boxStrokeErrorColor = ContextCompat.getColorStateList(context, R.color.system_red)
             layout.setErrorTextAppearance(R.style.TextAppearance_Eve_Token_Error)
             layout.setErrorTextColor(requireNotNull(ContextCompat.getColorStateList(context, R.color.system_red)))
-            if (field is AutoCompleteTextView) layout.endIconMode = END_ICON_DROPDOWN_MENU
+            if (field is AutoCompleteTextView) {
+                layout.endIconMode = END_ICON_DROPDOWN_MENU
+                layout.setEndIconDrawable(R.drawable.ic_chevron_down)
+            } else if (layout.endIconMode == END_ICON_PASSWORD_TOGGLE) {
+                layout.setEndIconDrawable(R.drawable.design_password_toggle)
+            }
         }
     }
 }

@@ -478,7 +478,7 @@ object EveDesignSystem {
 
         @ColorInt
         fun drawerScrim(context: Context): Int =
-            ContextCompat.getColor(context, R.color.text_primary)
+            ContextCompat.getColor(context, R.color.modal_scrim)
     }
 
     /**

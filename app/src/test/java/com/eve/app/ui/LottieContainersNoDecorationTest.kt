@@ -105,7 +105,7 @@ class LottieContainersNoDecorationTest {
     @Test
     fun testDrawerPremiumStar_hasNoDecoration() {
         val doc = loadXml("src/main/res/layout/activity_main.xml")
-        val star = findElementById(doc.documentElement, "lottieDrawerPremiumStar")
+        val star = findElementById(doc.documentElement, "lottieDrawerPremiumStarFallback")
         assertNotNull("lottieDrawerPremiumStar must exist in activity_main.xml", star)
         val bg = star!!.designAttribute("android:background")
         assertTrue(

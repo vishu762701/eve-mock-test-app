@@ -70,7 +70,6 @@ class TestActivity : EveBaseActivity() {
         SecurityHelper.applyScreenProtection(this)
         binding = ActivityTestBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.shimmerSkeletonTest.skeletonType = com.eve.app.ui.common.ShimmerSkeletonView.TYPE_QUESTION
 
         examId = intent.getStringExtra(Constants.EXTRA_EXAM_ID) ?: ""
         examName = intent.getStringExtra(Constants.EXTRA_EXAM_NAME) ?: "Test"
@@ -298,13 +297,13 @@ class TestActivity : EveBaseActivity() {
     private fun renderQuestions(state: UiState<List<Question>>) {
         when (state) {
             is UiState.Loading -> {
-                binding.shimmerSkeletonTest.visibility = View.VISIBLE
+                binding.loadingTest.visibility = View.VISIBLE
                 binding.viewPager.visibility = View.GONE
                 binding.progressGroup.visibility = View.GONE
                 binding.messageGroup.visibility = View.GONE
             }
             is UiState.Error -> {
-                binding.shimmerSkeletonTest.visibility = View.GONE
+                binding.loadingTest.visibility = View.GONE
                 binding.progressGroup.visibility = View.GONE
                 binding.messageGroup.visibility = View.VISIBLE
                 binding.btnRetry.visibility = View.VISIBLE
@@ -323,7 +322,7 @@ class TestActivity : EveBaseActivity() {
                 val list = state.data
                 totalQuestions = list.size
                 if (list.isEmpty()) {
-                    binding.shimmerSkeletonTest.visibility = View.GONE
+                    binding.loadingTest.visibility = View.GONE
                     binding.messageGroup.visibility = View.VISIBLE
                     binding.btnRetry.visibility = View.GONE
                     hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(
@@ -367,7 +366,7 @@ class TestActivity : EveBaseActivity() {
                         getQuestionTime = { pos -> viewModel.getQuestionTime(pos) }
                     )
                 }
-                com.eve.app.util.ShimmerHelper.crossFade(binding.shimmerSkeletonTest, binding.viewPager)
+                com.eve.app.designsystem.DesignLoading.showContent(binding.loadingTest, binding.viewPager)
                 if (!initialNavDone) {
                     initialNavDone = true
                     val targetIndex = if (!initialQuestionId.isNullOrBlank()) {

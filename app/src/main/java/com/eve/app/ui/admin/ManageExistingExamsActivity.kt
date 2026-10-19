@@ -71,7 +71,7 @@ class ManageExistingExamsActivity : EveBaseActivity() {
     private var listLoadJob: kotlinx.coroutines.Job? = null
 
     private fun loadExams() {
-        binding.shimmerSkeletonExams.visibility = View.VISIBLE
+        binding.loadingExams.visibility = View.VISIBLE
         binding.emptyGroup.visibility = View.GONE
 
         listLoadJob?.cancel()
@@ -94,11 +94,11 @@ class ManageExistingExamsActivity : EveBaseActivity() {
                     )
                 }.sortedWith(compareBy<ExamWithStats> { it.exam.categoryOrOther }.thenBy { it.exam.examName })
 
-                binding.shimmerSkeletonExams.visibility = View.GONE
+                binding.loadingExams.visibility = View.GONE
                 filterExams(binding.etSearchExam.text?.toString().orEmpty())
             } catch (e: kotlinx.coroutines.CancellationException) { throw e }
             catch (e: Exception) {
-                binding.shimmerSkeletonExams.visibility = View.GONE
+                binding.loadingExams.visibility = View.GONE
                 AppBulletin.showError(this@ManageExistingExamsActivity, "Failed to load exams: ${e.toUserFriendlyMessage()}")
             }
         }

@@ -401,3 +401,37 @@ require hosted emulator execution; native rendering is not yet certified.
 Phase 4 is still open pending hosted rendering/lifecycle results and the final
 runtime/custom-effect inventory. Phase 5 deletion evidence and Phase 6 enforcement
 are not complete. No design_check PASS or final APK is claimed for this work.
+
+
+Phase 4 hosted run 39221645621 at 293fe9b failed both native jobs (13 failures
+in gesture mode); build/JVM/lint, backend and functions succeeded; publishing
+was correctly skipped. Actual logs were inspected. Problems included an answer
+radio text appearance overwriting its checked-state foreground, enlarged-font
+button clipping, and stale source/color/geometry expectations in older fixtures.
+The radio now applies type before its stateful foreground and gives the native
+24dp outline indicator proper insets. Shared button content padding is zero
+vertically; capsules remain 44dp drawn/48dp targets, single-line at the locked
+16/22 type. At enlarged fonts long labels ellipsize, while native accessibility
+retains the entire label; default-font full-label checks remain enforced.
+Tab labels retain their scaled line height without clipping inside the fixed
+40dp strip. Insets are asserted after independent pixel rounding of each 12dp
+side. System-hue contrast exceptions are measured/reported at the exact required
+colors, with normal neutral text contrast checks preserved.
+
+Final runtime audit also replaced old shimmer loading hosts with the shared thin
+ring, retired non-Lottie sparkle/confetti/OpenGL overlays, replaced drawn flame
+and premium icons with the same Tabler outline set, and preserved the actual
+premium Lottie assets and drawer-open playback. All raw animation assets remain
+unchanged. Loading/result/bookmark/payment data and callback predicates remain.
+System Monitor now has its own shared-layout header/scroll host; inventory is
+96 layouts. Native dropdown, password-visibility and spinner-selected icons/type
+use the shared tokens. Added eye-off from the same licensed Tabler release.
+These fixes require the next hosted verification before Phase 4 can be closed.
+
+Resume verification: inspected both failed native job logs; three-button mode
+has the same 13 failures as gesture mode. Composited translucent review badge
+containers over solid surface before measuring contrast, and replaced palette
+fixture day literals with resolved green/yellow tokens. Restored the protected
+menu theme-icon view unchanged; the enclosing clickable row supplies its tap
+area. All four local Android gates passed again (31s); 15 Python checks passed.
+No native success is claimed until the new commit completes hosted verification.

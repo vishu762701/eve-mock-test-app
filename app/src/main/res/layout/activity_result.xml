@@ -104,7 +104,7 @@
                         </LinearLayout>
                         <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:id="@+id/cardOverviewAnalytics" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap" android:clickable="true" android:focusable="true">
                             <com.eve.app.ui.result.ResponsiveResultRow android:layout_width="match_parent" android:layout_height="wrap_content" android:baselineAligned="false" android:gravity="center_vertical" android:orientation="horizontal" app:eveHorizontalBreakpoint="366dp" android:clipChildren="false" android:clipToPadding="false">
-                                <com.eve.app.ui.result.SemiCircleGaugeView android:id="@+id/gaugeTopicAccuracy" android:layout_width="92dp" android:layout_height="62dp" android:layout_marginEnd="@dimen/design_pill_padding" />
+                                <com.eve.app.designsystem.DesignAccuracyRing android:id="@+id/gaugeTopicAccuracy" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_marginEnd="@dimen/design_pill_padding" />
                                 <com.eve.app.ui.result.ResponsiveResultRow android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_weight="1" android:baselineAligned="false" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false">
                                     <LinearLayout android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginEnd="@dimen/design_row_gap" android:gravity="center" android:orientation="vertical" style="@style/Widget.Eve.Token.Tile" android:clipChildren="false" android:clipToPadding="false">
                                         <TextView android:id="@+id/tvAnalysisAttempted" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="0%" />
@@ -172,7 +172,7 @@
                     </LinearLayout>
                 </androidx.core.widget.NestedScrollView>
             </FrameLayout>
-            <FrameLayout android:id="@+id/layoutResultTabContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="top" android:layout_marginStart="@dimen/design_section_gap" android:layout_marginEnd="@dimen/design_section_gap" android:layout_marginTop="@dimen/design_row_gap" android:layout_marginBottom="@dimen/design_row_gap" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <FrameLayout android:id="@+id/layoutResultTabContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="top" android:layout_marginStart="@dimen/design_screen_margin" android:layout_marginEnd="@dimen/design_screen_margin" android:layout_marginTop="@dimen/design_zero" android:layout_marginBottom="@dimen/design_zero" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
                 <com.eve.app.designsystem.DesignSegmentedTabs android:id="@+id/tabLayoutResult" android:layout_width="match_parent" android:layout_height="@dimen/design_tab_height" app:tabGravity="fill" app:tabMode="fixed" style="@style/Widget.Eve.Token.SegmentedTabs">
                     <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Overview" />
                     <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Review" />
@@ -181,5 +181,4 @@
             </FrameLayout>
         </FrameLayout>
     </LinearLayout>
-    <com.eve.app.ui.result.ConfettiView android:id="@+id/confettiView" android:layout_width="match_parent" android:layout_height="match_parent" />
 </FrameLayout>

@@ -1023,9 +1023,8 @@ class ManageExamsActivity : EveBaseActivity() {
 
         val tvMsg = android.widget.TextView(context).apply {
             text = friendlyMessage
-            textSize = 15f
+            com.eve.app.designsystem.DesignType.apply(this, com.eve.app.designsystem.DesignType.Role.BODY)
             setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.text_primary))
-            setLineSpacing(0f, 1.2f)
         }
         container.addView(tvMsg)
 
@@ -1038,7 +1037,7 @@ class ManageExamsActivity : EveBaseActivity() {
 
         val tvDetails = android.widget.TextView(context).apply {
             text = techLine
-            textSize = 12f
+            com.eve.app.designsystem.DesignType.apply(this, com.eve.app.designsystem.DesignType.Role.SECONDARY)
             setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.text_secondary))
             setTextIsSelectable(true)
             val topMargin = (16 * density).toInt()

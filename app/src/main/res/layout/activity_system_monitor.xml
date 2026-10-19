@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.Eve.Token.Screen" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical">
+    <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
+        <LinearLayout style="@style/Widget.Eve.Token.ToolbarRow" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:orientation="horizontal">
+            <ImageButton android:id="@+id/btnBack" style="@style/Widget.Eve.Token.IconButton" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:src="@drawable/ic_back" android:contentDescription="Back" />
+        </LinearLayout>
+    </com.eve.app.ui.common.EveGlassToolbar>
+    <LinearLayout style="@style/Widget.Eve.Token.LargeTitleBlock" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+        <TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="System Health &amp; Operations" />
+    </LinearLayout>
+    <ScrollView style="@style/Widget.Eve.Token.Scroll" android:layout_width="match_parent" android:layout_height="@dimen/design_zero" android:layout_weight="1">
+        <LinearLayout android:id="@+id/layoutMonitorContent" style="@style/Widget.Eve.Token.Column" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+    </ScrollView>
+</LinearLayout>

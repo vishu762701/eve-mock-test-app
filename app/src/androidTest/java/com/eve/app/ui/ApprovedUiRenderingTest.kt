@@ -105,7 +105,7 @@ class ApprovedUiRenderingTest {
             assertEquals(pixels(48), q.rbA.minHeight)
             assertEquals(pixels(10), q.rbA.paddingTop)
             assertEquals(pixels(10), q.rbA.paddingRight)
-            assertEquals(pixels(10), q.rbA.paddingLeft)
+            assertEquals(0, q.rbA.paddingLeft)
             // XML resolves each 4dp/6dp margin separately at fractional density.
             val footer = ActivityTestBinding.inflate(LayoutInflater.from(scaledContext))
             fun margins(button: View) = (button.parent as View).layoutParams as ViewGroup.MarginLayoutParams
@@ -134,7 +134,7 @@ class ApprovedUiRenderingTest {
     private fun verifyHome() {
         val b = ActivityMainBinding.inflate(LayoutInflater.from(context))
         assertEquals(context.getColor(R.color.bg_app), (b.root.background as ColorDrawable).color)
-        assertEquals(appBackground, context.getColor(R.color.text_primary))
+        assertEquals(appBackground, context.getColor(R.color.bg_app))
         assertEquals(canvasBackground, context.getColor(R.color.bg_app))
         listOf(b.btnSearch, b.btnNotification, b.btnOverflow).forEach { bare(it) }
         assertNull((b.btnNotification.parent as View).background)
@@ -265,7 +265,7 @@ class ApprovedUiRenderingTest {
             assertEquals(dp(10), option.paddingTop)
             assertEquals(dp(10), option.paddingBottom)
             assertEquals(dp(10), option.paddingRight)
-            assertEquals(dp(10), option.paddingLeft)
+            assertEquals(0, option.paddingLeft)
             if (index < 3) assertEquals(dp(6), options[index + 1].top - option.bottom)
             val surface = (option.background as StateListDrawable).current as GradientDrawable
             assertEquals(16f * density, surface.cornerRadius, 0.01f)
@@ -333,8 +333,8 @@ class ApprovedUiRenderingTest {
         val margins = (b.tabLayoutResult.parent as View).layoutParams as ViewGroup.MarginLayoutParams
         assertEquals(dp(12), margins.marginStart)
         assertEquals(dp(12), margins.marginEnd)
-        assertEquals(dp(6), margins.topMargin)
-        assertEquals(dp(6), margins.bottomMargin)
+        assertEquals(0, margins.topMargin)
+        assertEquals(0, margins.bottomMargin)
         assertEquals(0, b.tabLayoutResult.selectedTabPosition)
         assertEquals(com.google.android.material.tabs.TabLayout.INDICATOR_GRAVITY_STRETCH,
             b.tabLayoutResult.tabIndicatorGravity)

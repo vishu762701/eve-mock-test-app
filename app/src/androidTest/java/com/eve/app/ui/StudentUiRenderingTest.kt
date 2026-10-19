@@ -146,7 +146,7 @@ class StudentUiRenderingTest {
         fun show(id: Int, visible: Boolean = true) { root.findViewById<View>(id)?.visibility = if (visible) View.VISIBLE else View.GONE }
         fun text(id: Int, value: String) { root.findViewById<TextView>(id)?.text = value }
         for (id in listOf(R.id.progressGroup, R.id.messageGroup, R.id.progressBar, R.id.progress,
-            R.id.shimmerSkeletonHome, R.id.shimmerSkeletonTest, R.id.shimmerSkeletonHistory)) show(id, false)
+            R.id.loadingHome, R.id.loadingTest, R.id.loadingHistory)) show(id, false)
         if (name.startsWith("payment") && name != "payment-method") {
             text(R.id.tvPlanName, "EVE Premium • 30 days"); text(R.id.tvAmount, "₹99"); text(R.id.tvTimer, "Expires in 14:32")
             val image = com.eve.app.util.QrCodeGenerator.generateBitmap("EVE_FIXTURE_NOT_A_PAYMENT", 180)
@@ -163,7 +163,7 @@ class StudentUiRenderingTest {
                     List(6) { HomeListItem.ExamRow(exam.copy(id = "exam-$it", category = if (it == 0) "SSC" else "Banking", examName = if (it == 0) exam.examName else "Banking • Practice ${it + 1}"), it == 1, it == 0) }) })
                 if (name == "home-drawer") { text(R.id.tvDrawerUserName, "Ananya Sharma"); text(R.id.tvDrawerUserEmail, "ananya@example.invalid"); root.findViewById<androidx.drawerlayout.widget.DrawerLayout>(R.id.drawerLayout).openDrawer(androidx.core.view.GravityCompat.START, false) }
                 if (name == "home-feedback") recycler(root, R.id.rvExams, ExamAdapter({ _, _, _ -> }).apply { submit(listOf(HomeListItem.FeedbackPostRow(FeedbackPost(id = "post", title = "Help shape your next practice session", message = "Which topics would you like to see next? Share your feedback with the team.", timestamp = 1780000000000L)))) })
-                if (name == "home-loading") { show(R.id.rvExams, false); show(R.id.shimmerSkeletonHome) }
+                if (name == "home-loading") { show(R.id.rvExams, false); show(R.id.loadingHome) }
             }
             "exam-tests" -> recycler(root, R.id.rvTests, ExamTestsAdapter({}, { _, _ -> }).apply {
                 submitList(List(5) { i -> ExamTestsListItem.TestItem(GeneratedTest(id = "$i"), "Mock Test ${i + 1}", "20 questions • 30 minutes", i == 1, i == 2, i == 3, "Opens tomorrow") })
@@ -253,9 +253,7 @@ class StudentUiRenderingTest {
             "error" -> { text(R.id.tvErrorTitle, "Unable to load content"); text(R.id.tvErrorMessage, "Check your connection and try again."); show(R.id.btnRetry) }
             "empty" -> { text(R.id.tvEmptyTitle, "All caught up"); text(R.id.tvEmptyMessage, "Your saved content will appear here."); show(R.id.tvEmptyMessage) }
         }
-        // GLSurfaceViews require the existing hardware evidence; show native fallback artwork in Canvas fixtures.
-        for (id in listOf(R.id.lottieDrawerPremiumStar, R.id.starViewNotPremium, R.id.starViewPremiumActive)) show(id, false)
-        for (id in listOf(R.id.ivHeaderStarFallback, R.id.ivActiveStarFallback)) show(id)
+
     }
 
     private fun freezeFixtureAnimations(root: View) {
@@ -289,7 +287,9 @@ class StudentUiRenderingTest {
         }
         if (view is TextView && view.text.isNotBlank() && view.height > 0 && view.width > 0) {
             if (view is com.google.android.material.button.MaterialButton) {
-                for (line in 0 until view.lineCount) assertEquals("Action label must fit: $label / ${view.text}", 0, view.layout.getEllipsisCount(line))
+                assertEquals("Locked capsules keep one line at enlarged font scales: $label / ${view.text}", 1, view.lineCount)
+                if (view.resources.configuration.fontScale <= 1f) assertEquals("Default-size action text must fit: $label / ${view.text}", 0, view.layout.getEllipsisCount(0))
+                assertEquals("Ellipsized capsules retain the complete accessible label", view.text.toString(), view.createAccessibilityNodeInfo().text.toString())
             }
             val foreground = androidx.core.graphics.ColorUtils.compositeColors(androidx.core.graphics.ColorUtils.setAlphaComponent(view.currentTextColor, Math.round(android.graphics.Color.alpha(view.currentTextColor) * alpha)), background)
             val largeOrPrimary = view.currentTextColor == view.context.getColor(R.color.on_accent) ||

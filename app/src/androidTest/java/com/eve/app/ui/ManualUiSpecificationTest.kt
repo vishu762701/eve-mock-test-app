@@ -56,9 +56,10 @@ class ManualUiSpecificationTest {
                     assertTrue(group.height >= Math.round(48f * density))
                     assertTrue("Event must be outside the visible pill", chip.top > 1f)
                     val x = (chip.left + chip.right) / 2f
+                    val y = chip.top.toFloat() + Math.round(4f * density)
                     val now = android.os.SystemClock.uptimeMillis()
                     for (action in listOf(android.view.MotionEvent.ACTION_DOWN, android.view.MotionEvent.ACTION_UP)) {
-                        val event = android.view.MotionEvent.obtain(now, now, action, x, 1f, 0)
+                        val event = android.view.MotionEvent.obtain(now, now, action, x, y, 0)
                         try { assertTrue(group.dispatchTouchEvent(event)) } finally { event.recycle() }
                     }
                 }
@@ -135,7 +136,7 @@ class ManualUiSpecificationTest {
                     }
                     chips.forEach { home.chipGroupCategory.addView(it) }
                     layout(home.root)
-                    assertEquals(dp(width - 24), home.panelHomeBanner.width)
+                    assertEquals(dp(width) - 2 * dp(12), home.panelHomeBanner.width)
                     assertEquals(dp(160), home.panelHomeBanner.height)
                     val outline = Outline()
                     home.panelHomeBanner.outlineProvider.getOutline(home.panelHomeBanner, outline)
@@ -162,7 +163,7 @@ class ManualUiSpecificationTest {
                     val result = ActivityResultBinding.inflate(LayoutInflater.from(context))
                     ResultTabs.bind(result) {}
                     layout(result.root)
-                    assertEquals(dp(width - 24), result.tabLayoutResult.width)
+                    assertEquals(dp(width) - 2 * dp(12), result.tabLayoutResult.width)
                     assertTrue(result.tabLayoutResult.height == dp(40))
                     assertEquals(dp(3), result.tabLayoutResult.paddingTop)
                     assertEquals(dp(3), result.tabLayoutResult.paddingStart)
@@ -229,7 +230,7 @@ class ManualUiSpecificationTest {
                     layout(question.root)
                     val options = listOf(question.rbA, question.rbB, question.rbC, question.rbD)
                     for (option in options) {
-                        assertEquals(dp(width - 24), option.width)
+                        assertEquals(dp(width) - 2 * dp(12), option.width)
                         assertEquals(dp(48), option.minHeight)
                         assertTrue(option.height >= dp(48))
                         for (checked in listOf(false, true, false)) {

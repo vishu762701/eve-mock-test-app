@@ -10,7 +10,6 @@
             <TextView android:id="@+id/tvEveDefaultSample" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Practice makes perfect  Aa Bb 123" style="@style/TextAppearance.Eve.Token.Secondary" />
         </LinearLayout>
     </LinearLayout>
-    <View android:layout_width="match_parent" android:layout_height="@dimen/eve_stroke_hairline" />
     <LinearLayout android:id="@+id/rowDeviceFont" android:layout_width="match_parent" android:layout_height="wrap_content" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
         <RadioButton android:id="@+id/radioDeviceFont" android:layout_width="wrap_content" android:layout_height="wrap_content" android:clickable="false" android:focusable="false" style="@style/Widget.Eve.Token.Radio" />
         <LinearLayout android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_screen_margin" android:layout_weight="1" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
