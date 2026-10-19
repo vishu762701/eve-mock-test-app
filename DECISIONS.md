@@ -1019,3 +1019,13 @@ transition changes remain later phases, not implied by root resource creation.
 Material 1.12.0 official AAR resource symbols were read to verify referenced widget
 styles/attributes against the installed version:
 https://dl.google.com/dl/android/maven2/com/google/android/material/material/1.12.0/material-1.12.0.aar
+
+Root validation follow-up: retain the already exact canonical system hue/canvas
+entries in `colors.xml`; put new roles in `design_colors.xml`. Moving the existing
+entries prematurely broke single-file historical color audits without changing
+runtime values. The correction keeps their exact-value assertions intact.
+Use prefix `design` for new theme attributes to avoid AppCompat's drawable `track`
+attribute. SDK 36 public resources verify the native shadow names
+`android:ambientShadowAlpha` / `android:spotShadowAlpha`. Disable Material elevation
+color overlays to preserve solid surface pixels at 9dp; give Snackbar text an
+explicit readable body style on the solid surface. No errors are suppressed.

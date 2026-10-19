@@ -92,4 +92,9 @@
     <style name="Widget.Eve.Token.Snackbar" parent="Widget.Material3.Snackbar">
         <item name="backgroundTint">@color/surface</item><item name="shapeAppearance">@style/ShapeAppearance.Eve.Token.Card</item>
     </style>
+    <style name="Widget.Eve.Token.Snackbar.Text" parent="Widget.Material3.Snackbar.TextView">
+        <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Body</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
 </resources>

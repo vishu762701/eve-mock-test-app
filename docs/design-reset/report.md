@@ -118,8 +118,8 @@ Settings font row and picker entry point are removed. The font lifecycle overrid
 and font-version recreation loop are removed; all other settings remain intact.
 Font resource cleanup stays in Phase 5 with the required deletion proof.
 
-- Canonical day/night palette moved to `design_colors.xml`; new inset, text,
-  hairline, track, Mono, shadow and glass tokens added with exact owner values
+- Existing canonical day/night palette verified in `colors.xml`; new inset, text,
+  hairline, track, Mono, shadow and glass tokens added in `design_colors.xml` with exact owner values
   (fractional alpha rounded to the nearest 8-bit channel).
 - Bundled Regular 400 / Medium 500 / Bold 700 Poppins binaries and XML family;
   complete SIL OFL 1.1 included in APK assets and quoted in third-party notices.
@@ -158,3 +158,36 @@ pass locally. The next local Java step found missing `jlink` in the environment'
 Java installation; a complete JDK is being installed outside the repository.
 This does not establish a successful APK build yet. The first root CI run failed
 on the fixed resource collision; a new run is required for the correction commit.
+
+### Phase 1 local verification passed
+
+A complete Temurin JDK 21 was installed outside the repository. With Gradle 8.7,
+Android SDK 36 and the session proxy/trust store, the following completed with
+`BUILD SUCCESSFUL`:
+
+```
+./gradlew assembleDebug testDebugUnitTest lintDebug assembleDebugAndroidTest
+```
+
+- 281 JVM tests, 0 failures/errors/skipped.
+- Lint: 0 errors/fatal issues; warning inventory remains for later cleanup.
+- Debug APK and instrumentation APK assembled successfully.
+- The native Settings fixture no longer references the owner-retired font field.
+- Existing exact system hue/background tokens remain in `colors.xml`, since those
+  values already matched the owner's spec. This preserves existing color audits;
+  new roles are in `design_colors.xml`. No color assertion was weakened.
+- Font identity checks parse both legacy family and typographic family names from
+  the actual TrueType `name` table; Medium correctly has legacy family
+  `Poppins Medium` and typographic family `Poppins`.
+- Material elevation tinting is disabled so a 9dp card retains exact `surface`.
+  The native test also checks its rendered center pixel in both themes.
+- Root implementation is committed; hosted light/dark native checks remain pending
+  for the correction commit. Full screen migration and design_check PASS are not
+  claimed. No resources have been deleted.
+
+Phase 2 diagnosis (before changes): 89 CardView declarations inspected; 9 have
+ancestors retaining default child/padding clipping (Result's four summary cards,
+four Premium cards and the palette-circle host). ViewPager2's internal RecyclerView
+also requires runtime host handling. Existing explicit elevations, custom surface
+helpers and zero-margin rows must be migrated through shared components, not
+border/alpha workarounds.

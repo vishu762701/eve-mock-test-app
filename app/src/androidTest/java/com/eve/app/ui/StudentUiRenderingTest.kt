@@ -169,7 +169,7 @@ class StudentUiRenderingTest {
             }).also { text(R.id.tvTitle, exam.examName) }
             "signup" -> { show(R.id.tilName); text(R.id.tvTagline, "Create your account"); text(R.id.btnSubmit, "Sign Up"); text(R.id.btnToggleMode, "Already have an account? Sign In") }
             "profile" -> { assertNull("Student photos must retain their original image colours", root.findViewById<ImageView>(R.id.ivProfilePhoto).imageTintList); text(R.id.tvName, "Ananya Sharma"); text(R.id.tvEmail, "ananya@example.invalid"); text(R.id.tvEveId, "EV-ABC123"); text(R.id.etName, "Ananya Sharma"); text(R.id.etDob, "12/04/2001"); show(R.id.chipPremium) }
-            "settings" -> { root.findViewById<androidx.appcompat.widget.SwitchCompat>(R.id.switchReminder).isChecked = true; text(R.id.tvFontValue, "Device font"); text(R.id.tvDailyGoalValue, "3 tests per day"); text(R.id.tvLanguageValue, "English") }
+            "settings" -> { root.findViewById<androidx.appcompat.widget.SwitchCompat>(R.id.switchReminder).isChecked = true; text(R.id.tvDailyGoalValue, "3 tests per day"); text(R.id.tvLanguageValue, "English") }
             "result", "review", "result-leaderboard" -> {
                 val b = ActivityResultBinding.bind(root); ResultTabs.bind(b) {}
                 text(R.id.tvScore, "76.5 / 100"); text(R.id.tvScorePercentage, "76.5% Score"); text(R.id.tvCorrectCount, "80")

@@ -19,6 +19,11 @@ class ManualBorderInventoryTest {
             // Notification/status dot artwork has a contrast halo, not a UI container outline.
             if (file.name != "bg_dot_red.xml") for (node in elements(file).filter { it.tagName == "stroke" }) {
                 val width = node.getAttribute("android:width")
+                if (file.name == "design_input_background.xml") {
+                    assertEquals("Locked focused input ring", "@dimen/design_focus_stroke", width)
+                    assertEquals("@color/accent", node.getAttribute("android:color"))
+                    continue
+                }
                 assertTrue("${file.path}: stroke width must be 1dp or @dimen/eve_home_hairline_border (was $width)",
                     width == "1dp" || width == "@dimen/eve_home_hairline_border" || width == "@dimen/eve_home_hairline_stroke" || width == "@dimen/eve_home_pill_border_width")
                 val expected = if (file.name == "bg_edit_text_rounded.xml") "@color/eve_control_outline" else "@color/eve_shape_border"

@@ -1,6 +1,9 @@
 package com.eve.app.ui
 
 import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.view.View
 import android.view.ContextThemeWrapper
 import android.widget.TextView
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -51,6 +54,16 @@ class LockedFoundationTest {
                 assertEquals(context.getColor(R.color.surface), card.cardBackgroundColor.defaultColor)
                 assertEquals(0, card.strokeWidth)
                 assertEquals(resources.getDimensionPixelSize(R.dimen.design_card_padding), card.contentPaddingLeft)
+                val width = (160 * resources.displayMetrics.density).toInt()
+                val height = (100 * resources.displayMetrics.density).toInt()
+                card.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY))
+                card.layout(0, 0, width, height)
+                val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                card.draw(Canvas(bitmap))
+                assertEquals("Elevation must not tint the locked card surface",
+                    context.getColor(R.color.surface), bitmap.getPixel(width / 2, height / 2))
+                bitmap.recycle()
             }
         }
     }
