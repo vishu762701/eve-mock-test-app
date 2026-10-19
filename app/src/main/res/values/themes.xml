@@ -1,16 +1,14 @@
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <style name="Theme.Eve.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/bg_app</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher</item>
         <item name="postSplashScreenTheme">@style/Theme.Eve</item>
     </style>
-
     <style name="Theme.Eve" parent="Theme.Eve.Base" />
-
     <style name="Theme.Eve.Base" parent="Theme.Eve.Foundation">
         <item name="android:windowLightStatusBar">true</item>
     </style>
-
     <style name="Theme.Eve.Foundation" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/accent</item>
         <item name="colorOnPrimary">@color/on_accent</item>
@@ -50,45 +48,6 @@
         <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
         <item name="android:textColorHint">@color/text_secondary</item>
-        <item name="eveLabelPrimary">@color/text_primary</item>
-        <item name="eveLabelSecondary">@color/text_secondary</item>
-        <item name="eveLabelTertiary">@color/text_secondary</item>
-        <item name="eveLabelQuaternary">@color/text_secondary</item>
-        <item name="evePlaceholderText">@color/text_secondary</item>
-        <item name="eveSystemBackground">@color/bg_app</item>
-        <item name="eveSecondarySystemBackground">@color/surface</item>
-        <item name="eveTertiarySystemBackground">@color/surface_inset</item>
-        <item name="eveSystemGroupedBackground">@color/bg_app</item>
-        <item name="eveSecondarySystemGroupedBackground">@color/surface</item>
-        <item name="eveTertiarySystemGroupedBackground">@color/surface_inset</item>
-        <item name="eveSeparator">@color/hairline</item>
-        <item name="eveOpaqueSeparator">@color/hairline</item>
-        <item name="eveControlOutline">@color/hairline</item>
-        <item name="eveSystemBlue">@color/system_blue</item>
-        <item name="evePrimaryFill">@color/accent</item>
-        <item name="eveOnPrimary">@color/on_accent</item>
-        <item name="eveAccentText">@color/accent</item>
-        <item name="eveAccentContainer">@color/track</item>
-        <item name="eveOnAccentContainer">@color/text_primary</item>
-        <item name="eveDestructiveText">@color/system_red</item>
-        <item name="eveFillPrimary">@color/track</item>
-        <item name="eveFillSecondary">@color/track</item>
-        <item name="eveFillTertiary">@color/track</item>
-        <item name="eveFillQuaternary">@color/track</item>
-        <item name="eveLink">@color/system_blue</item>
-        <item name="eveColorBackground">@color/bg_app</item>
-        <item name="eveColorCard">@color/surface</item>
-        <item name="eveColorTextPrimary">@color/text_primary</item>
-        <item name="eveColorTextSecondary">@color/text_secondary</item>
-        <item name="eveColorHairline">@color/hairline</item>
-        <item name="eveColorTabTrack">@color/track</item>
-        <item name="eveColorAccent">@color/accent</item>
-        <item name="eveColorOnAccent">@color/on_accent</item>
-        <item name="eveColorSuccess">@color/system_green</item>
-        <item name="eveColorError">@color/system_red</item>
-        <item name="eveColorWarning">@color/system_orange</item>
-        <item name="eveColorFloatingBarBg">@color/glass_tint</item>
-        <item name="eveColorCardShadow">@color/card_shadow</item>
         <item name="bgApp">@color/bg_app</item>
         <item name="systemRed">@color/system_red</item>
         <item name="systemGreen">@color/system_green</item>
@@ -218,7 +177,6 @@
         <item name="imageButtonStyle">@style/Widget.Eve.Token.IconButton</item>
         <item name="android:imageButtonStyle">@style/Widget.Eve.Token.IconButton</item>
     </style>
-
     <style name="Theme.Eve.Dialog.Base" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="dialogPreferredPadding">@dimen/design_card_padding</item>
         <item name="android:windowElevation">@dimen/design_card_elevation</item>
@@ -233,20 +191,15 @@
         <item name="materialAlertDialogTitleTextStyle">@style/Widget.Eve.Token.Dialog.Title</item>
         <item name="materialAlertDialogBodyTextStyle">@style/Widget.Eve.Token.Dialog.Body</item>
     </style>
-
     <style name="Theme.Eve.Dialog" parent="Theme.Eve.Dialog.Base" />
-
-    <!-- Scoped Mock Test Submission Confirmation Dialog Theme -->
     <style name="Theme.Eve.Dialog.SubmitConfirmation" parent="Theme.Eve.Dialog.Base">
         <item name="android:windowBackground">@drawable/design_surface_panel</item>
         <item name="android:windowIsFloating">true</item>
     </style>
-
     <style name="ShapeAppearance.Eve.Dialog" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">@dimen/design_radius_card</item>
     </style>
-
     <style name="Theme.Eve.BottomSheetDialog" parent="Theme.Eve.BottomSheetDialog.Base" />
     <style name="Theme.Eve.BottomSheetDialog.Base" parent="ThemeOverlay.Material3.BottomSheetDialog">
         <item name="materialButtonStyle">@style/Widget.Eve.Token.Button</item>
@@ -255,78 +208,28 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@color/bg_app</item>
     </style>
-
     <style name="Widget.Eve.BottomSheet.Modal" parent="Widget.Material3.BottomSheet.Modal">
         <item name="backgroundTint">@color/surface</item>
         <item name="shapeAppearance">@style/ShapeAppearance.Eve.Token.Sheet</item>
     </style>
-
-    <style name="ShapeRoundedBottomSheet" parent="">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSizeTopLeft">@dimen/design_radius_card</item>
-        <item name="cornerSizeTopRight">@dimen/design_radius_card</item>
-        <item name="cornerSizeBottomLeft">0dp</item>
-        <item name="cornerSizeBottomRight">0dp</item>
-    </style>
-
-    <style name="Widget.Eve.PopupMenu" parent="Widget.Material3.PopupMenu">
-        <item name="android:popupBackground">@drawable/bg_popup_menu</item>
-        <item name="android:popupElevation">8dp</item>
-    </style>
-
-    <!-- Scoped Home Screen Theme (iOS 26 Depth & Motion: 0dp card elevation, no shadows, 24dp blur/tint popup menu) -->
     <style name="Theme.Eve.Home" parent="Theme.Eve">
         <item name="popupMenuStyle">@style/Widget.Eve.Token.NativePopup</item>
     </style>
-
-    <style name="Widget.Eve.Home.PopupMenu" parent="Widget.Material3.PopupMenu">
-        <item name="android:popupBackground">@drawable/bg_home_popup_menu</item>
-        <item name="android:popupElevation">@dimen/eve_home_card_elevation</item>
+    <style name="ShapeCircle" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
     </style>
-
-    <style name="ThemeOverlay.Eve.DeviceFont" parent="">
-        <item name="android:fontFamily">sans-serif</item>
-        <item name="fontFamily">sans-serif</item>
-        <item name="textAppearanceDisplayLarge">@style/TextAppearance.Eve.DeviceFont.DisplayLarge</item>
-        <item name="textAppearanceDisplayMedium">@style/TextAppearance.Eve.DeviceFont.DisplayMedium</item>
-        <item name="textAppearanceDisplaySmall">@style/TextAppearance.Eve.DeviceFont.DisplaySmall</item>
-        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.Eve.DeviceFont.HeadlineLarge</item>
-        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.Eve.DeviceFont.HeadlineMedium</item>
-        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.Eve.DeviceFont.HeadlineSmall</item>
-        <item name="textAppearanceTitleLarge">@style/TextAppearance.Eve.DeviceFont.TitleLarge</item>
-        <item name="textAppearanceTitleMedium">@style/TextAppearance.Eve.DeviceFont.TitleMedium</item>
-        <item name="textAppearanceTitleSmall">@style/TextAppearance.Eve.DeviceFont.TitleSmall</item>
-        <item name="textAppearanceBodyLarge">@style/TextAppearance.Eve.DeviceFont.BodyLarge</item>
-        <item name="textAppearanceBodyMedium">@style/TextAppearance.Eve.DeviceFont.BodyMedium</item>
-        <item name="textAppearanceBodySmall">@style/TextAppearance.Eve.DeviceFont.BodySmall</item>
-        <item name="textAppearanceLabelLarge">@style/TextAppearance.Eve.DeviceFont.LabelLarge</item>
-        <item name="textAppearanceLabelMedium">@style/TextAppearance.Eve.DeviceFont.LabelMedium</item>
-        <item name="textAppearanceLabelSmall">@style/TextAppearance.Eve.DeviceFont.LabelSmall</item>
-    </style>
-    <style name="ShapeCircle" parent=""><item name="cornerFamily">rounded</item><item name="cornerSize">50%</item></style>
-    <style name="ShapeRounded14" parent=""><item name="cornerFamily">rounded</item><item name="cornerSize">@dimen/eve_radius_input</item></style>
-
     <style name="Eve.WindowAnimation" parent="@android:style/Animation.Activity">
         <item name="android:activityOpenEnterAnimation">@anim/design_screen_enter</item>
         <item name="android:activityOpenExitAnimation">@anim/design_screen_recede</item>
         <item name="android:activityCloseEnterAnimation">@anim/design_screen_return</item>
         <item name="android:activityCloseExitAnimation">@anim/design_screen_exit</item>
     </style>
-
-    <style name="Eve.WindowAnimation.ProfileLeft" parent="@style/Eve.WindowAnimation" />
-
     <style name="Theme.Eve.Profile" parent="Theme.Eve">
         <item name="android:windowAnimationStyle">@style/Eve.WindowAnimation</item>
     </style>
-    <!-- Android interpretation: stronger readable roles when system contrast is high. -->
     <style name="ThemeOverlay.Eve.HighContrast" parent="">
-        <item name="evePrimaryFill">@color/accent</item>
         <item name="colorPrimary">@color/accent</item>
-        <item name="eveLabelSecondary">@color/text_secondary</item>
-        <item name="eveLabelTertiary">@color/text_secondary</item>
-        <item name="eveLabelQuaternary">@color/text_secondary</item>
-        <item name="eveAccentText">@color/accent</item>
-        <item name="eveControlOutline">@color/hairline</item>
         <item name="colorOnSurfaceVariant">@color/text_secondary</item>
         <item name="colorOutline">@color/hairline</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>

@@ -3,7 +3,7 @@
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
         <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.ToolbarRow">
             <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/text_primary" style="@style/Widget.Eve.Token.IconButton" />
-            <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1" />
+            <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
             <ImageButton android:id="@+id/btnRefresh" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Refresh" android:src="@drawable/ic_refresh" app:tint="@color/text_primary" style="@style/Widget.Eve.Token.IconButton" />
         </LinearLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
@@ -37,7 +37,7 @@
             <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                     <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:layout_marginTop="2dp" android:src="@drawable/ic_info" app:tint="@color/system_blue" />
-                    <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_card_padding" android:layout_weight="1" android:text="Note: Check actual usage and billing in the Google Cloud Console and Firebase Console directly for precise, authoritative numbers. This in-app counter is an approximate early-warning indicator, not a billing source of truth." />
+                    <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_card_padding" android:layout_weight="1" android:text="Note: Check actual usage and billing in the Google Cloud Console and Firebase Console directly for precise, authoritative numbers. This in-app counter is an approximate early-warning indicator, not a billing source of truth." />
                 </LinearLayout>
             </com.eve.app.designsystem.DesignCardView>
         </LinearLayout>

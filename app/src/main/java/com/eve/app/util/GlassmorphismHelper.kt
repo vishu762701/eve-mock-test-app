@@ -9,7 +9,6 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 
 /** Window-local ownership prevents an obsolete entrance from restoring dismissed blur. */
 object GlassmorphismHelper {
-    const val DEFAULT_BLUR_RADIUS = 80
     private class Work : View.OnAttachStateChangeListener {
         var setup: Runnable? = null
         var animator: ValueAnimator? = null
@@ -50,24 +49,6 @@ object GlassmorphismHelper {
     private fun own(view: View): Work {
         cancel(view)
         return Work().also { work[view] = it; view.addOnAttachStateChangeListener(it) }
-    }
-
-    fun applyWindowBlur(view: View, blurRadius: Int = DEFAULT_BLUR_RADIUS, animate: Boolean = true) {
-        if (Build.VERSION.SDK_INT < 31) return
-        val owner = own(view)
-        owner.setup = Runnable {
-            if (work[view] !== owner || !view.isAttachedToWindow) return@Runnable
-            owner.setup = null
-            if (animate) {
-                update(view, owner, 1)
-                owner.animator = ValueAnimator.ofInt(1, blurRadius).apply {
-                    duration = 200L
-                    interpolator = FastOutSlowInInterpolator()
-                    addUpdateListener { update(view, owner, it.animatedValue as Int) }
-                    start()
-                }
-            } else update(view, owner, blurRadius)
-        }.also { view.post(it) }
     }
 
     fun removeWindowBlur(view: View, animate: Boolean = true) {

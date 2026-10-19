@@ -1,5 +1,7 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.designsystem.showDestructive
+
 import com.eve.app.ui.common.EveBaseActivity
 
 import android.net.Uri
@@ -569,6 +571,6 @@ class EditExamActivity : EveBaseActivity() {
                 )
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .showDestructive()
     }
 }

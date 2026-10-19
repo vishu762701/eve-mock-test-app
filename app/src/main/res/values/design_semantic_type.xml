@@ -36,4 +36,5 @@
   <style name="TextAppearance.Eve.Token.Secondary.red" parent="TextAppearance.Eve.Token.Secondary">
     <item name="android:textColor">@color/system_red</item>
   </style>
+    <style name="TextAppearance.Eve.Token.Chip.OnAccent" parent="TextAppearance.Eve.Token.Chip"><item name="android:textColor">@color/on_accent</item></style>
 </resources>

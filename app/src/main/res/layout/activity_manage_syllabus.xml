@@ -3,7 +3,7 @@
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
         <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.ToolbarRow">
             <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/text_primary" style="@style/Widget.Eve.Token.IconButton" />
-            <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1" />
+            <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
             <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/progressBarTop" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:indeterminate="true" android:visibility="gone" style="@style/Widget.Eve.Token.Ring" />
         </LinearLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
@@ -22,7 +22,7 @@
                     </com.eve.app.designsystem.DesignInputLayout>
                     <LinearLayout android:id="@+id/layoutSelectedPdf" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:gravity="center_vertical" android:orientation="horizontal" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Tile">
                         <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="PDF file" android:src="@drawable/ic_description" app:tint="@color/system_blue" />
-                        <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvNewPdfName" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_card_gap" android:layout_weight="1" android:ellipsize="middle" android:maxLines="1" ns2:text="sample_syllabus.pdf" />
+                        <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvNewPdfName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_card_gap" android:layout_weight="1" android:ellipsize="middle" android:maxLines="1" ns2:text="sample_syllabus.pdf" />
                         <ImageButton android:id="@+id/btnClearSelectedPdf" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Clear" android:src="@drawable/ic_close" app:tint="@color/text_secondary" style="@style/Widget.Eve.Token.IconButton" />
                     </LinearLayout>
                     <com.google.android.material.button.MaterialButton android:id="@+id/btnChoosePdf" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_padding" android:text="Choose PDF Document" app:icon="@drawable/ic_upload" />
@@ -31,7 +31,7 @@
                 </LinearLayout>
             </com.eve.app.designsystem.DesignCardView>
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginTop="@dimen/design_icon_size" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                <TextView style="@style/TextAppearance.Eve.Token.Heading" android:id="@+id/tvExistingHeader" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_weight="1" android:text="Existing Syllabuses" />
+                <TextView style="@style/TextAppearance.Eve.Token.Heading" android:id="@+id/tvExistingHeader" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Existing Syllabuses" />
                 <TextView style="@style/TextAppearance.Eve.Token.Secondary.blue" android:id="@+id/tvSyllabusCount" android:layout_width="wrap_content" android:layout_height="wrap_content" ns2:text="3 Active" />
             </LinearLayout>
             <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilSearch" style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginTop="@dimen/design_card_padding" android:hint="Search syllabus by exam name..." app:startIconDrawable="@drawable/ic_search">

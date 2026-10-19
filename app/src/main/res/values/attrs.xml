@@ -1,53 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="EveLiquidGlassView">
-        <attr name="eveCornerRadius" format="dimension" />
-        <attr name="eveHasHighlight" format="boolean" />
-        <attr name="eveTactile" format="boolean" />
-    </declare-styleable>
     <declare-styleable name="ResponsiveResultRow">
         <attr name="eveHorizontalBreakpoint" format="dimension" />
     </declare-styleable>
-    <attr name="eveLabelPrimary" format="color" />
-    <attr name="eveLabelSecondary" format="color" />
-    <attr name="eveLabelTertiary" format="color" />
-    <attr name="eveLabelQuaternary" format="color" />
-    <attr name="evePlaceholderText" format="color" />
-    <attr name="eveSystemBackground" format="color" />
-    <attr name="eveSecondarySystemBackground" format="color" />
-    <attr name="eveTertiarySystemBackground" format="color" />
-    <attr name="eveSystemGroupedBackground" format="color" />
-    <attr name="eveSecondarySystemGroupedBackground" format="color" />
-    <attr name="eveTertiarySystemGroupedBackground" format="color" />
-    <attr name="eveSeparator" format="color" />
-    <attr name="eveOpaqueSeparator" format="color" />
-    <attr name="eveControlOutline" format="color" />
-    <attr name="eveSystemBlue" format="color" />
-    <attr name="evePrimaryFill" format="color" />
-    <attr name="eveOnPrimary" format="color" />
-    <attr name="eveAccentText" format="color" />
-    <attr name="eveAccentContainer" format="color" />
-    <attr name="eveOnAccentContainer" format="color" />
-    <attr name="eveDestructiveText" format="color" />
-    <attr name="eveFillPrimary" format="color" />
-    <attr name="eveFillSecondary" format="color" />
-    <attr name="eveFillTertiary" format="color" />
-    <attr name="eveFillQuaternary" format="color" />
-    <attr name="eveLink" format="color" />
     <!-- Eve Design System Locked Foundation Color Roles (App-Wide) -->
-    <attr name="eveColorBackground" format="color" />
-    <attr name="eveColorCard" format="color" />
-    <attr name="eveColorTextPrimary" format="color" />
-    <attr name="eveColorTextSecondary" format="color" />
-    <attr name="eveColorHairline" format="color" />
-    <attr name="eveColorTabTrack" format="color" />
-    <attr name="eveColorAccent" format="color" />
-    <attr name="eveColorOnAccent" format="color" />
-    <attr name="eveColorSuccess" format="color" />
-    <attr name="eveColorError" format="color" />
-    <attr name="eveColorWarning" format="color" />
-    <attr name="eveColorFloatingBarBg" format="color" />
-    <attr name="eveColorCardShadow" format="color" />
     <!-- App-Wide Authoritative Palette Token Attributes -->
     <attr name="bgApp" format="color" />
     <attr name="systemRed" format="color" />

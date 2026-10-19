@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
-<com.eve.app.designsystem.DesignCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginVertical="@dimen/design_zero" android:minHeight="@dimen/eve_list_row_min" style="@style/Widget.Eve.Token.Card" android:layout_marginBottom="@dimen/design_card_gap">
+<com.eve.app.designsystem.DesignCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginVertical="@dimen/design_zero" android:minHeight="@dimen/design_row_with_gap" style="@style/Widget.Eve.Token.Card" android:layout_marginBottom="@dimen/design_card_gap">
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-            <TextView android:id="@+id/tvExamName" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_weight="1" android:text="SSC CGL - Generated Test #1" />
+            <TextView android:id="@+id/tvExamName" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="SSC CGL - Generated Test #1" />
             <TextView android:id="@+id/tvStatusBadge" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="PAUSED" />
         </LinearLayout>
         <TextView android:id="@+id/tvTestDetails" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="25 questions • Generated 2h ago" />
@@ -14,7 +14,7 @@
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:gravity="center_vertical|end" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
             <com.google.android.material.button.MaterialButton android:id="@+id/btnSchedule" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:text="Schedule" />
             <com.google.android.material.button.MaterialButton android:id="@+id/btnPreview" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="4dp" android:text="Review" />
-            <ImageButton android:id="@+id/btnDelete" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_card_gap" android:contentDescription="Delete test" android:src="@drawable/ic_close" app:tint="@color/selector_eve_destructive_text" style="@style/Widget.Eve.Token.IconButton" />
+            <ImageButton android:id="@+id/btnDelete" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_card_gap" android:contentDescription="Delete test" android:src="@drawable/ic_close" style="@style/Widget.Eve.Token.IconButton.Destructive" />
         </LinearLayout>
     </LinearLayout>
 </com.eve.app.designsystem.DesignCardView>

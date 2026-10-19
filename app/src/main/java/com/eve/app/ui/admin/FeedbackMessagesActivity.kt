@@ -1,5 +1,7 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.designsystem.showDestructive
+
 import com.eve.app.ui.common.EveBaseActivity
 
 import android.os.Bundle
@@ -129,7 +131,7 @@ class FeedbackMessagesActivity : EveBaseActivity() {
                 )
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .showDestructive()
     }
 
     private fun deleteMessage(id: String) {

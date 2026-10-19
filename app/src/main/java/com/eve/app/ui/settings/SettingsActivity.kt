@@ -1,5 +1,7 @@
 package com.eve.app.ui.settings
 
+import com.eve.app.designsystem.showDestructive
+
 import com.eve.app.ui.common.EveBaseActivity
 
 import android.content.Intent
@@ -178,7 +180,7 @@ class SettingsActivity : EveBaseActivity() {
                 executeAccountDeletion()
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .showDestructive()
     }
 
     private fun showProgress(msg: String) {

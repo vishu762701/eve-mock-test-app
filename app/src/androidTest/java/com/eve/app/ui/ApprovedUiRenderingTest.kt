@@ -151,7 +151,7 @@ class ApprovedUiRenderingTest {
         var clicked = false
         categories.forEach { category ->
             val chip = HomeAppearance.categoryChip(context, category, "All") { clicked = true }
-            assertEquals(context.resources.getDimension(R.dimen.design_pill_height) / 2, chip.chipCornerRadius, 0.01f)
+            assertEquals(0.5f, (chip.shapeAppearanceModel.topLeftCornerSize as com.google.android.material.shape.RelativeCornerSize).relativePercent, 0.01f)
             b.chipGroupCategory.addView(chip)
         }
         b.chipGroupCategory.getChildAt(1).performClick()
@@ -310,7 +310,12 @@ class ApprovedUiRenderingTest {
             assertTrue("The remaining half-ring must render", listOf(
                 Color.red(pixel) - Color.red(foreground), Color.green(pixel) - Color.green(foreground),
                 Color.blue(pixel) - Color.blue(foreground)).all { kotlin.math.abs(it) <= 16 })
-            assertEquals(context.getColor(R.color.track), image.getPixel(dp(2), dp(36)))
+            val trackColor = context.getColor(R.color.track)
+            val trackPixel = image.getPixel(dp(2), dp(36))
+            // Premultiplied ARGB pixels quantize low-alpha RGB channels; the Paint stays exact.
+            assertEquals(trackColor, timerPaint("trackPaint").color)
+            assertEquals(Color.alpha(trackColor), Color.alpha(trackPixel))
+            assertTrue(listOf(Color.red(trackColor) - Color.red(trackPixel), Color.green(trackColor) - Color.green(trackPixel), Color.blue(trackColor) - Color.blue(trackPixel)).all { kotlin.math.abs(it) <= 3 })
         }
         b.viewPager.setCurrentItem(59, false)
         assertEquals(59, b.viewPager.currentItem)

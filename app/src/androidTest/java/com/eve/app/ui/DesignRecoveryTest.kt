@@ -19,7 +19,7 @@ import com.eve.app.databinding.ActivityProfileBinding
 import com.eve.app.databinding.ActivityResultBinding
 import com.eve.app.databinding.BottomSheetTargetExamsBinding
 import com.eve.app.databinding.ItemAnswerBinding
-import com.eve.app.ui.common.EveLiquidGlassView
+import com.eve.app.designsystem.DesignCardView
 import com.eve.app.ui.home.TargetExamsBottomSheet
 import com.eve.app.ui.result.ResultTabs
 import com.eve.app.util.ThemeManager
@@ -132,16 +132,19 @@ class DesignRecoveryTest {
                     readable(result.tvScore); readable(result.tvScorePercentage); readable(result.tvStats)
                     readable(result.tvAccuracy)
                     val outline = Outline()
+                    val heroPixels = Bitmap.createBitmap(hero.width, hero.height, Bitmap.Config.ARGB_8888)
+                    hero.draw(Canvas(heroPixels)) // Initialize the native background bounds before asking its outline.
+                    heroPixels.recycle()
                     hero.outlineProvider.getOutline(hero, outline)
                     assertEquals(26f * d, outline.radius, 0.01f)
                     // A radius change must update both pixels and clipping without requiring a size change.
-                    val shape = EveLiquidGlassView(context)
+                    val shape = DesignCardView(context)
                     layout(shape, 200, 100)
                     val first = Bitmap.createBitmap(shape.width, shape.height, Bitmap.Config.ARGB_8888)
                     shape.draw(Canvas(first))
                     assertEquals(Color.TRANSPARENT, first.getPixel(dp(2), dp(2)))
                     first.recycle()
-                    shape.cornerRadiusPx = 0f
+                    shape.radius = 0f
                     shape.outlineProvider.getOutline(shape, outline)
                     assertEquals(0f, outline.radius, 0f)
                     val square = Bitmap.createBitmap(shape.width, shape.height, Bitmap.Config.ARGB_8888)
@@ -402,38 +405,24 @@ class DesignRecoveryTest {
                         val homeBg = activity.getColor(R.color.bg_app)
                         assertEquals("Home root", homeBg,
                             (home.root.background as android.graphics.drawable.ColorDrawable).color)
-                        assertEquals("Home content", homeBg,
-                            (home.mainContentContainer.background as android.graphics.drawable.ColorDrawable).color)
-                        val expectedTopBarColor = activity.getColor(
-                            if (com.eve.app.util.EveLiquidGlass.isCrossWindowBlurSupported(activity)) {
-                                R.color.glass_fallback
-                            } else {
-                                R.color.glass_fallback
-                            }
-                        )
+                        assertEquals("Home content inherits the verified root canvas", null, home.mainContentContainer.background)
+                        val expectedTopBarColor = Color.TRANSPARENT
                         assertEquals("Home header", expectedTopBarColor,
                             (home.topBarContainer.background as android.graphics.drawable.ColorDrawable).color)
                         assertEquals("Home search header", expectedTopBarColor,
                             (home.searchTopBar.background as android.graphics.drawable.ColorDrawable).color)
-                        val sheetBg = home.contentSheet.background
-                        val contentColor = when (sheetBg) {
-                            is android.graphics.drawable.ColorDrawable -> sheetBg.color
-                            is android.graphics.drawable.GradientDrawable -> sheetBg.color!!.defaultColor
-                            else -> -1
-                        }
-                        assertEquals("Home flat content", homeBg, contentColor)
+                        assertEquals("Flat content inherits the root canvas", null, home.contentSheet.background)
                         assertEquals("Home no overlapping sheet", 0,
                             (home.contentSheet.layoutParams as android.widget.LinearLayout.LayoutParams).topMargin)
                         val groupedCard = activity.getColor(R.color.surface_inset)
-                        assertEquals("Streak pill uses a distinct Home grouped card surface", groupedCard,
+                        assertEquals("Streak pill uses Mono accent", activity.getColor(R.color.accent),
                             (home.layoutStreakPill.background as android.graphics.drawable.GradientDrawable).color!!.defaultColor)
-                        assertEquals("Admin button uses the distinct Home grouped card surface", groupedCard,
+                        assertEquals("Admin secondary action uses track", activity.getColor(R.color.track),
                             home.btnAdmin.backgroundTintList!!.getColorForState(home.btnAdmin.drawableState, 0))
                         assertEquals("Admin button retains disabled appearance", activity.getColor(R.color.track),
                             home.btnAdmin.backgroundTintList!!.getColorForState(intArrayOf(-android.R.attr.state_enabled), 0))
                         assertTrue("Admin label must remain readable", home.btnAdmin.currentTextColor != groupedCard)
-                        assertEquals("Home admin outline is a single hairline",
-                            Math.round(activity.resources.displayMetrics.density), home.btnAdmin.strokeWidth)
+                        assertEquals("Home admin action has no extra outline", 0, home.btnAdmin.strokeWidth)
                         assertTrue(home.btnHomeBannerCta.height >= Math.round(48f * home.root.resources.displayMetrics.density))
                         assertTrue(home.rvExams.height >= Math.round(48f * home.root.resources.displayMetrics.density))
                     }

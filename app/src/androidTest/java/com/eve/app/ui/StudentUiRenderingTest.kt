@@ -48,7 +48,6 @@ class StudentUiRenderingTest {
         "target-exams" to R.layout.bottom_sheet_target_exams,
         "completed-exam" to R.layout.bottom_sheet_completed_exam,
         "category-picker" to R.layout.bottom_sheet_category_picker,
-        "font-picker" to R.layout.bottom_sheet_font_picker,
         "payment-method" to R.layout.bottom_sheet_payment_method,
         "report-question" to R.layout.dialog_report_question,
         "empty" to R.layout.view_empty_state, "error" to R.layout.view_error_state
@@ -259,9 +258,6 @@ class StudentUiRenderingTest {
     private fun freezeFixtureAnimations(root: View) {
         // Deterministic stills; the existing native suite verifies actual playback/reveal.
         walk(root).filterIsInstance<com.airbnb.lottie.LottieAnimationView>().forEach { it.cancelAnimation(); it.progress = 1f }
-        walk(root).filter { it is com.eve.app.ui.common.ShimmerSkeletonView || it is com.eve.app.ui.common.FlameAnimationView }.forEach {
-            (it.javaClass.getDeclaredField("animator").apply { isAccessible = true }.get(it) as? android.animation.ValueAnimator)?.cancel()
-        }
     }
 
     private fun recycler(root: View, id: Int, adapter: RecyclerView.Adapter<*>) {
@@ -332,8 +328,7 @@ class StudentUiRenderingTest {
         }
         var ancestor = view.parent
         while (ancestor is View) {
-            if (ancestor is com.google.android.material.tabs.TabLayout && view.isSelected &&
-                ancestor.getTabAt(ancestor.selectedTabPosition)?.customView === view) {
+            if (ancestor is com.google.android.material.tabs.TabLayout && view.isSelected) {
                 // The indicator is painted beneath the selected label, not assigned
                 // as its background; use that real drawable for composited contrast.
                 return color(ancestor.tabSelectedIndicator)

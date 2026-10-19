@@ -6,7 +6,7 @@
                 <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Timer" android:src="@drawable/ic_timer" app:tint="@color/text_secondary" />
                 <TextView android:id="@+id/tvQuestionTimer" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_row_gap" android:text="0:00" />
             </LinearLayout>
-            <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1" />
+            <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
             <FrameLayout android:id="@+id/layoutBookmark" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
                 <ImageButton android:id="@+id/btnBookmark" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:layout_gravity="center" android:contentDescription="Bookmark question" android:scaleType="fitCenter" android:src="@drawable/ic_star_outline" style="@style/Widget.Eve.Token.IconButton" />
             </FrameLayout>

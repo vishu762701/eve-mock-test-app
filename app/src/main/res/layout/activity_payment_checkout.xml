@@ -2,8 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:ns2="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Screen">
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
         <LinearLayout android:id="@+id/topBar" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.ToolbarRow">
-            <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="?attr/eveLabelPrimary" style="@style/Widget.Eve.Token.IconButton" />
-            <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1" />
+            <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/text_primary" style="@style/Widget.Eve.Token.IconButton" />
+            <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
         </LinearLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
@@ -36,7 +36,7 @@
             <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:id="@+id/cardStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                     <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/progressStatus" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" style="@style/Widget.Eve.Token.Ring" android:indeterminate="true" />
-                    <TextView android:id="@+id/tvStatusText" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_pill_padding" android:layout_weight="1" android:text="Waiting for payment... Premium activates automatically once verified." />
+                    <TextView android:id="@+id/tvStatusText" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_pill_padding" android:layout_weight="1" android:text="Waiting for payment... Premium activates automatically once verified." />
                 </LinearLayout>
             </com.eve.app.designsystem.DesignCardView>
             <LinearLayout android:id="@+id/layoutExpired" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_shadow_room" android:gravity="center" android:orientation="vertical" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">

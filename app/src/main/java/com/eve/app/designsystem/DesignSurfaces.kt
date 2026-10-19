@@ -22,7 +22,10 @@ object DesignSurfaces {
 
     fun dialog(dialog: Dialog) {
         val window = dialog.window ?: return
-        window.setBackgroundDrawableResource(R.drawable.design_surface_panel)
+        // A sheet's solid body is its bottom-sheet view; its full-screen window
+        // must stay transparent so the host and native outside scrim remain visible.
+        window.setBackgroundDrawableResource(if (dialog is com.google.android.material.bottomsheet.BottomSheetDialog)
+            android.R.color.transparent else R.drawable.design_surface_panel)
         window.clearFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
         if (Build.VERSION.SDK_INT >= 31) {
             window.setBackgroundBlurRadius(0)

@@ -1,3 +1,7 @@
+> Current UI authority: the owner's locked root reset in SOURCE_OF_TRUTH.md.
+> Historical UI numeric decisions below are superseded; they are an audit log,
+> not instructions to replay. Current evidence is in docs/design-reset/report.md.
+
 # Architectural Decisions
 
 ## ADR-001: Official Apple iOS 26 Typography Foundation for Android (Phase 2)
@@ -173,7 +177,7 @@ Phase 5 completes the 5-phase migration to official Apple iOS 26 dynamic typogra
 - **Decision**: Reuse the existing semantic grouped background only for the Profile root (Day #F2F2F7, Night #000000), and the Profile-exclusive personal-information card (Day #FFFFFF, Night #1C1C1E). The opaque toolbar stays unchanged. This is an explicit Profile-specific override of the earlier standard-white treatment; canonical global canvas tokens are unchanged.
 - **Why**: Profile is an account form, and this grouped form treatment creates a clear surface hierarchy without altering accent saturation, typography, geometry, interactions, or approved states.
 - **Verification**: ProfileSettingsLoginTypographyAndColorTest.testProfileScopedGroupedDayNightHierarchy, lint/unit/build, both native navigation modes, and Day/Night Profile screenshots.
-- **Documentation**: Apple HIG Color (https://developer.apple.com/design/human-interface-guidelines/color; JS-required shell in this environment) and existing EVE_IOS26_UI_CONTRACT.md for Android tokens. No claim of native UIKit rendering.
+- **Documentation**: Apple HIG Color (https://developer.apple.com/design/human-interface-guidelines/color; JS-required shell in this environment) and existing docs/design-reset/report.md for Android tokens. No claim of native UIKit rendering.
 
 
 ## ADR-006: Home full-window grouped background (user-approved Option A)
@@ -361,7 +365,7 @@ Following ADR-010, end-to-end integration verification identified 5 critical ope
 - **Decision**: Shared capsule (50%), fixed card/menu 26dp and sheet/dialog 34dp shapes; concentric children use max(4dp, parent minus padding). Numeric radii are Eve design choices, not Apple specifications.
 - **Alternatives**: Per-screen literals would duplicate policy and drift. Shared resources plus EveShapes keep runtime views and XML aligned.
 - **Glass**: Only navigation/top bars, tab bars, popup menus, sheets and dialogs. Content, banner and drawer surfaces are opaque. API 31+ uses RenderEffect for backdrop layers; older versions use opaque tint. Foreground content remains sharp. Sign In prompt outside area is undimmed and unblurred.
-- **Colour and type evidence**: Official Color, Typography and Materials JSON were fetched and read; preserved rows and source hashes are in docs/ios26/APPLE_REFERENCE_ROWS.md. All 12 default light/dark palette rows already matched colors.xml. Default iOS type sizes and leading already matched type.xml.
+- **Colour and type evidence**: Official Color, Typography and Materials JSON were fetched and read; preserved rows and source hashes are in docs/design-reset/report.md. All 12 default light/dark palette rows already matched colors.xml. Default iOS type sizes and leading already matched type.xml.
 - **Blue**: All interactive blue aliases resolve to systemBlue (#0088FF / #0091FF), including higher-contrast blue aliases per the user's exact-blue requirement. Unused eve_accent_text_readable preserves #005BC0 / #72B2FF. The resulting roughly 3.5:1 on white is a user-chosen contrast trade-off, not AA compliance. Other normal text and primary labels on glass retain the 4.5:1 gate.
 - **Backgrounds**: Home/Login/Test are plain; Settings/Profile/Admin lists/Result/Leaderboard/About are grouped. This supersedes the Home grouped-canvas choice in ADR-006.
 - **Invariants**: ThemeSwitchAnimator.kt, ThemeManager.kt and popup reveal logic; Lottie files, triggers and sizes; icon files; answer-state colours; English UI strings; server behavior; font preference.
@@ -519,7 +523,7 @@ To achieve complete, app-wide fidelity to Apple's official iOS 26 design languag
 
 7. **Screen Canvas Root Alignment & Unit Test Synchronization**:
    - Added `android:background="@color/eve_system_grouped_background"` to root `FrameLayout` of `activity_result.xml` to match `SystemBarHelper` and `Ios26DesignFidelityTest` grouped canvas requirements.
-   - Synchronized `AppWideTypographyAndColorRolesTest.testGroupedAndSystemScreenLayoutClassifications` by moving `activity_leaderboard.xml` from `systemSample` to `groupedSample`, matching the official HIG grouped canvas specification in `EVE_IOS26_UI_CONTRACT.md` and `SOURCE_OF_TRUTH.md`.
+   - Synchronized `AppWideTypographyAndColorRolesTest.testGroupedAndSystemScreenLayoutClassifications` by moving `activity_leaderboard.xml` from `systemSample` to `groupedSample`, matching the official HIG grouped canvas specification in `docs/design-reset/report.md` and `SOURCE_OF_TRUTH.md`.
 
 ## ADR-014: Codification and Verification of Locked iOS 26 Rules and Apple HIG Source Authority
 
@@ -1173,3 +1177,18 @@ Source: https://raw.githubusercontent.com/material-components/material-component
 Additional outline sources square/square-check were read at Tabler v3.49.0 after
 its bundled MIT license. Standard notifications remain OS-rendered; their template
 font cannot be set to Poppins with the existing notification API.
+
+### Native tab measurement loop diagnosis
+
+Inspected the actual Material 1.12.0 TabLayout.TabView.onMeasure implementation:
+it restores the stock label's tabTextSize and defaultMaxLines during measurement.
+The shared onLayout code was assigning a rounded size and maxLines=1 back to
+that same label, repeatedly requesting layout at fractional density. Use the
+native Tab.customView label slot (android.R.id.text1), exact floating-point sp
+size, and a glyph-height view around the locked line-height. Native Tab/ViewPager
+selection, item order, content descriptions and click dispatch remain owned by
+Material. This addresses the repeat layout loop seen alongside the gesture-job
+hang; hosted execution is required to certify the result.
+Official source read: https://raw.githubusercontent.com/material-components/material-components-android/1.12.0/lib/java/com/google/android/material/tabs/TabLayout.java
+The existing BlurView 2.0.6 controller source was also inspected and does not
+invalidate from its OnPreDraw callback; no speculative blur renderer change was made.

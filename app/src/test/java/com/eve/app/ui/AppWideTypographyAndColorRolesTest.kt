@@ -84,7 +84,7 @@ class AppWideTypographyAndColorRolesTest {
         assertTrue("Layout directory must exist at ${layoutDir.absolutePath}", layoutDir.exists())
 
         val layoutFiles = layoutDir.listFiles { file -> file.extension == "xml" }?.sortedBy { it.name } ?: emptyList()
-        assertEquals("Project includes the new System Monitor layout", 96, layoutFiles.size)
+        assertEquals("System Monitor added; retired font picker removed", 95, layoutFiles.size)
 
         val violations = mutableListOf<String>()
         for (file in layoutFiles) {
@@ -114,34 +114,7 @@ class AppWideTypographyAndColorRolesTest {
             }
         }
 
-        val required26ColorRoles = listOf(
-            "eveLabelPrimary",
-            "eveLabelSecondary",
-            "eveLabelTertiary",
-            "eveLabelQuaternary",
-            "evePlaceholderText",
-            "eveSystemBackground",
-            "eveSecondarySystemBackground",
-            "eveTertiarySystemBackground",
-            "eveSystemGroupedBackground",
-            "eveSecondarySystemGroupedBackground",
-            "eveTertiarySystemGroupedBackground",
-            "eveSeparator",
-            "eveOpaqueSeparator",
-            "eveControlOutline",
-            "eveSystemBlue",
-            "evePrimaryFill",
-            "eveOnPrimary",
-            "eveAccentText",
-            "eveAccentContainer",
-            "eveOnAccentContainer",
-            "eveDestructiveText",
-            "eveFillPrimary",
-            "eveFillSecondary",
-            "eveFillTertiary",
-            "eveFillQuaternary",
-            "eveLink"
-        )
+        val required26ColorRoles = listOf("bgApp", "designSurfaceInset", "designTextPrimary", "designTextSecondary", "designHairline", "designTrack", "designAccent", "designOnAccent", "systemRed", "systemGreen", "systemBlue", "systemIndigo", "systemOrange", "systemPurple", "systemYellow")
 
         val missingRoles = required26ColorRoles.filter { it !in declaredAttrs }
         assertTrue(
@@ -174,34 +147,7 @@ class AppWideTypographyAndColorRolesTest {
             boundAttrs.add(item.getAttribute("name"))
         }
 
-        val required26ColorRoles = listOf(
-            "eveLabelPrimary",
-            "eveLabelSecondary",
-            "eveLabelTertiary",
-            "eveLabelQuaternary",
-            "evePlaceholderText",
-            "eveSystemBackground",
-            "eveSecondarySystemBackground",
-            "eveTertiarySystemBackground",
-            "eveSystemGroupedBackground",
-            "eveSecondarySystemGroupedBackground",
-            "eveTertiarySystemGroupedBackground",
-            "eveSeparator",
-            "eveOpaqueSeparator",
-            "eveControlOutline",
-            "eveSystemBlue",
-            "evePrimaryFill",
-            "eveOnPrimary",
-            "eveAccentText",
-            "eveAccentContainer",
-            "eveOnAccentContainer",
-            "eveDestructiveText",
-            "eveFillPrimary",
-            "eveFillSecondary",
-            "eveFillTertiary",
-            "eveFillQuaternary",
-            "eveLink"
-        )
+        val required26ColorRoles = listOf("bgApp", "designSurfaceInset", "designTextPrimary", "designTextSecondary", "designHairline", "designTrack", "designAccent", "designOnAccent", "systemRed", "systemGreen", "systemBlue", "systemIndigo", "systemOrange", "systemPurple", "systemYellow")
 
         val missingBindings = required26ColorRoles.filter { it !in boundAttrs }
         assertTrue(
@@ -212,108 +158,33 @@ class AppWideTypographyAndColorRolesTest {
 
     @Test
     fun testCoreTypographyRolesDefinedInTypeXml() {
-        val typeFile = getValuesFile("type.xml")
-        assertTrue("type.xml must exist at ${typeFile.absolutePath}", typeFile.exists())
-        val root = loadXml(typeFile)
-
-        val definedStyles = mutableSetOf<String>()
-        val styles = root.getElementsByTagName("style")
-        for (i in 0 until styles.length) {
-            val style = styles.item(i) as Element
-            definedStyles.add(style.getAttribute("name"))
+        val styles = loadXml(getValuesFile("design_type.xml")).getElementsByTagName("style")
+        val names = (0 until styles.length).map { (styles.item(it) as Element).getAttribute("name") }
+        for (role in listOf("Title", "Heading", "Body", "Secondary", "Tab", "Chip", "Button")) {
+            assertTrue("Shared type role $role", "TextAppearance.Eve.Token.$role" in names)
         }
-
-        val requiredTypeStyles = listOf(
-            "TextAppearance.Eve.LargeTitle",
-            "TextAppearance.Eve.Title1",
-            "TextAppearance.Eve.Title2",
-            "TextAppearance.Eve.Title3",
-            "TextAppearance.Eve.Headline",
-            "TextAppearance.Eve.Body",
-            "TextAppearance.Eve.Callout",
-            "TextAppearance.Eve.Subheadline",
-            "TextAppearance.Eve.Footnote",
-            "TextAppearance.Eve.Caption1",
-            "TextAppearance.Eve.Caption2",
-            "TextAppearance.Eve.Admin.ScreenTitle",
-            "TextAppearance.Eve.Admin.SectionHeader",
-            "TextAppearance.Eve.Admin.CardTitle",
-            "TextAppearance.Eve.Admin.CardValue",
-            "TextAppearance.Eve.Admin.ItemTitle",
-            "TextAppearance.Eve.Admin.ItemSubtitle",
-            "TextAppearance.Eve.Admin.Badge"
-        )
-
-        val missingStyles = requiredTypeStyles.filter { it !in definedStyles }
-        assertTrue(
-            "Essential Apple iOS 26 dynamic typography styles must be defined in type.xml. Missing: $missingStyles",
-            missingStyles.isEmpty()
-        )
     }
 
     @Test
     fun testApi28TextFontWeightsDefinedInValuesV28TypeXml() {
-        val rootDir = getProjectDir()
-        val v28TypeFile = File(rootDir, "app/src/main/res/values-v28/type.xml").takeIf { it.exists() }
-            ?: File("src/main/res/values-v28/type.xml")
-        assertTrue("values-v28/type.xml must exist at ${v28TypeFile.absolutePath}", v28TypeFile.exists())
-
-        val root = loadXml(v28TypeFile)
-        val styles = root.getElementsByTagName("style")
-        assertTrue("values-v28/type.xml must declare typography styles", styles.length > 0)
-
-        var hasWeight400 = false
-        var hasWeight600 = false
-        var hasWeight700 = false
-
-        val items = root.getElementsByTagName("item")
-        for (i in 0 until items.length) {
-            val item = items.item(i) as Element
-            if (item.getAttribute("name") == "android:textFontWeight") {
-                when (item.textContent.trim()) {
-                    "400" -> hasWeight400 = true
-                    "600" -> hasWeight600 = true
-                    "700" -> hasWeight700 = true
-                }
-            }
-        }
-
-        assertTrue("values-v28/type.xml must declare 400 (Regular) weight", hasWeight400)
-        assertTrue("values-v28/type.xml must declare 600 (Semibold) weight", hasWeight600)
-        assertTrue("values-v28/type.xml must declare 700 (Bold) weight", hasWeight700)
+        val family = File(getValuesFile("design_type.xml").parentFile.parentFile, "font/poppins.xml")
+        val fonts = loadXml(family).getElementsByTagName("font")
+        assertEquals(listOf("400", "500", "700"), (0 until fonts.length).map { (fonts.item(it) as Element).getAttribute("app:fontWeight") })
     }
 
     @Test
     fun testAppleIos26CoreColorValues() {
-        fun loadColors(qualifier: String): Map<String, String> {
-            val rootDir = getProjectDir()
-            val colorsFile = File(rootDir, "app/src/main/res/$qualifier/colors.xml").takeIf { it.exists() }
-                ?: File("src/main/res/$qualifier/colors.xml")
-            val root = loadXml(colorsFile)
-            val colors = mutableMapOf<String, String>()
-            val nodes = root.getElementsByTagName("color")
-            for (i in 0 until nodes.length) {
-                val node = nodes.item(i) as Element
-                colors[node.getAttribute("name")] = node.textContent.trim()
-            }
-            return colors
+        for ((folder, blue, red, green) in listOf(
+            listOf("values", "#0088FF", "#FF383C", "#34C759"),
+            listOf("values-night", "#0091FF", "#FF4245", "#30D158")
+        )) {
+            val file = File(getValuesFile("design_type.xml").parentFile.parentFile, "$folder/design_colors.xml")
+            val nodes = loadXml(file).getElementsByTagName("color")
+            val colors = (0 until nodes.length).associate { val n = nodes.item(it) as Element; n.getAttribute("name") to n.textContent.trim() }
+            assertEquals(blue, colors["system_blue"])
+            assertEquals(red, colors["system_red"])
+            assertEquals(green, colors["system_green"])
         }
-
-        val lightColors = loadColors("values")
-        assertEquals("@color/system_blue", lightColors["eve_system_blue"])
-        assertEquals("#0088FF", lightColors["system_blue"])
-        assertEquals("@color/eve_system_blue", lightColors["eve_primary"])
-        assertEquals("#FFFFFF", lightColors["eve_on_primary"])
-        assertEquals("#4A3C3C43", lightColors["eve_separator"])
-        assertEquals("#C6C6C8", lightColors["eve_opaque_separator"])
-
-        val darkColors = loadColors("values-night")
-        assertEquals("@color/system_blue", darkColors["eve_system_blue"])
-        assertEquals("#0091FF", darkColors["system_blue"])
-        assertEquals("@color/eve_system_blue", darkColors["eve_primary"])
-        assertEquals("#FFFFFF", darkColors["eve_on_primary"])
-        assertEquals("#99545458", darkColors["eve_separator"])
-        assertEquals("#38383A", darkColors["eve_opaque_separator"])
     }
 
     @Test
@@ -342,7 +213,7 @@ class AppWideTypographyAndColorRolesTest {
             val root = loadXml(file)
             val bg = root.designAttribute("android:background")
             assertEquals(
-                "$filename root background must be @color/eve_system_grouped_background",
+                "$filename root background must be @color/bg_app",
                 "@color/bg_app",
                 bg
             )
@@ -358,7 +229,7 @@ class AppWideTypographyAndColorRolesTest {
             val root = loadXml(file)
             val bg = root.designAttribute("android:background")
             assertEquals(
-                "$filename root background must be @color/eve_system_background",
+                "$filename root background must be @color/bg_app",
                 "@color/bg_app",
                 bg
             )

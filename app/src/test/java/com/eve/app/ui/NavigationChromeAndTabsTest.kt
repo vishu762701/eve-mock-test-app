@@ -88,8 +88,8 @@ class NavigationChromeAndTabsTest {
 
         val bellBg = bell!!.designAttribute("android:background")
         assertEquals(
-            "btnNotification background must be @android:color/transparent",
-            "@android:color/transparent",
+            "Bell uses the shared icon-only background",
+            "@null",
             bellBg
         )
 
@@ -135,26 +135,16 @@ class NavigationChromeAndTabsTest {
 
     @Test
     fun testSegmentedControl_colorAliasesAndDrawables() {
-        val lightColors = loadColors("src/main/res/values/approved_ui_colors.xml")
-        val darkColors = loadColors("src/main/res/values-night/approved_ui_colors.xml")
-
-        assertEquals("@color/eve_surface_variant", lightColors["eve_result_tab_track"])
-        assertEquals("@color/eve_secondary_system_grouped_background", darkColors["eve_result_tab_track"])
-
-        assertEquals("@color/eve_system_background", lightColors["eve_result_tab_selected"])
-        assertEquals("@color/eve_system_gray2", darkColors["eve_result_tab_selected"])
-
-        assertEquals("@color/eve_label_primary", lightColors["eve_result_tab_selected_text"])
-        assertEquals("@color/eve_label_primary", darkColors["eve_result_tab_selected_text"])
-
-        val trackDoc = loadXml("src/main/res/drawable/bg_result_segmented_track.xml")
-        val solidTrack = trackDoc.getElementsByTagName("solid").item(0) as Element
-        assertEquals("@color/eve_result_tab_track", solidTrack.getAttribute("android:color"))
-        assertEquals("Track must have no stroke", 0, trackDoc.getElementsByTagName("stroke").length)
-
-        val indicatorDoc = loadXml("src/main/res/drawable/bg_result_segmented_indicator.xml")
-        val solidIndicator = indicatorDoc.getElementsByTagName("solid").item(0) as Element
-        assertEquals("@color/eve_result_tab_selected", solidIndicator.getAttribute("android:color"))
-        assertEquals("Indicator must have no stroke", 0, indicatorDoc.getElementsByTagName("stroke").length)
+        val light = loadColors("src/main/res/values/design_colors.xml")
+        val dark = loadColors("src/main/res/values-night/design_colors.xml")
+        assertEquals("#29787880", light["track"])
+        assertEquals("#52787880", dark["track"])
+        assertEquals("#000000", light["accent"])
+        assertEquals("#FFFFFF", dark["accent"])
+        for ((name, color) in listOf("design_tab_track" to "track", "design_tab_segment" to "accent")) {
+            val drawable = loadXml("src/main/res/drawable/$name.xml")
+            assertEquals("@color/$color", (drawable.getElementsByTagName("solid").item(0) as Element).getAttribute("android:color"))
+            assertEquals(0, drawable.getElementsByTagName("stroke").length)
+        }
     }
 }

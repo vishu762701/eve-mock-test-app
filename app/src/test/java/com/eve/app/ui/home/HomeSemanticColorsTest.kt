@@ -123,117 +123,49 @@ class HomeSemanticColorsTest {
 
     @Test
     fun testOfficialAppleBackgroundHierarchy_forHome() {
-        val light = loadColors("src/main/res/values/colors.xml")
-        val dark = loadColors("src/main/res/values-night/colors.xml")
-
-        // 1. System Canvas (Root Home background) - OLED true black in dark
-        assertEquals("#F5F5F5", light["eve_system_background"])
-        assertEquals("#000000", dark["eve_system_background"])
-        assertEquals("#F5F5F5", light["eve_bg"])
-        assertEquals("#000000", dark["eve_bg"])
-        assertEquals("#FFFFFF", light["eve_canvas"])
-        assertEquals("#000000", dark["eve_canvas"])
-
-        // 2. Secondary System Background (Home Exam cards, category chip unselected)
-        assertEquals("#FFFFFF", light["eve_secondary_system_background"])
-        assertEquals("#1C1C1E", dark["eve_secondary_system_background"])
-        assertEquals("#FFFFFF", light["eve_secondary_background"])
-        assertEquals("#1C1C1E", dark["eve_secondary_background"])
-
-        // 3. Tertiary System Background (Nested surfaces, modal dialogs)
-        assertEquals("#FFFFFF", light["eve_tertiary_system_background"])
-        assertEquals("#1C1C1E", dark["eve_tertiary_system_background"])
-
-        // 4. Grouped Backgrounds
-        assertEquals("#F5F5F5", light["eve_system_grouped_background"])
-        assertEquals("#000000", dark["eve_system_grouped_background"])
-
-        // 5. Drawer Scrim
-        assertEquals("#26000000", light["eve_drawer_scrim"])
-        assertEquals("#4D000000", dark["eve_drawer_scrim"])
+        for ((folder, bg, card, inset) in listOf(
+            listOf("values", "#F5F5F5", "#FFFFFF", "#F5F5F5"),
+            listOf("values-night", "#000000", "#1C1C1E", "#2C2C2E")
+        )) {
+            val colors = loadColors("src/main/res/$folder/design_colors.xml")
+            assertEquals(bg, colors["bg_app"])
+            assertEquals(card, colors["surface"])
+            assertEquals(inset, colors["surface_inset"])
+            assertEquals(if (folder == "values") "#26000000" else "#4D000000", colors["modal_scrim"])
+        }
     }
 
     @Test
     fun testOfficialAppleLabelHierarchy_forHome() {
-        val light = loadColors("src/main/res/values/colors.xml")
-        val dark = loadColors("src/main/res/values-night/colors.xml")
-
-        // 1. Primary Label (Greeting, Exam Title, Section headers)
-        assertEquals("#000000", light["eve_label_primary"])
-        assertEquals("#FFFFFF", dark["eve_label_primary"])
-
-        // 2. Secondary Label (EVE kicker, metadata, subtitles)
-        assertEquals("#50505A", light["eve_label_secondary"])
-        assertEquals("#C5C5CC", dark["eve_label_secondary"])
-
-        // 3. Tertiary Label (Placeholders, subtle captions)
-        assertEquals("#62626D", light["eve_label_tertiary"])
-        assertEquals("#ABABB3", dark["eve_label_tertiary"])
-        assertEquals(light["eve_label_tertiary"], light["eve_placeholder_text"])
-        assertEquals(dark["eve_label_tertiary"], dark["eve_placeholder_text"])
-
-        // 4. Header Ink Tokens
-        assertEquals("#FFFFFF", light["eve_header_ink"])
-        assertEquals("#000000", dark["eve_header_ink"])
-        assertEquals("#000000", light["eve_header_ink_text"])
-        assertEquals("#FFFFFF", dark["eve_header_ink_text"])
+        val light = loadColors("src/main/res/values/design_colors.xml")
+        val dark = loadColors("src/main/res/values-night/design_colors.xml")
+        assertEquals("#000000", light["text_primary"])
+        assertEquals("#FFFFFF", dark["text_primary"])
+        assertEquals("#6C6C70", light["text_secondary"])
+        assertEquals("#A1A1A6", dark["text_secondary"])
     }
 
     @Test
     fun testHomeCategoryChipSelectors_mapToAppleSemanticRoles() {
-        val bgItems = loadSelector("src/main/res/color/selector_home_category_chip_bg.xml")
-        assertEquals(2, bgItems.size)
-        assertEquals("true" to "@color/eve_accent_container", bgItems[0])
-        assertEquals(null to "@color/eve_secondary_system_background", bgItems[1])
-
-        val textItems = loadSelector("src/main/res/color/selector_home_category_chip_text.xml")
-        assertEquals(2, textItems.size)
-        assertEquals("true" to "@color/eve_accent_text", textItems[0])
-        assertEquals(null to "@color/eve_label_primary", textItems[1])
+        val file = listOf(File("src/main/res/values/design_widgets.xml"), File("app/src/main/res/values/design_widgets.xml")).first { it.exists() }
+        val nodes = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file).getElementsByTagName("style")
+        val chip = (0 until nodes.length).map { nodes.item(it) as Element }.single { it.getAttribute("name") == "Widget.Eve.Token.Chip" }
+        val items = chip.getElementsByTagName("item")
+        val values = (0 until items.length).associate { val n = items.item(it) as Element; n.getAttribute("name") to n.textContent.trim() }
+        assertEquals("@color/accent", values["chipBackgroundColor"])
+        assertEquals("@color/on_accent", values["android:textColor"])
+        assertEquals("@dimen/design_pill_height", values["chipMinHeight"])
     }
 
     @Test
     fun testHomeColorContrast_WCAG_AA_Compliance_LightAndDark() {
-        val light = loadColors("src/main/res/values/colors.xml")
-        val dark = loadColors("src/main/res/values-night/colors.xml")
-
-        for ((themeName, colors, canvas) in listOf(
-            Triple("Light", light, "#FFFFFF"),
-            Triple("Dark", dark, "#000000")
-        )) {
-            // Primary label on canvas >= 4.5:1
-            val primaryOnCanvas = contrastRatio(colors["eve_label_primary"]!!, colors["eve_system_background"]!!, canvas)
-            assertTrue("$themeName eve_label_primary on canvas must be >= 4.5:1 (was $primaryOnCanvas)", primaryOnCanvas >= 4.5)
-
-            // Secondary label on canvas >= 4.5:1
-            val secOnCanvas = contrastRatio(colors["eve_label_secondary"]!!, colors["eve_system_background"]!!, canvas)
-            assertTrue("$themeName eve_label_secondary on canvas must be >= 4.5:1 (was $secOnCanvas)", secOnCanvas >= 4.5)
-
-            // Primary label on secondary card background >= 4.5:1
-            val primaryOnCard = contrastRatio(colors["eve_label_primary"]!!, colors["eve_secondary_system_background"]!!, canvas)
-            assertTrue("$themeName eve_label_primary on card must be >= 4.5:1 (was $primaryOnCard)", primaryOnCard >= 4.5)
-
-            // Secondary label on secondary card background >= 4.5:1
-            val secOnCard = contrastRatio(colors["eve_label_secondary"]!!, colors["eve_secondary_system_background"]!!, canvas)
-            assertTrue("$themeName eve_label_secondary on card must be >= 4.5:1 (was $secOnCard)", secOnCard >= 4.5)
-
-            // ADR-009: blue text is an explicit user-chosen contrast exception. Other text retains AA.
-            val accentOnContainer = contrastRatio(colors["eve_accent_text"]!!, colors["eve_accent_container"]!!, canvas)
-            assertEquals(colors["eve_system_blue"], colors["eve_accent_text"])
-            assertEquals(if (themeName == "Light") "#0088FF" else "#0091FF", colors["eve_accent_text"])
-            assertTrue("$themeName accentOnContainer must be >= 3.0 (was $accentOnContainer)", accentOnContainer >= 3.0)
-
-            // Neutral button text on neutral button background >= 4.5:1
-            val neutralButtonTextOnBg = contrastRatio(colors["eve_button_neutral_text"]!!, colors["eve_button_neutral_bg"]!!, canvas)
-            assertTrue("$themeName neutral button text on bg must be >= 4.5:1 (was $neutralButtonTextOnBg)", neutralButtonTextOnBg >= 4.5)
-
-            // Interactive primary blue on canvas (UI interactive control >= 3.0:1)
-            val primaryOnBg = contrastRatio(colors["eve_primary"]!!, colors["eve_system_background"]!!, canvas)
-            assertTrue("$themeName eve_primary on canvas must be >= 3.0:1 (was $primaryOnBg)", primaryOnBg >= 3.0)
-
-            // White on primary interactive blue button >= 3.0:1 (iOS 26 systemBlue white-on-primary component threshold)
-            val onPrimaryContrast = contrastRatio(colors["eve_on_primary"]!!, colors["eve_primary"]!!, canvas)
-            assertTrue("$themeName eve_on_primary on eve_primary must be >= 3.0:1 (was $onPrimaryContrast)", onPrimaryContrast >= 3.0)
+        for (folder in listOf("values", "values-night")) {
+            val colors = loadColors("src/main/res/$folder/design_colors.xml")
+            for (fg in listOf("text_primary", "text_secondary")) for (bg in listOf("bg_app", "surface", "surface_inset")) {
+                val ratio = contrastRatio(colors[fg]!!, colors[bg]!!, colors["bg_app"]!!)
+                assertTrue("$folder $fg/$bg: $ratio", ratio >= 4.5)
+            }
+            assertTrue(contrastRatio(colors["on_accent"]!!, colors["accent"]!!) >= 4.5)
         }
     }
 
@@ -306,11 +238,11 @@ class HomeSemanticColorsTest {
         assertTrue(layout.contains("@style/Widget.Eve.Token.Card"))
         assertTrue(adapter.contains("HomeAppearance.applyCard"))
 
-        val light = loadColors("src/main/res/values/colors.xml")
-        val dark = loadColors("src/main/res/values-night/colors.xml")
-        assertEquals("#F5F5F5", light["eve_home_background"])
-        assertEquals("#FFFFFF", light["eve_home_card"])
-        assertEquals("#000000", dark["eve_home_background"])
-        assertEquals("#1C1C1E", dark["eve_home_card"])
+        val light = loadColors("src/main/res/values/design_colors.xml")
+        val dark = loadColors("src/main/res/values-night/design_colors.xml")
+        assertEquals("#F5F5F5", light["bg_app"])
+        assertEquals("#FFFFFF", light["surface"])
+        assertEquals("#000000", dark["bg_app"])
+        assertEquals("#1C1C1E", dark["surface"])
     }
 }

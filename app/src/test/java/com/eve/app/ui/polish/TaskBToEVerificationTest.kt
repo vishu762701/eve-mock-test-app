@@ -43,45 +43,27 @@ class TaskBToEVerificationTest {
 
     @Test
     fun testColorsXmlContainsTaskBTokens() {
-        val lightColors = File("src/main/res/values/colors.xml").readText()
-        val darkColors = File("src/main/res/values-night/colors.xml").readText()
-
-        val expectedTokens = listOf(
-            "eve_lilac_subtle",
-            "eve_lilac_tint",
-            "eve_lilac_fill",
-            "eve_lilac_stroke",
-            "eve_lilac_text",
-            "eve_lilac_pressed",
-            "eve_category_tint_lilac_bg",
-            "eve_category_tint_green_bg",
-            "eve_category_tint_amber_bg",
-            "eve_category_tint_rose_bg",
-            "eve_category_tint_blue_bg",
-            "eve_category_tint_teal_bg"
-        )
-
-        for (token in expectedTokens) {
-            assertTrue("Token $token missing in values/colors.xml", lightColors.contains(token))
-            assertTrue("Token $token missing in values-night/colors.xml", darkColors.contains(token))
+        for (folder in listOf("values", "values-night")) {
+            val colors = File("src/main/res/$folder/design_derived_colors.xml").readText()
+            for (hue in listOf("lilac", "green", "amber", "rose", "blue", "teal")) {
+                assertTrue("Category $hue is tokenized in $folder", colors.contains("design_role_category_tint_${hue}_bg"))
+            }
         }
     }
 
     @Test
     fun testAppBackgroundRemainsPureWhiteAndBlack() {
-        val lightColors = File("src/main/res/values/colors.xml").readText()
-        val darkColors = File("src/main/res/values-night/colors.xml").readText()
-        assertTrue("Light app background must resolve to bg_app", lightColors.contains("<color name=\"eve_bg\">@color/bg_app</color>"))
-        assertTrue("Light canvas must remain pure white", lightColors.contains("<color name=\"eve_canvas\">#FFFFFF</color>"))
-        assertTrue("Dark app background must resolve to bg_app", darkColors.contains("<color name=\"eve_bg\">@color/bg_app</color>"))
-        assertTrue("Dark canvas must remain pure black", darkColors.contains("<color name=\"eve_canvas\">#000000</color>"))
+        val light = File("src/main/res/values/design_colors.xml").readText()
+        val dark = File("src/main/res/values-night/design_colors.xml").readText()
+        assertTrue(light.contains("<color name=\"bg_app\">#F5F5F5</color>"))
+        assertTrue(dark.contains("<color name=\"bg_app\">#000000</color>"))
     }
 
     @Test
     fun testLayoutsIncludeRequiredPolishUpgrades() {
         val mistakesLayout = File("src/main/res/layout/activity_mistakes.xml").readText()
         assertTrue("Mistakes layout should use illustration_empty_all_caught_up", mistakesLayout.contains("illustration_empty_all_caught_up"))
-        assertFalse("Shared activity motion owns entry; list rows stay settled", mistakesLayout.contains("@anim/layout_enter"))
+        assertFalse("Shared activity motion owns entry; list rows stay settled", mistakesLayout.contains("android:layoutAnimation"))
 
         val notificationsLayout = File("src/main/res/layout/activity_notifications.xml").readText()
         assertTrue("Notifications layout should reference notification_bell", notificationsLayout.contains("@raw/notification_bell"))

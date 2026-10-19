@@ -71,7 +71,7 @@ object ProfilePhotoManager {
         context: Context,
         imageView: ImageView,
         googlePhotoUrl: String?,
-        placeholderBg: Int = R.drawable.bg_circle_translucent,
+        placeholderBg: Int = R.drawable.design_avatar_placeholder,
         userName: String? = null,
         userId: String? = null
     ) {

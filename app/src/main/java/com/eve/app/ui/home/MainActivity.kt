@@ -1,5 +1,7 @@
 package com.eve.app.ui.home
 
+import com.eve.app.designsystem.showDestructive
+
 import android.graphics.Outline
 import android.view.ViewOutlineProvider
 
@@ -681,7 +683,7 @@ class MainActivity : EveBaseActivity() {
                         adminDeleteFlow.removeConfirmed("feedback:${post.id}", { viewModel.deleteFeedbackPostConfirmed(post.id); null })
                     }
                     .setNegativeButton("Cancel", null)
-                    .show()
+                    .showDestructive()
             }
         }
     }

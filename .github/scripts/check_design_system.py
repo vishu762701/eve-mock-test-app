@@ -44,46 +44,24 @@ def contrast(fg, bg, canvas='#FFFFFF'):
 
 def verify():
     rows = []
-    palettes = {theme: colors(theme) for theme in ['values', 'values-night']}
-    backgrounds = ['eve_system_background','eve_secondary_system_background','eve_tertiary_system_background',
-                   'eve_system_grouped_background','eve_secondary_system_grouped_background','eve_tertiary_system_grouped_background',
-                   'eve_input_fill','eve_recovery_surface']
-    for theme in ['values','values-night']:
-        c = colors(theme)
-        for fg in ['eve_label_primary','eve_label_secondary','eve_label_tertiary','eve_label_quaternary','eve_placeholder_text','eve_accent_text','eve_destructive_text','eve_status_success_text','eve_status_error_text','eve_status_warning_text']:
-            for bg in backgrounds:
-                rows.append((theme,fg,bg,contrast(c[fg],c[bg],c['eve_canvas']),4.5))
-        for fg,bg in [('eve_button_soft_text','eve_button_soft_bg'),
-                      ('eve_disabled_text','eve_disabled_fill'),('eve_error_text','eve_error_bg'),('eve_offline_text','eve_offline_bg'),('eve_recovery_accent','eve_recovery_selected'),
-                      ('eve_hc_accent','eve_accent_container'),('eve_hc_secondary','eve_input_fill')]:
-            rows.append((theme,fg,bg,contrast(c[fg],c[bg],c['eve_canvas']),4.5))
-        rows.append((theme,'eve_white','eve_primary',contrast(c['eve_white'],c['eve_primary'],c['eve_canvas']),3.))
-        rows.append((theme,'eve_on_primary','eve_primary',contrast(c['eve_on_primary'],c['eve_primary'],c['eve_canvas']),3.))
-        for bg in backgrounds:
-            rows.append((theme,'eve_control_outline',bg,contrast(c['eve_control_outline'],c[bg],c['eve_canvas']),3.))
-        assert c['eve_canvas'] == ('#FFFFFF' if theme == 'values' else '#000000')
-    # ADR-009: user explicitly chooses exact systemBlue over AA for blue text.
-    # Keep measured ratios and the 4.5 target; exempt only named aliases at the exact verified value.
-    blue_roles = {'eve_accent_text', 'eve_button_soft_text', 'eve_recovery_accent', 'eve_hc_accent'}
-    def chosen_blue(row):
-        theme, fg, _, _, _ = row
-        return fg in blue_roles and palettes[theme][fg] == ('#0088FF' if theme == 'values' else '#0091FF')
-    failures = [row for row in rows if row[3] < row[4] and not chosen_blue(row)]
-    for row in rows:
-        if row[3] < row[4] and chosen_blue(row):
-            print(f'USER-CHOSEN BLUE EXCEPTION: {row[0]} {row[1]} / {row[2]} = {row[3]:.2f}:1 (AA target {row[4]}:1)')
     for theme in ['values', 'values-night']:
         c = colors(theme)
-        for material in ['ultra_thin', 'thin', 'regular', 'thick']:
-            for backdrop in ['#000000', '#FFFFFF']:
-                ratio = contrast(c['eve_label_primary'], c['eve_material_' + material], backdrop)
-                assert ratio >= 4.5, (theme, material, backdrop, ratio)
-    if failures:
-        raise AssertionError(json.dumps(failures,indent=2))
+        for fg in ['text_primary', 'text_secondary']:
+            for bg in ['bg_app', 'surface', 'surface_inset']:
+                ratio = contrast(c[fg], c[bg], c['bg_app'])
+                rows.append((theme, fg, bg, ratio, 4.5))
+                assert ratio >= 4.5, (theme, fg, bg, ratio)
+        ratio = contrast(c['on_accent'], c['accent'], c['bg_app'])
+        rows.append((theme, 'on_accent', 'accent', ratio, 4.5))
+        assert ratio >= 4.5, (theme, 'on_accent', ratio)
+        for hue in ['red','green','blue','indigo','orange','purple','yellow']:
+            fg = 'system_' + hue
+            ratio = contrast(c[fg], c['surface'], c['bg_app'])
+            rows.append((theme, fg, 'surface', ratio, 4.5))
+            if ratio < 4.5:
+                print(f'LOCKED SYSTEM HUE: {theme} {fg}/surface = {ratio:.2f}:1; preserve the specified color')
     return rows
 
 if __name__ == '__main__':
     rows = verify()
-    print(f'PASS: required contrast checks across {len(rows)} measured pairs; explicit system-blue exceptions are listed above and do not meet AA.')
-    for theme,fg,bg,ratio,_ in rows:
-        if bg == 'eve_primary': print(f'{theme}: {fg} / {bg} = {ratio:.2f}:1')
+    print(f'PASS: neutral role contrast; {len(rows)} measured pairs, exact system-hue exceptions listed above.')

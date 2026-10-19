@@ -1,7 +1,6 @@
 package com.eve.app.util
 
 import android.graphics.Color
-import com.eve.app.ui.common.ShimmerSkeletonView
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -13,9 +12,7 @@ import kotlin.math.abs
  * Rigorous programmatic verification suite for the 8 Telegram-based UI/UX upgrades:
  * 1. AppBulletin (timing constants, message thresholds, interpolator contracts)
  * 2. AppUndoBar (3000ms/5000ms limits, deferred execution, cancellation on undo, FIFO resolution)
- * 3. Shimmer / Skeleton (types, dimensions, 250ms cross-fade helper, shader bounds)
- * 4. NumberCountUpHelper (800-1200ms range, AccelerateDecelerateInterpolator, formatting, staggered stats)
- * 5. TelegramRadioButton (simultaneous uncheck/check progress, FastOutSlowIn curve, 220ms timing)
+ * 4. Score formatting (values retained after retiring decorative count-up)
  * 6. CircularTimerView (continuous progress sync, warning threshold at <=60s or <=10%, ARGB shift)
  * 7. TelegramPopupHelper (anchored pivot calculation, 0.8->1.0 scale + alpha entrance, reverse exit)
  * 8. AvatarDrawable (Telegram's 7 signature gradient colors, deterministic hash mapping, initials extraction)
@@ -101,36 +98,11 @@ class TelegramPolishFeaturesTest {
     // FEATURE 3 — SHIMMER / SKELETON LOADING
     // ==========================================
 
-    @Test
-    fun testShimmer_skeletonTypes() {
-        assertEquals(0, ShimmerSkeletonView.TYPE_EXAM_CARDS)
-        assertEquals(1, ShimmerSkeletonView.TYPE_QUESTION)
-        assertEquals(2, ShimmerSkeletonView.TYPE_LIST_ITEMS)
-    }
 
-    @Test
-    fun testShimmer_crossFadeDurationConstant() {
-        assertEquals(250L, ShimmerHelper.DEFAULT_CROSS_FADE_DURATION)
-    }
 
-    @Test
-    fun testShimmer_shaderSweepGeometry() {
-        val width = 1080f
-        val gradientWidth = width * 0.7f
-        val totalTravel = width * 2f
 
-        // Progress 0.0 -> Start point is before left screen edge
-        val startTransX = -width * 0.5f + totalTravel * 0f
-        assertEquals(-540f, startTransX, 0.01f)
 
-        // Progress 0.5 -> Middle of screen
-        val midTransX = -width * 0.5f + totalTravel * 0.5f
-        assertEquals(540f, midTransX, 0.01f)
 
-        // Progress 1.0 -> Fully off right screen edge
-        val endTransX = -width * 0.5f + totalTravel * 1f
-        assertEquals(1620f, endTransX, 0.01f)
-    }
 
     // ==========================================
     // FEATURE 4 — SCORE COUNT-UP ANIMATION
@@ -151,49 +123,13 @@ class TelegramPolishFeaturesTest {
         assertEquals("84.75", formattedDecimal)
     }
 
-    @Test
-    fun testScoreCountUp_staggeredStatsSequence() {
-        var scoreFinished = false
-        var statsStarted = false
 
-        val onScoreFinished = {
-            scoreFinished = true
-            statsStarted = true
-        }
-
-        assertFalse(scoreFinished)
-        assertFalse(statsStarted)
-
-        // Trigger finish callback
-        onScoreFinished()
-        assertTrue("Score must finish before stats animation starts", scoreFinished)
-        assertTrue("Stats animation must start after score count-up finishes", statsStarted)
-    }
 
     // ==========================================
     // FEATURE 5 — ANIMATED MCQ CHECKBOX/RADIO
     // ==========================================
 
-    @Test
-    fun testMCQ_simultaneousTransition() {
-        // When option 0 is currently selected (progress = 1.0) and option 1 is clicked:
-        var opt0Progress = 1.0f
-        var opt1Progress = 0.0f
 
-        val duration = 220L
-        val frames = 10
-        for (i in 1..frames) {
-            val fraction = i / frames.toFloat()
-            // Both animate simultaneously
-            opt0Progress = 1.0f - fraction
-            opt1Progress = fraction
-            assertTrue(opt0Progress >= 0f && opt0Progress <= 1f)
-            assertTrue(opt1Progress >= 0f && opt1Progress <= 1f)
-        }
-
-        assertEquals(0.0f, opt0Progress, 0.001f)
-        assertEquals(1.0f, opt1Progress, 0.001f)
-    }
 
     // ==========================================
     // FEATURE 6 — CIRCULAR TEST TIMER

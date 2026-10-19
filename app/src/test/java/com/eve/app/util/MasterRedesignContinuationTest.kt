@@ -39,15 +39,12 @@ class MasterRedesignContinuationTest {
     @Test
     fun testMenuUsesApi31MaterialAndOlderFallbackWhileDrawerIsOpaque() {
         for (theme in listOf("values", "values-night")) {
-            val colors = loadColors("src/main/res/$theme/colors.xml")
-            assertEquals("@color/eve_secondary_system_background", colors["eve_menu_glass_bg"])
-            for (name in listOf("eve_drawer_glass_base", "eve_drawer_glass_tint", "eve_drawer_glass_bg")) {
-                assertEquals("$theme: drawer content is opaque", "@color/eve_secondary_system_background", colors[name])
-            }
-            val material = loadColors("src/main/res/$theme-v31/materials.xml")
-            assertEquals("@color/eve_material_regular", material["eve_menu_glass_bg"])
-            assertTrue("Tint must protect label contrast", colors["eve_material_regular"]!!.startsWith("#E6"))
+            val colors = loadColors("src/main/res/$theme/design_colors.xml")
+            assertTrue("Medium tint", colors["glass_tint"]!!.startsWith("#8C"))
+            assertTrue("Unavailable blur fallback", colors["glass_fallback"]!!.startsWith("#F0"))
         }
+        val home = File("src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
+        assertTrue(home.contains("EveDesignSystem.Colors.surface(this)"))
     }
 
     @Test

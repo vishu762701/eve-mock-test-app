@@ -1,17 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <color name="eve_modal_material">@color/eve_material_regular</color>
-    <color name="eve_menu_glass_bg">@color/eve_material_regular</color>
-    <color name="eve_home_top_bar_bg">@color/eve_home_blur_tint</color>
-    <color name="eve_home_menu_bg">@color/eve_home_blur_tint</color>
-    <color name="eve_home_sheet_bg">@color/eve_home_blur_tint</color>
-    <!-- Locked reset: dialogs and sheets are solid; modal window blur is disabled. -->
     <style name="Theme.Eve.Dialog" parent="Theme.Eve.Dialog.Base">
         <item name="android:windowIsTranslucent">false</item>
         <item name="android:windowBackgroundBlurRadius">@dimen/design_zero</item>
         <item name="android:windowBlurBehindEnabled">false</item>
     </style>
-    <!-- Solid Mock Test submission confirmation on API 31+ -->
     <style name="Theme.Eve.Dialog.SubmitConfirmation" parent="Theme.Eve.Dialog.Base">
         <item name="android:windowBackground">@drawable/design_surface_panel</item>
         <item name="android:windowIsFloating">true</item>
@@ -19,13 +12,12 @@
         <item name="android:windowBackgroundBlurRadius">@dimen/design_zero</item>
         <item name="android:windowBlurBehindEnabled">false</item>
     </style>
-    <!-- Solid bottom-sheet surface on API 31+ -->
     <style name="Theme.Eve.BottomSheetDialog" parent="Theme.Eve.BottomSheetDialog.Base">
         <item name="bottomSheetStyle">@style/Widget.Eve.BottomSheet.Modal</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:windowIsTranslucent">false</item>
         <item name="android:windowBackgroundBlurRadius">@dimen/design_zero</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@color/eve_bg</item>
+        <item name="android:navigationBarColor">@color/bg_app</item>
     </style>
 </resources>

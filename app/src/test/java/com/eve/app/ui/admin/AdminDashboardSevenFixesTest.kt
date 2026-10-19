@@ -33,7 +33,7 @@ class AdminDashboardSevenFixesTest {
         val adminXmlContent = adminXmlFile.readText()
 
         assertTrue(
-            "activity_admin.xml root must specify android:background=\"@color/eve_system_grouped_background\"",
+            "activity_admin.xml root must specify android:background=\"@color/bg_app\"",
             adminXmlContent.contains("style=\"@style/Widget.Eve.Token.Screen\"")
         )
         assertTrue(
@@ -45,7 +45,7 @@ class AdminDashboardSevenFixesTest {
         assertTrue(manageExamsFile.exists())
         val manageExamsContent = manageExamsFile.readText()
         assertTrue(
-            "activity_manage_exams.xml must specify android:background=\"@color/eve_system_grouped_background\"",
+            "activity_manage_exams.xml must specify android:background=\"@color/bg_app\"",
             manageExamsContent.contains("style=\"@style/Widget.Eve.Token.Screen\"")
         )
     }

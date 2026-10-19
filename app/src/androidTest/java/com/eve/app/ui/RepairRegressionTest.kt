@@ -747,7 +747,16 @@ class RepairRegressionTest {
                 }
                 popup.showAtLocation(act.window.decorView, android.view.Gravity.CENTER, 0, 0)
                 view = popup.contentView
-                com.eve.app.util.GlassmorphismHelper.applyWindowBlur(view)
+                // Seed an existing native blur directly: the retired entrance helper is
+                // no longer part of the UI. Cancellation must still clear window blur.
+                if (android.os.Build.VERSION.SDK_INT >= 31) {
+                    val root = view.rootView
+                    val params = root.layoutParams as android.view.WindowManager.LayoutParams
+                    params.flags = params.flags or android.view.WindowManager.LayoutParams.FLAG_BLUR_BEHIND
+                    params.blurBehindRadius = act.resources.getDimensionPixelSize(R.dimen.design_glass_blur)
+                    (act.getSystemService(android.content.Context.WINDOW_SERVICE) as android.view.WindowManager)
+                        .updateViewLayout(root, params)
+                }
                 com.eve.app.util.TelegramPopupHelper.animateEntrance(view)
                 com.eve.app.util.GlassmorphismHelper.removeWindowBlur(view, false)
                 com.eve.app.util.TelegramPopupHelper.cancel(view)

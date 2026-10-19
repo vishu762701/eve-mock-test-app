@@ -9,7 +9,7 @@
         <com.google.android.material.textfield.TextInputEditText android:id="@+id/etPostMessage" style="@style/Widget.Eve.Token.Input" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="top|start" android:inputType="textMultiLine|textCapSentences" android:minLines="3" />
     </com.eve.app.designsystem.DesignInputLayout>
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_icon_size" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnCancelPost" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_touch_min" android:layout_weight="1" android:text="Cancel" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnPublishPost" style="@style/Widget.Eve.Token.Button" android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_screen_margin" android:layout_weight="1.5" android:text="Publish Post" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnCancelPost" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="0dp" android:layout_height="@dimen/design_touch_min" android:layout_weight="1" android:text="Cancel" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnPublishPost" style="@style/Widget.Eve.Token.Button" android:layout_width="0dp" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_screen_margin" android:layout_weight="1.5" android:text="Publish Post" />
     </LinearLayout>
 </LinearLayout>

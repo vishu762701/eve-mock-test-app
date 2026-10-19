@@ -1,5 +1,7 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.designsystem.showDestructive
+
 import com.eve.app.ui.common.EveBaseActivity
 
 import android.os.Bundle
@@ -321,6 +323,6 @@ class ManagePremiumActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .showDestructive()
     }
 }

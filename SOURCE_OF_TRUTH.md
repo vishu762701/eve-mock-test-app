@@ -18,8 +18,9 @@ sheets and dialogs, capsule controls, 12dp screen margins, 10dp card padding,
 and 9dp native card elevation. Glass is allowed only on top bars, bottom bars
 and menus (14dp backdrop blur; 55% tint or 94% fallback). No list dividers.
 The device-font preference is explicitly retired by the owner; Poppins is the
-single font. Only the Telegram theme-toggle animation/behavior and its resources
-remain protected. UI migration must preserve business logic, data, navigation
+single font. The Telegram theme-toggle animation/behavior and its resources
+remain protected. Existing Lottie motion, timing, assets and triggers are also
+retained under the owner's later preservation instruction. UI migration must preserve business logic, data, navigation
 flow, and all other features. Token resources are in `design_*.xml`.
 
 ## 1. Repository identity
@@ -42,7 +43,7 @@ flow, and all other features. Token resources are in `design_*.xml`.
 - Technology: Kotlin, AndroidX, Material 3, ViewBinding, MVVM.
 - Test engine: `TestActivity.kt`, `CircularTimerView.kt`, `QuestionAdapter.kt` (scrollable question/options content, 2x2 action button grid, question palette, server-evaluated submissions).
 - Result and analytics: `ResultActivity.kt`, `ResultDetailActivity.kt` (single-screen summary cards, Statistics, Performance, Analytics, Review tab with isolated scroll, Leaderboard).
-- Home and discovery: `MainActivity.kt`, `HomeAppearance.kt` (plain themed canvas, single rotating content banner surface, cached streak pill with looping flame).
+- Home and discovery: `MainActivity.kt`, `HomeAppearance.kt` (plain themed canvas, single rotating content banner surface, cached streak pill with shared outline flame icon).
 - Theme and transitions: `ThemeSwitchAnimator.kt`, `SystemBarHelper.kt`, `ThemeManager.kt` (Telegram-style circular reveal Day/Night animation, status/nav bar icon sync).
 - EVE UI Studio (`UiStudioActivity.kt`, `UiStudioRegistry.kt`, `UiStudioEngine.kt`): RETIRED. Do not extend or redesign it. Retain historical migrations and production data.
 
@@ -61,8 +62,8 @@ flow, and all other features. Token resources are in `design_*.xml`.
 
 ## 3. Permanent invariants (never break these)
 1. Colors: use the owner's locked `design_colors.xml` day/night tokens and
-   matching system hue tokens, preserving alpha and meaning. Legacy color aliases
-   are transitional until the screen migration and evidence-based cleanup finish.
+   matching system hue tokens, preserving alpha and meaning. Only equal-value `eve_bg` / `eve_text` aliases remain for the protected theme
+   manager; other UI colors and dimensions use the root tokens.
 2. The Telegram-style circular reveal Day/Night transition must never be degraded.
 3. Server-side test timer, question layout fitting, and submit mechanics must never be replaced by client-only logic.
 4. Blur is applied only to top bars, bottom bars and menus, never over foreground text, images, icons or Lottie animations. Dialogs and sheets are solid surfaces.

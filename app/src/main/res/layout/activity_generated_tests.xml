@@ -3,7 +3,7 @@
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
         <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.ToolbarRow">
             <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/text_primary" style="@style/Widget.Eve.Token.IconButton" />
-            <View android:layout_width="@dimen/design_zero" android:layout_height="@dimen/design_zero" android:layout_weight="1" />
+            <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
             <ImageButton android:id="@+id/btnRefresh" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Refresh" android:src="@drawable/ic_refresh" app:tint="@color/text_primary" style="@style/Widget.Eve.Token.IconButton" />
         </LinearLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
@@ -14,9 +14,9 @@
         <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvGeneratedTests" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />
         <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/progressBar" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:visibility="gone" style="@style/Widget.Eve.Token.Ring" android:indeterminate="true" />
         <LinearLayout android:id="@+id/emptyGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:orientation="vertical" android:visibility="gone" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-            <com.airbnb.lottie.LottieAnimationView android:id="@+id/lottieEmpty" android:layout_width="140dp" android:layout_height="140dp" android:background="@android:color/transparent" app:lottie_autoPlay="false" app:lottie_loop="false" app:lottie_rawRes="@raw/search" />
-            <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/eve_space_16" android:text="No generated tests yet" />
-            <TextView style="@style/TextAppearance.Eve.Token.Body" android:layout_width="260dp" android:layout_height="wrap_content" android:layout_marginTop="@dimen/eve_space_8" android:gravity="center" android:text="Tests generated nightly by AI will appear here in Paused state for your review." />
+            <com.airbnb.lottie.LottieAnimationView android:id="@+id/lottieEmpty" android:layout_width="140dp" android:layout_height="140dp" app:lottie_autoPlay="false" app:lottie_loop="false" app:lottie_rawRes="@raw/search" style="@style/Widget.Eve.Token.Lottie" />
+            <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_section_gap" android:text="No generated tests yet" />
+            <TextView style="@style/TextAppearance.Eve.Token.Body" android:layout_width="260dp" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center" android:text="Tests generated nightly by AI will appear here in Paused state for your review." />
         </LinearLayout>
     </FrameLayout>
 </LinearLayout>

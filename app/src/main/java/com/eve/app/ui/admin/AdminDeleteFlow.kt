@@ -1,5 +1,7 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.designsystem.showDestructive
+
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -78,7 +80,7 @@ class AdminDeleteFlow(private val activity: AppCompatActivity, private val api: 
                 }
             }
             .setOnDismissListener { if (!processing) pending.remove(key) }
-            .show()
+            .showDestructive()
     }
 
     /** For screens that already displayed their destructive confirmation. */

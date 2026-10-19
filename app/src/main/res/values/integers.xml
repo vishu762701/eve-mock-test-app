@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- iOS 26 Home Motion Durations (200-350 ms, spring damping ratio 0.8) -->
-    <integer name="eve_home_motion_duration">260</integer>
-    <integer name="eve_home_motion_press_duration">90</integer>
-</resources>

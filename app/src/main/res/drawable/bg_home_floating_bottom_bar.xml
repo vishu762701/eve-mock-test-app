@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <corners android:radius="@dimen/eve_home_bottom_bar_radius" />
-    <solid android:color="@color/eve_home_floating_bar_bg" />
-    <stroke
-        android:width="@dimen/eve_home_hairline_stroke"
-        android:color="@color/eve_home_hairline" />
-</shape>

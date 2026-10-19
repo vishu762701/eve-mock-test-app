@@ -105,7 +105,7 @@ class ApprovedUiFunctionalTest {
                 assertEquals("Rebinding must not save an answer", listOf("A", "B"), calls)
                 val actions = ActivityTestBinding.inflate(LayoutInflater.from(context))
                 actions.btnMarkReview.isSelected = true
-                val selectedState = intArrayOf(android.R.attr.state_selected)
+                val selectedState = actions.btnMarkReview.drawableState
                 assertEquals(context.getColor(R.color.system_yellow), actions.btnMarkReview.backgroundTintList!!.getColorForState(selectedState, 0))
                 assertEquals(Color.BLACK, actions.btnMarkReview.textColors.getColorForState(selectedState, 0))
                 assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP, 17f,

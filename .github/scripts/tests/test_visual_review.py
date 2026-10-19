@@ -46,7 +46,6 @@ PAIRS = (
     'student-target-exams',
     'student-completed-exam',
     'student-category-picker',
-    'student-font-picker',
     'student-payment-method',
     'student-report-question',
     'student-empty',

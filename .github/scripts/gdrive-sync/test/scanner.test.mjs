@@ -13,7 +13,7 @@ test('assignVolume maps files to authoritative knowledge volumes', () => {
   assert.strictEqual(assignVolume('SOURCE_OF_TRUTH.md'), '01_ENGINEERING_RULES_AND_STANDARDS');
   assert.strictEqual(assignVolume('DECISIONS.md'), '01_ENGINEERING_RULES_AND_STANDARDS');
   assert.strictEqual(assignVolume('firestore.rules'), '01_ENGINEERING_RULES_AND_STANDARDS');
-  assert.strictEqual(assignVolume('docs/PHASE_0_AUDIT_REPORT.md'), '01_ENGINEERING_RULES_AND_STANDARDS');
+  assert.strictEqual(assignVolume('docs/design-reset/report.md'), '01_ENGINEERING_RULES_AND_STANDARDS');
 
   assert.strictEqual(assignVolume('app/src/main/java/com/eve/app/ui/test/TestActivity.kt'), '02_ANDROID_CORE_AND_UI');
   assert.strictEqual(assignVolume('app/src/main/res/layout/activity_main.xml'), '03_ANDROID_LAYOUTS_AND_RESOURCES');

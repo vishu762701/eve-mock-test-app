@@ -1,4 +1,0 @@
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <solid android:color="@color/eve_tertiary_system_grouped_background" />
-    <corners android:radius="@dimen/eve_radius_input" />
-</shape>

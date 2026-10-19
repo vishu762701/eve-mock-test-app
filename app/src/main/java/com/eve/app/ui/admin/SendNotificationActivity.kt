@@ -1,5 +1,7 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.designsystem.showDestructive
+
 import com.eve.app.ui.common.EveBaseActivity
 
 import android.os.Bundle
@@ -189,7 +191,7 @@ class SendNotificationActivity : EveBaseActivity() {
                 deleteSelectedBroadcasts()
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .showDestructive()
     }
 
     private fun deleteSelectedBroadcasts() {
@@ -281,7 +283,7 @@ class SendNotificationActivity : EveBaseActivity() {
                 deleteBroadcast(broadcast)
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .showDestructive()
     }
 
     private fun deleteBroadcast(broadcast: BroadcastMessage) {

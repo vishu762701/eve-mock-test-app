@@ -55,4 +55,7 @@
     <dimen name="design_scroll_clearance">76dp</dimen>
     <dimen name="design_row_with_gap">50dp</dimen>
     <dimen name="design_dropdown_end_padding">48dp</dimen>
+    <dimen name="design_capsule_radius">999dp</dimen>
+    <dimen name="design_compact_gap">4dp</dimen>
+    <dimen name="design_banner_height">160dp</dimen>
 </resources>

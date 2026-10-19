@@ -57,7 +57,26 @@ class LockedNativePopupTest {
                 assertTrue(glass.isAttachedToWindow)
                 assertTrue(glass.isHardwareAccelerated)
             }
-            onView(withText("Second choice")).inRoot(isPlatformPopup()).perform(click())
+            // The suite keeps system animations enabled for the protected reveal checks.
+            // Wait for the native popup window/input position to settle before injecting a tap.
+            instrumentation.uiAutomation.waitForIdle(500, 5000)
+            try {
+                onView(withText("Second choice")).inRoot(isPlatformPopup()).perform(click())
+            } catch (error: Exception) {
+                var geometry = ""
+                scenario.onActivity {
+                    fun inspect(view: View) {
+                        if (view is android.widget.TextView && view.text == "Second choice") {
+                            val visible = android.graphics.Rect()
+                            val shown = view.getGlobalVisibleRect(visible)
+                            geometry = "size=${view.width}x${view.height}; visible=$shown/$visible; root=${view.rootView.width}x${view.rootView.height}; attached=${view.isAttachedToWindow}"
+                        }
+                        if (view is ViewGroup) for (i in 0 until view.childCount) inspect(view.getChildAt(i))
+                    }
+                    inspect(glass)
+                }
+                throw AssertionError("Native popup click: $geometry; cause=${error.cause}", error)
+            }
             instrumentation.waitForIdleSync()
             scenario.onActivity {
                 assertEquals(1, selected)

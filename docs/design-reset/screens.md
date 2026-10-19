@@ -57,18 +57,18 @@ Phase 4 XML/shared-component migration is implemented and passes local build/JVM
 | `app/src/main/java/com/eve/app/ui/common/EmptyStateView.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/common/ErrorStateView.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/common/EveBaseActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
-| `app/src/main/java/com/eve/app/ui/common/EveGlassButton.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
-| `app/src/main/java/com/eve/app/ui/common/EveGlassPill.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
-| `app/src/main/java/com/eve/app/ui/common/EveGlassSegmentedControl.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
-| `app/src/main/java/com/eve/app/ui/common/EveGlassTabLayout.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
+| `app/src/main/java/com/eve/app/ui/common/EveGlassButton.kt` | Retired/deleted; zero-reference evidence in cleanup-evidence.json |
+| `app/src/main/java/com/eve/app/ui/common/EveGlassPill.kt` | Retired/deleted; zero-reference evidence in cleanup-evidence.json |
+| `app/src/main/java/com/eve/app/ui/common/EveGlassSegmentedControl.kt` | Retired/deleted; zero-reference evidence in cleanup-evidence.json |
+| `app/src/main/java/com/eve/app/ui/common/EveGlassTabLayout.kt` | Retired/deleted; zero-reference evidence in cleanup-evidence.json |
 | `app/src/main/java/com/eve/app/ui/common/EveGlassToolbar.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
-| `app/src/main/java/com/eve/app/ui/common/EveLiquidGlassView.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
+| `app/src/main/java/com/eve/app/ui/common/EveLiquidGlassView.kt` | Retired/deleted; zero-reference evidence in cleanup-evidence.json |
 | `app/src/main/java/com/eve/app/ui/common/ExpandableCardHelper.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
-| `app/src/main/java/com/eve/app/ui/common/FlameAnimationView.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
+| `app/src/main/java/com/eve/app/ui/common/FlameAnimationView.kt` | Retired/deleted; zero-reference evidence in cleanup-evidence.json |
 | `app/src/main/java/com/eve/app/ui/common/QuestionPaletteAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/common/ReportQuestionDialog.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
-| `app/src/main/java/com/eve/app/ui/common/ShimmerSkeletonView.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
-| `app/src/main/java/com/eve/app/ui/common/SparkleView.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
+| `app/src/main/java/com/eve/app/ui/common/ShimmerSkeletonView.kt` | Retired/deleted; zero-reference evidence in cleanup-evidence.json |
+| `app/src/main/java/com/eve/app/ui/common/SparkleView.kt` | Retired/deleted; zero-reference evidence in cleanup-evidence.json |
 | `app/src/main/java/com/eve/app/ui/common/StudentSelectionControls.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/common/TelegramRadioButton.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/feedback/FeedbackActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
@@ -90,7 +90,7 @@ Phase 4 XML/shared-component migration is implemented and passes local build/JVM
 | `app/src/main/java/com/eve/app/ui/leaderboard/LeaderboardActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/leaderboard/LeaderboardAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/leaderboard/LeaderboardViewModel.kt` | Data/state logic retained; no UI migration required |
-| `app/src/main/java/com/eve/app/ui/login/AmbientBackgroundView.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
+| `app/src/main/java/com/eve/app/ui/login/AmbientBackgroundView.kt` | Retired/deleted; zero-reference evidence in cleanup-evidence.json |
 | `app/src/main/java/com/eve/app/ui/login/LoginActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/mistakes/MistakesActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/mistakes/MistakesAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
@@ -106,15 +106,15 @@ Phase 4 XML/shared-component migration is implemented and passes local build/JVM
 | `app/src/main/java/com/eve/app/ui/premium/PaymentMethodBottomSheet.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/premium/PremiumActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/premium/PremiumBenefitRows.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
-| `app/src/main/java/com/eve/app/ui/premium/gl/GLIconRenderer.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
-| `app/src/main/java/com/eve/app/ui/premium/gl/Icon3D.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
-| `app/src/main/java/com/eve/app/ui/premium/gl/ObjLoader.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
-| `app/src/main/java/com/eve/app/ui/premium/gl/Telegram3DStarView.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
+| `app/src/main/java/com/eve/app/ui/premium/gl/GLIconRenderer.kt` | Retired/deleted; zero-reference evidence in cleanup-evidence.json |
+| `app/src/main/java/com/eve/app/ui/premium/gl/Icon3D.kt` | Retired/deleted; zero-reference evidence in cleanup-evidence.json |
+| `app/src/main/java/com/eve/app/ui/premium/gl/ObjLoader.kt` | Retired/deleted; zero-reference evidence in cleanup-evidence.json |
+| `app/src/main/java/com/eve/app/ui/premium/gl/Telegram3DStarView.kt` | Retired/deleted; zero-reference evidence in cleanup-evidence.json |
 | `app/src/main/java/com/eve/app/ui/profile/ProfileActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/pyq/PyqActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/pyq/PyqViewModel.kt` | Data/state logic retained; no UI migration required |
 | `app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
-| `app/src/main/java/com/eve/app/ui/result/ConfettiView.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
+| `app/src/main/java/com/eve/app/ui/result/ConfettiView.kt` | Retired/deleted; zero-reference evidence in cleanup-evidence.json |
 | `app/src/main/java/com/eve/app/ui/result/QuestionTimeChartView.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/result/ResponsiveResultRow.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/result/ResultActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
@@ -126,7 +126,7 @@ Phase 4 XML/shared-component migration is implemented and passes local build/JVM
 | `app/src/main/java/com/eve/app/ui/result/ResultStatisticsGrid.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/result/ResultTabs.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/result/ResultViewModel.kt` | Data/state logic retained; no UI migration required |
-| `app/src/main/java/com/eve/app/ui/result/SemiCircleGaugeView.kt` | Retired from production hosts; deletion evidence scheduled for Phase 5 |
+| `app/src/main/java/com/eve/app/ui/result/SemiCircleGaugeView.kt` | Retired/deleted; zero-reference evidence in cleanup-evidence.json |
 | `app/src/main/java/com/eve/app/ui/settings/SettingsActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/syllabus/SyllabusActivity.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
 | `app/src/main/java/com/eve/app/ui/syllabus/SyllabusAdapter.kt` | Shared XML/runtime token migration implemented; hosted native verification pending |
@@ -177,7 +177,7 @@ Phase 4 XML/shared-component migration is implemented and passes local build/JVM
 | `app/src/main/res/layout/activity_test.xml` | Shared token styles applied; native inflation/render verification pending |
 | `app/src/main/res/layout/bottom_sheet_category_picker.xml` | Shared token styles applied; native inflation/render verification pending |
 | `app/src/main/res/layout/bottom_sheet_completed_exam.xml` | Shared token styles applied; native inflation/render verification pending |
-| `app/src/main/res/layout/bottom_sheet_font_picker.xml` | Shared token styles applied; native inflation/render verification pending |
+| `app/src/main/res/layout/bottom_sheet_font_picker.xml` | Retired: owner explicitly removed Device font; Poppins is fixed |
 | `app/src/main/res/layout/bottom_sheet_payment_method.xml` | Shared token styles applied; native inflation/render verification pending |
 | `app/src/main/res/layout/bottom_sheet_target_exams.xml` | Shared token styles applied; native inflation/render verification pending |
 | `app/src/main/res/layout/dialog_add_question.xml` | Shared token styles applied; native inflation/render verification pending |

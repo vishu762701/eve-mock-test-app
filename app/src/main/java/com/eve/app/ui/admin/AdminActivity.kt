@@ -1,5 +1,7 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.designsystem.showDestructive
+
 import com.eve.app.ui.common.EveBaseActivity
 
 import android.content.Intent
@@ -511,7 +513,7 @@ class AdminActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .showDestructive()
     }
 
     private fun showQuestionDetails(q: Question) {
@@ -545,7 +547,7 @@ class AdminActivity : EveBaseActivity() {
                 AppBulletin.showSuccess(this@AdminActivity, "Question deleted")
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .showDestructive()
     }
 
     private fun addAdmin() {
@@ -576,7 +578,7 @@ class AdminActivity : EveBaseActivity() {
                 AppBulletin.showSuccess(this@AdminActivity, "Admin $email removed")
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .showDestructive()
     }
 
     private fun handleBulkUploadForSelectedExam(uri: Uri) {
@@ -1073,7 +1075,7 @@ class AdminActivity : EveBaseActivity() {
                                 })
                             }
                             .setNegativeButton("Cancel", null)
-                            .show()
+                            .showDestructive()
                     }
                 }
             }
@@ -1177,7 +1179,7 @@ class AdminActivity : EveBaseActivity() {
                         }
                     }
                     .setNegativeButton("Cancel", null)
-                    .show()
+                    .showDestructive()
             }
         )
 
@@ -1198,7 +1200,7 @@ class AdminActivity : EveBaseActivity() {
                                 })
                 }
                 .setNegativeButton("Cancel", null)
-                .show()
+                .showDestructive()
         }
 
         dialogBinding.btnCloseReplies.setOnClickListener { dialog.dismiss() }

@@ -429,3 +429,10 @@ background and — if there's truly no network — will silently **not** be save
 Leaderboard / Analytics for that attempt. This trade-off is unavoidable once scoring is
 server-verified; a future improvement would be to queue failed submissions (e.g. with
 WorkManager) and retry after the device reconnects.
+
+## Current UI design system
+
+The owner's locked root reset uses bundled Poppins and shared XML tokens/components.
+See [implementation and verification](docs/design-reset/report.md) and
+[screen coverage](docs/design-reset/screens.md). Historical UI task documents
+are retired; repository workflow rules remain in AGENTS.md and ENGINEERING_STANDARD.md.

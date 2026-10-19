@@ -172,7 +172,7 @@ class ResultAndTestPolishVerificationTest {
         assertTrue("item_exam.xml must exist", file.exists())
         val content = file.readText()
         assertTrue(
-            "examIconContainer must specify eve_exam_icon_tile_bg background",
+            "examIconContainer must use shared inset background",
             content.contains("android:id=\"@+id/examIconContainer\"") &&
             content.contains("@style/Widget.Eve.Token.Card.Inner")
         )
@@ -189,7 +189,7 @@ class ResultAndTestPolishVerificationTest {
         assertTrue("btnBookmark must exist", content.contains("android:id=\"@+id/btnBookmark\""))
         assertTrue("btnReport must exist", content.contains("android:id=\"@+id/btnReport\""))
         assertTrue("btnReport must use ic_report_flag_premium", content.contains("@drawable/ic_report_flag_premium"))
-        assertFalse("btnReport must not use circular bg_btn_report", content.contains("@drawable/bg_btn_report"))
+        assertFalse("btnReport must not use a local drawable background", content.contains("android:background=\"@drawable/"))
         assertTrue("Bookmark/report must use bare backgrounds", content.contains("@style/Widget.Eve.Token.IconButton"))
         assertTrue("Touch target FrameLayout must be 48dp", content.contains("android:layout_width=\"@dimen/design_touch_min\"") && content.contains("android:layout_height=\"@dimen/design_touch_min\""))
     }
@@ -207,7 +207,7 @@ class ResultAndTestPolishVerificationTest {
         assertTrue("layoutSolutionDetails must exist", content.contains("android:id=\"@+id/layoutSolutionDetails\""))
         assertTrue("layoutSolutionDetails must be initially gone", content.contains("android:id=\"@+id/layoutSolutionDetails\"") && content.contains("android:visibility=\"gone\""))
         assertTrue("Report icon in item_answer must use ic_report_flag_premium", content.contains("android:id=\"@+id/ivReportQuestion\"") && content.contains("@drawable/ic_report_flag_premium"))
-        assertFalse("Report icon in item_answer must not have circular bg_btn_report", content.contains("@drawable/bg_btn_report"))
+        assertFalse("Report icon in item_answer must not have a local drawable background", content.contains("android:background=\"@drawable/"))
     }
 
     @Test
@@ -466,6 +466,6 @@ class ResultAndTestPolishVerificationTest {
         assertTrue("bottom_sheet_completed_exam.xml must exist", completedSheetFile != null && completedSheetFile.exists())
         val completedContent = completedSheetFile!!.readText()
         assertTrue("btnReattempt in completed exam sheet must use Orange style", completedContent.contains("style=\"@style/Widget.Eve.Token.Button\""))
-        assertFalse("btnReattempt must not use error color", completedContent.contains("@color/error"))
+        assertFalse("btnReattempt must not use error color", completedContent.contains("@color/system_red"))
     }
 }

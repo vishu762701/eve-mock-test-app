@@ -64,7 +64,6 @@ class LockedLayoutInflationTest {
                     R.layout.activity_test,
                     R.layout.bottom_sheet_category_picker,
                     R.layout.bottom_sheet_completed_exam,
-                    R.layout.bottom_sheet_font_picker,
                     R.layout.bottom_sheet_payment_method,
                     R.layout.bottom_sheet_target_exams,
                     R.layout.dialog_add_question,

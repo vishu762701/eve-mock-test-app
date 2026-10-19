@@ -116,11 +116,11 @@ object ShareCardHelper {
             typeface = boldTypeface
         }
         val pill1Rect = RectF(120f, 475f, 340f, 530f)
-        canvas.drawRoundRect(pill1Rect, EveShapes.capsule(pill1Rect.height()), EveShapes.capsule(pill1Rect.height()), pillBgPaint)
+        canvas.drawRoundRect(pill1Rect, (pill1Rect.height() / 2f), (pill1Rect.height() / 2f), pillBgPaint)
         canvas.drawText(percentageText, 140f, 513f, pillTextPaint)
 
         val pill2Rect = RectF(360f, 475f, 600f, 530f)
-        canvas.drawRoundRect(pill2Rect, EveShapes.capsule(pill2Rect.height()), EveShapes.capsule(pill2Rect.height()), pillBgPaint)
+        canvas.drawRoundRect(pill2Rect, (pill2Rect.height() / 2f), (pill2Rect.height() / 2f), pillBgPaint)
         canvas.drawText("Acc: $accuracyText", 380f, 513f, pillTextPaint)
 
         // 6. Performance Breakdown Boxes (Correct, Wrong, Skipped)

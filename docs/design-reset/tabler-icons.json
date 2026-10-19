@@ -23,7 +23,6 @@
   "ic_exam_placeholder": "clipboard-text",
   "ic_flag": "flag",
   "ic_flame_line": "flame",
-  "ic_font": "typography",
   "ic_history": "history",
   "ic_history_rounded": "history",
   "ic_image": "photo",
@@ -73,5 +72,6 @@
   "ic_save": "device-floppy",
   "ic_visibility_off": "eye-off",
   "ic_checkbox_checked": "square-check",
-  "ic_checkbox_unchecked": "square"
+  "ic_checkbox_unchecked": "square",
+  "illustration_empty_all_caught_up": "circle-check"
 }

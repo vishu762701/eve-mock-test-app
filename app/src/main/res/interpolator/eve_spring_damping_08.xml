@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Apple iOS 26 Spring curve with damping ratio 0.8 (1.5% overshoot -> tension 0.65) -->
-<overshootInterpolator xmlns:android="http://schemas.android.com/apk/res/android"
-    android:tension="0.65" />

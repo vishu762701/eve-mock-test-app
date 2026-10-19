@@ -6,7 +6,7 @@
     <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:id="@+id/cardMethodQr" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:clickable="true" android:focusable="true">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
             <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:src="@drawable/ic_qr_code" app:tint="@color/system_blue" />
-            <LinearLayout android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_section_gap" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_section_gap" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                 <TextView style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="QR Code" />
                 <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Scan dynamic QR with any UPI app" />
             </LinearLayout>
@@ -16,7 +16,7 @@
     <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:id="@+id/cardMethodUpi" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:clickable="true" android:focusable="true">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
             <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:src="@drawable/ic_account_balance" app:tint="@color/system_blue" />
-            <LinearLayout android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_section_gap" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_section_gap" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                 <TextView style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="UPI Apps" />
                 <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pay directly via GPay, PhonePe, Paytm" />
             </LinearLayout>

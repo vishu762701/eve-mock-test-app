@@ -1,12 +1,9 @@
 package com.eve.app.ui.bookmarks
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.OvershootInterpolator
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -76,11 +73,11 @@ class BookmarkAdapter(
                 if (item.correctAnswer.isNotBlank() && letter.equals(item.correctAnswer, ignoreCase = true)) {
                     tv.text = "$letter. $optText  ✓"
                     tv.setTextColor(greenColor)
-                    tv.setTypeface(null, android.graphics.Typeface.BOLD)
+                    tv.typeface = com.eve.app.util.FontManager.typeface(tv.context, bold = true)
                 } else {
                     tv.text = "$letter. $optText"
                     tv.setTextColor(defaultColor)
-                    tv.setTypeface(null, android.graphics.Typeface.NORMAL)
+                    tv.typeface = com.eve.app.util.FontManager.typeface(tv.context, bold = false)
                 }
             }
 
@@ -111,30 +108,10 @@ class BookmarkAdapter(
                 binding.tvExplanation.visibility = View.GONE
             }
 
-            // Star unbookmark button
-            binding.btnBookmark.setImageResource(R.drawable.ic_star_filled)
+            com.eve.app.designsystem.DesignIconStates.bookmark(binding.btnBookmark, true)
             binding.btnBookmark.setOnClickListener {
-                binding.btnBookmark.animate().cancel()
-                binding.btnBookmark.animate()
-                    .scaleX(0.5f)
-                    .scaleY(0.5f)
-                    .setDuration(90)
-                    .setListener(object : AnimatorListenerAdapter() {
-                        override fun onAnimationEnd(animation: Animator) {
-                            binding.btnBookmark.setImageResource(R.drawable.ic_star_outline)
-                            binding.btnBookmark.animate()
-                                .scaleX(1f)
-                                .scaleY(1f)
-                                .setDuration(200)
-                                .setInterpolator(OvershootInterpolator(2.5f))
-                                .setListener(null)
-                                .withEndAction {
-                                    onUnbookmark(item)
-                                }
-                                .start()
-                        }
-                    })
-                    .start()
+                com.eve.app.designsystem.DesignIconStates.bookmark(binding.btnBookmark, false)
+                onUnbookmark(item)
             }
 
             // Tap card to open question in test flow

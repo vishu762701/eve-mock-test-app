@@ -61,7 +61,7 @@ class Ios26DesignFidelityTest {
             )
             val root = loadXml("src/main/res/layout/$layoutFile")
             val bg = root.designAttribute("android:background")
-            assertTrue(bg in setOf("@color/bg_app", "@color/eve_system_background", "@color/eve_canvas", "@color/eve_bg", "@color/eve_test_background", "@color/eve_plain_canvas", "@color/eve_home_background"))
+            assertTrue(bg in setOf("@color/bg_app"))
         }
 
         val groupedScreens = listOf(
@@ -144,16 +144,19 @@ class Ios26DesignFidelityTest {
             val text = findFile("src/main/res/layout/$name").readText()
             val afterToolbar = text.substringAfter("</com.eve.app.ui.common.EveGlassToolbar>").trimStart()
             assertFalse("Layout $name should not have a View divider immediately below EveGlassToolbar",
-                afterToolbar.startsWith("<View") && (afterToolbar.contains("@color/eve_stroke") || afterToolbar.contains("@color/eve_separator")))
+                afterToolbar.startsWith("<View") && afterToolbar.contains("@color/hairline"))
         }
 
-        val adminText = findFile("src/main/res/layout/activity_admin.xml").readText()
-        val afterTabs = adminText.substringAfter("</com.eve.app.ui.common.EveGlassTabLayout>").trimStart()
-        assertFalse(afterTabs.startsWith("<View"))
+        val admin = loadXml("src/main/res/layout/activity_admin.xml")
+        val nodes = admin.getElementsByTagName("View")
+        for (i in 0 until nodes.length) {
+            val view = nodes.item(i) as Element
+            assertFalse("Admin contains no thin separator views", view.getAttribute("android:layout_height") in listOf("1dp", "0.5dp", "@dimen/design_hairline_width"))
+        }
     }
 
     @Test
-    fun test4_allSectionTabsUseEveGlassTabLayout() {
+    fun test4_allSectionTabsUseSharedSegments() {
         val tabLayouts = listOf(
             "activity_result.xml" to "tabLayoutResult",
             "activity_admin.xml" to "tabLayoutAdmin",
@@ -165,7 +168,7 @@ class Ios26DesignFidelityTest {
             val descendants = root.getElementsByTagName("*")
             val tabElement = (0 until descendants.length).map { descendants.item(it) as Element }
                 .single { it.getAttribute("android:id") == "@+id/$id" }
-            assertEquals("Tab $id in $path must be EveGlassTabLayout", "com.eve.app.designsystem.DesignSegmentedTabs", tabElement.tagName)
+            assertEquals("Tab $id in $path must use shared segments", "com.eve.app.designsystem.DesignSegmentedTabs", tabElement.tagName)
         }
     }
 
@@ -173,9 +176,9 @@ class Ios26DesignFidelityTest {
     fun test5_protectedTestColorsPreserved() {
         val light = loadResolvedColors("values")
         val dark = loadResolvedColors("values-night")
-        assertEquals("#34C759", light["eve_test_selected"])
-        assertEquals("#34C759", dark["eve_test_selected"])
-        assertEquals("#FFCC00", light["eve_test_review"])
-        assertEquals("#FFCC00", dark["eve_test_review"])
+        assertEquals("#34C759", light["system_green"])
+        assertEquals("#30D158", dark["system_green"])
+        assertEquals("#FFCC00", light["system_yellow"])
+        assertEquals("#FFD600", dark["system_yellow"])
     }
 }

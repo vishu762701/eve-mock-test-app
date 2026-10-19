@@ -120,112 +120,32 @@ class HomeTypographyTest {
 
     @Test
     fun testAppleIOS26_Standard11TextStyles() {
-        val styles = loadStyles("src/main/res/values/type.xml")
-
-        // 1. Large Title: 34sp, Regular (Emphasized: Bold), 41sp line height
-        val largeTitle = styles["TextAppearance.Eve.Display"]
-        assertNotNull(largeTitle)
-        assertEquals("34sp", largeTitle?.textSize)
-        assertEquals("normal", largeTitle?.textStyle)
-        assertEquals("41sp", largeTitle?.lineHeight)
-
-        // 2. Title 1: 28sp, Regular (Emphasized: Bold), 34sp line height
-        val title1 = styles["TextAppearance.Eve.Title1"]
-        assertNotNull(title1)
-        assertEquals("28sp", title1?.textSize)
-        assertEquals("normal", title1?.textStyle)
-        assertEquals("34sp", title1?.lineHeight)
-
-        // 3. Title 2: 22sp, Regular (Emphasized: Bold), 28sp line height
-        val title2 = styles["TextAppearance.Eve.Title2"]
-        assertNotNull(title2)
-        assertEquals("22sp", title2?.textSize)
-        assertEquals("normal", title2?.textStyle)
-        assertEquals("28sp", title2?.lineHeight)
-
-        // 4. Title 3: 20sp, Regular (Emphasized: Semibold), 25sp line height
-        val title3 = styles["TextAppearance.Eve.Title3"]
-        assertNotNull(title3)
-        assertEquals("20sp", title3?.textSize)
-        assertEquals("sans-serif", title3?.fontFamily)
-        assertEquals("25sp", title3?.lineHeight)
-
-        // 5. Headline: 17sp, Medium / Semibold, 22sp line height
-        val headline = styles["TextAppearance.Eve.Headline"]
-        assertNotNull(headline)
-        assertEquals("17sp", headline?.textSize)
-        assertEquals("sans-serif-medium", headline?.fontFamily)
-        assertEquals("22sp", headline?.lineHeight)
-
-        // 6. Body: 17sp, Regular, 22sp line height
-        val body = styles["TextAppearance.Eve.Body"]
-        assertNotNull(body)
-        assertEquals("17sp", body?.textSize)
-        assertEquals("sans-serif", body?.fontFamily)
-        assertEquals("22sp", body?.lineHeight)
-
-        // 7. Callout: 16sp, Regular, 21sp line height
-        val callout = styles["TextAppearance.Eve.Callout"]
-        assertNotNull(callout)
-        assertEquals("16sp", callout?.textSize)
-        assertEquals("sans-serif", callout?.fontFamily)
-        assertEquals("21sp", callout?.lineHeight)
-
-        // 8. Subheadline: 15sp, Regular, 20sp line height
-        val subhead = styles["TextAppearance.Eve.Subheadline"]
-        assertNotNull(subhead)
-        assertEquals("15sp", subhead?.textSize)
-        assertEquals("sans-serif", subhead?.fontFamily)
-        assertEquals("20sp", subhead?.lineHeight)
-
-        // 9. Footnote: 13sp, Regular, 18sp line height
-        val footnote = styles["TextAppearance.Eve.Footnote"]
-        assertNotNull(footnote)
-        assertEquals("13sp", footnote?.textSize)
-        assertEquals("sans-serif", footnote?.fontFamily)
-        assertEquals("18sp", footnote?.lineHeight)
-
-        // 10. Caption 1: 12sp, Regular, 16sp line height
-        val caption1 = styles["TextAppearance.Eve.Caption"]
-        assertNotNull(caption1)
-        assertEquals("12sp", caption1?.textSize)
-        assertEquals("sans-serif", caption1?.fontFamily)
-        assertEquals("16sp", caption1?.lineHeight)
-
-        // 11. Caption 2: 11sp, Regular (Emphasized: Semibold), 13sp line height
-        val caption2 = styles["TextAppearance.Eve.Caption2"]
-        assertNotNull(caption2)
-        assertEquals("11sp", caption2?.textSize)
-        assertEquals("sans-serif", caption2?.fontFamily)
-        assertEquals("13sp", caption2?.lineHeight)
+        val styles = loadStyles("src/main/res/values/design_type.xml")
+        for ((role, token, font) in listOf(
+            Triple("Title", "title", "bold"), Triple("Heading", "heading", "bold"),
+            Triple("Body", "body", "regular"), Triple("Secondary", "secondary", "regular")
+        )) {
+            val style = styles["TextAppearance.Eve.Token.$role"]
+            assertNotNull(style)
+            assertEquals("@dimen/design_type_$token", style?.textSize)
+            assertEquals("@dimen/design_line_$token", style?.lineHeight)
+            assertEquals("@font/poppins_$font", style?.fontFamily)
+        }
     }
 
     @Test
     fun testAppleIOS26_ComponentSpecificVariants() {
-        val styles = loadStyles("src/main/res/values/type.xml")
-
-        // Eyebrow / Kicker ("EVE"): 12sp, medium, allCaps
-        val eyebrow = styles["TextAppearance.Eve.Eyebrow"]
-        assertNotNull(eyebrow)
-        assertEquals("12sp", eyebrow?.textSize)
-        assertEquals("sans-serif-medium", eyebrow?.fontFamily)
-        assertEquals("true", eyebrow?.textAllCaps)
-        assertEquals("16sp", eyebrow?.lineHeight)
-
-        // Subheadline.Medium (Section headers / Drawer rows): 15sp, medium
-        val subheadMedium = styles["TextAppearance.Eve.Subheadline.Medium"]
-        assertNotNull(subheadMedium)
-        assertEquals("sans-serif-medium", subheadMedium?.fontFamily)
-
-        // Footnote.Medium (Category chips / Badges / Streak pill): 13sp, medium
-        val footnoteMedium = styles["TextAppearance.Eve.Footnote.Medium"]
-        assertNotNull(footnoteMedium)
-        assertEquals("sans-serif-medium", footnoteMedium?.fontFamily)
-
-        // Search input: 17sp, regular
-        val search = styles["TextAppearance.Eve.Search"]
-        assertNotNull(search)
-        assertEquals("@color/eve_header_ink_text", search?.textColor)
+        val styles = loadStyles("src/main/res/values/design_type.xml")
+        for ((role, token, font) in listOf(
+            Triple("Tab", "tab", "regular"), Triple("Chip", "chip", "medium"), Triple("Button", "button", "bold")
+        )) {
+            val style = styles["TextAppearance.Eve.Token.$role"]
+            assertNotNull(style)
+            assertEquals("@dimen/design_type_$token", style?.textSize)
+            assertEquals("@dimen/design_line_$token", style?.lineHeight)
+            assertEquals("@font/poppins_$font", style?.fontFamily)
+        }
+        assertEquals("@font/poppins_bold", styles["TextAppearance.Eve.Token.Tab.Selected"]?.fontFamily)
     }
 
     @Test
@@ -254,7 +174,7 @@ class HomeTypographyTest {
 
         val tvStreakSummary = findElementById(root, "tvStreakSummary")
         assertNotNull(tvStreakSummary)
-        assertEquals("@style/TextAppearance.Eve.Token.Chip", tvStreakSummary?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Token.Chip.OnAccent", tvStreakSummary?.getAttribute("style"))
 
         val tvOfflineBanner = findElementById(root, "tvOfflineBanner")
         assertNotNull(tvOfflineBanner)

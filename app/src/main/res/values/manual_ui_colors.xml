@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- Subtle decorative outlines; focus, selection and semantic artwork use dedicated tokens. -->
-    <color name="eve_shape_border">#D9DDE5</color>
-</resources>

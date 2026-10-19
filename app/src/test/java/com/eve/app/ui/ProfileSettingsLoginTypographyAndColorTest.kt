@@ -16,7 +16,7 @@ import javax.xml.parsers.DocumentBuilderFactory
  *
  * Verifies:
  * 1. Zero hardcoded text sizes (android:textSize) across activity_profile.xml,
- *    activity_settings.xml, bottom_sheet_font_picker.xml, and activity_login.xml.
+ *    activity_settings.xml, activity_login.xml.
  * 2. Proper semantic text appearance bindings according to Apple iOS 26 specifications.
  * 3. Official Apple dynamic switch green selector tinting.
  * 4. WCAG AA / Apple HIG contrast compliance for semantic colors across Day and Night palettes.
@@ -67,7 +67,6 @@ class ProfileSettingsLoginTypographyAndColorTest {
         val layoutFiles = listOf(
             "src/main/res/layout/activity_profile.xml",
             "src/main/res/layout/activity_settings.xml",
-            "src/main/res/layout/bottom_sheet_font_picker.xml",
             "src/main/res/layout/activity_login.xml"
         )
 
@@ -137,24 +136,10 @@ class ProfileSettingsLoginTypographyAndColorTest {
     }
 
     @Test
-    fun testFontPickerTypography() {
-        val root = loadXml("src/main/res/layout/bottom_sheet_font_picker.xml")
-
-        val tvEveDefaultTitle = findElementById(root, "tvEveDefaultTitle")
-        assertNotNull("tvEveDefaultTitle must exist", tvEveDefaultTitle)
-        assertEquals("@style/TextAppearance.Eve.Token.Heading", tvEveDefaultTitle?.getAttribute("style"))
-
-        val tvEveDefaultSample = findElementById(root, "tvEveDefaultSample")
-        assertNotNull("tvEveDefaultSample must exist", tvEveDefaultSample)
-        assertEquals("@style/TextAppearance.Eve.Token.Secondary", tvEveDefaultSample?.getAttribute("style"))
-
-        val tvDeviceFontTitle = findElementById(root, "tvDeviceFontTitle")
-        assertNotNull("tvDeviceFontTitle must exist", tvDeviceFontTitle)
-        assertEquals("@style/TextAppearance.Eve.Token.Heading", tvDeviceFontTitle?.getAttribute("style"))
-
-        val tvDeviceFontSample = findElementById(root, "tvDeviceFontSample")
-        assertNotNull("tvDeviceFontSample must exist", tvDeviceFontSample)
-        assertEquals("@style/TextAppearance.Eve.Token.Secondary", tvDeviceFontSample?.getAttribute("style"))
+    fun testPoppinsOnlySettings() {
+        val settings = loadXml("src/main/res/layout/activity_settings.xml")
+        assertEquals("Device font option is retired by the owner", null, findElementById(settings, "tvFontValue"))
+        assertEquals(null, findElementById(settings, "rowFont"))
     }
 
     @Test
@@ -205,7 +190,7 @@ class ProfileSettingsLoginTypographyAndColorTest {
 
     @Test
     fun testSwitchTrackCheckedStateSatisfiesContrast() {
-        val root = loadXml("src/main/res/color/selector_eve_switch_track.xml")
+        val root = loadXml("src/main/res/color/design_switch_tint.xml")
         val items = root.getElementsByTagName("item")
         var checkedColor: String? = null
         for (i in 0 until items.length) {
@@ -214,7 +199,7 @@ class ProfileSettingsLoginTypographyAndColorTest {
                 checkedColor = item.getAttribute("android:color")
             }
         }
-        assertEquals("@color/eve_primary", checkedColor)
+        assertEquals("@color/system_green", checkedColor)
     }
 
     @Test
@@ -264,10 +249,10 @@ class ProfileSettingsLoginTypographyAndColorTest {
     @Test
     fun testProfileScopedGroupedDayNightHierarchy() {
         val profile = loadXml("src/main/res/layout/activity_profile.xml")
-        val formSurface = loadXml("src/main/res/drawable/bg_student_group.xml")
+        val formSurface = loadXml("src/main/res/drawable/design_surface_panel.xml")
         val formSolid = formSurface.getElementsByTagName("solid").item(0) as Element
         assertEquals("@color/bg_app", profile.designAttribute("android:background"))
-        assertEquals("@color/eve_secondary_system_grouped_background", formSolid.getAttribute("android:color"))
+        assertEquals("@color/surface", formSolid.getAttribute("android:color"))
 
         // The Profile header is the sharp foreground of the allowed glass toolbar.
         val header = profile.getElementsByTagName("LinearLayout").item(0) as Element
@@ -283,13 +268,9 @@ class ProfileSettingsLoginTypographyAndColorTest {
             }
             error("Missing semantic token: $token in $resourcePath")
         }
-        assertEquals("@color/bg_app", hex("src/main/res/values/colors.xml", "eve_system_grouped_background"))
-        assertEquals("@color/surface", hex("src/main/res/values/colors.xml", "eve_secondary_system_grouped_background"))
-        assertEquals("@color/bg_app", hex("src/main/res/values-night/colors.xml", "eve_system_grouped_background"))
-        assertEquals("@color/surface", hex("src/main/res/values-night/colors.xml", "eve_secondary_system_grouped_background"))
-        assertEquals("#F5F5F5", hex("src/main/res/values/colors.xml", "bg_app"))
-        assertEquals("#FFFFFF", hex("src/main/res/values/colors.xml", "surface"))
-        assertEquals("#000000", hex("src/main/res/values-night/colors.xml", "bg_app"))
-        assertEquals("#1C1C1E", hex("src/main/res/values-night/colors.xml", "surface"))
+        assertEquals("#F5F5F5", hex("src/main/res/values/design_colors.xml", "bg_app"))
+        assertEquals("#FFFFFF", hex("src/main/res/values/design_colors.xml", "surface"))
+        assertEquals("#000000", hex("src/main/res/values-night/design_colors.xml", "bg_app"))
+        assertEquals("#1C1C1E", hex("src/main/res/values-night/design_colors.xml", "surface"))
     }
 }

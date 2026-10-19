@@ -148,7 +148,7 @@ class ManualUiSpecificationTest {
                         assertEquals(dp(48), chips[0].height)
                     }
                     for (chip in chips) {
-                        assertEquals(chip.chipMinHeight / 2f, chip.chipCornerRadius, 0.01f)
+                        assertEquals(0.5f, (chip.shapeAppearanceModel.topLeftCornerSize as com.google.android.material.shape.RelativeCornerSize).relativePercent, 0.01f)
                         assertEquals(0f, chip.chipStrokeWidth, 0.01f)
                         for (checked in listOf(false, true, false)) {
                             chip.isChecked = checked
@@ -170,6 +170,7 @@ class ManualUiSpecificationTest {
                     val tabStrip = result.tabLayoutResult.getChildAt(0) as ViewGroup
                     fun tabText(index: Int): TextView {
                         fun find(view: View): TextView? {
+                            if (view.visibility != View.VISIBLE) return null
                             if (view is TextView) return view
                             if (view is ViewGroup) for (i in 0 until view.childCount) find(view.getChildAt(i))?.let { return it }
                             return null
@@ -302,10 +303,6 @@ class ManualUiSpecificationTest {
                     fun release(view: View) {
                         view.animate().cancel()
                         if (view is com.airbnb.lottie.LottieAnimationView) view.cancelAnimation()
-                        if (view is com.eve.app.ui.common.ShimmerSkeletonView) {
-                            (view.javaClass.getDeclaredField("animator").apply { isAccessible = true }
-                                .get(view) as? android.animation.ValueAnimator)?.cancel()
-                        }
                         if (view is ViewGroup) for (i in 0 until view.childCount) release(view.getChildAt(i))
                     }
                     release(home.root)

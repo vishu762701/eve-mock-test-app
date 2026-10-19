@@ -50,7 +50,7 @@ class LottieContainersNoDecorationTest {
 
         val bgColor = container!!.designAttribute("app:cardBackgroundColor")
         assertEquals(
-            "examIconContainer cardBackgroundColor must be @color/eve_exam_icon_tile_bg",
+            "examIconContainer cardBackgroundColor must be @color/surface_inset",
             "@color/surface_inset",
             bgColor
         )
@@ -60,13 +60,13 @@ class LottieContainersNoDecorationTest {
         val strokeWidth = container.designAttribute("app:strokeWidth")
         assertTrue(
             "Icon tile must not add a nested outline (was '$strokeWidth')",
-            strokeWidth == "@dimen/design_zero" || strokeWidth == "0dp" || strokeWidth == "0" || strokeWidth == "@dimen/eve_space_0"
+            strokeWidth == "@dimen/design_zero" || strokeWidth == "0dp" || strokeWidth == "0" || strokeWidth == "@dimen/design_zero"
         )
 
         val elevation = container.designAttribute("app:cardElevation")
         assertTrue(
             "examIconContainer cardElevation must be 0dp or empty (was '$elevation')",
-            elevation == "@dimen/design_zero" || elevation.isEmpty() || elevation == "0dp" || elevation == "0" || elevation == "@dimen/eve_home_card_elevation" || elevation == "@dimen/eve_space_0"
+            elevation == "@dimen/design_zero" || elevation.isEmpty() || elevation == "0dp" || elevation == "0" || elevation == "@dimen/design_zero" || elevation == "@dimen/design_zero"
         )
     }
 
@@ -79,7 +79,7 @@ class LottieContainersNoDecorationTest {
         val strokeWidth = card!!.designAttribute("app:strokeWidth")
         assertTrue(
             "cardFloatingAirplane strokeWidth must be 0dp or 0 (was '$strokeWidth')",
-            strokeWidth == "@dimen/design_zero" || strokeWidth == "0dp" || strokeWidth == "0" || strokeWidth == "@dimen/eve_space_0"
+            strokeWidth == "@dimen/design_zero" || strokeWidth == "0dp" || strokeWidth == "0" || strokeWidth == "@dimen/design_zero"
         )
 
         val bgColor = card.designAttribute("app:cardBackgroundColor")
@@ -92,7 +92,7 @@ class LottieContainersNoDecorationTest {
         val elevation = card.designAttribute("app:cardElevation")
         assertTrue(
             "cardFloatingAirplane cardElevation must be 0dp or empty (was '$elevation')",
-            elevation == "@dimen/design_zero" || elevation.isEmpty() || elevation == "0dp" || elevation == "0" || elevation == "@dimen/eve_home_card_elevation" || elevation == "@dimen/eve_space_0"
+            elevation == "@dimen/design_zero" || elevation.isEmpty() || elevation == "0dp" || elevation == "0" || elevation == "@dimen/design_zero" || elevation == "@dimen/design_zero"
         )
 
         val rippleColor = card.getAttribute("app:rippleColor")

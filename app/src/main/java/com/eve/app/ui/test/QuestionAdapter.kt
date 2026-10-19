@@ -78,16 +78,12 @@ class QuestionAdapter(
             // Keep the approved font sizes; scroll the full question and options on small screens.
             b.questionScroll.scrollTo(0, 0)
 
-            b.btnBookmark.setImageResource(
-                if (getBookmarked(position)) R.drawable.ic_star_filled else R.drawable.ic_star_outline
-            )
+            com.eve.app.designsystem.DesignIconStates.bookmark(b.btnBookmark, getBookmarked(position))
             b.btnBookmark.setOnClickListener {
                 onToggleBookmark(position)
                 val nowBookmarked = getBookmarked(position)
                 if (nowBookmarked) HapticHelper.performLight(b.btnBookmark)
-                b.btnBookmark.setImageResource(
-                    if (nowBookmarked) R.drawable.ic_star_filled else R.drawable.ic_star_outline
-                )
+                com.eve.app.designsystem.DesignIconStates.bookmark(b.btnBookmark, nowBookmarked)
             }
 
             // Clear previous listener on recycled view, then restore saved answer selection
