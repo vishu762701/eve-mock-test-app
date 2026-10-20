@@ -37,6 +37,8 @@ object UiArcMotion {
         val IN_OUT = PathInterpolator(0.65f, 0.0f, 0.35f, 1.0f)
     }
 
+    val Easing get() = Ease
+
     /** Stagger steps in milliseconds. */
     object Stagger {
         const val CHAR_MS = 16L

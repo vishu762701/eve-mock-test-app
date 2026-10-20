@@ -143,7 +143,7 @@ class UiArcButton @JvmOverloads constructor(
         // Outgoing fade (FAST: 160ms)
         labelFadeAnimator = ValueAnimator.ofFloat(1f, 0f).apply {
             duration = UiArcMotion.Duration.FAST
-            interpolator = UiArcMotion.Easing.EXIT
+            interpolator = UiArcMotion.Ease.EXIT
             addUpdateListener { va ->
                 alpha = va.animatedValue as Float
             }
@@ -153,7 +153,7 @@ class UiArcButton @JvmOverloads constructor(
                     // Incoming fade (STANDARD: 240ms)
                     labelFadeAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
                         duration = UiArcMotion.Duration.STANDARD
-                        interpolator = UiArcMotion.Easing.ENTER
+                        interpolator = UiArcMotion.Ease.ENTER
                         addUpdateListener { va2 ->
                             alpha = va2.animatedValue as Float
                         }
