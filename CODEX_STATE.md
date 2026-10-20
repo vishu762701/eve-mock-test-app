@@ -1,4 +1,6 @@
-# EVE design reset — verified delivery checkpoint
+# EVE design reset — historical verified delivery checkpoint
+
+> This is a point-in-time release record, NOT the current Git HEAD, build status, or an active task list. Consult the repository and its latest GitHub Actions runs for current state. Do not replay these steps automatically.
 
 - Executable/resource release commit: `6e2994598fab2bf6e7d36da031d44624aeae813b` on main.
 - CI: [Build Eve APK run 39341884146](https://github.com/vishu762701/eve-mock-test-app/actions/runs/39341884146), all six jobs SUCCESS. Native gesture and three-button: 40/40 each, no skips or failures. Publishing succeeded.

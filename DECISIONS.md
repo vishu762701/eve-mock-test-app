@@ -2,6 +2,8 @@
 > Historical UI numeric decisions below are superseded; they are an audit log,
 > not instructions to replay. Current evidence is in docs/design-reset/report.md.
 
+> The historical EVE JARVIS Gemini/Google Drive sync ADRs (ADR-009, ADR-010 and ADR-011 dated 2026-10-14) are RETIRED. Their workflow and scripts were removed in commit `906f98a`; they are not implementation instructions. The separate, later full-screen UI geometry decision also used ADR-009; this pre-existing duplicate ID is historical, not a current precedence rule.
+
 # Architectural Decisions
 
 ## ADR-001: Official Apple iOS 26 Typography Foundation for Android (Phase 2)
@@ -257,7 +259,7 @@ Following Phases 1 through 5 of the design modernization, multiple secondary, ad
 ## ADR-009: Event-Driven GitHub-to-Google-Drive Knowledge Synchronization for EVE JARVIS Gemini Gem
 
 - **Date**: 2026-10-14
-- **Status**: Accepted
+- **Status**: Retired (2026-10-20; repository sync removed, kept for historical audit only)
 - **Author**: Principal Architecture Engineer, DevOps & Security Lead
 
 ### Context
@@ -282,7 +284,7 @@ The previous synchronization approach relied on Apps Script polling GitHub, whic
 ## ADR-010: Dual-Mode OAuth/Service Account Architecture, Storage Quota Resolution, and Atomic Master Index Publication
 
 - **Date**: 2026-10-14
-- **Status**: Accepted
+- **Status**: Retired (2026-10-20; repository sync removed, kept for historical audit only)
 - **Author**: Principal Architecture Engineer, Google Cloud Integration Expert, Security Lead
 
 ### Context
@@ -316,7 +318,7 @@ While ADR-009 established the event-driven GitHub Actions synchronization pipeli
 ## ADR-011: Drive.file Folder Provisioning, Git Ref Pinning, Token Masking, Two-Phase Consistency Seals, and Gemini Attachment Verification
 
 - **Date**: 2026-10-14
-- **Status**: Accepted
+- **Status**: Retired (2026-10-20; repository sync removed, kept for historical audit only)
 - **Author**: Principal Architecture Engineer, Google Cloud Integration Expert, Security Architect
 
 ### Context

@@ -104,6 +104,24 @@ const SECRET_PATTERNS = [
   { name: 'AWS Access Key ID', regex: /(?:A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}/ },
   { name: 'Hardcoded password assignment', regex: /(?:password|secret|api_key|apikey)\s*[:=]\s*["'][A-Za-z0-9@#$%^&*-_+=]{16,}["']/i }
 ];
+function detectPotentialSecrets(text) {
+  return SECRET_PATTERNS.filter(({ regex }) => regex.test(text)).map(({ name }) => name);
+}
+
+// Security regression contracts run on every documentation verification.
+// These strings are synthetic fixtures, never real credentials.
+for (const testCase of [
+  { name: 'normal prose', content: 'Documentation with no tokens', expected: 0 },
+  { name: 'template placeholder', content: 'api_key = "<REDACTED>"', expected: 0 },
+  { name: 'example prose must not hide a token', content: 'Example configuration\\nsecret = "SyntheticCredentialValue123456789"', expected: 1 },
+  { name: 'REDACTED elsewhere must not hide a token', content: 'REDACTED\\napi_key = "SyntheticCredentialValue123456789"', expected: 1 },
+  { name: 'dummy elsewhere must not hide a token', content: 'dummy\\npassword = "SyntheticCredentialValue123456789"', expected: 1 }
+]) {
+  const found = detectPotentialSecrets(testCase.content);
+  if (found.length !== testCase.expected) {
+    error(`Security scanner regression: ${testCase.name} (expected ${testCase.expected}, found ${found.length})`);
+  }
+}
 
 for (const filePath of mdFiles) {
   const relPath = path.relative(REPO_ROOT, filePath);
@@ -130,13 +148,11 @@ for (const filePath of mdFiles) {
     warn(`${relPath}: Unbalanced Markdown code fences (odd count: ${codeFenceMatches.length})`);
   }
 
-  // Secrets scan
+  // Secrets scan: evaluate every real signature, regardless of surrounding text.
+  // A mention of "example" or "REDACTED" elsewhere must never suppress detection.
   for (const pattern of SECRET_PATTERNS) {
     if (pattern.regex.test(content)) {
-      // Ignore safe test/mock/template mentions
-      if (!content.includes('REDACTED') && !content.includes('dummy') && !content.includes('example')) {
-        error(`${relPath}: Potential secret detected matching pattern "${pattern.name}"`);
-      }
+      error(`${relPath}: Potential secret detected matching pattern "${pattern.name}"`);
     }
   }
 
