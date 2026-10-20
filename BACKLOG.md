@@ -27,5 +27,10 @@ This file lists outstanding work and verification gaps, **not instructions to re
 - **UNKNOWN:** Confirm a tagged release's actual R8/minification behavior, signature, artifact provenance and device installation before distributing production binaries.
 - Release/signing secrets are external configuration; do not commit them.
 
+
+## P2 — Build reproducibility
+- The root `gradlew` currently delegates to an installed Gradle executable rather than a checked-in official wrapper distribution. CI installs Gradle 8.7 explicitly; developers without that installation may not be able to build. Add the official Gradle wrapper JAR/properties through a trusted Gradle installation, then verify on both Termux and standard hosts.
+- Backend npm dependencies are installed without a committed lockfile, so future clean builds can resolve newer transitive versions. Introduce and review a compatible lockfile in a separate dependency-maintenance task; do not change production dependency resolutions speculatively.
+
 ## Out-of-scope historical records
 Use `DECISIONS.md`, `docs/design-reset/report.md`, and Git history for prior UI migration and deleted-resource proof. Those records do not override the current task.

@@ -4,13 +4,9 @@ import android.app.Activity
 import android.app.Application
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.ContentValues
 import android.content.Context
 import android.content.DialogInterface
-import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.provider.MediaStore
 import android.util.Log
 import android.widget.ScrollView
 import android.widget.TextView
@@ -23,7 +19,7 @@ import java.io.StringWriter
 
 /**
  * Debug-only uncaught exception reporter.
- * Saves crash stack traces to filesDir on unhandled exceptions and displays a copyable
+ * Saves crash stack traces only in private filesDir on unhandled exceptions and displays a copyable
  * dialog on the subsequent app launch.
  *
  * NOTE: Native crashes (e.g. SIGSEGV / Fatal signal 11) terminate the process at the OS/Bionic
@@ -47,7 +43,7 @@ object DebugCrashReporter {
                 val stackTrace = sw.toString()
                 val crashPayload = "Time: ${System.currentTimeMillis()}\nThread: ${thread.name}\n\n$stackTrace"
 
-                Log.e("CRITICAL_STARTUP", "FATAL CRASH DETECTED:\n$crashPayload")
+                Log.e("CRITICAL_STARTUP", "Debug crash trace saved privately (${throwable.javaClass.simpleName})")
 
                 saveCrashPayload(application, crashPayload)
             } catch (t: Throwable) {
@@ -85,51 +81,9 @@ object DebugCrashReporter {
             crashFile.writeText(crashPayload)
         } catch (_: Throwable) {}
 
-        // 2. App-specific external files (accessible to Termux if storage granted, no permissions required)
-        try {
-            val extDir = context.getExternalFilesDir(null)
-            if (extDir != null) {
-                File(extDir, CRASH_FILE_NAME).writeText(crashPayload)
-            }
-        } catch (_: Throwable) {}
+        // Never write exception traces into shared storage automatically.
+        // The debug-only crash dialog provides an explicit Copy Trace action.
 
-        // 3. Public Download storage via MediaStore (API 29+) or direct file write (API <= 28)
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val resolver = context.contentResolver
-                val selection = "${MediaStore.MediaColumns.DISPLAY_NAME} = ?"
-                val selectionArgs = arrayOf(CRASH_FILE_NAME)
-                try {
-                    resolver.delete(
-                        MediaStore.Downloads.EXTERNAL_CONTENT_URI,
-                        selection,
-                        selectionArgs
-                    )
-                } catch (_: Throwable) {}
-
-                val contentValues = ContentValues().apply {
-                    put(MediaStore.MediaColumns.DISPLAY_NAME, CRASH_FILE_NAME)
-                    put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
-                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-                }
-                val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
-                uri?.let { destUri ->
-                    resolver.openOutputStream(destUri)?.use { os ->
-                        os.write(crashPayload.toByteArray())
-                    }
-                }
-            } else {
-                val downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                if (downloadDir != null && downloadDir.exists()) {
-                    File(downloadDir, CRASH_FILE_NAME).writeText(crashPayload)
-                }
-            }
-        } catch (_: Throwable) {}
-
-        // 4. Legacy fallback
-        try {
-            File("/sdcard/Download", CRASH_FILE_NAME).writeText(crashPayload)
-        } catch (_: Throwable) {}
     }
 
     fun hasCrash(context: Context): Boolean {
