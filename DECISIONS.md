@@ -1213,3 +1213,89 @@ Material 1.12 TextInputLayout.java (the already inspected official release sourc
 
 
 Native ManualUiSpecificationTest exposed a custom tab label without completed layout at enlarged fonts. Prepare custom labels before Material TabLayout.onMeasure and set maxLines before assigning the custom slot, so Material captures the intended line policy and the measured layout is not invalidated afterwards. Existing TouchTargets bindings already observe global-layout changes; no second touch mechanism is needed. Restore plain legend markers through generic root meaning styles, and use the existing 4dp compact token on each review-card edge to total the locked 8dp gap.
+
+## ADR-022: UIArc Motion Implementation — Batch 01 (Five Components)
+
+- **Date**: 2026-10-20
+- **Status**: Accepted
+- **Author**: Principal Native Android Engineer & Motion Implementation Specialist
+- **Authority**: Direct user instruction: "EVE — UIARC MOTION IMPLEMENTATION — BATCH 01 (FIVE COMPONENTS). MISSION: Implement exactly FIVE selected UIArc components in their real, verified locations in EVE. This is an implementation task, not a proposal. Complete all five, run applicable verification, and push to 'main' only after the required gates pass."
+
+### Context
+To achieve world-class motion fidelity and tactile feel in EVE, five production UI components were selected from UIArc (https://uiarc.dev) for genuine native Android Kotlin/XML implementation:
+1. Button: https://uiarc.dev/r/button.json
+2. Segmented Control: https://uiarc.dev/r/segmented-control.json
+3. Metric Card: https://uiarc.dev/r/metric-card.json
+4. Badge: https://uiarc.dev/r/badge.json
+5. Text Shimmer: https://uiarc.dev/r/text-shimmer.json
+6. Motion tokens and specification: https://uiarc.dev/r/arc-motion-tokens.json and https://uiarc.dev/docs/motion
+
+### Decisions
+
+1. **UIArc Motion Tokens & Physics (`UiArcMotion.kt`)**:
+   - Codified exact UIArc durations: `INSTANT` (120ms), `FAST` (160ms), `EXIT` (180ms), `STANDARD` (240ms), `CONSIDERED` (480ms), `SHIMMER_SWEEP` (1800ms), and `SHIMMER_PAUSE` (576ms).
+   - Codified exact cubic bezier easings via `PathInterpolator`:
+     - `ENTER`: (0.16, 1.0, 0.30, 1.0)
+     - `EXIT`: (0.70, 0.0, 0.84, 0.0)
+     - `STANDARD`: (0.22, 1.0, 0.36, 1.0)
+     - `IN_OUT`: (0.65, 0.0, 0.35, 1.0)
+   - Translated Framer Motion / Motion `visualDuration` and `bounce` parameters to native damped harmonic oscillator spring equations:
+     - `zeta = 1 - bounce`
+     - `k = (2 * pi / (1.2 * visualDuration))^2`
+     - `SNAPPY`: visualDuration 0.26s, bounce 0.12 (zeta = 0.88, k = 405.5, settling ~360ms)
+     - `SMOOTH`: visualDuration 0.40s, bounce 0.00 (zeta = 1.00, k = 171.3, settling ~500ms)
+     - `MORPH`: visualDuration 0.42s, bounce 0.16 (zeta = 0.84, k = 155.4, settling ~550ms)
+     - `REVEAL`: visualDuration 0.48s, bounce 0.00 (zeta = 1.00, settling ~600ms)
+     - `RESPONSIVE`: explicit stiffness 520, damping 38 (zeta = 0.833, settling ~260ms)
+   - Button press scale formula: width > 220dp -> 0.985; width <= 48dp -> 0.96; default -> 0.97.
+
+2. **Component 1 — UiArcButton (Feedback Submission)**:
+   - Target: `app/src/main/res/layout/activity_feedback.xml`, `FeedbackActivity.kt`, `btnSendFeedback`.
+   - Snappy spring press scale with release spring and haptic feedback.
+   - Truthful pending label morph ("Send Feedback" -> "Sending…") with vertical shift (+4dp / -3dp) and enter/standard crossfade.
+   - Integrated loading spinner replacing duplicate visual feedback while preserving accessibility.
+   - Prevents duplicate submissions while pending (`isLoading` guard).
+   - Restores idle state on failure; preserves success bulletin and navigation.
+   - Preserves `progressBar` in layout with `visibility="gone"` for contract safety.
+
+3. **Component 2 — UiArcSegmentedControl (Admin Analytics Time Range)**:
+   - Target: `app/src/main/res/layout/activity_admin_analytics.xml`, `AdminAnalyticsActivity.kt`, `chipGroupTimeRange`.
+   - Single shared selection pill gliding between options using `spring.morph` (visualDuration 0.42s, bounce 0.16).
+   - Pill glides behind labels (no second indicator on top of moving pill).
+   - Preserves exact contract IDs (`chipLast7Days`, `chipLast30Days`, `chipAllTime`) and range mappings (`LAST_7_DAYS`, `LAST_30_DAYS`, `ALL_TIME`).
+   - Default range preserved ("ALL_TIME"); persists across rotation and re-inflation.
+   - Full keyboard/D-pad navigation and TalkBack accessibility support.
+   - HorizontalScrollView container for controlled overflow on narrow devices.
+
+4. **Component 3 — UiArcAnimatedCounterView (Performance Metric Cards)**:
+   - Target: `app/src/main/res/layout/activity_performance.xml`, `PerformanceActivity.kt`, `tvTotalAttempts`, `tvOverallAccuracy`.
+   - Odometer digit wheel for numeric values.
+   - First display: rolls digits from 0 into target value with staggered item delay using `reveal` spring.
+   - Subsequent updates: direction-aware rolling (+1 for increase, -1 for decrease) using `smooth` spring.
+   - Preserves integer formatting for attempts and percentage formatting for accuracy.
+   - Avoids replaying animations on scroll or view rebinding.
+   - TalkBack reads one complete formatted value rather than individual rolling glyphs.
+   - Reduced motion renders final values immediately.
+
+5. **Component 4 — UiArcBadgeView (Result Cutoff Verdict)**:
+   - Target: `app/src/main/res/layout/activity_result.xml`, `ResultCutoffPresentation.kt`, `tvCutoffVerdict`.
+   - In-place label change: outgoing copy lifts away (-0.3em) with soft blur/alpha fade (160ms); incoming copy rises from below (+0.3em) with enter curve (240ms).
+   - Badge width follows content with `spring.morph` (visualDuration 0.42s, bounce 0.16).
+   - Smoothly crossfades qualification icons (✓ / ✗).
+   - Preserves official EVE success/danger/neutral tokens and backgrounds (`design_badge_green`, `design_badge_red`, `design_badge_neutral`).
+   - Preserves all cutoff calculations, visibility rules, and navigation.
+
+6. **Component 5 — UiArcTextShimmerView (Performance Loading Status)**:
+   - Target: `app/src/main/res/layout/activity_performance.xml`, `PerformanceActivity.kt`, `tvLoadingPerformance`.
+   - Linear bell-shaped highlight sweep across muted text base (`text_secondary` to `text_primary`).
+   - Sweep duration 1.8 seconds with 576ms pause between passes.
+   - Runs strictly while `UiState.Loading` is active and view is visible; pauses/resumes on visibility changes.
+   - Cleans up shader immediately when loading ends or screen detaches.
+   - Reduced motion renders solid readable text without a running shimmer.
+   - Efficient: zero allocations in `onDraw`.
+
+7. **Strict Boundary Preservation**:
+   - Zero changes to unrelated screens.
+   - Telegram circular reveal Day/Night animation, ThemeSwitchAnimator, and ThemeManager remain 100% protected.
+   - All Lottie assets, playback timing, and triggers remain 100% protected.
+   - All SVG icon vectors, test colors, and backend security/scoring invariants remain invariant.

@@ -13,11 +13,11 @@
     <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
         <ScrollView android:id="@+id/content" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                <com.google.android.material.chip.ChipGroup android:id="@+id/chipGroupTimeRange" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_screen_margin" app:singleSelection="true">
-                    <com.google.android.material.chip.Chip android:id="@+id/chipLast7Days" style="@style/Widget.Eve.Token.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Last 7 days" />
-                    <com.google.android.material.chip.Chip android:id="@+id/chipLast30Days" style="@style/Widget.Eve.Token.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Last 30 days" />
-                    <com.google.android.material.chip.Chip android:id="@+id/chipAllTime" style="@style/Widget.Eve.Token.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="All time" />
-                </com.google.android.material.chip.ChipGroup>
+                <com.eve.app.designsystem.UiArcSegmentedControl android:id="@+id/chipGroupTimeRange" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_screen_margin">
+                    <View android:id="@+id/chipLast7Days" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+                    <View android:id="@+id/chipLast30Days" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+                    <View android:id="@+id/chipAllTime" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+                </com.eve.app.designsystem.UiArcSegmentedControl>
                 <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvSummary" android:layout_width="match_parent" android:layout_height="wrap_content" />
                 <TextView style="@style/TextAppearance.Eve.Token.Body.blue" android:id="@+id/tvMostAttempted" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" />
                 <com.eve.app.designsystem.DesignCardView android:id="@+id/cardCrashReports" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">

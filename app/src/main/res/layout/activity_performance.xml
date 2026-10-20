@@ -15,13 +15,13 @@
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                     <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1">
                         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                            <TextView android:id="@+id/tvTotalAttempts" style="@style/TextAppearance.Eve.Token.Heading.blue" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                            <com.eve.app.designsystem.UiArcAnimatedCounterView android:id="@+id/tvTotalAttempts" style="@style/TextAppearance.Eve.Token.Heading.blue" android:layout_width="wrap_content" android:layout_height="wrap_content" />
                             <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Tests attempted" />
                         </LinearLayout>
                     </com.eve.app.designsystem.DesignCardView>
                     <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1">
                         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                            <TextView android:id="@+id/tvOverallAccuracy" style="@style/TextAppearance.Eve.Token.Heading.green" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                            <com.eve.app.designsystem.UiArcAnimatedCounterView android:id="@+id/tvOverallAccuracy" style="@style/TextAppearance.Eve.Token.Heading.green" android:layout_width="wrap_content" android:layout_height="wrap_content" />
                             <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Overall accuracy" />
                         </LinearLayout>
                     </com.eve.app.designsystem.DesignCardView>
@@ -46,7 +46,7 @@
         </ScrollView>
         <LinearLayout android:id="@+id/progressGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
             <com.google.android.material.progressindicator.CircularProgressIndicator android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" style="@style/Widget.Eve.Token.Ring" android:indeterminate="true" />
-            <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:text="Loading performance data…" />
+            <com.eve.app.designsystem.UiArcTextShimmerView android:id="@+id/tvLoadingPerformance" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:text="Loading performance data…" />
         </LinearLayout>
         <LinearLayout android:id="@+id/messageGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:orientation="vertical" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
             <com.airbnb.lottie.LottieAnimationView android:id="@+id/ivMessageIcon" android:layout_width="160dp" android:layout_height="160dp" app:lottie_autoPlay="false" app:lottie_loop="false" app:lottie_rawRes="@raw/error_404" style="@style/Widget.Eve.Token.Lottie" />

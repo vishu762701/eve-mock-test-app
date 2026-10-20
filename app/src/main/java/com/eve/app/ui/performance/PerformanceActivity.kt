@@ -64,9 +64,11 @@ class PerformanceActivity : EveBaseActivity() {
                 binding.progressGroup.visibility = View.VISIBLE
                 binding.contentGroup.visibility = View.GONE
                 binding.messageGroup.visibility = View.GONE
+                binding.tvLoadingPerformance.startShimmer()
             }
             is UiState.Success -> {
                 binding.progressGroup.visibility = View.GONE
+                binding.tvLoadingPerformance.stopShimmer()
                 binding.btnRetry.visibility = View.GONE
                 val data = state.data
                 if (data.totalAttempts == 0) {
@@ -88,6 +90,7 @@ class PerformanceActivity : EveBaseActivity() {
             }
             is UiState.Error -> {
                 binding.progressGroup.visibility = View.GONE
+                binding.tvLoadingPerformance.stopShimmer()
                 binding.contentGroup.visibility = View.GONE
                 binding.messageGroup.visibility = View.VISIBLE
                 binding.btnRetry.visibility = View.VISIBLE

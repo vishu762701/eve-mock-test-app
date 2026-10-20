@@ -50,13 +50,12 @@ class FeedbackActivity : EveBaseActivity() {
             val name = user.displayName ?: "Student"
             val email = user.email ?: ""
 
-            binding.progressBar.visibility = View.VISIBLE
-            binding.btnSendFeedback.isEnabled = false
+            binding.progressBar.visibility = View.GONE
+            binding.btnSendFeedback.setLoading(true)
 
             lifecycleScope.launch {
                 val result = repo.sendFeedback(uid, name, email, message, postId, postTitle)
-                binding.progressBar.visibility = View.GONE
-                binding.btnSendFeedback.isEnabled = true
+                binding.btnSendFeedback.setLoading(false)
 
                 result.onSuccess {
                     AppBulletin.showSuccess(this@FeedbackActivity, "Thank you! Your feedback has been sent.")

@@ -21,9 +21,11 @@ object ResultCutoffPresentation {
             val cutoffStr = if (cutoff % 1.0 == 0.0) cutoff.toInt().toString() else cutoff.toString()
             binding.tvCutoffValue.text = "Cutoff: $cutoffStr"
             if (score >= cutoff) {
-                binding.tvCutoffVerdict.text = "Qualified ✓"
-                com.eve.app.designsystem.DesignSurfaces.badge(binding.tvCutoffVerdict, R.drawable.design_badge_green)
-                binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(binding.root.context, R.color.system_green))
+                binding.tvCutoffVerdict.setVerdict(
+                    "Qualified ✓",
+                    R.drawable.design_badge_green,
+                    ContextCompat.getColor(binding.root.context, R.color.system_green)
+                )
                 val diff = score - cutoff
                 binding.tvCutoffRelationship.text = if (diff >= 0.05) {
                     "You cleared the $category cutoff mark by +${String.format(java.util.Locale.US, "%.1f", diff)} marks."
@@ -31,17 +33,21 @@ object ResultCutoffPresentation {
                     "You achieved the exact qualifying score for $category."
                 }
             } else {
-                binding.tvCutoffVerdict.text = "Not Qualified ✗"
-                com.eve.app.designsystem.DesignSurfaces.badge(binding.tvCutoffVerdict, R.drawable.design_badge_red)
-                binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(binding.root.context, R.color.system_red))
+                binding.tvCutoffVerdict.setVerdict(
+                    "Not Qualified ✗",
+                    R.drawable.design_badge_red,
+                    ContextCompat.getColor(binding.root.context, R.color.system_red)
+                )
                 val diff = cutoff - score
                 binding.tvCutoffRelationship.text = "You are ${String.format(java.util.Locale.US, "%.1f", diff)} marks below the $category cutoff threshold."
             }
         } else {
             binding.tvCutoffValue.text = "Cutoff unavailable"
-            binding.tvCutoffVerdict.text = "No Cutoff Set"
-            com.eve.app.designsystem.DesignSurfaces.badge(binding.tvCutoffVerdict, R.drawable.design_badge_neutral)
-            binding.tvCutoffVerdict.setTextColor(ContextCompat.getColor(binding.root.context, R.color.text_secondary))
+            binding.tvCutoffVerdict.setVerdict(
+                "No Cutoff Set",
+                R.drawable.design_badge_neutral,
+                ContextCompat.getColor(binding.root.context, R.color.text_secondary)
+            )
             binding.tvCutoffRelationship.text = "No cutoff is configured for $category. Qualification cannot be determined."
         }
     }
