@@ -11,7 +11,10 @@ const REQUIRED_FILES = [
   'README.md',
   'AGENTS.md',
   'GEMINI.md',
+  'CLAUDE.md',
+  'ENGINEERING_STANDARD.md',
   'SOURCE_OF_TRUTH.md',
+  'APPROVED_UI_IMPLEMENTATION_AUDIT.md',
   'CODEX_STATE.md'
 ];
 
@@ -51,6 +54,23 @@ for (const relPath of REQUIRED_FILES) {
     } else {
       success(`Found ${relPath} (${stat.size} bytes)`);
     }
+  }
+}
+
+// 1b. Keep agent entrypoints aligned so retired or conflicting instructions
+// cannot silently replace the canonical repository rules.
+const ENTRYPOINT = 'Always read and follow ENGINEERING_STANDARD.md first. Then read SOURCE_OF_TRUTH.md.';
+for (const relPath of ['AGENTS.md', 'GEMINI.md', 'CLAUDE.md']) {
+  const fullPath = path.join(REPO_ROOT, relPath);
+  if (!fs.existsSync(fullPath) || !fs.statSync(fullPath).isFile()) continue;
+  const content = fs.readFileSync(fullPath, 'utf8');
+  if (!content.startsWith(ENTRYPOINT)) {
+    error(`${relPath}: Agent entrypoint no longer begins with canonical engineering/source instructions`);
+  } else {
+    success(`${relPath}: Canonical instruction entrypoint present`);
+  }
+  if (relPath !== 'AGENTS.md' && !content.includes('Follow AGENTS.md')) {
+    error(`${relPath}: Missing reference to shared AGENTS.md policy`);
   }
 }
 
