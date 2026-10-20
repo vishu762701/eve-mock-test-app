@@ -55,13 +55,13 @@ class UiArcBadgeView @JvmOverloads constructor(
         gravity = Gravity.CENTER
         includeFontPadding = false
         isSingleLine = true
-        DesignType.apply(this, DesignType.Role.CHIP)
+        typeface = FontManager.mediumTypeface(context)
         val pillPadding = resources.getDimensionPixelSize(R.dimen.design_pill_padding)
         setPaddingRelative(pillPadding, 0, pillPadding, 0)
         minHeight = resources.getDimensionPixelSize(R.dimen.design_pill_height)
 
         outgoingPaint.apply {
-            typeface = FontManager.typeface(context, false)
+            typeface = FontManager.mediumTypeface(context)
             textSize = this@UiArcBadgeView.textSize
             isAntiAlias = true
         }

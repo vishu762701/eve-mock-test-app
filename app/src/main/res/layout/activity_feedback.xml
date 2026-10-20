@@ -17,7 +17,7 @@
                 <com.google.android.material.textfield.TextInputEditText android:id="@+id/etFeedbackMessage" style="@style/Widget.Eve.Token.Input" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="top|start" android:hint="Type your message here (max 1000 chars)..." android:inputType="textMultiLine|textCapSentences" android:maxLength="1000" android:minLines="6" />
             </com.eve.app.designsystem.DesignInputLayout>
             <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/progressBar" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center_horizontal" android:layout_marginTop="@dimen/design_section_gap" android:visibility="gone" style="@style/Widget.Eve.Token.Ring" android:indeterminate="true" />
-            <com.eve.app.designsystem.UiArcButton android:id="@+id/btnSendFeedback" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_section_gap" android:text="Send Feedback" />
+            <com.eve.app.designsystem.UiArcButton android:id="@+id/btnSendFeedback" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_section_gap" android:text="Send Feedback" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
