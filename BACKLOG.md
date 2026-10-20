@@ -17,6 +17,11 @@ This file lists outstanding work and verification gaps, **not instructions to re
 - GitHub `main` currently has branch protection disabled (observed during repository audit). Enable a ruleset preventing force-push and deletion when account controls permit, without breaking the approved direct-push workflow.
 - This setting cannot be changed by normal repository file commits.
 
+## P1 — Native UI gate instability (do not bypass)
+- **VERIFIED:** Gesture suite in GitHub Actions run [39357479917](https://github.com/vishu762701/eve-mock-test-app/actions/runs/39357479917) failed 7/40 assertions. Captured failure classes: two admin Delete confirmation dialogs not shown; banner corner pixel mismatch; spinner popup root lacked focus; category label had zero sampled ink pixels; Telegram reveal did not complete; capture window not focused. Three-button suite in the same run passed. Diagnose shared emulator focus/window state, fixture isolation and genuine visual regressions before modifying tests or UI. Keep both modes mandatory for APK publication.
+- **VERIFIED:** Another run [39358334877](https://github.com/vishu762701/eve-mock-test-app/actions/runs/39358334877) had an emulator startup `adb` connection-refused error on gesture-mode runner. This is distinct from assertion failures; diagnose emulator startup separately.
+- **UNKNOWN:** Physical-device reproduction and final verified APK for the latest code. Do not mark green based on Android build/backend jobs alone. Never disable, weaken, or silently rerun failing assertions to publish an APK.
+
 ## P2 — UI accessibility and platform surfaces
 - Audit 320dp widths at system font scales 1.78x and 2.0x, especially drawer rows and forms.
 - Inspect OS-controlled notifications/toasts and native DatePicker limits; do not invent custom platform replacements without product approval.
