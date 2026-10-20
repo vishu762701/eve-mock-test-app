@@ -98,6 +98,8 @@ object UiArcMotion {
         val REVEAL = SpringCurve(visualDuration = 0.48f, bounce = 0.00f, settlingDurationMs = 600L)
         // explicit stiffness: 520, damping: 38 (zeta = 0.833) -> settles ~260ms
         val RESPONSIVE = SpringCurve(visualDuration = 0.23f, bounce = 0.167f, settlingDurationMs = 260L)
+        // visualDuration: 0.30s, bounce: 0.00 (critically damped switch glide) -> settles ~400ms
+        val GLIDE = SpringCurve(visualDuration = 0.30f, bounce = 0.00f, settlingDurationMs = 400L)
     }
 
     /**

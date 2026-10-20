@@ -176,6 +176,63 @@ class UiArcMotionComponentsTest {
     }
 
     @Test
+    fun testBatch02_GlideSpringConstant() {
+        val glide = UiArcMotion.Spring.GLIDE
+        assertEquals(0.30f, glide.visualDuration, 0.001f)
+        assertEquals(0.00f, glide.bounce, 0.001f)
+        assertEquals(400L, glide.settlingDurationMs)
+        assertEquals(0.0f, glide.getInterpolation(0.0f), 0.001f)
+        assertEquals(1.0f, glide.getInterpolation(1.0f), 0.001f)
+    }
+
+    @Test
+    fun testBatch02_Component1_UiArcSwitchInSettingsLayout() {
+        val root = loadXml("src/main/res/layout/activity_settings.xml")
+        val switch = findElementById(root, "switchReminder")
+        assertNotNull("switchReminder must exist in activity_settings.xml", switch)
+        assertEquals("com.eve.app.designsystem.UiArcSwitch", switch?.tagName)
+        assertEquals("@style/Widget.Eve.Token.Switch", switch?.getAttribute("style"))
+    }
+
+    @Test
+    fun testBatch02_Component2_UiArcProgressBarInPollResultLayout() {
+        val root = loadXml("src/main/res/layout/item_poll_option_result.xml")
+        val pb = findElementById(root, "pbOption")
+        assertNotNull("pbOption must exist in item_poll_option_result.xml", pb)
+        assertEquals("com.eve.app.designsystem.UiArcProgressBar", pb?.tagName)
+        assertEquals("100", pb?.getAttribute("android:max"))
+    }
+
+    @Test
+    fun testBatch02_Component3_UiArcExpandableViewInMistakeLayout() {
+        val root = loadXml("src/main/res/layout/item_mistake.xml")
+        val layout = findElementById(root, "layoutExplanation")
+        assertNotNull("layoutExplanation must exist in item_mistake.xml", layout)
+        assertEquals("com.eve.app.designsystem.UiArcExpandableView", layout?.tagName)
+        assertEquals("gone", layout?.getAttribute("android:visibility"))
+    }
+
+    @Test
+    fun testBatch02_Component4_UiArcHoldToConfirmButtonInMistakeLayout() {
+        val root = loadXml("src/main/res/layout/item_mistake.xml")
+        val btn = findElementById(root, "btnMarkLearned")
+        assertNotNull("btnMarkLearned must exist in item_mistake.xml", btn)
+        assertEquals("com.eve.app.designsystem.UiArcHoldToConfirmButton", btn?.tagName)
+        assertEquals("@dimen/design_touch_min", btn?.getAttribute("android:layout_height"))
+        assertEquals("Mark as learned", btn?.getAttribute("android:text"))
+    }
+
+    @Test
+    fun testBatch02_Component5_UiArcTextRevealInResultLayout() {
+        val root = loadXml("src/main/res/layout/activity_result.xml")
+        val title = findElementById(root, "tvResultTitle")
+        assertNotNull("tvResultTitle must exist in activity_result.xml", title)
+        assertEquals("com.eve.app.designsystem.UiArcTextRevealView", title?.tagName)
+        assertEquals("@style/TextAppearance.Eve.Token.Title", title?.getAttribute("style"))
+        assertEquals("Test Result", title?.getAttribute("android:text"))
+    }
+
+    @Test
     fun testInvariants_ProtectedThemeAndLottieAreUntouched() {
         val themeSwitchAnimator = File(getProjectDir(), "app/src/main/java/com/eve/app/util/ThemeSwitchAnimator.kt")
         assertTrue("ThemeSwitchAnimator must remain protected", themeSwitchAnimator.exists())

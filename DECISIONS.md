@@ -1299,3 +1299,77 @@ To achieve world-class motion fidelity and tactile feel in EVE, five production 
    - Telegram circular reveal Day/Night animation, ThemeSwitchAnimator, and ThemeManager remain 100% protected.
    - All Lottie assets, playback timing, and triggers remain 100% protected.
    - All SVG icon vectors, test colors, and backend security/scoring invariants remain invariant.
+
+## ADR-023: UIArc Motion Implementation — Batch 02 (Five Components)
+
+- **Date**: 2026-10-21
+- **Status**: Accepted
+- **Author**: Principal Native Android Engineer & Motion Implementation Specialist
+- **Authority**: Direct user instruction: "EVE — UIARC MOTION IMPLEMENTATION — BATCH 02"
+
+### Context
+Following the successful implementation of Batch 01 (ADR-022), Batch 02 delivers the next five production UI components from UIArc (https://uiarc.dev) for genuine native Android Kotlin/XML implementation:
+1. Switch: https://uiarc.dev/r/switch.json
+2. Progress: https://uiarc.dev/r/progress.json
+3. Expandable Card / Accordion: https://uiarc.dev/r/expandable-card.json and https://uiarc.dev/r/accordion.json
+4. Hold to Confirm: https://uiarc.dev/r/hold-to-confirm.json and https://uiarc.dev/r/confirm-morph.json
+5. Text Reveal: https://uiarc.dev/r/text-reveal.json
+
+### Decisions
+
+1. **UIArc Motion Tokens & Physics (`UiArcMotion.kt`)**:
+   - Codified UIArc Switch `GLIDE` spring preset:
+     - `visualDuration = 0.30s`, `bounce = 0.00` (critically damped: thumb lands on its end without overshooting, settling ~400ms).
+   - Codified hold-to-confirm duration (1200ms) with linear fill sweep and `SMOOTH` spring rewind on release.
+
+2. **Component 1 — UiArcSwitch (Daily Practice Reminder)**:
+   - Target: `app/src/main/res/layout/activity_settings.xml`, `SettingsActivity.kt`, `switchReminder`.
+   - Replaces static `DesignSwitch` with tactile motion switch extending `SwitchCompat`.
+   - Critically damped glide spring thumb travel.
+   - Fluid thumb stretch along travel (+5dp) while pressed (`extra = pressed ? stretch : 0`).
+   - Snappy spring release returning thumb to circular geometry.
+   - Smooth track color crossfade between `@color/track` and `@color/system_green` with `ease.standard`.
+   - Full accessibility support (Role Switch, TalkBack on/off reading, Space/Enter keyboard toggle).
+   - Preserves 48dp minimum touch target (`@dimen/design_touch_min`).
+
+3. **Component 2 — UiArcProgressBar (Poll Option Result)**:
+   - Target: `app/src/main/res/layout/item_poll_option_result.xml`, `PollsAdminAdapter.kt`, `pbOption`.
+   - Extends `ProgressBar` to replace oversized circular indicator with modern capsule linear progress.
+   - Concentric corner radii (`height / 2f`) for both track and progress fill.
+   - Smooth spring width progression with `spring.smooth` (settling ~500ms).
+   - Linear highlight shimmer sweep (1800ms sweep matching `Duration.SHIMMER_SWEEP`) on indeterminate / loading modes.
+   - Zero allocations in `onDraw`.
+   - Announces formatted percentage to TalkBack.
+
+4. **Component 3 — UiArcExpandableView (Mistake Explanation Disclosure)**:
+   - Target: `app/src/main/res/layout/item_mistake.xml`, `MistakesAdapter.kt`, `layoutExplanation`.
+   - Extends `LinearLayout` as a drop-in animated container for collapsible information.
+   - Critically damped height spring (`spring.smooth`, visualDuration 0.40s) so close exactly mirrors open.
+   - Content entrance with enter easing (240ms) and vertical shift (-6dp to 0dp).
+   - Content exit with fast fade (160ms) and standard easing.
+   - Collapsed panels leave accessibility focus tree.
+   - Reduced motion instantly expands/collapses.
+
+5. **Component 4 — UiArcHoldToConfirmButton (Mistake Mark as Learned)**:
+   - Target: `app/src/main/res/layout/item_mistake.xml`, `MistakesAdapter.kt`, `btnMarkLearned`.
+   - Extends `MaterialButton` for seamless integration with Material themes and ViewBinding.
+   - Snappy spring press scale (`UiArcMotion.buttonPressScale(width, density)`) on touch down.
+   - Linear progress fill tracking hold duration (1200ms).
+   - Smooth spring rewind (`spring.smooth`) when released before completion.
+   - Confirmed label morph ("Learned ✓") and tactile haptic confirmation (`HapticFeedbackConstants.CONFIRM`).
+   - Dual-mode support (tap click listener preserved while hold provides confirmed feedback).
+   - Reduced motion bypasses hold delay.
+
+6. **Component 5 — UiArcTextRevealView (Result Title)**:
+   - Target: `app/src/main/res/layout/activity_result.xml`, `ResultActivity.kt`, `tvResultTitle`.
+   - Extends `AppCompatTextView` with restrained staggered word reveal.
+   - Step interval capped at `Duration.CONSIDERED` (480ms).
+   - Vertical elevation (+0.3em / +8dp to 0) with enter easing (240ms) and alpha fade.
+   - Coherent single-read TalkBack accessibility (full text read immediately to screen readers).
+   - Reduced motion renders full text immediately.
+
+7. **Strict Boundary Preservation**:
+   - Zero changes to unrelated screens.
+   - Telegram circular reveal Day/Night animation, ThemeSwitchAnimator, and ThemeManager remain 100% protected.
+   - All Lottie assets, playback timing, and triggers remain 100% protected.
+   - All SVG icon vectors, test colors, and backend security/scoring invariants remain invariant.
