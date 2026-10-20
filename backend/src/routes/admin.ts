@@ -425,6 +425,8 @@ adminRoutes.put("/floating-link", async (c) => {
 adminRoutes.get("/premium/config", async (c) => {
   const db = c.env.DB;
   const config = await getPremiumConfig(db);
+  // Legacy D1 signing values are retired and must not be sent to clients.
+  const { webhook_secret: _retiredWebhookSecret, ...safeConfig } = config;
   let benefits: string[] = [];
   try {
     benefits = JSON.parse(config.benefits_json);
@@ -438,7 +440,7 @@ adminRoutes.get("/premium/config", async (c) => {
   return c.json({
     success: true,
     data: {
-      ...config,
+      ...safeConfig,
       isEnabled: Boolean(config.is_enabled),
       isLifetime: Boolean(config.is_lifetime),
       qrEnabled: Boolean(config.qr_enabled),
@@ -470,7 +472,9 @@ adminRoutes.put("/premium/config", async (c) => {
   const sessionExpiryMinutes = parseInt(String(body.sessionExpiryMinutes || "10"), 10) || 10;
   const merchantVpa = String(body.merchantVpa || "evemocktest@upi").trim();
   const merchantName = String(body.merchantName || "Eve Mock Test").trim();
-  const webhookSecret = String(body.webhookSecret || "eve_whsec_dev").trim();
+  // The webhook signing key is managed only as a Cloudflare Worker secret.
+  // The legacy database column stays empty for migration compatibility.
+  const webhookSecret = "";
 
   await db
     .prepare(

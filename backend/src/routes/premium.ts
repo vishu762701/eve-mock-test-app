@@ -26,10 +26,20 @@ const DEFAULT_CONFIG: PremiumConfigRow = {
   session_expiry_minutes: 10,
   merchant_vpa: "evemocktest@upi",
   merchant_name: "Eve Mock Test",
-  webhook_secret: "eve_whsec_dev",
+  webhook_secret: "", // retired: never trust a database or client default for payment authorization
   updated_at: 0,
   updated_by: "admin"
 };
+
+/**
+ * Production webhooks require a strong server-only signing secret.
+ * A previously shipped, publicly known development value must never authorize payments.
+ */
+export function premiumWebhookSecret(env: Env): string | null {
+  const secret = env.PREMIUM_WEBHOOK_SECRET?.trim();
+  if (!secret || secret.length < 32 || secret === "eve_whsec_dev") return null;
+  return secret;
+}
 
 export async function getPremiumConfig(db: D1Database): Promise<PremiumConfigRow> {
   try {
@@ -153,14 +163,15 @@ premiumRoutes.get("/plan", async (c) => {
     ];
   }
 
+  const paymentReady = Boolean(premiumWebhookSecret(c.env));
   const paymentMethods: string[] = [];
-  if (config.qr_enabled) paymentMethods.push("qr");
-  if (config.upi_enabled) paymentMethods.push("upi");
+  if (paymentReady && config.is_enabled && config.qr_enabled) paymentMethods.push("qr");
+  if (paymentReady && config.is_enabled && config.upi_enabled) paymentMethods.push("upi");
 
   return c.json({
     success: true,
     data: {
-      isEnabled: Boolean(config.is_enabled),
+      isEnabled: Boolean(config.is_enabled) && paymentReady,
       planId: config.id,
       planName: config.plan_name,
       priceInr: config.price_inr,
@@ -243,6 +254,9 @@ premiumRoutes.post("/orders/create", async (c) => {
   if (!config.is_enabled) {
     return c.json({ success: false, error: "Premium purchases are currently disabled." }, 403);
   }
+  if (!premiumWebhookSecret(c.env)) {
+    return c.json({ success: false, error: "Premium payments are temporarily unavailable." }, 503);
+  }
 
   if (paymentMethod === "qr" && !config.qr_enabled) {
     return c.json({ success: false, error: "QR payment method is disabled." }, 400);
@@ -315,8 +329,10 @@ premiumRoutes.post("/orders/create", async (c) => {
 // GET /api/premium/orders/:orderId/status - Poll/check payment session status
 premiumRoutes.get("/orders/:orderId/status", async (c) => {
   const user = c.get("user");
-  if (!user || !user.uid) {
-    return c.json({ success: false, error: "Unauthorized" }, 401);
+  // Never allow student-owned payment simulation to activate real entitlements.
+  // This diagnostic action is disabled in production unless explicitly enabled.
+  if (!user || !user.isAdmin || c.env.PREMIUM_SANDBOX_ENABLED !== "true") {
+    return c.json({ success: false, error: "Sandbox payment simulation is unavailable." }, 403);
   }
 
   const orderId = c.req.param("orderId");
@@ -372,11 +388,9 @@ async function verifyHmacSha256(secret: string, bodyText: string, expectedSignat
       false,
       ["sign"]
     );
-    const signatureBuffer = await crypto.subtle.sign("HMAC", key, encoder.encode(bodyText));
-    const hex = Array.from(new Uint8Array(signatureBuffer))
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-    return hex.toLowerCase() === expectedSignatureHex.toLowerCase();
+    if (!/^[0-9a-fA-F]{64}$/.test(expectedSignatureHex)) return false;
+    const signature = new Uint8Array(expectedSignatureHex.match(/.{2}/g)!.map((b) => parseInt(b, 16)));
+    return await crypto.subtle.verify("HMAC", key, signature, encoder.encode(bodyText));
   } catch (_e) {
     return false;
   }
@@ -384,13 +398,14 @@ async function verifyHmacSha256(secret: string, bodyText: string, expectedSignat
 
 // POST /api/premium/webhook - Merchant/Payment Provider Server Webhook Handler
 premiumRoutes.post("/webhook", async (c) => {
+  const secret = premiumWebhookSecret(c.env);
+  if (!secret) {
+    return c.json({ success: false, error: "Payment verification is unavailable." }, 503);
+  }
   const db = c.env.DB;
-  const config = await getPremiumConfig(db);
   const rawBody = await c.req.text();
   const signatureHeader = c.req.header("X-Eve-Signature") || c.req.header("X-Webhook-Signature") || "";
 
-  // Webhook signature authentication: prioritize worker environment secret, fall back to config
-  const secret = (c.env as any).PREMIUM_WEBHOOK_SECRET || config.webhook_secret || "eve_whsec_dev";
   const isValid = await verifyHmacSha256(secret, rawBody, signatureHeader);
   if (!isValid) {
     return c.json({ success: false, error: "Invalid webhook signature" }, 401);
@@ -516,8 +531,8 @@ premiumRoutes.post("/orders/:orderId/simulate-sandbox-payment", async (c) => {
     return c.json({ success: false, error: "Order not found" }, 404);
   }
 
-  if (order.user_id !== user.uid && !user.isAdmin) {
-    return c.json({ success: false, error: "Forbidden" }, 403);
+  if (order.user_id !== user.uid) {
+    return c.json({ success: false, error: "Sandbox testing is limited to the administrator's own orders." }, 403);
   }
 
   const now = Date.now();

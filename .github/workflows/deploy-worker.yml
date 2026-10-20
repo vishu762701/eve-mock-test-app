@@ -68,6 +68,7 @@ jobs:
           GEMINI_API_KEY_3: ${{ secrets.GEMINI_API_KEY_3 }}
           GEMINI_API_KEY_4: ${{ secrets.GEMINI_API_KEY_4 }}
           GEMINI_API_KEYS: ${{ secrets.GEMINI_API_KEYS }}
+          PREMIUM_WEBHOOK_SECRET: ${{ secrets.PREMIUM_WEBHOOK_SECRET }}
           DIAGNOSTIC_KEY: ${{ secrets.DIAGNOSTIC_KEY }}
         run: |
           if [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
@@ -93,6 +94,9 @@ jobs:
           fi
           if [ -n "$GEMINI_API_KEYS" ]; then
             echo "$GEMINI_API_KEYS" | npx --no-install wrangler secret put GEMINI_API_KEYS
+          fi
+          if [ -n "$PREMIUM_WEBHOOK_SECRET" ]; then
+            printf %s "$PREMIUM_WEBHOOK_SECRET" | npx --no-install wrangler secret put PREMIUM_WEBHOOK_SECRET
           fi
 
       - name: Deploy Cloudflare Worker

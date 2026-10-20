@@ -24,3 +24,10 @@ Read `ENGINEERING_STANDARD.md`, `SOURCE_OF_TRUTH.md`, and `AGENTS.md` before edi
 Do not commit credentials or service-account JSON. Configure production secrets in the deployment environment. Do not run obsolete setup directions or weaken Firebase/Worker authorization to get a build passing.
 
 The retired EVE JARVIS Gemini Knowledge / Google Drive code-sync workflow is not needed to build, test, or deploy Eve. Gemini-backed exam-question generation in `backend/` and `functions/` is an **independent runtime feature** and must not be removed by repository-maintenance cleanup.
+
+## Premium payment safety
+Payment creation and payment webhooks are disabled unless Cloudflare Worker secret `PREMIUM_WEBHOOK_SECRET` contains an independent high-entropy value of at least 32 characters. The old database/client development secret is never accepted. Supply the key using Cloudflare Worker secrets or the optional GitHub Actions repository secret of the same name; configure the matching value with the actual payment callback sender. Do not commit it to source control. Restart/redeploy the Worker as required.
+
+The sandbox payment simulation endpoint is **off by default**, and requires both a verified admin account and `PREMIUM_SANDBOX_ENABLED=true` in a controlled test environment. Only the admin's own test orders are eligible. Do not enable sandbox simulation in production. Old historical database migration defaults are not security credentials and are never trusted.
+
+If the signing secret is not configured, the public Premium plan marks purchases unavailable to avoid accepting payments that the backend cannot securely verify.

@@ -72,7 +72,7 @@ data class AdminPremiumConfigDto(
     val sessionExpiryMinutes: Int = 10,
     val merchantVpa: String = "evemocktest@upi",
     val merchantName: String = "Eve Mock Test",
-    val webhookSecret: String = "eve_whsec_dev"
+    val webhookSecret: String = "" // Legacy field; webhook secret must never be provided by the app
 )
 
 data class AdminTransactionDto(
