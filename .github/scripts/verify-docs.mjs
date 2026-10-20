@@ -12,8 +12,7 @@ const REQUIRED_FILES = [
   'AGENTS.md',
   'GEMINI.md',
   'SOURCE_OF_TRUTH.md',
-  'CODEX_STATE.md',
-  'PROGRESS.md'
+  'CODEX_STATE.md'
 ];
 
 let errorsCount = 0;

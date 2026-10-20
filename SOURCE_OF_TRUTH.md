@@ -5,14 +5,15 @@
 
 ## 0. How to use this file
 - Read this file before starting any task.
-- Working rules (workflow, scope, reporting) live in `AGENTS.md` / `GEMINI.md`. If anything here conflicts with them or with the current user prompt, the current user prompt wins, then AGENTS.md / GEMINI.md, then this file.
+- The latest explicit user-approved request defines current task scope; `ENGINEERING_STANDARD.md` and `AGENTS.md` define consistent workflow safeguards. `GEMINI.md` / `CLAUDE.md` are pointers, not additional policies. Default design choices here apply unless explicitly changed by the current task. Security and data-integrity safeguards must still hold.
 - If this file and the actual code disagree, trust the code, and report the mismatch under "Noticed but not touched (outside scope)" in the Final Report.
 - Never claim state from memory or from older chats. Inspect real files, run `git status` and `git log -1`, and run the relevant checks.
 
 ## Current UI design authority
 
-The owner's locked root design-reset specification supersedes historical UI
-numeric requirements, protected color palettes, icons and Lottie restrictions.
+The owner's current root design-reset specification is the default baseline,
+superseding historical UI numeric requirements, earlier palettes and retired font choices.
+Later explicit owner-approved UI changes take precedence within their stated scope.
 Use the exact light/dark palette, bundled Poppins 400/500/700, 26dp solid cards,
 sheets and dialogs, capsule controls, 12dp screen margins, 10dp card padding,
 and 9dp native card elevation. Glass is allowed only on top bars, bottom bars
