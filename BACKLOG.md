@@ -1,82 +1,31 @@
-# EVE Product & Engineering Backlog
+# EVE Engineering Backlog — Active Items Only
 
-Ranked by impact on user experience, stability, and design system fidelity per `ENGINEERING_STANDARD.md`.
+This file lists outstanding work and verification gaps, **not instructions to replay**. Start work only when the current user request authorizes it. Completed historical changes are retained in Git history and `DECISIONS.md`; latest UI evidence is under `docs/design-reset/`.
 
-## [COMPLETED] Phase 3: Official Apple iOS 26 Colors + Typography (Profile, Settings & Login)
-- **Status**: Completed (2026-10-13)
-- **Scope**: `activity_profile.xml`, `ProfileActivity.kt`, `activity_settings.xml`, `SettingsActivity.kt`, `bottom_sheet_font_picker.xml`, `activity_login.xml`, `LoginActivity.kt`.
-- **Details**: Full migration of Profile, Settings, and Login screens to canonical Apple iOS 26 semantic color roles, typography hierarchy, adaptive switch green, zero hardcoded text sizes, and comprehensive automated JVM verification.
+## P0 — Premium payment production readiness
+- Security guard: `backend/src/routes/premium.ts`. Default development signing secret is rejected; sandbox payment simulation is admin-only and opt-in.
+- **UNKNOWN:** Confirm a unique high-entropy `PREMIUM_WEBHOOK_SECRET` is set on the Cloudflare Worker and that the actual payment callback sender uses the matching value. No secret should be stored in source, client models or the legacy D1 config field.
+- Verify against the real provider using a legitimate test order, including callback authenticity, paid/failed/refunded statuses and entitlement consistency. Do not enable `PREMIUM_SANDBOX_ENABLED` in production.
+- Impact: Without a configured signing secret, new purchases correctly remain unavailable. Do not bypass this gate to restore checkout.
 
-## [COMPLETED] Phase 4: Official Apple iOS 26 Typography Migration for Mock Test Screen
-- **Status**: Completed (2026-10-13)
-- **Scope**: `activity_test.xml`, `item_question.xml`, `item_palette_circle.xml`, `CircularTimerView.kt`, `type.xml`.
-- **Details**: Standardized question text to Callout (16sp, lineSpacingMultiplier 1.5), option labels (A–D) to Subheadline (14sp), per-question timer chip to Footnote.Medium (13sp), palette circle numbers to Caption1.Medium (12sp), screen title to Headline (17sp), loading/message states to semantic roles, 0 hardcoded text sizes, and preserved all rigid 2x2 geometry, server scoring, and answer state colors.
+## P1 — Real device and account verification
+- Perform a signed-in Android phone walkthrough (light/dark, gesture/three-button): login, exam discovery, start/submit, review/history, Admin controls, and payment status.
+- Hosted Android CI checks are not equivalent to this authenticated production verification.
+- Verify API 24–25 navigation fallback and real compositor blur, which emulator evidence cannot fully certify.
 
-## [COMPLETED] Phase 5: Official Apple iOS 26 Typography Migration for Result & Secondary Screens
-- **Status**: Completed (2026-10-13)
-- **Scope**: `activity_result.xml`, `activity_result_detail.xml`, `item_answer.xml`, `item_result_topic.xml`, `item_topic_stat.xml`, `ResultDetailActivity.kt`, `ResultAnalysisRows.kt`, `activity_leaderboard.xml`, `item_leaderboard.xml`, `activity_history.xml`, `item_history.xml`, `activity_syllabus.xml`, `item_syllabus.xml`, `activity_feedback.xml`, `item_feedback_message.xml`, `item_post_reply.xml`, `dialog_create_feedback_post.xml`, `dialog_reply_feedback.xml`, `dialog_report_question.xml`, `activity_about.xml`, `activity_content_display.xml`.
-- **Details**: Full migration of Result (Overview, Statistics, Performance, Analytics, Review), Leaderboard, History, Syllabus, Feedback, and About screens to canonical Apple iOS 26 typography hierarchy and semantic color roles. 100% elimination of hardcoded text sizes across 19 layouts. Leaderboard visual geometry strictly preserved with zero redesign. Comprehensive automated JVM test suite (`ResultAndSecondaryScreensTypographyTest.kt`).
+## P1 — GitHub branch integrity
+- GitHub `main` currently has branch protection disabled (observed during repository audit). Enable a ruleset preventing force-push and deletion when account controls permit, without breaking the approved direct-push workflow.
+- This setting cannot be changed by normal repository file commits.
 
-## [COMPLETED] App-wide Apple iOS 26 Dynamic Typography & 26 Colour Roles (All 95 Layouts)
-- **Status**: Completed (2026-10-13)
-- **Scope**: All 95 Android layouts in `app/src/main/res/layout/`, `attrs.xml`, `themes.xml`, `type.xml`, ADR-008 (`DECISIONS.md`), `AppWideTypographyAndColorRolesTest.kt`.
-- **Details**: Full migration of all remaining layouts (student secondary, monetization, core admin dashboard, admin management, admin forms, admin item rows, and admin dialogs). Codified all 26 authoritative Apple iOS colour roles in `attrs.xml` and `themes.xml`. Achieved 100% elimination of hardcoded `android:textSize` attributes project-wide (0 remaining across all 95 layout files). Automated verification suite added in `AppWideTypographyAndColorRolesTest.kt`. Preserved pure `#FFFFFF` / `#000000` canvas, Telegram transitions, test engine, and asset invariants.
+## P2 — UI accessibility and platform surfaces
+- Audit 320dp widths at system font scales 1.78x and 2.0x, especially drawer rows and forms.
+- Inspect OS-controlled notifications/toasts and native DatePicker limits; do not invent custom platform replacements without product approval.
+- Lottie artwork color adaptation remains a product decision. Preserve existing Lottie resources, timing, playback and triggers until the owner explicitly approves changing them.
 
-## [COMPLETED] Navigation Chrome Correction & iOS 26 Neutral Segmented Navigation (ADR-011)
-- **Status**: Completed (2026-10-16)
-- **Scope**: `EveGlassToolbar.kt`, `activity_result.xml`, `EveGlassTabLayout.kt`, `bg_result_segmented_track.xml`, `bg_tab_segmented_indicator.xml`, `bg_tab_segmented_track.xml`, `approved_ui_colors.xml`, `colors.xml`, `docs/design-reset/report.md`, `ApprovedUiRenderingTest.kt`, `NavigationChromeAndTabsTest.kt`, ADR-011 (`DECISIONS.md`).
-- **Details**: Eliminated full-width rounded capsule slabs, blur overlays, and bottom separator borders behind headers across all 36 screens by converting `EveGlassToolbar` to a transparent `FrameLayout`. Separated header containers from tab surfaces in `activity_result.xml` by replacing the outer toolbar wrapper with a neutral `FrameLayout` and eliminating the duplicate nested track. Implemented official Apple iOS 26 neutral segmented control styling (light mode: `#FFFFFF` selected surface with `#000000` primary text; dark mode: `#636366` raised dark surface with `#FFFFFF` primary text). Added rapid-tap animation cancellation and disabled-animation checks in `EveGlassTabLayout`. Preserved bare Home Lottie notification bell, avatar, and 40dp/48dp category pills. Verified via automated unit tests and design-system validation.
+## P2 — Release acceptance
+- Android release workflow validates credentials and app-owned lint/unit checks before uploading APK/AAB.
+- **UNKNOWN:** Confirm a tagged release's actual R8/minification behavior, signature, artifact provenance and device installation before distributing production binaries.
+- Release/signing secrets are external configuration; do not commit them.
 
-## [COMPLETED] Apple-Inspired Liquid Glass Regular & Mock Test Submission Confirmation Dialog (ADR-012)
-- **Status**: Completed (2026-10-17)
-- **Scope**: `TestActivity.kt`, `EveLiquidGlass.kt`, `Theme.Eve.Dialog.SubmitConfirmation`, `bg_dialog_submit_confirmation.xml`, `values-v31/materials.xml`, `values-night-v31/materials.xml`, `docs/design-reset/report.md`, `DECISIONS.md`, `LiquidGlassRegularMaterialTest.kt`.
-- **Details**: Replaced visual material treatment of the "Submit test?" confirmation dialog in `TestActivity.kt` with unified Apple-inspired Liquid Glass `.regular` (`EVE_REGULAR_GLASS`). Standardized Light appearance (`#E6FFFFFF` 90% white alpha with 1dp `#1A000000` rim) and Dark appearance (`#E61C1C1E` 90% alpha with 1dp `#26FFFFFF` rim) on API 31+ via SurfaceFlinger window background blur (`16dp` radius). Implemented runtime adaptation via `WindowManager.addCrossWindowBlurEnabledListener` with automatic fallback to opaque `@color/eve_secondary_system_background` if transparency or battery saver is active. Fully cleans up listener on dismiss. Preserved exact title ("Submit test?"), question count calculations, positive "Submit" and negative "Cancel" actions, and server submission mechanics. Leaves all other dialogs and content cards untouched. Verified via unit test suite.
-
-## [COMPLETED] Eve Design System Foundation & Home Screen Application (ADR-015)
-- **Status**: Completed (2026-10-17)
-- **Scope**: `EveDesignSystem.kt`, `MainActivity.kt`, `HomeAppearance.kt`, `ExamAdapter.kt`, `item_feedback_post.xml`, `dimens.xml`, `EveDesignSystemTest.kt`, ADR-015 (`DECISIONS.md`).
-- **Details**: Built canonical `EveDesignSystem` Kotlin foundation facade (`com.eve.app.designsystem.EveDesignSystem`) unifying `Colors`, `Typography`, `Shapes`, `Spacing`, `Elevation`, `Motion`, `Materials`, and `Components`. Applied strictly and exclusively to Home screen components (banner squircle clipping/matte, drawer radius/background, streak pill, admin button, category chips, exam cards, and feedback card background). Kept all 35+ non-Home screens completely untouched. Verified via automated unit tests, 194 passing contrast pairs, and documentation verification.
-
-## [COMPLETED] Scoped Home Screen Apple iOS 26 Depth & Motion Specification (ADR-016)
-- **Status**: Completed (2026-10-17)
-- **Scope**: `colors.xml`, `dimens.xml`, `integers.xml`, `styles.xml`, `themes.xml`, `MainActivity.kt`, `HomeAppearance.kt`, `TargetExamsBottomSheet.kt`, `EveMotionHelper.kt`, `EveTouchHelper.kt`, `EveDesignSystem.kt`, `press_scale.xml`, `bg_home_popup_menu.xml`, `bg_recovery_sheet.xml`, `item_exam.xml`, `item_feedback_post.xml`, `popup_telegram_menu.xml`, `activity_main.xml`, `AndroidManifest.xml`, ADR-016 (`DECISIONS.md`).
-- **Details**: Full migration of Home screen to iOS 26 Depth (0dp card elevation, no shadows, 24dp blur on top bar/menus/sheets with 75% tint, 1dp hairline border, 94% solid tint fallback) and Motion (spring with damping ratio 0.8 / tension 0.65, 200-350ms duration window, 0.97 press tactile feedback scale). 100% elimination of hardcoded colors/dp/sp across touched files. Preserved Telegram theme toggle, all Lottie files/triggers/sizes, and non-Home screens.
-
-## [COMPLETED] Eve Design System Foundation Locked Values Codification & Home Screen Application (ADR-017)
-- **Status**: Completed (2026-10-17)
-- **Scope**: `EveDesignSystem.kt`, `HomeAppearance.kt`, `ExamAdapter.kt`, `EveDesignSystemTest.kt`, ADR-017 (`DECISIONS.md`).
-- **Details**: Codified all authoritative locked design tokens directly into `EveDesignSystem` (locked hex constants for canvas #FFFFFF/#000000, secondary cards #F2F2F7/#1C1C1E, systemBlue #0088FF/#0091FF, systemGreen #34C759/#30D158, systemRed #FF383C/#FF4245, systemOrange #FF8D28/#FF9230, secondary text #50505A/#C5C5CC; locked typography roles Title/Heading/Body/Secondary/Caption; shape constants; spring damping 0.8; press scale 0.97). Applied strictly and exclusively to Home screen. Zero modifications to non-Home screens. Verified via automated unit tests and design system checks.
-
-## [COMPLETED] Eve Design System Foundation with Locked Values & Home Screen Application (ADR-018)
-- **Status**: Completed (2026-10-17)
-- **Scope**: `colors.xml`, `values-night/colors.xml`, `dimens.xml`, `values-night/dimens.xml`, `values-sw360dp/dimens.xml`, `values-sw600dp/dimens.xml`, `type.xml`, `styles.xml`, `activity_main.xml`, `item_exam.xml`, `item_feedback_post.xml`, `ExamAdapter.kt`, `MainActivity.kt`, `HomeAppearance.kt`, `EveDesignSystem.kt`, `FontManager.kt`, `dm_sans*`, drawables & selectors, ADR-018 (`DECISIONS.md`).
-- **Details**: Codified locked Eve Design System foundation and applied it strictly to the Home screen ONLY. Overrides earlier approved visuals for Home tabs, pills, cards, fonts, colors, and bottom bar per explicit user instructions. Bundled static OFL DM Sans fonts (400, 500, 700). Applied PageTitle 29sp, CardTitle/Body 18sp, Secondary 14sp, Tab 15sp, Pill 14sp. Built 40dp segmented tabs, 32dp outline pills (>=48dp touch delegate), 24dp cards (soft 2dp/12dp shadow light, 0dp dark), and 54dp floating solid capsule bottom bar with dynamic scrolling clearances on `rvExams`. Preserved non-Home screens, Telegram theme toggle, Lottie assets/triggers/sizes, and SVG icons. Verified via automated tests and design system checks.
-
-## [COMPLETED] Task 1 of 3 — App-Wide Locked Color Tokens (ADR-020)
-- **Status**: Completed (2026-10-18)
-- **Scope**: `values/colors.xml`, `values-night/colors.xml`, `values/attrs.xml`, `values/themes.xml`, `values/styles.xml`, vector drawables, `AmbientBackgroundView.kt`, `ConfettiView.kt`, `ShareCardHelper.kt`, `EveDesignSystem.kt`, `ApprovedUiRenderingTest.kt`, ADR-020 (`DECISIONS.md`).
-- **Details**: Full codification of authoritative locked palette (`bg_app` #F5F5F5 / #000000, `surface` #FFFFFF / #1C1C1E, `system_red` #FF383C / #FF4245, `system_green` #34C759 / #30D158, `system_blue` #0088FF / #0091FF, `system_indigo` #6155F5 / #6155F5, `system_orange` #FF8D28 / #FF9230, `system_purple` #CB30E0 / #DB34F2, `system_yellow` #FFCC00 / #FFD600) and containers at 12% light / 20% dark alpha. Wired into theme attributes (`windowBackground`, `colorBackground`, `colorSurface`, `statusBarColor`, `navigationBarColor`, dialogs, sheets, snackbars). Replaced all old backgrounds and card/panel fills with tokens. 100% elimination of hardcoded colors in layouts, drawables, and Kotlin. Preserved all invariant components (Telegram toggle, Lottie assets/triggers, SVG icon vector geometries, answer-state test colours). Verified 100% green on GitHub Actions CI run `39102727802`.
-
-## [COMPLETED] Task 2 of 3 — Fix "Lining" and Clipped Shadows App-Wide (ADR-021)
-- **Status**: Completed (2026-10-18)
-- **Details**: Full diagnosis and resolution of card bottom lining and clipped shadow defects app-wide. Preserved canonical 1dp card borders (`strokeWidth="1dp"`, `strokeColor="@color/eve_shape_border"`) on `Widget.Eve.Card`, `Widget.Eve.Tile`, `EveLiquidGlassView`, and layout cards per approved-UI specification. Overhauled Result layout into a coordinate viewport (`layoutResultViewport`) where the floating tab strip (`layoutResultTabContainer`) is raised with elevation/translationZ and scrolling content passes underneath with `paddingTop="@dimen/eve_result_tab_strip_total_height"` (68dp) and `clipToPadding="false"`. Added shadow room tokens (`@dimen/eve_shadow_room` 8dp), terminal card margins (12dp / 16dp), scroll bottom padding (36dp), unclipped `clipChildren="false"` and `clipToPadding="false"` across all 47 scrolling views and parent containers app-wide, and unclipped `ViewPager2` and its internal `RecyclerView` child in `MainActivity.kt` and `TestActivity.kt`. Preserved all colors, sizes, fonts, text, and behaviors, and kept all invariant assets (Telegram toggle, Lottie, SVG icons) untouched.
-
-
-
-## [P3] Accessibility: Extreme Font Scale (1.78x / 2.0x) Audit
-- **Impact**: Low-Medium
-- **Scope**: Navigation drawer list items in `activity_main.xml` and form layouts.
-- **Details**: Verify text wrapping on narrow devices (320dp) under maximum system font scales to ensure UI rows remain cleanly accessible with zero overlap.
-
-## [P1] iOS 26 migration: physical-device verification
-- **Scope**: Device compositor blur, clear Sign In outside area, pre-31 fallback, live account/exam flows, and Eve/Device font appearance.
-- **Details**: Both API 35 native navigation suites pass (34 tests each), with complete light/dark evidence gates. Requested chrome/modal and Home/Test/Result/Settings/Login captures were reviewed with fixture limitations recorded in docs/design-reset/report.md. Inspect the remaining hardware and live-flow behavior on physical devices; emulator/Canvas evidence does not certify these items.
-
-- P2 — Documentation outside the UI reset: README still describes the old Firebase-only setup, while SOURCE_OF_TRUTH.md and the current client use the Worker backend. Reconcile setup documentation separately; no authentication/backend configuration was changed in this UI task.
-
-
-## Remaining verification after the root reset
-
-- P1: Perform a real authenticated phone walkthrough of login, test/save/submit, review, admin controls and sandbox payment in light/dark, both navigation modes and enlarged text. Hosted disposable fixtures are green; this production walkthrough is not performed.
-- P2: Audit Android-controlled notification/toast typography and native DatePicker internals against the locked design; custom OS-surface replacements were not added in the final verification scope.
-- P2: Resolve the already-asked Lottie artwork color choice. Assets, motion, playback and existing palettes remain preserved; full system-hue normalization is not certified.
+## Out-of-scope historical records
+Use `DECISIONS.md`, `docs/design-reset/report.md`, and Git history for prior UI migration and deleted-resource proof. Those records do not override the current task.

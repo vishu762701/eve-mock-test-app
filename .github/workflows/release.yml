@@ -24,25 +24,40 @@ jobs:
           java-version: 21
 
       - name: Verify google-services.json
+        env:
+          GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
         run: |
-          if [ -n "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" ]; then
-            echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > app/google-services.json
+          set -euo pipefail
+          if [ -n "$GOOGLE_SERVICES_JSON_BASE64" ]; then
+            umask 077
+            printf '%s' "$GOOGLE_SERVICES_JSON_BASE64" | base64 --decode > app/google-services.json
           fi
-          if [ ! -f app/google-services.json ]; then
-            echo "ERROR: app/google-services.json missing."
+          if [ ! -s app/google-services.json ]; then
+            echo "::error::app/google-services.json is missing or empty."
             exit 1
           fi
 
-      - name: Decode Release Keystore
+      - name: Validate release signing secrets and decode keystore
         id: decode_keystore
+        env:
+          RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+          RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
         run: |
-          if [ -n "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" ]; then
-            mkdir -p /tmp/keystore
-            echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 --decode > /tmp/keystore/release.keystore
-            echo "keystore_path=/tmp/keystore/release.keystore" >> $GITHUB_OUTPUT
-          else
-            echo "WARN: RELEASE_KEYSTORE_BASE64 secret not set."
+          set -euo pipefail
+          if [ -z "$RELEASE_KEYSTORE_BASE64" ] || [ -z "$RELEASE_STORE_PASSWORD" ] || [ -z "$RELEASE_KEY_ALIAS" ] || [ -z "$RELEASE_KEY_PASSWORD" ]; then
+            echo "::error::Required release signing credentials are missing. Refusing to produce a release."
+            exit 1
           fi
+          umask 077
+          mkdir -p /tmp/keystore
+          printf '%s' "$RELEASE_KEYSTORE_BASE64" | base64 --decode > /tmp/keystore/release.keystore
+          if [ ! -s /tmp/keystore/release.keystore ]; then
+            echo "::error::Decoded release keystore is empty."
+            exit 1
+          fi
+          echo "keystore_path=/tmp/keystore/release.keystore" >> "$GITHUB_OUTPUT"
 
       - name: Accept Android SDK licenses and install Platform 36
         run: |
@@ -52,6 +67,9 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.7
+
+      - name: Validate Android source before releasing
+        run: gradle lintDebug testDebugUnitTest --stacktrace
 
       - name: Build Release APK and AAB
         env:
@@ -72,3 +90,4 @@ jobs:
           path: |
             app/build/outputs/apk/release/*.apk
             app/build/outputs/bundle/release/*.aab
+          if-no-files-found: error
