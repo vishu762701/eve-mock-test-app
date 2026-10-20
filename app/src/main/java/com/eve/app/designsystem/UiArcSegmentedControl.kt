@@ -189,8 +189,6 @@ class UiArcSegmentedControl @JvmOverloads constructor(
         }
     }
 
-    fun getCheckedChipId(): Int = checkedChipId
-
     private fun selectIndex(index: Int, userInitiated: Boolean) {
         if (index !in optionViews.indices) return
         val changed = (selectedIndex != index)
