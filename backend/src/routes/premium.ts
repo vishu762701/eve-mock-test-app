@@ -329,10 +329,8 @@ premiumRoutes.post("/orders/create", async (c) => {
 // GET /api/premium/orders/:orderId/status - Poll/check payment session status
 premiumRoutes.get("/orders/:orderId/status", async (c) => {
   const user = c.get("user");
-  // Never allow student-owned payment simulation to activate real entitlements.
-  // This diagnostic action is disabled in production unless explicitly enabled.
-  if (!user || !user.isAdmin || c.env.PREMIUM_SANDBOX_ENABLED !== "true") {
-    return c.json({ success: false, error: "Sandbox payment simulation is unavailable." }, 403);
+  if (!user || !user.uid) {
+    return c.json({ success: false, error: "Unauthorized" }, 401);
   }
 
   const orderId = c.req.param("orderId");
@@ -386,7 +384,7 @@ async function verifyHmacSha256(secret: string, bodyText: string, expectedSignat
       encoder.encode(secret),
       { name: "HMAC", hash: "SHA-256" },
       false,
-      ["sign"]
+      ["verify"]
     );
     if (!/^[0-9a-fA-F]{64}$/.test(expectedSignatureHex)) return false;
     const signature = new Uint8Array(expectedSignatureHex.match(/.{2}/g)!.map((b) => parseInt(b, 16)));
@@ -512,11 +510,11 @@ premiumRoutes.post("/webhook", async (c) => {
 });
 
 // POST /api/premium/orders/:orderId/simulate-sandbox-payment
-// End-to-end sandbox verification endpoint for testing the payment provider flow before production (Requirement 53)
+// Explicitly disabled by default; never grant student-owned premium entitlements.
 premiumRoutes.post("/orders/:orderId/simulate-sandbox-payment", async (c) => {
   const user = c.get("user");
-  if (!user || !user.uid) {
-    return c.json({ success: false, error: "Unauthorized" }, 401);
+  if (!user || !user.isAdmin || c.env.PREMIUM_SANDBOX_ENABLED !== "true") {
+    return c.json({ success: false, error: "Sandbox payment simulation is unavailable." }, 403);
   }
 
   const orderId = c.req.param("orderId");
