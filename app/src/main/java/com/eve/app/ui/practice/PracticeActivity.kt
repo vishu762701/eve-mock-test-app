@@ -53,7 +53,12 @@ class PracticeActivity : EveBaseActivity() {
                 binding.progress.visibility = View.GONE
                 exams = state.data
                 val prevSelectedId = selectedExam?.id
+                selectedExam = exams.firstOrNull { it.id == prevSelectedId } ?: exams.firstOrNull()
                 binding.spExam.adapter = ArrayAdapter(this, com.eve.app.R.layout.item_exam_dropdown, exams.map { it.examName })
+                if (exams.isEmpty()) {
+                    viewModel.loadTopics("")
+                    binding.chipGroupTopics.removeAllViews()
+                }
                 if (prevSelectedId != null) {
                     val newIndex = exams.indexOfFirst { it.id == prevSelectedId }
                     if (newIndex >= 0) {
@@ -74,7 +79,10 @@ class PracticeActivity : EveBaseActivity() {
             is UiState.Success -> {
                 binding.progress.visibility = View.GONE
                 binding.tvMessage.visibility = if (state.data.isEmpty()) View.VISIBLE else View.GONE
-                if (state.data.isEmpty()) binding.tvMessage.text = "No topic-tagged questions found for this exam. Please ask an admin to add topics."
+                if (state.data.isEmpty()) {
+                    binding.tvMessage.text = if (exams.isEmpty()) "No exams are currently available for practice."
+                    else "No topic-tagged questions found for this exam. Please ask an admin to add topics."
+                }
                 state.data.forEach { topic -> addTopicChip(topic) }
             }
         }
