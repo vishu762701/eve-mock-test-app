@@ -28,7 +28,11 @@ import com.eve.app.util.AppBulletin
 import com.eve.app.util.SecurityHelper
 import com.eve.app.util.AdminAccessGate
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -44,6 +48,11 @@ class ManageSyllabusActivity : EveBaseActivity() {
     private var selectedPdfUri: Uri? = null
     private var selectedPdfName: String = ""
     private var selectedPdfBytes: ByteArray? = null
+    private var adminAccessGranted = false
+    private var newPdfReadJob: Job? = null
+    private var newPdfGeneration = 0L
+    private var replacementJob: Job? = null
+    private var replacementGeneration = 0L
 
     private var targetExamForReplace: Exam? = null
     private val replacePdfPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
@@ -70,6 +79,7 @@ class ManageSyllabusActivity : EveBaseActivity() {
         binding.btnBack.setOnClickListener { finish() }
 
         AdminAccessGate.requireAdmin(this, binding.root) {
+            adminAccessGranted = true
             setupRecyclerView()
             setupAddSyllabusForm()
             setupSearch()
@@ -100,9 +110,16 @@ class ManageSyllabusActivity : EveBaseActivity() {
         }
 
         binding.btnClearSelectedPdf.setOnClickListener {
+            // Cancel an in-flight ContentProvider read, otherwise its late result can
+            // silently restore a PDF after the user explicitly cleared selection.
+            newPdfGeneration++
+            newPdfReadJob?.cancel()
+            newPdfReadJob = null
             selectedPdfUri = null
             selectedPdfName = ""
             selectedPdfBytes = null
+            binding.btnChoosePdf.isEnabled = true
+            binding.btnUploadSyllabus.isEnabled = true
             binding.fileUploadView.clearSelectedFile()
         }
 
@@ -238,62 +255,87 @@ class ManageSyllabusActivity : EveBaseActivity() {
         }
     }
 
-    private fun handleNewPdfSelected(uri: Uri) {
-        var displayName = "syllabus.pdf"
-        contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-            if (cursor.moveToFirst()) {
-                val nameIdx = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                if (nameIdx >= 0) displayName = cursor.getString(nameIdx)
-            }
+    private fun safePdfDisplayName(uri: Uri): String {
+        return try {
+            contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                if (!cursor.moveToFirst()) return@use null
+                val index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                if (index < 0) null else cursor.getString(index)?.takeIf { it.isNotBlank() }
+            } ?: "syllabus.pdf"
+        } catch (_: Exception) {
+            "syllabus.pdf"
         }
+    }
 
-        try {
-            val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: return
-            if (bytes.size > com.eve.app.designsystem.UiArcFileUploadView.MAX_FILE_SIZE_BYTES) {
-                AppBulletin.showError(this, "PDF exceeds 20MB limit.")
-                return
+    private suspend fun readPdfWithinLimit(uri: Uri): ByteArray = withContext(Dispatchers.IO) {
+        contentResolver.openInputStream(uri)?.use { input ->
+            PdfSelectionReader.readBounded(input, UiArcFileUploadView.MAX_FILE_SIZE_BYTES)
+        } ?: throw java.io.IOException("Unable to open the selected PDF.")
+    }
+
+    private fun handleNewPdfSelected(uri: Uri) {
+        if (!adminAccessGranted) return
+        val displayName = safePdfDisplayName(uri)
+        newPdfReadJob?.cancel()
+        val generation = ++newPdfGeneration
+        selectedPdfUri = null
+        selectedPdfName = ""
+        selectedPdfBytes = null
+        binding.fileUploadView.clearSelectedFile()
+        binding.btnChoosePdf.isEnabled = false
+        binding.btnUploadSyllabus.isEnabled = false
+
+        newPdfReadJob = lifecycleScope.launch {
+            try {
+                // Bounded streaming prevents reading an oversized provider document into RAM.
+                // File I/O must not block the main thread or the UIArc picker animation.
+                val bytes = readPdfWithinLimit(uri)
+                selectedPdfUri = uri
+                selectedPdfName = displayName
+                selectedPdfBytes = bytes
+                binding.fileUploadView.bindSelectedFile(displayName, bytes.size.toLong())
+            } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (tooLarge: PdfSelectionReader.FileTooLargeException) {
+                AppBulletin.showError(this@ManageSyllabusActivity, "PDF exceeds 20MB limit.")
+            } catch (error: Exception) {
+                AppBulletin.showError(this@ManageSyllabusActivity,
+                    "Failed to read PDF file: ${error.localizedMessage}")
+            } finally {
+                if (generation == newPdfGeneration) {
+                    binding.btnChoosePdf.isEnabled = true
+                    binding.btnUploadSyllabus.isEnabled = true
+                }
             }
-
-            selectedPdfUri = uri
-            selectedPdfName = displayName
-            selectedPdfBytes = bytes
-
-            binding.fileUploadView.bindSelectedFile(displayName, bytes.size.toLong())
-        } catch (e: Exception) {
-            AppBulletin.showError(this, "Failed to read PDF file: ${e.localizedMessage}")
         }
     }
 
     private fun handleReplacePdfSelected(exam: Exam, uri: Uri) {
-        var displayName = "syllabus.pdf"
-        contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-            if (cursor.moveToFirst()) {
-                val nameIdx = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                if (nameIdx >= 0) displayName = cursor.getString(nameIdx)
-            }
-        }
+        if (!adminAccessGranted) return
+        val displayName = safePdfDisplayName(uri)
+        replacementJob?.cancel()
+        val generation = ++replacementGeneration
+        binding.progressBarTop.visibility = View.VISIBLE
 
-        try {
-            val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: return
-            if (bytes.size > com.eve.app.designsystem.UiArcFileUploadView.MAX_FILE_SIZE_BYTES) {
-                AppBulletin.showError(this, "PDF exceeds 20MB limit.")
-                return
-            }
-
-            binding.progressBarTop.visibility = View.VISIBLE
-            lifecycleScope.launch {
-                try {
-                    examRepo.uploadSyllabusPdf(exam.id, displayName, bytes)
+        replacementJob = lifecycleScope.launch {
+            try {
+                val bytes = readPdfWithinLimit(uri)
+                examRepo.uploadSyllabusPdf(exam.id, displayName, bytes)
+                AppBulletin.showSuccess(this@ManageSyllabusActivity,
+                    "Syllabus updated for ${exam.examName}")
+                loadExamsAndSyllabuses()
+            } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (tooLarge: PdfSelectionReader.FileTooLargeException) {
+                AppBulletin.showError(this@ManageSyllabusActivity, "PDF exceeds 20MB limit.")
+            } catch (error: Exception) {
+                AppBulletin.showError(this@ManageSyllabusActivity,
+                    "Replace failed: ${error.localizedMessage}")
+            } finally {
+                if (generation == replacementGeneration) {
                     binding.progressBarTop.visibility = View.GONE
-                    AppBulletin.showSuccess(this@ManageSyllabusActivity, "Syllabus updated for ${exam.examName}")
-                    loadExamsAndSyllabuses()
-                } catch (e: Exception) {
-                    binding.progressBarTop.visibility = View.GONE
-                    AppBulletin.showError(this@ManageSyllabusActivity, "Replace failed: ${e.localizedMessage}")
                 }
             }
-        } catch (e: Exception) {
-            AppBulletin.showError(this, "Failed to read PDF file: ${e.localizedMessage}")
         }
     }
 
