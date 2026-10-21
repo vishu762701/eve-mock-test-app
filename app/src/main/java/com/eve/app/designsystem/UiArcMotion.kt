@@ -4,6 +4,7 @@ import android.animation.TimeInterpolator
 import android.content.Context
 import android.os.Build
 import android.provider.Settings
+import android.view.View
 import android.view.animation.PathInterpolator
 import kotlin.math.cos
 import kotlin.math.exp
@@ -25,6 +26,10 @@ object UiArcMotion {
         const val EXIT = 180L
         const val STANDARD = 240L
         const val CONSIDERED = 480L
+        const val SLOT_ROLL = 900L
+        const val TEXT_REVEAL_RISE = 760L
+        const val TEXT_REVEAL_FADE = 440L
+        const val TEXT_REVEAL_FOCUS = 580L
         const val COUNT_UP = 1600L
         const val SHIMMER_SWEEP = 1800L
         const val SHIMMER_PAUSE = 576L // 1.8s * 0.32
@@ -36,6 +41,7 @@ object UiArcMotion {
         val EXIT = PathInterpolator(0.70f, 0.0f, 0.84f, 0.0f)
         val STANDARD = PathInterpolator(0.22f, 1.0f, 0.36f, 1.0f)
         val IN_OUT = PathInterpolator(0.65f, 0.0f, 0.35f, 1.0f)
+        val LANDING = PathInterpolator(0.12f, 0.80f, 0.16f, 1.0f)
     }
 
     val Easing get() = Ease
@@ -47,6 +53,8 @@ object UiArcMotion {
         const val LINE_MS = 80L
         const val ITEM_MS = 35L
         const val STAT_MS = 90L
+        const val SLOT_MS = 70L
+        const val REVEAL_WORD_MS = 40L
     }
 
     /** Text and icon crossfade blur radii in pixels. */
@@ -133,6 +141,64 @@ object UiArcMotion {
             widthDp in 1f..48f -> 0.96f
             else -> 0.97f
         }
+    }
+
+    /**
+     * UIArc Dialog entrance motion (https://uiarc.dev/r/dialog.json):
+     * translateY(8px -> 0) + scale(0.96 -> 1.0) with Spring.SNAPPY, alpha(0 -> 1) with Ease.ENTER.
+     */
+    fun animateDialogEntrance(decorView: View) {
+        if (!isMotionEnabled(decorView.context)) {
+            decorView.alpha = 1f
+            decorView.scaleX = 1f
+            decorView.scaleY = 1f
+            decorView.translationY = 0f
+            return
+        }
+        val density = decorView.resources.displayMetrics.density
+        val startY = 8f * density
+        decorView.alpha = 0f
+        decorView.scaleX = 0.96f
+        decorView.scaleY = 0.96f
+        decorView.translationY = startY
+
+        // Alpha fade-in (160ms Ease.ENTER)
+        decorView.animate()
+            .alpha(1f)
+            .setDuration(Duration.FAST)
+            .setInterpolator(Ease.ENTER)
+            .start()
+
+        // Scale and Translation with Spring.SNAPPY (360ms)
+        decorView.animate()
+            .scaleX(1f)
+            .scaleY(1f)
+            .translationY(0f)
+            .setDuration(Spring.SNAPPY.settlingDurationMs)
+            .setInterpolator(Spring.SNAPPY)
+            .start()
+    }
+
+    /**
+     * UIArc Dialog exit motion (https://uiarc.dev/r/dialog.json):
+     * translateY(0 -> 8px) + scale(1.0 -> 0.96) + alpha(1 -> 0) with Ease.EXIT in 160ms.
+     */
+    fun animateDialogExit(decorView: View, onComplete: () -> Unit) {
+        if (!isMotionEnabled(decorView.context)) {
+            onComplete()
+            return
+        }
+        val density = decorView.resources.displayMetrics.density
+        val endY = 8f * density
+        decorView.animate()
+            .alpha(0f)
+            .scaleX(0.96f)
+            .scaleY(0.96f)
+            .translationY(endY)
+            .setDuration(Duration.FAST)
+            .setInterpolator(Ease.EXIT)
+            .withEndAction { onComplete() }
+            .start()
     }
 
     /** Returns true if motion animations are enabled by system accessibility and animator settings. */

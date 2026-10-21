@@ -521,4 +521,93 @@ class UiArcMotionComponentsTest {
         val moonIcon = File(getProjectDir(), "app/src/main/res/drawable/ic_theme_moon.xml")
         assertTrue("ic_theme_moon must remain protected", moonIcon.exists())
     }
+
+    @Test
+    fun testBatch05_Repairs_StatsBandFileUploadMorphSelect() {
+        // Repair A1: Stats Band visibility gating and duration constants
+        assertEquals(1600L, UiArcStatsBandView.COUNT_DURATION_MS)
+        assertEquals(0.50f, UiArcStatsBandView.TRIGGER_AMOUNT, 0.001f)
+
+        // Repair A2: File Upload View unified container in activity_manage_syllabus.xml
+        val syllabusRoot = loadXml("src/main/res/layout/activity_manage_syllabus.xml")
+        val fileUpload = findElementById(syllabusRoot, "fileUploadManageSyllabus")
+        assertNotNull("fileUploadManageSyllabus must exist as container in activity_manage_syllabus.xml", fileUpload)
+        assertEquals("com.eve.app.designsystem.UiArcFileUploadView", fileUpload?.tagName)
+
+        val btnChoosePdf = findElementById(syllabusRoot, "btnChoosePdf")
+        assertNotNull("btnChoosePdf must exist nested in file upload container", btnChoosePdf)
+
+        val layoutSelectedPdf = findElementById(syllabusRoot, "layoutSelectedPdf")
+        assertNotNull("layoutSelectedPdf must exist nested in file upload container", layoutSelectedPdf)
+
+        assertEquals(20L * 1024L * 1024L, UiArcFileUploadView.MAX_FILE_SIZE_BYTES)
+
+        // Repair A3: Morph Select error container and typography styles
+        val morphSelect = findElementById(syllabusRoot, "morphSelectExam")
+        assertNotNull("morphSelectExam must exist in activity_manage_syllabus.xml", morphSelect)
+        assertEquals("com.eve.app.designsystem.UiArcMorphSelectView", morphSelect?.tagName)
+    }
+
+    @Test
+    fun testBatch06_Component1_SlotText() {
+        assertEquals(900L, UiArcSlotTextView.DURATION_MS)
+        assertEquals(70L, UiArcSlotTextView.STAGGER_MS)
+        assertEquals(1, UiArcSlotTextView.SPINS)
+        assertNotNull(UiArcSlotTextView.LANDING)
+
+        val resultRoot = loadXml("src/main/res/layout/activity_result.xml")
+        val tvCorrect = findElementById(resultRoot, "tvCorrectCount")
+        assertNotNull("tvCorrectCount must exist in activity_result.xml", tvCorrect)
+        assertEquals("com.eve.app.designsystem.UiArcSlotTextView", tvCorrect?.tagName)
+
+        val tvWrong = findElementById(resultRoot, "tvWrongCount")
+        assertNotNull("tvWrongCount must exist in activity_result.xml", tvWrong)
+        assertEquals("com.eve.app.designsystem.UiArcSlotTextView", tvWrong?.tagName)
+
+        val tvUnattempted = findElementById(resultRoot, "tvUnattemptedCount")
+        assertNotNull("tvUnattemptedCount must exist in activity_result.xml", tvUnattempted)
+        assertEquals("com.eve.app.designsystem.UiArcSlotTextView", tvUnattempted?.tagName)
+    }
+
+    @Test
+    fun testBatch06_Component2_Select() {
+        val practiceRoot = loadXml("src/main/res/layout/activity_practice.xml")
+        val spExam = findElementById(practiceRoot, "spExam")
+        assertNotNull("spExam must exist in activity_practice.xml", spExam)
+        assertEquals("com.eve.app.designsystem.DesignSpinner", spExam?.tagName)
+    }
+
+    @Test
+    fun testBatch06_Component3_MultiSelect() {
+        val sheetLayout = loadXml("src/main/res/layout/bottom_sheet_target_exams.xml")
+        val chipGroup = findElementById(sheetLayout, "chipGroupExams")
+        assertNotNull("chipGroupExams must exist in bottom_sheet_target_exams.xml", chipGroup)
+    }
+
+    @Test
+    fun testBatch06_Component4_Dialog() {
+        assertEquals(160L, UiArcMotion.Duration.FAST)
+        assertEquals(360L, UiArcMotion.Spring.SNAPPY.settlingDurationMs)
+        assertNotNull(UiArcMotion.Ease.ENTER)
+        assertNotNull(UiArcMotion.Ease.EXIT)
+    }
+
+    @Test
+    fun testBatch06_Component5_TextReveal() {
+        assertEquals(760L, UiArcTextRevealView.DURATION_RISE_MS)
+        assertEquals(440L, UiArcTextRevealView.DURATION_FADE_MS)
+        assertEquals(580L, UiArcTextRevealView.DURATION_FOCUS_MS)
+        assertEquals(480L, UiArcTextRevealView.MAX_STAGGER_MS)
+        assertEquals(40L, UiArcTextRevealView.BASE_STAGGER_MS)
+        assertEquals(0.62f, UiArcTextRevealView.RISE_EM, 0.001f)
+
+        val premiumRoot = loadXml("src/main/res/layout/activity_premium.xml")
+        val tvPlanTitle = findElementById(premiumRoot, "tvPlanTitle")
+        assertNotNull("tvPlanTitle must exist in activity_premium.xml", tvPlanTitle)
+        assertEquals("com.eve.app.designsystem.UiArcTextRevealView", tvPlanTitle?.tagName)
+
+        val tvActiveTitle = findElementById(premiumRoot, "tvActiveTitle")
+        assertNotNull("tvActiveTitle must exist in activity_premium.xml", tvActiveTitle)
+        assertEquals("com.eve.app.designsystem.UiArcTextRevealView", tvActiveTitle?.tagName)
+    }
 }

@@ -447,7 +447,7 @@ class UiArcSwipeRow @JvmOverloads constructor(
         isArmed = false
         actionLayer.visibility = View.INVISIBLE
         contentView?.translationX = 0f
-        layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+        layoutParams?.height = ViewGroup.LayoutParams.WRAP_CONTENT
         alpha = 1f
         requestLayout()
     }

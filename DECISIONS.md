@@ -1676,3 +1676,97 @@ Following the successful completion of Batch 01 (ADR-022), Batch 02 (ADR-023), B
    - Lottie motion assets, playback, and triggers are untouched.
    - Server-authoritative test scoring, ranking, and timer preserved.
    - Full reduced motion support across all five components with instant fallback.
+
+## ADR-029: UIArc Motion Implementation — Batch 06 (Five Components) and Batch 05 Quality Repairs
+
+- **Date**: 2026-10-21
+- **Status**: Accepted
+- **Author**: Principal Native Android Engineer, Motion Fidelity Specialist, Accessibility Engineer & Production QA Lead
+
+### Context
+Following Batch 01 (ADR-022), Batch 02 (ADR-023), Batch 03 (ADR-024), Typography Studio (ADR-026), Batch 04 (ADR-027), and Batch 05 (ADR-028), this increment completes three quality repairs on Batch 05 components and delivers five production UI motion components from the official UIArc registry (https://uiarc.dev) for genuine native Android Kotlin/XML implementation:
+
+#### Batch 05 Quality Repairs:
+1. **Repair A1 — Admin Stats Band Visibility Gating & Precision**: `UiArcStatsBandView.kt` (`activity_admin.xml`, `AdminActivity.kt`)
+2. **Repair A2 — File Upload Single Container Architecture**: `UiArcFileUploadView.kt` (`activity_manage_syllabus.xml`, `ManageSyllabusActivity.kt`)
+3. **Repair A3 — Morph Select Typography & Accessible Error Handling**: `UiArcMorphSelectView.kt` (`activity_manage_syllabus.xml`, `ManageSyllabusActivity.kt`)
+
+#### Batch 06 Components:
+1. **Component 1 — Slot Text** (`https://uiarc.dev/r/slot-text.json`): `UiArcSlotTextView.kt` (`activity_result.xml`, `ResultActivity.kt`)
+2. **Component 2 — Select** (`https://uiarc.dev/r/select.json`): `DesignSpinner.kt` (`activity_practice.xml`, `PracticeActivity.kt`)
+3. **Component 3 — Multi-Select** (`https://uiarc.dev/r/multi-select.json`): `TargetExamsBottomSheet.kt` (`bottom_sheet_target_exams.xml`)
+4. **Component 4 — Dialog** (`https://uiarc.dev/r/dialog.json`): `UiArcMotion.kt` (`ResultActivity.kt`)
+5. **Component 5 — Text Reveal** (`https://uiarc.dev/r/text-reveal.json`): `UiArcTextRevealView.kt` (`activity_premium.xml`, `PremiumActivity.kt`)
+
+---
+
+### Decisions
+
+#### Batch 05 Repairs:
+
+1. **Repair A1: Admin Stats Band Visibility Gating & Precision (`UiArcStatsBandView.kt`)**:
+   - **Visibility Gating**: Numeric counting ValueAnimators never run while the Admin tab is hidden. Metrics are cached in `MetricEntry` and held until >= 50% viewport visibility is reached.
+   - **Tab Selection**: Switching to the User Management tab triggers immediate visibility recheck via `checkInView()` without requiring manual scrolling. Switching away cancels active animators.
+   - **Long Precision**: Counting interpolation converts `Long` counts to `Double` during calculations, preventing single-precision float truncation on large user counts.
+   - **Leak Prevention**: ViewTreeObserver scroll/layout listeners are detached and cleaned up when detached from the window.
+
+2. **Repair A2: File Upload Container Architecture (`UiArcFileUploadView.kt`)**:
+   - **Unified Container**: Removed duplicate, competing upload implementations. `UiArcFileUploadView` acts as the authoritative container and state machine (`IDLE`, `READY`, `UPLOADING`, `DONE`, `FAILED`) wrapping `btnChoosePdf` and `layoutSelectedPdf` in `activity_manage_syllabus.xml`.
+   - **Preserved Contracts**: Retained 20MB maximum file size enforcement (`MAX_FILE_SIZE_BYTES = 20L * 1024L * 1024L`), indeterminate progress indicator during upload, and server confirmation checkmark.
+   - **Locale Formatting**: File size strings formatted using `Locale.US` for consistent international presentation.
+
+3. **Repair A3: Morph Select Typography & Accessible Error Handling (`UiArcMorphSelectView.kt`)**:
+   - **Typography Tokens**: Replaced hardcoded sans-serif overrides with Inter typeface loaded via `FontManager.typeface` and `FontManager.mediumTypeface`, styled with `@style/TextAppearance.Eve.Token.Subheadline`, `Body`, and `Secondary`.
+   - **Stable ID Resolution**: Removed unsafe position fallback `?: allExams.getOrNull(position)` in `ManageSyllabusActivity.kt`; exam selection resolves strictly by stable `Exam.id`.
+   - **Accessible Error State**: Added dedicated `tvError` TextView within the Morph Select view and `setError(error)` API with red stroke styling and TalkBack announcement.
+
+---
+
+#### Batch 06 Components:
+
+1. **Component 1: Slot Text (`UiArcSlotTextView.kt`)**:
+   - Native translation of `https://uiarc.dev/r/slot-text.json`.
+   - **Easing**: `LANDING = [0.12, 0.80, 0.16, 1.0]` (fast out, long soft landing, never past target).
+   - **Duration & Stagger**: `DURATION_MS = 900L`, `STAGGER_MS = 70L` sequential stop delay across digit reels from left to right.
+   - **Reel Cycles**: `SPINS = 1` full cycle before landing on target digit.
+   - **Host Target**: `activity_result.xml` (`tvCorrectCount`, `tvWrongCount`, `tvUnattemptedCount`) animated upon test result display in `ResultActivity.kt`.
+   - **Reduced Motion**: Instantly renders the target integer without reel spinning.
+
+2. **Component 2: Select (`DesignSpinner.kt`)**:
+   - Native translation of `https://uiarc.dev/r/select.json`.
+   - **Rolling Label Motion**: Directional vertical roll on selection change (+0.35em enter / -0.3em exit, 240ms duration with `UiArcMotion.Ease.ENTER`).
+   - **Popup Scaling**: Dropdown popup scales in `0.97 -> 1.0` with `UiArcMotion.Ease.ENTER` (240ms) and translates `y: -6px -> 0`.
+   - **Selection Stability**: `PracticeActivity.kt` preserves selected exam ID across `viewModel.exams` StateFlow emissions to prevent resetting to index 0, strictly resolving topic loading by stable `Exam.id`.
+
+3. **Component 3: Multi-Select (`TargetExamsBottomSheet.kt`)**:
+   - Native translation of `https://uiarc.dev/r/multi-select.json`.
+   - **Selection Spring**: Chips scale down to 0.90 and bounce back to 1.0 using `UiArcMotion.Spring.SNAPPY` (`visualDuration = 0.26s`, `bounce = 0.12`).
+   - **Visual Distinction**: Unchecked chips feature solid `surface_inset` background, 1dp border stroke, `text_primary` text, and hidden checkmark; checked chips transition to `accent` background, borderless outline, `on_accent` text, and drawn/visible checkmark.
+   - **Detents Retained**: Dual-detents `[0.45, 0.92]` preserved with 0.45 resting peek detent and 0.92 expanded height.
+
+4. **Component 4: Dialog (`UiArcMotion.kt` dialog helpers)**:
+   - Native translation of `https://uiarc.dev/r/dialog.json`.
+   - **Entrance Physics**: `translateY(8px -> 0)` + `scale(0.96 -> 1.0)` with `UiArcMotion.Spring.SNAPPY` (settling ~360ms) and alpha fade-in in 160ms (`UiArcMotion.Ease.ENTER`).
+   - **Exit Physics**: `translateY(0 -> 8px)` + `scale(1.0 -> 0.96)` + alpha fade-out in 160ms (`UiArcMotion.Ease.EXIT`).
+   - **Host Target**: Reattempt confirmation dialog in `ResultActivity.kt` (`showReattemptDialog`).
+   - **Solid Surface & Backend Contracts**: Pure solid surfaces (no backdrop glass/blur); strictly preserves 3-attempt limits and backend attempt reset semantics.
+
+5. **Component 5: Text Reveal (`UiArcTextRevealView.kt`)**:
+   - Native translation of `https://uiarc.dev/r/text-reveal.json`.
+   - **Three-Track Motion**:
+     - Rise: `translateY(0.62em -> 0)` in 760ms (`DURATION_RISE_MS`) with `UiArcMotion.Ease.ENTER`.
+     - Fade: `opacity(0 -> 1)` in 440ms (`DURATION_FADE_MS`) with `UiArcMotion.Ease.STANDARD`.
+     - Focus: `blur(8px -> 0)` in 580ms (`DURATION_FOCUS_MS`) with `UiArcMotion.Ease.ENTER`.
+     - Stagger: `min(40ms, 480ms / count)` between words.
+   - **Word Clipping**: Each word is clipped to its individual line/word bounding window with soft bottom descent room.
+   - **Host Target**: Premium hero titles in `activity_premium.xml` (`tvPlanTitle`, `tvActiveTitle`) triggered upon receiving subscription/plan data in `PremiumActivity.kt`.
+   - **Reduced Motion**: Simple fast fade (160ms) without vertical displacement.
+
+---
+
+### Invariants Preserved
+- Total layout XML file count preserved at exactly 97.
+- Zero hardcoded `android:textSize` attributes across all layouts and Kotlin views.
+- Telegram circular Day/Night reveal and Lottie assets remain 100% untouched.
+- Server-authoritative test scoring, timers, rank, and answer hiding remain untouched.
+- Dialogs and bottom sheets remain solid surfaces.

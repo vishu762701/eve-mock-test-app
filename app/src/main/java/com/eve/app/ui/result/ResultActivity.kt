@@ -237,9 +237,9 @@ class ResultActivity : EveBaseActivity() {
         }
 
         // Section 1: Overview Breakdown Metrics
-        binding.tvCorrectCount.text = correct.toString()
-        binding.tvWrongCount.text = wrong.toString()
-        binding.tvUnattemptedCount.text = unattempted.toString()
+        binding.tvCorrectCount.setSlotValue(correct)
+        binding.tvWrongCount.setSlotValue(wrong)
+        binding.tvUnattemptedCount.setSlotValue(unattempted)
 
         val attempted = correct + wrong
         val accuracy = if (attempted > 0) (correct * 100.0 / attempted) else 0.0
@@ -705,11 +705,25 @@ class ResultActivity : EveBaseActivity() {
         lifecycleScope.launch {
             val canReattempt = com.eve.app.util.AttemptLimitManager.canAttempt(this@ResultActivity, examId)
             if (!canReattempt) {
-                MaterialAlertDialogBuilder(this@ResultActivity)
+                val limitDialog = MaterialAlertDialogBuilder(this@ResultActivity)
                     .setTitle("Attempt Limit Reached")
                     .setMessage("You have reached the maximum limit of 3 attempts for this test. Normal users can attempt each test at most 3 times.")
                     .setPositiveButton("OK", null)
-                    .show()
+                    .create()
+                limitDialog.setOnShowListener {
+                    val decorView = limitDialog.window?.decorView
+                    if (decorView != null) {
+                        com.eve.app.designsystem.UiArcMotion.animateDialogEntrance(decorView)
+                    }
+                    limitDialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setOnClickListener {
+                        if (decorView != null) {
+                            com.eve.app.designsystem.UiArcMotion.animateDialogExit(decorView) { limitDialog.dismiss() }
+                        } else {
+                            limitDialog.dismiss()
+                        }
+                    }
+                }
+                limitDialog.show()
                 return@launch
             }
 
@@ -721,9 +735,21 @@ class ResultActivity : EveBaseActivity() {
                 .create()
 
             dialog.setOnShowListener {
+                val decorView = dialog.window?.decorView
+                if (decorView != null) {
+                    com.eve.app.designsystem.UiArcMotion.animateDialogEntrance(decorView)
+                }
                 val confirmBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 val cancelBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
                 confirmBtn.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.system_red))
+
+                cancelBtn.setOnClickListener {
+                    if (decorView != null) {
+                        com.eve.app.designsystem.UiArcMotion.animateDialogExit(decorView) { dialog.dismiss() }
+                    } else {
+                        dialog.dismiss()
+                    }
+                }
 
                 confirmBtn.setOnClickListener {
                     confirmBtn.isEnabled = false
@@ -751,9 +777,17 @@ class ResultActivity : EveBaseActivity() {
                                     putExtra(Constants.EXTRA_EXAM_CATEGORY, category)
                                     putExtra(Constants.EXTRA_TIME_LIMIT, timeLimit)
                                 }
-                                dialog.dismiss()
-                                startActivity(testIntent)
-                                finish()
+                                if (decorView != null) {
+                                    com.eve.app.designsystem.UiArcMotion.animateDialogExit(decorView) {
+                                        dialog.dismiss()
+                                        startActivity(testIntent)
+                                        finish()
+                                    }
+                                } else {
+                                    dialog.dismiss()
+                                    startActivity(testIntent)
+                                    finish()
+                                }
                             } else {
                                 confirmBtn.isEnabled = true
                                 cancelBtn.isEnabled = true

@@ -36,21 +36,49 @@ object TargetExamsBottomSheet {
             isChecked = checked
             setCheckedIconResource(com.eve.app.R.drawable.ic_target_exam_checked)
             checkedIconTint = androidx.core.content.ContextCompat.getColorStateList(context, com.eve.app.R.color.on_accent)
-            isCheckedIconVisible = true
             com.eve.app.designsystem.DesignType.apply(this, com.eve.app.designsystem.DesignType.Role.CHIP)
             val density = resources.displayMetrics.density
             chipMinHeight = resources.getDimension(com.eve.app.R.dimen.design_pill_height)
             shapeAppearanceModel = shapeAppearanceModel.withCornerSize(com.google.android.material.shape.RelativeCornerSize(.5f))
-            chipStrokeWidth = 0f
-            chipBackgroundColor = androidx.core.content.ContextCompat.getColorStateList(context, com.eve.app.R.color.accent)
-            setTextColor(androidx.core.content.ContextCompat.getColor(context, com.eve.app.R.color.on_accent))
             chipStartPadding = resources.getDimension(com.eve.app.R.dimen.design_pill_padding)
             chipEndPadding = chipStartPadding
             setEnsureMinTouchTargetSize(true)
             maxWidth = (Math.round(minOf(resources.configuration.screenWidthDp, 640) * density) -
                 2 * resources.getDimensionPixelSize(com.eve.app.R.dimen.design_screen_margin)).coerceAtLeast(resources.getDimensionPixelSize(com.eve.app.R.dimen.design_touch_min))
             ellipsize = android.text.TextUtils.TruncateAt.END
+
+            applyChipVisualState(this, checked)
+
+            setOnCheckedChangeListener { chipView, isNowChecked ->
+                applyChipVisualState(this, isNowChecked)
+                if (UiArcMotion.isMotionEnabled(context)) {
+                    chipView.scaleX = 0.90f
+                    chipView.scaleY = 0.90f
+                    chipView.animate()
+                        .scaleX(1.0f)
+                        .scaleY(1.0f)
+                        .setDuration(UiArcMotion.Spring.SNAPPY.settlingDurationMs)
+                        .setInterpolator(UiArcMotion.Spring.SNAPPY)
+                        .start()
+                }
+            }
         }
+
+    fun applyChipVisualState(chip: Chip, isChecked: Boolean) {
+        val context = chip.context
+        if (isChecked) {
+            chip.chipBackgroundColor = androidx.core.content.ContextCompat.getColorStateList(context, com.eve.app.R.color.accent)
+            chip.setTextColor(androidx.core.content.ContextCompat.getColor(context, com.eve.app.R.color.on_accent))
+            chip.chipStrokeWidth = 0f
+            chip.isCheckedIconVisible = true
+        } else {
+            chip.chipBackgroundColor = androidx.core.content.ContextCompat.getColorStateList(context, com.eve.app.R.color.surface_inset)
+            chip.setTextColor(androidx.core.content.ContextCompat.getColor(context, com.eve.app.R.color.text_primary))
+            chip.chipStrokeWidth = chip.resources.displayMetrics.density
+            chip.chipStrokeColor = androidx.core.content.ContextCompat.getColorStateList(context, com.eve.app.R.color.card_border)
+            chip.isCheckedIconVisible = false
+        }
+    }
 
     fun show(
         activity: AppCompatActivity,

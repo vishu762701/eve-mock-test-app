@@ -140,17 +140,22 @@ class AdminActivity : EveBaseActivity() {
                         binding.scrollTabCreateExam.visibility = View.VISIBLE
                         binding.scrollTabManageQuestions.visibility = View.GONE
                         binding.scrollTabAdmins.visibility = View.GONE
+                        binding.statsBandUserManagement.cancelAllAnimations()
                     }
                     1 -> {
                         binding.scrollTabCreateExam.visibility = View.GONE
                         binding.scrollTabManageQuestions.visibility = View.VISIBLE
                         binding.scrollTabAdmins.visibility = View.GONE
+                        binding.statsBandUserManagement.cancelAllAnimations()
                         updateQuestionsUi(viewModel.questions.value)
                     }
                     2 -> {
                         binding.scrollTabCreateExam.visibility = View.GONE
                         binding.scrollTabManageQuestions.visibility = View.GONE
                         binding.scrollTabAdmins.visibility = View.VISIBLE
+                        binding.statsBandUserManagement.post {
+                            binding.statsBandUserManagement.checkInView()
+                        }
                     }
                 }
             }

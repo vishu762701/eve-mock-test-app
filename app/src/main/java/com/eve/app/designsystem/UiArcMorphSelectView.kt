@@ -19,7 +19,9 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.widget.TextViewCompat
 import com.eve.app.R
+import com.eve.app.util.FontManager
 
 /**
  * UIArc Morph Select Component.
@@ -32,8 +34,9 @@ import com.eve.app.R
  * - Active-option highlighting: glides between options with GLIDE spring (380ms)
  * - Selection: lifted label travels with FLY spring (400ms), surface collapses with SHRINK (450ms)
  * - Directional roll: +0.5em / -0.45em with Ease.ENTER
- * - Stable ID entity mapping: selects by stable entity ID, immune to filtered list reordering
+ * - Stable ID entity mapping: selects strictly by stable entity ID, immune to filtered list reordering
  * - Chevron rotates 180° on open
+ * - Official Inter typography and accessible validation error display
  * - Instant jump with reduced motion
  */
 class UiArcMorphSelectView @JvmOverloads constructor(
@@ -70,6 +73,7 @@ class UiArcMorphSelectView @JvmOverloads constructor(
     private val ivTriggerIcon: ImageView
     private val tvTriggerLabel: TextView
     private val ivChevron: ImageView
+    private val tvError: TextView
 
     // Options dropdown container
     private val optionsPanel: LinearLayout
@@ -126,9 +130,9 @@ class UiArcMorphSelectView @JvmOverloads constructor(
                 marginEnd = Math.round(8f * density)
             }
             text = "Select Exam"
-            textSize = 15f
+            TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Token_Subheadline)
             setTextColor(ContextCompat.getColor(context, R.color.text_primary))
-            typeface = android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL)
+            typeface = FontManager.mediumTypeface(context)
         }
 
         ivChevron = ImageView(context).apply {
@@ -141,6 +145,19 @@ class UiArcMorphSelectView @JvmOverloads constructor(
         triggerCard.addView(tvTriggerLabel)
         triggerCard.addView(ivChevron)
         addView(triggerCard)
+
+        // Error message text view
+        tvError = TextView(context).apply {
+            layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply {
+                topMargin = Math.round(4f * density)
+                marginStart = Math.round(4f * density)
+            }
+            TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Token_Secondary)
+            setTextColor(ContextCompat.getColor(context, R.color.system_red))
+            typeface = FontManager.typeface(context, bold = false)
+            visibility = GONE
+        }
+        addView(tvError)
 
         // Options panel container
         optionsPanel = LinearLayout(context).apply {
@@ -164,7 +181,8 @@ class UiArcMorphSelectView @JvmOverloads constructor(
                 setMargins(m, m, m, m)
             }
             hint = "Search exams..."
-            textSize = 13f
+            TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Token_Secondary)
+            typeface = FontManager.typeface(context, bold = false)
             setPadding(Math.round(10f * density), 0, Math.round(10f * density), 0)
             setBackgroundColor(Color.TRANSPARENT)
             setTextColor(ContextCompat.getColor(context, R.color.text_primary))
@@ -210,6 +228,29 @@ class UiArcMorphSelectView @JvmOverloads constructor(
         optionsScrollView.addView(optionsContainer)
         optionsPanel.addView(optionsScrollView)
         addView(optionsPanel)
+    }
+
+    fun setError(error: CharSequence?) {
+        if (error.isNullOrBlank()) {
+            tvError.visibility = GONE
+            tvError.text = ""
+            triggerCard.background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = CLOSED_RADIUS_DP * density
+                setColor(ContextCompat.getColor(context, R.color.surface))
+                setStroke(Math.round(1f * density), ContextCompat.getColor(context, R.color.hairline))
+            }
+        } else {
+            tvError.text = error
+            tvError.visibility = VISIBLE
+            triggerCard.background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = CLOSED_RADIUS_DP * density
+                setColor(ContextCompat.getColor(context, R.color.surface))
+                setStroke(Math.round(1.5f * density), ContextCompat.getColor(context, R.color.system_red))
+            }
+            announceForAccessibility(error)
+        }
     }
 
     fun setOptions(items: List<Option>, selectedId: String? = null) {
@@ -261,9 +302,9 @@ class UiArcMorphSelectView @JvmOverloads constructor(
             val tvLabel = TextView(context).apply {
                 layoutParams = LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f)
                 text = option.label
-                textSize = 14f
+                TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Token_Body)
                 setTextColor(ContextCompat.getColor(context, R.color.text_primary))
-                typeface = android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.NORMAL)
+                typeface = FontManager.typeface(context, bold = false)
             }
             itemView.addView(tvLabel)
 
@@ -271,8 +312,9 @@ class UiArcMorphSelectView @JvmOverloads constructor(
                 val tvMeta = TextView(context).apply {
                     layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
                     text = option.meta
-                    textSize = 12f
+                    TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Token_Secondary)
                     setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
+                    typeface = FontManager.typeface(context, bold = false)
                 }
                 itemView.addView(tvMeta)
             }
@@ -295,6 +337,7 @@ class UiArcMorphSelectView @JvmOverloads constructor(
     fun selectOption(option: Option) {
         setSelectionInternal(option)
         glideHighlightTo(option)
+        setError(null)
         // Resolves selection strictly by stable option ID
         onOptionSelectedListener?.invoke(option)
         close()
@@ -305,6 +348,7 @@ class UiArcMorphSelectView @JvmOverloads constructor(
         tvTriggerLabel.text = "Select Exam"
         ivTriggerIcon.visibility = GONE
         highlightPill.alpha = 0f
+        setError(null)
     }
 
     fun toggle() {

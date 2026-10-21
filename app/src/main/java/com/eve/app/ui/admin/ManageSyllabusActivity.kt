@@ -101,41 +101,18 @@ class ManageSyllabusActivity : EveBaseActivity() {
             selectedPdfUri = null
             selectedPdfName = ""
             selectedPdfBytes = null
-            if (UiArcMotion.isMotionEnabled(this)) {
-                binding.layoutSelectedPdf.animate()
-                    .alpha(0f)
-                    .translationY(-8f * resources.displayMetrics.density)
-                    .setDuration(160L)
-                    .setInterpolator(UiArcMotion.Ease.STANDARD)
-                    .withEndAction {
-                        binding.layoutSelectedPdf.visibility = View.GONE
-                        binding.btnChoosePdf.visibility = View.VISIBLE
-                        binding.btnChoosePdf.alpha = 0f
-                        binding.btnChoosePdf.scaleX = 0.96f
-                        binding.btnChoosePdf.scaleY = 0.96f
-                        binding.btnChoosePdf.animate()
-                            .alpha(1f)
-                            .scaleX(1f)
-                            .scaleY(1f)
-                            .setDuration(240L)
-                            .setInterpolator(UiArcMotion.Ease.ENTER)
-                            .start()
-                    }
-                    .start()
-            } else {
-                binding.layoutSelectedPdf.visibility = View.GONE
-                binding.btnChoosePdf.visibility = View.VISIBLE
-                binding.btnChoosePdf.alpha = 1f
-            }
+            binding.fileUploadView.clearSelectedFile()
         }
 
         binding.btnUploadSyllabus.setOnClickListener {
             val exam = selectedExamForNewSyllabus
             if (exam == null) {
+                binding.morphSelectExam.setError("Please select an exam first")
                 binding.tilSelectExam.error = "Please select an exam first"
                 AppBulletin.showError(this, "Please select an exam first")
                 return@setOnClickListener
             }
+            binding.morphSelectExam.setError(null)
             binding.tilSelectExam.error = null
 
             val bytes = selectedPdfBytes
@@ -147,32 +124,14 @@ class ManageSyllabusActivity : EveBaseActivity() {
 
             binding.progressBarUpload.visibility = View.VISIBLE
             binding.btnUploadSyllabus.isEnabled = false
+            binding.fileUploadView.setUploading()
 
             lifecycleScope.launch {
                 try {
                     examRepo.uploadSyllabusPdf(exam.id, fileName, bytes)
                     binding.progressBarUpload.visibility = View.GONE
                     binding.btnUploadSyllabus.isEnabled = true
-
-                    if (UiArcMotion.isMotionEnabled(this@ManageSyllabusActivity)) {
-                        binding.ivUploadCheckDone.visibility = View.VISIBLE
-                        binding.ivUploadCheckDone.scaleX = 0.6f
-                        binding.ivUploadCheckDone.scaleY = 0.6f
-                        binding.ivUploadCheckDone.alpha = 0f
-                        binding.ivUploadCheckDone.animate()
-                            .scaleX(1f)
-                            .scaleY(1f)
-                            .alpha(1f)
-                            .setDuration(240L)
-                            .setStartDelay(80L)
-                            .setInterpolator(UiArcMotion.Ease.ENTER)
-                            .withEndAction {
-                                resetSyllabusUploadForm()
-                                AppBulletin.showSuccess(this@ManageSyllabusActivity, "Syllabus uploaded and linked to ${exam.examName}")
-                                loadExamsAndSyllabuses()
-                            }
-                            .start()
-                    } else {
+                    binding.fileUploadView.setUploadSuccess {
                         resetSyllabusUploadForm()
                         AppBulletin.showSuccess(this@ManageSyllabusActivity, "Syllabus uploaded and linked to ${exam.examName}")
                         loadExamsAndSyllabuses()
@@ -180,6 +139,7 @@ class ManageSyllabusActivity : EveBaseActivity() {
                 } catch (e: Exception) {
                     binding.progressBarUpload.visibility = View.GONE
                     binding.btnUploadSyllabus.isEnabled = true
+                    binding.fileUploadView.setUploadFailed()
                     AppBulletin.showError(this@ManageSyllabusActivity, "Upload failed: ${e.localizedMessage}")
                 }
             }
@@ -190,14 +150,10 @@ class ManageSyllabusActivity : EveBaseActivity() {
         selectedPdfUri = null
         selectedPdfName = ""
         selectedPdfBytes = null
-        binding.ivUploadCheckDone.visibility = View.GONE
-        binding.layoutSelectedPdf.visibility = View.GONE
-        binding.btnChoosePdf.visibility = View.VISIBLE
-        binding.btnChoosePdf.alpha = 1f
-        binding.btnChoosePdf.scaleX = 1f
-        binding.btnChoosePdf.scaleY = 1f
+        binding.fileUploadView.reset()
         binding.actvSelectExam.setText("", false)
         binding.morphSelectExam.clearSelection()
+        binding.morphSelectExam.setError(null)
         selectedExamForNewSyllabus = null
     }
 
@@ -234,6 +190,7 @@ class ManageSyllabusActivity : EveBaseActivity() {
         binding.morphSelectExam.setOptions(morphOptions, selectedExamForNewSyllabus?.id)
         binding.morphSelectExam.onOptionSelectedListener = { opt ->
             selectedExamForNewSyllabus = allExams.find { it.id == opt.id }
+            binding.morphSelectExam.setError(null)
             binding.tilSelectExam.error = null
             binding.actvSelectExam.setText(opt.label, false)
         }
@@ -247,7 +204,8 @@ class ManageSyllabusActivity : EveBaseActivity() {
             selectedExamForNewSyllabus = allExams.firstOrNull { exam ->
                 val itemStr = "${exam.examName} (${exam.categoryOrOther})"
                 itemStr == selectedText || exam.examName == selectedText
-            } ?: allExams.getOrNull(position)
+            }
+            binding.morphSelectExam.setError(null)
             binding.tilSelectExam.error = null
             selectedExamForNewSyllabus?.let { exam ->
                 binding.morphSelectExam.setOptions(morphOptions, exam.id)
@@ -298,36 +256,7 @@ class ManageSyllabusActivity : EveBaseActivity() {
             selectedPdfName = displayName
             selectedPdfBytes = bytes
 
-            binding.tvNewPdfName.text = displayName
-            binding.tvNewPdfSize.text = "${UiArcFileUploadView.formatSize(bytes.size.toLong())} · Ready"
-            binding.ivUploadCheckDone.visibility = View.GONE
-
-            if (UiArcMotion.isMotionEnabled(this)) {
-                binding.btnChoosePdf.animate()
-                    .alpha(0f)
-                    .scaleX(0.96f)
-                    .scaleY(0.96f)
-                    .setDuration(160L)
-                    .setInterpolator(UiArcMotion.Ease.STANDARD)
-                    .withEndAction {
-                        binding.btnChoosePdf.visibility = View.GONE
-                        binding.layoutSelectedPdf.visibility = View.VISIBLE
-                        binding.layoutSelectedPdf.alpha = 0f
-                        binding.layoutSelectedPdf.translationY = 8f * resources.displayMetrics.density
-                        binding.layoutSelectedPdf.animate()
-                            .alpha(1f)
-                            .translationY(0f)
-                            .setDuration(240L)
-                            .setInterpolator(UiArcMotion.Ease.ENTER)
-                            .start()
-                    }
-                    .start()
-            } else {
-                binding.btnChoosePdf.visibility = View.GONE
-                binding.layoutSelectedPdf.visibility = View.VISIBLE
-                binding.layoutSelectedPdf.alpha = 1f
-                binding.layoutSelectedPdf.translationY = 0f
-            }
+            binding.fileUploadView.bindSelectedFile(displayName, bytes.size.toLong())
         } catch (e: Exception) {
             AppBulletin.showError(this, "Failed to read PDF file: ${e.localizedMessage}")
         }

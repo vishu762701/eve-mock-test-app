@@ -52,7 +52,14 @@ class PracticeActivity : EveBaseActivity() {
             is UiState.Success -> {
                 binding.progress.visibility = View.GONE
                 exams = state.data
+                val prevSelectedId = selectedExam?.id
                 binding.spExam.adapter = ArrayAdapter(this, com.eve.app.R.layout.item_exam_dropdown, exams.map { it.examName })
+                if (prevSelectedId != null) {
+                    val newIndex = exams.indexOfFirst { it.id == prevSelectedId }
+                    if (newIndex >= 0) {
+                        binding.spExam.setSelection(newIndex)
+                    }
+                }
                 binding.tvMessage.visibility = if (exams.isEmpty()) View.VISIBLE else View.GONE
                 if (exams.isEmpty()) binding.tvMessage.text = "No exams are currently available for practice."
             }

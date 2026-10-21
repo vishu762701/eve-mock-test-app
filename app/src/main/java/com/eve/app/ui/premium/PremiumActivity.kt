@@ -86,6 +86,7 @@ class PremiumActivity : EveBaseActivity() {
             // User is already Premium
             binding.layoutNotPremium.visibility = View.GONE
             binding.layoutPremiumActive.visibility = View.VISIBLE
+            binding.tvActiveTitle.revealText("Premium Active")
 
             if (status.isLifetime) {
                 binding.tvActiveExpiry.text = "Lifetime Premium Active"
@@ -100,7 +101,7 @@ class PremiumActivity : EveBaseActivity() {
             binding.layoutNotPremium.visibility = View.VISIBLE
             binding.layoutPremiumActive.visibility = View.GONE
 
-            binding.tvPlanTitle.text = plan.planName.ifBlank { "EVE Premium" }
+            binding.tvPlanTitle.revealText(plan.planName.ifBlank { "EVE Premium" })
             if (plan.description.isNotBlank()) {
                 binding.tvPlanDescription.text = plan.description
             }
