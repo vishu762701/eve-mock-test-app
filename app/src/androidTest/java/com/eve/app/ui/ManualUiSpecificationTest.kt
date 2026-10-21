@@ -53,6 +53,10 @@ class ManualUiSpecificationTest {
                     val chip = group.getChildAt(0)
                     val density = group.resources.displayMetrics.density
                     assertTrue(chip.isAttachedToWindow)
+                    // Native attached screenshots revealed oversize artwork outside the bell.
+                    // Its immediate host clips stray Lottie pixels without altering the animation.
+                    assertTrue("Notification animation must not escape its 48dp icon host",
+                        (home.btnNotification.parent as ViewGroup).clipChildren)
                     assertTrue(group.height >= Math.round(48f * density))
                     assertTrue("Event must be outside the visible pill", chip.top > 1f)
                     val x = (chip.left + chip.right) / 2f
