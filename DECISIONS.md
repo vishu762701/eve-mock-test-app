@@ -1458,3 +1458,63 @@ Following the successful completion of Batch 01 (ADR-022) and Batch 02 (ADR-023)
    - Telegram circular reveal Day/Night animation, ThemeSwitchAnimator, and ThemeManager remain 100% protected.
    - All Lottie assets, playback timing, and triggers remain 100% protected.
    - All SVG icon vectors, test colors, and backend security/scoring invariants remain invariant.
+
+## ADR-025: App-Wide Apple iOS 26 Official Typography Migration (Canonical 11 Styles, Line Heights, Weights, and Inter Open-Source Font Family)
+
+- **Date**: 2026-10-21
+- **Status**: Accepted
+- **Author**: Principal Android Engineer, Apple HIG Typography Specialist, Accessibility Engineer
+
+### Context
+The application had inconsistent typography definitions resulting from fragmented design phases. The latest user instruction authorizes an app-wide typography migration implementing Apple's official iOS 26 Human Interface Guidelines typography scale across the entire application, while superseding older Poppins-only choices without modifying unrelated visuals, colors, geometry, or backend scoring.
+
+### Official Documentation References
+- Apple Human Interface Guidelines - Typography: https://developer.apple.com/design/human-interface-guidelines/typography
+- Apple Developer - System Font APIs (UIFont.TextStyle): https://developer.apple.com/documentation/uikit/uifont/textstyle
+- SIL Open Font License 1.1: https://scripts.sil.org/OFL
+- Rasmus Andersson / Inter: https://rsms.me/inter/
+
+### Decisions
+1. **Font Family & Legal Licensing**:
+   - Proprietary Apple SF Pro binaries must not be bundled without explicit embedding rights.
+   - Migrated from legacy Poppins to official Inter v4.1 (SIL OFL 1.1).
+   - Bundled authentic weight binaries in `res/font/`:
+     - `inter_regular.ttf` (weight 400)
+     - `inter_medium.ttf` (weight 500)
+     - `inter_semibold.ttf` (weight 600)
+     - `inter_bold.ttf` (weight 700)
+     - `inter_variable.ttf` (variable axis font)
+   - Declared unified font family XML in `app/src/main/res/font/inter.xml`.
+   - Included full license at `app/src/main/assets/licenses/Inter-OFL.txt` and attributed in `THIRD_PARTY_NOTICES.md`.
+   - Rewrote `FontManager.kt` to load Inter typefaces with automatic fallback to system sans-serif for Hindi/Devanagari scripts.
+
+2. **Official Apple iOS 26 Typography Scale (All 11 Canonical Styles)**:
+   - Defined canonical dimension tokens in `design_dimens.xml` (synchronized across `values`, `values-sw360dp`, and `values-sw600dp`):
+     - Large Title: 34sp / 41sp line height (Regular 400 / Bold 700)
+     - Title 1: 28sp / 34sp line height (Regular 400 / Bold 700)
+     - Title 2: 22sp / 28sp line height (Regular 400 / Bold 700)
+     - Title 3: 20sp / 25sp line height (Regular 400 / Semibold 600)
+     - Headline: 17sp / 22sp line height (Semibold 600 / Semibold 600)
+     - Body: 17sp / 22sp line height (Regular 400 / Semibold 600)
+     - Callout: 16sp / 21sp line height (Regular 400 / Semibold 600)
+     - Subheadline: 15sp / 20sp line height (Regular 400 / Semibold 600)
+     - Footnote: 13sp / 18sp line height (Regular 400 / Semibold 600)
+     - Caption 1: 12sp / 16sp line height (Regular 400 / Semibold 600)
+     - Caption 2: 11sp / 13sp line height (Regular 400 / Semibold 600)
+
+3. **Style & Token Declarations in `design_type.xml`**:
+   - Declared both Standard and `.Emphasized` styles for all 11 canonical styles parented to Material 3 base appearances.
+   - Re-aliased component-specific styles (`NavigationTitle`, `DialogTitle`, `DialogMessage`, `CardHeading`, `Badge`, `Timer`, `HeroScore`, `MetricValue`, `ChartLabel`).
+   - Retained token styles (`TextAppearance.Eve.Token.*`) pointing to Inter font weights.
+   - Updated Material 3 `Theme.Eve` text appearances to bind to official iOS 26 typography styles.
+
+4. **Codebase & Helper Adaptation**:
+   - Updated `DesignType.kt` enum with all 11 canonical styles and emphasized variants.
+   - Added `applyAppleTypography(textView, style, emphasized)` programmatic helper with line spacing computation.
+   - Normalized `scripts/design_check.py` to recognize AAPT dot-to-underscore style definitions and verify bundled Inter family.
+
+5. **Invariants Preserved**:
+   - Zero visual regressions to colors, geometry, borders, or elevation.
+   - Telegram circular reveal Day/Night transition completely preserved.
+   - Lottie animations and triggers completely preserved.
+   - Server-authoritative test scoring, timer, and ranking completely preserved.

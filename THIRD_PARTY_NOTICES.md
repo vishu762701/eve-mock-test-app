@@ -12,13 +12,13 @@ This repository contains third-party components and assets. Keep license obligat
 
 Old Telegram premium GL renderer classes, models, textures and shaders were deleted during the approved UI design reset. They are **not** current bundled runtime assets; see `docs/design-reset/deleted-files.md` for the removal inventory. Retain these historical attributions for provenance rather than implying those files still ship.
 
-## Poppins
+## Inter (Official iOS 26 Typography Approximation)
 
-- Source: https://github.com/google/fonts/tree/main/ofl/poppins
-- Copyright 2020 The Poppins Project Authors (https://github.com/itfoundry/Poppins).
+- Source: https://rsms.me/inter/ and https://github.com/rsms/inter
+- Copyright (c) 2016-2026 The Inter Project Authors (Rasmus Andersson).
 - License: SIL Open Font License 1.1; full notice distributed in
-  `app/src/main/assets/licenses/Poppins-OFL.txt`.
-- Bundled, unmodified font binaries: Poppins Regular 400, Medium 500, Bold 700.
+  `app/src/main/assets/licenses/Inter-OFL.txt`.
+- Bundled, unmodified font binaries: Inter Regular 400, Medium 500, SemiBold 600, Bold 700, and InterVariable.
 
 > This Font Software is licensed under the SIL Open Font License, Version 1.1.
 

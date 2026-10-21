@@ -86,7 +86,7 @@ class LockedComponentsTest {
                         sheet.context, com.google.android.material.R.attr.colorPrimary))
                 val modalFont = android.util.TypedValue()
                 assertTrue(sheet.context.theme.resolveAttribute(android.R.attr.fontFamily, modalFont, true))
-                assertEquals(R.font.poppins, modalFont.resourceId)
+                assertEquals(R.font.inter, modalFont.resourceId)
                 sheet.dismiss()
                 val toggle = DesignSwitch(context)
                 toggle.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)

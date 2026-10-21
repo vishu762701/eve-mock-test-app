@@ -13,16 +13,16 @@ class FontManagerTest {
         .first { it.isDirectory }
 
     @Test
-    fun bundledPoppinsHasTheThreeLockedWeights() {
-        for ((name, weight) in listOf("regular" to 400, "medium" to 500, "bold" to 700)) {
-            val bytes = File(mainDir(), "res/font/poppins_$name.ttf").readBytes()
+    fun bundledInterHasTheFourLockedWeights() {
+        for ((name, weight) in listOf("regular" to 400, "medium" to 500, "semibold" to 600, "bold" to 700)) {
+            val bytes = File(mainDir(), "res/font/inter_$name.ttf").readBytes()
             val font = ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN)
             assertEquals("TrueType sfnt version", 0x00010000, font.getInt(0))
             val tableCount = font.getShort(4).toInt() and 0xffff
             val os2 = (0 until tableCount).map { 12 + it * 16 }
                 .first { String(bytes, it, 4, Charsets.US_ASCII) == "OS/2" }
             val tableOffset = font.getInt(os2 + 8)
-            assertEquals("Poppins $name weight", weight, font.getShort(tableOffset + 4).toInt() and 0xffff)
+            assertEquals("Inter $name weight", weight, font.getShort(tableOffset + 4).toInt() and 0xffff)
             val names = (0 until tableCount).map { 12 + it * 16 }
                 .first { String(bytes, it, 4, Charsets.US_ASCII) == "name" }
             val nameOffset = font.getInt(names + 8)
@@ -36,14 +36,20 @@ class FontManagerTest {
                     val offset = strings + (font.getShort(it + 10).toInt() and 0xffff)
                     String(bytes, offset, length, if (platform == 0 || platform == 3) Charsets.UTF_16BE else Charsets.ISO_8859_1)
                 }
-            assertTrue("Font identifies Poppins", families.contains("Poppins"))
+            assertTrue("Font identifies Inter", families.any { it.contains("Inter") })
         }
     }
 
     @Test
+    fun bundledInterVariableFontExists() {
+        val varFont = File(mainDir(), "res/font/inter_variable.ttf")
+        assertTrue("Inter variable font exists", varFont.isFile && varFont.length() > 100000)
+    }
+
+    @Test
     fun licenseShipsWithTheFonts() {
-        val license = File(mainDir(), "assets/licenses/Poppins-OFL.txt").readText()
-        assertTrue(license.contains("Copyright 2020 The Poppins Project Authors"))
+        val license = File(mainDir(), "assets/licenses/Inter-OFL.txt").readText()
+        assertTrue(license.contains("The Inter Project Authors"))
         assertTrue(license.contains("SIL OPEN FONT LICENSE Version 1.1"))
     }
 }

@@ -129,7 +129,7 @@ class HomeTypographyTest {
             assertNotNull(style)
             assertEquals("@dimen/design_type_$token", style?.textSize)
             assertEquals("@dimen/design_line_$token", style?.lineHeight)
-            assertEquals("@font/poppins_$font", style?.fontFamily)
+            assertEquals("@font/inter_$font", style?.fontFamily)
         }
     }
 
@@ -143,9 +143,9 @@ class HomeTypographyTest {
             assertNotNull(style)
             assertEquals("@dimen/design_type_$token", style?.textSize)
             assertEquals("@dimen/design_line_$token", style?.lineHeight)
-            assertEquals("@font/poppins_$font", style?.fontFamily)
+            assertEquals("@font/inter_$font", style?.fontFamily)
         }
-        assertEquals("@font/poppins_bold", styles["TextAppearance.Eve.Token.Tab.Selected"]?.fontFamily)
+        assertEquals("@font/inter_bold", styles["TextAppearance.Eve.Token.Tab.Selected"]?.fontFamily)
     }
 
     @Test

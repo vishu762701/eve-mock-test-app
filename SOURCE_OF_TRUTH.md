@@ -14,12 +14,13 @@
 The owner's current root design-reset specification is the default baseline,
 superseding historical UI numeric requirements, earlier palettes and retired font choices.
 Later explicit owner-approved UI changes take precedence within their stated scope.
-Use the exact light/dark palette, bundled Poppins 400/500/700, 26dp solid cards,
+Use the exact light/dark palette, bundled Inter (SIL OFL 1.1) 400/500/600/700
+and variable font support for official iOS 26 typography (11 canonical styles), 26dp solid cards,
 sheets and dialogs, capsule controls, 12dp screen margins, 10dp card padding,
 and 9dp native card elevation. Glass is allowed only on top bars, bottom bars
 and menus (14dp backdrop blur; 55% tint or 94% fallback). No list dividers.
-The device-font preference is explicitly retired by the owner; Poppins is the
-single font. The Telegram theme-toggle animation/behavior and its resources
+The device-font preference is explicitly retired by the owner; Inter is the
+single font family with system fallback for Hindi/Devanagari scripts. The Telegram theme-toggle animation/behavior and its resources
 remain protected. Existing Lottie motion, timing, assets and triggers are also
 retained under the owner's later preservation instruction. UI migration must preserve business logic, data, navigation
 flow, and all other features. Token resources are in `design_*.xml`.

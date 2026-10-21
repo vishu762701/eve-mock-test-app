@@ -111,14 +111,14 @@ class EveDesignSystemTest {
         }
     }
 
-    @Test fun poppinsUsesBundledLockedWeightsAndLicense() {
-        for (name in listOf("regular", "medium", "bold")) {
-            val font = File(getProjectDir(), "app/src/main/res/font/poppins_$name.ttf")
-            assertTrue("Bundled Poppins $name", font.isFile && font.length() > 10000)
+    @Test fun interUsesBundledLockedWeightsAndLicense() {
+        for (name in listOf("regular", "medium", "semibold", "bold", "variable")) {
+            val font = File(getProjectDir(), "app/src/main/res/font/inter_$name.ttf")
+            assertTrue("Bundled Inter $name", font.isFile && font.length() > 10000)
         }
-        val family = loadXml("src/main/res/font/poppins.xml").getElementsByTagName("font")
-        assertEquals(listOf("400", "500", "700"), (0 until family.length).map { (family.item(it) as Element).getAttribute("app:fontWeight") })
-        assertTrue(File(getProjectDir(), "app/src/main/assets/licenses/Poppins-OFL.txt").readText().contains("SIL OPEN FONT LICENSE"))
+        val family = loadXml("src/main/res/font/inter.xml").getElementsByTagName("font")
+        assertEquals(listOf("400", "500", "600", "700"), (0 until family.length).map { (family.item(it) as Element).getAttribute("app:fontWeight") })
+        assertTrue(File(getProjectDir(), "app/src/main/assets/licenses/Inter-OFL.txt").readText().contains("SIL OPEN FONT LICENSE"))
     }
 
     @Test

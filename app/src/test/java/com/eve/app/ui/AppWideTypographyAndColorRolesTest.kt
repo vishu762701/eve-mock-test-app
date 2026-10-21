@@ -167,9 +167,9 @@ class AppWideTypographyAndColorRolesTest {
 
     @Test
     fun testApi28TextFontWeightsDefinedInValuesV28TypeXml() {
-        val family = File(getValuesFile("design_type.xml").parentFile.parentFile, "font/poppins.xml")
+        val family = File(getValuesFile("design_type.xml").parentFile.parentFile, "font/inter.xml")
         val fonts = loadXml(family).getElementsByTagName("font")
-        assertEquals(listOf("400", "500", "700"), (0 until fonts.length).map { (fonts.item(it) as Element).getAttribute("app:fontWeight") })
+        assertEquals(listOf("400", "500", "600", "700"), (0 until fonts.length).map { (fonts.item(it) as Element).getAttribute("app:fontWeight") })
     }
 
     @Test

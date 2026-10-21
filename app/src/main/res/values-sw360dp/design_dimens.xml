@@ -37,12 +37,36 @@
     <dimen name="design_hairline_width">0.5dp</dimen>
     <dimen name="design_focus_stroke">1.5dp</dimen>
     <dimen name="design_icon_stroke">2.75dp</dimen>
+
+    <!-- Official Apple iOS 26 Canonical Dynamic Type Scale -->
+    <dimen name="design_type_large_title">34sp</dimen>
+    <dimen name="design_line_large_title">41sp</dimen>
+    <dimen name="design_type_title1">28sp</dimen>
+    <dimen name="design_line_title1">34sp</dimen>
+    <dimen name="design_type_title2">22sp</dimen>
+    <dimen name="design_line_title2">28sp</dimen>
+    <dimen name="design_type_title3">20sp</dimen>
+    <dimen name="design_line_title3">25sp</dimen>
+    <dimen name="design_type_headline">17sp</dimen>
+    <dimen name="design_line_headline">22sp</dimen>
+    <dimen name="design_type_body">17sp</dimen>
+    <dimen name="design_line_body">22sp</dimen>
+    <dimen name="design_type_callout">16sp</dimen>
+    <dimen name="design_line_callout">21sp</dimen>
+    <dimen name="design_type_subheadline">15sp</dimen>
+    <dimen name="design_line_subheadline">20sp</dimen>
+    <dimen name="design_type_footnote">13sp</dimen>
+    <dimen name="design_line_footnote">18sp</dimen>
+    <dimen name="design_type_caption1">12sp</dimen>
+    <dimen name="design_line_caption1">16sp</dimen>
+    <dimen name="design_type_caption2">11sp</dimen>
+    <dimen name="design_line_caption2">13sp</dimen>
+
+    <!-- Unified Token Dimension Bridges -->
     <dimen name="design_type_title">28sp</dimen>
     <dimen name="design_line_title">34sp</dimen>
     <dimen name="design_type_heading">17sp</dimen>
-    <dimen name="design_line_heading">24sp</dimen>
-    <dimen name="design_type_body">17sp</dimen>
-    <dimen name="design_line_body">24sp</dimen>
+    <dimen name="design_line_heading">22sp</dimen>
     <dimen name="design_type_secondary">14sp</dimen>
     <dimen name="design_line_secondary">20sp</dimen>
     <dimen name="design_type_tab">14sp</dimen>
@@ -51,6 +75,7 @@
     <dimen name="design_line_chip">20sp</dimen>
     <dimen name="design_type_button">16sp</dimen>
     <dimen name="design_line_button">22sp</dimen>
+
     <dimen name="design_button_touch_inset">2dp</dimen>
     <dimen name="design_scroll_clearance">76dp</dimen>
     <dimen name="design_row_with_gap">50dp</dimen>

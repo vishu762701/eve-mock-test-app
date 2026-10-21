@@ -97,6 +97,8 @@ for p in RES.rglob('*'):
             if name:
                 kind = node.get('type') if node.tag == 'item' else node.tag
                 defined.add((kind, name))
+                if '.' in name:
+                    defined.add((kind, name.replace('.', '_')))
     elif folder != 'values':
         defined.add((folder, p.name.split('.')[0]))
 proof = json.loads((ROOT/'docs/design-reset/cleanup-evidence.json').read_text())
@@ -104,7 +106,7 @@ deleted = set()
 for group in proof['resource-deletion']:
     for item in group['resources']:
         kind, name = item['resource'].split('.', 1)
-        if (kind, name) not in defined:
+        if (kind, name) not in defined and (kind, name.replace('_', '.')) not in defined:
             deleted.add((kind, name))
 for p, text in texts.items():
     refs = set(re.findall(r'@(?:\+)?([a-z_]+)/([\w.]+)', text))
@@ -128,8 +130,8 @@ for qualifier in ('values-sw360dp', 'values-sw600dp'):
     if dims != base_dims:
         errors.append(qualifier + ': size tokens differ from locked defaults')
 font_files = {p.name for p in (RES/'font').iterdir()}
-if font_files != {'poppins.xml', 'poppins_regular.ttf', 'poppins_medium.ttf', 'poppins_bold.ttf'}:
-    errors.append('font inventory differs from bundled Poppins 400/500/700 family')
+if font_files != {'inter.xml', 'inter_regular.ttf', 'inter_medium.ttf', 'inter_semibold.ttf', 'inter_bold.ttf', 'inter_variable.ttf'}:
+    errors.append('font inventory differs from bundled Inter family')
 # Verify the exceptions against actual baseline bytes; do not hide modifications.
 baseline = json.loads((ROOT/'docs/design-reset/baseline-sha256.json').read_text())
 unchanged = [p for p in protected if p.name != 'TelegramMenuPopup.kt']
