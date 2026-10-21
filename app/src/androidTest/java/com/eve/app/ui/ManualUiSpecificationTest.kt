@@ -33,8 +33,17 @@ class ManualUiSpecificationTest {
     @androidx.test.filters.SdkSuppress(minSdkVersion = 29)
     @Test fun expandedCategoryTouchRegionsActivatePillsInBothThemes() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
-        androidx.test.core.app.ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+        val originalMode = androidx.appcompat.app.AppCompatDelegate.getDefaultNightMode()
+        try {
             for (night in listOf(Configuration.UI_MODE_NIGHT_NO, Configuration.UI_MODE_NIGHT_YES)) {
+                instrumentation.runOnMainSync {
+                    androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(
+                        if (night == Configuration.UI_MODE_NIGHT_YES)
+                            androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
+                        else androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
+                    )
+                }
+                androidx.test.core.app.ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
                 val clicked = java.util.concurrent.atomic.AtomicBoolean(false)
                 lateinit var home: ActivityMainBinding
                 scenario.onActivity { activity ->
@@ -49,6 +58,9 @@ class ManualUiSpecificationTest {
                 }
                 instrumentation.waitForIdleSync()
                 scenario.onActivity {
+                    val actualNight = it.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+                    assertEquals("Attached screenshot must use the activity's REAL system-bar theme",
+                        night, actualNight)
                     val group = home.chipGroupCategory
                     val chip = group.getChildAt(0)
                     val density = group.resources.displayMetrics.density
@@ -109,6 +121,11 @@ class ManualUiSpecificationTest {
                         assertTrue("Category label must visibly render in theme $night (inkPixels=$inkPixels, bounds=$bounds)", inkPixels >= 10)
                     } finally { bitmap.recycle() }
                 }
+                }
+            }
+        } finally {
+            instrumentation.runOnMainSync {
+                androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(originalMode)
             }
         }
     }
