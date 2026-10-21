@@ -310,7 +310,7 @@ class MainActivity : EveBaseActivity() {
 
         com.eve.app.designsystem.DesignPress.bind(binding.ivProfile) {
             prepareDrawerSurface()
-            binding.drawerLayout.openDrawer(GravityCompat.START)
+            binding.drawerLayout.openDrawer(GravityCompat.START, UiArcMotion.isMotionEnabled(this))
         }
         loadProfilePhoto(user)
 
@@ -344,7 +344,7 @@ class MainActivity : EveBaseActivity() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                    binding.drawerLayout.closeDrawer(GravityCompat.START)
+                    binding.drawerLayout.closeDrawer(GravityCompat.START, UiArcMotion.isMotionEnabled(this@MainActivity))
                 } else if (isSearchActive) {
                     closeSearch()
                 } else {
@@ -882,9 +882,14 @@ class MainActivity : EveBaseActivity() {
                 }
             }
             val ime = windowInsets.isVisible(WindowInsetsCompat.Type.ime())
-            view.visibility = if (!ime && com.eve.app.data.repository.FloatingLinkRepository.isValidHttpsUrl(
-                    activeFloatingLinkUrl.orEmpty()
-                )) View.VISIBLE else View.GONE
+            val hasLink = com.eve.app.data.repository.FloatingLinkRepository.isValidHttpsUrl(
+                activeFloatingLinkUrl.orEmpty()
+            )
+            view.visibility = when {
+                !hasLink -> View.GONE
+                ime -> View.INVISIBLE // Keep receiving insets when the keyboard closes.
+                else -> View.VISIBLE
+            }
             windowInsets
         }
 
@@ -909,7 +914,7 @@ class MainActivity : EveBaseActivity() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.cardHomeBottomBar) { view, windowInsets ->
             val bottomInset = windowInsets.getInsets(WindowInsetsCompat.Type.systemGestures()).bottom
             val ime = windowInsets.isVisible(WindowInsetsCompat.Type.ime())
-            view.visibility = if (ime) View.GONE else View.VISIBLE
+            view.visibility = if (ime) View.INVISIBLE else View.VISIBLE
             (view.layoutParams as? ViewGroup.MarginLayoutParams)?.let { lp ->
                 val target = barBottomMargin + bottomInset
                 if (lp.bottomMargin != target) {
@@ -986,7 +991,11 @@ class MainActivity : EveBaseActivity() {
         val imeVisible = ViewCompat.getRootWindowInsets(binding.cardFloatingAirplane)
             ?.isVisible(WindowInsetsCompat.Type.ime()) == true
         val show = valid && !imeVisible
-        binding.cardFloatingAirplane.visibility = if (show) View.VISIBLE else View.GONE
+        binding.cardFloatingAirplane.visibility = when {
+            !valid -> View.GONE
+            imeVisible -> View.INVISIBLE
+            else -> View.VISIBLE
+        }
         if (!show) {
             binding.lottieFloatingAirplane.cancelAnimation()
         } else if (Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) > 0f) {
@@ -1321,10 +1330,14 @@ class MainActivity : EveBaseActivity() {
         binding.drawerLayout.addDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
             override fun onDrawerOpened(drawerView: View) {
                 playDrawerPremiumStar()
+                // Keep native DrawerLayout as the sole gesture and animation owner.
+                // Transfer keyboard focus into the opened disclosure.
+                binding.layoutDrawerProfile.requestFocus()
             }
 
             override fun onDrawerClosed(drawerView: View) {
                 binding.ivDrawerGlassBlurBackground.setImageDrawable(null)
+                if (binding.ivProfile.isAttachedToWindow) binding.ivProfile.requestFocus()
             }
         })
 

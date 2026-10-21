@@ -1,6 +1,9 @@
 package com.eve.app.ui.admin
 
+import android.view.InputDevice
 import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
@@ -9,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.R
 import com.eve.app.data.model.Exam
 import com.eve.app.databinding.ItemExistingExamAdminBinding
+import com.eve.app.designsystem.UiArcMotion
 
 data class ExamWithStats(
     val exam: Exam,
@@ -26,7 +30,34 @@ class ExistingExamsAdapter(
     inner class ViewHolder(private val binding: ItemExistingExamAdminBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
+        private val hoverSpring = UiArcMotion.SpringCurve(
+            visualDuration = 0.26f, bounce = 0f, settlingDurationMs = 360L
+        )
+
+        fun resetHover() {
+            binding.root.animate().cancel()
+            binding.root.translationY = 0f
+        }
+
         fun bind(item: ExamWithStats) {
+            resetHover()
+            // UIArc Card: source hover lifts by 2px. No touch elevation/geometry change.
+            binding.root.setOnHoverListener { _, event ->
+                if (!event.isFromSource(InputDevice.SOURCE_MOUSE)) return@setOnHoverListener false
+                val lift = when (event.actionMasked) {
+                    MotionEvent.ACTION_HOVER_ENTER -> -2f * binding.root.resources.displayMetrics.density
+                    MotionEvent.ACTION_HOVER_EXIT -> 0f
+                    else -> return@setOnHoverListener false
+                }
+                binding.root.animate().cancel()
+                if (UiArcMotion.isMotionEnabled(binding.root.context)) {
+                    binding.root.animate().translationY(lift)
+                        .setDuration(hoverSpring.settlingDurationMs)
+                        .setInterpolator(hoverSpring)
+                        .start()
+                } else binding.root.translationY = 0f
+                false // Preserve native focus, click and child quick-action dispatch.
+            }
             val exam = item.exam
             binding.tvExamName.text = exam.examName
             binding.tvCategoryBadge.text = exam.categoryOrOther
@@ -76,6 +107,11 @@ class ExistingExamsAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(getItem(position))
+    }
+
+    override fun onViewRecycled(holder: ViewHolder) {
+        holder.resetHover()
+        super.onViewRecycled(holder)
     }
 
     companion object DiffCallback : DiffUtil.ItemCallback<ExamWithStats>() {

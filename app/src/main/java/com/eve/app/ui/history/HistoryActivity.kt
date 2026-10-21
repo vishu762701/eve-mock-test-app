@@ -44,6 +44,12 @@ class HistoryActivity : EveBaseActivity() {
 
         binding.rvHistory.layoutManager = LinearLayoutManager(this)
         binding.rvHistory.adapter = adapter
+        // UIArc Scroll Area adaptation: keep RecyclerView's native virtualization,
+        // scroll gesture, and unobtrusive fading overlay indicator (900ms idle).
+        binding.rvHistory.isVerticalScrollBarEnabled = true
+        binding.rvHistory.scrollBarStyle = View.SCROLLBARS_INSIDE_OVERLAY
+        binding.rvHistory.setScrollbarFadingEnabled(true)
+        binding.rvHistory.setScrollBarDefaultDelayBeforeFade(900)
 
         binding.btnRetry.setOnClickListener { viewModel.load() }
 
