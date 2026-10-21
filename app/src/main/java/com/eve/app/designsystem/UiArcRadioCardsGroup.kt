@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
+import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View
@@ -82,7 +83,12 @@ class UiArcRadioCardsGroup @JvmOverloads constructor(
                 val padH = Math.round(14f * density)
                 val padV = Math.round(10f * density)
                 setPadding(padH, padV, padH, padV)
-                background = ContextCompat.getDrawable(context, R.drawable.design_card_surface)
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadius = 14f * density
+                    setColor(ContextCompat.getColor(context, R.color.surface))
+                    setStroke(Math.round(1f * density), ContextCompat.getColor(context, R.color.hairline))
+                }
                 isClickable = true
                 isFocusable = true
 

@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View
@@ -96,7 +97,12 @@ class UiArcFileUploadView @JvmOverloads constructor(
             layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
             val pad = Math.round(18f * density)
             setPadding(pad, pad, pad, pad)
-            background = ContextCompat.getDrawable(context, R.drawable.design_card_surface)
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = 14f * density
+                setColor(ContextCompat.getColor(context, R.color.surface))
+                setStroke(Math.round(1f * density), ContextCompat.getColor(context, R.color.hairline))
+            }
             isClickable = true
             isFocusable = true
             setOnClickListener { onBrowseClickListener?.invoke() }
@@ -138,7 +144,12 @@ class UiArcFileUploadView @JvmOverloads constructor(
             layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
             val pad = Math.round(14f * density)
             setPadding(pad, pad, pad, pad)
-            background = ContextCompat.getDrawable(context, R.drawable.design_card_surface)
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = 14f * density
+                setColor(ContextCompat.getColor(context, R.color.surface))
+                setStroke(Math.round(1f * density), ContextCompat.getColor(context, R.color.hairline))
+            }
             visibility = View.GONE
         }
 
@@ -199,7 +210,7 @@ class UiArcFileUploadView @JvmOverloads constructor(
 
         ivCheckDone = ImageView(context).apply {
             layoutParams = LinearLayout.LayoutParams(Math.round(20f * density), Math.round(20f * density))
-            setImageResource(R.drawable.ic_check)
+            setImageResource(R.drawable.ic_check_circle)
             setColorFilter(ContextCompat.getColor(context, R.color.system_green))
             visibility = View.GONE
         }

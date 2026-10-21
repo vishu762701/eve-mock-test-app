@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
@@ -101,7 +102,12 @@ class UiArcMorphSelectView @JvmOverloads constructor(
             layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, closedHeightPx)
             val pad = Math.round(14f * density)
             setPadding(pad, 0, pad, 0)
-            background = ContextCompat.getDrawable(context, R.drawable.design_card_surface)
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = CLOSED_RADIUS_DP * density
+                setColor(ContextCompat.getColor(context, R.color.surface))
+                setStroke(Math.round(1f * density), ContextCompat.getColor(context, R.color.hairline))
+            }
             isClickable = true
             isFocusable = true
             setOnClickListener { toggle() }
@@ -140,7 +146,12 @@ class UiArcMorphSelectView @JvmOverloads constructor(
         optionsPanel = LinearLayout(context).apply {
             orientation = VERTICAL
             layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, 0)
-            background = ContextCompat.getDrawable(context, R.drawable.design_card_surface)
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = OPEN_RADIUS_DP * density
+                setColor(ContextCompat.getColor(context, R.color.surface))
+                setStroke(Math.round(1f * density), ContextCompat.getColor(context, R.color.hairline))
+            }
             visibility = GONE
             val pad = Math.round(6f * density)
             setPadding(pad, pad, pad, pad)
@@ -181,7 +192,11 @@ class UiArcMorphSelectView @JvmOverloads constructor(
 
         highlightPill = View(context).apply {
             layoutParams = FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, Math.round(42f * density))
-            background = ContextCompat.getDrawable(context, R.drawable.design_pill_surface)
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = 10f * density
+                setColor(ContextCompat.getColor(context, R.color.surface_inset))
+            }
             alpha = 0f
         }
         optionsContainer.addView(highlightPill)
