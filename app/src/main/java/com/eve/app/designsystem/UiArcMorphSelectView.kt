@@ -130,7 +130,7 @@ class UiArcMorphSelectView @JvmOverloads constructor(
                 marginEnd = Math.round(8f * density)
             }
             text = "Select Exam"
-            TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Token_Subheadline)
+            TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Token_Body)
             setTextColor(ContextCompat.getColor(context, R.color.text_primary))
             typeface = FontManager.mediumTypeface(context)
         }

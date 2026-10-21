@@ -47,10 +47,6 @@ class DesignSpinner @JvmOverloads constructor(
         this.externalListener = listener
     }
 
-    override fun getOnItemSelectedListener(): OnItemSelectedListener? {
-        return externalListener
-    }
-
     override fun performClick(): Boolean {
         var handled = false
         DesignPopupGlass.around(this) { handled = super.performClick() }

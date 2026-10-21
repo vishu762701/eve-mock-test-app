@@ -75,7 +75,7 @@ object TargetExamsBottomSheet {
             chip.chipBackgroundColor = androidx.core.content.ContextCompat.getColorStateList(context, com.eve.app.R.color.surface_inset)
             chip.setTextColor(androidx.core.content.ContextCompat.getColor(context, com.eve.app.R.color.text_primary))
             chip.chipStrokeWidth = chip.resources.displayMetrics.density
-            chip.chipStrokeColor = androidx.core.content.ContextCompat.getColorStateList(context, com.eve.app.R.color.card_border)
+            chip.chipStrokeColor = androidx.core.content.ContextCompat.getColorStateList(context, com.eve.app.R.color.hairline)
             chip.isCheckedIconVisible = false
         }
     }
