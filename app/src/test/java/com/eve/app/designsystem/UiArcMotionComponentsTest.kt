@@ -1,5 +1,6 @@
 package com.eve.app.designsystem
 
+import com.eve.app.ui.performance.ScoreTrendChartView
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -322,6 +323,67 @@ class UiArcMotionComponentsTest {
         assertNotNull("tvHeadingTopicAccuracy must exist in activity_performance.xml", headingTopic)
         assertEquals("com.eve.app.designsystem.UiArcInViewTitleView", headingTopic?.tagName)
         assertEquals("Topic-wise Accuracy", headingTopic?.getAttribute("android:text"))
+    }
+
+    @Test
+    fun testBatch04_Component1_LineChartConstantsAndLayout() {
+        assertEquals(840L, ScoreTrendChartView.DRAW_DURATION)
+        assertEquals(0.45f, ScoreTrendChartView.TRIGGER_AMOUNT, 0.001f)
+        assertEquals(14f, ScoreTrendChartView.TOOLTIP_GAP_DP, 0.001f)
+        assertEquals(12f, ScoreTrendChartView.TOOLTIP_RADIUS_DP, 0.001f)
+
+        val root = loadXml("src/main/res/layout/activity_performance.xml")
+        val chart = findElementById(root, "chartScoreTrend")
+        assertNotNull("chartScoreTrend must exist in activity_performance.xml", chart)
+        assertEquals("com.eve.app.ui.performance.ScoreTrendChartView", chart?.tagName)
+    }
+
+    @Test
+    fun testBatch04_Component2_GaugeConstantsAndLayout() {
+        assertEquals(0.50f, DesignAccuracyRing.TRIGGER_AMOUNT, 0.001f)
+        assertEquals(768L, DesignAccuracyRing.REVEAL_DURATION_MS)
+        assertEquals(500L, DesignAccuracyRing.SMOOTH_DURATION_MS)
+
+        val root = loadXml("src/main/res/layout/activity_result.xml")
+        val ring = findElementById(root, "gaugeTopicAccuracy")
+        assertNotNull("gaugeTopicAccuracy must exist in activity_result.xml", ring)
+        assertEquals("com.eve.app.designsystem.DesignAccuracyRing", ring?.tagName)
+    }
+
+    @Test
+    fun testBatch04_Component3_ExpandableCardLayout() {
+        val root = loadXml("src/main/res/layout/item_bookmark_card.xml")
+        val btnToggle = findElementById(root, "btnToggleExplanation")
+        assertNotNull("btnToggleExplanation must exist in item_bookmark_card.xml", btnToggle)
+        val tvExplanation = findElementById(root, "tvExplanation")
+        assertNotNull("tvExplanation must exist in item_bookmark_card.xml", tvExplanation)
+        assertEquals("gone", tvExplanation?.getAttribute("android:visibility"))
+    }
+
+    @Test
+    fun testBatch04_Component4_TextMorphConstantsAndLayout() {
+        assertEquals(560L, UiArcTextMorphView.MORPH_DURATION_MS)
+        assertEquals(280L, UiArcTextMorphView.ENTER_DURATION_MS)
+        assertEquals(180L, UiArcTextMorphView.EXIT_DURATION_MS)
+        assertEquals(50L, UiArcTextMorphView.ENTER_BASE_DELAY_MS)
+        assertEquals(32L, UiArcTextMorphView.ENTER_STAGGER_MS)
+
+        val root = loadXml("src/main/res/layout/activity_bookmarks.xml")
+        val tvCount = findElementById(root, "tvBookmarkCount")
+        assertNotNull("tvBookmarkCount must exist in activity_bookmarks.xml", tvCount)
+        assertEquals("com.eve.app.designsystem.UiArcTextMorphView", tvCount?.tagName)
+    }
+
+    @Test
+    fun testBatch04_Component5_AlertConstantsAndLayout() {
+        assertEquals(240L, UiArcAlertView.ENTRANCE_OPACITY_DURATION_MS)
+        assertEquals(160L, UiArcAlertView.EXIT_OPACITY_DURATION_MS)
+        assertEquals(500L, UiArcAlertView.HEIGHT_DURATION_MS)
+
+        val root = loadXml("src/main/res/layout/activity_main.xml")
+        val banner = findElementById(root, "tvOfflineBanner")
+        assertNotNull("tvOfflineBanner must exist in activity_main.xml", banner)
+        assertEquals("com.eve.app.designsystem.UiArcAlertView", banner?.tagName)
     }
 
     @Test

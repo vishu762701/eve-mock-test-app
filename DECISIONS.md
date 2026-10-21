@@ -1546,3 +1546,64 @@ Following the app-wide Apple iOS 26 typography migration (ADR-025), a dedicated 
    - Protected Lottie animations and triggers preserved.
    - Server-authoritative test scoring, ranking, and timer preserved.
    - Admin access controls enforced.
+
+## ADR-027: UIArc Motion Implementation — Batch 04 (Five Components)
+
+- **Date**: 2026-10-21
+- **Status**: Accepted
+- **Author**: Principal Native Android Engineer, Motion Fidelity Specialist, Product Quality Lead
+
+### Context
+Following the successful completion of Batch 01 (ADR-022), Batch 02 (ADR-023), Batch 03 (ADR-024), and the Typography Studio (ADR-026), Batch 04 delivers five production UI motion components from the official UIArc registry (https://uiarc.dev) for genuine native Android Kotlin/XML implementation:
+1. **Component 1 — Line Chart** (`https://uiarc.dev/r/line-chart.json`): `ScoreTrendChartView.kt`
+2. **Component 2 — Gauge** (`https://uiarc.dev/r/gauge.json`): `DesignAccuracyRing.kt`
+3. **Component 3 — Expandable Card** (`https://uiarc.dev/r/expandable-card.json`): `BookmarkAdapter.kt`
+4. **Component 4 — Text Morph** (`https://uiarc.dev/r/text-morph.json`): `UiArcTextMorphView.kt` (`tvBookmarkCount` in `BookmarksActivity`)
+5. **Component 5 — Alert** (`https://uiarc.dev/r/alert.json`): `UiArcAlertView.kt` (`tvOfflineBanner` in `MainActivity`)
+
+### Decisions
+
+1. **Component 1: Line Chart (`ScoreTrendChartView.kt`)**:
+   - Native translation of `https://uiarc.dev/r/line-chart.json`.
+   - **Path Entrance Reveal**: Left-to-right drawing animation using `PathMeasure` (`DRAW_DURATION = 840L`, `Ease.IN_OUT`).
+   - **In-View Trigger**: 45% viewport visibility listener (`TRIGGER_AMOUNT = 0.45f`, one-shot `OnScrollChangedListener`).
+   - **Value Morphing**: Smooth path morphing across data updates driven by `UiArcMotion.Spring.SMOOTH` (500ms).
+   - **Interactive Crosshair & Floating Tooltip**: Gliding vertical crosshair and floating card clamped within chart bounds using `UiArcMotion.Spring.SNAPPY`, `TOOLTIP_GAP_DP = 14f`, `TOOLTIP_RADIUS_DP = 12f`.
+   - **Touch Arbitration**: Handles touch scrubbing cleanly and disallows parent `ScrollView` interception via `requestDisallowInterceptTouchEvent(true)`.
+
+2. **Component 2: Gauge (`DesignAccuracyRing.kt`)**:
+   - Native translation of `https://uiarc.dev/r/gauge.json`.
+   - **In-View Trigger**: 50% viewport visibility entrance trigger (`TRIGGER_AMOUNT = 0.50f`).
+   - **Entrance Reveal**: Animated sweep from 0 to target value with `SpringCurve(visualDuration = 0.768f, bounce = 0.00f, settlingDurationMs = 768L)`.
+   - **Value Morphing**: Smooth value changes post-reveal using `UiArcMotion.Spring.SMOOTH` (500ms).
+   - **Synchronized Sweep & Counter**: Sweep arc drives centered percentage text synchronously on each frame with tabular numerals.
+   - **Semantic Color Thresholds**: `>= 70%` (`systemGreen`), `>= 40%` (`systemOrange`), `< 40%` (`systemRed`) with smooth `ArgbEvaluator` blending across boundary ranges.
+   - **Intentional Geometric Parity Adaptation**: EVE retains its approved 360-degree circular ring geometry (`@dimen/design_ring_size`, 48dp) and track token rather than UIArc's 270-degree open gauge with needle/ticks, strictly preserving approved layout geometry, touch targets, and visual consistency.
+
+3. **Component 3: Expandable Card (`BookmarkAdapter.kt`)**:
+   - Native translation of `https://uiarc.dev/r/expandable-card.json`.
+   - **Inline Height Morphing**: Replaces full `notifyItemChanged` flicker with inline animated height changes on `tvExplanation` driven by `UiArcMotion.Spring.SMOOTH` (~500ms).
+   - **Opening Sequence**: Height expands with `Spring.SMOOTH`, explanation text fades in with 120ms entrance delay (`UiArcMotion.Ease.STANDARD`, 240ms duration).
+   - **Closing Sequence**: Explanation text fades out first (100ms, `Ease.STANDARD`), then height collapses to 0 after `closeHold = 60ms` with `Spring.SMOOTH`. Rapid reversal skips the hold delay.
+   - **RecyclerView Recycling Safety**: View holders synchronously restore expanded/collapsed visibility on bind without height distortion, and cancel ongoing animators on recycling.
+
+4. **Component 4: Text Morph (`UiArcTextMorphView.kt`)**:
+   - Native translation of `https://uiarc.dev/r/text-morph.json`.
+   - **Character Occurrence Mapping**: Keyed by `${char}-${occurrenceIndex}` to track shared, entering, and exiting glyphs accurately.
+   - **Shared Glyph Motion**: Smoothly glides from old X coordinate to new X coordinate using `UiArcMotion.Spring.MORPH` (`visualDuration = 0.42s`, `bounce = 0.16`, 550ms).
+   - **Entering Glyphs**: Scale `0.80 -> 1.0`, Y translation `+0.14em -> 0`, staggered entrance fade (base 50ms + 32ms/char, 280ms duration, `UiArcMotion.Ease.ENTER`).
+   - **Exiting Glyphs**: Scale `1.0 -> 0.86`, Y translation `0 -> -0.10em`, fade out (180ms duration, `UiArcMotion.Ease.STANDARD`).
+   - **Accessibility**: Sets unified `contentDescription` so TalkBack announces the final string as a single coherent phrase rather than per-glyph fragments.
+
+5. **Component 5: Alert (`UiArcAlertView.kt`)**:
+   - Native translation of `https://uiarc.dev/r/alert.json`.
+   - **Entrance Animation**: Height expands `0 -> measuredHeight` with `UiArcMotion.Spring.SMOOTH` (500ms), opacity fades `0 -> 1` with `UiArcMotion.Ease.ENTER` (240ms).
+   - **Exit Animation**: Opacity fades `1 -> 0` with `UiArcMotion.Ease.STANDARD` (160ms), height collapses `measuredHeight -> 0` with `UiArcMotion.Spring.SMOOTH` (500ms).
+   - **Protected Invariant — Telegram Theme Reveal Protection**: Bypasses animation completely during `ThemeManager.isTransitioning` or `ThemeSwitchAnimator.isTransitioning` to guarantee zero interference with the Telegram circular reveal.
+   - **Accessibility**: Calls `announceForAccessibility` on alert entrance.
+
+6. **Invariants Preserved**:
+   - Zero changes to protected Telegram Day/Night circular reveal or theme switching resources.
+   - Zero changes to Lottie motion assets, playback, or triggers.
+   - Server-authoritative test scoring, ranking, and timer preserved.
+   - Reduced motion accessibility fully supported across all five components with instant state updates.

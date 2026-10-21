@@ -29,7 +29,7 @@
             </LinearLayout>
         </FrameLayout>
         <LinearLayout android:id="@+id/contentSheet" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-            <TextView android:id="@+id/tvOfflineBanner" style="@style/TextAppearance.Eve.Token.Secondary.orange" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="@string/offline_banner_text" android:visibility="gone" />
+            <com.eve.app.designsystem.UiArcAlertView android:id="@+id/tvOfflineBanner" style="@style/TextAppearance.Eve.Token.Secondary.orange" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="@string/offline_banner_text" android:visibility="gone" />
             <FrameLayout android:id="@+id/panelHomeBanner" android:layout_width="match_parent" android:layout_height="@dimen/design_banner_height" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginTop="@dimen/design_row_gap" android:layout_marginBottom="@dimen/design_row_gap" android:clipChildren="false" android:clipToPadding="false" android:visibility="gone" style="@style/Widget.Eve.Token.Column">
                 <View android:id="@+id/blurHomeBannerMaterial" android:layout_width="match_parent" android:layout_height="match_parent" />
                 <androidx.viewpager2.widget.ViewPager2 android:id="@+id/vpHomeBanners" android:layout_width="match_parent" android:layout_height="match_parent" android:clipChildren="false" android:clipToPadding="false" android:alpha="1" android:overScrollMode="never" />
