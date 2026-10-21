@@ -21,13 +21,12 @@ import javax.xml.parsers.DocumentBuilderFactory
  */
 class Ios26OfficialTypographyTest {
 
-    private fun getProjectDir(): File {
-        val root = File(".").canonicalFile
-        return if (File(root, "app/src/main").isDirectory) root else File(root, "../..").canonicalFile
-    }
+    private fun mainDir(): File = listOf(File("src/main"), File("app/src/main"), File("../app/src/main"))
+        .first { it.isDirectory }
 
     private fun loadXml(relativePath: String): Element {
-        val file = File(getProjectDir(), relativePath)
+        val rel = relativePath.removePrefix("app/src/main/").removePrefix("src/main/")
+        val file = File(mainDir(), rel)
         assertTrue("XML file exists: ${file.absolutePath}", file.isFile)
         val factory = DocumentBuilderFactory.newInstance()
         factory.isNamespaceAware = true
@@ -180,13 +179,13 @@ class Ios26OfficialTypographyTest {
 
     @Test
     fun testInterFontArtifactsAndLicensing() {
-        val resFontDir = File(getProjectDir(), "app/src/main/res/font")
+        val resFontDir = File(mainDir(), "res/font")
         for (w in listOf("regular", "medium", "semibold", "bold", "variable")) {
             val file = File(resFontDir, "inter_$w.ttf")
             assertTrue("inter_$w.ttf must exist and be non-empty", file.isFile && file.length() > 10000)
         }
 
-        val licenseFile = File(getProjectDir(), "app/src/main/assets/licenses/Inter-OFL.txt")
+        val licenseFile = File(mainDir(), "assets/licenses/Inter-OFL.txt")
         assertTrue("Inter-OFL.txt exists", licenseFile.isFile)
         val text = licenseFile.readText()
         assertTrue("Contains OFL 1.1 notice", text.contains("SIL OPEN FONT LICENSE Version 1.1"))
