@@ -5,8 +5,8 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.GridLayout
 
-/** Equal-width metrics fill the content area. Enlarged text gets fewer, wider columns. */
-class ResultStatisticsGrid @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : GridLayout(context, attrs) {
+/** Equal-width metrics fill the content area with UIArc Stats Band count-up motion. */
+class ResultStatisticsGrid @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : com.eve.app.designsystem.UiArcStatsBandView(context, attrs) {
     private var configuredColumns = UNDEFINED
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

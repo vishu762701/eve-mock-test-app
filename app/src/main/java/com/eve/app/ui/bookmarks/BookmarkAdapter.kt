@@ -56,12 +56,20 @@ class BookmarkAdapter(
             heightAnimator = null
             alphaAnimator?.cancel()
             alphaAnimator = null
+            binding.swipeRow.resetRow()
         }
 
         fun bind(item: BookmarkedQuestion) {
             cancelAnimations()
             val context = binding.root.context
             val hindi = isHindi()
+
+            binding.swipeRow.resetRow()
+            binding.swipeRow.setOnSwipeActionListener(object : com.eve.app.designsystem.UiArcSwipeRow.OnSwipeActionListener {
+                override fun onActionTriggered(row: com.eve.app.designsystem.UiArcSwipeRow) {
+                    onUnbookmark(item)
+                }
+            })
 
             // Header tags
             binding.tvExamTag.text = item.examName.ifBlank { "Practice Test" }
@@ -136,11 +144,11 @@ class BookmarkAdapter(
             DesignIconStates.bookmark(binding.btnBookmark, true)
             binding.btnBookmark.setOnClickListener {
                 DesignIconStates.bookmark(binding.btnBookmark, false)
-                onUnbookmark(item)
+                binding.swipeRow.commit()
             }
 
             // Tap card to open question in test flow
-            binding.root.setOnClickListener {
+            binding.cardBookmark.setOnClickListener {
                 onOpenQuestion(item)
             }
             binding.layoutTapToOpen.setOnClickListener {

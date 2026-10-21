@@ -387,6 +387,82 @@ class UiArcMotionComponentsTest {
     }
 
     @Test
+    fun testBatch05_Component1_SwipeActionsConstantsAndLayout() {
+        assertEquals(76f, UiArcSwipeRow.ACTION_WIDTH_DP, 0.001f)
+        assertEquals(8f, UiArcSwipeRow.SLOP_DP, 0.001f)
+        assertEquals(0.1f, UiArcSwipeRow.PROJECTION_SECONDS, 0.001f)
+        assertEquals(900f, UiArcSwipeRow.FLICK_VELOCITY_PX_S, 0.001f)
+        assertEquals(0.56f, UiArcSwipeRow.FULL_SWIPE_FRACTION, 0.001f)
+        assertEquals(48f, UiArcSwipeRow.FULL_SWIPE_EXTRA_DP, 0.001f)
+
+        val root = loadXml("src/main/res/layout/item_bookmark_card.xml")
+        val swipeRow = findElementById(root, "swipeRow")
+        assertNotNull("swipeRow must exist in item_bookmark_card.xml", swipeRow)
+        assertEquals("com.eve.app.designsystem.UiArcSwipeRow", swipeRow?.tagName)
+
+        val btnBookmark = findElementById(root, "btnBookmark")
+        assertNotNull("Accessible btnBookmark fallback must be preserved", btnBookmark)
+    }
+
+    @Test
+    fun testBatch05_Component2_FileUploadConstantsAndLayout() {
+        assertEquals(500L, UiArcFileUploadView.PROGRESS_DURATION_MS)
+        assertEquals(240L, UiArcFileUploadView.CHECK_ENTRANCE_DURATION_MS)
+        assertEquals(80L, UiArcFileUploadView.CHECK_ENTRANCE_DELAY_MS)
+        assertEquals("500 B", UiArcFileUploadView.formatSize(500L))
+        assertEquals("20 KB", UiArcFileUploadView.formatSize(20480L))
+        assertEquals("5.0 MB", UiArcFileUploadView.formatSize(5242880L))
+
+        val root = loadXml("src/main/res/layout/activity_manage_syllabus.xml")
+        val fileUpload = findElementById(root, "fileUploadView")
+        assertNotNull("fileUploadView must exist in activity_manage_syllabus.xml", fileUpload)
+        assertEquals("com.eve.app.designsystem.UiArcFileUploadView", fileUpload?.tagName)
+    }
+
+    @Test
+    fun testBatch05_Component3_MorphSelectConstantsAndLayout() {
+        assertEquals(22f, UiArcMorphSelectView.OPEN_RADIUS_DP, 0.001f)
+        assertEquals(14f, UiArcMorphSelectView.CLOSED_RADIUS_DP, 0.001f)
+        assertEquals(500L, UiArcMorphSelectView.GROW_DURATION_MS)
+        assertEquals(450L, UiArcMorphSelectView.SHRINK_DURATION_MS)
+        assertEquals(380L, UiArcMorphSelectView.GLIDE_DURATION_MS)
+        assertEquals(400L, UiArcMorphSelectView.FLY_DURATION_MS)
+
+        val root = loadXml("src/main/res/layout/activity_manage_syllabus.xml")
+        val morphSelect = findElementById(root, "morphSelectExam")
+        assertNotNull("morphSelectExam must exist in activity_manage_syllabus.xml", morphSelect)
+        assertEquals("com.eve.app.designsystem.UiArcMorphSelectView", morphSelect?.tagName)
+    }
+
+    @Test
+    fun testBatch05_Component4_RadioCardsConstantsAndLayout() {
+        assertEquals(550L, UiArcRadioCardsGroup.GLIDE_DURATION_MS)
+        assertEquals(160L, UiArcRadioCardsGroup.FADE_IN_DURATION_MS)
+
+        val root = loadXml("src/main/res/layout/activity_app_config.xml")
+        val rg = findElementById(root, "rgDefaultPublishMode")
+        assertNotNull("rgDefaultPublishMode must exist in activity_app_config.xml", rg)
+        assertEquals("com.eve.app.designsystem.UiArcRadioCardsGroup", rg?.tagName)
+    }
+
+    @Test
+    fun testBatch05_Component5_StatsBandConstantsAndLayout() {
+        assertEquals(1600L, UiArcStatsBandView.COUNT_DURATION_MS)
+        assertEquals(90L, UiArcStatsBandView.STAGGER_MS)
+        assertEquals(0.45f, UiArcStatsBandView.TRIGGER_AMOUNT, 0.001f)
+
+        val root = loadXml("src/main/res/layout/activity_result.xml")
+        val statsGrid = findElementById(root, "rowOverviewStatisticsTiles")
+        assertNotNull("rowOverviewStatisticsTiles must exist in activity_result.xml", statsGrid)
+        assertEquals("com.eve.app.ui.result.ResultStatisticsGrid", statsGrid?.tagName)
+
+        val tvCorrectCount = findElementById(root, "tvCorrectCount")
+        assertNotNull("tvCorrectCount preserved", tvCorrectCount)
+        val tvAccuracy = findElementById(root, "tvAccuracy")
+        assertNotNull("tvAccuracy preserved", tvAccuracy)
+    }
+
+    @Test
     fun testInvariants_ProtectedThemeAndLottieAreUntouched() {
         val themeSwitchAnimator = File(getProjectDir(), "app/src/main/java/com/eve/app/util/ThemeSwitchAnimator.kt")
         assertTrue("ThemeSwitchAnimator must remain protected", themeSwitchAnimator.exists())

@@ -18,13 +18,14 @@ import kotlin.math.sqrt
  */
 object UiArcMotion {
 
-    /** Durations in milliseconds matching UIArc's duration tokens (0.12s, 0.16s, 0.18s, 0.24s, 0.48s, 1.80s). */
+    /** Durations in milliseconds matching UIArc's duration tokens (0.12s, 0.16s, 0.18s, 0.24s, 0.48s, 1.60s, 1.80s). */
     object Duration {
         const val INSTANT = 120L
         const val FAST = 160L
         const val EXIT = 180L
         const val STANDARD = 240L
         const val CONSIDERED = 480L
+        const val COUNT_UP = 1600L
         const val SHIMMER_SWEEP = 1800L
         const val SHIMMER_PAUSE = 576L // 1.8s * 0.32
     }
@@ -45,6 +46,7 @@ object UiArcMotion {
         const val WORD_MS = 40L
         const val LINE_MS = 80L
         const val ITEM_MS = 35L
+        const val STAT_MS = 90L
     }
 
     /** Text and icon crossfade blur radii in pixels. */
@@ -100,6 +102,24 @@ object UiArcMotion {
         val RESPONSIVE = SpringCurve(visualDuration = 0.23f, bounce = 0.167f, settlingDurationMs = 260L)
         // visualDuration: 0.30s, bounce: 0.00 (critically damped switch glide) -> settles ~400ms
         val GLIDE = SpringCurve(visualDuration = 0.30f, bounce = 0.00f, settlingDurationMs = 400L)
+        // visualDuration: 0.34s, bounce: 0.00 (morph select closing surface) -> settles ~450ms
+        val SHRINK = SpringCurve(visualDuration = 0.34f, bounce = 0.00f, settlingDurationMs = 450L)
+        // visualDuration: 0.28s, bounce: 0.00 (morph select highlight glide) -> settles ~380ms
+        val SELECT_GLIDE = SpringCurve(visualDuration = 0.28f, bounce = 0.00f, settlingDurationMs = 380L)
+        // visualDuration: 0.42s, bounce: 0.00 (radio cards sliding ring glide) -> settles ~550ms
+        val CARD_GLIDE = SpringCurve(visualDuration = 0.42f, bounce = 0.00f, settlingDurationMs = 550L)
+        // visualDuration: 0.30s, bounce: 0.00 (morph select lifted label travel) -> settles ~400ms
+        val FLY = SpringCurve(visualDuration = 0.30f, bounce = 0.00f, settlingDurationMs = 400L)
+    }
+
+    /** Authoritative Swipe Actions gesture and physics constants. */
+    object Swipe {
+        const val ACTION_DP = 76f
+        const val SLOP_DP = 8f
+        const val PROJECTION_S = 0.1f
+        const val FLICK_PX_S = 900f
+        const val FULL_SWIPE_EXTRA_DP = 48f
+        const val FULL_SWIPE_FRACTION = 0.56f
     }
 
     /**

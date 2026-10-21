@@ -90,6 +90,22 @@ class ManageSyllabusActivity : EveBaseActivity() {
     }
 
     private fun setupAddSyllabusForm() {
+        binding.fileUploadView.onBrowseClickListener = {
+            newPdfPicker.launch(arrayOf("application/pdf"))
+        }
+
+        binding.fileUploadView.onRemoveClickListener = {
+            selectedPdfUri = null
+            selectedPdfName = ""
+            selectedPdfBytes = null
+            binding.fileUploadView.reset()
+            binding.layoutSelectedPdf.visibility = View.GONE
+        }
+
+        binding.fileUploadView.onRetryClickListener = {
+            binding.btnUploadSyllabus.performClick()
+        }
+
         binding.btnChoosePdf.setOnClickListener {
             newPdfPicker.launch(arrayOf("application/pdf"))
         }
@@ -98,14 +114,16 @@ class ManageSyllabusActivity : EveBaseActivity() {
             selectedPdfUri = null
             selectedPdfName = ""
             selectedPdfBytes = null
+            binding.fileUploadView.reset()
             binding.layoutSelectedPdf.visibility = View.GONE
-            binding.btnChoosePdf.visibility = View.VISIBLE
+            binding.btnChoosePdf.visibility = View.GONE
         }
 
         binding.btnUploadSyllabus.setOnClickListener {
             val exam = selectedExamForNewSyllabus
             if (exam == null) {
                 binding.tilSelectExam.error = "Please select an exam first"
+                AppBulletin.showError(this, "Please select an exam first")
                 return@setOnClickListener
             }
             binding.tilSelectExam.error = null
@@ -119,10 +137,13 @@ class ManageSyllabusActivity : EveBaseActivity() {
 
             binding.progressBarUpload.visibility = View.VISIBLE
             binding.btnUploadSyllabus.isEnabled = false
+            binding.fileUploadView.setProgress(35)
 
             lifecycleScope.launch {
                 try {
+                    binding.fileUploadView.setProgress(70)
                     examRepo.uploadSyllabusPdf(exam.id, fileName, bytes)
+                    binding.fileUploadView.setProgress(100)
                     binding.progressBarUpload.visibility = View.GONE
                     binding.btnUploadSyllabus.isEnabled = true
 
@@ -131,13 +152,14 @@ class ManageSyllabusActivity : EveBaseActivity() {
                     selectedPdfName = ""
                     selectedPdfBytes = null
                     binding.layoutSelectedPdf.visibility = View.GONE
-                    binding.btnChoosePdf.visibility = View.VISIBLE
                     binding.actvSelectExam.setText("", false)
                     selectedExamForNewSyllabus = null
 
                     AppBulletin.showSuccess(this@ManageSyllabusActivity, "Syllabus uploaded and linked to ${exam.examName}")
+                    binding.fileUploadView.reset()
                     loadExamsAndSyllabuses()
                 } catch (e: Exception) {
+                    binding.fileUploadView.setState(com.eve.app.designsystem.UiArcFileUploadView.UploadState.FAILED)
                     binding.progressBarUpload.visibility = View.GONE
                     binding.btnUploadSyllabus.isEnabled = true
                     AppBulletin.showError(this@ManageSyllabusActivity, "Upload failed: ${e.localizedMessage}")
@@ -168,6 +190,21 @@ class ManageSyllabusActivity : EveBaseActivity() {
     }
 
     private fun updateExamDropdown() {
+        val morphOptions = allExams.map {
+            com.eve.app.designsystem.UiArcMorphSelectView.Option(
+                id = it.id,
+                label = it.examName,
+                meta = it.categoryOrOther,
+                iconRes = R.drawable.ic_topic
+            )
+        }
+        binding.morphSelectExam.setOptions(morphOptions, selectedExamForNewSyllabus?.id)
+        binding.morphSelectExam.onOptionSelectedListener = { opt ->
+            selectedExamForNewSyllabus = allExams.find { it.id == opt.id }
+            binding.tilSelectExam.error = null
+            binding.actvSelectExam.setText(opt.label, false)
+        }
+
         val dropdownItems = allExams.map { "${it.examName} (${it.categoryOrOther})" }
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, dropdownItems)
         binding.actvSelectExam.setAdapter(adapter)
@@ -221,6 +258,7 @@ class ManageSyllabusActivity : EveBaseActivity() {
             selectedPdfName = displayName
             selectedPdfBytes = bytes
 
+            binding.fileUploadView.setFile(displayName, bytes.size.toLong())
             binding.tvNewPdfName.text = displayName
             binding.layoutSelectedPdf.visibility = View.VISIBLE
             binding.btnChoosePdf.visibility = View.GONE

@@ -83,6 +83,13 @@ class BookmarksActivity : EveBaseActivity() {
 
         binding.rvBookmarks.layoutManager = LinearLayoutManager(this)
         binding.rvBookmarks.adapter = adapter
+        binding.rvBookmarks.addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: androidx.recyclerview.widget.RecyclerView, newState: Int) {
+                if (newState == androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_DRAGGING) {
+                    com.eve.app.designsystem.UiArcSwipeRow.closeActiveRow()
+                }
+            }
+        })
 
         binding.btnRetry.setOnClickListener { viewModel.load() }
 
@@ -101,6 +108,11 @@ class BookmarksActivity : EveBaseActivity() {
     override fun onResume() {
         super.onResume()
         hasEmptyPlayed = false
+    }
+
+    override fun onPause() {
+        super.onPause()
+        com.eve.app.designsystem.UiArcSwipeRow.closeActiveRow()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
