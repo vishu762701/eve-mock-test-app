@@ -127,7 +127,7 @@ class ScoreTrendChartView @JvmOverloads constructor(
     }
 
     private val tooltipBgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = DesignTokens.surface(context)
+        color = ContextCompat.getColor(context, R.color.surface)
         style = Paint.Style.FILL
     }
 
