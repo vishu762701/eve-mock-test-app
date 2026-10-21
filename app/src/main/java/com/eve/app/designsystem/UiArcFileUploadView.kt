@@ -254,7 +254,7 @@ class UiArcFileUploadView @JvmOverloads constructor(
 
         progressBarTrack = FrameLayout(context).apply {
             layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-            setBackgroundColor(ContextCompat.getColor(context, R.color.fill_quaternary))
+            setBackgroundColor(ContextCompat.getColor(context, R.color.track))
         }
 
         progressBarFill = View(context).apply {
