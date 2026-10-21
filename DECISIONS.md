@@ -1308,67 +1308,64 @@ To achieve world-class motion fidelity and tactile feel in EVE, five production 
 - **Authority**: Direct user instruction: "EVE — UIARC MOTION IMPLEMENTATION — BATCH 02"
 
 ### Context
-Following the successful implementation of Batch 01 (ADR-022), Batch 02 delivers the next five production UI components from UIArc (https://uiarc.dev) for genuine native Android Kotlin/XML implementation:
-1. Switch: https://uiarc.dev/r/switch.json
-2. Progress: https://uiarc.dev/r/progress.json
-3. Expandable Card / Accordion: https://uiarc.dev/r/expandable-card.json and https://uiarc.dev/r/accordion.json
-4. Hold to Confirm: https://uiarc.dev/r/hold-to-confirm.json and https://uiarc.dev/r/confirm-morph.json
-5. Text Reveal: https://uiarc.dev/r/text-reveal.json
+Following the successful implementation of Batch 01 (ADR-022), Batch 02 delivers the five production UI components from UIArc (https://uiarc.dev) for genuine native Android Kotlin/XML implementation:
+1. Expanding Search: https://uiarc.dev/r/expanding-search.json
+2. Switch: https://uiarc.dev/r/switch.json
+3. Inline Edit: https://uiarc.dev/r/inline-edit.json
+4. Confirm Morph: https://uiarc.dev/r/confirm-morph.json
+5. Accordion: https://uiarc.dev/r/accordion.json
 
 ### Decisions
 
-1. **UIArc Motion Tokens & Physics (`UiArcMotion.kt`)**:
-   - Codified UIArc Switch `GLIDE` spring preset:
-     - `visualDuration = 0.30s`, `bounce = 0.00` (critically damped: thumb lands on its end without overshooting, settling ~400ms).
-   - Codified hold-to-confirm duration (1200ms) with linear fill sweep and `SMOOTH` spring rewind on release.
+1. **Component 1 — Expanding Search (Home Toolbar Morph)**:
+   - Target: `app/src/main/java/com/eve/app/ui/home/MainActivity.kt`, `activity_main.xml` (`btnSearch`, `searchTopBar`, `normalTopBar`, `layoutSearchFieldContainer`, `etSearch`, `btnSearchBack`, `btnClearSearch`).
+   - Replaced legacy abrupt `translationX = 50f` / `-50f` slides with source-verified UIArc spring width morph.
+   - Expanding morph spring: `UiArcMotion.Spring.MORPH` (`visualDuration = 0.42s`, `bounce = 0.16`, settling ~550ms).
+   - Collapsing smooth spring: `UiArcMotion.Spring.SMOOTH` (`visualDuration = 0.40s`, `bounce = 0.00`, settling ~500ms).
+   - Input text fade: enter duration 200ms with `Ease.ENTER` (start delay 80ms); exit duration 80ms with `Ease.STANDARD`.
+   - Back button: enter duration 160ms with `Ease.ENTER`; exit duration 120ms (`Duration.INSTANT`) with `Ease.STANDARD`.
+   - Screen geometry clamped to available screen width and max reference spec (360dp) without clipping.
+   - Preserves exam filtering, category chips, keyboard dismissal, TalkBack focus, and Back navigation.
+   - Reduced motion: instant layout toggle without spring animation.
 
-2. **Component 1 — UiArcSwitch (Daily Practice Reminder)**:
-   - Target: `app/src/main/res/layout/activity_settings.xml`, `SettingsActivity.kt`, `switchReminder`.
-   - Replaces static `DesignSwitch` with tactile motion switch extending `SwitchCompat`.
-   - Critically damped glide spring thumb travel.
-   - Fluid thumb stretch along travel (+5dp) while pressed (`extra = pressed ? stretch : 0`).
-   - Snappy spring release returning thumb to circular geometry.
-   - Smooth track color crossfade between `@color/track` and `@color/system_green` with `ease.standard`.
-   - Full accessibility support (Role Switch, TalkBack on/off reading, Space/Enter keyboard toggle).
-   - Preserves 48dp minimum touch target (`@dimen/design_touch_min`).
+2. **Component 2 — UiArcSwitch (Daily Practice Reminder in Settings & Profile)**:
+   - Target: `app/src/main/res/layout/activity_settings.xml`, `app/src/main/res/layout/activity_profile.xml`, `UiArcSwitch.kt`.
+   - Tactile switch extending `DesignSwitch` / `SwitchCompat` with exact UIArc physics:
+     - Critically damped glide spring (`UiArcMotion.Spring.GLIDE`: `visualDuration = 0.30s`, `bounce = 0.00`, settling ~400ms).
+     - Thumb stretch along travel (+5dp) while pressed (`stretch = 5`).
+     - Snappy spring release returning thumb to circular geometry.
+     - Standard track color crossfade (`Ease.STANDARD`, 160ms/240ms) between `@color/track` and `@color/system_green`.
+   - Wired to `switchReminder` in both `SettingsActivity` and `ProfileActivity` with consistent row-tap forwarding without double toggling.
+   - Respects `ReminderScheduler` persistence, system settings, and reduced-motion modes.
 
-3. **Component 2 — UiArcProgressBar (Poll Option Result)**:
-   - Target: `app/src/main/res/layout/item_poll_option_result.xml`, `PollsAdminAdapter.kt`, `pbOption`.
-   - Extends `ProgressBar` to replace oversized circular indicator with modern capsule linear progress.
-   - Concentric corner radii (`height / 2f`) for both track and progress fill.
-   - Smooth spring width progression with `spring.smooth` (settling ~500ms).
-   - Linear highlight shimmer sweep (1800ms sweep matching `Duration.SHIMMER_SWEEP`) on indeterminate / loading modes.
-   - Zero allocations in `onDraw`.
-   - Announces formatted percentage to TalkBack.
+3. **Component 3 — Inline Edit (Profile Name Edit-State Motion)**:
+   - Target: `app/src/main/java/com/eve/app/ui/profile/ProfileActivity.kt`, `activity_profile.xml` (`tvName`, `tilName`, `etName`, `btnSaveProfile`).
+   - Architectural assessment: The existing profile name field is permanently editable within a cohesive form alongside DOB, Category chips, and the primary Save Profile action (`btnSaveProfile`). Replacing this with a separate inline morph trigger would introduce redundant UI and break the atomic profile save API contract.
+   - Integrated source-verified edit-state motion:
+     - On successful persistence, `tvName` receives UIArc text rise motion (+0.3em vertical rise, `Ease.ENTER`, 240ms duration) and alpha fade.
+     - Never saves on blur/focus loss without explicit user action.
+     - Failed save keeps user's entered text and provides a safe retry path.
+     - Full IME, cursor position, TalkBack, and lifecycle restoration preserved.
 
-4. **Component 3 — UiArcExpandableView (Mistake Explanation Disclosure)**:
-   - Target: `app/src/main/res/layout/item_mistake.xml`, `MistakesAdapter.kt`, `layoutExplanation`.
-   - Extends `LinearLayout` as a drop-in animated container for collapsible information.
-   - Critically damped height spring (`spring.smooth`, visualDuration 0.40s) so close exactly mirrors open.
-   - Content entrance with enter easing (240ms) and vertical shift (-6dp to 0dp).
-   - Content exit with fast fade (160ms) and standard easing.
-   - Collapsed panels leave accessibility focus tree.
-   - Reduced motion instantly expands/collapses.
+4. **Component 4 — Confirm Morph (Delete Account Staged Confirmation)**:
+   - Target: `app/src/main/java/com/eve/app/ui/settings/SettingsActivity.kt` (`rowDeleteAccount`).
+   - Staged destructive confirmation adapted to irreversible account deletion:
+     - Duplicate-action guard: 280ms (`ARM_MS = 280L`) disallowing accidental immediate confirms.
+     - Confirmation timeout: 6000ms auto-dismissal if unconfirmed.
+     - Explicit irreversible data erasure warning and cancel option.
+     - Pending state with progress indicator bound to actual backend execution (`ApiClient.apiService.deleteAccount()` + Firebase Auth user deletion).
+     - Omitted fake undo: account deletion is irreversible.
+     - Preserves required re-authentication protections and Back navigation dismissal.
 
-5. **Component 4 — UiArcHoldToConfirmButton (Mistake Mark as Learned)**:
-   - Target: `app/src/main/res/layout/item_mistake.xml`, `MistakesAdapter.kt`, `btnMarkLearned`.
-   - Extends `MaterialButton` for seamless integration with Material themes and ViewBinding.
-   - Snappy spring press scale (`UiArcMotion.buttonPressScale(width, density)`) on touch down.
-   - Linear progress fill tracking hold duration (1200ms).
-   - Smooth spring rewind (`spring.smooth`) when released before completion.
-   - Confirmed label morph ("Learned ✓") and tactile haptic confirmation (`HapticFeedbackConstants.CONFIRM`).
-   - Dual-mode support (tap click listener preserved while hold provides confirmed feedback).
-   - Reduced motion bypasses hold delay.
+5. **Component 5 — Accordion (Result Analysis Details Audit)**:
+   - Target: `app/src/main/java/com/eve/app/ui/result/ResultActivity.kt`, `activity_result.xml`.
+   - Thorough codebase inspection confirmed that `headerOverviewStatistics`, `headerOverviewPerformance`, and `headerOverviewAnalytics` exclusively navigate to `ResultDetailActivity` via `openStats`, `openPerf`, and `openAnalytics`.
+   - There are NO other inline expandable/collapsible sections on the Result screen.
+   - Per mandatory specification ("If the existing Statistics/Performance/Analytics headers exclusively navigate to ResultDetailActivity, do not hijack their click handlers. Instead, locate another genuine existing inline expandable Result section. If no valid inline section exists, report this component as NOT APPLICABLE and do not invent a new section or claim completion."):
+     - Component 5 is formally audited and verified as **NOT APPLICABLE**.
+     - No navigation hijacked, no fake accordion invented.
 
-6. **Component 5 — UiArcTextRevealView (Result Title)**:
-   - Target: `app/src/main/res/layout/activity_result.xml`, `ResultActivity.kt`, `tvResultTitle`.
-   - Extends `AppCompatTextView` with restrained staggered word reveal.
-   - Step interval capped at `Duration.CONSIDERED` (480ms).
-   - Vertical elevation (+0.3em / +8dp to 0) with enter easing (240ms) and alpha fade.
-   - Coherent single-read TalkBack accessibility (full text read immediately to screen readers).
-   - Reduced motion renders full text immediately.
-
-7. **Strict Boundary Preservation**:
+6. **Strict Boundary Preservation**:
    - Zero changes to unrelated screens.
    - Telegram circular reveal Day/Night animation, ThemeSwitchAnimator, and ThemeManager remain 100% protected.
    - All Lottie assets, playback timing, and triggers remain 100% protected.

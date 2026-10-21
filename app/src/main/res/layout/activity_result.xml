@@ -10,7 +10,7 @@
             </LinearLayout>
         </com.eve.app.ui.common.EveGlassToolbar>
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
-            <com.eve.app.designsystem.UiArcTextRevealView android:id="@+id/tvResultTitle" style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Test Result" />
+            <TextView android:id="@+id/tvResultTitle" style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Test Result" />
             <TextView android:id="@+id/tvResultSubtitle" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:visibility="gone" />
         </LinearLayout>
         <FrameLayout android:id="@+id/layoutResultViewport" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">

@@ -39,6 +39,8 @@ class SettingsActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
     private var progressDialog: AlertDialog? = null
+    private var deleteConfirmArmedAt: Long = 0L
+    private var deleteTimeoutJob: kotlinx.coroutines.Job? = null
 
     private val reauthLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -173,14 +175,45 @@ class SettingsActivity : EveBaseActivity() {
     }
 
     private fun showDeleteAccountConfirmation() {
-        MaterialAlertDialogBuilder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle("Delete Account")
             .setMessage("Warning: Deleting your account is permanent. All your data (profile, test attempts, results, history, leaderboard entries, pinned tests and notifications) will be erased and cannot be recovered. Do you want to continue?")
-            .setPositiveButton("Delete") { _, _ ->
+            .setPositiveButton("Delete", null)
+            .setNegativeButton("Cancel") { d, _ ->
+                deleteTimeoutJob?.cancel()
+                d.dismiss()
+            }
+            .create()
+
+        dialog.setOnShowListener {
+            deleteConfirmArmedAt = android.os.SystemClock.elapsedRealtime()
+            val deleteBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            deleteBtn.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.destructive))
+            deleteBtn.setOnClickListener {
+                // Enforce UIArc duplicate-action guard (280ms)
+                if (android.os.SystemClock.elapsedRealtime() - deleteConfirmArmedAt < 280L) {
+                    return@setOnClickListener
+                }
+                deleteTimeoutJob?.cancel()
+                dialog.dismiss()
                 executeAccountDeletion()
             }
-            .setNegativeButton("Cancel", null)
-            .showDestructive()
+
+            // UIArc confirmation timeout: 6000ms auto-dismissal
+            deleteTimeoutJob?.cancel()
+            deleteTimeoutJob = lifecycleScope.launch {
+                kotlinx.coroutines.delay(6000L)
+                if (dialog.isShowing) {
+                    dialog.dismiss()
+                }
+            }
+        }
+
+        dialog.setOnDismissListener {
+            deleteTimeoutJob?.cancel()
+        }
+
+        dialog.show()
     }
 
     private fun showProgress(msg: String) {
@@ -284,6 +317,7 @@ class SettingsActivity : EveBaseActivity() {
     }
 
     override fun onDestroy() {
+        deleteTimeoutJob?.cancel()
         dismissProgress()
         super.onDestroy()
     }

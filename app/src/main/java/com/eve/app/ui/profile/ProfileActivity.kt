@@ -1,6 +1,7 @@
 package com.eve.app.ui.profile
 
 import com.eve.app.ui.common.EveBaseActivity
+import com.eve.app.designsystem.UiArcMotion
 
 import android.app.DatePickerDialog
 import android.content.ClipData
@@ -159,6 +160,9 @@ class ProfileActivity : EveBaseActivity() {
         binding.switchReminder.setOnCheckedChangeListener { _, isChecked ->
             ReminderScheduler.setEnabled(this, isChecked)
         }
+        binding.rowReminder.setOnClickListener {
+            binding.switchReminder.toggle()
+        }
     }
 
     private fun setupDobPicker() {
@@ -285,7 +289,19 @@ class ProfileActivity : EveBaseActivity() {
                     // Non-fatal
                 }
 
-                binding.tvName.text = name
+                if (UiArcMotion.isMotionEnabled(this@ProfileActivity)) {
+                    binding.tvName.alpha = 0f
+                    binding.tvName.translationY = binding.tvName.textSize * 0.3f
+                    binding.tvName.text = name
+                    binding.tvName.animate()
+                        .alpha(1f)
+                        .translationY(0f)
+                        .setDuration(UiArcMotion.Duration.STANDARD)
+                        .setInterpolator(UiArcMotion.Ease.ENTER)
+                        .start()
+                } else {
+                    binding.tvName.text = name
+                }
                 dismissProgress()
                 AppBulletin.showSuccess(this@ProfileActivity, "Profile saved successfully")
             } catch (e: Exception) {

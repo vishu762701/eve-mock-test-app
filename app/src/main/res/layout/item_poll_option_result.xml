@@ -4,6 +4,6 @@
         <TextView android:id="@+id/tvOptionTitle" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" ns1:text="Option 1" />
         <TextView android:id="@+id/tvOptionPercent" style="@style/TextAppearance.Eve.Token.Secondary.blue" android:layout_width="wrap_content" android:layout_height="wrap_content" ns1:text="45%" />
     </LinearLayout>
-    <com.eve.app.designsystem.UiArcProgressBar android:id="@+id/pbOption" android:layout_width="match_parent" android:layout_height="8dp" android:layout_marginTop="4dp" android:max="100" ns1:progress="45" android:indeterminate="false" />
+    <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/pbOption" style="@style/Widget.Eve.Token.Ring" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_marginTop="4dp" android:max="100" ns1:progress="45" android:indeterminate="false" />
     <TextView android:id="@+id/tvOptionVotes" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" ns1:text="23 votes" />
 </LinearLayout>

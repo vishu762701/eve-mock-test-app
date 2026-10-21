@@ -14,7 +14,7 @@ import androidx.core.content.ContextCompat
 import com.eve.app.R
 
 /** Native dragging, checked state, animation scale and accessibility; exact iOS geometry. */
-class DesignSwitch @JvmOverloads constructor(
+open class DesignSwitch @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = com.google.android.material.R.attr.materialSwitchStyle

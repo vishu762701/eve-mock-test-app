@@ -1,6 +1,7 @@
 package com.eve.app.ui.home
 
 import com.eve.app.designsystem.showDestructive
+import com.eve.app.designsystem.UiArcMotion
 
 import android.graphics.Outline
 import android.view.ViewOutlineProvider
@@ -108,6 +109,7 @@ class MainActivity : EveBaseActivity() {
     private var isAdminUser: Boolean = false
 
     private var isSearchActive = false
+    private var searchMorphAnimator: android.animation.ValueAnimator? = null
     private var currentSearchQuery = ""
     private var restoreThemeContent = false
     private var themeListState: android.os.Parcelable? = null
@@ -539,25 +541,86 @@ class MainActivity : EveBaseActivity() {
 
     private fun openSearch() {
         isSearchActive = true
+        searchMorphAnimator?.cancel()
+
+        if (!UiArcMotion.isMotionEnabled(this)) {
+            binding.normalTopBar.visibility = View.GONE
+            binding.normalTopBar.alpha = 0f
+            binding.searchTopBar.visibility = View.VISIBLE
+            binding.searchTopBar.alpha = 1f
+            binding.btnSearchBack.alpha = 1f
+            binding.etSearch.alpha = 1f
+            val lp = binding.layoutSearchFieldContainer.layoutParams as android.widget.LinearLayout.LayoutParams
+            lp.width = 0
+            lp.weight = 1f
+            binding.layoutSearchFieldContainer.layoutParams = lp
+            binding.etSearch.requestFocus()
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+            imm?.showSoftInput(binding.etSearch, InputMethodManager.SHOW_IMPLICIT)
+            binding.chipGroupCategory.visibility = View.GONE
+            applyCurrentList()
+            return
+        }
+
         binding.searchTopBar.visibility = View.VISIBLE
-        binding.searchTopBar.alpha = 0f
-        binding.searchTopBar.translationX = 50f
+        binding.searchTopBar.alpha = 1f
+        binding.btnSearchBack.alpha = 0f
+        binding.etSearch.alpha = 0f
+
+        val collapsedWidth = binding.btnSearch.width.takeIf { it > 0 } ?: (44 * resources.displayMetrics.density).toInt()
+        val totalAvailableWidth = binding.topBarContainer.width.takeIf { it > 0 } ?: resources.displayMetrics.widthPixels
+        val backWidth = binding.btnSearchBack.width.takeIf { it > 0 } ?: (44 * resources.displayMetrics.density).toInt()
+        val margins = (binding.layoutSearchFieldContainer.layoutParams as ViewGroup.MarginLayoutParams).let { it.leftMargin + it.rightMargin }
+        val maxAvailable = (totalAvailableWidth - backWidth - margins).coerceAtLeast(collapsedWidth)
+        val maxSpecWidth = (360f * resources.displayMetrics.density).toInt()
+        val targetWidth = maxAvailable.coerceAtMost(maxSpecWidth)
+
+        val lp = binding.layoutSearchFieldContainer.layoutParams as android.widget.LinearLayout.LayoutParams
+        lp.weight = 0f
+        lp.width = collapsedWidth
+        binding.layoutSearchFieldContainer.layoutParams = lp
+
+        val animator = android.animation.ValueAnimator.ofInt(collapsedWidth, targetWidth).apply {
+            duration = UiArcMotion.Spring.MORPH.settlingDurationMs
+            interpolator = UiArcMotion.Spring.MORPH
+            addUpdateListener { va ->
+                val w = va.animatedValue as Int
+                val p = binding.layoutSearchFieldContainer.layoutParams as android.widget.LinearLayout.LayoutParams
+                p.width = w
+                binding.layoutSearchFieldContainer.layoutParams = p
+            }
+            addListener(object : android.animation.AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: android.animation.Animator) {
+                    val finalLp = binding.layoutSearchFieldContainer.layoutParams as android.widget.LinearLayout.LayoutParams
+                    finalLp.width = 0
+                    finalLp.weight = 1f
+                    binding.layoutSearchFieldContainer.layoutParams = finalLp
+                }
+            })
+        }
+        searchMorphAnimator = animator
+        animator.start()
 
         binding.normalTopBar.animate()
             .alpha(0f)
-            .translationX(-50f)
-            .setDuration(220)
-            .setInterpolator(DecelerateInterpolator())
+            .setDuration(UiArcMotion.Duration.FAST)
+            .setInterpolator(UiArcMotion.Ease.STANDARD)
             .withEndAction {
                 binding.normalTopBar.visibility = View.GONE
             }
             .start()
 
-        binding.searchTopBar.animate()
+        binding.btnSearchBack.animate()
             .alpha(1f)
-            .translationX(0f)
-            .setDuration(220)
-            .setInterpolator(DecelerateInterpolator())
+            .setDuration(UiArcMotion.Duration.FAST)
+            .setInterpolator(UiArcMotion.Ease.ENTER)
+            .start()
+
+        binding.etSearch.animate()
+            .alpha(1f)
+            .setDuration(200L)
+            .setStartDelay(80L)
+            .setInterpolator(UiArcMotion.Ease.ENTER)
             .start()
 
         binding.etSearch.requestFocus()
@@ -569,29 +632,73 @@ class MainActivity : EveBaseActivity() {
 
     private fun closeSearch() {
         isSearchActive = false
+        searchMorphAnimator?.cancel()
         binding.etSearch.text?.clear()
         currentSearchQuery = ""
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         imm?.hideSoftInputFromWindow(binding.etSearch.windowToken, 0)
 
-        binding.normalTopBar.visibility = View.VISIBLE
-
-        binding.searchTopBar.animate()
-            .alpha(0f)
-            .translationX(50f)
-            .setDuration(160)
-            .setInterpolator(DecelerateInterpolator())
-            .withEndAction {
-                binding.searchTopBar.visibility = View.GONE
+        if (!UiArcMotion.isMotionEnabled(this)) {
+            binding.searchTopBar.visibility = View.GONE
+            binding.normalTopBar.visibility = View.VISIBLE
+            binding.normalTopBar.alpha = 1f
+            val data = (viewModel.state.value as? UiState.Success)?.data
+            if (data != null && data.categories.size > 1) {
+                binding.chipGroupCategory.visibility = View.VISIBLE
             }
-            .start()
+            applyCurrentList()
+            return
+        }
 
+        binding.normalTopBar.visibility = View.VISIBLE
+        binding.normalTopBar.alpha = 0f
         binding.normalTopBar.animate()
             .alpha(1f)
-            .translationX(0f)
-            .setDuration(160)
-            .setInterpolator(DecelerateInterpolator())
+            .setDuration(UiArcMotion.Duration.FAST)
+            .setInterpolator(UiArcMotion.Ease.ENTER)
             .start()
+
+        binding.etSearch.animate()
+            .alpha(0f)
+            .setDuration(80L)
+            .setInterpolator(UiArcMotion.Ease.STANDARD)
+            .start()
+
+        binding.btnSearchBack.animate()
+            .alpha(0f)
+            .setDuration(UiArcMotion.Duration.INSTANT)
+            .setInterpolator(UiArcMotion.Ease.STANDARD)
+            .start()
+
+        val collapsedWidth = binding.btnSearch.width.takeIf { it > 0 } ?: (44 * resources.displayMetrics.density).toInt()
+        val currentW = binding.layoutSearchFieldContainer.width.takeIf { it > 0 } ?: collapsedWidth
+
+        val lp = binding.layoutSearchFieldContainer.layoutParams as android.widget.LinearLayout.LayoutParams
+        lp.weight = 0f
+        lp.width = currentW
+        binding.layoutSearchFieldContainer.layoutParams = lp
+
+        val closeAnimator = android.animation.ValueAnimator.ofInt(currentW, collapsedWidth).apply {
+            duration = UiArcMotion.Spring.SMOOTH.settlingDurationMs
+            interpolator = UiArcMotion.Spring.SMOOTH
+            addUpdateListener { va ->
+                val w = va.animatedValue as Int
+                val p = binding.layoutSearchFieldContainer.layoutParams as android.widget.LinearLayout.LayoutParams
+                p.width = w
+                binding.layoutSearchFieldContainer.layoutParams = p
+            }
+            addListener(object : android.animation.AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: android.animation.Animator) {
+                    binding.searchTopBar.visibility = View.GONE
+                    val finalLp = binding.layoutSearchFieldContainer.layoutParams as android.widget.LinearLayout.LayoutParams
+                    finalLp.width = 0
+                    finalLp.weight = 1f
+                    binding.layoutSearchFieldContainer.layoutParams = finalLp
+                }
+            })
+        }
+        searchMorphAnimator = closeAnimator
+        closeAnimator.start()
 
         val data = (viewModel.state.value as? UiState.Success)?.data
         if (data != null && data.categories.size > 1) {
@@ -1006,6 +1113,7 @@ class MainActivity : EveBaseActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        searchMorphAnimator?.cancel()
         try {
             unregisterReceiver(foregroundNotificationReceiver)
         } catch (_: Exception) { }

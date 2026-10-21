@@ -176,60 +176,93 @@ class UiArcMotionComponentsTest {
     }
 
     @Test
-    fun testBatch02_GlideSpringConstant() {
+    fun testBatch02_SpringConstants() {
         val glide = UiArcMotion.Spring.GLIDE
         assertEquals(0.30f, glide.visualDuration, 0.001f)
         assertEquals(0.00f, glide.bounce, 0.001f)
         assertEquals(400L, glide.settlingDurationMs)
         assertEquals(0.0f, glide.getInterpolation(0.0f), 0.001f)
         assertEquals(1.0f, glide.getInterpolation(1.0f), 0.001f)
+
+        val morph = UiArcMotion.Spring.MORPH
+        assertEquals(0.42f, morph.visualDuration, 0.001f)
+        assertEquals(0.16f, morph.bounce, 0.001f)
+        assertEquals(550L, morph.settlingDurationMs)
+
+        val smooth = UiArcMotion.Spring.SMOOTH
+        assertEquals(0.40f, smooth.visualDuration, 0.001f)
+        assertEquals(0.00f, smooth.bounce, 0.001f)
+        assertEquals(500L, smooth.settlingDurationMs)
     }
 
     @Test
-    fun testBatch02_Component1_UiArcSwitchInSettingsLayout() {
+    fun testBatch02_Component1_ExpandingSearchHomeLayout() {
+        val root = loadXml("src/main/res/layout/activity_main.xml")
+        val btnSearch = findElementById(root, "btnSearch")
+        assertNotNull("btnSearch must exist in activity_main.xml", btnSearch)
+
+        val searchTopBar = findElementById(root, "searchTopBar")
+        assertNotNull("searchTopBar must exist in activity_main.xml", searchTopBar)
+
+        val layoutSearch = findElementById(root, "layoutSearchFieldContainer")
+        assertNotNull("layoutSearchFieldContainer must exist in activity_main.xml", layoutSearch)
+
+        val etSearch = findElementById(root, "etSearch")
+        assertNotNull("etSearch must exist in activity_main.xml", etSearch)
+
+        val btnSearchBack = findElementById(root, "btnSearchBack")
+        assertNotNull("btnSearchBack must exist in activity_main.xml", btnSearchBack)
+
+        val btnClearSearch = findElementById(root, "btnClearSearch")
+        assertNotNull("btnClearSearch must exist in activity_main.xml", btnClearSearch)
+    }
+
+    @Test
+    fun testBatch02_Component2_UiArcSwitchInSettingsAndProfileLayout() {
+        val settingsRoot = loadXml("src/main/res/layout/activity_settings.xml")
+        val settingsSwitch = findElementById(settingsRoot, "switchReminder")
+        assertNotNull("switchReminder must exist in activity_settings.xml", settingsSwitch)
+        assertEquals("com.eve.app.designsystem.UiArcSwitch", settingsSwitch?.tagName)
+        assertEquals("@style/Widget.Eve.Token.Switch", settingsSwitch?.getAttribute("style"))
+
+        val profileRoot = loadXml("src/main/res/layout/activity_profile.xml")
+        val profileSwitch = findElementById(profileRoot, "switchReminder")
+        assertNotNull("switchReminder must exist in activity_profile.xml", profileSwitch)
+        assertEquals("com.eve.app.designsystem.UiArcSwitch", profileSwitch?.tagName)
+        assertEquals("@style/Widget.Eve.Token.Switch", profileSwitch?.getAttribute("style"))
+    }
+
+    @Test
+    fun testBatch02_Component3_InlineEditProfileLayout() {
+        val root = loadXml("src/main/res/layout/activity_profile.xml")
+        val tilName = findElementById(root, "tilName")
+        assertNotNull("tilName must exist in activity_profile.xml", tilName)
+
+        val etName = findElementById(root, "etName")
+        assertNotNull("etName must exist in activity_profile.xml", etName)
+
+        val btnSave = findElementById(root, "btnSaveProfile")
+        assertNotNull("btnSaveProfile must exist in activity_profile.xml", btnSave)
+    }
+
+    @Test
+    fun testBatch02_Component4_ConfirmMorphDeleteAccountLayout() {
         val root = loadXml("src/main/res/layout/activity_settings.xml")
-        val switch = findElementById(root, "switchReminder")
-        assertNotNull("switchReminder must exist in activity_settings.xml", switch)
-        assertEquals("com.eve.app.designsystem.UiArcSwitch", switch?.tagName)
-        assertEquals("@style/Widget.Eve.Token.Switch", switch?.getAttribute("style"))
+        val rowDelete = findElementById(root, "rowDeleteAccount")
+        assertNotNull("rowDeleteAccount must exist in activity_settings.xml", rowDelete)
     }
 
     @Test
-    fun testBatch02_Component2_UiArcProgressBarInPollResultLayout() {
-        val root = loadXml("src/main/res/layout/item_poll_option_result.xml")
-        val pb = findElementById(root, "pbOption")
-        assertNotNull("pbOption must exist in item_poll_option_result.xml", pb)
-        assertEquals("com.eve.app.designsystem.UiArcProgressBar", pb?.tagName)
-        assertEquals("100", pb?.getAttribute("android:max"))
-    }
-
-    @Test
-    fun testBatch02_Component3_UiArcExpandableViewInMistakeLayout() {
-        val root = loadXml("src/main/res/layout/item_mistake.xml")
-        val layout = findElementById(root, "layoutExplanation")
-        assertNotNull("layoutExplanation must exist in item_mistake.xml", layout)
-        assertEquals("com.eve.app.designsystem.UiArcExpandableView", layout?.tagName)
-        assertEquals("gone", layout?.getAttribute("android:visibility"))
-    }
-
-    @Test
-    fun testBatch02_Component4_UiArcHoldToConfirmButtonInMistakeLayout() {
-        val root = loadXml("src/main/res/layout/item_mistake.xml")
-        val btn = findElementById(root, "btnMarkLearned")
-        assertNotNull("btnMarkLearned must exist in item_mistake.xml", btn)
-        assertEquals("com.eve.app.designsystem.UiArcHoldToConfirmButton", btn?.tagName)
-        assertEquals("@dimen/design_touch_min", btn?.getAttribute("android:layout_height"))
-        assertEquals("Mark as learned", btn?.getAttribute("android:text"))
-    }
-
-    @Test
-    fun testBatch02_Component5_UiArcTextRevealInResultLayout() {
+    fun testBatch02_Component5_AccordionResultAnalysisAudit() {
         val root = loadXml("src/main/res/layout/activity_result.xml")
-        val title = findElementById(root, "tvResultTitle")
-        assertNotNull("tvResultTitle must exist in activity_result.xml", title)
-        assertEquals("com.eve.app.designsystem.UiArcTextRevealView", title?.tagName)
-        assertEquals("@style/TextAppearance.Eve.Token.Title", title?.getAttribute("style"))
-        assertEquals("Test Result", title?.getAttribute("android:text"))
+        val headerStats = findElementById(root, "headerOverviewStatistics")
+        assertNotNull("headerOverviewStatistics must exist in activity_result.xml", headerStats)
+
+        val headerPerf = findElementById(root, "headerOverviewPerformance")
+        assertNotNull("headerOverviewPerformance must exist in activity_result.xml", headerPerf)
+
+        val headerAnalytics = findElementById(root, "headerOverviewAnalytics")
+        assertNotNull("headerOverviewAnalytics must exist in activity_result.xml", headerAnalytics)
     }
 
     @Test
