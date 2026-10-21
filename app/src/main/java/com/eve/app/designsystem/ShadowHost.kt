@@ -2,17 +2,25 @@ package com.eve.app.designsystem
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.R
 
 /** Give native elevation room through scroll/pager/recycler ancestors. */
 object ShadowHost {
     fun releaseClipping(view: View) {
-        var ancestor = view.parent
-        while (ancestor is ViewGroup) {
-            ancestor.clipChildren = false
-            ancestor.clipToPadding = false
-            if (ancestor.id == android.R.id.content) break
-            ancestor = ancestor.parent
+        // Elevation only needs room inside the immediate holder/list container.
+        // Mutating every ancestor up to android.R.id.content allowed shadows to
+        // escape unrelated overlays and even the system-bar backing.
+        val parent = view.parent as? ViewGroup ?: return
+        if (parent.id == android.R.id.content) return
+        parent.clipChildren = false
+        parent.clipToPadding = false
+        if (parent !is RecyclerView) {
+            val list = parent.parent as? RecyclerView
+            if (list != null) {
+                list.clipChildren = false
+                list.clipToPadding = false
+            }
         }
     }
 

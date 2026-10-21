@@ -866,20 +866,31 @@ class MainActivity : EveBaseActivity() {
         applyFloatingAirplaneTheme()
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.cardFloatingAirplane) { view, windowInsets ->
-            val navInsets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            // android.R.id.content already owns system-bar/cutout padding; only residual
+            // gesture clearance reaches floating children.
+            val gestures = windowInsets.getInsets(WindowInsetsCompat.Type.systemGestures())
             val baseMarginPx = resources.getDimensionPixelSize(R.dimen.design_screen_margin)
             val barHeight = resources.getDimensionPixelSize(R.dimen.design_bottom_bar_height)
             val barMargin = resources.getDimensionPixelSize(R.dimen.design_bottom_bar_margin)
             (view.layoutParams as? ViewGroup.MarginLayoutParams)?.let { lp ->
-                lp.bottomMargin = barHeight + barMargin + navInsets.bottom + baseMarginPx
-                lp.marginEnd = baseMarginPx + navInsets.right
-                view.layoutParams = lp
+                val bottom = barHeight + barMargin + gestures.bottom + baseMarginPx
+                val end = baseMarginPx
+                if (lp.bottomMargin != bottom || lp.marginEnd != end) {
+                    lp.bottomMargin = bottom
+                    lp.marginEnd = end
+                    view.layoutParams = lp
+                }
             }
+            val ime = windowInsets.isVisible(WindowInsetsCompat.Type.ime())
+            view.visibility = if (!ime && com.eve.app.data.repository.FloatingLinkRepository.isValidHttpsUrl(
+                    activeFloatingLinkUrl.orEmpty()
+                )) View.VISIBLE else View.GONE
             windowInsets
         }
 
         com.eve.app.designsystem.DesignPress.bind(binding.cardFloatingAirplane) {
-            val url = activeFloatingLinkUrl ?: return@bind
+            val url = activeFloatingLinkUrl?.trim() ?: return@bind
+            if (!com.eve.app.data.repository.FloatingLinkRepository.isValidHttpsUrl(url)) return@bind
             try {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                 startActivity(intent)
@@ -896,23 +907,27 @@ class MainActivity : EveBaseActivity() {
 
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.cardHomeBottomBar) { view, windowInsets ->
-            val gestureInsets = windowInsets.getInsets(
-                WindowInsetsCompat.Type.systemGestures() or WindowInsetsCompat.Type.navigationBars()
-            )
-            val bottomInset = gestureInsets.bottom
+            val bottomInset = windowInsets.getInsets(WindowInsetsCompat.Type.systemGestures()).bottom
+            val ime = windowInsets.isVisible(WindowInsetsCompat.Type.ime())
+            view.visibility = if (ime) View.GONE else View.VISIBLE
             (view.layoutParams as? ViewGroup.MarginLayoutParams)?.let { lp ->
-                lp.bottomMargin = barBottomMargin + bottomInset
-                view.layoutParams = lp
+                val target = barBottomMargin + bottomInset
+                if (lp.bottomMargin != target) {
+                    lp.bottomMargin = target
+                    view.layoutParams = lp
+                }
             }
 
-            // Every scrolling screen content needs bottom padding (bar height + margins + inset, clipToPadding=false) so the last item is never hidden.
-            val totalBottomPadding = barHeight + barBottomMargin + bottomInset + clearance
-            binding.rvExams.setPadding(
-                binding.rvExams.paddingLeft,
-                binding.rvExams.paddingTop,
-                binding.rvExams.paddingRight,
-                totalBottomPadding
-            )
+            // Content is behind this overlay. Reserve its complete height only while visible.
+            val totalBottomPadding = if (ime) clearance else barHeight + barBottomMargin + bottomInset + clearance
+            if (binding.rvExams.paddingBottom != totalBottomPadding) {
+                binding.rvExams.setPadding(
+                    binding.rvExams.paddingLeft,
+                    binding.rvExams.paddingTop,
+                    binding.rvExams.paddingRight,
+                    totalBottomPadding
+                )
+            }
             windowInsets
         }
 
@@ -967,8 +982,16 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun updateFloatingAirplaneState(link: String?) {
-        binding.cardFloatingAirplane.visibility = View.GONE
-        binding.lottieFloatingAirplane.cancelAnimation()
+        val valid = com.eve.app.data.repository.FloatingLinkRepository.isValidHttpsUrl(link.orEmpty())
+        val imeVisible = ViewCompat.getRootWindowInsets(binding.cardFloatingAirplane)
+            ?.isVisible(WindowInsetsCompat.Type.ime()) == true
+        val show = valid && !imeVisible
+        binding.cardFloatingAirplane.visibility = if (show) View.VISIBLE else View.GONE
+        if (!show) {
+            binding.lottieFloatingAirplane.cancelAnimation()
+        } else if (Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) > 0f) {
+            if (!binding.lottieFloatingAirplane.isAnimating) binding.lottieFloatingAirplane.playAnimation()
+        }
     }
 
     private fun setupBannerCarousel() {

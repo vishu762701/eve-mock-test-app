@@ -80,12 +80,8 @@ object SystemBarHelper {
             ) {
                 return ScreenCanvasRole.GROUPED
             }
-            val lightGrouped = (root.background as? android.graphics.drawable.ColorDrawable)?.color
-            if (lightGrouped != null && lightGrouped == ContextCompat.getColor(activity, R.color.bg_app) &&
-                lightGrouped != ContextCompat.getColor(activity, R.color.bg_app)
-            ) {
-                return ScreenCanvasRole.GROUPED
-            }
+            // No color heuristic: PLAIN and GROUPED intentionally share bg_app.
+            // Unknown test fixtures default to plain; grouped fixtures are matched by their IDs above.
             return ScreenCanvasRole.PLAIN
         }
         return ScreenCanvasRole.GROUPED
