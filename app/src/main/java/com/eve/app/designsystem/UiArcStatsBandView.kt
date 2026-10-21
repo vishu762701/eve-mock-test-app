@@ -41,7 +41,7 @@ class UiArcStatsBandView @JvmOverloads constructor(
     private val density = resources.displayMetrics.density
     private var hasTriggeredInView = false
     private val activeAnimators = mutableListOf<ValueAnimator>()
-    private val previousValues = mutableMapOf<Int, Int>()
+    private val previousValues = mutableMapOf<Int, Long>()
 
     init {
         viewTreeObserver.addOnScrollChangedListener(object : ViewTreeObserver.OnScrollChangedListener {
@@ -80,12 +80,12 @@ class UiArcStatsBandView @JvmOverloads constructor(
     }
 
     /**
-     * Updates an integer metric with UIArc Stats Band motion.
+     * Updates a numeric metric with UIArc Stats Band motion.
      * @param textView Target TextView to animate
-     * @param targetCount Actual new integer count, or null for unavailable state
+     * @param targetCount Actual new integer/long count, or null for unavailable state
      * @param metricIndex Stagger index (0 = 0ms, 1 = 90ms)
      */
-    fun updateMetric(textView: TextView, targetCount: Int?, metricIndex: Int) {
+    fun updateMetric(textView: TextView, targetCount: Long?, metricIndex: Int) {
         if (targetCount == null) {
             textView.text = "—"
             previousValues.remove(textView.id)
@@ -106,7 +106,7 @@ class UiArcStatsBandView @JvmOverloads constructor(
             return
         }
 
-        val fromVal = prev ?: 0
+        val fromVal = prev ?: 0L
         val isFirstLoad = prev == null
         val delay = metricIndex * STAGGER_MS
 
@@ -123,12 +123,12 @@ class UiArcStatsBandView @JvmOverloads constructor(
                 .start()
         }
 
-        val animator = ValueAnimator.ofInt(fromVal, targetCount).apply {
+        val animator = ValueAnimator.ofFloat(fromVal.toFloat(), targetCount.toFloat()).apply {
             duration = COUNT_DURATION_MS
             startDelay = delay
             interpolator = UiArcMotion.Ease.ENTER
             addUpdateListener { va ->
-                val current = va.animatedValue as Int
+                val current = (va.animatedValue as Float).toLong()
                 textView.text = current.toString()
             }
             addListener(object : AnimatorListenerAdapter() {
@@ -140,5 +140,9 @@ class UiArcStatsBandView @JvmOverloads constructor(
             start()
         }
         activeAnimators.add(animator)
+    }
+
+    fun updateMetric(textView: TextView, targetCount: Int?, metricIndex: Int) {
+        updateMetric(textView, targetCount?.toLong(), metricIndex)
     }
 }
