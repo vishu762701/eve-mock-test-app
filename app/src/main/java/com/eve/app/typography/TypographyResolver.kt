@@ -175,6 +175,7 @@ object TypographyResolver {
             } else if (size > 48f) {
                 issues.add(ValidationIssue(ValidationIssue.Level.WARNING, "$context text size (${size}sp) may cause clipping in compact containers."))
             }
+            Unit
         }
 
         rule.lineHeightSp?.let { line ->
@@ -182,12 +183,14 @@ object TypographyResolver {
             if (line < size) {
                 issues.add(ValidationIssue(ValidationIssue.Level.ERROR, "$context line height (${line}sp) is smaller than text size (${size}sp), causing vertical overlapping."))
             }
+            Unit
         }
 
         rule.letterSpacing?.let { spacing ->
             if (spacing > 0.15f) {
                 issues.add(ValidationIssue(ValidationIssue.Level.WARNING, "$context letter spacing ($spacing) is high and may decrease reading fluency."))
             }
+            Unit
         }
     }
 }

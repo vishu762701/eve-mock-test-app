@@ -306,8 +306,8 @@ class TypographyStudioActivity : EveBaseActivity() {
         binding.btnSaveRole.setOnClickListener {
             val selectedPos = binding.spGlobalRole.selectedItemPosition
             val roleKey = canonicalRoles.getOrNull(selectedPos)?.first ?: "headline"
-            val size = binding.etRoleSize.text?.toString()?.toIntOrNull() ?: 17
-            val line = binding.etRoleLineHeight.text?.toString()?.toIntOrNull() ?: 22
+            val size = binding.etRoleSize.text?.toString()?.toFloatOrNull() ?: 17f
+            val line = binding.etRoleLineHeight.text?.toString()?.toFloatOrNull() ?: 22f
             val weight = when (binding.chipGroupRoleWeight.checkedChipId) {
                 R.id.chipWeight400 -> 400
                 R.id.chipWeight500 -> 500
@@ -323,7 +323,7 @@ class TypographyStudioActivity : EveBaseActivity() {
             val selectedPos = binding.spGlobalRole.selectedItemPosition
             val roleKey = canonicalRoles.getOrNull(selectedPos)?.first ?: "headline"
             val defaultPreset = TypographyPreset.IOS26_BALANCED
-            val defaultRule = defaultPreset.rules[roleKey] ?: StyleRule(textSizeSp = 17, lineHeightSp = 22, weight = 400)
+            val defaultRule = defaultPreset.rules[roleKey] ?: StyleRule(textSizeSp = 17f, lineHeightSp = 22f, weight = 400)
             viewModel.updateGlobalRole(roleKey, defaultRule)
             populateRoleFields(roleKey)
             Toast.makeText(this, "Reset role $roleKey to default", Toast.LENGTH_SHORT).show()
@@ -333,22 +333,22 @@ class TypographyStudioActivity : EveBaseActivity() {
     private fun populateRoleFields(roleKey: String) {
         val rule = viewModel.draftConfig.value.globalStyles[roleKey]
             ?: TypographyPreset.IOS26_BALANCED.rules[roleKey]
-            ?: StyleRule(textSizeSp = 17, lineHeightSp = 22, weight = 400)
+            ?: StyleRule(textSizeSp = 17f, lineHeightSp = 22f, weight = 400)
 
-        binding.etRoleSize.setText(rule.textSizeSp.toString())
-        binding.etRoleLineHeight.setText(rule.lineHeightSp.toString())
+        binding.etRoleSize.setText(rule.textSizeSp?.toInt()?.toString() ?: "17")
+        binding.etRoleLineHeight.setText(rule.lineHeightSp?.toInt()?.toString() ?: "22")
         when (rule.weight) {
             400 -> binding.chipWeight400.isChecked = true
             500 -> binding.chipWeight500.isChecked = true
             700 -> binding.chipWeight700.isChecked = true
             else -> binding.chipWeight600.isChecked = true
         }
-        binding.tvRolePreviewSample.textSize = rule.textSizeSp.toFloat()
+        binding.tvRolePreviewSample.textSize = rule.textSizeSp ?: 17f
     }
 
     private fun initScreenEditorSection() {
         val screenKeys = TypographyRegistry.SCREENS.map { it.key }
-        val screenNames = TypographyRegistry.SCREENS.map { it.name }
+        val screenNames = TypographyRegistry.SCREENS.map { it.displayName }
         val screenAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, screenNames).apply {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
@@ -356,7 +356,7 @@ class TypographyStudioActivity : EveBaseActivity() {
 
         fun updateElementsForScreen(screenIndex: Int) {
             val screen = TypographyRegistry.SCREENS.getOrNull(screenIndex) ?: return
-            val elemNames = screen.elements.map { "${it.name} (${it.canonicalRole})" }
+            val elemNames = screen.elements.map { "${it.displayName} (${it.defaultRole})" }
             val elemAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, elemNames).apply {
                 setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             }
@@ -384,8 +384,8 @@ class TypographyStudioActivity : EveBaseActivity() {
             val elemIdx = binding.spElement.selectedItemPosition
             val elem = screen.elements.getOrNull(elemIdx) ?: return@setOnClickListener
 
-            val size = binding.etElementSize.text?.toString()?.toIntOrNull()
-            val line = binding.etElementLineHeight.text?.toString()?.toIntOrNull()
+            val size = binding.etElementSize.text?.toString()?.toFloatOrNull()
+            val line = binding.etElementLineHeight.text?.toString()?.toFloatOrNull()
             val weight = when (binding.chipGroupElementWeight.checkedChipId) {
                 R.id.chipElemWeight400 -> 400
                 R.id.chipElemWeight500 -> 500
@@ -403,12 +403,12 @@ class TypographyStudioActivity : EveBaseActivity() {
 
             val overrideRule = StyleRule(
                 fontFamily = family,
-                textSizeSp = size ?: 17,
-                lineHeightSp = line ?: 22,
-                weight = weight ?: 400
+                textSizeSp = size,
+                lineHeightSp = line,
+                weight = weight
             )
             viewModel.updateElementOverride(screen.key, elem.key, overrideRule)
-            Toast.makeText(this, "Saved override for ${elem.name}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Saved override for ${elem.displayName}", Toast.LENGTH_SHORT).show()
         }
 
         binding.btnResetElementOverride.setOnClickListener {
@@ -422,7 +422,7 @@ class TypographyStudioActivity : EveBaseActivity() {
             binding.etElementLineHeight.setText("")
             binding.chipElemWeightInherit.isChecked = true
             binding.spElementFontFamily.setSelection(0)
-            Toast.makeText(this, "Reset ${elem.name} to inherited values", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Reset ${elem.displayName} to inherited values", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -518,7 +518,7 @@ class TypographyStudioActivity : EveBaseActivity() {
             row.binding.tvPreviewSample.text = sampleText
             val roleRule = config.globalStyles[row.role.name.lowercase()]
             if (roleRule != null) {
-                row.binding.tvPreviewSample.textSize = roleRule.textSizeSp.toFloat()
+                row.binding.tvPreviewSample.textSize = roleRule.textSizeSp ?: 17f
                 val weight = FontManager.FontWeight.fromInt(roleRule.weight)
                 row.binding.tvPreviewSample.typeface = FontManager.getTypeface(this, family, weight)
             } else {

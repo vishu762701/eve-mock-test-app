@@ -74,6 +74,8 @@ object FontManager {
                     else -> BOLD
                 }
             }
+
+            fun fromInt(v: Int?): FontWeight = fromValue(v)
         }
     }
 
