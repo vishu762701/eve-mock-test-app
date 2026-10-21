@@ -266,6 +266,65 @@ class UiArcMotionComponentsTest {
     }
 
     @Test
+    fun testBatch03_Component1_ProgressBar() {
+        val progressBarClass = File(getProjectDir(), "app/src/main/java/com/eve/app/designsystem/UiArcProgressBar.kt")
+        assertTrue("UiArcProgressBar.kt must exist", progressBarClass.exists())
+    }
+
+    @Test
+    fun testBatch03_Component2_TargetExamsBottomSheetDetents() {
+        val sheetLayout = loadXml("src/main/res/layout/bottom_sheet_target_exams.xml")
+        val chipGroup = findElementById(sheetLayout, "chipGroupExams")
+        assertNotNull("chipGroupExams must exist in bottom_sheet_target_exams.xml", chipGroup)
+        val btnContinue = findElementById(sheetLayout, "btnContinue")
+        assertNotNull("btnContinue must exist in bottom_sheet_target_exams.xml", btnContinue)
+    }
+
+    @Test
+    fun testBatch03_Component3_ToastStackConstants() {
+        assertEquals(5000L, com.eve.app.util.AppBulletin.DURATION_DEFAULT)
+        assertEquals(8000L, com.eve.app.util.AppBulletin.DURATION_ERROR)
+        assertEquals(12, com.eve.app.util.AppBulletin.MAX_QUEUE)
+        assertEquals(3, com.eve.app.util.AppBulletin.MAX_VISIBLE)
+        assertEquals(14f, com.eve.app.util.AppBulletin.PEEK_DP, 0.001f)
+        assertEquals(0.05f, com.eve.app.util.AppBulletin.SCALE_STEP, 0.001f)
+    }
+
+    @Test
+    fun testBatch03_Component4_NumberFieldManageExamsLayout() {
+        assertEquals(400L, UiArcNumberField.HOLD_DELAY)
+        assertEquals(40L, UiArcNumberField.HOLD_FASTEST)
+
+        val root = loadXml("src/main/res/layout/activity_manage_exams.xml")
+        val numberField = findElementById(root, "numberFieldQuestionCount")
+        assertNotNull("numberFieldQuestionCount must exist in activity_manage_exams.xml", numberField)
+        assertEquals("com.eve.app.designsystem.UiArcNumberField", numberField?.tagName)
+
+        val etQuestionCount = findElementById(root, "etQuestionCount")
+        assertNotNull("etQuestionCount must be nested inside number field", etQuestionCount)
+        assertEquals("number", etQuestionCount?.getAttribute("android:inputType"))
+    }
+
+    @Test
+    fun testBatch03_Component5_InViewTitlePerformanceHeadingsLayout() {
+        assertEquals(0.45f, UiArcInViewTitleView.TRIGGER_AMOUNT, 0.001f)
+        assertEquals(800L, UiArcInViewTitleView.SETTLE_MS)
+        assertEquals(448L, UiArcInViewTitleView.OPACITY_MS)
+        assertEquals(624L, UiArcInViewTitleView.BLUR_MS)
+
+        val root = loadXml("src/main/res/layout/activity_performance.xml")
+        val headingScore = findElementById(root, "tvHeadingScoreTrend")
+        assertNotNull("tvHeadingScoreTrend must exist in activity_performance.xml", headingScore)
+        assertEquals("com.eve.app.designsystem.UiArcInViewTitleView", headingScore?.tagName)
+        assertEquals("Score Trend", headingScore?.getAttribute("android:text"))
+
+        val headingTopic = findElementById(root, "tvHeadingTopicAccuracy")
+        assertNotNull("tvHeadingTopicAccuracy must exist in activity_performance.xml", headingTopic)
+        assertEquals("com.eve.app.designsystem.UiArcInViewTitleView", headingTopic?.tagName)
+        assertEquals("Topic-wise Accuracy", headingTopic?.getAttribute("android:text"))
+    }
+
+    @Test
     fun testInvariants_ProtectedThemeAndLottieAreUntouched() {
         val themeSwitchAnimator = File(getProjectDir(), "app/src/main/java/com/eve/app/util/ThemeSwitchAnimator.kt")
         assertTrue("ThemeSwitchAnimator must remain protected", themeSwitchAnimator.exists())

@@ -28,7 +28,7 @@
                 </LinearLayout>
                 <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap">
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                        <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Score Trend" />
+                        <com.eve.app.designsystem.UiArcInViewTitleView android:id="@+id/tvHeadingScoreTrend" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Score Trend" />
                         <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Accuracy % across previous attempts — oldest to newest, left to right" />
                         <com.eve.app.ui.performance.ScoreTrendChartView android:id="@+id/chartTrend" android:layout_width="match_parent" android:layout_height="160dp" android:layout_marginTop="@dimen/design_screen_margin" />
                     </LinearLayout>
@@ -39,7 +39,7 @@
                         <TextView android:id="@+id/tvWeakAreas" style="@style/TextAppearance.Eve.Token.Secondary.red" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" />
                     </LinearLayout>
                 </com.eve.app.designsystem.DesignCardView>
-                <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_shadow_room" android:text="Topic-wise Accuracy" />
+                <com.eve.app.designsystem.UiArcInViewTitleView android:id="@+id/tvHeadingTopicAccuracy" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_shadow_room" android:text="Topic-wise Accuracy" />
                 <TextView android:id="@+id/tvNoTopics" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:text="No topic tags found in questions — Admin can add topics when creating or editing questions." android:visibility="gone" />
                 <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvTopics" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:nestedScrollingEnabled="false" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll.Inner" />
             </LinearLayout>

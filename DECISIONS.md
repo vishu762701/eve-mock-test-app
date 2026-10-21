@@ -1370,3 +1370,91 @@ Following the successful implementation of Batch 01 (ADR-022), Batch 02 delivers
    - Telegram circular reveal Day/Night animation, ThemeSwitchAnimator, and ThemeManager remain 100% protected.
    - All Lottie assets, playback timing, and triggers remain 100% protected.
    - All SVG icon vectors, test colors, and backend security/scoring invariants remain invariant.
+
+## ADR-024: UIArc Motion Implementation — Batch 03 (Five Components)
+
+- **Date**: 2026-10-21
+- **Status**: Accepted
+- **Author**: Principal Native Android Engineer, UI Motion Specialist, and QA Lead
+- **Authority**: Direct user instruction: "EVE — UIARC MOTION IMPLEMENTATION — BATCH 03"
+
+### Context
+Following the successful completion of Batch 01 (ADR-022) and Batch 02 (ADR-023), Batch 03 delivers five production UI motion components from UIArc (https://uiarc.dev) for genuine native Android Kotlin/XML implementation:
+1. Progress: https://uiarc.dev/r/progress.json
+2. Bottom Sheet: https://uiarc.dev/r/bottom-sheet.json
+3. Toast Stack: https://uiarc.dev/r/toast-stack.json
+4. Number Field: https://uiarc.dev/r/number-field.json
+5. In-View Title: https://uiarc.dev/r/in-view-title.json
+
+### Decisions
+
+1. **Component 1 — Progress (Real Measurable Operations Audit & UiArcProgressBar)**:
+   - Target: `app/src/main/java/com/eve/app/designsystem/UiArcProgressBar.kt`.
+   - Comprehensive audit of candidate operations in EVE:
+     - Test submission (`TestActivity.kt`): single atomic HTTP POST `/api/attempts/submit` with no stream progress chunks.
+     - Syllabus upload (`ManageSyllabusActivity.kt`): single atomic multipart POST with indeterminate spinner.
+     - AI test generation (`ManageExamsActivity.kt`): single atomic LLM POST request with indeterminate spinner.
+     - Download flow (`SyllabusActivity.kt`): handed off to system `DownloadManager` with broadcast receiver.
+     - `DesignLoadingView.kt`: explicitly indeterminate ring spinner.
+   - Per explicit directive ("Never invent percentage progress for indeterminate network requests. Never replace an indeterminate spinner with a fake 0–100% counter. Use actual authoritative progress data. If no genuine determinate operation exists, mark NOT APPLICABLE and do not create a decorative progress bar."):
+     - Component 1 is formally audited and certified as **NOT APPLICABLE** on existing screens to preserve data integrity and server contracts.
+     - Created `UiArcProgressBar.kt` in the design system adhering strictly to UIArc source specifications:
+       - Smooth spring (`Spring.SMOOTH`) driving fill translation from left (`-100%` to `0%`).
+       - Completion check settling in with snappy spring (`Spring.SNAPPY`, 240ms delay).
+       - Success green track fill transition when complete (>= 100%).
+       - Full TalkBack accessibility and reduced-motion instant jump.
+
+2. **Component 2 — Bottom Sheet (Target Exams Selection Dual Detents)**:
+   - Target: `app/src/main/java/com/eve/app/ui/home/TargetExamsBottomSheet.kt`, `bottom_sheet_target_exams.xml`.
+   - Implemented source-verified UIArc dual detents: `[0.45, 0.92]` of viewport height.
+   - Initial detent at 0.45 (`STATE_HALF_EXPANDED`), providing an immediate peek of target exams with Skip and Continue actions.
+   - Finger-following drag expands sheet to 0.92 height (`STATE_EXPANDED`).
+   - Smooth gesture arbitration with inner `NestedScrollView`: scrolling inside content expands sheet before scrolling chips, and scrolling down to top collapses sheet before dismissing.
+   - Downward swipe past 0.45 peek detent dismisses cleanly without triggering chip clicks.
+   - Preserves shared preferences persistence (`KEY_TARGET_EXAMS`, `KEY_ONBOARDING_DONE`), callbacks, and Back dismissal.
+   - Reduced motion: immediate state transition without spring lag.
+
+3. **Component 3 — Toast Stack (AppBulletin Notification Infrastructure Upgrade)**:
+   - Target: `app/src/main/java/com/eve/app/util/AppBulletin.kt`, `layout_bulletin.xml`.
+   - Transformed `AppBulletin` into a genuine UIArc Toast Stack manager:
+     - Default display duration: 5000ms (`DURATION_DEFAULT = 5000L`).
+     - Error/warning duration multiplier: 1.6 (`DURATION_ERROR = 8000L`).
+     - Maximum queue: 12 (`MAX_QUEUE = 12`).
+     - Maximum visible: 3 (`MAX_VISIBLE = 3`).
+     - Stacked peek: 14dp (`PEEK_DP = 14f`).
+     - Scale step per level: 0.05 (`SCALE_STEP = 0.05f`).
+     - Incoming toasts slide up from bottom edge with `Spring.SMOOTH`.
+     - Tucked toasts stack behind front card (`translationY = -depth * 14dp`, `scale = 1 - depth * 0.05`).
+     - Touch down pauses dismiss timer; touch release resumes.
+     - Horizontal swipe-to-dismiss right gesture with snappy/exit animation.
+     - On front toast dismiss, remaining toasts reflow forward with `Spring.SMOOTH`.
+     - Full backwards compatibility with all existing `AppBulletin` callers (`show`, `showSuccess`, `showError`, `make`).
+
+4. **Component 4 — Number Field (Admin Exam Configuration Question Count)**:
+   - Target: `app/src/main/java/com/eve/app/designsystem/UiArcNumberField.kt`, `activity_manage_exams.xml`, `ManageExamsActivity.kt`.
+   - Applied to Question Count setting (`etQuestionCount` / `numberFieldQuestionCount`):
+     - Value bounds: `min = 1, max = 200, step = 1`, default 20.
+     - Stepper buttons with minimum 48dp touch targets (`@dimen/design_touch_min`).
+     - Tabler minus and plus vector icons (`ic_minus.xml`, `ic_add.xml`).
+     - Snappy press scale (`Spring.SNAPPY`).
+     - Hold-to-repeat timing: 400ms initial delay (`HOLD_DELAY`), accelerating from 150ms to 40ms (`HOLD_FASTEST`) via exponential decay `150 * (0.86^n)`.
+     - Elastic boundary kick animation on limit hit (`Spring.MORPH`).
+     - Direct keyboard entry, validation, error states, and IME support completely preserved.
+
+5. **Component 5 — In-View Title (Performance Headings Reveal)**:
+   - Target: `app/src/main/java/com/eve/app/designsystem/UiArcInViewTitleView.kt`, `activity_performance.xml`, `PerformanceActivity.kt`.
+   - Applied to section headings: "Score Trend" (`tvHeadingScoreTrend`) and "Topic-wise Accuracy" (`tvHeadingTopicAccuracy`).
+   - Trigger: when 45% of heading is in viewport (`amount = 0.45f`).
+   - Coordinated reveal timing:
+     - Opacity leads: 448ms (`settle * 0.56`, `Ease.STANDARD`).
+     - Blur clears next: 624ms (`settle * 0.78`, API 31+ RenderEffect with fallback).
+     - Transform settles last: 800ms (`settle`, `Ease.ENTER` with 6dp subtle vertical rise).
+   - Single trigger (`once = true`), headings already scrolled past show immediately without flashing.
+   - Reduced motion: instant reveal without blur or motion.
+   - TalkBack: full content description announced once as a cohesive heading.
+
+6. **Strict Boundary Preservation**:
+   - Zero changes to unrelated screens.
+   - Telegram circular reveal Day/Night animation, ThemeSwitchAnimator, and ThemeManager remain 100% protected.
+   - All Lottie assets, playback timing, and triggers remain 100% protected.
+   - All SVG icon vectors, test colors, and backend security/scoring invariants remain invariant.

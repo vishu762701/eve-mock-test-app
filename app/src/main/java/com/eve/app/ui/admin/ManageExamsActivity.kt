@@ -184,6 +184,13 @@ class ManageExamsActivity : EveBaseActivity() {
             handleMainExamSelection(item.exam)
         }
 
+        binding.numberFieldQuestionCount.attachEditText(
+            editText = binding.etQuestionCount,
+            minVal = 1,
+            maxVal = 200,
+            stepVal = 1
+        )
+
         binding.btnNewExam.setOnClickListener {
             if (isNewMainExamMode) {
                 val hasMainExams = examList.any { it.parentExamId.isBlank() }

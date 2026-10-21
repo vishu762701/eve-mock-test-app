@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
 import com.eve.app.data.model.Exam
 import com.eve.app.databinding.BottomSheetTargetExamsBinding
+import com.eve.app.designsystem.UiArcMotion
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.chip.Chip
 
@@ -92,14 +94,28 @@ object TargetExamsBottomSheet {
             dialog.dismiss()
         }
 
-        val density = activity.resources.displayMetrics.density
+        val displayMetrics = activity.resources.displayMetrics
+        val vh = displayMetrics.heightPixels
+        val density = displayMetrics.density
+
         dialog.behavior.maxWidth = Math.round(640f * density)
-        dialog.behavior.maxHeight = Math.round(activity.resources.displayMetrics.heightPixels * 0.9f)
-        dialog.behavior.skipCollapsed = true
+        // UIArc detent specification: [0.45, 0.92] with initialDetent: 0 (0.45 peek)
+        dialog.behavior.isFitToContents = false
+        dialog.behavior.halfExpandedRatio = 0.45f
+        dialog.behavior.peekHeight = Math.round(vh * 0.45f)
+        dialog.behavior.expandedOffset = Math.round(vh * 0.08f)
+        dialog.behavior.skipCollapsed = false
+
         dialog.show()
         com.eve.app.designsystem.DesignSurfaces.dialog(dialog)
         com.eve.app.designsystem.DesignSurfaces.sheet(binding.root)
-        dialog.behavior.state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
+
+        val motionEnabled = UiArcMotion.isMotionEnabled(activity)
+        dialog.behavior.state = if (motionEnabled) {
+            BottomSheetBehavior.STATE_HALF_EXPANDED
+        } else {
+            BottomSheetBehavior.STATE_EXPANDED
+        }
         return dialog
     }
 }

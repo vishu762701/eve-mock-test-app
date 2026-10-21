@@ -51,9 +51,11 @@
                         </com.eve.app.designsystem.DesignInputLayout>
                     </LinearLayout>
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                        <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilQuestionCount" style="@style/Widget.Eve.Token.TextInput" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginEnd="@dimen/design_row_gap" android:layout_weight="1" app:helperText="1 - 200 questions">
-                            <com.google.android.material.textfield.TextInputEditText style="@style/Widget.Eve.Token.Input" android:id="@+id/etQuestionCount" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:hint="Questions" android:inputType="number" android:maxLines="1" />
-                        </com.eve.app.designsystem.DesignInputLayout>
+                        <com.eve.app.designsystem.UiArcNumberField android:id="@+id/numberFieldQuestionCount" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginEnd="@dimen/design_row_gap" android:layout_weight="1" android:clipChildren="false" android:clipToPadding="false">
+                            <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilQuestionCount" style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" app:helperText="1 - 200 questions">
+                                <com.google.android.material.textfield.TextInputEditText style="@style/Widget.Eve.Token.Input" android:id="@+id/etQuestionCount" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:hint="Questions" android:inputType="number" android:maxLines="1" />
+                            </com.eve.app.designsystem.DesignInputLayout>
+                        </com.eve.app.designsystem.UiArcNumberField>
                         <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilNegativeMarking" style="@style/Widget.Eve.Token.TextInput" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_row_gap" android:layout_weight="1" app:helperText="e.g. 1/3, 0.25, 0">
                             <com.google.android.material.textfield.TextInputEditText style="@style/Widget.Eve.Token.Input" android:id="@+id/etNegativeMarking" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:hint="Negative Mark" android:inputType="text" android:maxLength="10" android:maxLines="1" android:singleLine="true" />
                         </com.eve.app.designsystem.DesignInputLayout>
