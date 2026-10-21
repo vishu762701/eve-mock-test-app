@@ -84,7 +84,7 @@ class AppWideTypographyAndColorRolesTest {
         assertTrue("Layout directory must exist at ${layoutDir.absolutePath}", layoutDir.exists())
 
         val layoutFiles = layoutDir.listFiles { file -> file.extension == "xml" }?.sortedBy { it.name } ?: emptyList()
-        assertEquals("System Monitor added; retired font picker removed", 95, layoutFiles.size)
+        assertEquals("Typography Studio added (activity_typography_studio and item_typography_preview_row)", 97, layoutFiles.size)
 
         val violations = mutableListOf<String>()
         for (file in layoutFiles) {
