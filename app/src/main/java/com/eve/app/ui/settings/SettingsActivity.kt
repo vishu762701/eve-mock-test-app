@@ -183,37 +183,31 @@ class SettingsActivity : EveBaseActivity() {
                 deleteTimeoutJob?.cancel()
                 d.dismiss()
             }
-            .create()
+            .showDestructive()
 
-        dialog.setOnShowListener {
-            deleteConfirmArmedAt = android.os.SystemClock.elapsedRealtime()
-            val deleteBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-            deleteBtn.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.destructive))
-            deleteBtn.setOnClickListener {
-                // Enforce UIArc duplicate-action guard (280ms)
-                if (android.os.SystemClock.elapsedRealtime() - deleteConfirmArmedAt < 280L) {
-                    return@setOnClickListener
-                }
-                deleteTimeoutJob?.cancel()
-                dialog.dismiss()
-                executeAccountDeletion()
+        deleteConfirmArmedAt = android.os.SystemClock.elapsedRealtime()
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setOnClickListener {
+            // Enforce UIArc duplicate-action guard (280ms)
+            if (android.os.SystemClock.elapsedRealtime() - deleteConfirmArmedAt < 280L) {
+                return@setOnClickListener
             }
-
-            // UIArc confirmation timeout: 6000ms auto-dismissal
             deleteTimeoutJob?.cancel()
-            deleteTimeoutJob = lifecycleScope.launch {
-                kotlinx.coroutines.delay(6000L)
-                if (dialog.isShowing) {
-                    dialog.dismiss()
-                }
+            dialog.dismiss()
+            executeAccountDeletion()
+        }
+
+        // UIArc confirmation timeout: 6000ms auto-dismissal
+        deleteTimeoutJob?.cancel()
+        deleteTimeoutJob = lifecycleScope.launch {
+            kotlinx.coroutines.delay(6000L)
+            if (dialog.isShowing) {
+                dialog.dismiss()
             }
         }
 
         dialog.setOnDismissListener {
             deleteTimeoutJob?.cancel()
         }
-
-        dialog.show()
     }
 
     private fun showProgress(msg: String) {
