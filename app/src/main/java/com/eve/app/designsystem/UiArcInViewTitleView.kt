@@ -43,13 +43,14 @@ class UiArcInViewTitleView @JvmOverloads constructor(
     var inViewThreshold: Float = TRIGGER_AMOUNT
     var once: Boolean = true
     private var isRevealed = false
+    private var hasEverBeenOutOfView = false
 
     private var scrollListener: ViewTreeObserver.OnScrollChangedListener? = null
     private var globalLayoutListener: ViewTreeObserver.OnGlobalLayoutListener? = null
 
     init {
-        // Initial state before reveal: hidden
-        alpha = 0f
+        // Initial state before reveal: visible by default so accessibility, TalkBack, and snapshots have full contrast
+        alpha = 1f
     }
 
     override fun onAttachedToWindow() {
@@ -96,19 +97,26 @@ class UiArcInViewTitleView @JvmOverloads constructor(
         if (isVisible && h > 0) {
             val visibleFraction = rect.height().toFloat() / h.toFloat()
             if (visibleFraction >= inViewThreshold) {
-                triggerReveal()
+                if (!hasEverBeenOutOfView) {
+                    revealInstant()
+                } else {
+                    triggerReveal()
+                }
             }
         } else {
+            hasEverBeenOutOfView = true
             // Check if already above viewport
             val location = IntArray(2)
             getLocationOnScreen(location)
             if (location[1] < 0 && h > 0) {
                 revealInstant()
+            } else if (location[1] > 0 && h > 0) {
+                alpha = 0f
             }
         }
     }
 
-    private fun revealInstant() {
+    fun revealInstant() {
         isRevealed = true
         alpha = 1f
         translationY = 0f
