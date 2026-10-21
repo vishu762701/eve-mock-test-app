@@ -1518,3 +1518,31 @@ The application had inconsistent typography definitions resulting from fragmente
    - Telegram circular reveal Day/Night transition completely preserved.
    - Lottie animations and triggers completely preserved.
    - Server-authoritative test scoring, timer, and ranking completely preserved.
+
+## ADR-026: EVE Typography Studio (Part 1: Immediate Local Preview, 11 Apple iOS 26 Styles & Inter Family Weights)
+
+- **Date**: 2026-10-21
+- **Status**: Accepted
+- **Author**: Principal Android Engineer, Typography Architect
+
+### Context
+Following the app-wide Apple iOS 26 typography migration (ADR-025), a dedicated developer and admin Typography Studio is added under Admin Dashboard. The studio enables administrators to visually inspect, test, and preview all 11 canonical Apple iOS 26 typography styles and the authentic Inter font weights, with a requirement that selecting a font changes the local preview immediately.
+
+### Decisions
+1. **Immediate Local Preview Contract**:
+   - Selecting any font option updates the active font info and immediately reflects across all preview rows and interactive component previews without requiring save, debounce, or network publication.
+   - Live sample text modifications and the `.Emphasized` variant toggle update all 11 canonical styles synchronously.
+   - English and Hindi / Devanagari preset quick-actions prove typography rendering and native multilingual fallback.
+
+2. **11 Canonical Apple iOS 26 Styles Coverage**:
+   - Synchronously renders Large Title (34sp/41sp), Title 1 (28sp/34sp), Title 2 (22sp/28sp), Title 3 (20sp/25sp), Headline (17sp/22sp), Body (17sp/22sp), Callout (16sp/21sp), Subheadline (15sp/20sp), Footnote (13sp/18sp), Caption 1 (12sp/16sp), and Caption 2 (11sp/13sp).
+   - Each row item uses solid `DesignCardView` styling conforming to Eve's design system tokens.
+
+3. **Font Options**:
+   - `FontManager.FontOption` enum exposes the authentic Inter font weights (`INTER_REGULAR` 400, `INTER_MEDIUM` 500, `INTER_SEMIBOLD` 600, `INTER_BOLD` 700) and system typefaces (`SYSTEM_SANS`, `SYSTEM_SERIF`, `SYSTEM_MONOSPACE`).
+
+4. **Invariants Preserved**:
+   - Protected Telegram circular reveal Day/Night transition preserved.
+   - Protected Lottie animations and triggers preserved.
+   - Server-authoritative test scoring, ranking, and timer preserved.
+   - Admin access controls enforced.
