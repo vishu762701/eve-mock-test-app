@@ -83,16 +83,16 @@ class Ios26OfficialTypographyTest {
 
     private val canonicalStyles = listOf(
         ExpectedStyle("LargeTitle", "design_type_large_title", "design_line_large_title", "34sp", "41sp", "@font/inter_regular", "@font/inter_bold"),
-        ExpectedStyle("Title1", "design_type_title_1", "design_line_title_1", "28sp", "34sp", "@font/inter_regular", "@font/inter_bold"),
-        ExpectedStyle("Title2", "design_type_title_2", "design_line_title_2", "22sp", "28sp", "@font/inter_regular", "@font/inter_bold"),
-        ExpectedStyle("Title3", "design_type_title_3", "design_line_title_3", "20sp", "25sp", "@font/inter_regular", "@font/inter_semibold"),
+        ExpectedStyle("Title1", "design_type_title1", "design_line_title1", "28sp", "34sp", "@font/inter_regular", "@font/inter_bold"),
+        ExpectedStyle("Title2", "design_type_title2", "design_line_title2", "22sp", "28sp", "@font/inter_regular", "@font/inter_bold"),
+        ExpectedStyle("Title3", "design_type_title3", "design_line_title3", "20sp", "25sp", "@font/inter_regular", "@font/inter_semibold"),
         ExpectedStyle("Headline", "design_type_headline", "design_line_headline", "17sp", "22sp", "@font/inter_semibold", "@font/inter_semibold"),
         ExpectedStyle("Body", "design_type_body", "design_line_body", "17sp", "22sp", "@font/inter_regular", "@font/inter_semibold"),
         ExpectedStyle("Callout", "design_type_callout", "design_line_callout", "16sp", "21sp", "@font/inter_regular", "@font/inter_semibold"),
         ExpectedStyle("Subheadline", "design_type_subheadline", "design_line_subheadline", "15sp", "20sp", "@font/inter_regular", "@font/inter_semibold"),
         ExpectedStyle("Footnote", "design_type_footnote", "design_line_footnote", "13sp", "18sp", "@font/inter_regular", "@font/inter_semibold"),
-        ExpectedStyle("Caption1", "design_type_caption_1", "design_line_caption_1", "12sp", "16sp", "@font/inter_regular", "@font/inter_semibold"),
-        ExpectedStyle("Caption2", "design_type_caption_2", "design_line_caption_2", "11sp", "13sp", "@font/inter_regular", "@font/inter_semibold")
+        ExpectedStyle("Caption1", "design_type_caption1", "design_line_caption1", "12sp", "16sp", "@font/inter_regular", "@font/inter_semibold"),
+        ExpectedStyle("Caption2", "design_type_caption2", "design_line_caption2", "11sp", "13sp", "@font/inter_regular", "@font/inter_semibold")
     )
 
     @Test
@@ -141,15 +141,15 @@ class Ios26OfficialTypographyTest {
     fun testComponentSpecificAdaptationsDeclared() {
         val styles = loadStyles("app/src/main/res/values/design_type.xml")
         val requiredComponentStyles = listOf(
-            "TextAppearance.Eve.NavigationTitle",
-            "TextAppearance.Eve.DialogTitle",
-            "TextAppearance.Eve.DialogMessage",
-            "TextAppearance.Eve.CardHeading",
-            "TextAppearance.Eve.Badge",
-            "TextAppearance.Eve.Timer",
-            "TextAppearance.Eve.HeroScore",
-            "TextAppearance.Eve.MetricValue",
-            "TextAppearance.Eve.ChartLabel"
+            "TextAppearance.Eve.Component.NavigationTitle",
+            "TextAppearance.Eve.Component.DialogTitle",
+            "TextAppearance.Eve.Component.DialogMessage",
+            "TextAppearance.Eve.Component.CardHeading",
+            "TextAppearance.Eve.Component.Badge",
+            "TextAppearance.Eve.Component.Timer",
+            "TextAppearance.Eve.Component.HeroScore",
+            "TextAppearance.Eve.Component.MetricValue",
+            "TextAppearance.Eve.Component.ChartLabel"
         )
         for (name in requiredComponentStyles) {
             assertTrue("Component style $name must exist", styles.containsKey(name))
