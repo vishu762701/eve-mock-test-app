@@ -280,12 +280,12 @@ class AdminActivity : EveBaseActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.totalUsers.collect { count ->
-                        binding.tvTotalUsers.text = count?.toString() ?: "—"
+                        binding.statsBandUserManagement.updateMetric(binding.tvTotalUsers, count, metricIndex = 0)
                     }
                 }
                 launch {
                     viewModel.onlineUsers.collect { count ->
-                        binding.tvOnlineUsers.text = count?.toString() ?: "—"
+                        binding.statsBandUserManagement.updateMetric(binding.tvOnlineUsers, count, metricIndex = 1)
                     }
                 }
                 launch {
@@ -1231,6 +1231,11 @@ class AdminActivity : EveBaseActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("key_empty_played", hasEmptyPlayed)
+    }
+
+    override fun onDestroy() {
+        binding.statsBandUserManagement.cancelAllAnimations()
+        super.onDestroy()
     }
 
     private fun setupMaintenanceControls() {

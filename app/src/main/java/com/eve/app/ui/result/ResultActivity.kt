@@ -245,7 +245,6 @@ class ResultActivity : EveBaseActivity() {
         val accuracy = if (attempted > 0) (correct * 100.0 / attempted) else 0.0
         val accFormatted = String.format(java.util.Locale.US, "%.1f", accuracy)
         binding.tvAccuracy.text = "$accFormatted%"
-        binding.rowOverviewStatisticsTiles.triggerStatsAnimation()
 
         val scorePct = if (total > 0) (currentScore * 100.0 / total).coerceAtLeast(0.0) else 0.0
         binding.tvScorePercentage.text = String.format(java.util.Locale.US, "%.1f%% Score", scorePct)

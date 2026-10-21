@@ -1617,55 +1617,59 @@ Following the successful completion of Batch 01 (ADR-022), Batch 02 (ADR-023), B
 ### Context
 Following the successful completion of Batch 01 (ADR-022), Batch 02 (ADR-023), Batch 03 (ADR-024), Typography Studio (ADR-026), and Batch 04 (ADR-027), Batch 05 delivers five production UI motion components from the official UIArc registry (https://uiarc.dev) for genuine native Android Kotlin/XML implementation:
 1. **Component 1 — Swipe Actions** (`https://uiarc.dev/r/swipe-actions.json`): `UiArcSwipeRow.kt` (`item_bookmark_card.xml`, `BookmarkAdapter.kt`, `BookmarksActivity.kt`)
-2. **Component 2 — File Upload** (`https://uiarc.dev/r/file-upload.json`): `UiArcFileUploadView.kt` (`activity_manage_syllabus.xml`, `ManageSyllabusActivity.kt`)
-3. **Component 3 — Morph Select** (`https://uiarc.dev/r/morph-select.json`): `UiArcMorphSelectView.kt` (`activity_manage_syllabus.xml`, `ManageSyllabusActivity.kt`)
-4. **Component 4 — Radio Cards** (`https://uiarc.dev/r/radio-cards.json`): `UiArcRadioCardsGroup.kt` (`activity_app_config.xml`, `AppConfigActivity.kt`)
-5. **Component 5 — Stats Band** (`https://uiarc.dev/r/stats-band.json`): `UiArcStatsBandView.kt` (`ResultStatisticsGrid.kt`, `activity_result.xml`, `ResultActivity.kt`)
+2. **Component 2 — File Upload** (`https://uiarc.dev/r/file-upload.json`): `UiArcFileUploadView.kt` helper & morphing layout transitions (`activity_manage_syllabus.xml`, `ManageSyllabusActivity.kt`)
+3. **Component 3 — Morph Select** (`https://uiarc.dev/r/morph-select.json`): `UiArcMorphSelectView.kt` with stable Exam ID resolution (`activity_manage_syllabus.xml`, `ManageSyllabusActivity.kt`)
+4. **Component 4 — Radio Cards** (`https://uiarc.dev/r/radio-cards.json`): `UiArcRadioCardsGroup.kt` (`dialog_daily_goal_radio_cards.xml`, `SettingsActivity.kt`)
+5. **Component 5 — Stats Band** (`https://uiarc.dev/r/stats-band.json`): `UiArcStatsBandView.kt` (`activity_admin.xml`, `cardUserStats`, `AdminActivity.kt`)
 
 ### Decisions
 
 1. **Component 1: Swipe Actions (`UiArcSwipeRow.kt`)**:
    - Native translation of `https://uiarc.dev/r/swipe-actions.json`.
    - **Horizontal Gesture Detection**: `SLOP = 8dp` movement before horizontal drag locks out vertical list scrolling.
-   - **Action Dimension**: `ACTION = 76dp` width for underlying revealed action layer.
+   - **Action Dimension**: `ACTION = 76dp` width for underlying revealed remove bookmark action layer.
    - **Rubber Band Resistance**: Elastic overshoot past limits using `rubberBand(overshoot, dimension) = (1 - 1 / (overshoot * 0.55 / dimension + 1)) * dimension`.
-   - **Commit Threshold**: Full swipe commits at `Math.max(ACTION + 48dp, width * 0.56)`.
+   - **Commit Threshold**: Full swipe commits at `max(openActionWidth + 48px, 56% of rowWidth)`.
    - **Flick Commitment**: Releases with outward velocity `> 900 px/s` and projected distance (`PROJECTION = 0.1s`) trigger instant commit.
    - **Settle Physics**: Springs home to 0 with `UiArcMotion.Spring.SMOOTH` (500ms); settles to resting open with `UiArcMotion.Spring.SNAPPY` (360ms).
-   - **Committing Sequence**: Card slides to `-(width + 2)` with `Spring.SMOOTH`, then collapses height (`Spring.SMOOTH`, 120ms delay) and fades out before triggering `onUnbookmark(item)` and opening `AppUndoBar`.
+   - **Committing Sequence**: Card slides to direction * `(width + 2)` with `Spring.SMOOTH`, then collapses height (`Spring.SMOOTH`, 120ms delay) and fades out before triggering `onUnbookmark(item)` and opening `AppUndoBar`.
    - **Single-Open Coordination**: Tapping outside or scrolling the list automatically settles any open row back to 0.
-   - **Non-Gesture Accessibility**: Preserves explicit `btnBookmark` on the card to ensure TalkBack, screen readers, and keyboard navigation never require touch gestures.
+   - **RTL & Accessibility**: Full RTL direction adaptation; preserves explicit `btnBookmark` on the card to ensure TalkBack, screen readers, and keyboard navigation never require touch gestures.
 
-2. **Component 2: File Upload (`UiArcFileUploadView.kt`)**:
+2. **Component 2: File Upload (`UiArcFileUploadView.kt` & Morphing Form Transition)**:
    - Native translation of `https://uiarc.dev/r/file-upload.json`.
-   - **Dropzone & Idle State**: Card surface with upload icon (`ic_upload`), title, subtitle, and press scale animation.
-   - **File Details Row**: Displays file icon, name, formatted size (`formatSize`: B, KB, MB) with middle dot `·` and phase status ("Ready", "Uploading [progress]%", "Uploaded", "Upload failed").
-   - **Spring Progress Bar**: Progress fill bar slides in from left (`translationX` from `-100%` to `(percent - 100)%`) driven by `UiArcMotion.Spring.SMOOTH` (500ms) with synchronized live percentage text.
-   - **Status Transitions**: Check mark entrance animation (`Ease.ENTER`, 240ms, 80ms delay) on complete; retry button entrance (`Spring.SNAPPY`) on failure.
-   - **Host Integration**: Seamlessly integrated with `ManageSyllabusActivity.kt` for syllabus PDF selection and upload.
+   - **Selection Morph**: On picking a valid PDF (<20MB), `btnChoosePdf` scales down (0.96) and fades out (160ms, `Ease.STANDARD`), morphing into `layoutSelectedPdf` which rises (+8dp) and fades in (240ms, `Ease.ENTER`).
+   - **File Details Display**: Shows PDF icon, filename, and formatted size (`formatSize`: B, KB, MB) with status descriptor `· Ready`.
+   - **Clearing Exit**: On clear button tap, `layoutSelectedPdf` slides up (-8dp) and fades out (160ms), morphing back to `btnChoosePdf` (240ms).
+   - **Authentic Indeterminate Progress**: OkHttp repository upload uses genuine indeterminate spinner (`progressBarUpload`); never invents fake percentage progress.
+   - **Completion Checkmark**: On server confirmation, `ivUploadCheckDone` scales up from 0.6 and fades in (240ms, `Ease.ENTER`, 80ms delay) before form reset and bulletin notification.
+   - **Failure Resilience**: Preserves selected document on upload error for retry; safe clearing without orphan server files.
 
 3. **Component 3: Morph Select (`UiArcMorphSelectView.kt`)**:
    - Native translation of `https://uiarc.dev/r/morph-select.json`.
-   - **Trigger & Opening**: Compact closed trigger with selected label and rotating chevron (180° `Ease.ENTER`, 240ms) smoothly morphs open into options surface using `GROW` spring (`Spring.SMOOTH`, 500ms).
-   - **Corner Radius Morph**: Morphs from 14dp closed radius to `OPEN_RADIUS = 22dp`.
+   - **Reference Geometry**: 272px reference width, 296px max panel height (`REFERENCE_MAX_HEIGHT_DP = 296f`).
+   - **Trigger & Opening**: Compact trigger morphs open into options surface using `GROW` spring (`Spring.SMOOTH`, 500ms), expanding corner radius from 14dp to `OPEN_RADIUS = 22dp`.
+   - **Search Filtering**: Automatic search field when `options > 8` (`SEARCH_THRESHOLD = 8`).
    - **Gliding Selection Highlight**: Rounded highlight pill glides vertically behind options using `GLIDE` spring (`UiArcMotion.Spring.SELECT_GLIDE`, 380ms).
-   - **Selection & Closing**: Selected item label lifts and settles with `FLY` spring (400ms), and surface folds closed with `SHRINK` spring (450ms).
-   - **Host Integration**: Integrated into `ManageSyllabusActivity.kt` for exam selection.
+   - **Selection & Closing**: Selected item label lifts with `FLY` spring (400ms) while panel closes with `SHRINK` spring (450ms).
+   - **Entity Mapping Fix**: Selection resolves strictly by stable Exam ID (`option.id`), completely immune to index misalignment from filtered search lists. Preserves `tilSelectExam` / `actvSelectExam` as accessible hidden fallbacks.
 
 4. **Component 4: Radio Cards (`UiArcRadioCardsGroup.kt`)**:
    - Native translation of `https://uiarc.dev/r/radio-cards.json`.
-   - **Sliding Selection Ring**: Single animated selection ring smoothly glides across (X, Y, Width, Height) between selectable cards using `GLIDE` spring (`UiArcMotion.Spring.CARD_GLIDE`, 550ms).
-   - **Ring Fade In**: Opacity fades in on initial placement with `FAST` duration (160ms, `Ease.STANDARD`).
-   - **Radio Group Compatibility**: Extends `RadioGroup` and supports mutual exclusion, arrow key navigation, and checked state listeners.
-   - **Host Integration**: Integrated into `AppConfigActivity.kt` (`activity_app_config.xml`) for Default AI Test Status (Publish Paused vs Publish Live).
+   - **Sliding Selection Ring**: Animated stroke ring glides between options (X, Y, Width, Height) using `GLIDE` spring (`UiArcMotion.Spring.CARD_GLIDE`, 550ms) with `FAST` fade-in (160ms).
+   - **Host Target**: Settings Daily Goal dialog (`SettingsActivity.kt`, `dialog_daily_goal_radio_cards.xml`).
+   - **Options**: 1, 2, 3, and 5 tests/day with descriptive secondary text and 48dp+ minimum touch targets.
+   - **Persistence & Feedback**: Saves directly to SharedPreferences via `StreakHelper`, refreshes Settings row text, and announces selection to TalkBack.
 
 5. **Component 5: Stats Band (`UiArcStatsBandView.kt`)**:
    - Native translation of `https://uiarc.dev/r/stats-band.json`.
-   - **Animated Count-Up**: Counts from 0 to target value with `COUNT_DURATION_MS = 1600L` using `UiArcMotion.Ease.ENTER`.
-   - **Stagger**: 90ms (`STAGGER_MS = 90L`) sequential stagger between stat items.
-   - **In-View Trigger**: Activates once when 45% of the view enters the viewport (`TRIGGER_AMOUNT = 0.45f`).
-   - **Tabular Numerals & Sizing**: Width reservation prevents layout jitter during digit transitions.
-   - **Host Integration**: Extended by `ResultStatisticsGrid.kt`, powering overview breakdown metrics in `ResultActivity.kt` while preserving all view IDs (`tvCorrectCount`, `tvWrongCount`, `tvUnattemptedCount`, `tvAccuracy`).
+   - **Animated Count-Up**: Counts from previous value (or 0) to target with `COUNT_DURATION_MS = 1600L` using `UiArcMotion.Ease.ENTER`.
+   - **Stagger**: 90ms (`STAGGER_MS = 90L`) sequential delay per metric index.
+   - **Content Rise**: 8dp vertical rise with opacity fade-in on initial entrance.
+   - **In-View Trigger**: Observes viewport visibility, triggering when 50% enters viewport (`TRIGGER_AMOUNT = 0.50f`).
+   - **Null / Unavailable State**: Renders "—" without animating fake zero when counts are unavailable.
+   - **Lifecycle Safety**: Active animators safely cancel on `onDetachedFromWindow()` and `AdminActivity.onDestroy()`.
+   - **Host Integration**: Admin User Statistics card (`activity_admin.xml`, `cardUserStats`, `statsBandUserManagement`) animating `tvTotalUsers` and `tvOnlineUsers` upon data load and refresh (`btnRefreshStats`).
 
 6. **Invariants Preserved**:
    - Telegram Day/Night circular reveal and theme switching resources remain protected.

@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat
 import com.eve.app.R
 import kotlin.math.abs
 import kotlin.math.hypot
+import kotlin.math.roundToInt
 
 /**
  * UIArc Swipe Actions Component.
@@ -28,13 +29,14 @@ import kotlin.math.hypot
  * - Registry: https://uiarc.dev/r/swipe-actions.json
  * - Action width: 76dp (ACTION = 76)
  * - Movement slop: 8dp before horizontal swipe locks (SLOP = 8)
- * - Full swipe threshold: max(openWidth + 48dp, width * 0.56)
- * - Elastic rubber-band resistance past open limit
+ * - Full swipe threshold: max(openActionWidth + 48px, 56% of rowWidth)
+ * - Elastic rubber-band resistance for overswiping
  * - Velocity projection: 0.1s (PROJECTION = 0.1)
  * - Flick velocity: 900 px/s (FLICK = 900)
  * - Settle physics: Spring.SMOOTH (500ms) to 0; Spring.SNAPPY (360ms) to resting open
- * - Commit animation: Spring.SMOOTH to -(width + 2), followed by height collapse
+ * - Commit animation: Spring.SMOOTH to direction * (width + 2), followed by height collapse
  * - Single open row coordination
+ * - RTL layout direction support
  * - Non-gesture accessible button fallback
  * - Instant jump with reduced motion
  */
@@ -68,6 +70,7 @@ class UiArcSwipeRow @JvmOverloads constructor(
 
     private val density = resources.displayMetrics.density
     private val actionWidthPx = Math.round(ACTION_WIDTH_DP * density)
+    private val extra48Px = Math.round(FULL_SWIPE_EXTRA_DP * density)
     private val slopPx = Math.max(ViewConfiguration.get(context).scaledTouchSlop.toFloat(), SLOP_DP * density)
 
     private val actionLayer: FrameLayout
@@ -141,6 +144,11 @@ class UiArcSwipeRow @JvmOverloads constructor(
         }
     }
 
+    private fun isRtl(): Boolean = layoutDirection == View.LAYOUT_DIRECTION_RTL
+
+    // Swipe direction: in LTR, swiping left is trailing (direction = -1). In RTL, swiping right is trailing (direction = 1).
+    private fun trailingDirection(): Float = if (isRtl()) 1f else -1f
+
     fun setOnSwipeActionListener(listener: OnSwipeActionListener?) {
         this.actionListener = listener
     }
@@ -180,9 +188,11 @@ class UiArcSwipeRow @JvmOverloads constructor(
                 if (!isDragging) {
                     if (hypot(dx.toDouble(), dy.toDouble()) >= slopPx) {
                         if (abs(dy) > abs(dx)) {
+                            // Vertical scroll: do not intercept, pass to RecyclerView
                             isLockedY = true
                             return false
                         } else {
+                            // Horizontal drag: intercept
                             isDragging = true
                             parent?.requestDisallowInterceptTouchEvent(true)
                             velocityTracker?.addMovement(ev)
@@ -245,20 +255,24 @@ class UiArcSwipeRow @JvmOverloads constructor(
         return super.onTouchEvent(ev)
     }
 
-    private fun constrain(raw: numberFloat): Float {
+    private fun constrain(raw: Float): Float {
         val totalWidth = width.toFloat().coerceAtLeast(320f * density)
-        // Only allow swiping left (negative translation)
-        if (raw > 0f) {
-            // Elastic rubber band when pulling right
-            return rubberBand(raw, totalWidth)
+        val dir = trailingDirection()
+        val isTrailing = (dir < 0f && raw <= 0f) || (dir > 0f && raw >= 0f)
+
+        if (!isTrailing) {
+            // Overshooting opposite side: elastic rubber band resistance
+            return rubberBand(abs(raw), totalWidth) * (if (raw > 0f) 1f else -1f)
         }
+
         val distance = abs(raw)
         val limit = totalWidth
         return if (distance <= limit) {
             raw
         } else {
             val overshoot = distance - limit
-            - (limit + rubberBand(overshoot, totalWidth))
+            val banded = limit + rubberBand(overshoot, totalWidth)
+            banded * dir
         }
     }
 
@@ -268,13 +282,15 @@ class UiArcSwipeRow @JvmOverloads constructor(
 
     private fun threshold(): Float {
         val w = width.toFloat().coerceAtLeast(320f * density)
-        return maxOf(actionWidthPx + FULL_SWIPE_EXTRA_DP * density, w * FULL_SWIPE_FRACTION)
+        return maxOf((actionWidthPx + extra48Px).toFloat(), w * FULL_SWIPE_FRACTION)
     }
 
     private fun checkArmed(translationX: Float) {
         val distance = abs(translationX)
         val th = threshold()
-        val nextArmed = translationX < 0f && distance > (if (isArmed) th - 20f * density else th)
+        val dir = trailingDirection()
+        val inDirection = (dir < 0f && translationX < 0f) || (dir > 0f && translationX > 0f)
+        val nextArmed = inDirection && distance > (if (isArmed) th - 20f * density else th)
         if (nextArmed != isArmed) {
             isArmed = nextArmed
             if (isArmed) {
@@ -295,7 +311,8 @@ class UiArcSwipeRow @JvmOverloads constructor(
         val front = contentView ?: return
         val currentX = front.translationX
         val distance = abs(currentX)
-        val outward = -velocity // Swiping left means negative velocity is outward
+        val dir = trailingDirection()
+        val outward = velocity * dir // positive when traveling in commit direction
         val projected = distance + outward * PROJECTION_SECONDS
         val flung = distance > actionWidthPx && outward > FLICK_VELOCITY_PX_S && projected > threshold()
 
@@ -305,7 +322,7 @@ class UiArcSwipeRow @JvmOverloads constructor(
         }
 
         if (projected > actionWidthPx / 2f) {
-            settle(-actionWidthPx.toFloat(), velocity)
+            settle(dir * actionWidthPx.toFloat(), velocity)
         } else {
             settle(0f, velocity)
         }
@@ -356,7 +373,8 @@ class UiArcSwipeRow @JvmOverloads constructor(
         travelAnimator?.cancel()
         if (currentlyOpenRow === this) currentlyOpenRow = null
 
-        val endX = -(width.toFloat() + 10f * density)
+        val dir = trailingDirection()
+        val endX = dir * (width.toFloat() + 10f * density)
 
         if (!UiArcMotion.isMotionEnabled(context)) {
             front.translationX = endX
@@ -413,5 +431,3 @@ class UiArcSwipeRow @JvmOverloads constructor(
         requestLayout()
     }
 }
-
-private typealias numberFloat = Float

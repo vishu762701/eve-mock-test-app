@@ -6,9 +6,12 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.eve.app.R
 
@@ -26,6 +29,13 @@ class UiArcRadioCardsGroup @JvmOverloads constructor(
     attrs: AttributeSet? = null
 ) : RadioGroup(context, attrs) {
 
+    data class RadioCardOption(
+        val value: String,
+        val title: String,
+        val description: String? = null,
+        val meta: String? = null
+    )
+
     companion object {
         const val GLIDE_DURATION_MS = 550L
         const val FADE_IN_DURATION_MS = 160L
@@ -34,7 +44,7 @@ class UiArcRadioCardsGroup @JvmOverloads constructor(
     private val density = resources.displayMetrics.density
     private val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
-        strokeWidth = 2f * density
+        strokeWidth = 2.5f * density
         color = ContextCompat.getColor(context, R.color.system_blue)
     }
 
@@ -47,8 +57,80 @@ class UiArcRadioCardsGroup @JvmOverloads constructor(
 
     init {
         setWillNotDraw(false)
+        clipChildren = false
+        clipToPadding = false
         setOnCheckedChangeListener { group, checkedId ->
             updateSelectedCard(checkedId, animate = true)
+        }
+    }
+
+    fun setCardOptions(
+        options: List<RadioCardOption>,
+        selectedValue: String,
+        onSelectionChanged: (String) -> Unit
+    ) {
+        removeAllViews()
+        var selectedId = View.NO_ID
+
+        options.forEachIndexed { index, option ->
+            val cardView = LinearLayout(context).apply {
+                id = View.generateViewId()
+                orientation = LinearLayout.VERTICAL
+                gravity = Gravity.CENTER_VERTICAL
+                val minH = Math.round(52f * density)
+                minimumHeight = minH
+                val padH = Math.round(14f * density)
+                val padV = Math.round(10f * density)
+                setPadding(padH, padV, padH, padV)
+                background = ContextCompat.getDrawable(context, R.drawable.design_card_surface)
+                isClickable = true
+                isFocusable = true
+
+                val lp = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply {
+                    bottomMargin = Math.round(8f * density)
+                }
+                layoutParams = lp
+
+                val tvTitle = TextView(context).apply {
+                    text = option.title
+                    textSize = 15f
+                    setTextColor(ContextCompat.getColor(context, R.color.text_primary))
+                    typeface = android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL)
+                }
+                addView(tvTitle)
+
+                if (!option.description.isNullOrBlank()) {
+                    val tvDesc = TextView(context).apply {
+                        text = option.description
+                        textSize = 12f
+                        setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
+                        val dLp = LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply {
+                            topMargin = Math.round(2f * density)
+                        }
+                        layoutParams = dLp
+                    }
+                    addView(tvDesc)
+                }
+
+                contentDescription = if (option.description.isNullOrBlank()) option.title else "${option.title}, ${option.description}"
+
+                setOnClickListener {
+                    check(id)
+                    announceForAccessibility("Selected ${option.title}")
+                    onSelectionChanged(option.value)
+                }
+            }
+
+            addView(cardView)
+
+            if (option.value == selectedValue) {
+                selectedId = cardView.id
+            }
+        }
+
+        if (selectedId != View.NO_ID) {
+            check(selectedId)
+            post { updateSelectedCard(selectedId, animate = false) }
         }
     }
 

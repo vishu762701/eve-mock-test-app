@@ -90,22 +90,6 @@ class ManageSyllabusActivity : EveBaseActivity() {
     }
 
     private fun setupAddSyllabusForm() {
-        binding.fileUploadView.onBrowseClickListener = {
-            newPdfPicker.launch(arrayOf("application/pdf"))
-        }
-
-        binding.fileUploadView.onRemoveClickListener = {
-            selectedPdfUri = null
-            selectedPdfName = ""
-            selectedPdfBytes = null
-            binding.fileUploadView.reset()
-            binding.layoutSelectedPdf.visibility = View.GONE
-        }
-
-        binding.fileUploadView.onRetryClickListener = {
-            binding.btnUploadSyllabus.performClick()
-        }
-
         binding.btnChoosePdf.setOnClickListener {
             newPdfPicker.launch(arrayOf("application/pdf"))
         }
@@ -114,9 +98,32 @@ class ManageSyllabusActivity : EveBaseActivity() {
             selectedPdfUri = null
             selectedPdfName = ""
             selectedPdfBytes = null
-            binding.fileUploadView.reset()
-            binding.layoutSelectedPdf.visibility = View.GONE
-            binding.btnChoosePdf.visibility = View.GONE
+            if (UiArcMotion.isMotionEnabled(this)) {
+                binding.layoutSelectedPdf.animate()
+                    .alpha(0f)
+                    .translationY(-8f * resources.displayMetrics.density)
+                    .setDuration(160L)
+                    .setInterpolator(UiArcMotion.Ease.STANDARD)
+                    .withEndAction {
+                        binding.layoutSelectedPdf.visibility = View.GONE
+                        binding.btnChoosePdf.visibility = View.VISIBLE
+                        binding.btnChoosePdf.alpha = 0f
+                        binding.btnChoosePdf.scaleX = 0.96f
+                        binding.btnChoosePdf.scaleY = 0.96f
+                        binding.btnChoosePdf.animate()
+                            .alpha(1f)
+                            .scaleX(1f)
+                            .scaleY(1f)
+                            .setDuration(240L)
+                            .setInterpolator(UiArcMotion.Ease.ENTER)
+                            .start()
+                    }
+                    .start()
+            } else {
+                binding.layoutSelectedPdf.visibility = View.GONE
+                binding.btnChoosePdf.visibility = View.VISIBLE
+                binding.btnChoosePdf.alpha = 1f
+            }
         }
 
         binding.btnUploadSyllabus.setOnClickListener {
@@ -137,35 +144,58 @@ class ManageSyllabusActivity : EveBaseActivity() {
 
             binding.progressBarUpload.visibility = View.VISIBLE
             binding.btnUploadSyllabus.isEnabled = false
-            binding.fileUploadView.setProgress(35)
 
             lifecycleScope.launch {
                 try {
-                    binding.fileUploadView.setProgress(70)
                     examRepo.uploadSyllabusPdf(exam.id, fileName, bytes)
-                    binding.fileUploadView.setProgress(100)
                     binding.progressBarUpload.visibility = View.GONE
                     binding.btnUploadSyllabus.isEnabled = true
 
-                    // Reset form
-                    selectedPdfUri = null
-                    selectedPdfName = ""
-                    selectedPdfBytes = null
-                    binding.layoutSelectedPdf.visibility = View.GONE
-                    binding.actvSelectExam.setText("", false)
-                    selectedExamForNewSyllabus = null
-
-                    AppBulletin.showSuccess(this@ManageSyllabusActivity, "Syllabus uploaded and linked to ${exam.examName}")
-                    binding.fileUploadView.reset()
-                    loadExamsAndSyllabuses()
+                    if (UiArcMotion.isMotionEnabled(this@ManageSyllabusActivity)) {
+                        binding.ivUploadCheckDone.visibility = View.VISIBLE
+                        binding.ivUploadCheckDone.scaleX = 0.6f
+                        binding.ivUploadCheckDone.scaleY = 0.6f
+                        binding.ivUploadCheckDone.alpha = 0f
+                        binding.ivUploadCheckDone.animate()
+                            .scaleX(1f)
+                            .scaleY(1f)
+                            .alpha(1f)
+                            .setDuration(240L)
+                            .setStartDelay(80L)
+                            .setInterpolator(UiArcMotion.Ease.ENTER)
+                            .withEndAction {
+                                resetSyllabusUploadForm()
+                                AppBulletin.showSuccess(this@ManageSyllabusActivity, "Syllabus uploaded and linked to ${exam.examName}")
+                                loadExamsAndSyllabuses()
+                            }
+                            .start()
+                    } else {
+                        resetSyllabusUploadForm()
+                        AppBulletin.showSuccess(this@ManageSyllabusActivity, "Syllabus uploaded and linked to ${exam.examName}")
+                        loadExamsAndSyllabuses()
+                    }
                 } catch (e: Exception) {
-                    binding.fileUploadView.setState(com.eve.app.designsystem.UiArcFileUploadView.UploadState.FAILED)
                     binding.progressBarUpload.visibility = View.GONE
                     binding.btnUploadSyllabus.isEnabled = true
                     AppBulletin.showError(this@ManageSyllabusActivity, "Upload failed: ${e.localizedMessage}")
                 }
             }
         }
+    }
+
+    private fun resetSyllabusUploadForm() {
+        selectedPdfUri = null
+        selectedPdfName = ""
+        selectedPdfBytes = null
+        binding.ivUploadCheckDone.visibility = View.GONE
+        binding.layoutSelectedPdf.visibility = View.GONE
+        binding.btnChoosePdf.visibility = View.VISIBLE
+        binding.btnChoosePdf.alpha = 1f
+        binding.btnChoosePdf.scaleX = 1f
+        binding.btnChoosePdf.scaleY = 1f
+        binding.actvSelectExam.setText("", false)
+        binding.morphSelectExam.clearSelection()
+        selectedExamForNewSyllabus = null
     }
 
     private fun setupSearch() {
@@ -209,9 +239,16 @@ class ManageSyllabusActivity : EveBaseActivity() {
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, dropdownItems)
         binding.actvSelectExam.setAdapter(adapter)
 
-        binding.actvSelectExam.setOnItemClickListener { _, _, position, _ ->
-            selectedExamForNewSyllabus = allExams.getOrNull(position)
+        binding.actvSelectExam.setOnItemClickListener { parent, _, position, _ ->
+            val selectedText = parent.getItemAtPosition(position)?.toString() ?: ""
+            selectedExamForNewSyllabus = allExams.firstOrNull { exam ->
+                val itemStr = "${exam.examName} (${exam.categoryOrOther})"
+                itemStr == selectedText || exam.examName == selectedText
+            } ?: allExams.getOrNull(position)
             binding.tilSelectExam.error = null
+            selectedExamForNewSyllabus?.let { exam ->
+                binding.morphSelectExam.setOptions(morphOptions, exam.id)
+            }
         }
     }
 
@@ -258,10 +295,36 @@ class ManageSyllabusActivity : EveBaseActivity() {
             selectedPdfName = displayName
             selectedPdfBytes = bytes
 
-            binding.fileUploadView.setFile(displayName, bytes.size.toLong())
             binding.tvNewPdfName.text = displayName
-            binding.layoutSelectedPdf.visibility = View.VISIBLE
-            binding.btnChoosePdf.visibility = View.GONE
+            binding.tvNewPdfSize.text = "${UiArcFileUploadView.formatSize(bytes.size.toLong())} · Ready"
+            binding.ivUploadCheckDone.visibility = View.GONE
+
+            if (UiArcMotion.isMotionEnabled(this)) {
+                binding.btnChoosePdf.animate()
+                    .alpha(0f)
+                    .scaleX(0.96f)
+                    .scaleY(0.96f)
+                    .setDuration(160L)
+                    .setInterpolator(UiArcMotion.Ease.STANDARD)
+                    .withEndAction {
+                        binding.btnChoosePdf.visibility = View.GONE
+                        binding.layoutSelectedPdf.visibility = View.VISIBLE
+                        binding.layoutSelectedPdf.alpha = 0f
+                        binding.layoutSelectedPdf.translationY = 8f * resources.displayMetrics.density
+                        binding.layoutSelectedPdf.animate()
+                            .alpha(1f)
+                            .translationY(0f)
+                            .setDuration(240L)
+                            .setInterpolator(UiArcMotion.Ease.ENTER)
+                            .start()
+                    }
+                    .start()
+            } else {
+                binding.btnChoosePdf.visibility = View.GONE
+                binding.layoutSelectedPdf.visibility = View.VISIBLE
+                binding.layoutSelectedPdf.alpha = 1f
+                binding.layoutSelectedPdf.translationY = 0f
+            }
         } catch (e: Exception) {
             AppBulletin.showError(this, "Failed to read PDF file: ${e.localizedMessage}")
         }

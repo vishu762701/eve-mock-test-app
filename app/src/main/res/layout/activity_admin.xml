@@ -56,7 +56,7 @@
                 <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="USER MANAGEMENT" />
                 <com.eve.app.designsystem.DesignCardView android:id="@+id/cardUserStats" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" style="@style/Widget.Eve.Token.Card">
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                        <com.eve.app.designsystem.UiArcStatsBandView android:id="@+id/statsBandUserManagement" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                                 <TextView style="@style/TextAppearance.Eve.Token.Heading" android:id="@+id/tvTotalUsers" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" />
                                 <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Signups" />
@@ -66,7 +66,7 @@
                                 <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Online Now" />
                             </LinearLayout>
                             <ImageButton android:id="@+id/btnRefreshStats" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Refresh stats" android:src="@drawable/ic_refresh" app:tint="@color/text_secondary" style="@style/Widget.Eve.Token.IconButton" />
-                        </LinearLayout>
+                        </com.eve.app.designsystem.UiArcStatsBandView>
                         <TextView style="@style/TextAppearance.Eve.Token.Secondary.blue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:text="Tap to manage users &amp; view test history →" />
                     </LinearLayout>
                 </com.eve.app.designsystem.DesignCardView>

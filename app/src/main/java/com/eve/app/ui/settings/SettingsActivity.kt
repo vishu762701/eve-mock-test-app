@@ -90,18 +90,49 @@ class SettingsActivity : EveBaseActivity() {
         }
         refreshText()
         binding.rowDailyGoal.setOnClickListener {
-            val options = arrayOf("1 test per day", "2 tests per day", "3 tests per day", "5 tests per day")
-            val values = intArrayOf(1, 2, 3, 5)
             val currentGoal = prefs.getInt(StreakHelper.KEY_DAILY_GOAL, StreakHelper.DEFAULT_DAILY_GOAL)
-            val selectedIdx = values.indexOf(currentGoal).coerceAtLeast(0)
+            val dialogView = layoutInflater.inflate(R.layout.dialog_daily_goal_radio_cards, null)
+            val radioGroup = dialogView.findViewById<com.eve.app.designsystem.UiArcRadioCardsGroup>(R.id.radioCardsDailyGoal)
 
-            MaterialAlertDialogBuilder(this)
-                .setTitle("Select Daily Goal")
-                .setSingleChoiceItems(options, selectedIdx) { dialog, which ->
-                    prefs.edit().putInt(StreakHelper.KEY_DAILY_GOAL, values[which]).apply()
-                    refreshText()
-                    dialog.dismiss()
+            val options = listOf(
+                com.eve.app.designsystem.UiArcRadioCardsGroup.RadioCardOption(
+                    value = "1",
+                    title = "1 test per day",
+                    description = "Light daily practice to keep momentum"
+                ),
+                com.eve.app.designsystem.UiArcRadioCardsGroup.RadioCardOption(
+                    value = "2",
+                    title = "2 tests per day",
+                    description = "Steady rhythm to improve consistency"
+                ),
+                com.eve.app.designsystem.UiArcRadioCardsGroup.RadioCardOption(
+                    value = "3",
+                    title = "3 tests per day",
+                    description = "Accelerate syllabus coverage"
+                ),
+                com.eve.app.designsystem.UiArcRadioCardsGroup.RadioCardOption(
+                    value = "5",
+                    title = "5 tests per day",
+                    description = "Intensive focus for upcoming exams"
+                )
+            )
+
+            var dialog: androidx.appcompat.app.AlertDialog? = null
+
+            radioGroup.setCardOptions(options, currentGoal.toString()) { selectedValue ->
+                val chosenGoal = selectedValue.toIntOrNull() ?: 1
+                prefs.edit().putInt(StreakHelper.KEY_DAILY_GOAL, chosenGoal).apply()
+                refreshText()
+                if (com.eve.app.designsystem.UiArcMotion.isMotionEnabled(this)) {
+                    radioGroup.postDelayed({ dialog?.dismiss() }, 200L)
+                } else {
+                    dialog?.dismiss()
                 }
+            }
+
+            dialog = MaterialAlertDialogBuilder(this)
+                .setTitle("Select Daily Goal")
+                .setView(dialogView)
                 .setNegativeButton("Cancel", null)
                 .show()
         }

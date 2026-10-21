@@ -4,47 +4,44 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Path
 import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewTreeObserver
-import android.widget.GridLayout
+import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.content.ContextCompat
-import com.eve.app.R
 import kotlin.math.roundToInt
 
 /**
  * UIArc Stats Band Component.
  * Genuine native translation of official UIArc Stats Band specification:
  * - Registry: https://uiarc.dev/r/stats-band.json
- * - Counting animation: 0 -> targetValue, duration = 1.6s (1600ms), Ease.ENTER
- * - Stagger: 90ms (0.09s) delay between sequential stats
- * - In-view trigger: Triggers on 45%-50% viewport visibility
- * - Tabular numerals & layout reservation to prevent jitter
- * - Sparkline visual drawing
+ * - Counting animation: 0 -> targetValue (or from previous count to new count), duration = 1.6s (1600ms), Ease.ENTER
+ * - Stagger: 90ms (0.09s) delay between sequential metrics
+ * - First reveal trigger: 50% in viewport
+ * - Content rise: 8px vertical rise with opacity fade-in
+ * - Missing/null state preserved as unavailable ("—"), not animated zero
+ * - Transition between counts on refresh (supports increase and decrease)
+ * - Safe cancellation when offscreen or destroyed
  * - Instant final value setting under reduced motion
  */
-open class UiArcStatsBandView @JvmOverloads constructor(
+class UiArcStatsBandView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : GridLayout(context, attrs, defStyleAttr) {
+) : LinearLayout(context, attrs, defStyleAttr) {
 
     companion object {
         const val COUNT_DURATION_MS = 1600L
         const val STAGGER_MS = 90L
-        const val TRIGGER_AMOUNT = 0.45f
+        const val TRIGGER_AMOUNT = 0.50f
+        const val CONTENT_RISE_DP = 8f
     }
 
     private val density = resources.displayMetrics.density
     private var hasTriggeredInView = false
-    private var scrollListener: ViewTreeObserver.OnScrollChangedListener? = null
-
-    private val statAnimators = mutableListOf<ValueAnimator>()
+    private val activeAnimators = mutableListOf<ValueAnimator>()
+    private val previousValues = mutableMapOf<Int, Int>()
 
     init {
         viewTreeObserver.addOnScrollChangedListener(object : ViewTreeObserver.OnScrollChangedListener {
@@ -61,8 +58,12 @@ open class UiArcStatsBandView @JvmOverloads constructor(
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        statAnimators.forEach { it.cancel() }
-        statAnimators.clear()
+        cancelAllAnimations()
+    }
+
+    fun cancelAllAnimations() {
+        activeAnimators.forEach { it.cancel() }
+        activeAnimators.clear()
     }
 
     private fun checkInView() {
@@ -74,78 +75,70 @@ open class UiArcStatsBandView @JvmOverloads constructor(
             val totalHeight = height.toFloat()
             if (visibleHeight / totalHeight >= TRIGGER_AMOUNT) {
                 hasTriggeredInView = true
-                triggerStatsAnimation()
             }
         }
     }
 
-    /** Triggered automatically on first entrance into view, or manually via host. */
-    fun triggerStatsAnimation() {
-        if (!hasTriggeredInView) {
-            hasTriggeredInView = true
-        }
-
-        val textViews = mutableListOf<TextView>()
-        findCountingTextViews(this, textViews)
-
-        textViews.forEachIndexed { index, tv ->
-            animateSingleStat(tv, delayMs = index * STAGGER_MS)
-        }
-    }
-
-    private fun findCountingTextViews(view: View, out: MutableList<TextView>) {
-        if (view is TextView) {
-            val text = view.text.toString().trim()
-            if (isCountable(text)) {
-                out.add(view)
-            }
-        } else if (view is android.view.ViewGroup) {
-            for (i in 0 until view.childCount) {
-                findCountingTextViews(view.getChildAt(i), out)
-            }
-        }
-    }
-
-    private fun isCountable(text: String): Boolean {
-        val clean = text.replace("%", "").replace("+", "").trim()
-        return clean.toIntOrNull() != null || clean.toDoubleOrNull() != null
-    }
-
-    fun animateSingleStat(textView: TextView, delayMs: Long = 0L) {
-        val rawText = textView.text.toString().trim()
-        val isPercent = rawText.endsWith("%")
-        val clean = rawText.replace("%", "").replace("+", "").trim()
-        val targetValue = clean.toDoubleOrNull() ?: return
-
-        // Reduced motion: set final value directly
-        if (!UiArcMotion.isMotionEnabled(context)) {
-            textView.text = rawText
+    /**
+     * Updates an integer metric with UIArc Stats Band motion.
+     * @param textView Target TextView to animate
+     * @param targetCount Actual new integer count, or null for unavailable state
+     * @param metricIndex Stagger index (0 = 0ms, 1 = 90ms)
+     */
+    fun updateMetric(textView: TextView, targetCount: Int?, metricIndex: Int) {
+        if (targetCount == null) {
+            textView.text = "—"
+            previousValues.remove(textView.id)
             return
         }
 
-        val isDecimal = clean.contains(".")
-        val decimals = if (isDecimal) clean.substringAfter(".").length else 0
+        val prev = previousValues[textView.id]
+        previousValues[textView.id] = targetCount
 
-        val animator = ValueAnimator.ofFloat(0f, targetValue.toFloat()).apply {
+        val targetStr = targetCount.toString()
+        textView.contentDescription = targetStr
+
+        // Reduced motion: set final value immediately
+        if (!UiArcMotion.isMotionEnabled(context)) {
+            textView.text = targetStr
+            textView.alpha = 1f
+            textView.translationY = 0f
+            return
+        }
+
+        val fromVal = prev ?: 0
+        val isFirstLoad = prev == null
+        val delay = metricIndex * STAGGER_MS
+
+        // Content rise animation on initial entrance
+        if (isFirstLoad) {
+            textView.alpha = 0f
+            textView.translationY = CONTENT_RISE_DP * density
+            textView.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(UiArcMotion.Duration.STANDARD)
+                .setStartDelay(delay)
+                .setInterpolator(UiArcMotion.Ease.ENTER)
+                .start()
+        }
+
+        val animator = ValueAnimator.ofInt(fromVal, targetCount).apply {
             duration = COUNT_DURATION_MS
-            startDelay = delayMs
+            startDelay = delay
             interpolator = UiArcMotion.Ease.ENTER
             addUpdateListener { va ->
-                val current = va.animatedValue as Float
-                val formatted = if (decimals > 0) {
-                    String.format("%.${decimals}f", current)
-                } else {
-                    current.roundToInt().toString()
-                }
-                textView.text = if (isPercent) "$formatted%" else formatted
+                val current = va.animatedValue as Int
+                textView.text = current.toString()
             }
             addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
-                    textView.text = rawText
+                    textView.text = targetStr
+                    activeAnimators.remove(this@apply)
                 }
             })
             start()
         }
-        statAnimators.add(animator)
+        activeAnimators.add(animator)
     }
 }

@@ -414,15 +414,38 @@ class UiArcMotionComponentsTest {
         assertEquals("5.0 MB", UiArcFileUploadView.formatSize(5242880L))
 
         val root = loadXml("src/main/res/layout/activity_manage_syllabus.xml")
-        val fileUpload = findElementById(root, "fileUploadView")
-        assertNotNull("fileUploadView must exist in activity_manage_syllabus.xml", fileUpload)
-        assertEquals("com.eve.app.designsystem.UiArcFileUploadView", fileUpload?.tagName)
+        val btnChoose = findElementById(root, "btnChoosePdf")
+        assertNotNull("btnChoosePdf must exist in activity_manage_syllabus.xml", btnChoose)
+
+        val layoutSelected = findElementById(root, "layoutSelectedPdf")
+        assertNotNull("layoutSelectedPdf must exist in activity_manage_syllabus.xml", layoutSelected)
+
+        val tvName = findElementById(root, "tvNewPdfName")
+        assertNotNull("tvNewPdfName must exist in activity_manage_syllabus.xml", tvName)
+
+        val tvSize = findElementById(root, "tvNewPdfSize")
+        assertNotNull("tvNewPdfSize must exist in activity_manage_syllabus.xml", tvSize)
+
+        val ivCheck = findElementById(root, "ivUploadCheckDone")
+        assertNotNull("ivUploadCheckDone checkmark must exist in activity_manage_syllabus.xml", ivCheck)
+
+        val btnClear = findElementById(root, "btnClearSelectedPdf")
+        assertNotNull("btnClearSelectedPdf must exist in activity_manage_syllabus.xml", btnClear)
+
+        val pb = findElementById(root, "progressBarUpload")
+        assertNotNull("progressBarUpload must exist in activity_manage_syllabus.xml", pb)
+        assertEquals("true", pb?.getAttribute("android:indeterminate"))
+
+        val btnUpload = findElementById(root, "btnUploadSyllabus")
+        assertNotNull("btnUploadSyllabus must exist in activity_manage_syllabus.xml", btnUpload)
     }
 
     @Test
     fun testBatch05_Component3_MorphSelectConstantsAndLayout() {
         assertEquals(22f, UiArcMorphSelectView.OPEN_RADIUS_DP, 0.001f)
         assertEquals(14f, UiArcMorphSelectView.CLOSED_RADIUS_DP, 0.001f)
+        assertEquals(272f, UiArcMorphSelectView.REFERENCE_PANEL_WIDTH_DP, 0.001f)
+        assertEquals(296f, UiArcMorphSelectView.REFERENCE_MAX_HEIGHT_DP, 0.001f)
         assertEquals(500L, UiArcMorphSelectView.GROW_DURATION_MS)
         assertEquals(450L, UiArcMorphSelectView.SHRINK_DURATION_MS)
         assertEquals(380L, UiArcMorphSelectView.GLIDE_DURATION_MS)
@@ -432,6 +455,11 @@ class UiArcMotionComponentsTest {
         val morphSelect = findElementById(root, "morphSelectExam")
         assertNotNull("morphSelectExam must exist in activity_manage_syllabus.xml", morphSelect)
         assertEquals("com.eve.app.designsystem.UiArcMorphSelectView", morphSelect?.tagName)
+
+        val tilSelect = findElementById(root, "tilSelectExam")
+        assertNotNull("Accessible tilSelectExam fallback must be preserved", tilSelect)
+        val actvSelect = findElementById(root, "actvSelectExam")
+        assertNotNull("Accessible actvSelectExam fallback must be preserved", actvSelect)
     }
 
     @Test
@@ -439,27 +467,49 @@ class UiArcMotionComponentsTest {
         assertEquals(550L, UiArcRadioCardsGroup.GLIDE_DURATION_MS)
         assertEquals(160L, UiArcRadioCardsGroup.FADE_IN_DURATION_MS)
 
-        val root = loadXml("src/main/res/layout/activity_app_config.xml")
-        val rg = findElementById(root, "rgDefaultPublishMode")
-        assertNotNull("rgDefaultPublishMode must exist in activity_app_config.xml", rg)
+        val dialogRoot = loadXml("src/main/res/layout/dialog_daily_goal_radio_cards.xml")
+        val rg = findElementById(dialogRoot, "radioCardsDailyGoal")
+        assertNotNull("radioCardsDailyGoal must exist in dialog_daily_goal_radio_cards.xml", rg)
         assertEquals("com.eve.app.designsystem.UiArcRadioCardsGroup", rg?.tagName)
+
+        val settingsRoot = loadXml("src/main/res/layout/activity_settings.xml")
+        assertNotNull("rowDailyGoal exists in activity_settings.xml", findElementById(settingsRoot, "rowDailyGoal"))
+        assertNotNull("tvDailyGoalValue exists in activity_settings.xml", findElementById(settingsRoot, "tvDailyGoalValue"))
+
+        val appConfigRoot = loadXml("src/main/res/layout/activity_app_config.xml")
+        val appConfigRg = findElementById(appConfigRoot, "rgDefaultPublishMode")
+        assertNotNull("rgDefaultPublishMode exists in activity_app_config.xml", appConfigRg)
+        assertEquals("RadioGroup", appConfigRg?.tagName)
     }
 
     @Test
     fun testBatch05_Component5_StatsBandConstantsAndLayout() {
         assertEquals(1600L, UiArcStatsBandView.COUNT_DURATION_MS)
         assertEquals(90L, UiArcStatsBandView.STAGGER_MS)
-        assertEquals(0.45f, UiArcStatsBandView.TRIGGER_AMOUNT, 0.001f)
+        assertEquals(0.50f, UiArcStatsBandView.TRIGGER_AMOUNT, 0.001f)
+        assertEquals(8f, UiArcStatsBandView.CONTENT_RISE_DP, 0.001f)
 
-        val root = loadXml("src/main/res/layout/activity_result.xml")
-        val statsGrid = findElementById(root, "rowOverviewStatisticsTiles")
-        assertNotNull("rowOverviewStatisticsTiles must exist in activity_result.xml", statsGrid)
-        assertEquals("com.eve.app.ui.result.ResultStatisticsGrid", statsGrid?.tagName)
+        val adminRoot = loadXml("src/main/res/layout/activity_admin.xml")
+        val statsBand = findElementById(adminRoot, "statsBandUserManagement")
+        assertNotNull("statsBandUserManagement must exist in activity_admin.xml", statsBand)
+        assertEquals("com.eve.app.designsystem.UiArcStatsBandView", statsBand?.tagName)
 
-        val tvCorrectCount = findElementById(root, "tvCorrectCount")
-        assertNotNull("tvCorrectCount preserved", tvCorrectCount)
-        val tvAccuracy = findElementById(root, "tvAccuracy")
-        assertNotNull("tvAccuracy preserved", tvAccuracy)
+        val cardStats = findElementById(adminRoot, "cardUserStats")
+        assertNotNull("cardUserStats must exist in activity_admin.xml", cardStats)
+
+        val tvTotalUsers = findElementById(adminRoot, "tvTotalUsers")
+        assertNotNull("tvTotalUsers preserved in activity_admin.xml", tvTotalUsers)
+
+        val tvOnlineUsers = findElementById(adminRoot, "tvOnlineUsers")
+        assertNotNull("tvOnlineUsers preserved in activity_admin.xml", tvOnlineUsers)
+
+        val btnRefresh = findElementById(adminRoot, "btnRefreshStats")
+        assertNotNull("btnRefreshStats preserved in activity_admin.xml", btnRefresh)
+
+        val resultRoot = loadXml("src/main/res/layout/activity_result.xml")
+        val resultGrid = findElementById(resultRoot, "rowOverviewStatisticsTiles")
+        assertNotNull("rowOverviewStatisticsTiles must exist in activity_result.xml", resultGrid)
+        assertEquals("com.eve.app.ui.result.ResultStatisticsGrid", resultGrid?.tagName)
     }
 
     @Test
