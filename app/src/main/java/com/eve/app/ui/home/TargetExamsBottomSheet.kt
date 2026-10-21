@@ -66,16 +66,14 @@ object TargetExamsBottomSheet {
 
     fun applyChipVisualState(chip: Chip, isChecked: Boolean) {
         val context = chip.context
+        chip.chipStrokeWidth = 0f
         if (isChecked) {
             chip.chipBackgroundColor = androidx.core.content.ContextCompat.getColorStateList(context, com.eve.app.R.color.accent)
             chip.setTextColor(androidx.core.content.ContextCompat.getColor(context, com.eve.app.R.color.on_accent))
-            chip.chipStrokeWidth = 0f
             chip.isCheckedIconVisible = true
         } else {
             chip.chipBackgroundColor = androidx.core.content.ContextCompat.getColorStateList(context, com.eve.app.R.color.surface_inset)
             chip.setTextColor(androidx.core.content.ContextCompat.getColor(context, com.eve.app.R.color.text_primary))
-            chip.chipStrokeWidth = chip.resources.displayMetrics.density
-            chip.chipStrokeColor = androidx.core.content.ContextCompat.getColorStateList(context, com.eve.app.R.color.hairline)
             chip.isCheckedIconVisible = false
         }
     }
