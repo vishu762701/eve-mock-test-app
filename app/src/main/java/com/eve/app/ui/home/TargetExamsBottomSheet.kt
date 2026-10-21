@@ -99,7 +99,8 @@ object TargetExamsBottomSheet {
         val density = displayMetrics.density
 
         dialog.behavior.maxWidth = Math.round(640f * density)
-        // UIArc detent specification: [0.45, 0.92] with initialDetent: 0 (0.45 peek)
+        dialog.behavior.maxHeight = Math.round(vh * 0.92f)
+        // UIArc dual detents: [0.45, 0.92] with 0.92 expanded height and 0.45 resting peek detent
         dialog.behavior.isFitToContents = false
         dialog.behavior.halfExpandedRatio = 0.45f
         dialog.behavior.peekHeight = Math.round(vh * 0.45f)
@@ -110,12 +111,7 @@ object TargetExamsBottomSheet {
         com.eve.app.designsystem.DesignSurfaces.dialog(dialog)
         com.eve.app.designsystem.DesignSurfaces.sheet(binding.root)
 
-        val motionEnabled = UiArcMotion.isMotionEnabled(activity)
-        dialog.behavior.state = if (motionEnabled) {
-            BottomSheetBehavior.STATE_HALF_EXPANDED
-        } else {
-            BottomSheetBehavior.STATE_EXPANDED
-        }
+        dialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
         return dialog
     }
 }
