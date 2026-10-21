@@ -518,7 +518,7 @@
                                     style="@style/TextAppearance.Eve.Token.Body"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:inputType="number" />
+                                    android:inputType="numberDecimal" />
                             </com.google.android.material.textfield.TextInputLayout>
 
                             <com.google.android.material.textfield.TextInputLayout
@@ -536,6 +536,15 @@
                                     android:inputType="number" />
                             </com.google.android.material.textfield.TextInputLayout>
                         </LinearLayout>
+
+                        <!-- Preview-only slider; manual size entry keeps full decimal precision. -->
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/sliderRoleSize"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/design_card_gap"
+                            android:contentDescription="Draft font size in sp"
+                            app:labelBehavior="floating" />
 
                         <!-- Role Weight Selector -->
                         <TextView

@@ -12,6 +12,8 @@ import com.eve.app.util.FontManager
  * 6. Bundled safe default
  */
 object TypographyResolver {
+    const val MIN_TEXT_SIZE_SP = 8f
+    const val MAX_TEXT_SIZE_SP = 60f
 
     data class ResolvedStyle(
         val fontFamily: FontManager.FontFamily,
@@ -137,7 +139,7 @@ object TypographyResolver {
         return ResolvedStyle(
             fontFamily = family,
             weight = weight,
-            textSizeSp = size.coerceIn(8f, 60f),
+            textSizeSp = size.coerceIn(MIN_TEXT_SIZE_SP, MAX_TEXT_SIZE_SP),
             lineHeightSp = line.coerceAtLeast(size),
             letterSpacing = letter.coerceIn(-0.05f, 0.2f),
             source = source

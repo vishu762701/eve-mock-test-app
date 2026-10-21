@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Typeface
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -20,6 +21,8 @@ import com.eve.app.typography.StyleRule
 import com.eve.app.typography.TypographyPreset
 import com.eve.app.typography.TypographyRegistry
 import com.eve.app.typography.TypographyRepository
+import java.math.BigDecimal
+import java.math.RoundingMode
 import com.eve.app.typography.TypographyResolver
 import com.eve.app.typography.TypographyStudioViewModel
 import com.eve.app.ui.common.EveBaseActivity
@@ -295,6 +298,32 @@ class TypographyStudioActivity : EveBaseActivity() {
         }
         binding.spGlobalRole.adapter = adapter
 
+        // UIArc Slider adaptation: no draft mutation until the existing Save button.
+        binding.sliderRoleSize.apply {
+            valueTo = TypographyResolver.MAX_TEXT_SIZE_SP
+            value = 17f
+            valueFrom = TypographyResolver.MIN_TEXT_SIZE_SP
+            stepSize = 0f // The typography resolver supports fractional sp without a fixed increment.
+            addOnChangeListener { _, size, fromUser ->
+                if (!fromUser) return@addOnChangeListener
+                val formatted = BigDecimal(size.toString())
+                    .setScale(1, RoundingMode.HALF_UP)
+                    .stripTrailingZeros().toPlainString()
+                if (binding.etRoleSize.text?.toString() != formatted) {
+                    binding.etRoleSize.setText(formatted)
+                }
+            }
+        }
+        binding.etRoleSize.doAfterTextChanged { text ->
+            val size = text?.toString()?.toFloatOrNull() ?: return@doAfterTextChanged
+            if (!size.isFinite()) return@doAfterTextChanged
+            val clamped = size.coerceIn(
+                TypographyResolver.MIN_TEXT_SIZE_SP, TypographyResolver.MAX_TEXT_SIZE_SP
+            )
+            if (binding.sliderRoleSize.value != clamped) binding.sliderRoleSize.value = clamped
+            if (size == clamped) binding.tvRolePreviewSample.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
+        }
+
         binding.spGlobalRole.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val roleKey = canonicalRoles.getOrNull(position)?.first ?: "headline"
@@ -313,6 +342,17 @@ class TypographyStudioActivity : EveBaseActivity() {
                 R.id.chipWeight500 -> 500
                 R.id.chipWeight700 -> 700
                 else -> 600
+            }
+            binding.tilRoleSize.error = null
+            binding.tilRoleLineHeight.error = null
+            if (!size.isFinite() || size < TypographyResolver.MIN_TEXT_SIZE_SP ||
+                size > TypographyResolver.MAX_TEXT_SIZE_SP) {
+                binding.tilRoleSize.error = "Font size must be 8–60 sp"
+                return@setOnClickListener
+            }
+            if (!line.isFinite() || line < size) {
+                binding.tilRoleLineHeight.error = "Line height cannot be smaller than font size"
+                return@setOnClickListener
             }
             val rule = StyleRule(textSizeSp = size, lineHeightSp = line, weight = weight)
             viewModel.updateGlobalRole(roleKey, rule)
@@ -335,8 +375,12 @@ class TypographyStudioActivity : EveBaseActivity() {
             ?: TypographyPreset.IOS26_BALANCED.rules[roleKey]
             ?: StyleRule(textSizeSp = 17f, lineHeightSp = 22f, weight = 400)
 
-        binding.etRoleSize.setText(rule.textSizeSp?.toInt()?.toString() ?: "17")
-        binding.etRoleLineHeight.setText(rule.lineHeightSp?.toInt()?.toString() ?: "22")
+        val size = rule.textSizeSp ?: 17f
+        binding.etRoleSize.setText(size.toString().removeSuffix(".0"))
+        binding.etRoleLineHeight.setText((rule.lineHeightSp ?: 22f).toString().removeSuffix(".0"))
+        binding.sliderRoleSize.value = size.coerceIn(
+            TypographyResolver.MIN_TEXT_SIZE_SP, TypographyResolver.MAX_TEXT_SIZE_SP
+        )
         when (rule.weight) {
             400 -> binding.chipWeight400.isChecked = true
             500 -> binding.chipWeight500.isChecked = true
