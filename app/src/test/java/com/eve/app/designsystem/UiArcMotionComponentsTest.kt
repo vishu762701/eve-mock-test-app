@@ -530,8 +530,8 @@ class UiArcMotionComponentsTest {
 
         // Repair A2: File Upload View unified container in activity_manage_syllabus.xml
         val syllabusRoot = loadXml("src/main/res/layout/activity_manage_syllabus.xml")
-        val fileUpload = findElementById(syllabusRoot, "fileUploadManageSyllabus")
-        assertNotNull("fileUploadManageSyllabus must exist as container in activity_manage_syllabus.xml", fileUpload)
+        val fileUpload = findElementById(syllabusRoot, "fileUploadView")
+        assertNotNull("fileUploadView must exist as container in activity_manage_syllabus.xml", fileUpload)
         assertEquals("com.eve.app.designsystem.UiArcFileUploadView", fileUpload?.tagName)
 
         val btnChoosePdf = findElementById(syllabusRoot, "btnChoosePdf")
