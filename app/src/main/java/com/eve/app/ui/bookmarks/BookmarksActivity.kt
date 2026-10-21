@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.R
 import com.eve.app.data.model.BookmarkedQuestion
 import com.eve.app.databinding.ActivityBookmarksBinding
+import com.eve.app.designsystem.UiArcSwipeRow
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.Constants
 import com.eve.app.util.EmptyStateAnimationHelper

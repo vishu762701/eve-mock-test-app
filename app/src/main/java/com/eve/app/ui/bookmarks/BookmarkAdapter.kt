@@ -16,6 +16,7 @@ import com.eve.app.data.model.BookmarkedQuestion
 import com.eve.app.databinding.ItemBookmarkCardBinding
 import com.eve.app.designsystem.DesignIconStates
 import com.eve.app.designsystem.UiArcMotion
+import com.eve.app.designsystem.UiArcSwipeRow
 import com.eve.app.util.FontManager
 
 /**

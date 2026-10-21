@@ -21,6 +21,9 @@ import com.eve.app.data.model.Exam
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.databinding.ActivityManageSyllabusBinding
 import com.eve.app.databinding.ItemAdminSyllabusBinding
+import com.eve.app.designsystem.UiArcFileUploadView
+import com.eve.app.designsystem.UiArcMorphSelectView
+import com.eve.app.designsystem.UiArcMotion
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.SecurityHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
