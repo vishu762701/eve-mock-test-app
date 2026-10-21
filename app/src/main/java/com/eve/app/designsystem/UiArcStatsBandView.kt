@@ -51,7 +51,8 @@ class UiArcStatsBandView @JvmOverloads constructor(
 
     private val density = resources.displayMetrics.density
     private var hasTriggeredInView = false
-    private var isObservingScroll = false
+    private var scrollObserver: ViewTreeObserver? = null
+    private val visibilityCheck = Runnable { checkInView() }
     private val activeAnimators = mutableListOf<ValueAnimator>()
     private val metricEntries = mutableMapOf<Int, MetricEntry>()
 
@@ -61,29 +62,36 @@ class UiArcStatsBandView @JvmOverloads constructor(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        if (!isObservingScroll && viewTreeObserver.isAlive) {
-            viewTreeObserver.addOnScrollChangedListener(scrollListener)
-            isObservingScroll = true
+        if (scrollObserver == null && viewTreeObserver.isAlive) {
+            scrollObserver = viewTreeObserver.also {
+                it.addOnScrollChangedListener(scrollListener)
+            }
         }
-        post { checkInView() }
+        post(visibilityCheck)
     }
 
     override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        if (isObservingScroll && viewTreeObserver.isAlive) {
-            viewTreeObserver.removeOnScrollChangedListener(scrollListener)
-            isObservingScroll = false
-        }
+        removeCallbacks(visibilityCheck)
+        scrollObserver?.takeIf { it.isAlive }?.removeOnScrollChangedListener(scrollListener)
+        scrollObserver = null
         cancelAllAnimations()
+        super.onDetachedFromWindow()
     }
 
     fun cancelAllAnimations() {
-        activeAnimators.forEach { it.cancel() }
-        activeAnimators.clear()
         metricEntries.values.forEach { entry ->
-            entry.animator?.cancel()
-            entry.animator = null
+            if (entry.animator != null) {
+                entry.displayedCount = entry.textView.text.toString().toLongOrNull()
+                entry.animator?.cancel()
+                entry.animator = null
+                // A canceled first reveal has not completed its entrance.
+                if (entry.displayedCount != entry.targetCount) entry.hasAnimatedEntrance = false
+            }
+            entry.textView.animate().cancel()
+            entry.textView.alpha = 1f
+            entry.textView.translationY = 0f
         }
+        activeAnimators.clear()
     }
 
     fun isFiftyPercentVisible(): Boolean {
@@ -103,22 +111,18 @@ class UiArcStatsBandView @JvmOverloads constructor(
      * Triggers pending metrics if newly entering viewport.
      */
     fun checkInView() {
-        if (!hasTriggeredInView) {
-            if (isFiftyPercentVisible()) {
-                hasTriggeredInView = true
-                triggerPendingMetrics()
-            }
-        } else {
-            // Already triggered entrance, but ensure visible state if new metrics arrived
-            if (isShown) {
-                triggerPendingMetrics()
-            }
-        }
+        // Every new target must wait for actual >=50% visibility, even after
+        // a previous metric successfully completed its first entrance.
+        if (!isFiftyPercentVisible()) return
+        hasTriggeredInView = true
+        triggerPendingMetrics()
     }
 
     private fun triggerPendingMetrics() {
         metricEntries.values.forEach { entry ->
-            if (!entry.hasAnimatedEntrance && entry.targetCount != null) {
+            if (entry.targetCount != null && entry.animator == null &&
+                (!entry.hasAnimatedEntrance || entry.displayedCount != entry.targetCount)
+            ) {
                 animateMetric(entry)
             }
         }
@@ -169,8 +173,9 @@ class UiArcStatsBandView @JvmOverloads constructor(
         }
 
         // Gate animation until view is at least 50% visible in the viewport
-        if (!hasTriggeredInView && !isFiftyPercentVisible()) {
-            textView.text = "—"
+        if (!isFiftyPercentVisible()) {
+            // Preserve a previously completed number when a fresh target arrives offscreen.
+            textView.text = entry.displayedCount?.toString() ?: "—"
             return
         }
 
@@ -229,9 +234,15 @@ class UiArcStatsBandView @JvmOverloads constructor(
                 textView.text = current.toString()
             }
             addListener(object : AnimatorListenerAdapter() {
+                private var cancelled = false
+                override fun onAnimationCancel(animation: Animator) {
+                    cancelled = true
+                }
                 override fun onAnimationEnd(animation: Animator) {
-                    textView.text = targetStr
-                    entry.displayedCount = targetCount
+                    if (!cancelled) {
+                        textView.text = targetStr
+                        entry.displayedCount = targetCount
+                    }
                     entry.animator = null
                     activeAnimators.remove(this@apply)
                 }
