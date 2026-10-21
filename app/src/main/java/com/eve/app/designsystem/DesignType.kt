@@ -98,6 +98,7 @@ object DesignType {
         }
         TextViewCompat.setTextAppearance(view, style)
         view.includeFontPadding = false
+        view.paint.isFakeBoldText = false
         view.typeface = when {
             role in listOf(Role.LARGE_TITLE, Role.TITLE_1, Role.TITLE_2, Role.TITLE) && (emphasized || role == Role.TITLE) -> FontManager.boldTypeface(view.context)
             role in listOf(Role.TITLE_3, Role.HEADLINE, Role.HEADING, Role.BUTTON) -> FontManager.semiboldTypeface(view.context)
@@ -106,5 +107,37 @@ object DesignType {
             else -> FontManager.regularTypeface(view.context)
         }
         TextViewCompat.setLineHeight(view, view.resources.getDimensionPixelSize(line))
+
+        // Check if an active dynamic role override is defined
+        try {
+            val roleKey = when (role) {
+                Role.LARGE_TITLE -> "large_title"
+                Role.TITLE_1, Role.TITLE -> "title_1"
+                Role.TITLE_2 -> "title_2"
+                Role.TITLE_3 -> "title_3"
+                Role.HEADLINE, Role.HEADING -> "headline"
+                Role.BODY -> "body"
+                Role.CALLOUT -> "callout"
+                Role.SUBHEADLINE, Role.SECONDARY -> "subheadline"
+                Role.FOOTNOTE -> "footnote"
+                Role.CAPTION_1 -> "caption_1"
+                Role.CAPTION_2 -> "caption_2"
+                Role.BUTTON -> "button"
+                Role.TAB -> "tab"
+                Role.CHIP -> "chip"
+            }
+            val repo = com.eve.app.typography.TypographyRepository.getInstance(view.context)
+            val config = repo.getActiveConfig()
+            val override = config.globalStyles[roleKey]
+            if (override != null) {
+                override.textSizeSp?.let { view.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, it) }
+                override.lineHeightSp?.let {
+                    val density = view.resources.displayMetrics.scaledDensity
+                    val px = (it * density).toInt()
+                    if (px > 0) TextViewCompat.setLineHeight(view, px)
+                }
+                override.letterSpacing?.let { view.letterSpacing = it }
+            }
+        } catch (_: Exception) {}
     }
 }

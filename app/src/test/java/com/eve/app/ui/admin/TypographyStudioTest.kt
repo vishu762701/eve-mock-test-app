@@ -187,4 +187,107 @@ class TypographyStudioTest {
         assertEquals("The quick brown fox jumps over the lazy dog", TypographyStudioActivity.DEFAULT_ENGLISH_TEXT)
         assertEquals("संघ लोक सेवा आयोग — सिविल सेवा परीक्षा", TypographyStudioActivity.DEFAULT_HINDI_TEXT)
     }
+
+    @Test
+    fun testTypographyRegistryCatalog() {
+        val screens = com.eve.app.typography.TypographyRegistry.SCREENS
+        assertTrue("Must register at least 20 screens", screens.size >= 20)
+        val allElements = com.eve.app.typography.TypographyRegistry.allElements()
+        assertTrue("Must register at least 100 elements across screens", allElements.size >= 100)
+
+        // Check key screens exist
+        assertNotNull(com.eve.app.typography.TypographyRegistry.findScreen("home"))
+        assertNotNull(com.eve.app.typography.TypographyRegistry.findScreen("mock_test"))
+        assertNotNull(com.eve.app.typography.TypographyRegistry.findScreen("result"))
+        assertNotNull(com.eve.app.typography.TypographyRegistry.findScreen("result_detail"))
+        assertNotNull(com.eve.app.typography.TypographyRegistry.findScreen("leaderboard"))
+        assertNotNull(com.eve.app.typography.TypographyRegistry.findScreen("performance"))
+        assertNotNull(com.eve.app.typography.TypographyRegistry.findScreen("history"))
+        assertNotNull(com.eve.app.typography.TypographyRegistry.findScreen("bookmarks"))
+        assertNotNull(com.eve.app.typography.TypographyRegistry.findScreen("practice"))
+        assertNotNull(com.eve.app.typography.TypographyRegistry.findScreen("pyq"))
+        assertNotNull(com.eve.app.typography.TypographyRegistry.findScreen("exam_tests"))
+        assertNotNull(com.eve.app.typography.TypographyRegistry.findScreen("mistakes"))
+        assertNotNull(com.eve.app.typography.TypographyRegistry.findScreen("notifications"))
+        assertNotNull(com.eve.app.typography.TypographyRegistry.findScreen("premium"))
+        assertNotNull(com.eve.app.typography.TypographyRegistry.findScreen("settings"))
+        assertNotNull(com.eve.app.typography.TypographyRegistry.findScreen("profile"))
+        assertNotNull(com.eve.app.typography.TypographyRegistry.findScreen("feedback"))
+        assertNotNull(com.eve.app.typography.TypographyRegistry.findScreen("about"))
+        assertNotNull(com.eve.app.typography.TypographyRegistry.findScreen("syllabus"))
+        assertNotNull(com.eve.app.typography.TypographyRegistry.findScreen("admin_analytics"))
+        assertNotNull(com.eve.app.typography.TypographyRegistry.findScreen("admin_manage_exams"))
+        assertNotNull(com.eve.app.typography.TypographyRegistry.findScreen("admin_system_monitor"))
+        assertNotNull(com.eve.app.typography.TypographyRegistry.findScreen("dialogs"))
+    }
+
+    @Test
+    fun testAuthenticFontAssetsExist() {
+        val assetsDir = File(mainDir(), "assets")
+        val fontsDir = File(assetsDir, "fonts")
+        assertTrue("Fonts asset directory exists", fontsDir.isDirectory)
+
+        // Poppins fonts including Semibold 600
+        val poppinsSemi = File(fontsDir, "poppins_semibold.ttf")
+        assertTrue("Genuine Poppins semibold binary exists", poppinsSemi.isFile && poppinsSemi.length() > 50000)
+
+        // Noto Sans binaries
+        val notoSansRegular = File(fontsDir, "noto_sans_regular.ttf")
+        val notoSansMedium = File(fontsDir, "noto_sans_medium.ttf")
+        val notoSansSemibold = File(fontsDir, "noto_sans_semibold.ttf")
+        val notoSansBold = File(fontsDir, "noto_sans_bold.ttf")
+        assertTrue("Noto Sans Regular exists", notoSansRegular.isFile)
+        assertTrue("Noto Sans Medium exists", notoSansMedium.isFile)
+        assertTrue("Noto Sans Semibold exists", notoSansSemibold.isFile)
+        assertTrue("Noto Sans Bold exists", notoSansBold.isFile)
+
+        // OFL License notice
+        val licensesDir = File(assetsDir, "licenses")
+        val notoLicense = File(licensesDir, "NotoSans-OFL.txt")
+        assertTrue("Noto Sans OFL license notice exists", notoLicense.isFile)
+    }
+
+    @Test
+    fun testTypographyPresetsAndResolutionOrder() {
+        val presets = listOf(
+            com.eve.app.typography.TypographyPreset.IOS26_BALANCED,
+            com.eve.app.typography.TypographyPreset.IOS26_HIG_REFERENCE,
+            com.eve.app.typography.TypographyPreset.POPPINS_CLEAN,
+            com.eve.app.typography.TypographyPreset.ROBOTO_NEUTRAL,
+            com.eve.app.typography.TypographyPreset.NOTO_READABLE
+        )
+        assertEquals(5, presets.size)
+
+        val config = com.eve.app.typography.TypographyRepository.createDefaultConfig()
+        val defaultResolved = com.eve.app.typography.TypographyResolver.resolve(
+            config = config,
+            screenKey = "home",
+            elementKey = "home_welcome_title",
+            componentRole = "title_1"
+        )
+        assertEquals(FontManager.FontFamily.INTER, defaultResolved.fontFamily)
+        assertEquals(28f, defaultResolved.textSizeSp)
+        assertEquals(FontManager.FontWeight.BOLD, defaultResolved.weight)
+
+        // Test element override takes precedence over preset
+        val modifiedConfig = config.copy(
+            elementOverrides = mapOf(
+                "home_welcome_title" to com.eve.app.typography.StyleRule(
+                    fontFamily = "poppins",
+                    textSizeSp = 30f,
+                    weight = 600
+                )
+            )
+        )
+        val overriddenResolved = com.eve.app.typography.TypographyResolver.resolve(
+            config = modifiedConfig,
+            screenKey = "home",
+            elementKey = "home_welcome_title",
+            componentRole = "title_1"
+        )
+        assertEquals(FontManager.FontFamily.POPPINS, overriddenResolved.fontFamily)
+        assertEquals(30f, overriddenResolved.textSizeSp)
+        assertEquals(FontManager.FontWeight.SEMIBOLD, overriddenResolved.weight)
+        assertTrue(overriddenResolved.source.startsWith("Element override"))
+    }
 }

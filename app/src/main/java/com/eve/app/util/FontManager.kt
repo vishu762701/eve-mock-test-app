@@ -16,6 +16,9 @@ import java.util.concurrent.ConcurrentHashMap
  */
 object FontManager {
 
+    @Volatile
+    var activeFontFamily: FontFamily = FontFamily.INTER
+
     enum class FontFamily(
         val id: String,
         val displayName: String,
@@ -114,22 +117,28 @@ object FontManager {
         }
     }
 
+    private fun loadInterTypeface(context: Context, weight: FontWeight): Typeface {
+        return try {
+            when (weight) {
+                FontWeight.REGULAR -> ResourcesCompat.getFont(context, R.font.inter_regular) ?: Typeface.DEFAULT
+                FontWeight.MEDIUM -> ResourcesCompat.getFont(context, R.font.inter_medium) ?: Typeface.create("sans-serif-medium", Typeface.NORMAL)
+                FontWeight.SEMIBOLD -> ResourcesCompat.getFont(context, R.font.inter_semibold) ?: Typeface.create("sans-serif-medium", Typeface.BOLD)
+                FontWeight.BOLD -> ResourcesCompat.getFont(context, R.font.inter_bold) ?: Typeface.DEFAULT_BOLD
+            }
+        } catch (_: Exception) {
+            Typeface.DEFAULT
+        }
+    }
+
     private fun loadTypeface(context: Context, family: FontFamily, weight: FontWeight): Typeface {
         return try {
             when (family) {
-                FontFamily.INTER -> {
-                    when (weight) {
-                        FontWeight.REGULAR -> regularTypeface(context)
-                        FontWeight.MEDIUM -> mediumTypeface(context)
-                        FontWeight.SEMIBOLD -> semiboldTypeface(context)
-                        FontWeight.BOLD -> boldTypeface(context)
-                    }
-                }
+                FontFamily.INTER -> loadInterTypeface(context, weight)
                 FontFamily.POPPINS -> {
                     val assetName = when (weight) {
                         FontWeight.REGULAR -> "fonts/poppins_regular.ttf"
                         FontWeight.MEDIUM -> "fonts/poppins_medium.ttf"
-                        FontWeight.SEMIBOLD -> "fonts/poppins_medium.ttf"
+                        FontWeight.SEMIBOLD -> "fonts/poppins_semibold.ttf"
                         FontWeight.BOLD -> "fonts/poppins_bold.ttf"
                     }
                     try {
@@ -139,7 +148,19 @@ object FontManager {
                     }
                 }
                 FontFamily.ROBOTO -> loadSystemFont("sans-serif", weight)
-                FontFamily.NOTO_SANS -> loadSystemFont("noto-sans", weight)
+                FontFamily.NOTO_SANS -> {
+                    val assetName = when (weight) {
+                        FontWeight.REGULAR -> "fonts/noto_sans_regular.ttf"
+                        FontWeight.MEDIUM -> "fonts/noto_sans_medium.ttf"
+                        FontWeight.SEMIBOLD -> "fonts/noto_sans_semibold.ttf"
+                        FontWeight.BOLD -> "fonts/noto_sans_bold.ttf"
+                    }
+                    try {
+                        Typeface.createFromAsset(context.assets, assetName)
+                    } catch (_: Exception) {
+                        loadSystemFont("noto-sans", weight)
+                    }
+                }
             }
         } catch (_: Exception) {
             Typeface.DEFAULT
@@ -161,10 +182,10 @@ object FontManager {
 
     fun getTypefaceForOption(context: Context, option: FontOption): Typeface {
         return when (option) {
-            FontOption.INTER_REGULAR -> regularTypeface(context)
-            FontOption.INTER_MEDIUM -> mediumTypeface(context)
-            FontOption.INTER_SEMIBOLD -> semiboldTypeface(context)
-            FontOption.INTER_BOLD -> boldTypeface(context)
+            FontOption.INTER_REGULAR -> getTypeface(context, FontFamily.INTER, FontWeight.REGULAR)
+            FontOption.INTER_MEDIUM -> getTypeface(context, FontFamily.INTER, FontWeight.MEDIUM)
+            FontOption.INTER_SEMIBOLD -> getTypeface(context, FontFamily.INTER, FontWeight.SEMIBOLD)
+            FontOption.INTER_BOLD -> getTypeface(context, FontFamily.INTER, FontWeight.BOLD)
             FontOption.SYSTEM_SANS -> Typeface.SANS_SERIF
             FontOption.SYSTEM_SERIF -> Typeface.SERIF
             FontOption.SYSTEM_MONOSPACE -> Typeface.MONOSPACE
@@ -172,43 +193,22 @@ object FontManager {
     }
 
     fun typeface(context: Context, bold: Boolean): Typeface {
-        val resId = if (bold) R.font.inter_bold else R.font.inter_regular
-        return try {
-            ResourcesCompat.getFont(context, resId) ?: if (bold) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
-        } catch (_: Exception) {
-            if (bold) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
-        }
+        return if (bold) boldTypeface(context) else regularTypeface(context)
     }
 
     fun mediumTypeface(context: Context): Typeface {
-        return try {
-            ResourcesCompat.getFont(context, R.font.inter_medium) ?: Typeface.create("sans-serif-medium", Typeface.NORMAL)
-        } catch (_: Exception) {
-            Typeface.create("sans-serif-medium", Typeface.NORMAL)
-        }
+        return getTypeface(context, activeFontFamily, FontWeight.MEDIUM)
     }
 
     fun semiboldTypeface(context: Context): Typeface {
-        return try {
-            ResourcesCompat.getFont(context, R.font.inter_semibold) ?: Typeface.create("sans-serif-medium", Typeface.BOLD)
-        } catch (_: Exception) {
-            Typeface.create("sans-serif-medium", Typeface.BOLD)
-        }
+        return getTypeface(context, activeFontFamily, FontWeight.SEMIBOLD)
     }
 
     fun regularTypeface(context: Context): Typeface {
-        return try {
-            ResourcesCompat.getFont(context, R.font.inter_regular) ?: Typeface.DEFAULT
-        } catch (_: Exception) {
-            Typeface.DEFAULT
-        }
+        return getTypeface(context, activeFontFamily, FontWeight.REGULAR)
     }
 
     fun boldTypeface(context: Context): Typeface {
-        return try {
-            ResourcesCompat.getFont(context, R.font.inter_bold) ?: Typeface.DEFAULT_BOLD
-        } catch (_: Exception) {
-            Typeface.DEFAULT_BOLD
-        }
+        return getTypeface(context, activeFontFamily, FontWeight.BOLD)
     }
 }

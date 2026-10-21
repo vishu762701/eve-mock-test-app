@@ -354,6 +354,39 @@ class TypographyStudioActivity : EveBaseActivity() {
         }
         binding.spScreen.adapter = screenAdapter
 
+        fun updateElementForm(screenIdx: Int, elemIdx: Int) {
+            val screen = TypographyRegistry.SCREENS.getOrNull(screenIdx) ?: return
+            val elem = screen.elements.getOrNull(elemIdx) ?: return
+            val currentConfig = viewModel.draftConfig.value
+            val override = currentConfig.screenOverrides[screen.key]?.elementOverrides?.get(elem.key)
+                ?: currentConfig.elementOverrides[elem.key]
+
+            if (override != null) {
+                binding.etElementSize.setText(override.textSizeSp?.toString() ?: "")
+                binding.etElementLineHeight.setText(override.lineHeightSp?.toString() ?: "")
+                when (override.weight) {
+                    400 -> binding.chipElemWeight400.isChecked = true
+                    500 -> binding.chipElemWeight500.isChecked = true
+                    600 -> binding.chipElemWeight600.isChecked = true
+                    700 -> binding.chipElemWeight700.isChecked = true
+                    else -> binding.chipElemWeightInherit.isChecked = true
+                }
+                val famPos = when (override.fontFamily?.lowercase()) {
+                    "inter" -> 1
+                    "poppins" -> 2
+                    "roboto" -> 3
+                    "noto_sans" -> 4
+                    else -> 0
+                }
+                binding.spElementFontFamily.setSelection(famPos)
+            } else {
+                binding.etElementSize.setText("")
+                binding.etElementLineHeight.setText("")
+                binding.chipElemWeightInherit.isChecked = true
+                binding.spElementFontFamily.setSelection(0)
+            }
+        }
+
         fun updateElementsForScreen(screenIndex: Int) {
             val screen = TypographyRegistry.SCREENS.getOrNull(screenIndex) ?: return
             val elemNames = screen.elements.map { "${it.displayName} (${it.defaultRole})" }
@@ -361,6 +394,7 @@ class TypographyStudioActivity : EveBaseActivity() {
                 setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             }
             binding.spElement.adapter = elemAdapter
+            updateElementForm(screenIndex, 0)
         }
 
         updateElementsForScreen(0)
@@ -368,6 +402,14 @@ class TypographyStudioActivity : EveBaseActivity() {
         binding.spScreen.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 updateElementsForScreen(position)
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
+        }
+
+        binding.spElement.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val screenIdx = binding.spScreen.selectedItemPosition
+                updateElementForm(screenIdx, position)
             }
             override fun onNothingSelected(parent: AdapterView<*>?) = Unit
         }
@@ -452,15 +494,31 @@ class TypographyStudioActivity : EveBaseActivity() {
         binding.spVersionHistory.adapter = versionAdapter
 
         binding.btnRollbackVersion.setOnClickListener {
-            viewModel.rollback(1) { success, msg ->
-                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
-            }
+            val selectedItem = binding.spVersionHistory.selectedItem?.toString()
+            val version = selectedItem?.split(" ")?.firstOrNull()?.replace("v", "")?.toIntOrNull() ?: 1
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Confirm Rollback")
+                .setMessage("Are you sure you want to rollback to typography snapshot v$version?")
+                .setPositiveButton("Rollback") { _, _ ->
+                    viewModel.rollback(version) { success, msg ->
+                        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
 
         binding.btnFactoryReset.setOnClickListener {
-            viewModel.resetToFactoryDefaults {
-                Toast.makeText(this, "Reset to factory defaults", Toast.LENGTH_SHORT).show()
-            }
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Confirm Factory Reset")
+                .setMessage("Are you sure you want to reset typography to factory defaults? All published customizations will be restored to iOS 26 Balanced.")
+                .setPositiveButton("Reset") { _, _ ->
+                    viewModel.resetToFactoryDefaults { success, msg ->
+                        Toast.makeText(this, msg ?: (if (success) "Reset to factory defaults" else "Reset failed"), Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
 
         binding.btnExportJson.setOnClickListener {

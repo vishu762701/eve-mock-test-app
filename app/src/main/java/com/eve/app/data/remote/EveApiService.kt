@@ -614,9 +614,8 @@ interface EveApiService {
     suspend fun getTypographyVersions(): ApiResponse<List<Map<String, Any>>>
 
     @POST("api/admin/typography/rollback")
-    suspend fun rollbackTypography(@Body body: Map<String, Int>): ApiResponse<com.eve.app.typography.TypographyConfig>
+    suspend fun rollbackTypography(@Body body: Map<String, @JvmSuppressWildcards Any>): ApiResponse<com.eve.app.typography.TypographyConfig>
 
     @POST("api/admin/typography/reset")
-    suspend fun resetTypography(): ApiResponse<com.eve.app.typography.TypographyConfig>
-
+    suspend fun resetTypography(@Body body: Map<String, Boolean>): ApiResponse<com.eve.app.typography.TypographyConfig>
 }

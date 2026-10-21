@@ -208,15 +208,22 @@ class TypographyStudioViewModel(
         }
     }
 
-    fun resetToFactoryDefaults(onComplete: ((Boolean) -> Unit)? = null) {
+    fun resetToFactoryDefaults(onComplete: ((Boolean, String?) -> Unit)? = null) {
         viewModelScope.launch {
             val result = repository.resetToFactoryDefaults()
-            val resetConfig = result.getOrNull() ?: TypographyRepository.createDefaultConfig()
-            _publishedConfig.value = resetConfig
-            _draftConfig.value = resetConfig.copy(status = "draft")
-            revalidate()
-            _statusMessage.value = "Reset to factory default (iOS 26 Balanced)"
-            onComplete?.invoke(true)
+            if (result.isSuccess) {
+                val resetConfig = result.getOrThrow()
+                _publishedConfig.value = resetConfig
+                _draftConfig.value = resetConfig.copy(status = "draft")
+                revalidate()
+                val msg = "Reset to factory default (iOS 26 Balanced)"
+                _statusMessage.value = msg
+                onComplete?.invoke(true, msg)
+            } else {
+                val err = result.exceptionOrNull()?.message ?: "Reset to factory defaults failed"
+                _statusMessage.value = err
+                onComplete?.invoke(false, err)
+            }
         }
     }
 

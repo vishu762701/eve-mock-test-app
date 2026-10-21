@@ -3,6 +3,7 @@ package com.eve.app.typography
 import android.content.Context
 import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.EveApiService
+import com.eve.app.util.FontManager
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.Dispatchers
@@ -14,6 +15,7 @@ import java.io.File
  * - Local disk caching for offline delivery without blocking startup
  * - Draft & publish isolation
  * - Active test session protection
+ * - Schema validation before caching or applying
  * - JSON import & export with validation
  */
 class TypographyRepository(
@@ -75,8 +77,13 @@ class TypographyRepository(
                 val json = file.readText()
                 val parsed = gson.fromJson(json, TypographyConfig::class.java)
                 if (parsed != null) {
-                    activePublishedConfig = parsed
-                    parsed
+                    val issues = TypographyResolver.validate(parsed)
+                    val errors = issues.filter { it.level == TypographyResolver.ValidationIssue.Level.ERROR }
+                    if (errors.isEmpty()) {
+                        activePublishedConfig = parsed
+                        FontManager.activeFontFamily = FontManager.FontFamily.fromId(parsed.fontFamily)
+                        parsed
+                    } else activePublishedConfig
                 } else activePublishedConfig
             } else activePublishedConfig
         } catch (_: Exception) {
@@ -86,6 +93,7 @@ class TypographyRepository(
 
     fun saveCachedPublished(config: TypographyConfig) {
         activePublishedConfig = config
+        FontManager.activeFontFamily = FontManager.FontFamily.fromId(config.fontFamily)
         val file = getFile(PUBLISHED_CACHE_FILE) ?: return
         try {
             file.writeText(gson.toJson(config))
@@ -122,6 +130,11 @@ class TypographyRepository(
         try {
             val response = api.getPublishedTypography()
             if (response.success && response.data != null) {
+                val issues = TypographyResolver.validate(response.data)
+                val errors = issues.filter { it.level == TypographyResolver.ValidationIssue.Level.ERROR }
+                if (errors.isNotEmpty()) {
+                    return@withContext Result.failure(Exception("Published configuration failed validation: ${errors.first().message}"))
+                }
                 // If a test session is currently active, do not mutate live typography mid-test
                 if (!isTestActive) {
                     saveCachedPublished(response.data)
@@ -172,6 +185,11 @@ class TypographyRepository(
             val body = mapOf("notes" to (notes ?: "Published via Typography Studio"))
             val response = api.publishTypography(body)
             if (response.success && response.data != null) {
+                val issues = TypographyResolver.validate(response.data)
+                val errors = issues.filter { it.level == TypographyResolver.ValidationIssue.Level.ERROR }
+                if (errors.isNotEmpty()) {
+                    return@withContext Result.failure(Exception("Published response failed validation: ${errors.first().message}"))
+                }
                 saveCachedPublished(response.data)
                 clearCachedDraft()
                 Result.success(response.data)
@@ -185,9 +203,14 @@ class TypographyRepository(
 
     suspend fun rollback(version: Int): Result<TypographyConfig> = withContext(Dispatchers.IO) {
         try {
-            val body = mapOf("version" to version)
+            val body: Map<String, Any> = mapOf("version" to version, "confirmed" to true)
             val response = api.rollbackTypography(body)
             if (response.success && response.data != null) {
+                val issues = TypographyResolver.validate(response.data)
+                val errors = issues.filter { it.level == TypographyResolver.ValidationIssue.Level.ERROR }
+                if (errors.isNotEmpty()) {
+                    return@withContext Result.failure(Exception("Rollback configuration failed validation: ${errors.first().message}"))
+                }
                 saveCachedPublished(response.data)
                 Result.success(response.data)
             } else {
@@ -199,16 +222,23 @@ class TypographyRepository(
     }
 
     suspend fun resetToFactoryDefaults(): Result<TypographyConfig> = withContext(Dispatchers.IO) {
-        val defaultConfig = createDefaultConfig()
-        saveCachedPublished(defaultConfig)
-        clearCachedDraft()
         try {
-            val response = api.resetTypography()
+            val response = api.resetTypography(mapOf("confirmed" to true))
             if (response.success && response.data != null) {
+                val issues = TypographyResolver.validate(response.data)
+                val errors = issues.filter { it.level == TypographyResolver.ValidationIssue.Level.ERROR }
+                if (errors.isNotEmpty()) {
+                    return@withContext Result.failure(Exception("Reset configuration failed validation: ${errors.first().message}"))
+                }
                 saveCachedPublished(response.data)
+                clearCachedDraft()
+                Result.success(response.data)
+            } else {
+                Result.failure(Exception(response.error ?: "Failed to reset typography on backend"))
             }
-        } catch (_: Exception) {}
-        Result.success(defaultConfig)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     fun exportJson(config: TypographyConfig): String {
