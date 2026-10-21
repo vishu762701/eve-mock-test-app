@@ -3,6 +3,7 @@ package com.eve.app.designsystem
 import android.widget.TextView
 import androidx.core.widget.TextViewCompat
 import com.eve.app.R
+import com.eve.app.typography.TypographyRepository
 import com.eve.app.util.FontManager
 
 /**
@@ -29,7 +30,7 @@ object DesignType {
         HEADING,     // Maps to Headline (17sp semibold)
         SECONDARY,   // Maps to Subheadline (15sp regular)
         TAB,         // Maps to 14/15sp tab label
-        CHIP,        // Maps to Footnote Medium/Emphasized (13sp medium)
+        CHIP,        // Maps to Footnote Medium/Emphasized (14sp medium)
         BUTTON       // Maps to Callout Emphasized (16sp semibold)
     }
 
@@ -99,17 +100,25 @@ object DesignType {
         TextViewCompat.setTextAppearance(view, style)
         view.includeFontPadding = false
         view.paint.isFakeBoldText = false
+
+        val config = try {
+            TypographyRepository.getInstance(view.context).getActiveConfig()
+        } catch (_: Exception) {
+            null
+        }
+        val family = FontManager.FontFamily.fromId(config?.fontFamily)
+
         view.typeface = when {
-            role in listOf(Role.LARGE_TITLE, Role.TITLE_1, Role.TITLE_2, Role.TITLE) && (emphasized || role == Role.TITLE) -> FontManager.boldTypeface(view.context)
-            role in listOf(Role.TITLE_3, Role.HEADLINE, Role.HEADING, Role.BUTTON) -> FontManager.semiboldTypeface(view.context)
-            role in listOf(Role.CHIP) -> FontManager.mediumTypeface(view.context)
-            emphasized -> FontManager.semiboldTypeface(view.context)
-            else -> FontManager.regularTypeface(view.context)
+            role in listOf(Role.LARGE_TITLE, Role.TITLE_1, Role.TITLE_2, Role.TITLE) && (emphasized || role == Role.TITLE) -> FontManager.getTypeface(view.context, family, FontManager.FontWeight.BOLD)
+            role in listOf(Role.TITLE_3, Role.HEADLINE, Role.HEADING, Role.BUTTON) -> FontManager.getTypeface(view.context, family, FontManager.FontWeight.SEMIBOLD)
+            role in listOf(Role.CHIP) -> FontManager.getTypeface(view.context, family, FontManager.FontWeight.MEDIUM)
+            emphasized -> FontManager.getTypeface(view.context, family, FontManager.FontWeight.SEMIBOLD)
+            else -> FontManager.getTypeface(view.context, family, FontManager.FontWeight.REGULAR)
         }
         TextViewCompat.setLineHeight(view, view.resources.getDimensionPixelSize(line))
 
-        // Check if an active dynamic role override is defined
-        try {
+        // Apply explicit component override if defined by admin
+        if (config != null) {
             val roleKey = when (role) {
                 Role.LARGE_TITLE -> "large_title"
                 Role.TITLE_1, Role.TITLE -> "title_1"
@@ -126,18 +135,16 @@ object DesignType {
                 Role.TAB -> "tab"
                 Role.CHIP -> "chip"
             }
-            val repo = com.eve.app.typography.TypographyRepository.getInstance(view.context)
-            val config = repo.getActiveConfig()
-            val override = config.globalStyles[roleKey]
-            if (override != null) {
-                override.textSizeSp?.let { view.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, it) }
-                override.lineHeightSp?.let {
+            val compOverride = config.componentOverrides[roleKey]
+            if (compOverride != null) {
+                compOverride.textSizeSp?.let { view.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, it) }
+                compOverride.lineHeightSp?.let {
                     val density = view.resources.displayMetrics.scaledDensity
                     val px = (it * density).toInt()
                     if (px > 0) TextViewCompat.setLineHeight(view, px)
                 }
-                override.letterSpacing?.let { view.letterSpacing = it }
+                compOverride.letterSpacing?.let { view.letterSpacing = it }
             }
-        } catch (_: Exception) {}
+        }
     }
 }

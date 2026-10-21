@@ -17,7 +17,8 @@ object TypographyApplier {
 
     fun apply(
         view: TextView,
-        style: TypographyResolver.ResolvedStyle
+        style: TypographyResolver.ResolvedStyle,
+        applySize: Boolean = false
     ) {
         val context = view.context
         val typeface = FontManager.getTypeface(context, style.fontFamily, style.weight)
@@ -25,15 +26,16 @@ object TypographyApplier {
         view.typeface = typeface
         view.paint.isFakeBoldText = false
         view.includeFontPadding = false
-        view.setTextSize(TypedValue.COMPLEX_UNIT_SP, style.textSizeSp)
 
-        val density = context.resources.displayMetrics.scaledDensity
-        val lineHeightPx = (style.lineHeightSp * density).toInt()
-        if (lineHeightPx > 0) {
-            TextViewCompat.setLineHeight(view, lineHeightPx)
+        if (applySize) {
+            view.setTextSize(TypedValue.COMPLEX_UNIT_SP, style.textSizeSp)
+            val density = context.resources.displayMetrics.scaledDensity
+            val lineHeightPx = (style.lineHeightSp * density).toInt()
+            if (lineHeightPx > 0) {
+                TextViewCompat.setLineHeight(view, lineHeightPx)
+            }
+            view.letterSpacing = style.letterSpacing
         }
-
-        view.letterSpacing = style.letterSpacing
     }
 
     fun apply(
@@ -44,20 +46,21 @@ object TypographyApplier {
         componentRole: String? = null
     ): TypographyResolver.ResolvedStyle {
         val resolved = TypographyResolver.resolve(config, screenKey, elementKey, componentRole)
-        apply(view, resolved)
+        apply(view, resolved, applySize = true)
         return resolved
     }
 
     /**
-     * Applies the active published typography across all eligible TextViews in an Activity.
-     * Guaranteed to respect active exam session safety.
+     * Applies the active published typography across eligible TextViews in an Activity.
+     * Guaranteed to respect active exam session isolation and internal test harnesses.
      */
     fun applyToActivity(activity: Activity) {
         val repo = TypographyRepository.getInstance(activity)
         if (repo.isTestSessionActive()) return
 
-        // TypographyStudioActivity manages its own live preview instances
-        if (activity::class.java.simpleName == "TypographyStudioActivity") return
+        // Skip Typography Studio editor and test harness activities
+        val name = activity::class.java.simpleName
+        if (name == "TypographyStudioActivity" || name == "RepairVerificationActivity") return
 
         val root = activity.findViewById<ViewGroup>(android.R.id.content) ?: return
         val config = repo.getActiveConfig()
@@ -83,39 +86,57 @@ object TypographyApplier {
             null
         }
 
+        // Check if there is an explicit element override
+        val elementOverride = if (idName != null && screenKey != null) {
+            config.screenOverrides[screenKey]?.elementOverrides?.get(idName)
+                ?: config.elementOverrides[idName]
+        } else if (idName != null) {
+            config.elementOverrides[idName]
+        } else null
+
         val elementDesc = idName?.let { TypographyRegistry.findElement(it) }
-        val role = elementDesc?.defaultRole ?: inferRoleFromView(view, idName)
+        val role = elementDesc?.defaultRole
 
-        val resolved = TypographyResolver.resolve(
-            config = config,
-            screenKey = screenKey,
-            elementKey = idName,
-            componentRole = role
-        )
+        val screenRoleOverride = if (role != null && screenKey != null) {
+            config.screenOverrides[screenKey]?.roleOverrides?.get(role)
+        } else null
 
-        apply(view, resolved)
-    }
+        val compOverride = if (role != null) {
+            config.componentOverrides[role]
+        } else null
 
-    private fun inferRoleFromView(view: TextView, idName: String?): String {
-        if (idName != null) {
-            val lower = idName.lowercase()
-            return when {
-                lower.contains("largetitle") || lower.contains("bigscore") -> "large_title"
-                lower.contains("title1") || lower.contains("tagline") -> "title_1"
-                lower.contains("title") || lower.contains("heading1") -> "title_2"
-                lower.contains("sectionheader") || lower.contains("title3") -> "title_3"
-                lower.contains("headline") || lower.contains("heading") -> "headline"
-                lower.contains("callout") || lower.contains("status") -> "callout"
-                lower.contains("subheadline") || lower.contains("subtitle") || lower.contains("secondary") || lower.contains("desc") -> "subheadline"
-                lower.contains("footnote") || lower.contains("note") -> "footnote"
-                lower.contains("caption1") || lower.contains("timer") || lower.contains("counter") -> "caption_1"
-                lower.contains("caption") -> "caption_2"
-                lower.contains("button") || lower.startsWith("btn") -> "button"
-                lower.contains("tab") -> "tab"
-                lower.contains("chip") || lower.contains("badge") || lower.contains("pill") -> "chip"
-                else -> "body"
+        val hasExplicitOverride = (elementOverride != null && hasAnyRule(elementOverride)) ||
+                (screenRoleOverride != null && hasAnyRule(screenRoleOverride)) ||
+                (compOverride != null && hasAnyRule(compOverride))
+
+        if (hasExplicitOverride) {
+            val resolved = TypographyResolver.resolve(
+                config = config,
+                screenKey = screenKey,
+                elementKey = idName,
+                componentRole = role
+            )
+            apply(view, resolved, applySize = true)
+        } else {
+            // No explicit element/component size override:
+            // Apply authentic typeface for active font family if different from default,
+            // while strictly preserving the approved XML baseline dimensions!
+            val family = FontManager.FontFamily.fromId(config.fontFamily)
+            if (family != FontManager.FontFamily.INTER) {
+                val currentTf = view.typeface
+                val weight = when {
+                    currentTf?.isBold == true -> FontManager.FontWeight.BOLD
+                    else -> FontManager.FontWeight.REGULAR
+                }
+                view.typeface = FontManager.getTypeface(view.context, family, weight)
+                view.paint.isFakeBoldText = false
+                view.includeFontPadding = false
             }
         }
-        return if (view is Button) "button" else "body"
+    }
+
+    private fun hasAnyRule(rule: StyleRule): Boolean {
+        return rule.textSizeSp != null || rule.lineHeightSp != null ||
+                rule.weight != null || rule.fontFamily != null || rule.letterSpacing != null
     }
 }
