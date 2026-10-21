@@ -26,6 +26,7 @@ import com.eve.app.designsystem.UiArcMorphSelectView
 import com.eve.app.designsystem.UiArcMotion
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.SecurityHelper
+import com.eve.app.util.AdminAccessGate
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -68,11 +69,12 @@ class ManageSyllabusActivity : EveBaseActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
 
-        setupRecyclerView()
-        setupAddSyllabusForm()
-        setupSearch()
-
-        loadExamsAndSyllabuses()
+        AdminAccessGate.requireAdmin(this, binding.root) {
+            setupRecyclerView()
+            setupAddSyllabusForm()
+            setupSearch()
+            loadExamsAndSyllabuses()
+        }
     }
 
     private fun setupRecyclerView() {

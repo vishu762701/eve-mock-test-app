@@ -17,6 +17,7 @@ import com.eve.app.data.repository.ExamRepository
 import com.eve.app.databinding.ActivityManageExistingExamsBinding
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.AppBulletin
+import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.EmptyStateAnimationHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
@@ -30,6 +31,7 @@ class ManageExistingExamsActivity : EveBaseActivity() {
 
     private var allExamsWithStats: List<ExamWithStats> = emptyList()
     private var hasEmptyPlayed = false
+    private var adminAuthorized = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +40,14 @@ class ManageExistingExamsActivity : EveBaseActivity() {
         setContentView(binding.root)
 
         binding.btnBack.setOnClickListener { finish() }
+        AdminAccessGate.requireAdmin(this, binding.root) {
+            adminAuthorized = true
+            setupAdminControls()
+            loadExams()
+        }
+    }
+
+    private fun setupAdminControls() {
         binding.btnRefresh.setOnClickListener { loadExams() }
 
         adapter = ExistingExamsAdapter(
@@ -53,14 +63,14 @@ class ManageExistingExamsActivity : EveBaseActivity() {
         binding.etSearchExam.doAfterTextChanged { text ->
             filterExams(text?.toString().orEmpty())
         }
-
-        loadExams()
     }
 
     override fun onResume() {
         super.onResume()
-        hasEmptyPlayed = false
-        loadExams()
+        if (adminAuthorized) {
+            hasEmptyPlayed = false
+            loadExams()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

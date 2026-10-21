@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.ImageButton
 import com.eve.app.util.AppBulletin
+import com.eve.app.util.AdminAccessGate
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -38,6 +39,13 @@ class ManagePollsActivity : EveBaseActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
 
+        AdminAccessGate.requireAdmin(this, binding.root) {
+            setupAdminControls()
+            loadPolls()
+        }
+    }
+
+    private fun setupAdminControls() {
         adapter = PollsAdminAdapter(
             onToggleStatus = { poll -> togglePollStatus(poll) },
             onDelete = { poll -> confirmDeletePoll(poll) }
@@ -48,8 +56,6 @@ class ManagePollsActivity : EveBaseActivity() {
 
         binding.swipeRefresh.setOnRefreshListener { loadPolls() }
         binding.btnCreatePollDialog.setOnClickListener { showCreatePollDialog() }
-
-        loadPolls()
     }
 
     override fun onResume() {

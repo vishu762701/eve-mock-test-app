@@ -27,6 +27,7 @@ import com.eve.app.typography.TypographyResolver
 import com.eve.app.typography.TypographyStudioViewModel
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.FontManager
+import com.eve.app.util.AdminAccessGate
 import com.google.android.material.tabs.TabLayout
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.collectLatest
@@ -73,26 +74,18 @@ class TypographyStudioActivity : EveBaseActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
 
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        val email = currentUser?.email
-        if (currentUser != null && email != null) {
-            lifecycleScope.launch {
-                if (!adminRepo.isAdmin(email)) {
-                    finish()
-                    return@launch
-                }
-            }
+        // Never expose editable admin configuration before access validation.
+        AdminAccessGate.requireAdmin(this, binding.root) {
+            initTabs()
+            initStyleRows()
+            initControls()
+            initFontLibrarySection()
+            initGlobalStylesSection()
+            initScreenEditorSection()
+            initVersionsSection()
+            observeViewModel()
+            updatePreviewImmediately()
         }
-
-        initTabs()
-        initStyleRows()
-        initControls()
-        initFontLibrarySection()
-        initGlobalStylesSection()
-        initScreenEditorSection()
-        initVersionsSection()
-        observeViewModel()
-        updatePreviewImmediately()
     }
 
     private fun initTabs() {
