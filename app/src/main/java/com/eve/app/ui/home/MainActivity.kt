@@ -890,6 +890,17 @@ class MainActivity : EveBaseActivity() {
                 ime -> View.INVISIBLE // Keep receiving insets when the keyboard closes.
                 else -> View.VISIBLE
             }
+            // INVISIBLE does not stop a Lottie animation. Avoid invisible work while typing;
+            // resume the existing animation only when the window is active again.
+            if (ime && binding.lottieFloatingAirplane.isAnimating) {
+                binding.lottieFloatingAirplane.pauseAnimation()
+            } else if (!ime && hasLink &&
+                lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED) &&
+                com.eve.app.designsystem.DesignMotion.enabled(this) &&
+                !binding.lottieFloatingAirplane.isAnimating
+            ) {
+                binding.lottieFloatingAirplane.resumeAnimation()
+            }
             windowInsets
         }
 

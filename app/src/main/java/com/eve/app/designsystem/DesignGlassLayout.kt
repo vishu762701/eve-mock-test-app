@@ -31,6 +31,9 @@ open class DesignGlassLayout @JvmOverloads constructor(context: Context, attrs: 
     }
     private val rect = RectF()
     private var facade: BlurViewFacade? = null
+    // Reuse one blur controller while toggling toolbar glass at the scroll boundary.
+    // setupWith() replaces a controller and allocates renderer/listener state.
+    private var configuredRoot: ViewGroup? = null
     private var capsule = false
     private var radius = resources.getDimension(R.dimen.design_radius_card)
     private val configureAfterAttach = Runnable { configureBackdrop() }
@@ -67,35 +70,49 @@ open class DesignGlassLayout @JvmOverloads constructor(context: Context, attrs: 
     }
     override fun onDetachedFromWindow() {
         removeCallbacks(configureAfterAttach)
+        facade?.setBlurAutoUpdate(false)
         facade?.setBlurEnabled(false)
+        configuredRoot = null
         super.onDetachedFromWindow()
     }
     private fun configureBackdrop() {
-        facade?.setBlurEnabled(false)
         if (!glassEnabled) {
+            facade?.setBlurAutoUpdate(false)
+            facade?.setBlurEnabled(false)
             setBackgroundColor(ContextCompat.getColor(context, R.color.transparent))
             return
         }
+        if (!isAttachedToWindow) return
         val source = backdropRoot ?: activityContent() ?: (rootView as? ViewGroup)
         if (Build.VERSION.SDK_INT < 31 || !isHardwareAccelerated || source == null || source === this) {
             fallback()
             return
         }
+        if (configuredRoot === source && facade != null) {
+            // Enabling after a brief scroll to the top must not rebuild the blur controller.
+            setBackgroundColor(ContextCompat.getColor(context, R.color.transparent))
+            facade?.setBlurEnabled(true)
+            facade?.setBlurAutoUpdate(true)
+            return
+        }
         try {
+            facade?.setBlurAutoUpdate(false)
             setBackgroundColor(ContextCompat.getColor(context, R.color.transparent))
             facade = setupWith(source, ExactBackdropBlur())
                 .setFrameClearDrawable(ColorDrawable(ContextCompat.getColor(context, R.color.bg_app)))
                 .setBlurRadius(resources.getDimension(R.dimen.design_glass_blur))
                 .setOverlayColor(ContextCompat.getColor(context, R.color.transparent))
                 .setBlurAutoUpdate(true)
+            configuredRoot = source
         } catch (error: RuntimeException) {
             Log.w("DesignGlassLayout", "Backdrop unavailable; using locked glass fallback", error)
             fallback()
         }
     }
     private fun fallback() {
-        facade?.setBlurEnabled(false)
         facade?.setBlurAutoUpdate(false)
+        facade?.setBlurEnabled(false)
+        configuredRoot = null
         setBackgroundColor(ContextCompat.getColor(context, R.color.glass_fallback))
     }
     private fun activityContent(): ViewGroup? {

@@ -47,7 +47,18 @@ class EveGlassToolbar @JvmOverloads constructor(
         visit(rootView)
     }
     override fun onPreDraw(): Boolean {
-        glassEnabled = scrollHosts.any { it.isShown && it.canScrollVertically(-1) }
+        // Ignore elastic, sub-pixel edge movement that otherwise toggles blur on
+        // successive frames near scrollY=0. Geometry and backdrop tokens are unchanged.
+        val glassNeeded = scrollHosts.any { host ->
+            if (!host.isShown || !host.canScrollVertically(-1)) return@any false
+            when (host) {
+                is RecyclerView -> host.computeVerticalScrollOffset() > 2
+                is ScrollView -> host.scrollY > 2
+                is NestedScrollView -> host.scrollY > 2
+                else -> true
+            }
+        }
+        if (glassEnabled != glassNeeded) glassEnabled = glassNeeded
         return true
     }
 }
