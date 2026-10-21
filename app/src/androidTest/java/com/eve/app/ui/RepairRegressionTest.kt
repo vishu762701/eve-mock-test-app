@@ -887,4 +887,45 @@ class RepairRegressionTest {
         }
         finalBitmap.recycle()
     }
+
+    @Test fun pollDisclosureKeepsStableIdsAcrossRecyclingAndSeparateActions() {
+        instrumentation.runOnMainSync {
+            val context = ContextThemeWrapper(instrumentation.targetContext, R.style.Theme_Eve)
+            var statusActions = 0
+            var deleteActions = 0
+            val adapter = com.eve.app.ui.admin.PollsAdminAdapter(
+                onToggleStatus = { statusActions++ },
+                onDelete = { deleteActions++ }
+            )
+            val first = com.eve.app.data.model.Poll(
+                id = "poll-batch07-a", question = "Poll A",
+                options = listOf("Yes", "No"),
+                voteCounts = mapOf("0" to 2L, "1" to 1L)
+            )
+            val second = com.eve.app.data.model.Poll(
+                id = "poll-batch07-b", question = "Poll B",
+                options = listOf("One", "Two")
+            )
+            adapter.submitList(listOf(first, second))
+            val holder = adapter.onCreateViewHolder(FrameLayout(context), 0)
+            val row = com.eve.app.databinding.ItemPollAdminBinding.bind(holder.itemView)
+            adapter.onBindViewHolder(holder, 0)
+            row.root.performClick()
+            assertEquals("Tap to hide results", row.tvTapToView.text.toString())
+            assertEquals(View.VISIBLE, row.layoutResults.visibility)
+            assertEquals(2, row.optionsContainer.childCount)
+            adapter.onBindViewHolder(holder, 1)
+            assertEquals(View.GONE, row.layoutResults.visibility)
+            adapter.onBindViewHolder(holder, 0)
+            assertEquals(View.VISIBLE, row.layoutResults.visibility)
+            row.tvTapToView.performClick()
+            assertEquals(View.GONE, row.layoutResults.visibility)
+            row.btnToggleActive.performClick()
+            row.btnDeletePoll.performClick()
+            assertEquals(1, statusActions)
+            assertEquals(1, deleteActions)
+            assertEquals(View.GONE, row.layoutResults.visibility)
+        }
+    }
+
 }

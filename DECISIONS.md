@@ -1770,3 +1770,28 @@ Following Batch 01 (ADR-022), Batch 02 (ADR-023), Batch 03 (ADR-024), Typography
 - Telegram circular Day/Night reveal and Lottie assets remain 100% untouched.
 - Server-authoritative test scoring, timers, rank, and answer hiding remain untouched.
 - Dialogs and bottom sheets remain solid surfaces.
+
+
+## ADR-030: Native UIArc Batch 07 and Scoped Floating Surface Repair (2026-10-21)
+
+- **Status:** Implemented in source; final native CI and physical visual verification required.
+- **User authority:** EVE Batch 07 + system-bar/floating UI repair mission. Protected Telegram theme transition, Lottie art/triggers and scoring remain unchanged.
+- **Official source:** Android edge-to-edge views (https://developer.android.com/develop/ui/views/layout/edge-to-edge). Original UIArc registry packages: https://uiarc.dev/r/drawer.json, https://uiarc.dev/r/scroll-area.json, https://uiarc.dev/r/accordion.json, https://uiarc.dev/r/slider.json, https://uiarc.dev/r/card.json and https://uiarc.dev/r/arc-motion-tokens.json. Source mirrors at github.com/kuratlielia/arc-library were inspected before native translation.
+
+### Inspected source defects and repairs
+1. `SystemBarHelper.kt` contained `bg_app == bg_app && bg_app != bg_app` via identical resolved colors; removed the impossible debug-fixture condition without inventing any new role color. Existing content-root ownership of top/bottom status/nav insets was preserved, including its regression test contract.
+2. `MainActivity.kt` always hid the airplane even for a validated server-managed floating HTTPS link. Restore only when `FloatingLinkRepository.isValidHttpsUrl` accepts it. Preserve click destination, original Lottie and theme color callback. Use INVISIBLE during IME so controls retain inset callbacks, and GONE when no valid link exists.
+3. Bottom bar and airplane use residual system-gesture avoidance rather than reapplying nav-bar insets already owned by `android.R.id.content`. Guard margin/padding writes to avoid repeated requestLayout, preserve long-list scroll clearance, and avoid showing floating controls above IME.
+4. `ShadowHost.releaseClipping` previously disabled every ancestor through the window content host. Constrain elevation unclipping to the local holder and an immediately wrapping RecyclerView; do not relax clipping on unrelated siblings or the system-bar region. Update `LockedComponentsTest` to assert the new intended boundary rather than the deprecated global mutation.
+
+### Native adaptations (not full web-parity claims)
+1. **Drawer** — `MainActivity.kt` keeps Android `DrawerLayout` the sole drag, back, RTL, scrim and panel-transition owner. Calls choose animation based on native reduced-motion preference; focus enters on opening and returns to launcher on dismissal. UIArc's custom >1/3-panel or >500px/s fling rule was *not* duplicated because that would create competing gesture engines. Its critically damped web spring is not a claim about DrawerLayout internals.
+2. **Scroll Area** — `HistoryActivity.kt` retains RecyclerView virtualization and native scrolling, enables a fading inset-overlay scrollbar with **900ms** idle delay. Original **28px** edge mask is deliberately omitted because it can obscure actual history text and native accessibility.
+3. **Accordion** — `PollsAdminAdapter.kt` animates only the existing vote-results region using `UiArcMotion.Spring.SMOOTH` (**500ms**, bounce **0**) for nonovershooting height; inline alpha follows the same trajectory. Cancel/re-target animation on fast taps and recycle, stable Poll IDs retain simultaneous expansion. Original web single-open semantics intentionally not applied. No `notifyItemChanged(bindingAdapterPosition)` for disclosure.
+4. **Slider** — `TypographyStudioActivity.kt` adds a native Material Slider with floating value label and continuously adjustable font sizes. Bounds **8–60sp** come from `TypographyResolver` and are centralized there; manual decimal input remains authoritative, preserved across role changes, and Save remains explicit. Native Slider controls thumb/accessibility; UIArc's bespoke elastic overscroll and rolling-digit bubble are *not* claimed as implemented.
+5. **Card** — `ExistingExamsAdapter.kt` applies a fine-pointer-only **2dp** hover lift using critically damped `visualDuration=0.26s, bounce=0` native spring. Disabled motion/row recycle resets to translationY=0. Existing Edit, Preview and More Options remain untouched. Shared-layout quick-look is not applicable to the existing real admin workflow, so no invented modal or second navigation destination.
+
+### Verification scope
+- New Poll ID reducer JVM tests, typography resolver-range JVM tests and targeted native Poll RecyclerView binding/action regression.
+- Existing CI build/lint/unit/backend/Functions and both native Android navigation modes remain mandatory; APK publication remains gated on all jobs. No CI exceptions or synthetic screenshots.
+- Android 14/15/16/17 physical confirmation, 320–393dp rotated/IME screenshot inspection, and Samsung device verification remain UNKNOWN unless independently evidenced. Root inset ownership and design tokens are preserved rather than replaced speculatively.

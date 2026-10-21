@@ -139,7 +139,8 @@ class LockedComponentsTest {
                 val card = DesignCardView(context)
                 owner.addView(host); host.addView(card)
                 ShadowHost.releaseClipping(card)
-                assertFalse(owner.clipChildren); assertFalse(owner.clipToPadding)
+                // The shadow host may unclip its immediate holder, never unrelated ancestors.
+                assertTrue(owner.clipChildren); assertTrue(owner.clipToPadding)
                 assertFalse(host.clipChildren); assertFalse(host.clipToPadding)
                 ShadowHost.reserveTabStrip(strip, host)
                 assertEquals(resources.getDimensionPixelSize(R.dimen.design_tab_height), host.paddingTop)
