@@ -333,8 +333,8 @@ class UiArcMotionComponentsTest {
         assertEquals(12f, ScoreTrendChartView.TOOLTIP_RADIUS_DP, 0.001f)
 
         val root = loadXml("src/main/res/layout/activity_performance.xml")
-        val chart = findElementById(root, "chartScoreTrend")
-        assertNotNull("chartScoreTrend must exist in activity_performance.xml", chart)
+        val chart = findElementById(root, "chartTrend")
+        assertNotNull("chartTrend must exist in activity_performance.xml", chart)
         assertEquals("com.eve.app.ui.performance.ScoreTrendChartView", chart?.tagName)
     }
 

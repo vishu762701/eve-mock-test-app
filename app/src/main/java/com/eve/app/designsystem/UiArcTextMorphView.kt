@@ -57,11 +57,29 @@ class UiArcTextMorphView @JvmOverloads constructor(
         var currentAlpha: Float = 1f
     )
 
-    private var currentTextString: String = ""
+    private var currentTextString: String? = null
     private var isMorphing = false
     private var morphAnimator: ValueAnimator? = null
-    private val activeGlyphs = mutableListOf<ActiveGlyph>()
-    private val renderPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
+    private var activeGlyphs: MutableList<ActiveGlyph>? = null
+    private var renderPaint: TextPaint? = null
+
+    private fun getOrCreateActiveGlyphs(): MutableList<ActiveGlyph> {
+        var list = activeGlyphs
+        if (list == null) {
+            list = mutableListOf()
+            activeGlyphs = list
+        }
+        return list
+    }
+
+    private fun getOrCreateRenderPaint(): TextPaint {
+        var p = renderPaint
+        if (p == null) {
+            p = TextPaint(Paint.ANTI_ALIAS_FLAG)
+            renderPaint = p
+        }
+        return p
+    }
 
     init {
         currentTextString = text?.toString() ?: ""
@@ -74,19 +92,21 @@ class UiArcTextMorphView @JvmOverloads constructor(
 
     override fun setText(text: CharSequence?, type: BufferType?) {
         val newTextStr = text?.toString() ?: ""
+        val currentStr = currentTextString
 
-        // If not attached, same text, or motion disabled, bypass animation
-        if (!isAttachedToWindow || newTextStr == currentTextString || currentTextString.isEmpty() || !UiArcMotion.isMotionEnabled(context)) {
+        // If not yet initialized by init block (called during super constructor),
+        // or not attached, same text, or motion disabled, bypass animation
+        if (currentStr == null || !isAttachedToWindow || newTextStr == currentStr || currentStr.isEmpty() || !UiArcMotion.isMotionEnabled(context)) {
             morphAnimator?.cancel()
             isMorphing = false
-            activeGlyphs.clear()
+            activeGlyphs?.clear()
             currentTextString = newTextStr
             super.setText(text, type ?: BufferType.NORMAL)
             contentDescription = newTextStr
             return
         }
 
-        startMorph(currentTextString, newTextStr, type ?: BufferType.NORMAL)
+        startMorph(currentStr, newTextStr, type ?: BufferType.NORMAL)
     }
 
     private fun startMorph(oldStr: String, newStr: String, type: BufferType) {
@@ -101,7 +121,8 @@ class UiArcTextMorphView @JvmOverloads constructor(
         val oldByKey = oldLayouts.associateBy { it.key }
         val newByKey = newLayouts.associateBy { it.key }
 
-        activeGlyphs.clear()
+        val glyphs = getOrCreateActiveGlyphs()
+        glyphs.clear()
 
         // 1. Shared characters & Entering characters
         var enterCount = 0
@@ -109,7 +130,7 @@ class UiArcTextMorphView @JvmOverloads constructor(
             val oldGlyph = oldByKey[newGlyph.key]
             if (oldGlyph != null) {
                 // Shared character
-                activeGlyphs.add(
+                glyphs.add(
                     ActiveGlyph(
                         char = newGlyph.char,
                         startX = oldGlyph.x,
@@ -123,7 +144,7 @@ class UiArcTextMorphView @JvmOverloads constructor(
                 // Entering character
                 val delay = ENTER_BASE_DELAY_MS + minOf(enterCount, 8) * ENTER_STAGGER_MS
                 enterCount++
-                activeGlyphs.add(
+                glyphs.add(
                     ActiveGlyph(
                         char = newGlyph.char,
                         startX = newGlyph.x,
@@ -143,7 +164,7 @@ class UiArcTextMorphView @JvmOverloads constructor(
         // 2. Exiting characters
         for (oldGlyph in oldLayouts) {
             if (!newByKey.containsKey(oldGlyph.key)) {
-                activeGlyphs.add(
+                glyphs.add(
                     ActiveGlyph(
                         char = oldGlyph.char,
                         startX = oldGlyph.x,
@@ -173,7 +194,7 @@ class UiArcTextMorphView @JvmOverloads constructor(
             addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     isMorphing = false
-                    activeGlyphs.clear()
+                    activeGlyphs?.clear()
                     super@UiArcTextMorphView.setText(newStr, type)
                     invalidate()
                     morphAnimator = null
@@ -186,8 +207,9 @@ class UiArcTextMorphView @JvmOverloads constructor(
 
     private fun updateGlyphTransforms(elapsedMs: Long, emSize: Float) {
         val morphProgress = UiArcMotion.Spring.MORPH.getInterpolation((elapsedMs / 550f).coerceIn(0f, 1f))
+        val glyphs = activeGlyphs ?: return
 
-        for (g in activeGlyphs) {
+        for (g in glyphs) {
             when {
                 g.isShared -> {
                     g.currentX = g.startX + (g.targetX - g.startX) * morphProgress
@@ -237,13 +259,14 @@ class UiArcTextMorphView @JvmOverloads constructor(
     }
 
     override fun onDraw(canvas: Canvas) {
-        if (!isMorphing || activeGlyphs.isEmpty()) {
+        val glyphs = activeGlyphs
+        if (!isMorphing || glyphs.isNullOrEmpty()) {
             super.onDraw(canvas)
             return
         }
 
-        renderPaint.set(paint)
-        val textPaint = renderPaint
+        val textPaint = getOrCreateRenderPaint()
+        textPaint.set(paint)
 
         val availableH = height - paddingTop - paddingBottom
         val baseline = when (gravity and Gravity.VERTICAL_GRAVITY_MASK) {
@@ -254,7 +277,7 @@ class UiArcTextMorphView @JvmOverloads constructor(
 
         val startX = paddingLeft.toFloat()
 
-        for (glyph in activeGlyphs) {
+        for (glyph in glyphs) {
             if (glyph.currentAlpha <= 0f) continue
 
             canvas.save()
@@ -273,6 +296,6 @@ class UiArcTextMorphView @JvmOverloads constructor(
         super.onDetachedFromWindow()
         morphAnimator?.cancel()
         isMorphing = false
-        activeGlyphs.clear()
+        activeGlyphs?.clear()
     }
 }
