@@ -247,7 +247,7 @@ class ManageSyllabusActivity : EveBaseActivity() {
 
         try {
             val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: return
-            if (bytes.size > 20 * 1024 * 1024) {
+            if (bytes.size > com.eve.app.designsystem.UiArcFileUploadView.MAX_FILE_SIZE_BYTES) {
                 AppBulletin.showError(this, "PDF exceeds 20MB limit.")
                 return
             }
@@ -273,7 +273,7 @@ class ManageSyllabusActivity : EveBaseActivity() {
 
         try {
             val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: return
-            if (bytes.size > 20 * 1024 * 1024) {
+            if (bytes.size > com.eve.app.designsystem.UiArcFileUploadView.MAX_FILE_SIZE_BYTES) {
                 AppBulletin.showError(this, "PDF exceeds 20MB limit.")
                 return
             }

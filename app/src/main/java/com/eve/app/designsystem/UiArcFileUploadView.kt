@@ -39,6 +39,7 @@ class UiArcFileUploadView @JvmOverloads constructor(
     }
 
     companion object {
+        const val MAX_FILE_SIZE_BYTES = 20L * 1024L * 1024L
         const val PROGRESS_DURATION_MS = 500L
         const val CHECK_ENTRANCE_DURATION_MS = 240L
         const val CHECK_ENTRANCE_DELAY_MS = 80L
