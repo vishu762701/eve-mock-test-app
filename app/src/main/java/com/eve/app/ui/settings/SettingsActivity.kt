@@ -93,26 +93,62 @@ class SettingsActivity : EveBaseActivity() {
         refreshText()
         binding.rowDailyGoal.setOnClickListener {
             val currentGoal = prefs.getInt(StreakHelper.KEY_DAILY_GOAL, StreakHelper.DEFAULT_DAILY_GOAL)
-            val dialogView = layoutInflater.inflate(R.layout.dialog_daily_goal_radio_cards, null)
-            val radioGroup = dialogView.findViewById<com.eve.app.designsystem.UiArcRadioCardsGroup>(R.id.radioCardsDailyGoal)
+            val density = resources.displayMetrics.density
+
+            val container = android.widget.LinearLayout(this).apply {
+                orientation = android.widget.LinearLayout.VERTICAL
+                val padH = Math.round(16f * density)
+                val padT = Math.round(12f * density)
+                val padB = Math.round(16f * density)
+                setPadding(padH, padT, padH, padB)
+                clipChildren = false
+                clipToPadding = false
+
+                val tvDesc = TextView(this@SettingsActivity).apply {
+                    setTextAppearance(R.style.TextAppearance_Eve_Token_Secondary)
+                    val lp = android.widget.LinearLayout.LayoutParams(
+                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        bottomMargin = Math.round(8f * density)
+                    }
+                    layoutParams = lp
+                    text = "Choose your target number of practice mock tests to maintain your streak."
+                }
+                addView(tvDesc)
+            }
+
+            val radioGroup = UiArcRadioCardsGroup(this).apply {
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+            }
+            container.addView(radioGroup)
+
+            val dialogView = android.widget.ScrollView(this).apply {
+                clipChildren = false
+                clipToPadding = false
+                addView(container)
+            }
 
             val options = listOf(
-                com.eve.app.designsystem.UiArcRadioCardsGroup.RadioCardOption(
+                UiArcRadioCardsGroup.RadioCardOption(
                     value = "1",
                     title = "1 test per day",
                     description = "Light daily practice to keep momentum"
                 ),
-                com.eve.app.designsystem.UiArcRadioCardsGroup.RadioCardOption(
+                UiArcRadioCardsGroup.RadioCardOption(
                     value = "2",
                     title = "2 tests per day",
                     description = "Steady rhythm to improve consistency"
                 ),
-                com.eve.app.designsystem.UiArcRadioCardsGroup.RadioCardOption(
+                UiArcRadioCardsGroup.RadioCardOption(
                     value = "3",
                     title = "3 tests per day",
                     description = "Accelerate syllabus coverage"
                 ),
-                com.eve.app.designsystem.UiArcRadioCardsGroup.RadioCardOption(
+                UiArcRadioCardsGroup.RadioCardOption(
                     value = "5",
                     title = "5 tests per day",
                     description = "Intensive focus for upcoming exams"
@@ -125,7 +161,7 @@ class SettingsActivity : EveBaseActivity() {
                 val chosenGoal = selectedValue.toIntOrNull() ?: 1
                 prefs.edit().putInt(StreakHelper.KEY_DAILY_GOAL, chosenGoal).apply()
                 refreshText()
-                if (com.eve.app.designsystem.UiArcMotion.isMotionEnabled(this)) {
+                if (UiArcMotion.isMotionEnabled(this)) {
                     radioGroup.postDelayed({ dialog?.dismiss() }, 200L)
                 } else {
                     dialog?.dismiss()

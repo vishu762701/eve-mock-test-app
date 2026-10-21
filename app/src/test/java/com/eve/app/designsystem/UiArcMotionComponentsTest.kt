@@ -467,11 +467,6 @@ class UiArcMotionComponentsTest {
         assertEquals(550L, UiArcRadioCardsGroup.GLIDE_DURATION_MS)
         assertEquals(160L, UiArcRadioCardsGroup.FADE_IN_DURATION_MS)
 
-        val dialogRoot = loadXml("src/main/res/layout/dialog_daily_goal_radio_cards.xml")
-        val rg = findElementById(dialogRoot, "radioCardsDailyGoal")
-        assertNotNull("radioCardsDailyGoal must exist in dialog_daily_goal_radio_cards.xml", rg)
-        assertEquals("com.eve.app.designsystem.UiArcRadioCardsGroup", rg?.tagName)
-
         val settingsRoot = loadXml("src/main/res/layout/activity_settings.xml")
         assertNotNull("rowDailyGoal exists in activity_settings.xml", findElementById(settingsRoot, "rowDailyGoal"))
         assertNotNull("tvDailyGoalValue exists in activity_settings.xml", findElementById(settingsRoot, "tvDailyGoalValue"))

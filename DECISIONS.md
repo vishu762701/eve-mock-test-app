@@ -1619,7 +1619,7 @@ Following the successful completion of Batch 01 (ADR-022), Batch 02 (ADR-023), B
 1. **Component 1 — Swipe Actions** (`https://uiarc.dev/r/swipe-actions.json`): `UiArcSwipeRow.kt` (`item_bookmark_card.xml`, `BookmarkAdapter.kt`, `BookmarksActivity.kt`)
 2. **Component 2 — File Upload** (`https://uiarc.dev/r/file-upload.json`): `UiArcFileUploadView.kt` helper & morphing layout transitions (`activity_manage_syllabus.xml`, `ManageSyllabusActivity.kt`)
 3. **Component 3 — Morph Select** (`https://uiarc.dev/r/morph-select.json`): `UiArcMorphSelectView.kt` with stable Exam ID resolution (`activity_manage_syllabus.xml`, `ManageSyllabusActivity.kt`)
-4. **Component 4 — Radio Cards** (`https://uiarc.dev/r/radio-cards.json`): `UiArcRadioCardsGroup.kt` (`dialog_daily_goal_radio_cards.xml`, `SettingsActivity.kt`)
+4. **Component 4 — Radio Cards** (`https://uiarc.dev/r/radio-cards.json`): `UiArcRadioCardsGroup.kt` (`SettingsActivity.kt` daily goal dialog)
 5. **Component 5 — Stats Band** (`https://uiarc.dev/r/stats-band.json`): `UiArcStatsBandView.kt` (`activity_admin.xml`, `cardUserStats`, `AdminActivity.kt`)
 
 ### Decisions
@@ -1657,7 +1657,7 @@ Following the successful completion of Batch 01 (ADR-022), Batch 02 (ADR-023), B
 4. **Component 4: Radio Cards (`UiArcRadioCardsGroup.kt`)**:
    - Native translation of `https://uiarc.dev/r/radio-cards.json`.
    - **Sliding Selection Ring**: Animated stroke ring glides between options (X, Y, Width, Height) using `GLIDE` spring (`UiArcMotion.Spring.CARD_GLIDE`, 550ms) with `FAST` fade-in (160ms).
-   - **Host Target**: Settings Daily Goal dialog (`SettingsActivity.kt`, `dialog_daily_goal_radio_cards.xml`).
+   - **Host Target**: Settings Daily Goal dialog (`SettingsActivity.kt` programmatically constructed solid dialog).
    - **Options**: 1, 2, 3, and 5 tests/day with descriptive secondary text and 48dp+ minimum touch targets.
    - **Persistence & Feedback**: Saves directly to SharedPreferences via `StreakHelper`, refreshes Settings row text, and announces selection to TalkBack.
 
