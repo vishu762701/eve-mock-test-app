@@ -159,22 +159,22 @@ class Ios26OfficialTypographyTest {
 
     @Test
     fun testDesignTypeEnumMatchesAll11CanonicalRoles() {
-        val enumNames = DesignType.values().map { it.name }
+        val enumNames = DesignType.Role.values().map { it.name }
         val expectedEnums = listOf(
-            "LARGE_TITLE", "LARGE_TITLE_EMPHASIZED",
-            "TITLE_1", "TITLE_1_EMPHASIZED",
-            "TITLE_2", "TITLE_2_EMPHASIZED",
-            "TITLE_3", "TITLE_3_EMPHASIZED",
+            "LARGE_TITLE",
+            "TITLE_1",
+            "TITLE_2",
+            "TITLE_3",
             "HEADLINE",
-            "BODY", "BODY_EMPHASIZED",
-            "CALLOUT", "CALLOUT_EMPHASIZED",
-            "SUBHEADLINE", "SUBHEADLINE_EMPHASIZED",
-            "FOOTNOTE", "FOOTNOTE_EMPHASIZED",
-            "CAPTION_1", "CAPTION_1_EMPHASIZED",
-            "CAPTION_2", "CAPTION_2_EMPHASIZED"
+            "BODY",
+            "CALLOUT",
+            "SUBHEADLINE",
+            "FOOTNOTE",
+            "CAPTION_1",
+            "CAPTION_2"
         )
         for (expected in expectedEnums) {
-            assertTrue("DesignType must contain $expected", enumNames.contains(expected))
+            assertTrue("DesignType.Role must contain $expected", enumNames.contains(expected))
         }
     }
 
