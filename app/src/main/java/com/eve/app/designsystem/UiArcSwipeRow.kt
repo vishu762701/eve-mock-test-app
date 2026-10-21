@@ -98,6 +98,7 @@ class UiArcSwipeRow @JvmOverloads constructor(
         actionLayer = FrameLayout(context).apply {
             layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
             setBackgroundColor(ContextCompat.getColor(context, R.color.system_red))
+            visibility = View.INVISIBLE
             isClickable = true
             isFocusable = false
         }
@@ -194,6 +195,7 @@ class UiArcSwipeRow @JvmOverloads constructor(
                         } else {
                             // Horizontal drag: intercept
                             isDragging = true
+                            actionLayer.visibility = View.VISIBLE
                             parent?.requestDisallowInterceptTouchEvent(true)
                             velocityTracker?.addMovement(ev)
                             return true
@@ -220,6 +222,9 @@ class UiArcSwipeRow @JvmOverloads constructor(
                 val dx = ev.x - startX
                 val raw = originX + dx
                 val clamped = constrain(raw)
+                if (clamped != 0f) {
+                    actionLayer.visibility = View.VISIBLE
+                }
                 front.translationX = clamped
                 updateActionLayer(clamped)
                 checkArmed(clamped)
@@ -333,10 +338,20 @@ class UiArcSwipeRow @JvmOverloads constructor(
         travelAnimator?.cancel()
         isArmed = false
 
+        if (target != 0f) {
+            actionLayer.visibility = View.VISIBLE
+        }
+
         if (!UiArcMotion.isMotionEnabled(context)) {
             front.translationX = target
             isOpen = target != 0f
-            if (isOpen) currentlyOpenRow = this else if (currentlyOpenRow === this) currentlyOpenRow = null
+            if (isOpen) {
+                currentlyOpenRow = this
+                actionLayer.visibility = View.VISIBLE
+            } else {
+                if (currentlyOpenRow === this) currentlyOpenRow = null
+                actionLayer.visibility = View.INVISIBLE
+            }
             return
         }
 
@@ -357,8 +372,12 @@ class UiArcSwipeRow @JvmOverloads constructor(
                     isOpen = target != 0f
                     if (isOpen) {
                         currentlyOpenRow = this@UiArcSwipeRow
-                    } else if (currentlyOpenRow === this@UiArcSwipeRow) {
-                        currentlyOpenRow = null
+                        actionLayer.visibility = View.VISIBLE
+                    } else {
+                        if (currentlyOpenRow === this@UiArcSwipeRow) {
+                            currentlyOpenRow = null
+                        }
+                        actionLayer.visibility = View.INVISIBLE
                     }
                 }
             })
@@ -370,6 +389,7 @@ class UiArcSwipeRow @JvmOverloads constructor(
         if (isLeaving) return
         val front = contentView ?: return
         isLeaving = true
+        actionLayer.visibility = View.VISIBLE
         travelAnimator?.cancel()
         if (currentlyOpenRow === this) currentlyOpenRow = null
 
@@ -425,6 +445,7 @@ class UiArcSwipeRow @JvmOverloads constructor(
         isLeaving = false
         isOpen = false
         isArmed = false
+        actionLayer.visibility = View.INVISIBLE
         contentView?.translationX = 0f
         layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
         alpha = 1f

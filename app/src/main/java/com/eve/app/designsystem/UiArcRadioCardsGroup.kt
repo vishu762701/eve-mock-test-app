@@ -85,7 +85,8 @@ class UiArcRadioCardsGroup @JvmOverloads constructor(
                 setPadding(padH, padV, padH, padV)
                 background = GradientDrawable().apply {
                     shape = GradientDrawable.RECTANGLE
-                    cornerRadius = 14f * density
+                    val cardRadius = 14f * density
+                    cornerRadius = cardRadius
                     setColor(ContextCompat.getColor(context, R.color.surface))
                     setStroke(Math.round(1f * density), ContextCompat.getColor(context, R.color.hairline))
                 }
@@ -203,8 +204,8 @@ class UiArcRadioCardsGroup @JvmOverloads constructor(
         super.onDraw(canvas)
         if (isRingPlaced && ringAlpha > 0f && !currentRect.isEmpty) {
             ringPaint.alpha = (ringAlpha * 255).toInt()
-            val radius = 14f * density
-            canvas.drawRoundRect(currentRect, radius, radius, ringPaint)
+            val ringCorner = 14f * density
+            canvas.drawRoundRect(currentRect, ringCorner, ringCorner, ringPaint)
         }
     }
 }

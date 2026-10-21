@@ -194,7 +194,8 @@ class UiArcMorphSelectView @JvmOverloads constructor(
             layoutParams = FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, Math.round(42f * density))
             background = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
-                cornerRadius = 10f * density
+                val pillRadius = 10f * density
+                cornerRadius = pillRadius
                 setColor(ContextCompat.getColor(context, R.color.surface_inset))
             }
             alpha = 0f

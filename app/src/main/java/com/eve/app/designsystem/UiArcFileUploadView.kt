@@ -99,7 +99,8 @@ class UiArcFileUploadView @JvmOverloads constructor(
             setPadding(pad, pad, pad, pad)
             background = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
-                cornerRadius = 14f * density
+                val cardRadius = 14f * density
+                cornerRadius = cardRadius
                 setColor(ContextCompat.getColor(context, R.color.surface))
                 setStroke(Math.round(1f * density), ContextCompat.getColor(context, R.color.hairline))
             }
@@ -146,7 +147,8 @@ class UiArcFileUploadView @JvmOverloads constructor(
             setPadding(pad, pad, pad, pad)
             background = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
-                cornerRadius = 14f * density
+                val cardRadius = 14f * density
+                cornerRadius = cardRadius
                 setColor(ContextCompat.getColor(context, R.color.surface))
                 setStroke(Math.round(1f * density), ContextCompat.getColor(context, R.color.hairline))
             }
