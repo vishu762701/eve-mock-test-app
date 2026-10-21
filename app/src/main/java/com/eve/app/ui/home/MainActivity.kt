@@ -527,41 +527,7 @@ class MainActivity : EveBaseActivity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val query = s?.toString()?.trim() ?: ""
-                val showClear = query.isNotEmpty()
-                if (showClear && binding.btnClearSearch.visibility != View.VISIBLE) {
-                    binding.btnClearSearch.visibility = View.VISIBLE
-                    if (UiArcMotion.isMotionEnabled(this@MainActivity)) {
-                        binding.btnClearSearch.alpha = 0f
-                        binding.btnClearSearch.scaleX = 0.6f
-                        binding.btnClearSearch.scaleY = 0.6f
-                        binding.btnClearSearch.animate()
-                            .alpha(1f)
-                            .scaleX(1f)
-                            .scaleY(1f)
-                            .setDuration(UiArcMotion.Duration.FAST)
-                            .setInterpolator(UiArcMotion.Spring.SNAPPY)
-                            .start()
-                    } else {
-                        binding.btnClearSearch.alpha = 1f
-                        binding.btnClearSearch.scaleX = 1f
-                        binding.btnClearSearch.scaleY = 1f
-                    }
-                } else if (!showClear && binding.btnClearSearch.visibility == View.VISIBLE) {
-                    if (UiArcMotion.isMotionEnabled(this@MainActivity)) {
-                        binding.btnClearSearch.animate()
-                            .alpha(0f)
-                            .scaleX(0.6f)
-                            .scaleY(0.6f)
-                            .setDuration(UiArcMotion.Duration.INSTANT)
-                            .setInterpolator(UiArcMotion.Ease.STANDARD)
-                            .withEndAction {
-                                binding.btnClearSearch.visibility = View.GONE
-                            }
-                            .start()
-                    } else {
-                        binding.btnClearSearch.visibility = View.GONE
-                    }
-                }
+                binding.btnClearSearch.visibility = if (query.isNotEmpty()) View.VISIBLE else View.GONE
                 searchDebounceJob?.cancel()
                 searchDebounceJob = lifecycleScope.launch(lifecycleExceptionHandler) {
                     delay(250)
