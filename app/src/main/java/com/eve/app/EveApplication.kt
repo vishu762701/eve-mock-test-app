@@ -21,6 +21,12 @@ class EveApplication : Application() {
         com.eve.app.util.ThemeSwitchAnimator.ensureLifecycleRegistered(this)
         com.eve.app.util.SystemBarHelper.init(this)
         try {
+            val typoRepo = com.eve.app.typography.TypographyRepository.getInstance(this)
+            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                typoRepo.fetchPublishedConfig()
+            }
+        } catch (_: Throwable) {}
+        try {
             com.google.firebase.auth.FirebaseAuth.getInstance().addAuthStateListener { auth ->
                 if (auth.currentUser != null) kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
                     com.eve.app.worker.SubmitWorker.enqueueAllPending(this@EveApplication)

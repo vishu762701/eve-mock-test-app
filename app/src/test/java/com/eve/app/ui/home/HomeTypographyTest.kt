@@ -122,7 +122,7 @@ class HomeTypographyTest {
     fun testAppleIOS26_Standard11TextStyles() {
         val styles = loadStyles("src/main/res/values/design_type.xml")
         for ((role, token, font) in listOf(
-            Triple("Title", "title", "bold"), Triple("Heading", "heading", "bold"),
+            Triple("Title", "title", "bold"), Triple("Heading", "heading", "semibold"),
             Triple("Body", "body", "regular"), Triple("Secondary", "secondary", "regular")
         )) {
             val style = styles["TextAppearance.Eve.Token.$role"]
@@ -137,7 +137,7 @@ class HomeTypographyTest {
     fun testAppleIOS26_ComponentSpecificVariants() {
         val styles = loadStyles("src/main/res/values/design_type.xml")
         for ((role, token, font) in listOf(
-            Triple("Tab", "tab", "regular"), Triple("Chip", "chip", "medium"), Triple("Button", "button", "bold")
+            Triple("Tab", "tab", "regular"), Triple("Chip", "chip", "medium"), Triple("Button", "button", "semibold")
         )) {
             val style = styles["TextAppearance.Eve.Token.$role"]
             assertNotNull(style)
@@ -145,7 +145,7 @@ class HomeTypographyTest {
             assertEquals("@dimen/design_line_$token", style?.lineHeight)
             assertEquals("@font/inter_$font", style?.fontFamily)
         }
-        assertEquals("@font/inter_bold", styles["TextAppearance.Eve.Token.Tab.Selected"]?.fontFamily)
+        assertEquals("@font/inter_semibold", styles["TextAppearance.Eve.Token.Tab.Selected"]?.fontFamily)
     }
 
     @Test

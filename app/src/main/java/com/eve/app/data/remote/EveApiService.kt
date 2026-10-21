@@ -597,4 +597,26 @@ interface EveApiService {
     @GET("api/admin/audit-log")
     suspend fun getAdminAuditLogs(@Query("range") range: String = "all"): ApiResponse<List<AdminAuditLogDto>>
 
+    // --- Typography Studio Endpoints ---
+    @GET("api/typography/published")
+    suspend fun getPublishedTypography(): ApiResponse<com.eve.app.typography.TypographyConfig>
+
+    @GET("api/admin/typography/draft")
+    suspend fun getAdminTypographyDraft(): ApiResponse<com.eve.app.typography.TypographyConfig>
+
+    @POST("api/admin/typography/draft")
+    suspend fun saveAdminTypographyDraft(@Body config: com.eve.app.typography.TypographyConfig): ApiResponse<com.eve.app.typography.TypographyConfig>
+
+    @POST("api/admin/typography/publish")
+    suspend fun publishTypography(@Body body: Map<String, String>): ApiResponse<com.eve.app.typography.TypographyConfig>
+
+    @GET("api/admin/typography/versions")
+    suspend fun getTypographyVersions(): ApiResponse<List<Map<String, Any>>>
+
+    @POST("api/admin/typography/rollback")
+    suspend fun rollbackTypography(@Body body: Map<String, Int>): ApiResponse<com.eve.app.typography.TypographyConfig>
+
+    @POST("api/admin/typography/reset")
+    suspend fun resetTypography(): ApiResponse<com.eve.app.typography.TypographyConfig>
+
 }

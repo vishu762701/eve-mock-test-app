@@ -65,6 +65,7 @@ class TestActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        com.eve.app.typography.TypographyRepository.getInstance(this).setTestSessionActive(true)
         hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
         currentQuestionPosition = savedInstanceState?.getInt("saved_question_position", 0) ?: 0
         SecurityHelper.applyScreenProtection(this)
@@ -706,6 +707,11 @@ class TestActivity : EveBaseActivity() {
         }
         paletteAdapter.submit(items)
         binding.rvQuestionPalette.scrollToPosition(activePosition)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        com.eve.app.typography.TypographyRepository.getInstance(this).setTestSessionActive(false)
     }
 
 }
