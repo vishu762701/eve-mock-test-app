@@ -481,7 +481,11 @@ interface EveApiService {
     suspend fun getUserStats(): ApiResponse<UserStatsResponse>
 
     @GET("api/admin/users")
-    suspend fun getUsers(@Query("q") query: String? = null): ApiResponse<List<AdminUser>>
+    suspend fun getUsers(
+        @Query("q") query: String? = null,
+        @Query("page") page: Int? = null,
+        @Query("pageSize") pageSize: Int? = null
+    ): ApiResponse<List<AdminUser>>
 
     @POST("api/admin/users/{id}/status")
     suspend fun toggleUserStatus(@Path("id") id: String, @Body body: Map<String, Boolean>): ApiResponse<Map<String, Any>>
