@@ -138,13 +138,10 @@ class LoginActivity : EveBaseActivity() {
             .requestEmail()
             .build()
         val client = GoogleSignIn.getClient(this, options)
-        client.signOut().addOnCompleteListener { result ->
+        // signOut is best-effort account-picker preparation, not a mandatory
+        // authentication dependency. Preserve the existing Google provider flow.
+        client.signOut().addOnCompleteListener {
             if (isFinishing || isDestroyed) return@addOnCompleteListener
-            if (!result.isSuccessful) {
-                setLoading(false, isGoogle = true)
-                showError("Google sign-in could not start. Please retry.")
-                return@addOnCompleteListener
-            }
             try {
                 signInLauncher.launch(client.signInIntent)
             } catch (e: RuntimeException) {
