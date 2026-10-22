@@ -105,3 +105,7 @@ The machine-readable `docs/telegram-icon-source-registry.tsv` inventories the **
 ## Dynamic icon use-site expansion
 
 Direct XML contains 66 icon IDs. A targeted executable search of 11 EVE source files containing `setImageResource`, `R.drawable.ic_*` or `setSmallIcon` identified **17 dynamically referenced IDs**, including **five not visible in the direct XML set**: `ic_bell_off`, `ic_minus`, `ic_status_circle_unattempted`, `ic_status_circle_wrong`, `ic_theme_moon`. The registry now lists **71 unique icons** and `TelegramIconSourceRegistryTest` cross-checks the 11 Kotlin source files and the full XML inventory. Theme-toggle icons, notification state bell, answer grading circles and +/- quantity controls retain EVE states; **NO EXACT TELEGRAM COUNTERPART** is asserted for the five additions. Java reflection, remote icons and launchers remain out of scope of this completed inventory slice.
+
+## Mapping-confidence correction
+
+The 71-resource source registry now distinguishes **UNMAPPED_PENDING_SOURCE_AUDIT** (Telegram counterpart *unknown*) from **SEMANTIC_MISMATCH** (candidate art exists but call-site purpose differs) and **CANDIDATE_NOT_IMPORTED** (matching candidate asset found but GPL artwork not imported). A missing name search does not prove Telegram has no analogous procedural drawable. Preserve EVE drawables until real asset/call-site/theme/dependency evidence supports replacement. No exact match is fabricated.

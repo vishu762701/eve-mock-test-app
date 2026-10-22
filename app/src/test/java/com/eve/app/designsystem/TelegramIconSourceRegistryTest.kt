@@ -51,7 +51,7 @@ class TelegramIconSourceRegistryTest {
         assertEquals(ids.size, ids.toSet().size)
         for (row in rows) {
             assertTrue("False Telegram import claim " + row[0],
-                row[7] in setOf("EVE_UNCHANGED_NO_EXACT", "CANDIDATE_NOT_IMPORTED", "SEMANTIC_MISMATCH"))
+                row[7] in setOf("UNMAPPED_PENDING_SOURCE_AUDIT", "CANDIDATE_NOT_IMPORTED", "SEMANTIC_MISMATCH"))
             assertTrue("Unverified source animation " + row[0],
                 row[5].contains("UNKNOWN") || row[5].contains("NO_TELEGRAM"))
             assertTrue("Unverified exact themed art " + row[0], row[6].contains("NOT_SOURCE_EXACT"))
