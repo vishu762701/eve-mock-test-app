@@ -115,13 +115,18 @@ class TelegramMenuPopup(
                     }
                 }
                 anchor.addOnAttachStateChangeListener(detach)
-                ThemeFrameCoordinator.afterFrame(anchor.rootView, ready = { !popupRoot.isAttachedToWindow && (anchor.hasWindowFocus() || (context as? Activity)?.hasWindowFocus() == true) },
+                // A PopupWindow can temporarily steal Activity focus on gesture navigation;
+                // waiting for focus inside an onPreDraw callback can deadlock the
+                // handoff because focus transfer need not schedule another draw.
+                ThemeFrameCoordinator.afterFrame(anchor.rootView, ready = { !popupRoot.isAttachedToWindow && anchor.isAttachedToWindow },
                     valid = { ThemeManager.ownsPopupHandoff(handoffOwner) }) {
                     anchor.removeOnAttachStateChangeListener(detach)
                     if (!ThemeManager.releasePopupHandoff(handoffOwner)) return@afterFrame
                     val activity = context as? Activity
                     if (anchor.isAttachedToWindow && activity != null && !activity.isFinishing &&
-                        !activity.isDestroyed && (anchor.hasWindowFocus() || activity.hasWindowFocus())) {
+                        !activity.isDestroyed &&
+                        (activity as? androidx.lifecycle.LifecycleOwner)?.lifecycle?.currentState?.isAtLeast(
+                            androidx.lifecycle.Lifecycle.State.RESUMED) != false) {
                         ThemeManager.trace("clean_host_frame", anchor, handoffId)
                         onThemeToggle(cx, cy, iconW, iconH)
                     }
