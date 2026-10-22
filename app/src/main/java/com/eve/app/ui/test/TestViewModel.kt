@@ -57,6 +57,7 @@ class TestViewModel : ViewModel() {
     private var currentExamName: String = ""
     private var started = false
     private var timerJob: Job? = null
+    private val attemptCountdown = MonotonicAttemptCountdown()
 
     private var initialTimeLimitSeconds: Long = 0L
     private var initialStartedAt: Long = 0L
@@ -343,14 +344,20 @@ class TestViewModel : ViewModel() {
     }
 
     private fun startTimer(totalSeconds: Long) {
-        val endAt = SystemClock.elapsedRealtime() + totalSeconds * 1000
+        // Starting a new/resumed SERVER-authorized attempt establishes its monotonic
+        // deadline once. Retry after a network failure must never add elapsed time.
+        attemptCountdown.start(totalSeconds, SystemClock.elapsedRealtime())
+        launchCountdownJob()
+    }
+
+    private fun launchCountdownJob() {
         timerJob?.cancel()
+        if (!attemptCountdown.isInitialized) return
         timerJob = viewModelScope.launch {
             while (true) {
-                val leftMs = endAt - SystemClock.elapsedRealtime()
-                val left = ((leftMs + 999) / 1000).coerceAtLeast(0)
+                val left = attemptCountdown.remainingSeconds(SystemClock.elapsedRealtime())
                 _remainingSeconds.value = left
-                if (left <= 0) {
+                if (left <= 0L) {
                     _timeUp.value = true
                     break
                 }
@@ -360,7 +367,9 @@ class TestViewModel : ViewModel() {
     }
 
     fun resumeTimerAfterFailure() {
-        if (_remainingSeconds.value > 0) startTimer(_remainingSeconds.value)
+        // stopTimer() pauses UI ticks while a submission is in flight, not the
+        // exam deadline. A delayed/failed request cannot grant free seconds.
+        if (attemptCountdown.isInitialized) launchCountdownJob()
     }
 
     fun stopTimer() {

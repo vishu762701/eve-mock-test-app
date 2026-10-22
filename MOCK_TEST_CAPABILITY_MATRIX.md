@@ -20,3 +20,8 @@ Date: 2026-10-22. Audit-only matrix; no duplicate timer/palette/submission was a
 | Grading secrecy and score fairness | Backend attempts/routes | EXISTING BACKEND CONTRACT | No grading rules changed; cross-user live tests UNKNOWN |
 
 The backend test suite includes deterministic attempt/race/error scenarios, but these do not establish every Android process restore or real student eligibility path. Never treat mock-server data as verified production totals, permissions or scores. No server-side grading algorithm was changed in this checkpoint.
+
+
+## Deadline regression fix (2026-10-22)
+
+`TestViewModel.startTimer()` retains a monotonic elapsed-time deadline in `MonotonicAttemptCountdown.kt`; `stopTimer()` stops only UI ticks, and `resumeTimerAfterFailure()` restarts observing the **same deadline**. Network/submission time no longer extends the client countdown. Four pure JVM test cases assert partial-second rounding, expiration, new authorized start and invalid negative input. Server attempt expiration and grading remain authoritative. Android process restoration still requires a real server resume and physical-device evidence, not claimed by these tests.

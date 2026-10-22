@@ -1895,3 +1895,10 @@ Following Batch 01 (ADR-022), Batch 02 (ADR-023), Batch 03 (ADR-024), Typography
 - Reject malformed broadcast pagination and oversized/invalid bulk deletion arrays at the Worker boundary. Validate server-side title, message, type, and target label lengths before creating a notification; mirror title/message limits in the existing Admin confirmation form. This closes accidental unbounded D1 batching and malformed-input states without affecting previously stored broadcasts.
 - The 48-component inventory's Slot Text row had a structurally invalid decision value; normalize it to ALREADY IMPLEMENTED with existing source evidence. The governing UI audit now matches Source of Truth's Inter typography, rather than obsolete Poppins prose.
 - Category-broadcast recipient eligibility is **NOT VERIFIED**: do not infer it from unproven profile/category labels or change delivery behavior without a stable backend membership contract. Avoid live broadcast execution in CI.
+
+
+## ADR-FINAL-2026-10-22-I: Monotonic mock-test deadline survives submit retry
+
+- A failed or delayed submit request must not extend the client exam. Introduce a pure monotonic countdown using the same `SystemClock.elapsedRealtime()` source already used by `TestViewModel`; request retry only resumes UI observation against the existing deadline.
+- Every newly server-authorized start may establish its own remaining-time deadline; only the backend grades/authorizes attempts. No negative-marking, score, or submitted-result logic changes.
+- Remove duplicate pending-submission delete in successful result path; retained the single server-success cleanup. JUnit tests cover countdown semantics, while native process-death and clock-identity cases remain separate verification requirements.

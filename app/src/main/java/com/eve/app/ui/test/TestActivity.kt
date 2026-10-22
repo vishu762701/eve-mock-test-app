@@ -508,9 +508,6 @@ class TestActivity : EveBaseActivity() {
                     com.eve.app.data.local.PendingSubmissionStore(this@TestActivity).remove(viewModel.clientAttemptId)
                     viewModel.clearSession(examId)
                     viewModel.clearSession(targetExamId)
-                    try {
-                        com.eve.app.data.local.PendingSubmissionStore(this@TestActivity).remove(viewModel.clientAttemptId)
-                    } catch (_: Exception) {}
                     com.eve.app.util.HapticHelper.performSubmitSuccess(binding.root)
 
                     AnalyticsHelper.logExamSubmit(
