@@ -14,7 +14,10 @@ import org.junit.runner.RunWith
 class NotificationStoreLifecycleTest {
     @Test fun multipleServerBroadcastsMergeWithLocalAndDoNotAutoAcknowledge() {
         val ctx = InstrumentationRegistry.getInstrumentation().targetContext
-        val prefs = ctx.getSharedPreferences("eve_prefs", Context.MODE_PRIVATE)
+        // Mirror the runtime's UID-specific namespace. Avoid modifying legacy
+        // unrelated preferences during the test.
+        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+        val prefs = ctx.getSharedPreferences(NotificationStore.namespaceForUser(uid), Context.MODE_PRIVATE)
         val previousRaw = prefs.getString("key_notifications_json", null)
         val previousCursor = prefs.getLong("key_last_broadcast_delivery_ts", 0L)
         val previousSeen = prefs.getLong("key_last_seen_notif_ts", 0L)

@@ -1921,3 +1921,10 @@ Following Batch 01 (ADR-022), Batch 02 (ADR-023), Batch 03 (ADR-024), Typography
 
 - Use D1 `meta.changes` for deletion outcomes, not request cardinality. Missing single notice -> HTTP 404; bulk request with no changed rows -> HTTP 404; partial success includes actual changed count and selected count in the typed API payload.
 - Admin composer only confirms actual database changes; refresh list on partial operation. No staged or production deletion was executed while testing; fake DB fixtures verify the route code.
+
+
+## ADR-FINAL-2026-10-22-M: Isolate cached inbox per authenticated account
+
+- Local notification content, read state and broadcast delivery cursor now reside in a SHA-256-derived opaque per-Firebase-UID SharedPreferences namespace. A signed-out reminder uses its own guest namespace. This prevents one signed-in student's local inbox from being visible to another account on a shared device.
+- The historical global `eve_prefs` notification payload remains on disk unchanged. It cannot be safely reassigned because previous versions recorded no owner; **do not** blindly import potentially private notifications into the next signed-in account. This preserves bytes for explicit recovery while keeping inaccessible unowned historical content outside authenticated inboxes. New server broadcasts rehydrate each account's inbox on Home/Notifications fetch; offline historical entries cannot be safely assigned automatically.
+- Both pure namespace JUnit tests and updated real SharedPreferences Android lifecycle tests cover the new storage location. Backend delivery, FCM cross-origin dedupe and Samsung manual checks retain separate verification requirements.

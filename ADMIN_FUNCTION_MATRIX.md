@@ -64,3 +64,8 @@ Broadcast list limit parsing now rejects malformed/non-positive inputs and caps 
 ## Admin deletion acknowledgment hardening
 
 D1 deletion results now determine user-visible success: single DELETE returns 404 for zero actual changed rows; bulk delete returns `data.count` of confirmed changes (and `requested`) rather than falsely reporting every selected ID removed. The Admin list refreshes and displays actual counts, including partial success. Isolated fake-D1 tests exercise real Hono handlers. Production destructive QA remains NOT RUN.
+
+
+## Shared-device inbox isolation
+
+`NotificationStore` now stores data per authenticated UID (opaque hashed preference namespace) instead of exposing the unowned legacy global inbox to subsequent accounts. Historical global bytes are retained for safety but never attributed automatically. Server inbox data is fetched independently for each account. Cross-device push and local guest migration remain UNKNOWN.

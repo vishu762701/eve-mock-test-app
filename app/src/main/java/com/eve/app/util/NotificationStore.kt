@@ -1,7 +1,10 @@
 package com.eve.app.util
 
 import android.content.Context
+import android.content.SharedPreferences
 import com.eve.app.data.model.BroadcastMessage
+import com.google.firebase.auth.FirebaseAuth
+import java.security.MessageDigest
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -20,13 +23,30 @@ data class StoredNotification(
 
 object NotificationStore {
 
+    // Historical eve_prefs remains on disk for compatibility/recovery, but its
+    // ownership cannot be established. Never assign it to whichever UID signs in.
     private const val PREFS = "eve_prefs"
+    private const val GUEST_PREFS = "eve_notifications_guest_v2"
+    private const val USER_PREFIX = "eve_notifications_u_v2_"
+
+    /** Stable opaque namespace; no email/UID appears in the prefs filename. */
+    internal fun namespaceForUser(uid: String?): String {
+        if (uid.isNullOrBlank()) return GUEST_PREFS
+        val hash = MessageDigest.getInstance("SHA-256")
+            .digest(uid.toByteArray(Charsets.UTF_8))
+            .joinToString("") { "%02x".format(it.toInt() and 0xff) }
+        return USER_PREFIX + hash
+    }
+
+    private fun notificationPrefs(context: Context): SharedPreferences = context.getSharedPreferences(
+        namespaceForUser(FirebaseAuth.getInstance().currentUser?.uid), Context.MODE_PRIVATE
+    )
     private const val KEY_NOTIFICATIONS = "key_notifications_json"
     private const val MAX_STORED = 50
     private const val KEY_LAST_BROADCAST_TS = "key_last_broadcast_delivery_ts"
 
     fun add(context: Context, title: String, body: String) {
-        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val prefs = notificationPrefs(context)
         val array = readArray(prefs)
 
         val entry = JSONObject().apply {
@@ -60,7 +80,7 @@ object NotificationStore {
     @Synchronized
     fun importBroadcasts(context: Context, broadcasts: List<BroadcastMessage>): Int {
         if (broadcasts.isEmpty()) return 0
-        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val prefs = notificationPrefs(context)
         val old = readArray(prefs)
         val lastCursor = prefs.getLong(KEY_LAST_BROADCAST_TS, 0L)
         val alreadyStoredIds = mutableSetOf<String>()
@@ -102,7 +122,7 @@ object NotificationStore {
     }
 
     fun getAll(context: Context): List<StoredNotification> {
-        val array = readArray(context.getSharedPreferences(PREFS, Context.MODE_PRIVATE))
+        val array = readArray(notificationPrefs(context))
         return (0 until array.length()).map { i ->
             val obj = array.getJSONObject(i)
             StoredNotification(
@@ -117,12 +137,12 @@ object NotificationStore {
     private const val KEY_LAST_SEEN_TIMESTAMP = "key_last_seen_notif_ts"
 
     fun getLastSeenTimestamp(context: Context): Long {
-        return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        return notificationPrefs(context)
             .getLong(KEY_LAST_SEEN_TIMESTAMP, 0L)
     }
 
     fun setLastSeenTimestamp(context: Context, timestamp: Long) {
-        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+        notificationPrefs(context).edit()
             .putLong(KEY_LAST_SEEN_TIMESTAMP, timestamp)
             .apply()
     }
@@ -142,7 +162,7 @@ object NotificationStore {
 
     /** Notifications screen khulte hi sab ko "read" mark kar do taaki bell ka red dot hat jaye. */
     fun markAllRead(context: Context) {
-        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val prefs = notificationPrefs(context)
         val array = readArray(prefs)
         var maxTs = 0L
         for (i in 0 until array.length()) {
