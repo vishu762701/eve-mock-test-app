@@ -68,7 +68,7 @@
     <dimen name="design_line_heading">22sp</dimen>
     <dimen name="design_type_secondary">14sp</dimen>
     <dimen name="design_line_secondary">20sp</dimen>
-    <dimen name="design_type_tab">14sp</dimen>
+    <dimen name="design_type_tab">15sp</dimen>
     <dimen name="design_line_tab">20sp</dimen>
     <dimen name="design_type_chip">14sp</dimen>
     <dimen name="design_line_chip">20sp</dimen>

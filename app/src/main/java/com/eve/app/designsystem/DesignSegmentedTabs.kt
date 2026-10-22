@@ -64,7 +64,9 @@ class DesignSegmentedTabs @JvmOverloads constructor(
     }
     private fun applyText(view: View, selected: Boolean) {
         if (view is TextView) {
-            if (view.typeface?.isBold != selected) view.typeface = FontManager.typeface(context, selected)
+            // Telegram ScrollSlidingTextTabStrip.java:549-554 uses bold() for BOTH selection states.
+            val tabTypeface = FontManager.telegramMediumTypeface(context)
+            if (view.typeface != tabTypeface) view.typeface = tabTypeface
             val size = resources.getDimension(R.dimen.design_type_tab)
             if (view.textSize != size) view.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
             val color = ContextCompat.getColor(context, if (selected) R.color.on_accent else R.color.text_primary)

@@ -112,7 +112,7 @@ object DesignType {
         view.typeface = when {
             // Telegram ActionBar.java:534 and Theme.java:7812 use AndroidUtilities.bold().
             // Apply only to 20sp title / 17sp row heading counterparts, not exam scores.
-            role == Role.TITLE || role == Role.HEADLINE || role == Role.HEADING ->
+            role == Role.TITLE || role == Role.HEADLINE || role == Role.HEADING || role == Role.TAB ->
                 FontManager.telegramMediumTypeface(view.context)
             role in listOf(Role.LARGE_TITLE, Role.TITLE_1, Role.TITLE_2) && emphasized ->
                 FontManager.getTypeface(view.context, family, FontManager.FontWeight.BOLD)

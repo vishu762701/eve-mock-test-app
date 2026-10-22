@@ -137,7 +137,7 @@ class HomeTypographyTest {
     fun testNativeTelegramComponentVariants() {
         val styles = loadStyles("src/main/res/values/design_type.xml")
         for ((role, token, font) in listOf(
-            Triple("Tab", "tab", "regular"), Triple("Chip", "chip", "medium"), Triple("Button", "button", "semibold")
+            Triple("Tab", "tab", "medium"), Triple("Chip", "chip", "medium"), Triple("Button", "button", "semibold")
         )) {
             val style = styles["TextAppearance.Eve.Token.$role"]
             assertNotNull(style)
@@ -145,7 +145,7 @@ class HomeTypographyTest {
             assertEquals("@dimen/design_line_$token", style?.lineHeight)
             assertEquals(if (font == "regular") "sans-serif" else "sans-serif-medium", style?.fontFamily)
         }
-        assertEquals("sans-serif-medium", styles["TextAppearance.Eve.Token.Tab.Selected"]?.fontFamily)
+        assertEquals("@font/telegram_roboto_medium", styles["TextAppearance.Eve.Token.Tab.Selected"]?.fontFamily)
     }
 
     @Test

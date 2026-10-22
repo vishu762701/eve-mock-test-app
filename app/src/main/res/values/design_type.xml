@@ -254,8 +254,8 @@
     </style>
 
     <style name="TextAppearance.Eve.Token.Tab" parent="TextAppearance.Material3.BodyLarge">
-        <item name="android:fontFamily">sans-serif</item>
-        <item name="fontFamily">sans-serif</item>
+        <item name="android:fontFamily">@font/telegram_roboto_medium</item>
+        <item name="fontFamily">@font/telegram_roboto_medium</item>
         <item name="android:textSize">@dimen/design_type_tab</item>
         <item name="lineHeight">@dimen/design_line_tab</item>
         <item name="android:includeFontPadding">false</item>
@@ -265,8 +265,8 @@
     </style>
 
     <style name="TextAppearance.Eve.Token.Tab.Selected" parent="TextAppearance.Material3.BodyLarge">
-        <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">@font/telegram_roboto_medium</item>
+        <item name="fontFamily">@font/telegram_roboto_medium</item>
         <item name="android:textSize">@dimen/design_type_tab</item>
         <item name="lineHeight">@dimen/design_line_tab</item>
         <item name="android:includeFontPadding">false</item>
