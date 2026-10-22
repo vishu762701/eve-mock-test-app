@@ -2,6 +2,7 @@ package com.eve.app.ui.admin
 
 import android.animation.ValueAnimator
 import android.view.InputDevice
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -36,68 +37,132 @@ class ExistingExamsAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         private val actionAnimators = mutableMapOf<View, ValueAnimator>()
-        private val actionWidths = mutableMapOf<View, Int>()
-        private val widthSpring = UiArcMotion.SpringCurve(0.42f, 0f, 550L)
+        private val expandedWidths = mutableMapOf<View, Int>()
+        private val density get() = binding.root.resources.displayMetrics.density
+        private val touchMin get() = (48f * density).toInt()
+        private val widthSpring = UiArcMotion.Spring.MORPH
         private val originalNamePadding = binding.tvExamName.paddingLeft
-
         private val hoverSpring = UiArcMotion.SpringCurve(
             visualDuration = 0.26f, bounce = 0f, settlingDurationMs = 360L
         )
+        private val actionButtons get() =
+            listOf(binding.btnQuickPreview, binding.btnQuickEdit, binding.btnMoreOptions)
 
         fun resetHover() {
             binding.root.animate().cancel()
             binding.root.translationY = 0f
             actionAnimators.values.forEach { it.cancel() }
             actionAnimators.clear()
-            actionWidths.clear()
-            for (button in listOf(binding.btnQuickEdit, binding.btnQuickPreview, binding.btnMoreOptions)) {
-                button.layoutParams = button.layoutParams.apply {
-                    width = if (button === binding.btnMoreOptions)
-                        binding.root.resources.getDimensionPixelSize(R.dimen.design_touch_min)
-                    else ViewGroup.LayoutParams.WRAP_CONTENT
-                }
+            expandedWidths.clear()
+            binding.layoutExamQuickActions.setOnHoverListener(null)
+            for (button in actionButtons) {
                 button.setOnHoverListener(null)
                 button.onFocusChangeListener = null
+                button.setOnKeyListener(null)
+            }
+            binding.btnQuickPreview.text = "Preview"
+            binding.btnQuickEdit.text = "Edit"
+            binding.btnQuickPreview.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
+            binding.btnQuickEdit.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
+            binding.btnMoreOptions.layoutParams.width = touchMin
+            binding.tvMoreLabel.layoutParams.width = 0
+            binding.tvMoreLabel.alpha = 0f
+        }
+
+        private fun animateActionWidth(view: View, targetWidth: Int) {
+            actionAnimators.remove(view)?.cancel()
+            val oldWidth = view.width.coerceAtLeast(0)
+            val target = targetWidth.coerceAtLeast(0)
+            if (!UiArcMotion.isMotionEnabled(view.context) || oldWidth == 0) {
+                view.layoutParams = view.layoutParams.apply { width = target }
+                return
+            }
+            ValueAnimator.ofInt(oldWidth, target).apply {
+                duration = widthSpring.settlingDurationMs
+                interpolator = widthSpring
+                addUpdateListener {
+                    val width = it.animatedValue as Int
+                    if (view.layoutParams.width != width) {
+                        view.layoutParams = view.layoutParams.apply { this.width = width }
+                    }
+                }
+                actionAnimators[view] = this
+                start()
             }
         }
 
-        private fun animateActionWidth(button: View, expand: Boolean) {
-            if (!button.isAttachedToWindow || button.width <= 0) return
-            val base = actionWidths.getOrPut(button) { button.width }
-            val extra = (12f * button.resources.displayMetrics.density).toInt()
-            val target = base + if (expand) extra else 0
-            actionAnimators.remove(button)?.cancel()
-            if (!UiArcMotion.isMotionEnabled(button.context)) {
-                button.layoutParams = button.layoutParams.apply { width = target }
-                return
+        private fun revealAction(active: View?) {
+            val preview = binding.btnQuickPreview
+            val edit = binding.btnQuickEdit
+            val more = binding.btnMoreOptions
+            // Touch remains direct and fully labelled. Compact interaction is only
+            // enabled by a real mouse hover or hardware keyboard focus.
+            if (active == null) {
+                preview.text = "Preview"
+                edit.text = "Edit"
+                animateActionWidth(preview, expandedWidths[preview] ?: touchMin)
+                animateActionWidth(edit, expandedWidths[edit] ?: touchMin)
+                animateActionWidth(more, touchMin)
+                animateActionWidth(binding.tvMoreLabel, 0)
+            } else {
+                val revealPreview = active === preview
+                val revealEdit = active === edit
+                preview.text = if (revealPreview) "Preview" else ""
+                edit.text = if (revealEdit) "Edit" else ""
+                animateActionWidth(preview, if (revealPreview) expandedWidths[preview] ?: touchMin else touchMin)
+                animateActionWidth(edit, if (revealEdit) expandedWidths[edit] ?: touchMin else touchMin)
+                animateActionWidth(more, touchMin)
+                val moreWidth = (binding.tvMoreLabel.paint.measureText("More") + 12f * density).toInt()
+                animateActionWidth(binding.tvMoreLabel, if (active === more) moreWidth else 0)
             }
-            val animator = ValueAnimator.ofInt(button.width, target).apply {
-                duration = widthSpring.settlingDurationMs
-                interpolator = widthSpring
-                addUpdateListener { frame ->
-                    val width = frame.animatedValue as Int
-                    if (button.layoutParams.width != width) {
-                        button.layoutParams = button.layoutParams.apply { this.width = width }
-                    }
-                }
-            }
-            actionAnimators[button] = animator
-            animator.start()
+            binding.tvMoreLabel.animate().cancel()
+            binding.tvMoreLabel.animate().alpha(if (active === more) 1f else 0f)
+                .setDuration(if (UiArcMotion.isMotionEnabled(binding.root.context)) UiArcMotion.Duration.FAST else 0L)
+                .start()
         }
 
         private fun bindActionMorph() {
-            val actions = listOf(binding.btnQuickPreview, binding.btnQuickEdit, binding.btnMoreOptions)
-            for (button in actions) {
+            val buttons = actionButtons
+            // Measured natural widths are used, not guesses about Inter label size.
+            binding.layoutExamQuickActions.post {
+                if (!binding.root.isAttachedToWindow) return@post
+                for (button in buttons) if (button !== binding.btnMoreOptions) {
+                    if (button.width > touchMin) expandedWidths[button] = button.width
+                }
+            }
+            binding.layoutExamQuickActions.setOnHoverListener { _, e ->
+                if (e.actionMasked == MotionEvent.ACTION_HOVER_EXIT &&
+                    buttons.none { it.hasFocus() }) revealAction(null)
+                false
+            }
+            for ((index, button) in buttons.withIndex()) {
                 button.setOnHoverListener { _, event ->
                     if (!event.isFromSource(InputDevice.SOURCE_MOUSE)) return@setOnHoverListener false
                     when (event.actionMasked) {
-                        MotionEvent.ACTION_HOVER_ENTER -> animateActionWidth(button, true)
-                        MotionEvent.ACTION_HOVER_EXIT -> animateActionWidth(button, false)
+                        MotionEvent.ACTION_HOVER_ENTER, MotionEvent.ACTION_HOVER_MOVE ->
+                            if (event.x >= 4f * density && event.x <= button.width - 4f * density)
+                                revealAction(button)
+                        MotionEvent.ACTION_HOVER_EXIT ->
+                            if (buttons.none { it.hasFocus() }) revealAction(null)
                     }
                     false
                 }
                 button.onFocusChangeListener = View.OnFocusChangeListener { _, focused ->
-                    animateActionWidth(button, focused)
+                    if (focused) revealAction(button)
+                    else if (buttons.none { it.hasFocus() }) revealAction(null)
+                }
+                button.setOnKeyListener { _, keyCode, event ->
+                    if (event.action != KeyEvent.ACTION_DOWN) return@setOnKeyListener false
+                    val rtl = binding.root.layoutDirection == View.LAYOUT_DIRECTION_RTL
+                    val next = when (keyCode) {
+                        KeyEvent.KEYCODE_DPAD_LEFT -> if (rtl) index + 1 else index - 1
+                        KeyEvent.KEYCODE_DPAD_RIGHT -> if (rtl) index - 1 else index + 1
+                        KeyEvent.KEYCODE_MOVE_HOME -> 0
+                        KeyEvent.KEYCODE_MOVE_END -> buttons.lastIndex
+                        else -> return@setOnKeyListener false
+                    }
+                    buttons[(next + buttons.size) % buttons.size].requestFocus()
+                    true
                 }
             }
         }
