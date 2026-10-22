@@ -28,6 +28,7 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -363,9 +364,59 @@ class SettingsActivity : EveBaseActivity() {
     }
 
     private fun promptReauthentication() {
+        val user = FirebaseAuth.getInstance().currentUser ?: return
+        if (user.providerData.any { it.providerId == EmailAuthProvider.PROVIDER_ID }) {
+            val email = user.email?.takeIf { it.isNotBlank() } ?: return
+            val field = android.widget.EditText(this).apply {
+                hint = "Current account password"
+                inputType = android.text.InputType.TYPE_CLASS_TEXT or
+                    android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+                isSingleLine = true
+                contentDescription = "Current account password"
+            }
+            val container = android.widget.FrameLayout(this).apply {
+                val pad = (24 * resources.displayMetrics.density).toInt()
+                setPadding(pad, 0, pad, 0)
+                addView(field, android.widget.FrameLayout.LayoutParams(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                ))
+            }
+            val dialog = MaterialAlertDialogBuilder(this)
+                .setTitle("Confirm Account Identity")
+                .setMessage("Enter your current password to complete account deletion.")
+                .setView(container)
+                .setPositiveButton("Verify", null)
+                .setNegativeButton("Cancel", null)
+                .create()
+            dialog.setOnShowListener {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                    val password = field.text?.toString().orEmpty()
+                    if (password.isBlank()) {
+                        field.error = "Password required"
+                        return@setOnClickListener
+                    }
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = false
+                    lifecycleScope.launch {
+                        try {
+                            user.reauthenticate(EmailAuthProvider.getCredential(email, password)).await()
+                            field.text?.clear()
+                            dialog.dismiss()
+                            executeAccountDeletion()
+                        } catch (_: Exception) {
+                            field.text?.clear()
+                            field.error = "Verification failed. Check your password."
+                            dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = true
+                        }
+                    }
+                }
+            }
+            dialog.show()
+            return
+        }
         MaterialAlertDialogBuilder(this)
             .setTitle("Re-authentication Required")
-            .setMessage("For security, please sign in with Google again to confirm account deletion.")
+            .setMessage("Sign in with your linked Google account to finish deletion.")
             .setPositiveButton("Sign In") { _, _ ->
                 val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                     .requestIdToken(getString(R.string.default_web_client_id))
@@ -377,11 +428,7 @@ class SettingsActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .show().also { dialog ->
-                dialog.window?.clearFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND or
-                    android.view.WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
-                dialog.window?.setDimAmount(0f)
-            }
+            .show()
     }
 
     override fun onDestroy() {
