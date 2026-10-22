@@ -184,10 +184,10 @@
         <item name="shapeAppearance">@style/ShapeAppearance.Eve.Dialog</item>
         <item name="colorSurface">@color/surface</item>
         <item name="android:windowBackground">@drawable/design_surface_panel</item>
-        <item name="buttonBarPositiveButtonStyle">@style/Widget.Eve.Token.Button</item>
-        <item name="buttonBarNegativeButtonStyle">@style/Widget.Eve.Token.Button.Secondary</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.Eve.Telegram.DialogAction.Primary</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.Eve.Telegram.DialogAction.Secondary</item>
         <item name="materialButtonStyle">@style/Widget.Eve.Token.Button</item>
-        <item name="buttonBarNeutralButtonStyle">@style/Widget.Eve.Token.Button.Secondary</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.Eve.Telegram.DialogAction.Secondary</item>
         <item name="materialAlertDialogTitleTextStyle">@style/Widget.Eve.Token.Dialog.Title</item>
         <item name="materialAlertDialogBodyTextStyle">@style/Widget.Eve.Token.Dialog.Body</item>
     </style>

@@ -191,6 +191,27 @@ class TelegramTypeSourceRolesTest {
         assertTrue(night.contains("<color name=\"telegram_type_primary\">#FFFFFFFF</color>"))
     }
 
+    @Test fun dialogActionsUseActualTelegramDefaultFontWhileRetainingEveButtons() {
+        val styles = read("values/design_widgets.xml")
+        for (role in listOf("Primary", "Secondary")) {
+            val start = styles.indexOf("<style name=\"Widget.Eve.Telegram.DialogAction." + role + "\"")
+            assertTrue("Missing " + role + " dialog action", start >= 0)
+            val end = styles.indexOf("</style>", start)
+            val part = styles.substring(start, end)
+            assertTrue("Unmapped Telegram button font " + role,
+                part.contains("@font/telegram_roboto_medium"))
+            assertTrue("Missing source-derived 16sp text " + role, part.contains(">16sp</item>"))
+            assertTrue("Lost EVE button style inheritance " + role, part.contains("parent=\"Widget.Eve.Token.Button"))
+        }
+        val theme = read("values/themes.xml")
+        assertTrue(theme.contains("buttonBarPositiveButtonStyle\">@style/Widget.Eve.Telegram.DialogAction.Primary"))
+        assertTrue(theme.contains("buttonBarNegativeButtonStyle\">@style/Widget.Eve.Telegram.DialogAction.Secondary"))
+        assertTrue(theme.contains("buttonBarNeutralButtonStyle\">@style/Widget.Eve.Telegram.DialogAction.Secondary"))
+        val destructive = File("src/main/java/com/eve/app/designsystem/DesignDialogs.kt").readText()
+        assertTrue(destructive.contains("FontManager.telegramMediumTypeface(button.context)"))
+        assertTrue(destructive.contains("design_destructive_text"))
+    }
+
     private fun contrast(foreground: String, background: String): Double {
         fun luminance(hex: String): Double {
             val rgb = hex.removePrefix("#").takeLast(6)

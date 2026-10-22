@@ -178,6 +178,21 @@
         <item name="android:minHeight">@dimen/design_pill_height</item>
         <item name="android:paddingStart">@dimen/design_pill_padding</item><item name="android:paddingEnd">@dimen/design_pill_padding</item>
     </style>
+    <!-- Telegram AlertDialog.java:1128-1134,1167-1175:
+         16dp text and AndroidUtilities.bold() (bundled rmedium by default).
+         Keep EVE button geometry, colors and 48dp accessibility minimum. -->
+    <style name="Widget.Eve.Telegram.DialogAction.Primary" parent="Widget.Eve.Token.Button">
+        <item name="android:fontFamily">@font/telegram_roboto_medium</item>
+        <item name="fontFamily">@font/telegram_roboto_medium</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+    <style name="Widget.Eve.Telegram.DialogAction.Secondary" parent="Widget.Eve.Token.Button.Secondary">
+        <item name="android:fontFamily">@font/telegram_roboto_medium</item>
+        <item name="fontFamily">@font/telegram_roboto_medium</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
     <style name="Widget.Eve.Token.Dialog.Title" parent="MaterialAlertDialog.Material3.Title.Text">
         <item name="android:textAppearance">@style/TextAppearance.Eve.Telegram.DialogTitle</item>
         <item name="android:textColor">@color/telegram_type_dialog</item><item name="android:includeFontPadding">false</item>
