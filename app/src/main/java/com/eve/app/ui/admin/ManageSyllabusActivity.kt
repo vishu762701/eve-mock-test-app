@@ -49,6 +49,10 @@ class ManageSyllabusActivity : EveBaseActivity() {
     private var selectedPdfName: String = ""
     private var selectedPdfBytes: ByteArray? = null
     private var adminAccessGranted = false
+    private var uploadInFlight = false
+    private var uploadSucceeded = false
+    private var uploadFailed = false
+    private var selectedExamRestoreId: String? = null
     private var newPdfReadJob: Job? = null
     private var newPdfGeneration = 0L
     private var replacementJob: Job? = null
@@ -72,6 +76,7 @@ class ManageSyllabusActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        selectedExamRestoreId = savedInstanceState?.getString("syllabus_selected_exam_id")
         SecurityHelper.applyScreenProtection(this)
         binding = ActivityManageSyllabusBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -85,6 +90,24 @@ class ManageSyllabusActivity : EveBaseActivity() {
             setupSearch()
             loadExamsAndSyllabuses()
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("syllabus_selected_exam_id", selectedExamForNewSyllabus?.id)
+    }
+
+    private fun updateUploadStepper() {
+        val validExam = selectedExamForNewSyllabus?.id?.let { id ->
+            id.isNotBlank() && allExams.any { it.id == id }
+        } ?: false
+        val validPdf = selectedPdfUri != null &&
+            selectedPdfBytes?.let {
+                it.isNotEmpty() && it.size.toLong() <= UiArcFileUploadView.MAX_FILE_SIZE_BYTES
+            } == true
+        binding.stepperNewSyllabus.update(
+            validExam, validExam && validPdf, uploadInFlight, uploadSucceeded, uploadFailed
+        )
     }
 
     private fun setupRecyclerView() {
@@ -121,9 +144,13 @@ class ManageSyllabusActivity : EveBaseActivity() {
             binding.btnChoosePdf.isEnabled = true
             binding.btnUploadSyllabus.isEnabled = true
             binding.fileUploadView.clearSelectedFile()
+            uploadSucceeded = false
+            uploadFailed = false
+            updateUploadStepper()
         }
 
         binding.btnUploadSyllabus.setOnClickListener {
+            if (uploadInFlight) return@setOnClickListener
             val exam = selectedExamForNewSyllabus
             if (exam == null) {
                 binding.morphSelectExam.setError("Please select an exam first")
@@ -141,13 +168,22 @@ class ManageSyllabusActivity : EveBaseActivity() {
                 return@setOnClickListener
             }
 
+            uploadInFlight = true
+            uploadSucceeded = false
+            uploadFailed = false
+            updateUploadStepper()
             binding.progressBarUpload.visibility = View.VISIBLE
             binding.btnUploadSyllabus.isEnabled = false
+            binding.btnChoosePdf.isEnabled = false
+            binding.btnClearSelectedPdf.isEnabled = false
             binding.fileUploadView.setUploading()
 
             lifecycleScope.launch {
                 try {
                     examRepo.uploadSyllabusPdf(exam.id, fileName, bytes)
+                    uploadInFlight = false
+                    uploadSucceeded = true
+                    updateUploadStepper()
                     binding.progressBarUpload.visibility = View.GONE
                     binding.btnUploadSyllabus.isEnabled = true
                     binding.fileUploadView.setUploadSuccess {
@@ -155,11 +191,19 @@ class ManageSyllabusActivity : EveBaseActivity() {
                         AppBulletin.showSuccess(this@ManageSyllabusActivity, "Syllabus uploaded and linked to ${exam.examName}")
                         loadExamsAndSyllabuses()
                     }
+                } catch (cancel: CancellationException) {
+                    throw cancel
                 } catch (e: Exception) {
+                    uploadFailed = true
                     binding.progressBarUpload.visibility = View.GONE
                     binding.btnUploadSyllabus.isEnabled = true
                     binding.fileUploadView.setUploadFailed()
                     AppBulletin.showError(this@ManageSyllabusActivity, "Upload failed: ${e.localizedMessage}")
+                } finally {
+                    uploadInFlight = false
+                    binding.btnChoosePdf.isEnabled = true
+                    binding.btnClearSelectedPdf.isEnabled = true
+                    updateUploadStepper()
                 }
             }
         }
@@ -174,6 +218,9 @@ class ManageSyllabusActivity : EveBaseActivity() {
         binding.morphSelectExam.clearSelection()
         binding.morphSelectExam.setError(null)
         selectedExamForNewSyllabus = null
+        uploadSucceeded = false
+        uploadFailed = false
+        updateUploadStepper()
     }
 
     private fun setupSearch() {
@@ -198,6 +245,11 @@ class ManageSyllabusActivity : EveBaseActivity() {
     }
 
     private fun updateExamDropdown() {
+        if (selectedExamRestoreId != null) {
+            selectedExamForNewSyllabus =
+                allExams.firstOrNull { it.id.isNotBlank() && it.id == selectedExamRestoreId }
+            selectedExamRestoreId = null
+        }
         val morphOptions = allExams.map {
             com.eve.app.designsystem.UiArcMorphSelectView.Option(
                 id = it.id,
@@ -212,6 +264,8 @@ class ManageSyllabusActivity : EveBaseActivity() {
             binding.morphSelectExam.setError(null)
             binding.tilSelectExam.error = null
             binding.actvSelectExam.setText(opt.label, false)
+            uploadSucceeded = false
+            updateUploadStepper()
         }
 
         val dropdownItems = allExams.map { "${it.examName} (${it.categoryOrOther})" }
@@ -229,7 +283,10 @@ class ManageSyllabusActivity : EveBaseActivity() {
             selectedExamForNewSyllabus?.let { exam ->
                 binding.morphSelectExam.setOptions(morphOptions, exam.id)
             }
+            uploadSucceeded = false
+            updateUploadStepper()
         }
+        updateUploadStepper()
     }
 
     private fun filterSyllabuses(query: String) {
@@ -282,6 +339,9 @@ class ManageSyllabusActivity : EveBaseActivity() {
         selectedPdfName = ""
         selectedPdfBytes = null
         binding.fileUploadView.clearSelectedFile()
+        uploadSucceeded = false
+        uploadFailed = false
+        updateUploadStepper()
         binding.btnChoosePdf.isEnabled = false
         binding.btnUploadSyllabus.isEnabled = false
 
@@ -294,6 +354,7 @@ class ManageSyllabusActivity : EveBaseActivity() {
                 selectedPdfName = displayName
                 selectedPdfBytes = bytes
                 binding.fileUploadView.bindSelectedFile(displayName, bytes.size.toLong())
+                updateUploadStepper()
             } catch (cancel: CancellationException) {
                 throw cancel
             } catch (tooLarge: PdfSelectionReader.FileTooLargeException) {
@@ -305,6 +366,7 @@ class ManageSyllabusActivity : EveBaseActivity() {
                 if (generation == newPdfGeneration) {
                     binding.btnChoosePdf.isEnabled = true
                     binding.btnUploadSyllabus.isEnabled = true
+                    updateUploadStepper()
                 }
             }
         }
