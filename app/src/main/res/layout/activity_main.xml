@@ -116,6 +116,7 @@
                     <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Settings" android:src="@drawable/ic_settings" app:tint="@color/text_primary" />
                     <TextView style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_shadow_room" android:text="Settings" />
                 </LinearLayout>
+                </LinearLayout>
             </ScrollView>
         </LinearLayout>
     </FrameLayout>
