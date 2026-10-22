@@ -1,21 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Tabler Icons v3.49.0 / share; MIT, bundled Tabler-LICENSE.txt. -->
+<!-- EVE-original generic Android action geometry: no Telegram/Tabler asset or path imported. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="@dimen/design_icon_size" android:height="@dimen/design_icon_size"
     android:viewportWidth="24" android:viewportHeight="24">
     <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
-        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M3 12a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
-    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
-        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M15 6a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
-    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
-        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M15 18a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
-    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
-        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M8.7 10.7l6.6 -3.4" />
-    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
-        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M8.7 13.3l6.6 3.4" />
+        android:strokeWidth="2" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M14.1,4.7 L21,11.1 L14.1,17.3 L14.1,13.3 C8.7,13.3 5.6,15.3 3.2,19.4 C3.3,11.9 6.8,8.6 14.1,8.6 Z" />
 </vector>
