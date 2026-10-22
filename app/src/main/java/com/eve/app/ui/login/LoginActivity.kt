@@ -44,6 +44,7 @@ class LoginActivity : EveBaseActivity() {
     private var originalSubmitText = "Sign In"
     private var originalGoogleText = "Continue with Google"
     private var lastAttemptedGoogle = false
+    private var authInFlight = false
 
     private val signInLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -105,6 +106,9 @@ class LoginActivity : EveBaseActivity() {
             DebugCrashReporter.showCrashDialog(this)
         }
 
+        if (savedInstanceState?.getBoolean("eve_login_signup_mode", false) == true) {
+            toggleMode(animate = false)
+        }
         binding.btnBack.setOnClickListener { finish() }
         binding.btnSubmit.setOnClickListener { handleEmailPasswordAuth() }
         binding.btnGoogle.setOnClickListener { launchGoogleSignIn() }
@@ -119,8 +123,15 @@ class LoginActivity : EveBaseActivity() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("eve_login_signup_mode", isSignUpMode)
+    }
+
     private fun launchGoogleSignIn() {
+        if (authInFlight) return
         lastAttemptedGoogle = true
+        setLoading(true, isGoogle = true)
         val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
@@ -131,11 +142,12 @@ class LoginActivity : EveBaseActivity() {
         }
     }
 
-    private fun toggleMode() {
+    private fun toggleMode(animate: Boolean = true) {
+        if (authInFlight) return
         isSignUpMode = !isSignUpMode
         binding.tvError.visibility = View.GONE
         androidx.transition.TransitionManager.endTransitions(binding.cardLogin)
-        if (com.eve.app.designsystem.UiArcMotion.isMotionEnabled(this)) {
+        if (animate && com.eve.app.designsystem.UiArcMotion.isMotionEnabled(this)) {
             val motion = com.eve.app.designsystem.UiArcMotion.Spring.SMOOTH
             val transition = androidx.transition.ChangeBounds().apply {
                 duration = motion.settlingDurationMs
@@ -165,6 +177,7 @@ class LoginActivity : EveBaseActivity() {
     }
 
     private fun handleEmailPasswordAuth() {
+        if (authInFlight) return
         lastAttemptedGoogle = false
         val email = binding.etEmail.text?.toString()?.trim().orEmpty()
         val password = binding.etPassword.text?.toString().orEmpty()
@@ -276,6 +289,7 @@ class LoginActivity : EveBaseActivity() {
     }
 
     private fun setLoading(loading: Boolean, isGoogle: Boolean = lastAttemptedGoogle) {
+        authInFlight = loading
         if (loading) {
             if (isGoogle) {
                 binding.btnGoogle.icon = null
