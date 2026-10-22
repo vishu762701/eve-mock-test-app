@@ -106,6 +106,22 @@ class TelegramTypeSourceRolesTest {
         }
     }
 
+    @Test fun matchingIconStrokeAndLegacyPresetBoundary() {
+        val repo = File("src/main/java/com/eve/app/typography/TypographyRepository.kt").readText()
+        assertTrue(repo.contains("parsed.presetId == \"telegram_native\""))
+        assertTrue(repo.contains("config.presetId == \"telegram_native\""))
+        val font = File("src/main/java/com/eve/app/util/FontManager.kt").readText()
+        assertTrue(font.contains("var activeFontFamily: FontFamily = FontFamily.ROBOTO"))
+        for (name in listOf("ic_back", "ic_more_vert", "ic_search", "ic_delete",
+            "ic_bell", "ic_settings", "ic_bookmark", "ic_close", "ic_send")) {
+            val xml = File("src/main/res/drawable/" + name + ".xml").readText()
+            assertTrue("Inconsistent native icon stroke for " + name, !xml.contains("strokeWidth=\"2.75\""))
+            assertTrue("Missing Telegram-aligned stroke for " + name, xml.contains("strokeWidth=\"2\""))
+        }
+        val share = File("src/main/res/drawable/ic_share.xml").readText()
+        assertTrue(share.contains("EVE-authored") && !share.contains("Tabler"))
+    }
+
     private fun contrast(foreground: String, background: String): Double {
         fun luminance(hex: String): Double {
             val rgb = hex.removePrefix("#").takeLast(6)

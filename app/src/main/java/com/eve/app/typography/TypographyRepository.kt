@@ -79,7 +79,8 @@ class TypographyRepository(
                     val errors = issues.filter { it.level == TypographyResolver.ValidationIssue.Level.ERROR }
                     if (errors.isEmpty()) {
                         activePublishedConfig = parsed
-                        FontManager.activeFontFamily = FontManager.FontFamily.fromId(parsed.fontFamily)
+                        FontManager.activeFontFamily = if (parsed.presetId == "telegram_native")
+                            FontManager.FontFamily.fromId(parsed.fontFamily) else FontManager.FontFamily.ROBOTO
                         parsed
                     } else activePublishedConfig
                 } else activePublishedConfig
@@ -91,7 +92,8 @@ class TypographyRepository(
 
     fun saveCachedPublished(config: TypographyConfig) {
         activePublishedConfig = config
-        FontManager.activeFontFamily = FontManager.FontFamily.fromId(config.fontFamily)
+        FontManager.activeFontFamily = if (config.presetId == "telegram_native")
+            FontManager.FontFamily.fromId(config.fontFamily) else FontManager.FontFamily.ROBOTO
         val file = getFile(PUBLISHED_CACHE_FILE) ?: return
         try {
             file.writeText(gson.toJson(config))

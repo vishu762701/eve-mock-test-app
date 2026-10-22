@@ -197,18 +197,18 @@ object FontManager {
     }
 
     fun mediumTypeface(context: Context): Typeface {
-        return getTypeface(context, activeFontFamily, FontWeight.MEDIUM)
+        return getTypeface(context, FontFamily.ROBOTO, FontWeight.MEDIUM)
     }
 
     fun semiboldTypeface(context: Context): Typeface {
-        return getTypeface(context, activeFontFamily, FontWeight.SEMIBOLD)
+        return getTypeface(context, FontFamily.ROBOTO, FontWeight.SEMIBOLD)
     }
 
     fun regularTypeface(context: Context): Typeface {
-        return getTypeface(context, activeFontFamily, FontWeight.REGULAR)
+        return getTypeface(context, FontFamily.ROBOTO, FontWeight.REGULAR)
     }
 
     fun boldTypeface(context: Context): Typeface {
-        return getTypeface(context, activeFontFamily, FontWeight.BOLD)
+        return getTypeface(context, FontFamily.ROBOTO, FontWeight.BOLD)
     }
 }
