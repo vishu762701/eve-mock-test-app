@@ -144,3 +144,14 @@ Assets above are static `.webp` lookups and NOT grounds to invent Telegram icon 
 - Existing Inter/OFL files and legacy backend typography published configuration must not be deleted until reachability, admin/stored-schema compatibility and source license analysis are complete.
 - **Next executable step:** inspect dynamic Kotlin/Java use sites for each icon and text style; confirm CI at **current remote HEAD**, not merely this inventory SHA; then implement remaining source-verifiable components without importing GPL assets until compliance is resolved.
 
+
+## Critical source-fidelity correction: Telegram's default title font
+
+The actual attached ZIP establishes this conditional font choice:
+- `java/org/telegram/messenger/SharedConfig.java:317,619,1122-1128`: `useSystemBoldFont` defaults to **false** (`preferences.getBoolean("useSystemBoldFont", false)`).
+- `java/org/telegram/messenger/AndroidUtilities.java:252,262-270`: default `bold()` uses bundled `fonts/rmedium.ttf`; if the user enables system font and Android API >=28, it uses `Typeface.create(null, 500, false)`.
+- The archived `TMessagesProj/src/main/assets/fonts/rmedium.ttf` has SHA-256 `c4a17ec40f13be4a229e34893e3e04f19dd190f48b4908e0649402cb2229e9cb`, name table *Roboto Medium*, and a Google 2011 copyright. Its file-specific redistribution notice was not located in the ZIP. Google separately documents the open-source Roboto font family's Apache-license history at `https://opensource.googleblog.com/2015/05/roboto-googles-signature-font-is-now.html`. This alone does not prove the archived exact binary's complete redistribution obligations.
+- EVE currently takes the **Telegram optional system-500 route**, rather than the Telegram fresh-install bundled-font default. That is a genuine supported Telegram font-selection branch, but **NOT an exact default-font match**. The font, path and licensing deviation is OPEN. No font file was imported from the Telegram archive.
+
+## Verification boundary and resumption
+Audit committed from XML source SHA `19c0d1135b6e8e797593b97022912e55ae5d230a`. The filename inventory is guarded by `TelegramInventoryCoverageTest.kt`; the guard checks inventory inclusion, NOT rendered fidelity. After any new XML layout is created, expand this table and validate dynamic Kotlin drawing separately. Latest Android tests and artwork distribution must always be checked against live `main`, not this prior SHA.
