@@ -21,7 +21,9 @@ class TelegramTypeSourceRolesTest {
             assertTrue("Unclosed role: " + role, end > start)
             val body = s.substring(start, end)
             assertTrue("Wrong SP size: " + role, body.contains(">" + size + "sp</item>"))
-            assertTrue("Invalid font family: " + role, body.contains("sans-serif"))
+            val bundledRoles = setOf("NavigationTitle", "SettingsSection", "DialogTitle", "NotificationTitle")
+            val expectedFont = if (role in bundledRoles) "@font/telegram_roboto_medium" else "sans-serif"
+            assertTrue("Invalid source-mapped font family: " + role, body.contains(expectedFont))
             assertTrue("Inter leaked: " + role, !body.contains("@font/inter"))
         }
     }
@@ -136,6 +138,22 @@ class TelegramTypeSourceRolesTest {
         val widgets = read("values/design_widgets.xml")
         assertTrue(widgets.contains("@style/TextAppearance.Eve.Telegram.DialogTitle"))
         assertTrue(widgets.contains("@style/TextAppearance.Eve.Telegram.DialogMessage"))
+    }
+
+    @Test fun googleRobotoMediumExactlyMatchesTelegramDefaultAndIsLicensed() {
+        val font = File("src/main/res/font/telegram_roboto_medium.ttf")
+        assertTrue("Telegram source-matched Roboto Medium missing", font.isFile && font.length() == 274864L)
+        val bytes = font.readBytes()
+        val sha = java.security.MessageDigest.getInstance("SHA-256").digest(bytes)
+            .joinToString("") { "%02x".format(it) }
+        org.junit.Assert.assertEquals(
+            "c4a17ec40f13be4a229e34893e3e04f19dd190f48b4908e0649402cb2229e9cb",
+            sha
+        )
+        val license = File("src/main/assets/licenses/Roboto-APACHE-2.0.txt")
+        assertTrue("Full Roboto Apache license missing", license.readText().contains("Apache License"))
+        val notice = File("src/main/assets/licenses/Roboto-Medium-NOTICE.txt")
+        assertTrue("Google copyright notice missing", notice.readText().contains("Copyright 2011 Google Inc."))
     }
 
     private fun contrast(foreground: String, background: String): Double {

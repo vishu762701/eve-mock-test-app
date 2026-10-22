@@ -37,6 +37,6 @@ class TelegramInventoryCoverageTest {
         val doc = inventoryFile().readText()
         assertTrue(doc.contains("SharedConfig.java:619"))
         assertTrue(doc.contains("default **false**"))
-        assertTrue(doc.contains("NOT an exact default-font match"))
+        assertTrue(doc.contains("source-exact bundled 500 font"))
     }
 }

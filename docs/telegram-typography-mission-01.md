@@ -30,7 +30,7 @@ Source paths below start at `TMessagesProj/src/main/java/org/telegram/`.
 | Bell | `res/drawable-{mdpi,hdpi,xhdpi,xxhdpi}/msg_notifications.webp` | **NO EXACT TELEGRAM COUNTERPART established** for EVE inbox/bell |
 | Exam score, accuracy, ranking, attempts | none established | **NO EXACT TELEGRAM COUNTERPART** |
 
-**Licensing blocker:** Uploaded root LICENSE:1-3 specifies GNU GPL v2. README.md:9-15 says avoid Telegram branding and publish source. At inspected EVE baseline top-level LICENSE was not present. GPL-version compatibility and whole-app source-distribution obligations are unresolved; **no Telegram code, fonts, images or animations were copied**. Only style parameters were independently authored. Do not import/deliver GPL assets until a compatible license/source-publication plan is verified.
+**Licensing blocker:** Uploaded root LICENSE:1-3 specifies GNU GPL v2. README.md:9-15 says avoid Telegram branding and publish source. At inspected EVE baseline top-level LICENSE was not present. GPL-version compatibility and whole-app source-distribution obligations are unresolved; **no Telegram-authored code, images or animations were copied; Google's separately licensed Roboto Medium font is documented below**. Only style parameters were independently authored. Do not import/deliver GPL assets until a compatible license/source-publication plan is verified.
 
 **Protection:** Views with `android:tag="eve_telegram_type"` bypass the retired published config renderer in `TypographyApplier`; dynamic old presets cannot override them. This marker must not be reused for unrelated View tags.
 
@@ -46,7 +46,7 @@ Source-verified matches from the same uploaded Telegram ZIP:
 - `ui/ActionBar/ActionBarMenuItem.java:1530-1532`: 18dp ActionBar search text. Wired Home's `etSearch` to a derived `Widget.Eve.Token.Input.TelegramSearch` that **inherits** EVE's input background, focus states, cursor, input type and touch area. Style parameters are adapted to SP.
 - `ui/Cells/TextSettingsCell.java:82` / `TextDetailSettingsCell.java:40-45`: 16dp settings-action label applied to About screen's Privacy/Terms/Contact links. About navigation title uses the already mapped ActionBar-derived style.
 
-All migrated views bear the `eve_telegram_type` tag to avoid a stale published Inter/iOS typography override. Existing EVE bell drawing and Lottie, button callbacks and scoring logic are untouched. No Telegram source/assets were copied.
+All migrated views bear the `eve_telegram_type` tag to avoid a stale published Inter/iOS typography override. Existing EVE bell drawing and Lottie, button callbacks and scoring logic are untouched. No Telegram-authored GPL source/art assets were copied; the independently Google-licensed font is documented below.
 
 ### Remaining critical blockers
 - GPL-2.0-only compatibility and full corresponding-source obligations are unresolved: no Telegram icon art, RLottie, or bundled Telegram fonts may be imported into a production build without resolution.
@@ -78,8 +78,8 @@ Telegram source ZIP `ui/ActionBar/ActionBar.java:522-537,1443-1455` binds defaul
 
 Telegram `ui/ActionBar/AlertDialog.java:788-795,849-854` gives title 20dp with `bold()` and themed dialog text, and message 16dp regular with the same dialog text role in the standard case. Shared `Widget.Eve.Token.Dialog.Title` and `Body` now use `TextAppearance.Eve.Telegram.DialogTitle` (20sp) and `DialogMessage` (16sp). Feedback-create and feedback-reply custom modal headers are mapped; existing controls, accessibility tags and form behavior are unchanged. Theme resolution stays day/night through `telegram_type_dialog`, and Dp→Sp remains the accessibility deviation.
 
-## Non-default Telegram font branch (source evidence correction)
+## Exact Telegram default Roboto Medium — Google Apache-2.0 asset
 
-Archive `SharedConfig.java:619` reads `useSystemBoldFont` with default **false**. `AndroidUtilities.java:262-270` loads bundled `fonts/rmedium.ttf` by default and switches to system weight 500 only when configured (Android 9+). EVE currently chooses that **documented optional system 500 branch**, not Telegram's actual out-of-box bundled Roboto Medium font. The archived binary's name table identifies Google Roboto Medium, but independent exact-binary licensing must be resolved before any asset import. This remains a **source fidelity gap**, even if CI is green.
+The Telegram archive's actual `SharedConfig.java:619` default is `useSystemBoldFont=false`. `AndroidUtilities.java:262-270` therefore uses bundled `rmedium.ttf` for `bold()` unless system font is explicitly selected. The exact Google-owned Roboto Medium 2.138 font file, from matching archive/upstream Git blob `aba251d159c783048b352d17f6581d406f2a6ddb`, now ships under `res/font/telegram_roboto_medium.ttf` and is applied to audited ActionBar/Section/Dialog/Notification title roles. Its Google copyright, full Apache-2.0 license and source SHA-256 are bundled in app assets. No Telegram GPL-owned icon or Java code is copied.
 
-Full XML inventory and remaining status: `docs/telegram-full-layout-inventory.md`. Dynamic Java/Kotlin, icon art/states and screenshots are not fully audited.
+This corrects the earlier inexact system-500 substitute for the named roles only. Global/app-specific legacy types and platform-dependent fallback renderings remain a documented fidelity gap; do not label the whole mission complete. Details and 95-layout inventory: `docs/telegram-full-layout-inventory.md`.
