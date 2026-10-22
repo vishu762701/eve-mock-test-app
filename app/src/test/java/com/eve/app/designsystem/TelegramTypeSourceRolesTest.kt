@@ -156,6 +156,25 @@ class TelegramTypeSourceRolesTest {
         assertTrue("Google copyright notice missing", notice.readText().contains("Copyright 2011 Google Inc."))
     }
 
+    @Test fun sharedTitleAndHeadingUseVerifiedBundledTelegramDefault() {
+        val s = read("values/design_type.xml")
+        for (role in listOf("TextAppearance.Eve.Token.Title", "TextAppearance.Eve.Token.Heading",
+            "TextAppearance.Eve.Headline", "TextAppearance.Eve.Headline.Emphasized")) {
+            val start = s.indexOf("<style name=\"" + role + "\"")
+            assertTrue("Missing " + role, start >= 0)
+            val end = s.indexOf("</style>", start)
+            val body = s.substring(start, end)
+            assertTrue("Unverified system medium for " + role,
+                body.contains("<item name=\"fontFamily\">@font/telegram_roboto_medium</item>"))
+        }
+        val fm = File("src/main/java/com/eve/app/util/FontManager.kt").readText()
+        assertTrue(fm.contains("fun telegramMediumTypeface(context: Context): Typeface"))
+        assertTrue(fm.contains("R.font.telegram_roboto_medium"))
+        val dt = File("src/main/java/com/eve/app/designsystem/DesignType.kt").readText()
+        assertTrue(dt.contains("role == Role.TITLE || role == Role.HEADLINE || role == Role.HEADING"))
+        assertTrue(dt.contains("FontManager.telegramMediumTypeface(view.context)"))
+    }
+
     private fun contrast(foreground: String, background: String): Double {
         fun luminance(hex: String): Double {
             val rgb = hex.removePrefix("#").takeLast(6)

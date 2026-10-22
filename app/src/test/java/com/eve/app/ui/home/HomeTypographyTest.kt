@@ -129,7 +129,7 @@ class HomeTypographyTest {
             assertNotNull(style)
             assertEquals("@dimen/design_type_$token", style?.textSize)
             assertEquals("@dimen/design_line_$token", style?.lineHeight)
-            assertEquals(if (font == "regular") "sans-serif" else "sans-serif-medium", style?.fontFamily)
+            assertEquals(if (font == "regular") "sans-serif" else "@font/telegram_roboto_medium", style?.fontFamily)
         }
     }
 

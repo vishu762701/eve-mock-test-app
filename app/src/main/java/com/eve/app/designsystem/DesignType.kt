@@ -110,8 +110,13 @@ object DesignType {
         val family = FontManager.FontFamily.ROBOTO
 
         view.typeface = when {
-            role in listOf(Role.LARGE_TITLE, Role.TITLE_1, Role.TITLE_2, Role.TITLE) && (emphasized || role == Role.TITLE) -> FontManager.getTypeface(view.context, family, FontManager.FontWeight.BOLD)
-            role in listOf(Role.TITLE_3, Role.HEADLINE, Role.HEADING, Role.BUTTON) -> FontManager.getTypeface(view.context, family, FontManager.FontWeight.SEMIBOLD)
+            // Telegram ActionBar.java:534 and Theme.java:7812 use AndroidUtilities.bold().
+            // Apply only to 20sp title / 17sp row heading counterparts, not exam scores.
+            role == Role.TITLE || role == Role.HEADLINE || role == Role.HEADING ->
+                FontManager.telegramMediumTypeface(view.context)
+            role in listOf(Role.LARGE_TITLE, Role.TITLE_1, Role.TITLE_2) && emphasized ->
+                FontManager.getTypeface(view.context, family, FontManager.FontWeight.BOLD)
+            role in listOf(Role.TITLE_3, Role.BUTTON) -> FontManager.getTypeface(view.context, family, FontManager.FontWeight.SEMIBOLD)
             role in listOf(Role.CHIP) -> FontManager.getTypeface(view.context, family, FontManager.FontWeight.MEDIUM)
             emphasized -> FontManager.getTypeface(view.context, family, FontManager.FontWeight.SEMIBOLD)
             else -> FontManager.getTypeface(view.context, family, FontManager.FontWeight.REGULAR)

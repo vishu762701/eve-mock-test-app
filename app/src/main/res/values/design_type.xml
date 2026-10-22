@@ -75,8 +75,8 @@
 
     <!-- Headline (17pt / 22pt, Semibold) -->
     <style name="TextAppearance.Eve.Headline" parent="TextAppearance.Material3.TitleMedium">
-        <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">@font/telegram_roboto_medium</item>
+        <item name="fontFamily">@font/telegram_roboto_medium</item>
         <item name="android:textSize">@dimen/design_type_headline</item>
         <item name="lineHeight">@dimen/design_line_headline</item>
         <item name="android:includeFontPadding">false</item>
@@ -85,8 +85,8 @@
     </style>
 
     <style name="TextAppearance.Eve.Headline.Emphasized" parent="TextAppearance.Eve.Headline">
-        <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">@font/telegram_roboto_medium</item>
+        <item name="fontFamily">@font/telegram_roboto_medium</item>
         <item name="android:textStyle">normal</item>
     </style>
 
@@ -210,8 +210,8 @@
     <!-- ===================================================================== -->
 
     <style name="TextAppearance.Eve.Token.Title" parent="TextAppearance.Eve.Title1.Emphasized">
-        <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">@font/telegram_roboto_medium</item>
+        <item name="fontFamily">@font/telegram_roboto_medium</item>
         <item name="android:textSize">@dimen/design_type_title</item>
         <item name="lineHeight">@dimen/design_line_title</item>
         <item name="android:includeFontPadding">false</item>
@@ -221,8 +221,8 @@
     </style>
 
     <style name="TextAppearance.Eve.Token.Heading" parent="TextAppearance.Eve.Headline">
-        <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">@font/telegram_roboto_medium</item>
+        <item name="fontFamily">@font/telegram_roboto_medium</item>
         <item name="android:textSize">@dimen/design_type_heading</item>
         <item name="lineHeight">@dimen/design_line_heading</item>
         <item name="android:includeFontPadding">false</item>

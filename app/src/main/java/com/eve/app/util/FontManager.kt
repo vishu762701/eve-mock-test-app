@@ -117,6 +117,23 @@ object FontManager {
         }
     }
 
+    /**
+     * Telegram AndroidUtilities.bold() default path (SharedConfig.useSystemBoldFont = false):
+     * bundled fonts/rmedium.ttf. The identical Google-owned Apache-2.0 font is
+     * bundled as telegram_roboto_medium, retaining the original notice.
+     * Fall back to Android weight 500 when loading is unavailable.
+     */
+    fun telegramMediumTypeface(context: Context): Typeface {
+        return typefaceCache.getOrPut("telegram_source_rmedium_500") {
+            try {
+                ResourcesCompat.getFont(context, R.font.telegram_roboto_medium)
+                    ?: loadSystemFont("sans-serif", FontWeight.MEDIUM)
+            } catch (_: Exception) {
+                loadSystemFont("sans-serif", FontWeight.MEDIUM)
+            }
+        }
+    }
+
     private fun loadInterTypeface(context: Context, weight: FontWeight): Typeface {
         return try {
             when (weight) {
