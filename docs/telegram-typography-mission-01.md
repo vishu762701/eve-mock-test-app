@@ -72,3 +72,5 @@ Programmatic `FontManager.mediumTypeface`/bold/regular helpers and disk-publishe
 ## Native UI regression discovered and corrected at test-contract level
 
 The first global-font migration CI run `39776033769` passed Android build/lint/unit, backend and Firebase, but gesture instrumentation found three stale iOS typography assertions (actual 16sp option text vs former 17sp, modal `fontFamily=sans-serif` returned TYPE_STRING rather than the retired Inter font resource ID). The corresponding tests were updated to assert the **new runtime tokens** while preserving every size, layout, state, gesture, question-answer functional and image evidence check. Production XML/Java/Kotlin UI was NOT changed for this test-only correction. This is a replacement of obsolete iOS expectations, not weakening an unmet Telegram or functional guarantee. Confirm the new commit's CI before claiming green.
+
+Follow-up stacktrace `ApprovedUiRenderingTest.kt:254` specifically identified the question-body 17sp assertion, not only the answer option. The native test now checks both question and answer text at the migrated 16sp size.
