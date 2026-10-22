@@ -113,3 +113,7 @@ The 71-resource source registry now distinguishes **UNMAPPED_PENDING_SOURCE_AUDI
 ## Result Detail paired ActionBar title and subtitle mapping
 
 Telegram ActionBar.java:469-477 and 1445-1452 specify title/subtitle paired metrics of 18dp/14dp for phones and 20dp/16dp for tablets. ResultDetailActivity now changes title style only when the exam-name subtitle is present; otherwise the 20sp NavigationTitle is kept. The mapped XML text styles use corresponding sp sizes for Android font scaling. The Telegram source light subtitle #FF79817E and night #73F2F2F2 are mapped to the more legible EVE telegram_type_secondary Day/Night role, as a documented contrast deviation. Existing labels, multi-line content, screen geometry and functions remain unchanged. No Telegram GPL asset was copied.
+
+## Verified source icon geometry and warning mismatch
+
+See `docs/telegram-icon-binary-geometry.md` for 10 actual source assets across mdpi/hdpi/xhdpi/xxhdpi. Nine candidates have conventional 24dp (24/36/48/72px) square image bounds. Telegram's `msg_warning` is only 2x9px at mdpi, so it has been **reclassified as SEMANTIC_MISMATCH**, not an EVE warning icon. The measurements are archive-derived, not source-exact integration; all EVE icon drawables remain unchanged until legal and call-site requirements are met.
