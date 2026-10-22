@@ -156,6 +156,12 @@ class ManageExamsActivity : EveBaseActivity() {
         binding = ActivityManageExamsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+            initializeAuthorizedUi()
+        }
+    }
+
+    private fun initializeAuthorizedUi() {
         binding.btnBack.setOnClickListener { handleBack() }
         binding.compactErrorView.displayMode = com.eve.app.ui.common.ErrorStateView.DisplayMode.COMPACT
 

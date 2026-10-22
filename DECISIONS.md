@@ -1853,3 +1853,10 @@ Following Batch 01 (ADR-022), Batch 02 (ADR-023), Batch 03 (ADR-024), Typography
 - Home must not acknowledge unread notifications. Inbox entry calls `NotificationStore.markAllRead()`. Server broadcast delivery uses a separate persistent timestamp cursor, preventing repeated Home visits from duplicating the latest broadcast.
 - Android 13+ notification permission is requested at most once automatically; users can subsequently manage notification permissions in system settings.
 - Network failure keeps the locally cached badge state. Physical screenshots, push provider delivery and device vibration remain to be verified.
+
+
+## ADR-FINAL-2026-10-22-D: Fail-closed admin screen initialization
+
+- `AdminActivity`, `ManageExamsActivity` and `SendNotificationActivity` now hide protected content until `AdminAccessGate.requireAdmin(requireFreshServer=true)` resolves the signed-in Firebase UID/email against the server. Initialization of privileged listeners and API-backed content occurs exclusively inside the success callback.
+- Server `requireAdmin` and auth middleware remain separately authoritative for each write, including broadcast dispatch. This is UI defense in depth, not a replacement for backend policy.
+- Other admin routes still require per-screen audit and runtime negative-case evidence; the change is not an assertion that every admin activity is secured.

@@ -118,14 +118,7 @@ class AdminActivity : EveBaseActivity() {
         setContentView(binding.root)
 
         binding.btnBack.setOnClickListener { finish() }
-        binding.progressBarAdmin.visibility = View.VISIBLE
-
-        val email = FirebaseAuth.getInstance().currentUser?.email
-        lifecycleScope.launch {
-            if (!adminRepo.isAdmin(email)) {
-                finish()
-                return@launch
-            }
+        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
             binding.progressBarAdmin.visibility = View.GONE
             setupUi()
         }

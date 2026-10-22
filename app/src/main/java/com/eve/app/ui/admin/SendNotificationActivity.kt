@@ -6,6 +6,7 @@ import com.eve.app.ui.common.EveBaseActivity
 
 import android.os.Bundle
 import android.view.View
+import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.AppUndoBar
 import android.widget.AdapterView
@@ -40,6 +41,12 @@ class SendNotificationActivity : EveBaseActivity() {
         binding = ActivitySendNotificationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+            initializeAuthorizedUi()
+        }
+    }
+
+    private fun initializeAuthorizedUi() {
         sentAdapter = SentBroadcastAdapter(
             onDelete = { broadcast ->
                 if (!sentAdapter.isSelectionMode) {
