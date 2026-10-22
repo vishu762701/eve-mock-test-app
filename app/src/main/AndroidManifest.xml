@@ -96,7 +96,6 @@
         <activity android:name=".ui.premium.PremiumActivity" android:exported="false" />
         <activity android:name=".ui.premium.PaymentCheckoutActivity" android:exported="false" />
         <activity android:name=".ui.admin.ManagePremiumActivity" android:exported="false" />
-        <activity android:name=".ui.admin.TypographyStudioActivity" android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -24,7 +24,7 @@ import { pinRoutes } from "./routes/pins";
 import { pollRoutes } from "./routes/polls";
 import { premiumRoutes } from "./routes/premium";
 import { reportRoutes, adminReportRoutes, adminAuditLogRoutes } from "./routes/reports";
-import { typographyRoutes, adminTypographyRoutes } from "./routes/typographyStudio";
+import { typographyRoutes } from "./routes/typographyPublished";
 import { questionRoutes } from "./routes/questions";
 import { SupabaseStorage } from "./supabase";
 import { AuthUser, Env } from "./types";
@@ -258,7 +258,6 @@ app.route("/api/reports", reportRoutes);
 app.route("/api/admin/reports", adminReportRoutes);
 app.route("/api/admin/audit-log", adminAuditLogRoutes);
 app.route("/api/typography", typographyRoutes);
-app.route("/api/admin/typography", adminTypographyRoutes);
 
 // 6. Global Error Handling & 404
 app.notFound((c) => {

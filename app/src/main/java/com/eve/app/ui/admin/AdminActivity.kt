@@ -253,9 +253,6 @@ class AdminActivity : EveBaseActivity() {
         binding.btnAppConfig.setOnClickListener {
             startActivity(Intent(this, AppConfigActivity::class.java))
         }
-        binding.btnTypographyStudio.setOnClickListener {
-            startActivity(Intent(this, TypographyStudioActivity::class.java))
-        }
 
         // System Maintenance & Version Status
         setupMaintenanceControls()

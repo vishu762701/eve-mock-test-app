@@ -1828,3 +1828,12 @@ Following Batch 01 (ADR-022), Batch 02 (ADR-023), Batch 03 (ADR-024), Typography
 - **Login:** Existing card uses interruptible, reduced-motion-aware `ChangeBounds` plus incoming label travel/fade, preserves typed text and mode on recreation, continues to use Firebase email/password and Google Auth, and handles Google launcher failure with release of disabled controls.
 - **Stepper:** Ring, number/check/error changes, sequential connectors, compact phone caption and accessibility announcements follow the validated input/upload state. `UploadStepStateTest` covers impossible completion, retry and recreation interruption. `PdfSelectionReader.requirePdfContent` rejects files lacking a PDF header/trailer after the existing 20MB bounded streaming read; this is not a full cryptographic or structural PDF parser.
 - **Verification rule:** CI gate outcomes apply only to their exact workflow SHAs. No pass is inferred for the latest code commit until its Android build, lint, JVM, backend, Firebase Functions, gesture, three-button and APK jobs finish. Physical device/TalkBack manual inspection is separately required.
+
+
+## ADR-FINAL-2026-10-22: Retire Admin Typography Studio editor
+
+- Status: Adopted in source; release behavior requires CI and device verification.
+- Remove the Admin editor, its draft/publish/rollback/reset endpoints and editor UI/tests. The backend public GET `/api/typography/published` remains read-only for installed-client compatibility and continues reading the existing published D1 row.
+- Keep `TypographyRepository`, `TypographyResolver`, `TypographyApplier`, `TypographyRegistry`, the bundled fonts, the published client cache, and existing effective typography. Preserve historical D1 migration `0017_typography_studio.sql` and all D1 rows; never delete user caches during migration.
+- Existing clients with edit-capable versions can no longer write through removed routes after deploying the new backend. Native app rendering still handles valid previously published configs.
+- No live database writes were performed by this source change. Backend deployment, screenshot review and production rollout require separate verification.

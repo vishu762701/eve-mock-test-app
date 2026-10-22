@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import workerModule from "../src/index.ts";
-import { validateConfig, createDefaultConfig } from "../src/routes/typographyStudio.ts";
+import { validateConfig, createDefaultConfig } from "../src/routes/typographyPublished.ts";
 
 const worker = workerModule.default || workerModule;
 
@@ -30,20 +30,20 @@ test("Worker /api/typography/published endpoint returns valid schema and default
   assert.equal(json.data.global_styles.body.weight, 400);
 });
 
-test("Worker /api/admin/typography routes require authorization", async () => {
+test("Retired typography admin editor route is no longer mounted", async () => {
   const fakeDb = {
     prepare: () => ({
       first: async () => null
     })
   };
 
-  // Without auth header, should fail with 401
+  // Retired editor routes must not be exposed, including to previously authorized clients.
   const res = await worker.fetch(
     new Request("https://example.test/api/admin/typography/draft"),
     { DB: fakeDb },
     {}
   );
-  assert.equal(res.status, 401);
+  assert.equal(res.status, 404);
 });
 
 test("validateConfig: accepts factory default configuration", () => {

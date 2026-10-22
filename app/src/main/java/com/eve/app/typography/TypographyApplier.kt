@@ -58,9 +58,9 @@ object TypographyApplier {
         val repo = TypographyRepository.getInstance(activity)
         if (repo.isTestSessionActive()) return
 
-        // Skip Typography Studio editor and test harness activities
+        // Keep native screenshot/test harness typography independent of production rendering.
         val name = activity::class.java.simpleName
-        if (name == "TypographyStudioActivity" || name == "RepairVerificationActivity") return
+        if (name == "RepairVerificationActivity") return
 
         val root = activity.findViewById<ViewGroup>(android.R.id.content) ?: return
         val config = repo.getActiveConfig()
