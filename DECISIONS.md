@@ -1935,3 +1935,8 @@ Following Batch 01 (ADR-022), Batch 02 (ADR-023), Batch 03 (ADR-024), Typography
 - `SettingsActivity.executeAccountDeletion` previously ignored both Worker `deleteAccount()` failures and Firebase Auth `user.delete()` failures before showing a false success banner. It now requires a success response from D1 and completion of Auth removal before showing success; invalid/failed stages show an error, and the existing recent-login reauthentication branch remains.
 - After confirmed deletion, clean only the deleted user's scoped notification cache, saved mock-test sessions, offline pending submissions and local attempt markers. Keep other accounts' local work intact; never delete an entire shared test/pending data store. Historical unowned notification cache remains quarantined from display, not automatically assigned to a new user.
 - Backend D1/Auth deletion cannot be a cross-provider distributed transaction. If Auth requires reauthentication after D1 deletion, a repeated backend DELETE is idempotent; the UI does not report full success until Auth deletion succeeds. No live account was deleted during QA.
+
+
+### ADR-FINAL-2026-10-22-M verification fixture
+
+- `AccountLocalCleanupTest.kt` uses two synthetic UIDs, isolated test sessions, pending JSON submissions, attempt-limit preferences and notification namespaces. It asserts clearing A retains B and restores/removes all fixtures. No real account deletion, push or backend data mutation is performed. The native Android test matrix is required to evaluate the fixture.
