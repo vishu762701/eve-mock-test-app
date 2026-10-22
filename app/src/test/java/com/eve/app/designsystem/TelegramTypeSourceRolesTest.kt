@@ -175,6 +175,22 @@ class TelegramTypeSourceRolesTest {
         assertTrue(dt.contains("FontManager.telegramMediumTypeface(view.context)"))
     }
 
+    @Test fun mappedSharedHeadingsUseTelegramThemeForeground() {
+        val xml = read("values/design_type.xml")
+        for (role in listOf("TextAppearance.Eve.Headline", "TextAppearance.Eve.Token.Title",
+            "TextAppearance.Eve.Token.Heading")) {
+            val start = xml.indexOf("<style name=\"" + role + "\"")
+            assertTrue("Missing heading role " + role, start >= 0)
+            val end = xml.indexOf("</style>", start)
+            assertTrue("Missing source theme text role for " + role,
+                xml.substring(start, end).contains("@color/telegram_type_primary"))
+        }
+        val day = read("values/telegram_colors.xml")
+        val night = read("values-night/telegram_colors.xml")
+        assertTrue(day.contains("<color name=\"telegram_type_primary\">#FF1A1D21</color>"))
+        assertTrue(night.contains("<color name=\"telegram_type_primary\">#FFFFFFFF</color>"))
+    }
+
     private fun contrast(foreground: String, background: String): Double {
         fun luminance(hex: String): Double {
             val rgb = hex.removePrefix("#").takeLast(6)

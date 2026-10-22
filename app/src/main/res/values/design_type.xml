@@ -81,7 +81,7 @@
         <item name="lineHeight">@dimen/design_line_headline</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColor">@color/telegram_type_primary</item>
     </style>
 
     <style name="TextAppearance.Eve.Headline.Emphasized" parent="TextAppearance.Eve.Headline">
@@ -206,7 +206,7 @@
     <style name="TextAppearance.Eve.Component.ChartLabel" parent="TextAppearance.Eve.Caption1" />
 
     <!-- ===================================================================== -->
-    <!-- UNIFIED APPLICATION TOKENS (Inter Backed, iOS 26 HIG Matched)         -->
+    <!-- Shared EVE compatibility roles: Telegram source-aligned only when mapped -->
     <!-- ===================================================================== -->
 
     <style name="TextAppearance.Eve.Token.Title" parent="TextAppearance.Eve.Title1.Emphasized">
@@ -217,7 +217,7 @@
         <item name="android:includeFontPadding">false</item>
         <item name="android:textStyle">normal</item>
         <item name="android:letterSpacing">0</item>
-        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColor">@color/telegram_type_primary</item>
     </style>
 
     <style name="TextAppearance.Eve.Token.Heading" parent="TextAppearance.Eve.Headline">
@@ -228,7 +228,7 @@
         <item name="android:includeFontPadding">false</item>
         <item name="android:textStyle">normal</item>
         <item name="android:letterSpacing">0</item>
-        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColor">@color/telegram_type_primary</item>
     </style>
 
     <style name="TextAppearance.Eve.Token.Body" parent="TextAppearance.Eve.Body">
