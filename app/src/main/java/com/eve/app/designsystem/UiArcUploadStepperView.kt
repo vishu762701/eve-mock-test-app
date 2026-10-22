@@ -115,17 +115,13 @@ class UiArcUploadStepperView @JvmOverloads constructor(
         examReady: Boolean, pdfReady: Boolean, uploading: Boolean,
         uploaded: Boolean, failed: Boolean
     ) {
-        val progress = when {
-            uploaded -> 3
-            examReady && pdfReady -> 2
-            examReady -> 1
-            else -> 0
-        }
-        val changed = progress != completed || failed != error || uploading != busy
+        val state = UploadStepState.from(examReady, pdfReady, uploading, uploaded, failed)
+        val progress = state.progress
+        val changed = progress != completed || state.failed != error || state.uploading != busy
         val forward = completed >= 0 && progress > completed
         completed = progress
-        error = failed
-        busy = uploading
+        error = state.failed
+        busy = state.uploading
         val motion = UiArcMotion.isMotionEnabled(context)
         val accent = DesignTokens.accent(context)
         val mainText = DesignTokens.primary(context)
@@ -134,13 +130,13 @@ class UiArcUploadStepperView @JvmOverloads constructor(
         val red = ContextCompat.getColor(context, R.color.system_red)
 
         markers.forEachIndexed { index, marker ->
-            val done = index < progress && (index < 2 || uploaded)
-            val active = index == progress.coerceAtMost(2) && !uploaded
-            val failedStage = failed && index == 2
+            val done = index < progress && (index < 2 || state.uploaded)
+            val active = index == progress.coerceAtMost(2) && !state.uploaded
+            val failedStage = state.failed && index == 2
             val symbol = when {
                 done -> "✓"
                 failedStage -> "!"
-                uploading && index == 2 -> "…"
+                state.uploading && index == 2 -> "…"
                 else -> (index + 1).toString()
             }
             val previous = marker.text.toString()
@@ -195,14 +191,7 @@ class UiArcUploadStepperView @JvmOverloads constructor(
                     .setInterpolator(UiArcMotion.Ease.ENTER).start()
             } else line.scaleX = if (filled) 1f else 0f
         }
-        val message = when {
-            uploaded -> "All steps complete. Syllabus upload confirmed."
-            failed -> "Step 3 of 3: Upload failed. Retry upload."
-            uploading -> "Step 3 of 3: Upload in progress."
-            progress == 2 -> "Step 3 of 3: Ready to upload PDF."
-            progress == 1 -> "Step 2 of 3: Select a valid PDF."
-            else -> "Step 1 of 3: Choose an exam."
-        }
+        val message = state.message
         caption.text = message
         if (changed) contentDescription = message
     }
