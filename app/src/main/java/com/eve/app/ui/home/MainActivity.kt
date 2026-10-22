@@ -954,17 +954,19 @@ class MainActivity : EveBaseActivity() {
 
         binding.btnBottomNavHistory.setOnClickListener {
             updateBottomNavSelection(1)
-            binding.drawerLayout.openDrawer(androidx.core.view.GravityCompat.START)
+            binding.drawerLayout.openDrawer(GravityCompat.START, UiArcMotion.isMotionEnabled(this))
         }
 
         binding.btnBottomNavSaved.setOnClickListener {
-            updateBottomNavSelection(2)
+            // This existing action is an informational bulletin, not a destination.
+            // Keep Home selected instead of leaving the inactive Saved icon highlighted.
             AppBulletin.show(this, "Saved tests")
+            updateBottomNavSelection(0)
         }
 
         binding.btnBottomNavProfile.setOnClickListener {
             updateBottomNavSelection(3)
-            binding.drawerLayout.openDrawer(androidx.core.view.GravityCompat.START)
+            binding.drawerLayout.openDrawer(GravityCompat.START, UiArcMotion.isMotionEnabled(this))
         }
     }
 
@@ -1001,16 +1003,18 @@ class MainActivity : EveBaseActivity() {
         val valid = com.eve.app.data.repository.FloatingLinkRepository.isValidHttpsUrl(link.orEmpty())
         val imeVisible = ViewCompat.getRootWindowInsets(binding.cardFloatingAirplane)
             ?.isVisible(WindowInsetsCompat.Type.ime()) == true
-        val show = valid && !imeVisible
         binding.cardFloatingAirplane.visibility = when {
             !valid -> View.GONE
             imeVisible -> View.INVISIBLE
             else -> View.VISIBLE
         }
-        if (!show) {
-            binding.lottieFloatingAirplane.cancelAnimation()
-        } else if (Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) > 0f) {
-            if (!binding.lottieFloatingAirplane.isAnimating) binding.lottieFloatingAirplane.playAnimation()
+        when {
+            !valid -> binding.lottieFloatingAirplane.cancelAnimation()
+            imeVisible || !lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED) -> {
+                if (binding.lottieFloatingAirplane.isAnimating) binding.lottieFloatingAirplane.pauseAnimation()
+            }
+            com.eve.app.designsystem.DesignMotion.enabled(this) &&
+                !binding.lottieFloatingAirplane.isAnimating -> binding.lottieFloatingAirplane.resumeAnimation()
         }
     }
 
@@ -1348,6 +1352,8 @@ class MainActivity : EveBaseActivity() {
 
             override fun onDrawerClosed(drawerView: View) {
                 binding.ivDrawerGlassBlurBackground.setImageDrawable(null)
+                // Drawer is transient: dismissing it returns to the same Home destination.
+                updateBottomNavSelection(0)
                 if (binding.ivProfile.isAttachedToWindow) binding.ivProfile.requestFocus()
             }
         })
