@@ -18,12 +18,14 @@ broadcastRoutes.get("/", async (c) => {
     .bind(limit)
     .all<NotificationRow>();
 
+  // Student payloads must not expose the private sender/admin email.
+  const isAdmin = c.get("user")?.isAdmin === true;
   const list = (results || []).map((r: any) => ({
     id: r.id,
     title: r.title,
     message: r.message,
     sentAt: r.sent_at,
-    sentBy: r.sent_by,
+    ...(isAdmin ? { sentBy: r.sent_by } : {}),
     type: r.type,
     targetCategory: r.target_category || "All Users",
   }));
