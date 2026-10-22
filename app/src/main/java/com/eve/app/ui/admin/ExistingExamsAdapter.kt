@@ -51,6 +51,7 @@ class ExistingExamsAdapter(
         private val touchMin get() = (48f * density).toInt()
         private val widthSpring = UiArcMotion.SpringCurve(0.42f, 0f, 550L)
         private val originalNamePadding = binding.tvExamName.paddingLeft
+        private var currentAction: View? = null
         private var boundExamId: String? = null
         private var boundExpanded = false
         private val hoverSpring = UiArcMotion.SpringCurve(
@@ -60,6 +61,7 @@ class ExistingExamsAdapter(
             listOf(binding.btnQuickPreview, binding.btnQuickEdit, binding.btnMoreOptions)
 
         fun resetHover() {
+            currentAction = null
             binding.root.animate().cancel()
             binding.root.translationY = 0f
             binding.root.alpha = 1f
@@ -109,6 +111,8 @@ class ExistingExamsAdapter(
         }
 
         private fun revealAction(active: View?) {
+            if (currentAction === active) return
+            currentAction = active
             val preview = binding.btnQuickPreview
             val edit = binding.btnQuickEdit
             val more = binding.btnMoreOptions
@@ -148,8 +152,11 @@ class ExistingExamsAdapter(
                 }
             }
             binding.layoutExamQuickActions.setOnHoverListener { _, e ->
-                if (e.actionMasked == MotionEvent.ACTION_HOVER_EXIT &&
-                    buttons.none { it.hasFocus() }) revealAction(null)
+                if (e.actionMasked == MotionEvent.ACTION_HOVER_EXIT) {
+                    binding.layoutExamQuickActions.post {
+                        if (buttons.none { it.isHovered || it.hasFocus() }) revealAction(null)
+                    }
+                }
                 false
             }
             for ((index, button) in buttons.withIndex()) {
@@ -160,7 +167,9 @@ class ExistingExamsAdapter(
                             if (event.x >= 4f * density && event.x <= button.width - 4f * density)
                                 revealAction(button)
                         MotionEvent.ACTION_HOVER_EXIT ->
-                            if (buttons.none { it.hasFocus() }) revealAction(null)
+                            binding.layoutExamQuickActions.post {
+                                if (buttons.none { it.isHovered || it.hasFocus() }) revealAction(null)
+                            }
                     }
                     false
                 }
