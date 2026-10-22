@@ -49,7 +49,7 @@ class ExistingExamsAdapter(
         private val expandedWidths = mutableMapOf<View, Int>()
         private val density get() = binding.root.resources.displayMetrics.density
         private val touchMin get() = (48f * density).toInt()
-        private val widthSpring = UiArcMotion.Spring.MORPH
+        private val widthSpring = UiArcMotion.SpringCurve(0.42f, 0f, 550L)
         private val originalNamePadding = binding.tvExamName.paddingLeft
         private var boundExamId: String? = null
         private var boundExpanded = false
@@ -219,8 +219,8 @@ class ExistingExamsAdapter(
             val targetAngle = if (item.isExpanded) 90f else 0f
             if (animatedExpansion && UiArcMotion.isMotionEnabled(binding.root.context)) {
                 binding.btnExpandExam.animate().rotation(targetAngle)
-                    .setDuration(UiArcMotion.Spring.SNAPPY.settlingDurationMs)
-                    .setInterpolator(UiArcMotion.Spring.SNAPPY).start()
+                    .setDuration(hoverSpring.settlingDurationMs)
+                    .setInterpolator(hoverSpring).start()
             } else binding.btnExpandExam.rotation = targetAngle
             val state = if (item.isExpanded) "Expanded" else "Collapsed"
             binding.btnExpandExam.contentDescription =
