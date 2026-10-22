@@ -1908,3 +1908,10 @@ Following Batch 01 (ADR-022), Batch 02 (ADR-023), Batch 03 (ADR-024), Typography
 
 - After actual inbound reference searches, remove the unused custom `UiArcProgressBar` (no production host), the obsolete JVM test that only asserted its source file existed, and the old Home bottom-glass style and margin dimensions across all three qualifiers. Do not touch active progress indicators, Settings minimum row height, typography fonts, backend data, tests covering live behavior, or protected theme animation.
 - Mark UIArc Progress as **NOT APPLICABLE** rather than claiming unused code represented a rendered product component. CI remains required for resource linking and native rendering; ambiguous legacy assets remain for deliberate review.
+
+
+## ADR-FINAL-2026-10-22-K: Notification recipient integrity and honest delivery contract
+
+- D1 `POST /api/broadcasts` publishes an **in-app inbox record**. The Firebase Cloud Function `broadcastNotification` triggers on Firestore `notifications/{id}`; it does not automatically observe D1 writes. Until an authenticated transactional transport bridge is designed, never claim an admin D1 write confirms FCM push delivery.
+- Category-targeted D1 writes now return HTTP 422 with a clear explanation. The Admin composer exposes only the genuine All Users inbox publication path, without a nonfunctional category-target spinner. For pre-existing targeted records, non-admin GET filters them out rather than exposing another audience's content; admins still see historical notices.
+- The category audience mapping is unavailable in the inspected backend; no guessed Firebase token lookup, test broadcast, mass device push, D1 destructive migration or live charge was introduced. A compatible future targeted-delivery implementation requires a stable authenticated recipient contract and isolated integration tests.

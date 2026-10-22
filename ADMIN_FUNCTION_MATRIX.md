@@ -54,3 +54,8 @@ Source changes additionally gate initialization for: ActivityLogActivity.kt, Api
 Broadcast list limit parsing now rejects malformed/non-positive inputs and caps valid requests to 100; send validates title/message/type/category bounds server-side with matching Android form limits; bulk-delete rejects invalid/duplicate/unbounded IDs before constructing D1 batch statements. These are code + deterministic backend-test changes, not a proof of safe live push.
 
 **HIGH PRIORITY UNKNOWN:** Admin UI labels category notifications as targeted, but the inspected `GET /api/broadcasts` route does not filter by recipient. The user `category` field in D1 represents profile metadata and has not been shown to represent enrolled-exam notification targeting. Do **not** claim audience restriction works or send sensitive category notifications until an authoritative recipient-mapping contract is established and end-to-end tested. This audit does not silently change live audience or existing broadcast records.
+
+
+## Verified notification-delivery architecture (source audit)
+
+`backend/src/routes/broadcasts.ts` is a D1 inbox route while `functions/index.js` contains an FCM publisher bound to **Firestore** document creation. They are **not** the same event stream. The Admin composer now accurately states in-app inbox publication only. Category sends are rejected at the API with HTTP 422 until recipient membership can be proven; non-admin GET excludes pre-existing category-targeted rows. This is a defensive reduction of a misleading interface, not an implementation of live push. Real FCM mass-send testing was intentionally NOT RUN.

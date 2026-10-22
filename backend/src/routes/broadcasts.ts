@@ -22,9 +22,13 @@ broadcastRoutes.get("/", async (c) => {
     .bind(limit)
     .all<NotificationRow>();
 
-  // Student payloads must not expose the private sender/admin email.
+  // A category-limited notice has no verified server-side recipient membership
+  // mapping. Fail closed for students rather than showing another audience's post.
   const isAdmin = c.get("user")?.isAdmin === true;
-  const list = (results || []).map((r: any) => ({
+  const eligible = isAdmin ? (results || []) : (results || []).filter(
+    (r: any) => !r.target_category || r.target_category === "All Users"
+  );
+  const list = eligible.map((r: any) => ({
     id: r.id,
     title: r.title,
     message: r.message,
@@ -53,6 +57,9 @@ broadcastRoutes.post("/", requireAdmin, async (c) => {
   }
   const type = rawType.trim();
   const targetCategory = rawTarget.trim();
+  if (targetCategory !== "All Users") {
+    return c.json({ success: false, error: "Category-targeted delivery is unavailable. Only All Users is supported." }, 422);
+  }
   const db = c.env.DB;
 
   const id = crypto.randomUUID();

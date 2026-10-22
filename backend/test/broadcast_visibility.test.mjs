@@ -92,3 +92,27 @@ test("broadcast bulk deletion rejects invalid batches without D1 calls", async (
   }
 });
 
+
+// Audience targeting is NOT implemented in D1. This explicit fail-closed policy
+// prevents a restricted message from reaching students in a different category.
+test("students cannot see pre-existing category-targeted broadcasts", async () => {
+  const app = new Hono();
+  app.use("*", async (c, next) => { c.set("user", { uid: "student", isAdmin: false }); await next(); });
+  app.route("/api/broadcasts", broadcastRoutes);
+  const env = { DB: { prepare: () => ({ bind: () => ({ all: async () => ({ results: [
+    stored, { ...stored, id: "targeted-old", target_category: "Other Exam", title: "Private category post" }
+  ] }) }) }) } };
+  const res = await app.fetch(new Request("https://example.test/api/broadcasts"), env, {});
+  assert.equal(res.status, 200);
+  const json = await res.json();
+  assert.deepEqual(json.data.map(x => x.id), ["broadcast-1"]);
+});
+
+test("targeted broadcasts fail closed before creating any D1 row", async () => {
+  const res = await requestAsAdmin("POST", "/api/broadcasts", {
+    title: "Limited group", message: "Restricted", targetCategory: "Exam A"
+  });
+  assert.equal(res.status, 422);
+  const body = await res.json();
+  assert.match(body.error, /targeted delivery is unavailable/i);
+});

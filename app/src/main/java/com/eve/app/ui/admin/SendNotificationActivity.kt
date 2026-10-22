@@ -9,8 +9,6 @@ import android.view.View
 import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.AppUndoBar
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -34,7 +32,6 @@ class SendNotificationActivity : EveBaseActivity() {
     private val api: EveApiService = ApiClient.apiService
     private val auditLogRepo = AuditLogRepository()
     private val apiUsageRepo = ApiUsageRepository()
-    private val categoryList = mutableListOf("All Users")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,47 +77,9 @@ class SendNotificationActivity : EveBaseActivity() {
             validateAndConfirm()
         }
 
-        setupTargetCategorySpinner()
         setupSelectionTopBar()
         setupBackPressed()
         listenToSentBroadcasts()
-    }
-
-    private fun setupTargetCategorySpinner() {
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categoryList)
-        binding.spTargetCategory.adapter = adapter
-
-        binding.spTargetCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val selected = categoryList.getOrNull(position) ?: "All Users"
-                binding.btnSend.text = if (selected == "All Users") {
-                    "Send to All Users"
-                } else {
-                    "Send to $selected Students"
-                }
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
-
-        // Fetch categories from exams
-        lifecycleScope.launch {
-            try {
-                val examsRes = api.getExams()
-                if (examsRes.success && examsRes.data != null) {
-                    val categories = examsRes.data
-                        .map { it.category.trim() }
-                        .filter { it.isNotBlank() }
-                        .distinct()
-                    if (categories.isNotEmpty()) {
-                        categoryList.clear()
-                        categoryList.add("All Users")
-                        categoryList.addAll(categories)
-                        adapter.notifyDataSetChanged()
-                    }
-                }
-            } catch (_: Exception) {}
-        }
     }
 
     private fun setupSelectionTopBar() {
@@ -359,28 +318,17 @@ class SendNotificationActivity : EveBaseActivity() {
             binding.etMessage.requestFocus()
             return
         }
-        val targetCategory = binding.spTargetCategory.selectedItem?.toString() ?: "All Users"
-        if (targetCategory.isBlank() || targetCategory.length > 100) {
-            AppBulletin.showError(this, "Invalid target category")
-            return
-        }
-        val audienceDesc = if (targetCategory == "All Users") {
-            "all registered students"
-        } else {
-            "all students in '$targetCategory'"
-        }
-
         MaterialAlertDialogBuilder(this)
-            .setTitle("Confirm Broadcast Notification")
-            .setMessage("Are you sure? Delivered notifications cannot be recalled.\n\nThis notification will be dispatched to $audienceDesc immediately:\n\n📢 Title: $title\n🎯 Target Audience: $targetCategory\n\n💬 Message:\n$message")
-            .setPositiveButton(if (targetCategory == "All Users") "Send to All Users" else "Send to $targetCategory") { _, _ ->
-                sendNotification(title, message, targetCategory)
+            .setTitle("Confirm In-App Notice")
+            .setMessage("Publish this message to every student's in-app Notifications inbox?\n\nDevice push delivery is not confirmed by this action.\n\nTitle: $title\n\nMessage: $message")
+            .setPositiveButton("Publish to Inbox") { _, _ ->
+                sendNotification(title, message)
             }
             .setNegativeButton("Cancel", null)
             .show()
     }
 
-    private fun sendNotification(title: String, message: String, targetCategory: String = "All Users") {
+    private fun sendNotification(title: String, message: String) {
         binding.btnSend.isEnabled = false
         binding.progressBar.visibility = View.VISIBLE
 
@@ -388,7 +336,7 @@ class SendNotificationActivity : EveBaseActivity() {
             "title" to title,
             "message" to message,
             "type" to "general",
-            "targetCategory" to targetCategory
+            "targetCategory" to "All Users"
         )
 
         lifecycleScope.launch {
@@ -405,14 +353,14 @@ class SendNotificationActivity : EveBaseActivity() {
                 } else {
                     auditLogRepo.recordLog(
                         AdminAuditLog.ACTION_BROADCAST_SENT,
-                        "Sent broadcast '$title' to $targetCategory"
+                        "Published in-app notice '$title' for all users"
                     )
                     apiUsageRepo.incrementDocumentWrites(1)
                     binding.etTitle.text?.clear()
                     binding.etMessage.text?.clear()
                     AppBulletin.showSuccess(
                         this@SendNotificationActivity,
-                        "Notification broadcast successfully!"
+                        "Notice published to the in-app inbox. Push delivery not confirmed."
                     )
                     listenToSentBroadcasts()
                 }
