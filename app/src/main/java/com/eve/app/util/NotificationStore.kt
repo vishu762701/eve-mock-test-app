@@ -22,6 +22,7 @@ object NotificationStore {
     private const val PREFS = "eve_prefs"
     private const val KEY_NOTIFICATIONS = "key_notifications_json"
     private const val MAX_STORED = 50
+    private const val KEY_LAST_BROADCAST_TS = "key_last_broadcast_delivery_ts"
 
     fun add(context: Context, title: String, body: String) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -47,6 +48,31 @@ object NotificationStore {
         try {
             context.sendBroadcast(android.content.Intent("com.eve.app.NOTIFICATION_RECEIVED").setPackage(context.packageName))
         } catch (_: Exception) { }
+    }
+
+    /** Deduplicate server broadcasts without conflating delivery with read acknowledgement. */
+    @Synchronized
+    fun addBroadcast(context: Context, title: String, body: String, sentAt: Long): Boolean {
+        if (sentAt <= 0L) return false
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        if (sentAt <= prefs.getLong(KEY_LAST_BROADCAST_TS, 0L)) return false
+        val old = readArray(prefs)
+        val entry = JSONObject().apply {
+            put("title", title)
+            put("body", body)
+            put("timestamp", sentAt)
+            put("read", false)
+        }
+        val merged = JSONArray().apply {
+            put(entry)
+            for (i in 0 until minOf(old.length(), MAX_STORED - 1)) put(old.get(i))
+        }
+        prefs.edit()
+            .putString(KEY_NOTIFICATIONS, merged.toString())
+            .putLong(KEY_LAST_BROADCAST_TS, sentAt)
+            .apply()
+        context.sendBroadcast(android.content.Intent("com.eve.app.NOTIFICATION_RECEIVED").setPackage(context.packageName))
+        return true
     }
 
     fun getAll(context: Context): List<StoredNotification> {

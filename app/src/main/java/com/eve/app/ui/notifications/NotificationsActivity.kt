@@ -32,7 +32,8 @@ class NotificationsActivity : EveBaseActivity() {
         binding.rvNotifications.layoutManager = LinearLayoutManager(this)
         binding.rvNotifications.adapter = adapter
 
-        // Show cached local notifications immediately
+        // Opening the inbox acknowledges local unread items (not opening Home).
+        NotificationStore.markAllRead(this)
         val localItems = NotificationStore.getAll(this)
         if (localItems.isNotEmpty()) {
             adapter.submit(localItems)
@@ -42,8 +43,6 @@ class NotificationsActivity : EveBaseActivity() {
         }
 
         listenToNotifications()
-
-        NotificationStore.markAllRead(this)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

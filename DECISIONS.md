@@ -1845,3 +1845,11 @@ Following Batch 01 (ADR-022), Batch 02 (ADR-023), Batch 03 (ADR-024), Typography
 - History, Saved/Bookmarks and Profile are real 52dp Drawer destinations, with a scrollable drawer list for short phones. Existing overflow shortcuts and airplane URL action remain independent.
 - The native Android navigation system stays unmodified. The airplane uses the residual system-gesture inset directly instead of reserving removed overlay height.
 - This change does not modify attempt/result backend contracts. Native emulator geometry verification is mandatory before declaring release quality.
+
+
+## ADR-FINAL-2026-10-22-C: Durable notification toolbar and unread semantics
+
+- Use the existing MIT-licensed `ic_notification` vector as the visible idle bell; the existing Lottie asset is optional transient motion. A single accessible parent action opens Notifications immediately. Restore idle vector on animation end/cancel, reduced motion, pause and guarded fallback.
+- Home must not acknowledge unread notifications. Inbox entry calls `NotificationStore.markAllRead()`. Server broadcast delivery uses a separate persistent timestamp cursor, preventing repeated Home visits from duplicating the latest broadcast.
+- Android 13+ notification permission is requested at most once automatically; users can subsequently manage notification permissions in system settings.
+- Network failure keeps the locally cached badge state. Physical screenshots, push provider delivery and device vibration remain to be verified.

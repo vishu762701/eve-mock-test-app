@@ -137,9 +137,7 @@ class MainActivity : EveBaseActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val ctx = context ?: this@MainActivity
             VibrationHelper.vibrateNotification(ctx)
-            binding.btnNotification.repeatCount = 0
-            binding.btnNotification.progress = 0f
-            binding.btnNotification.playAnimation()
+            animateNotificationBell()
             updateNotificationDot()
         }
     }
@@ -463,8 +461,12 @@ class MainActivity : EveBaseActivity() {
 
     override fun onPause() {
         super.onPause()
-        if (::binding.isInitialized && binding.cardFloatingAirplane.visibility == View.VISIBLE) {
-            binding.lottieFloatingAirplane.pauseAnimation()
+        if (::binding.isInitialized) {
+            binding.btnNotification.cancelAnimation()
+            restoreNotificationBellIdle()
+            if (binding.cardFloatingAirplane.visibility == View.VISIBLE) {
+                binding.lottieFloatingAirplane.pauseAnimation()
+            }
         }
     }
 
@@ -818,20 +820,7 @@ class MainActivity : EveBaseActivity() {
             }
             FirebaseAuth.getInstance().currentUser?.let { loadProfilePhoto(it) }
 
-            if (NotificationStore.hasNewUnseen(this)) {
-                binding.dotUnread.visibility = View.VISIBLE
-                binding.btnNotification.repeatCount = 0
-                binding.btnNotification.progress = 0f
-                binding.btnNotification.playAnimation()
-                val latest = NotificationStore.getLatestNotificationTimestamp(this)
-                if (latest > 0L) NotificationStore.setLastSeenTimestamp(this, latest)
-            } else {
-                updateNotificationDot()
-                if (binding.btnNotification.isAnimating) {
-                    binding.btnNotification.pauseAnimation()
-                }
-                binding.btnNotification.progress = 0f
-            }
+            updateNotificationDot()
 
             startListeningToNotifications()
             startListeningToHomeBanner()
@@ -1018,20 +1007,17 @@ class MainActivity : EveBaseActivity() {
         notifJob = lifecycleScope.launch(lifecycleExceptionHandler) {
             try {
                 val res = com.eve.app.data.remote.ApiClient.apiService.getBroadcasts(1)
-                if (res.success && !res.data.isNullOrEmpty()) {
-                    val doc = res.data.first()
-                    val sentAt = doc.sentAt
-                    val lastSeen = NotificationStore.getLastSeenTimestamp(this@MainActivity)
-                    if (sentAt > lastSeen && lastSeen > 0L) {
-                        NotificationStore.add(this@MainActivity, doc.title, doc.message)
-                        VibrationHelper.vibrateNotification(this@MainActivity)
-                        binding.btnNotification.repeatCount = 0
-                        binding.btnNotification.progress = 0f
-                        binding.btnNotification.playAnimation()
-                        updateNotificationDot()
-                    }
+                val newest = if (res.success) res.data?.firstOrNull() else null
+                if (newest != null && newest.sentAt > 0L) {
+                    // A dedicated delivery cursor prevents Home from marking unread items seen.
+                    // FCM/local and API delivery remain idempotent by source timestamp.
+                    NotificationStore.addBroadcast(this@MainActivity, newest.title, newest.message, newest.sentAt)
+                    updateNotificationDot()
                 }
-            } catch (_: Exception) {}
+            } catch (_: Exception) {
+                // Keep locally cached unread state when network retrieval fails.
+                updateNotificationDot()
+            }
         }
     }
 
@@ -1039,22 +1025,57 @@ class MainActivity : EveBaseActivity() {
         binding.dotUnread.visibility = if (NotificationStore.hasUnread(this)) View.VISIBLE else View.GONE
     }
 
-    private fun setupNotificationBell() {
-        HomeAppearance.tintNotificationBell(binding.btnNotification)
-        binding.btnNotification.repeatCount = 0
+    private fun restoreNotificationBellIdle() {
+        if (!::binding.isInitialized) return
+        binding.btnNotification.alpha = 0f
+        binding.ivNotificationIdle.visibility = View.VISIBLE
+    }
 
-        binding.btnNotification.setOnClickListener {
+    private var bellAnimationGeneration = 0
+
+    private fun animateNotificationBell() {
+        if (!::binding.isInitialized ||
+            !com.eve.app.designsystem.DesignMotion.enabled(this)) {
+            restoreNotificationBellIdle()
+            return
+        }
+        val generation = ++bellAnimationGeneration
+        try {
+            binding.btnNotification.cancelAnimation()
             binding.btnNotification.repeatCount = 0
             binding.btnNotification.progress = 0f
+            binding.ivNotificationIdle.visibility = View.INVISIBLE
+            binding.btnNotification.alpha = 1f
             binding.btnNotification.playAnimation()
-            val latest = NotificationStore.getLatestNotificationTimestamp(this)
-            if (latest > 0L) {
-                NotificationStore.setLastSeenTimestamp(this, latest)
-            }
-            binding.dotUnread.visibility = View.GONE
+            // An invalid/missing Lottie composition must never leave a blank toolbar.
             binding.btnNotification.postDelayed({
-                com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, NotificationsActivity::class.java), binding.btnNotification)
-            }, 350)
+                if (::binding.isInitialized && generation == bellAnimationGeneration) {
+                    binding.btnNotification.cancelAnimation()
+                    restoreNotificationBellIdle()
+                }
+            }, 2200L)
+        } catch (_: Exception) {
+            restoreNotificationBellIdle()
+        }
+    }
+
+    private fun setupNotificationBell() {
+        HomeAppearance.tintNotificationBell(binding.btnNotification)
+        restoreNotificationBellIdle()
+        binding.btnNotification.addAnimatorListener(object : android.animation.AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: android.animation.Animator) {
+                restoreNotificationBellIdle()
+            }
+            override fun onAnimationCancel(animation: android.animation.Animator) {
+                restoreNotificationBellIdle()
+            }
+        })
+        binding.notificationAction.setOnClickListener {
+            // Navigation is immediate and independent from optional motion.
+            animateNotificationBell()
+            com.eve.app.util.EveNavigationHelper.navigate(
+                this, Intent(this, NotificationsActivity::class.java), binding.notificationAction
+            )
         }
     }
 
@@ -1121,7 +1142,11 @@ class MainActivity : EveBaseActivity() {
             ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED
         ) {
-            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            val prefs = getSharedPreferences("eve_app_prefs", Context.MODE_PRIVATE)
+            if (!prefs.getBoolean("notification_permission_requested", false)) {
+                prefs.edit().putBoolean("notification_permission_requested", true).apply()
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
         }
 
         // Subscribe to new exams topic AND all_users broadcast topic

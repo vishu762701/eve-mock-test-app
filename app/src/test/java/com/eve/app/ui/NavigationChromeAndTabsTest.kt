@@ -86,6 +86,14 @@ class NavigationChromeAndTabsTest {
         val bell = findElementById(doc.documentElement, "btnNotification")
         assertNotNull("btnNotification must exist in activity_main.xml", bell)
 
+        val fallback = findElementById(doc.documentElement, "ivNotificationIdle")
+        assertNotNull("Bell must have a persistent vector fallback at idle", fallback)
+        assertEquals("@drawable/ic_notification", fallback?.designAttribute("android:src"))
+        val action = findElementById(doc.documentElement, "notificationAction")
+        assertNotNull("Notification tap target must be accessible", action)
+        assertEquals("true", action?.designAttribute("android:clickable"))
+        assertEquals("true", action?.designAttribute("android:focusable"))
+
         val bellBg = bell!!.designAttribute("android:background")
         assertEquals(
             "Bell uses the shared icon-only background",
