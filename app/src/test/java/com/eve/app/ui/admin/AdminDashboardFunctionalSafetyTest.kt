@@ -21,7 +21,7 @@ import java.util.Locale
  * Verification test suite for all 6 Admin Dashboard Functional & Safety fixes:
  * 1. Broadcast Notification Independent Deletion (Item 1)
  * 2. Broadcast Notification Send & Delete Confirmation (Item 2)
- * 3. Broadcast Notification Category Targeting (Item 3)
+ * 3. Legacy category badges and safe All-Users composer (Item 3)
  * 4. Manage Exam Auto-Generation Safeguards (4a, 4b, 4c, 4d, 4e)
  * 5. Admin Analytics Bar Chart Visualization & Dynamic Time Range Filtering (5a, 5b, 5c)
  * 6. Create Feedback Post Layout & Dedicated Management Restructure (6a, 6b)
@@ -74,16 +74,10 @@ class AdminDashboardFunctionalSafetyTest {
         val message = "Mock test starts tomorrow at 10 AM IST."
         val targetCategory = "SSC"
 
-        // Send confirmation dialog contract
-        fun buildSendConfirmationMessage(t: String, msg: String, cat: String): String {
-            val audienceDesc = if (cat == "All Users") "all registered students" else "all students in '$cat'"
-            return "Are you sure? Delivered notifications cannot be recalled.\n\nThis notification will be dispatched to $audienceDesc immediately:\n\n📢 Title: $t\n🎯 Target Audience: $cat\n\n💬 Message:\n$msg"
-        }
-
-        val sendConfirmation = buildSendConfirmationMessage(title, message, targetCategory)
-        assertTrue(sendConfirmation.contains("📢 Title: $title"))
-        assertTrue(sendConfirmation.contains("🎯 Target Audience: $targetCategory"))
-        assertTrue(sendConfirmation.contains("💬 Message:\n$message"))
+        // In-app publication does not claim Firestore/FCM push delivery.
+        val composerXml = File("src/main/res/layout/activity_send_notification.xml").readText()
+        assertTrue(composerXml.contains("Publish to Notifications Inbox"))
+        assertTrue(composerXml.contains("Device push delivery is not confirmed"))
 
         // Delete confirmation dialog contract
         fun buildDeleteConfirmationMessage(b: BroadcastMessage): String {
@@ -122,11 +116,12 @@ class AdminDashboardFunctionalSafetyTest {
         assertEquals("🌐 All Users", getTargetBadgeText("All Users"))
         assertEquals("🌐 All Users", getTargetBadgeText(""))
 
-        // Verify spinner exists in activity_send_notification.xml
+        // The legacy targeted messages are still displayable to admins as history,
+        // but the composer must never offer an unsupported audience selector.
         val sendXml = File("src/main/res/layout/activity_send_notification.xml")
         assertTrue(sendXml.exists())
         val sendXmlContent = sendXml.readText()
-        assertTrue("spTargetCategory must be in layout", sendXmlContent.contains("android:id=\"@+id/spTargetCategory\""))
+        assertFalse("No unimplemented category-targeting control", sendXmlContent.contains("spTargetCategory"))
     }
 
     // =========================================================================
