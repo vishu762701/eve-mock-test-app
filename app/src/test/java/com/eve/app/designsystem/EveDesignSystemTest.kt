@@ -128,11 +128,11 @@ class EveDesignSystemTest {
         // Root is Plain System Background with locked Home token
         assertEquals("@color/bg_app", root.designAttribute("android:background"))
 
-        // Welcome greeting uses 29sp Bold HomePageTitle and primary ink
+        // Source-traced Telegram ActionBar-derived 20sp / Roboto Medium title ink.
         val tvWelcome = findElementById(root, "tvWelcome")
         assertNotNull("tvWelcome must exist", tvWelcome)
         assertEquals("@style/TextAppearance.Eve.Token.Title", tvWelcome?.getAttribute("style"))
-        assertEquals("@color/text_primary", tvWelcome?.designAttribute("android:textColor"))
+        assertEquals("@color/telegram_type_primary", tvWelcome?.designAttribute("android:textColor"))
 
         assertNull("Locked design removes list/chrome separator views", findElementById(root, "topBarHairline"))
 
