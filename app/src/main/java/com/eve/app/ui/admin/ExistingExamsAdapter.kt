@@ -1,5 +1,6 @@
 package com.eve.app.ui.admin
 
+import android.animation.ValueAnimator
 import android.view.InputDevice
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -35,6 +36,10 @@ class ExistingExamsAdapter(
     inner class ViewHolder(private val binding: ItemExistingExamAdminBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
+        private val actionAnimators = mutableMapOf<View, ValueAnimator>()
+        private val actionWidths = mutableMapOf<View, Int>()
+        private val widthSpring = UiArcMotion.SpringCurve(0.42f, 0f, 550L)
+
         private val hoverSpring = UiArcMotion.SpringCurve(
             visualDuration = 0.26f, bounce = 0f, settlingDurationMs = 360L
         )
@@ -42,6 +47,57 @@ class ExistingExamsAdapter(
         fun resetHover() {
             binding.root.animate().cancel()
             binding.root.translationY = 0f
+            actionAnimators.values.forEach { it.cancel() }
+            actionAnimators.clear()
+            actionWidths.clear()
+            for (button in listOf(binding.btnQuickEdit, binding.btnQuickPreview, binding.btnMoreOptions)) {
+                button.layoutParams = button.layoutParams.apply {
+                    width = ViewGroup.LayoutParams.WRAP_CONTENT
+                }
+                button.setOnHoverListener(null)
+                button.onFocusChangeListener = null
+            }
+        }
+
+        private fun animateActionWidth(button: View, expand: Boolean) {
+            if (!button.isAttachedToWindow || button.width <= 0) return
+            val base = actionWidths.getOrPut(button) { button.width }
+            val extra = (12f * button.resources.displayMetrics.density).toInt()
+            val target = base + if (expand) extra else 0
+            actionAnimators.remove(button)?.cancel()
+            if (!UiArcMotion.isMotionEnabled(button.context)) {
+                button.layoutParams = button.layoutParams.apply { width = target }
+                return
+            }
+            val animator = ValueAnimator.ofInt(button.width, target).apply {
+                duration = widthSpring.settlingDurationMs
+                interpolator = widthSpring
+                addUpdateListener { frame ->
+                    val width = frame.animatedValue as Int
+                    if (button.layoutParams.width != width) {
+                        button.layoutParams = button.layoutParams.apply { this.width = width }
+                    }
+                }
+            }
+            actionAnimators[button] = animator
+            animator.start()
+        }
+
+        private fun bindActionMorph() {
+            val actions = listOf(binding.btnQuickPreview, binding.btnQuickEdit, binding.btnMoreOptions)
+            for (button in actions) {
+                button.setOnHoverListener { _, event ->
+                    if (!event.isFromSource(InputDevice.SOURCE_MOUSE)) return@setOnHoverListener false
+                    when (event.actionMasked) {
+                        MotionEvent.ACTION_HOVER_ENTER -> animateActionWidth(button, true)
+                        MotionEvent.ACTION_HOVER_EXIT -> animateActionWidth(button, false)
+                    }
+                    false
+                }
+                button.onFocusChangeListener = View.OnFocusChangeListener { _, focused ->
+                    animateActionWidth(button, focused)
+                }
+            }
         }
 
         fun bind(item: ExamWithStats) {
@@ -93,6 +149,7 @@ class ExistingExamsAdapter(
             binding.tvQuestionCount.text = "📝 $qCount Qs"
             binding.tvAttemptCount.text = "📊 ${item.attemptCount} student attempts"
 
+            bindActionMorph()
             binding.root.setOnClickListener { onExamClick(exam) }
             binding.btnQuickEdit.setOnClickListener { onEditClick(exam) }
             binding.btnQuickPreview.setOnClickListener { onPreviewClick(exam) }
