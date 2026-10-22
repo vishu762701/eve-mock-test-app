@@ -1,6 +1,7 @@
 package com.eve.app.util
 
 import android.content.Context
+import com.eve.app.data.model.BroadcastMessage
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -50,29 +51,54 @@ object NotificationStore {
         } catch (_: Exception) { }
     }
 
-    /** Deduplicate server broadcasts without conflating delivery with read acknowledgement. */
+    /**
+     * Import a bounded, server-authoritative broadcast page without replacing local FCM
+     * and reminder notifications. Synchronize delivery by stable broadcast ID plus the
+     * existing last-delivery timestamp; this does NOT acknowledge anything as read.
+     * Caller owns visible badge/motion updates so opening Home never vibrates for old posts.
+     */
     @Synchronized
-    fun addBroadcast(context: Context, title: String, body: String, sentAt: Long): Boolean {
-        if (sentAt <= 0L) return false
+    fun importBroadcasts(context: Context, broadcasts: List<BroadcastMessage>): Int {
+        if (broadcasts.isEmpty()) return 0
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        if (sentAt <= prefs.getLong(KEY_LAST_BROADCAST_TS, 0L)) return false
         val old = readArray(prefs)
-        val entry = JSONObject().apply {
-            put("title", title)
-            put("body", body)
-            put("timestamp", sentAt)
-            put("read", false)
+        val lastCursor = prefs.getLong(KEY_LAST_BROADCAST_TS, 0L)
+        val alreadyStoredIds = mutableSetOf<String>()
+        for (i in 0 until old.length()) {
+            old.optJSONObject(i)?.optString("sourceId")?.takeIf { it.isNotBlank() }
+                ?.let { alreadyStoredIds.add(it) }
         }
-        val merged = JSONArray().apply {
-            put(entry)
-            for (i in 0 until minOf(old.length(), MAX_STORED - 1)) put(old.get(i))
+        val dedupedIds = mutableSetOf<String>()
+        val incoming = broadcasts.asSequence()
+            .filter { it.id.isNotBlank() && it.sentAt > 0L && it.sentAt >= lastCursor }
+            .filter { it.id !in alreadyStoredIds && dedupedIds.add(it.id) }
+            .sortedWith(compareBy<BroadcastMessage> { it.sentAt }.thenBy { it.id })
+            .toList().takeLast(MAX_STORED)
+        val maxTimestamp = maxOf(lastCursor, broadcasts.maxOfOrNull { it.sentAt } ?: 0L)
+        if (incoming.isEmpty()) {
+            if (maxTimestamp > lastCursor) {
+                prefs.edit().putLong(KEY_LAST_BROADCAST_TS, maxTimestamp).apply()
+            }
+            return 0
+        }
+        val merged = JSONArray()
+        for (item in incoming.asReversed()) {
+            merged.put(JSONObject().apply {
+                put("title", item.title)
+                put("body", item.message)
+                put("timestamp", item.sentAt)
+                put("sourceId", item.id)
+                put("read", false)
+            })
+        }
+        for (i in 0 until minOf(old.length(), MAX_STORED - incoming.size)) {
+            merged.put(old.get(i))
         }
         prefs.edit()
             .putString(KEY_NOTIFICATIONS, merged.toString())
-            .putLong(KEY_LAST_BROADCAST_TS, sentAt)
+            .putLong(KEY_LAST_BROADCAST_TS, maxTimestamp)
             .apply()
-        context.sendBroadcast(android.content.Intent("com.eve.app.NOTIFICATION_RECEIVED").setPackage(context.packageName))
-        return true
+        return incoming.size
     }
 
     fun getAll(context: Context): List<StoredNotification> {

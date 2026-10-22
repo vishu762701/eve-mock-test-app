@@ -19,6 +19,7 @@ and variable font support for official iOS 26 typography (11 canonical styles), 
 sheets and dialogs, capsule controls, 12dp screen margins, 10dp card padding,
 and 9dp native card elevation. Glass is allowed only on top bars, bottom bars
 and menus (14dp backdrop blur; 55% tint or 94% fallback). No list dividers.
+Home has **no floating bottom navigation bar**; History and Saved/Bookmarks are Drawer destinations, and Profile remains accessible there. Keep the real Android system navigation bar.
 The device-font preference is explicitly retired by the owner; Inter is the
 single font family with system fallback for Hindi/Devanagari scripts. The Telegram theme-toggle animation/behavior and its resources
 remain protected. Existing Lottie motion, timing, assets and triggers are also
@@ -48,6 +49,9 @@ flow, and all other features. Token resources are in `design_*.xml`.
 - Home and discovery: `MainActivity.kt`, `HomeAppearance.kt` (plain themed canvas, single rotating content banner surface, cached streak pill with shared outline flame icon).
 - Theme and transitions: `ThemeSwitchAnimator.kt`, `SystemBarHelper.kt`, `ThemeManager.kt` (Telegram-style circular reveal Day/Night animation, status/nav bar icon sync).
 - EVE UI Studio (`UiStudioActivity.kt`, `UiStudioRegistry.kt`, `UiStudioEngine.kt`): RETIRED. Do not extend or redesign it. Retain historical migrations and production data.
+- Admin Typography Studio editor and its admin draft/publish/write routes: RETIRED. Runtime `TypographyRepository`, Inter/fallback fonts and the read-only public published configuration GET remain for installed client compatibility. Retain the existing D1 typography migration and production records.
+- Admin Activity privileged views and data loads must be initialized **after** fresh `AdminAccessGate` authorization. Backend authorization is independently required for mutations.
+- Notification inbox merges local reminders/FCM and server broadcasts without discarding either; only the inbox acknowledges unread, never Home.
 
 ### B. Cloudflare Worker backend (`backend/`)
 - Technology: TypeScript, Hono, Cloudflare Workers.

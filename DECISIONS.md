@@ -1875,3 +1875,11 @@ Following Batch 01 (ADR-022), Batch 02 (ADR-023), Batch 03 (ADR-024), Typography
 - All 18 enumerated `ui/admin/*Activity.kt` classes now initialize protected controls and data within `AdminAccessGate.requireAdmin(requireFreshServer=true)` after `setContentView`. The gate hides root content while verifying the same authenticated Firebase account and fails closed. No privileged data requests run before this callback in these onCreate paths.
 - Specifically hardens edit exam/content, generated tests, feedback, flagged reports, premium, analytics, logs, API usage, app configuration and system monitor; prior ManageUsers, Syllabus, Polls, Existing Exams and newly gated Admin/Exams/Notifications keep their guards.
 - UI gates do not replace backend `requireAdmin`, Firestore rules or end-to-end live testing. Review every future admin Activity separately when introduced.
+
+
+## ADR-FINAL-2026-10-22-G: Notifications with multiple backend broadcasts and local preservation
+
+- Home fetches up to the backend's bounded 50 most recent broadcasts and imports new entries by stable broadcast ID and server timestamp, without acknowledging unread state or triggering historical-notification vibration.
+- `NotificationsActivity` always displays the merged local inbox, not a remote-only list that overwrites FCM/reminders. Opening the inbox acknowledges local unread entries; newly fetched items during the open inbox are then acknowledged. Failed network requests keep the existing cached list.
+- A genuine Android instrumentation test checks two remote broadcasts, one local reminder, replay idempotency, unread state, and acknowledgment using isolated/restored preferences. It never sends a live notification.
+- Backend sender identity is redacted for non-admin broadcasts GET; privileged backend writes remain admin-only. Cross-device/FCM duplicate origins and individual category targeting require separate permitted integration verification.

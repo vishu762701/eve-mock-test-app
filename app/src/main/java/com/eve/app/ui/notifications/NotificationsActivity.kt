@@ -86,16 +86,13 @@ class NotificationsActivity : EveBaseActivity() {
             try {
                 val res = ApiClient.apiService.getBroadcasts(50)
                 if (res.success && !res.data.isNullOrEmpty()) {
-                    val notifList = res.data.map { b ->
-                        StoredNotification(b.title, b.message, b.sentAt, true)
-                    }
-                    adapter.submit(notifList)
-                    updateEmptyState(false)
-                } else {
-                    val local = NotificationStore.getAll(this@NotificationsActivity)
-                    adapter.submit(local)
-                    updateEmptyState(local.isEmpty())
+                    NotificationStore.importBroadcasts(this@NotificationsActivity, res.data)
+                    // The user is already viewing their inbox; acknowledge delivered posts here.
+                    NotificationStore.markAllRead(this@NotificationsActivity)
                 }
+                val merged = NotificationStore.getAll(this@NotificationsActivity)
+                adapter.submit(merged)
+                updateEmptyState(merged.isEmpty())
             } catch (_: Exception) {
                 val local = NotificationStore.getAll(this@NotificationsActivity)
                 adapter.submit(local)

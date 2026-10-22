@@ -1006,14 +1006,13 @@ class MainActivity : EveBaseActivity() {
         notifJob?.cancel()
         notifJob = lifecycleScope.launch(lifecycleExceptionHandler) {
             try {
-                val res = com.eve.app.data.remote.ApiClient.apiService.getBroadcasts(1)
-                val newest = if (res.success) res.data?.firstOrNull() else null
-                if (newest != null && newest.sentAt > 0L) {
-                    // A dedicated delivery cursor prevents Home from marking unread items seen.
-                    // FCM/local and API delivery remain idempotent by source timestamp.
-                    NotificationStore.addBroadcast(this@MainActivity, newest.title, newest.message, newest.sentAt)
-                    updateNotificationDot()
+                val res = com.eve.app.data.remote.ApiClient.apiService.getBroadcasts(50)
+                if (res.success && !res.data.isNullOrEmpty()) {
+                    // Merge all available new broadcasts; never replace FCM/reminder entries
+                    // or mark the Home screen's unread notifications as acknowledged.
+                    NotificationStore.importBroadcasts(this@MainActivity, res.data)
                 }
+                updateNotificationDot()
             } catch (_: Exception) {
                 // Keep locally cached unread state when network retrieval fails.
                 updateNotificationDot()
