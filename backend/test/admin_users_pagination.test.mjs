@@ -26,7 +26,10 @@ function setup(count, admin = true) {
         bind(...values) { args.push(...values); return this; },
         async first() { return sql.prepare(statement).get(...args) ?? null; },
         async all() { return { results: sql.prepare(statement).all(...args) }; },
-        async run() { return sql.prepare(statement).run(...args); },
+        async run() {
+          const changes = sql.prepare(statement).run(...args).changes;
+          return { meta: { changes: Number(changes) } };
+        },
       };
     },
   };
@@ -39,6 +42,13 @@ function setup(count, admin = true) {
   return {
     async request(query = '') {
       const response = await app.request('/api/admin/users' + query, {}, { DB });
+      return { status: response.status, json: await response.json() };
+    },
+    async changeStatus(id, disabled) {
+      const response = await app.request('/api/admin/users/' + id + '/status', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ disabled }),
+      }, { DB });
       return { status: response.status, json: await response.json() };
     },
     close: () => sql.close(),
@@ -110,5 +120,28 @@ test('unauthorized users cannot access records even with pagination parameters',
     assert.equal(result.status, 403);
     assert.equal(result.json.success, false);
     assert.equal(result.json.data, undefined);
+  } finally { f.close(); }
+});
+
+test('filtered-page ban/unban reflects server-confirmed disabled state and missing users fail', async () => {
+  const f = setup(250);
+  try {
+    const before = await f.request('?page=1&pageSize=10&q=EVE0250');
+    assert.equal(before.json.data[0].disabled, false);
+    assert.equal((await f.changeStatus('u0250', true)).status, 200);
+    const after = await f.request('?page=1&pageSize=10&q=EVE0250');
+    assert.equal(after.json.data[0].disabled, true);
+    assert.equal(after.json.pagination.total, 1);
+    assert.equal((await f.changeStatus('u0250', false)).status, 200);
+    assert.equal((await f.request('?page=1&q=EVE0250')).json.data[0].disabled, false);
+    const missing = await f.changeStatus('does-not-exist', true);
+    assert.equal(missing.status, 404);
+    assert.equal(missing.json.success, false);
+  } finally { f.close(); }
+});
+test('unauthorized status changes are rejected', async () => {
+  const f = setup(250, false);
+  try {
+    assert.equal((await f.changeStatus('u0250', true)).status, 403);
   } finally { f.close(); }
 });
