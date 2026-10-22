@@ -179,7 +179,8 @@ class ManageUsersActivity : EveBaseActivity() {
         val start = if (count == 0) 0L else (meta.page.toLong() - 1L) * meta.pageSize + 1
         val end = if (count == 0) 0L else start + count - 1
         binding.tvPageSummary.text = "Showing " + start + "–" + end + " of " + meta.total
-        binding.layoutPagination.visibility = if (meta.totalPages > 1) View.VISIBLE else View.GONE
+        binding.layoutPagination.visibility = if (meta.total > 0) View.VISIBLE else View.GONE
+        binding.layoutPageControls.visibility = if (meta.totalPages > 1) View.VISIBLE else View.GONE
         binding.btnPagePrevious.isEnabled = meta.hasPrevious
         binding.btnPageNext.isEnabled = meta.hasNext
         binding.btnPagePrevious.alpha = if (meta.hasPrevious) 1f else 0.4f
@@ -191,7 +192,7 @@ class ManageUsersActivity : EveBaseActivity() {
         val first = (meta.page - countInWindow / 2)
             .coerceIn(1, meta.totalPages - countInWindow + 1)
         val density = resources.displayMetrics.density
-        val width = (40f * density).toInt()
+        val width = (48f * density).toInt()
         val height = (48f * density).toInt()
         for (index in first until first + countInWindow) {
             val selected = index == meta.page
