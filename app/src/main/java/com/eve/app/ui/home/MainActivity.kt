@@ -382,7 +382,6 @@ class MainActivity : EveBaseActivity() {
 
         Log.e("EVE_STARTUP", "stage: setupFloatingAirplane")
         setupFloatingAirplane()
-        setupFloatingBottomBar()
 
         binding.btnRetry.setOnClickListener { viewModel.load() }
 
@@ -870,10 +869,8 @@ class MainActivity : EveBaseActivity() {
             // gesture clearance reaches floating children.
             val gestures = windowInsets.getInsets(WindowInsetsCompat.Type.systemGestures())
             val baseMarginPx = resources.getDimensionPixelSize(R.dimen.design_screen_margin)
-            val barHeight = resources.getDimensionPixelSize(R.dimen.design_bottom_bar_height)
-            val barMargin = resources.getDimensionPixelSize(R.dimen.design_bottom_bar_margin)
             (view.layoutParams as? ViewGroup.MarginLayoutParams)?.let { lp ->
-                val bottom = barHeight + barMargin + gestures.bottom + baseMarginPx
+                val bottom = gestures.bottom + baseMarginPx
                 val end = baseMarginPx
                 if (lp.bottomMargin != bottom || lp.marginEnd != end) {
                     lp.bottomMargin = bottom
@@ -914,69 +911,6 @@ class MainActivity : EveBaseActivity() {
                 AppBulletin.showError(this, "Couldn't open link")
             }
         }
-    }
-
-    private fun setupFloatingBottomBar() {
-        val barHeight = resources.getDimensionPixelSize(R.dimen.design_bottom_bar_height)
-        val barBottomMargin = resources.getDimensionPixelSize(R.dimen.design_bottom_bar_margin)
-        val clearance = resources.getDimensionPixelSize(R.dimen.design_screen_margin)
-
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.cardHomeBottomBar) { view, windowInsets ->
-            val bottomInset = windowInsets.getInsets(WindowInsetsCompat.Type.systemGestures()).bottom
-            val ime = windowInsets.isVisible(WindowInsetsCompat.Type.ime())
-            view.visibility = if (ime) View.INVISIBLE else View.VISIBLE
-            (view.layoutParams as? ViewGroup.MarginLayoutParams)?.let { lp ->
-                val target = barBottomMargin + bottomInset
-                if (lp.bottomMargin != target) {
-                    lp.bottomMargin = target
-                    view.layoutParams = lp
-                }
-            }
-
-            // Content is behind this overlay. Reserve its complete height only while visible.
-            val totalBottomPadding = if (ime) clearance else barHeight + barBottomMargin + bottomInset + clearance
-            if (binding.rvExams.paddingBottom != totalBottomPadding) {
-                binding.rvExams.setPadding(
-                    binding.rvExams.paddingLeft,
-                    binding.rvExams.paddingTop,
-                    binding.rvExams.paddingRight,
-                    totalBottomPadding
-                )
-            }
-            windowInsets
-        }
-
-        binding.btnBottomNavHome.setOnClickListener {
-            binding.rvExams.smoothScrollToPosition(0)
-            updateBottomNavSelection(0)
-        }
-
-        binding.btnBottomNavHistory.setOnClickListener {
-            updateBottomNavSelection(1)
-            binding.drawerLayout.openDrawer(GravityCompat.START, UiArcMotion.isMotionEnabled(this))
-        }
-
-        binding.btnBottomNavSaved.setOnClickListener {
-            // This existing action is an informational bulletin, not a destination.
-            // Keep Home selected instead of leaving the inactive Saved icon highlighted.
-            AppBulletin.show(this, "Saved tests")
-            updateBottomNavSelection(0)
-        }
-
-        binding.btnBottomNavProfile.setOnClickListener {
-            updateBottomNavSelection(3)
-            binding.drawerLayout.openDrawer(GravityCompat.START, UiArcMotion.isMotionEnabled(this))
-        }
-    }
-
-    private fun updateBottomNavSelection(selectedIndex: Int) {
-        val accentColor = com.eve.app.designsystem.DesignTokens.accent(this)
-        val secondaryColor = com.eve.app.designsystem.DesignTokens.secondary(this)
-        binding.ivBottomNavHome.imageTintList = android.content.res.ColorStateList.valueOf(if (selectedIndex == 0) accentColor else secondaryColor)
-        binding.ivBottomNavHistory.imageTintList = android.content.res.ColorStateList.valueOf(if (selectedIndex == 1) accentColor else secondaryColor)
-        binding.ivBottomNavSaved.imageTintList = android.content.res.ColorStateList.valueOf(if (selectedIndex == 2) accentColor else secondaryColor)
-        binding.ivBottomNavProfile.imageTintList = android.content.res.ColorStateList.valueOf(if (selectedIndex == 3) accentColor else secondaryColor)
     }
 
     private fun applyFloatingAirplaneTheme() {
@@ -1353,7 +1287,6 @@ class MainActivity : EveBaseActivity() {
             override fun onDrawerClosed(drawerView: View) {
                 binding.ivDrawerGlassBlurBackground.setImageDrawable(null)
                 // Drawer is transient: dismissing it returns to the same Home destination.
-                updateBottomNavSelection(0)
                 if (binding.ivProfile.isAttachedToWindow) binding.ivProfile.requestFocus()
             }
         })
@@ -1368,6 +1301,8 @@ class MainActivity : EveBaseActivity() {
 
         val drawerRows = listOf(
             binding.layoutDrawerProfile,
+            binding.layoutDrawerHistory,
+            binding.layoutDrawerSaved,
             binding.layoutDrawerPremium,
             binding.layoutDrawerPerformance,
             binding.layoutDrawerLeaderboard,
@@ -1382,6 +1317,14 @@ class MainActivity : EveBaseActivity() {
         binding.layoutDrawerProfile.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
             com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, ProfileActivity::class.java), binding.layoutDrawerProfile)
+        }
+        binding.layoutDrawerHistory.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, HistoryActivity::class.java), binding.layoutDrawerHistory)
+        }
+        binding.layoutDrawerSaved.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, BookmarksActivity::class.java), binding.layoutDrawerSaved)
         }
         binding.layoutDrawerPremium.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.START)

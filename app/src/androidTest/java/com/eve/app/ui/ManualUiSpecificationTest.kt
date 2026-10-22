@@ -112,11 +112,8 @@ class ManualUiSpecificationTest {
                         val canvas = home.root.context.getColor(R.color.bg_app)
                         assertEquals("Attached Home status bar must match the active canvas",
                             canvas, bitmap.getPixel(bitmap.width / 2, 2))
-                        val navBottom = androidx.core.view.ViewCompat.getRootWindowInsets(home.root)
-                            ?.getInsets(androidx.core.view.WindowInsetsCompat.Type.navigationBars())?.bottom ?: 0
-                        val bottomBarY = IntArray(2).also { home.cardHomeBottomBar.getLocationOnScreen(it) }[1]
-                        assertTrue("Floating Home bar must not overlap Android navigation controls",
-                            bottomBarY + home.cardHomeBottomBar.height <= bitmap.height - navBottom)
+                        assertTrue("Home exam list must remain attached without floating navigation",
+                            home.rvExams.isAttachedToWindow)
                         var inkPixels = 0
                         for (y in bounds.top until bounds.bottom) for (x in bounds.left until bounds.right) {
                             if (bitmap.getPixel(x, y) == ink) inkPixels++

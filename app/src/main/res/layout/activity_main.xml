@@ -62,22 +62,6 @@
                 <com.eve.app.designsystem.DesignCardView android:id="@+id/cardFloatingAirplane" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="bottom|end" android:layout_marginBottom="@dimen/design_card_gap" android:clickable="true" android:focusable="true" android:visibility="gone" app:rippleColor="@android:color/transparent" style="@style/Widget.Eve.Token.Card.Clear">
                     <com.airbnb.lottie.LottieAnimationView android:id="@+id/lottieFloatingAirplane" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:layout_gravity="center" android:contentDescription="Open community link" app:lottie_autoPlay="false" app:lottie_loop="true" app:lottie_rawRes="@raw/man_flying_on_paper_airplane" style="@style/Widget.Eve.Token.Lottie" />
                 </com.eve.app.designsystem.DesignCardView>
-                <com.eve.app.designsystem.DesignGlassLayout android:id="@+id/cardHomeBottomBar" app:designGlassCapsule="true" android:layout_width="match_parent" android:layout_height="@dimen/design_bottom_bar_height" android:layout_gravity="bottom" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginBottom="@dimen/design_bottom_bar_margin" style="@style/Widget.Eve.Token.Glass.BottomBar">
-                    <LinearLayout android:id="@+id/layoutHomeBottomBarNav" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-                        <FrameLayout android:id="@+id/btnBottomNavHome" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:clickable="true" android:focusable="true" android:contentDescription="Home" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-                            <ImageView android:id="@+id/ivBottomNavHome" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:layout_gravity="center" android:src="@drawable/ic_nav_home" app:tint="@color/accent" />
-                        </FrameLayout>
-                        <FrameLayout android:id="@+id/btnBottomNavHistory" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:clickable="true" android:focusable="true" android:contentDescription="History" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-                            <ImageView android:id="@+id/ivBottomNavHistory" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:layout_gravity="center" android:src="@drawable/ic_history" app:tint="@color/text_secondary" />
-                        </FrameLayout>
-                        <FrameLayout android:id="@+id/btnBottomNavSaved" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:clickable="true" android:focusable="true" android:contentDescription="Saved" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-                            <ImageView android:id="@+id/ivBottomNavSaved" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:layout_gravity="center" android:src="@drawable/ic_bookmark" app:tint="@color/text_secondary" />
-                        </FrameLayout>
-                        <FrameLayout android:id="@+id/btnBottomNavProfile" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:clickable="true" android:focusable="true" android:contentDescription="Profile" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-                            <ImageView android:id="@+id/ivBottomNavProfile" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:layout_gravity="center" android:src="@drawable/ic_person" app:tint="@color/text_secondary" />
-                        </FrameLayout>
-                    </LinearLayout>
-                </com.eve.app.designsystem.DesignGlassLayout>
             </FrameLayout>
         </LinearLayout>
     </LinearLayout>
@@ -91,10 +75,19 @@
                 <TextView android:id="@+id/tvDrawerUserEmail" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="student@eve.app" />
                 <TextView android:id="@+id/tvDrawerPremiumStatus" style="@style/TextAppearance.Eve.Token.Secondary.green" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:visibility="gone" />
             </LinearLayout>
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:clipChildren="false" android:clipToPadding="false" android:orientation="vertical" style="@style/Widget.Eve.Token.Column">
+            <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="false" android:verticalScrollBarEnabled="false">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:clipChildren="false" android:clipToPadding="false" android:orientation="vertical" style="@style/Widget.Eve.Token.Column">
                 <LinearLayout android:id="@+id/layoutDrawerProfile" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="@dimen/design_screen_margin" android:stateListAnimator="@animator/design_press_scale" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:orientation="horizontal" android:minHeight="52dp" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Row">
                     <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Profile" android:src="@drawable/ic_person" app:tint="@color/text_primary" />
                     <TextView style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_shadow_room" android:text="Profile" />
+                </LinearLayout>
+                <LinearLayout android:id="@+id/layoutDrawerHistory" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="@dimen/design_screen_margin" android:stateListAnimator="@animator/design_press_scale" android:clickable="true" android:focusable="true" android:contentDescription="Test history" android:gravity="center_vertical" android:orientation="horizontal" android:minHeight="52dp" style="@style/Widget.Eve.Token.Row">
+                    <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:src="@drawable/ic_history" app:tint="@color/text_primary" />
+                    <TextView style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_shadow_room" android:text="History" />
+                </LinearLayout>
+                <LinearLayout android:id="@+id/layoutDrawerSaved" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="@dimen/design_screen_margin" android:stateListAnimator="@animator/design_press_scale" android:clickable="true" android:focusable="true" android:contentDescription="Saved questions" android:gravity="center_vertical" android:orientation="horizontal" android:minHeight="52dp" style="@style/Widget.Eve.Token.Row">
+                    <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:src="@drawable/ic_bookmark" app:tint="@color/text_primary" />
+                    <TextView style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_shadow_room" android:text="Saved" />
                 </LinearLayout>
                 <LinearLayout android:id="@+id/layoutDrawerPremium" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="@dimen/design_screen_margin" android:stateListAnimator="@animator/design_press_scale" android:clickable="true" android:clipChildren="false" android:clipToPadding="false" android:focusable="true" android:gravity="center_vertical" android:orientation="horizontal" android:minHeight="52dp" style="@style/Widget.Eve.Token.Row">
                     <FrameLayout android:layout_width="36dp" android:layout_height="36dp" android:layout_marginStart="-6dp" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
@@ -122,7 +115,7 @@
                     <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Settings" android:src="@drawable/ic_settings" app:tint="@color/text_primary" />
                     <TextView style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_shadow_room" android:text="Settings" />
                 </LinearLayout>
-            </LinearLayout>
+            </ScrollView>
         </LinearLayout>
     </FrameLayout>
     <FrameLayout android:id="@+id/maintenanceOverlay" android:layout_width="match_parent" android:layout_height="match_parent" android:clickable="true" android:focusable="true" android:visibility="gone" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">

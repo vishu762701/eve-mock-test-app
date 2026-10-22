@@ -1837,3 +1837,11 @@ Following Batch 01 (ADR-022), Batch 02 (ADR-023), Batch 03 (ADR-024), Typography
 - Keep `TypographyRepository`, `TypographyResolver`, `TypographyApplier`, `TypographyRegistry`, the bundled fonts, the published client cache, and existing effective typography. Preserve historical D1 migration `0017_typography_studio.sql` and all D1 rows; never delete user caches during migration.
 - Existing clients with edit-capable versions can no longer write through removed routes after deploying the new backend. Native app rendering still handles valid previously published configs.
 - No live database writes were performed by this source change. Backend deployment, screenshot review and production rollout require separate verification.
+
+
+## ADR-FINAL-2026-10-22-B: Home destination navigation without a floating bar
+
+- The Home-only four-icon overlay was removed entirely, including obsolete insets listeners and selection state.
+- History, Saved/Bookmarks and Profile are real 52dp Drawer destinations, with a scrollable drawer list for short phones. Existing overflow shortcuts and airplane URL action remain independent.
+- The native Android navigation system stays unmodified. The airplane uses the residual system-gesture inset directly instead of reserving removed overlay height.
+- This change does not modify attempt/result backend contracts. Native emulator geometry verification is mandatory before declaring release quality.

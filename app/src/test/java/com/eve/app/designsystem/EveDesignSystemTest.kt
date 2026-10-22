@@ -142,32 +142,13 @@ class EveDesignSystemTest {
         assertEquals("false", rvExams?.getAttribute("android:clipToPadding"))
         assertEquals("@dimen/design_screen_margin", rvExams?.designAttribute("android:paddingLeft"))
 
-        // Floating Medium glass capsule bottom bar
-        val bottomBar = findElementById(root, "cardHomeBottomBar")
-        assertNotNull("cardHomeBottomBar must exist", bottomBar)
-        assertEquals("@dimen/design_bottom_bar_height", bottomBar?.getAttribute("android:layout_height"))
-        assertEquals("com.eve.app.designsystem.DesignGlassLayout", bottomBar?.tagName)
-        assertEquals("true", bottomBar?.getAttribute("app:designGlassCapsule"))
-        assertEquals("@dimen/design_screen_margin", bottomBar?.getAttribute("android:layout_marginHorizontal"))
-        assertEquals("@dimen/design_bottom_bar_margin", bottomBar?.getAttribute("android:layout_marginBottom"))
-
-        // 4 Bottom Bar destinations with 22dp icons
-        val btnHome = findElementById(bottomBar!!, "btnBottomNavHome")
-        assertNotNull("btnBottomNavHome must exist", btnHome)
-        val ivHome = findElementById(btnHome!!, "ivBottomNavHome")
-        assertNotNull("ivBottomNavHome must exist", ivHome)
-        assertEquals("@dimen/design_icon_size", ivHome?.getAttribute("android:layout_width"))
-        assertEquals("@dimen/design_icon_size", ivHome?.getAttribute("android:layout_height"))
-        assertEquals("@color/accent", ivHome?.getAttribute("app:tint"))
-
-        val btnHistory = findElementById(bottomBar, "btnBottomNavHistory")
-        assertNotNull("btnBottomNavHistory must exist", btnHistory)
-
-        val btnSaved = findElementById(bottomBar, "btnBottomNavSaved")
-        assertNotNull("btnBottomNavSaved must exist", btnSaved)
-
-        val btnProfile = findElementById(bottomBar, "btnBottomNavProfile")
-        assertNotNull("btnBottomNavProfile must exist", btnProfile)
+        // Home navigation is transient in the Drawer; there is no persistent bottom overlay.
+        assertNull(findElementById(root, "cardHomeBottomBar"))
+        assertNull(findElementById(root, "btnBottomNavHistory"))
+        assertNull(findElementById(root, "btnBottomNavSaved"))
+        assertNotNull(findElementById(root, "layoutDrawerHistory"))
+        assertNotNull(findElementById(root, "layoutDrawerSaved"))
+        assertNotNull(findElementById(root, "layoutDrawerProfile"))
     }
 
     @Test
