@@ -70,11 +70,12 @@ class Batch08NativeBehaviorTest {
 
     @Test fun existingExamActionsStillInvokeRealExamIdentityOnSingleTap() {
         ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            val edited = AtomicInteger()
+            val previewed = AtomicInteger()
+            val expanded = AtomicInteger()
+            lateinit var list: RecyclerView
+            val testExam = Exam(id = "real-id-one", examName = "Parent")
             scenario.onActivity { activity ->
-                val edited = AtomicInteger()
-                val previewed = AtomicInteger()
-                val expanded = AtomicInteger()
-                val testExam = Exam(id = "real-id-one", examName = "Parent")
                 val adapter = ExistingExamsAdapter(
                     onExamClick = { },
                     onEditClick = { if (it.id == testExam.id) edited.incrementAndGet() },
@@ -82,24 +83,29 @@ class Batch08NativeBehaviorTest {
                     onDeleteClick = { },
                     onExpandToggle = { if (it.id == testExam.id) expanded.incrementAndGet() }
                 )
-                val list = RecyclerView(activity).apply {
+                list = RecyclerView(activity).apply {
                     layoutManager = LinearLayoutManager(activity)
                     this.adapter = adapter
                 }
                 activity.setContentView(list)
-                adapter.submitList(listOf(ExamWithStats(
-                    exam = testExam, hasChildren = true
-                ))) {
-                    val holder = list.findViewHolderForAdapterPosition(0)
-                    assertNotNull("Bound admin exam card must exist", holder)
-                    val root = holder!!.itemView
-                    assertTrue(root.findViewById<View>(R.id.btnQuickPreview).performClick())
-                    assertTrue(root.findViewById<View>(R.id.btnQuickEdit).performClick())
-                    assertTrue(root.findViewById<View>(R.id.btnExpandExam).performClick())
-                    assertEquals(1, previewed.get())
-                    assertEquals(1, edited.get())
-                    assertEquals(1, expanded.get())
-                }
+                adapter.submitList(listOf(ExamWithStats(exam = testExam, hasChildren = true)))
+            }
+            androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            scenario.onActivity {
+                // Make the RecyclerView position deterministic even on a slow CI emulator.
+                val width = View.MeasureSpec.makeMeasureSpec(1080, View.MeasureSpec.EXACTLY)
+                val height = View.MeasureSpec.makeMeasureSpec(1100, View.MeasureSpec.EXACTLY)
+                list.measure(width, height)
+                list.layout(0, 0, 1080, 1100)
+                val holder = list.findViewHolderForAdapterPosition(0)
+                assertNotNull("Bound admin exam card must exist", holder)
+                val root = holder!!.itemView
+                assertTrue(root.findViewById<View>(R.id.btnQuickPreview).performClick())
+                assertTrue(root.findViewById<View>(R.id.btnQuickEdit).performClick())
+                assertTrue(root.findViewById<View>(R.id.btnExpandExam).performClick())
+                assertEquals(1, previewed.get())
+                assertEquals(1, edited.get())
+                assertEquals(1, expanded.get())
             }
         }
     }
