@@ -69,10 +69,15 @@ class ManageUsersActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (authorizedUid != null && FirebaseAuth.getInstance().currentUser?.uid != authorizedUid) {
+        // A privilege may have been revoked while this Activity was paused.
+        // Never show cached user rows without a fresh server decision.
+        if (authorizedUid != null) {
             binding.root.visibility = View.INVISIBLE
             requestJob?.cancel()
-            finish()
+            AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+                authorizedUid = FirebaseAuth.getInstance().currentUser?.uid
+                loadUsers()
+            }
         }
     }
 
@@ -89,8 +94,14 @@ class ManageUsersActivity : EveBaseActivity() {
         )
         binding.rvUsers.layoutManager = LinearLayoutManager(this)
         binding.rvUsers.adapter = adapter
-        binding.btnRefresh.setOnClickListener { loadUsers() }
-        binding.btnRetryUsers.setOnClickListener { loadUsers() }
+        binding.btnRefresh.setOnClickListener {
+            debounceJob?.cancel()
+            loadUsers()
+        }
+        binding.btnRetryUsers.setOnClickListener {
+            debounceJob?.cancel()
+            loadUsers()
+        }
         binding.btnPagePrevious.setOnClickListener { navigateTo(currentPage - 1) }
         binding.btnPageNext.setOnClickListener { navigateTo(currentPage + 1) }
         query = restoredQuery.trim()
@@ -100,10 +111,14 @@ class ManageUsersActivity : EveBaseActivity() {
             debounceJob?.cancel()
             val next = text?.toString()?.trim().orEmpty()
             if (next != query) {
+                query = next
+                currentPage = 1
+                requestJob?.cancel()
+                binding.rvUsers.visibility = View.GONE
+                binding.layoutPagination.visibility = View.GONE
+                binding.progressBar.visibility = View.VISIBLE
                 debounceJob = lifecycleScope.launch {
                     delay(350)
-                    query = next
-                    currentPage = 1
                     loadUsers()
                 }
             }
