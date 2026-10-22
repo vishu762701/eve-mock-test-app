@@ -128,6 +128,21 @@ class TelegramTypeSourceRolesTest {
         assertTrue("Admin pagination still forces retired Inter", !source.contains("R.font.inter"))
     }
 
+    @Test fun sourceExactActionBarOrientationAndAlertDialogTextRoles() {
+        val phoneLand = read("values-land/telegram_typography.xml")
+        val tabletLand = read("values-sw600dp-land/telegram_typography.xml")
+        assertTrue("ActionBar phone landscape title is 18sp", phoneLand.contains("18sp"))
+        assertTrue("ActionBar tablet landscape title is 20sp", tabletLand.contains("20sp"))
+        for (file in listOf("dialog_create_feedback_post.xml", "dialog_reply_feedback.xml")) {
+            val xml = read("layout/" + file)
+            assertTrue("Dialog heading must use source title role",
+                xml.contains("style=\\\"@style/TextAppearance.Eve.Telegram.DialogTitle\\\" android:tag=\\\"eve_telegram_type\\\""))
+        }
+        val widgets = read("values/design_widgets.xml")
+        assertTrue(widgets.contains("@style/TextAppearance.Eve.Telegram.DialogTitle"))
+        assertTrue(widgets.contains("@style/TextAppearance.Eve.Telegram.DialogMessage"))
+    }
+
     private fun contrast(foreground: String, background: String): Double {
         fun luminance(hex: String): Double {
             val rgb = hex.removePrefix("#").takeLast(6)

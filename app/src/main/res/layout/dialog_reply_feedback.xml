@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Modal">
-    <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Reply to Student Feedback" />
+    <TextView style="@style/TextAppearance.Eve.Telegram.DialogTitle" android:tag="eve_telegram_type" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Reply to Student Feedback" />
     <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
