@@ -134,10 +134,12 @@ class LoginActivity : EveBaseActivity() {
     private fun toggleMode() {
         isSignUpMode = !isSignUpMode
         binding.tvError.visibility = View.GONE
-        if (DesignMotion.enabled(this)) {
-            val transition = androidx.transition.AutoTransition().apply {
-                duration = resources.getInteger(R.integer.design_transition_duration).toLong()
-                interpolator = DesignMotion.interpolator(this@LoginActivity)
+        androidx.transition.TransitionManager.endTransitions(binding.cardLogin)
+        if (com.eve.app.designsystem.UiArcMotion.isMotionEnabled(this)) {
+            val motion = com.eve.app.designsystem.UiArcMotion.Spring.SMOOTH
+            val transition = androidx.transition.ChangeBounds().apply {
+                duration = motion.settlingDurationMs
+                interpolator = motion
             }
             androidx.transition.TransitionManager.beginDelayedTransition(binding.cardLogin, transition)
         }
@@ -150,8 +152,9 @@ class LoginActivity : EveBaseActivity() {
             originalSubmitText = "Create Account"
             binding.btnSubmit.text = originalSubmitText
             binding.btnToggleMode.text = "Already have an account? Sign In"
-            binding.etName.requestFocus()
+            // Do not steal cursor and IME focus from an active email/password edit.
         } else {
+            if (binding.etName.hasFocus()) binding.etEmail.requestFocus()
             binding.tilName.visibility = View.GONE
             binding.tvTagline.text = "Welcome back"
             binding.tvSubtitle.text = "Sign in to save your mock tests and sync performance."
