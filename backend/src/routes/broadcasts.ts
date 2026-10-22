@@ -11,7 +11,11 @@ export const broadcastRoutes = new Hono<{ Bindings: Env; Variables: { user: Auth
 // GET /api/broadcasts - List broadcast notifications
 broadcastRoutes.get("/", async (c) => {
   const db = c.env.DB;
-  const limit = Math.min(100, Math.max(1, parseInt(c.req.query("limit") || "100", 10)));
+  const rawLimit = c.req.query("limit");
+  if (rawLimit !== undefined && !/^[1-9][0-9]{0,5}$/.test(rawLimit)) {
+    return c.json({ success: false, error: "limit must be a positive integer" }, 400);
+  }
+  const limit = Math.min(100, rawLimit === undefined ? 100 : Number(rawLimit));
 
   const { results } = await db
     .prepare("SELECT * FROM notifications ORDER BY sent_at DESC LIMIT ?")
@@ -37,15 +41,19 @@ broadcastRoutes.get("/", async (c) => {
 broadcastRoutes.post("/", requireAdmin, async (c) => {
   const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
-  const title = String(body.title || "").trim();
-  const message = String(body.message || body.body || "").trim();
-  const type = String(body.type || "general").trim();
-  const targetCategory = String(body.targetCategory || body.target_category || "All Users").trim();
-  const db = c.env.DB;
-
-  if (!title && !message) {
-    return c.json({ success: false, error: "Title or message required" }, 400);
+  const title = typeof body.title === "string" ? body.title.trim() : "";
+  const rawMessage = body.message ?? body.body;
+  const message = typeof rawMessage === "string" ? rawMessage.trim() : "";
+  const rawType = body.type ?? "general";
+  const rawTarget = body.targetCategory ?? body.target_category ?? "All Users";
+  if (!title || !message || title.length > 120 || message.length > 4000 ||
+      typeof rawType !== "string" || !rawType.trim() || rawType.length > 40 ||
+      typeof rawTarget !== "string" || !rawTarget.trim() || rawTarget.length > 100) {
+    return c.json({ success: false, error: "Invalid broadcast title, message, type or audience" }, 400);
   }
+  const type = rawType.trim();
+  const targetCategory = rawTarget.trim();
+  const db = c.env.DB;
 
   const id = crypto.randomUUID();
   const now = Date.now();
@@ -91,10 +99,11 @@ broadcastRoutes.delete("/:id", requireAdmin, async (c) => {
 // POST /api/broadcasts/bulk-delete - Multi-select bulk delete (Admin)
 broadcastRoutes.post("/bulk-delete", requireAdmin, async (c) => {
   const body = await c.req.json().catch(() => ({}));
-  const ids: string[] = Array.isArray(body.ids) ? body.ids : [];
-
-  if (ids.length === 0) {
-    return c.json({ success: false, error: "Empty IDs array" }, 400);
+  const ids: unknown[] = Array.isArray(body.ids) ? body.ids : [];
+  if (ids.length < 1 || ids.length > 100 ||
+      ids.some(id => typeof id !== "string" || id.length < 1 || id.length > 128) ||
+      new Set(ids).size !== ids.length) {
+    return c.json({ success: false, error: "Provide 1 to 100 distinct valid broadcast IDs" }, 400);
   }
 
   const db = c.env.DB;

@@ -2,7 +2,7 @@
 
 The owner's locked root design-reset specification supersedes historical iOS 26
 numeric requirements, former approval boundaries, old icons, fonts and effects.
-Use the root day/night tokens, bundled Poppins 400/500/700, solid 26dp surfaces,
+Use the root day/night tokens, bundled Inter 400/500/600/700 with Hindi fallback, solid 26dp surfaces,
 capsule controls and Medium glass only on top bars, bottom bars and menus.
 The device-font choice is explicitly retired. API 24–25 retains the approved
 black navigation-area fallback in light mode.

@@ -1888,3 +1888,10 @@ Following Batch 01 (ADR-022), Batch 02 (ADR-023), Batch 03 (ADR-024), Typography
 ### ADR-FINAL-2026-10-22-F: Existing-screen parity correction
 
 - The prior gate expansion covered 15 fresh-gated Activities while three older screens (ManageExistingExams, ManagePolls, ManageSyllabus) still relied on the default cached authorization. All three now explicitly request `requireFreshServer=true` before protected UI/data initialization, aligning the 18-Activity policy. This correction was source audited independently; runtime behavior still requires passing CI.
+
+
+## ADR-FINAL-2026-10-22-H: Broadcast input integrity and catalog correction
+
+- Reject malformed broadcast pagination and oversized/invalid bulk deletion arrays at the Worker boundary. Validate server-side title, message, type, and target label lengths before creating a notification; mirror title/message limits in the existing Admin confirmation form. This closes accidental unbounded D1 batching and malformed-input states without affecting previously stored broadcasts.
+- The 48-component inventory's Slot Text row had a structurally invalid decision value; normalize it to ALREADY IMPLEMENTED with existing source evidence. The governing UI audit now matches Source of Truth's Inter typography, rather than obsolete Poppins prose.
+- Category-broadcast recipient eligibility is **NOT VERIFIED**: do not infer it from unproven profile/category labels or change delivery behavior without a stable backend membership contract. Avoid live broadcast execution in CI.

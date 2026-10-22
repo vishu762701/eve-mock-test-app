@@ -349,7 +349,21 @@ class SendNotificationActivity : EveBaseActivity() {
             binding.tilMessage.error = null
         }
 
+        if (title.length > 120) {
+            binding.tilTitle.error = "Title must be 120 characters or less"
+            binding.etTitle.requestFocus()
+            return
+        }
+        if (message.length > 4000) {
+            binding.tilMessage.error = "Message must be 4000 characters or less"
+            binding.etMessage.requestFocus()
+            return
+        }
         val targetCategory = binding.spTargetCategory.selectedItem?.toString() ?: "All Users"
+        if (targetCategory.isBlank() || targetCategory.length > 100) {
+            AppBulletin.showError(this, "Invalid target category")
+            return
+        }
         val audienceDesc = if (targetCategory == "All Users") {
             "all registered students"
         } else {

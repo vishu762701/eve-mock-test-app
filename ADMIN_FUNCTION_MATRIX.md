@@ -48,3 +48,9 @@ Date: 2026-10-22. **Not a claim that every Admin feature works.** Each item belo
 ## Fresh-gate extension (2026-10-22)
 
 Source changes additionally gate initialization for: ActivityLogActivity.kt, ApiUsageActivity.kt, AdminAnalyticsActivity.kt, FlaggedQuestionsActivity.kt, AppConfigActivity.kt, EditAboutActivity.kt, FeedbackMessagesActivity.kt, EditExamActivity.kt, GeneratedTestsActivity.kt, ManagePremiumActivity.kt, SystemMonitorActivity.kt. Together with previously gated AdminActivity, ManageExams, SendNotification, ManageUsers, ManageSyllabus, ManageExistingExams and ManagePolls, all **18 enumerated Admin Activity classes** now call a fresh `AdminAccessGate` before their protected loaders; this statement covers direct source usage, not runtime authorization/device behavior. Always retain separate backend `requireAdmin` checks.
+
+## Additional broadcast integrity controls (2026-10-22)
+
+Broadcast list limit parsing now rejects malformed/non-positive inputs and caps valid requests to 100; send validates title/message/type/category bounds server-side with matching Android form limits; bulk-delete rejects invalid/duplicate/unbounded IDs before constructing D1 batch statements. These are code + deterministic backend-test changes, not a proof of safe live push.
+
+**HIGH PRIORITY UNKNOWN:** Admin UI labels category notifications as targeted, but the inspected `GET /api/broadcasts` route does not filter by recipient. The user `category` field in D1 represents profile metadata and has not been shown to represent enrolled-exam notification targeting. Do **not** claim audience restriction works or send sensitive category notifications until an authoritative recipient-mapping contract is established and end-to-end tested. This audit does not silently change live audience or existing broadcast records.
