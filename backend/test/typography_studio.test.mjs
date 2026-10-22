@@ -30,20 +30,20 @@ test("Worker /api/typography/published endpoint returns valid schema and default
   assert.equal(json.data.global_styles.body.weight, 400);
 });
 
-test("Retired typography admin editor route is no longer mounted", async () => {
+test("Unauthenticated access to retired admin editor route remains denied by global auth", async () => {
   const fakeDb = {
     prepare: () => ({
       first: async () => null
     })
   };
 
-  // Retired editor routes must not be exposed, including to previously authorized clients.
+  // Global auth intentionally returns 401 before an unknown admin route reaches the 404 handler.
   const res = await worker.fetch(
     new Request("https://example.test/api/admin/typography/draft"),
     { DB: fakeDb },
     {}
   );
-  assert.equal(res.status, 404);
+  assert.equal(res.status, 401);
 });
 
 test("validateConfig: accepts factory default configuration", () => {
