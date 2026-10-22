@@ -117,3 +117,7 @@ Telegram ActionBar.java:469-477 and 1445-1452 specify title/subtitle paired metr
 ## Verified source icon geometry and warning mismatch
 
 See `docs/telegram-icon-binary-geometry.md` for 10 actual source assets across mdpi/hdpi/xhdpi/xxhdpi. Nine candidates have conventional 24dp (24/36/48/72px) square image bounds. Telegram's `msg_warning` is only 2x9px at mdpi, so it has been **reclassified as SEMANTIC_MISMATCH**, not an EVE warning icon. The measurements are archive-derived, not source-exact integration; all EVE icon drawables remain unchanged until legal and call-site requirements are met.
+
+## Additional exact source call-site corrections
+
+The ZIP's actual Java usages prove `msg_calendar` is a chat search date icon (ChatActivity.java:10664), `msg_pin` is a chat pin action (DialogsActivity.java:6739), and `msg_warning` is a message-error indicator (Theme.java:8228). The icon registry now records those semantics and blocks careless substitutions. Zero Telegram icon bitmaps have been added to EVE's packaged resources; an unresolved whole-app redistribution/license plan remains the constraint.
