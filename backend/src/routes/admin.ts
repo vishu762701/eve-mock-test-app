@@ -264,12 +264,20 @@ adminRoutes.post("/users/:id/status", async (c) => {
   const db = c.env.DB;
 
   try {
-    await db.prepare("UPDATE users SET disabled = ? WHERE id = ?").bind(disabled, id).run();
+    const update = await db.prepare("UPDATE users SET disabled = ? WHERE id = ?")
+      .bind(disabled, id).run();
+    if ((update.meta?.changes ?? 0) === 0) {
+      return c.json({ success: false, error: "User not found" }, 404);
+    }
     return c.json({ success: true, data: { id, disabled: Boolean(disabled) } });
   } catch (_: any) {
     try {
       await db.prepare("ALTER TABLE users ADD COLUMN disabled INTEGER DEFAULT 0").run();
-      await db.prepare("UPDATE users SET disabled = ? WHERE id = ?").bind(disabled, id).run();
+      const update = await db.prepare("UPDATE users SET disabled = ? WHERE id = ?")
+        .bind(disabled, id).run();
+      if ((update.meta?.changes ?? 0) === 0) {
+        return c.json({ success: false, error: "User not found" }, 404);
+      }
       return c.json({ success: true, data: { id, disabled: Boolean(disabled) } });
     } catch (e: any) {
       return c.json({ success: false, error: e.message }, 500);
