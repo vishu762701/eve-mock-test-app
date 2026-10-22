@@ -8,5 +8,6 @@ data class AdminUser(
     val category: String = "General",
     val createdAt: Long = 0L,
     val lastActive: Long = 0L,
-    val disabled: Boolean = false
+    val disabled: Boolean = false,
+    val eveId: String? = null
 )
