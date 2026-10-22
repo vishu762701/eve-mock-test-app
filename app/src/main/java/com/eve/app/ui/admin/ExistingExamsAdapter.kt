@@ -3,6 +3,8 @@ package com.eve.app.ui.admin
 import android.animation.ValueAnimator
 import android.view.InputDevice
 import android.view.KeyEvent
+import androidx.core.view.ViewCompat
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -33,6 +35,12 @@ class ExistingExamsAdapter(
     private val onExpandToggle: (Exam) -> Unit
 ) : ListAdapter<ExamWithStats, ExistingExamsAdapter.ViewHolder>(DiffCallback) {
 
+    private val pendingEntranceIds = mutableSetOf<String>()
+
+    fun prepareEntrances(newIds: Set<String>) {
+        pendingEntranceIds.addAll(newIds)
+    }
+
     inner class ViewHolder(private val binding: ItemExistingExamAdminBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
@@ -42,6 +50,8 @@ class ExistingExamsAdapter(
         private val touchMin get() = (48f * density).toInt()
         private val widthSpring = UiArcMotion.Spring.MORPH
         private val originalNamePadding = binding.tvExamName.paddingLeft
+        private var boundExamId: String? = null
+        private var boundExpanded = false
         private val hoverSpring = UiArcMotion.SpringCurve(
             visualDuration = 0.26f, bounce = 0f, settlingDurationMs = 360L
         )
@@ -51,6 +61,8 @@ class ExistingExamsAdapter(
         fun resetHover() {
             binding.root.animate().cancel()
             binding.root.translationY = 0f
+            binding.root.alpha = 1f
+            binding.btnExpandExam.animate().cancel()
             actionAnimators.values.forEach { it.cancel() }
             actionAnimators.clear()
             expandedWidths.clear()
@@ -195,21 +207,66 @@ class ExistingExamsAdapter(
                 binding.tvExamName.paddingTop, binding.tvExamName.paddingRight,
                 binding.tvExamName.paddingBottom
             )
+            val animatedExpansion = boundExamId == exam.id && boundExpanded != item.isExpanded
+            boundExamId = exam.id
+            boundExpanded = item.isExpanded
             binding.btnExpandExam.visibility = if (item.hasChildren) View.VISIBLE else View.GONE
-            binding.btnExpandExam.rotation = if (item.isExpanded) 90f else 0f
+            val targetAngle = if (item.isExpanded) 90f else 0f
+            if (animatedExpansion && UiArcMotion.isMotionEnabled(binding.root.context)) {
+                binding.btnExpandExam.animate().rotation(targetAngle)
+                    .setDuration(UiArcMotion.Spring.SNAPPY.settlingDurationMs)
+                    .setInterpolator(UiArcMotion.Spring.SNAPPY).start()
+            } else binding.btnExpandExam.rotation = targetAngle
+            val state = if (item.isExpanded) "Expanded" else "Collapsed"
             binding.btnExpandExam.contentDescription =
                 (if (item.isExpanded) "Collapse" else "Expand") + " sub-exams under " + exam.examName
-            binding.btnExpandExam.setOnClickListener {
-                val spring = UiArcMotion.SpringCurve(0.26f, 0f, 360L)
-                if (UiArcMotion.isMotionEnabled(binding.root.context)) {
-                    binding.btnExpandExam.animate().cancel()
-                    binding.btnExpandExam.animate()
-                        .rotation(if (item.isExpanded) 0f else 90f)
-                        .setDuration(spring.settlingDurationMs)
-                        .setInterpolator(spring).start()
+            ViewCompat.setStateDescription(binding.btnExpandExam, state)
+            binding.tvExamName.contentDescription = "Level " + (item.treeDepth + 1) + ", " + exam.examName
+            binding.btnExpandExam.setOnClickListener { onExpandToggle(exam) }
+            binding.root.isFocusable = true
+            binding.root.setOnKeyListener { _, keyCode, event ->
+                if (event.action != KeyEvent.ACTION_DOWN) return@setOnKeyListener false
+                val position = bindingAdapterPosition
+                if (position == RecyclerView.NO_POSITION) return@setOnKeyListener false
+                val rtl = binding.root.layoutDirection == View.LAYOUT_DIRECTION_RTL
+                val expandKey = if (rtl) KeyEvent.KEYCODE_DPAD_LEFT else KeyEvent.KEYCODE_DPAD_RIGHT
+                val collapseKey = if (rtl) KeyEvent.KEYCODE_DPAD_RIGHT else KeyEvent.KEYCODE_DPAD_LEFT
+                when (keyCode) {
+                    expandKey -> {
+                        if (item.hasChildren && !item.isExpanded) onExpandToggle(exam)
+                        else if (item.hasChildren && position + 1 < itemCount)
+                            focusTreeRow(position + 1)
+                        true
+                    }
+                    collapseKey -> {
+                        if (item.hasChildren && item.isExpanded) onExpandToggle(exam)
+                        else {
+                            val parentIndex = currentList.indexOfFirst { it.exam.id == exam.parentExamId }
+                            if (parentIndex >= 0) focusTreeRow(parentIndex)
+                        }
+                        true
+                    }
+                    KeyEvent.KEYCODE_DPAD_DOWN -> { focusTreeRow((position + 1).coerceAtMost(itemCount - 1)); true }
+                    KeyEvent.KEYCODE_DPAD_UP -> { focusTreeRow((position - 1).coerceAtLeast(0)); true }
+                    KeyEvent.KEYCODE_MOVE_HOME -> { focusTreeRow(0); true }
+                    KeyEvent.KEYCODE_MOVE_END -> { focusTreeRow(itemCount - 1); true }
+                    else -> false
                 }
-                onExpandToggle(exam)
             }
+            val a11yAction = if (item.isExpanded)
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_COLLAPSE
+            else AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_EXPAND
+            val inverseAction = if (item.isExpanded)
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_EXPAND
+            else AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_COLLAPSE
+            ViewCompat.replaceAccessibilityAction(binding.root, inverseAction, null, null)
+            ViewCompat.replaceAccessibilityAction(binding.root, a11yAction,
+                if (item.isExpanded) "Collapse sub-exams" else "Expand sub-exams",
+                if (item.hasChildren) androidx.core.view.accessibility.AccessibilityViewCommand { _, _ ->
+                    onExpandToggle(exam)
+                    true
+                } else null
+            )
             binding.tvCategoryBadge.text = exam.categoryOrOther
             binding.tvTimeLimit.text = "⏱️ ${exam.timeLimitMinutes} mins"
             val qCount = if (item.questionCount > 0) item.questionCount else exam.questionCount
@@ -217,6 +274,15 @@ class ExistingExamsAdapter(
             binding.tvAttemptCount.text = "📊 ${item.attemptCount} student attempts"
 
             bindActionMorph()
+            if (item.treeDepth > 0 && pendingEntranceIds.remove(exam.id) &&
+                UiArcMotion.isMotionEnabled(binding.root.context)) {
+                binding.root.alpha = 0f
+                binding.root.translationY = 6f * density
+                binding.root.animate().alpha(1f).translationY(0f)
+                    .setStartDelay(((item.treeDepth - 1).coerceAtMost(4) * UiArcMotion.Stagger.ITEM_MS))
+                    .setDuration(UiArcMotion.Spring.SMOOTH.settlingDurationMs)
+                    .setInterpolator(UiArcMotion.Spring.SMOOTH).start()
+            }
             binding.root.setOnClickListener { onExamClick(exam) }
             binding.btnQuickEdit.setOnClickListener { onEditClick(exam) }
             binding.btnQuickPreview.setOnClickListener { onPreviewClick(exam) }
@@ -247,6 +313,26 @@ class ExistingExamsAdapter(
                 com.eve.app.designsystem.DesignPopupGlass.around(view) { popup.show() }
             }
         }
+    }
+
+    private fun focusTreeRow(position: Int) {
+        if (position !in 0 until itemCount) return
+        val recycler = attachedRecycler ?: return
+        recycler.scrollToPosition(position)
+        recycler.post {
+            val holder = recycler.findViewHolderForAdapterPosition(position)
+            holder?.itemView?.requestFocus()
+        }
+    }
+
+    private var attachedRecycler: RecyclerView? = null
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        attachedRecycler = recyclerView
+    }
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        attachedRecycler = null
+        super.onDetachedFromRecyclerView(recyclerView)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
