@@ -162,12 +162,12 @@ class EveDesignSystemTest {
         assertEquals("@dimen/design_zero", examCard.getAttribute("android:layout_marginVertical"))
 
         val tvExamName = findElementById(examCard, "tvExamName")
-        assertEquals("@style/TextAppearance.Eve.Token.Heading", tvExamName?.getAttribute("style"))
-        assertEquals("1", tvExamName?.getAttribute("android:maxLines"))
+        assertEquals("@style/TextAppearance.Eve.Telegram.ListTitle", tvExamName?.getAttribute("style"))
+        assertEquals("2", tvExamName?.getAttribute("android:maxLines"))
         assertEquals("end", tvExamName?.getAttribute("android:ellipsize"))
 
         val tvExamTime = findElementById(examCard, "tvExamTime")
-        assertEquals("@style/TextAppearance.Eve.Token.Secondary", tvExamTime?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Telegram.ListPreview", tvExamTime?.getAttribute("style"))
 
         val feedbackCard = loadXml("src/main/res/layout/item_feedback_post.xml")
         assertEquals("@style/Widget.Eve.Token.Card", feedbackCard.getAttribute("style"))
@@ -176,7 +176,7 @@ class EveDesignSystemTest {
         assertEquals("@color/surface", feedbackCard.designAttribute("app:cardBackgroundColor"))
 
         val tvFeedbackTitle = findElementById(feedbackCard, "tvFeedbackPostTitle")
-        assertEquals("@style/TextAppearance.Eve.Token.Heading", tvFeedbackTitle?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Telegram.ListTitle", tvFeedbackTitle?.getAttribute("style"))
     }
 
     @Test
