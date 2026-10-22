@@ -67,6 +67,8 @@ class EditExamActivity : EveBaseActivity() {
         binding = ActivityEditExamBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+
         examId = intent.getStringExtra(Constants.EXTRA_EXAM_ID).orEmpty()
         examName = intent.getStringExtra(Constants.EXTRA_EXAM_NAME).orEmpty()
         examCategory = intent.getStringExtra(Constants.EXTRA_EXAM_CATEGORY).orEmpty()
@@ -87,6 +89,7 @@ class EditExamActivity : EveBaseActivity() {
         }
 
         loadExamData()
+        }
     }
 
     private fun setupCategorySpinner() {

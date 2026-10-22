@@ -37,12 +37,15 @@ class ManagePremiumActivity : EveBaseActivity() {
         binding = ActivityManagePremiumBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+
         setupToolbar()
         setupTabs()
         setupRecyclerViews()
         setupSettingsActions()
 
         loadAllData()
+        }
     }
 
     private fun setupToolbar() {

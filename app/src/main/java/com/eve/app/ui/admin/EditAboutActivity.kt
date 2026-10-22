@@ -29,6 +29,8 @@ class EditAboutActivity : EveBaseActivity() {
         binding = ActivityEditAboutBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+
         binding.btnBack.setOnClickListener { handleBack() }
         binding.btnSave.setOnClickListener { saveCurrent() }
 
@@ -78,6 +80,7 @@ class EditAboutActivity : EveBaseActivity() {
         })
 
         loadContent(currentType)
+        }
     }
 
     private fun switchTab(type: String) {

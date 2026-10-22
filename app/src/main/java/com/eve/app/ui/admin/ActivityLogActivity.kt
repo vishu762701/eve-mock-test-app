@@ -29,12 +29,7 @@ class ActivityLogActivity : EveBaseActivity() {
         binding = ActivityActivityLogBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val email = FirebaseAuth.getInstance().currentUser?.email
-        lifecycleScope.launch {
-            if (!adminRepo.isAdmin(email)) {
-                finish()
-                return@launch
-            }
+        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
             setupUi()
             loadLogs()
         }

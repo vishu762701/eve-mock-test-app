@@ -38,6 +38,8 @@ class SystemMonitorActivity : EveBaseActivity() {
         val binding = com.eve.app.databinding.ActivitySystemMonitorBinding.inflate(layoutInflater)
         content = binding.layoutMonitorContent
         setContentView(binding.root)
+
+        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
         binding.btnBack.setOnClickListener { finish() }
         refresh = button(content, "Refresh / Retry") { offset = 0; load() }
         progress = com.google.android.material.progressindicator.CircularProgressIndicator(this).also {
@@ -50,6 +52,7 @@ class SystemMonitorActivity : EveBaseActivity() {
         operations = section("Generation & submission monitor")
         more = button(content, "Next page") { nextOffset?.let { offset = it; load() } }
         load()
+        }
     }
 
     private fun section(title: String): LinearLayout {

@@ -44,3 +44,7 @@ Date: 2026-10-22. **Not a claim that every Admin feature works.** Each item belo
 - **VERIFIED SOURCE**: click wiring, route or gate code actually read; not an end-to-end pass.
 - **FIXED IN SOURCE**: code mutation committed; runtime success requires CI/device result.
 - **NOT VERIFIED**: no safe full execution/evidence this session. No row is called WORKS without end-to-end proof.
+
+## Fresh-gate extension (2026-10-22)
+
+Source changes additionally gate initialization for: ActivityLogActivity.kt, ApiUsageActivity.kt, AdminAnalyticsActivity.kt, FlaggedQuestionsActivity.kt, AppConfigActivity.kt, EditAboutActivity.kt, FeedbackMessagesActivity.kt, EditExamActivity.kt, GeneratedTestsActivity.kt, ManagePremiumActivity.kt, SystemMonitorActivity.kt. Together with previously gated AdminActivity, ManageExams, SendNotification, ManageUsers, ManageSyllabus, ManageExistingExams and ManagePolls, all **18 enumerated Admin Activity classes** now call a fresh `AdminAccessGate` before their protected loaders; this statement covers direct source usage, not runtime authorization/device behavior. Always retain separate backend `requireAdmin` checks.

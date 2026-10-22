@@ -32,6 +32,8 @@ class FeedbackMessagesActivity : EveBaseActivity() {
         binding = ActivityFeedbackMessagesBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+
         binding.btnBack.setOnClickListener { finish() }
         binding.btnRefresh.setOnClickListener { loadMessages() }
         binding.swipeRefresh.setOnRefreshListener { loadMessages() }
@@ -51,6 +53,7 @@ class FeedbackMessagesActivity : EveBaseActivity() {
         binding.rvFeedbackMessages.adapter = adapter
 
         loadMessages()
+        }
     }
 
     override fun onResume() {

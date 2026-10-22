@@ -89,6 +89,8 @@ class GeneratedTestsActivity : EveBaseActivity() {
         binding = ActivityGeneratedTestsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+
         binding.btnBack.setOnClickListener { finish() }
         binding.btnRefresh.setOnClickListener { loadTests() }
 
@@ -96,6 +98,7 @@ class GeneratedTestsActivity : EveBaseActivity() {
         binding.rvGeneratedTests.adapter = adapter
 
         loadTests()
+        }
     }
 
     override fun onResume() {

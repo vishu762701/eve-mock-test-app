@@ -1868,3 +1868,10 @@ Following Batch 01 (ADR-022), Batch 02 (ADR-023), Batch 03 (ADR-024), Typography
 - `ADMIN_FUNCTION_MATRIX.md` and `MOCK_TEST_CAPABILITY_MATRIX.md` record source-backed functionality separately from truly observed end-to-end test results. They remain explicit about authorization, lifecycle, network, data and physical-device unknowns.
 - Cleanup follows an inbound-reference proof standard; ambiguous assets, database migrations, published user typography and backend compatibility route are retained. No speculative mass deletion.
 - Final mission remains one consolidation; no additional batch number is introduced. The release gate for the exact last SHA includes build/lint/JVM/backend/Functions/native gesture/native three-button and artifact confirmation.
+
+
+## ADR-FINAL-2026-10-22-F: Admin Activity root-gate hardening
+
+- All 18 enumerated `ui/admin/*Activity.kt` classes now initialize protected controls and data within `AdminAccessGate.requireAdmin(requireFreshServer=true)` after `setContentView`. The gate hides root content while verifying the same authenticated Firebase account and fails closed. No privileged data requests run before this callback in these onCreate paths.
+- Specifically hardens edit exam/content, generated tests, feedback, flagged reports, premium, analytics, logs, API usage, app configuration and system monitor; prior ManageUsers, Syllabus, Polls, Existing Exams and newly gated Admin/Exams/Notifications keep their guards.
+- UI gates do not replace backend `requireAdmin`, Firestore rules or end-to-end live testing. Review every future admin Activity separately when introduced.

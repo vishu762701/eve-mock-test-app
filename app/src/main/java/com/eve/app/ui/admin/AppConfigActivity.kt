@@ -29,6 +29,8 @@ class AppConfigActivity : EveBaseActivity() {
         binding = ActivityAppConfigBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+
         binding.btnBack.setOnClickListener { finish() }
 
         binding.tvCurrentVersionNotice.text =
@@ -43,6 +45,7 @@ class AppConfigActivity : EveBaseActivity() {
         }
 
         loadConfig()
+        }
     }
 
     private fun loadConfig() {
