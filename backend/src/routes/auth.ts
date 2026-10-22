@@ -258,6 +258,11 @@ authRoutes.delete("/account", async (c) => {
     db.prepare("DELETE FROM feedback_messages WHERE user_id = ?").bind(uid),
     db.prepare("DELETE FROM feedback_post_replies WHERE user_id = ?").bind(uid),
     db.prepare("DELETE FROM poll_votes WHERE user_id = ?").bind(uid),
+    db.prepare("DELETE FROM attempt_sessions WHERE user_id = ?").bind(uid),
+    db.prepare("DELETE FROM admin_analytics_exam_users WHERE user_id = ?").bind(uid),
+    db.prepare("DELETE FROM premium_entitlements WHERE user_id = ?").bind(uid),
+    db.prepare("DELETE FROM rate_limits WHERE key = ?").bind(`uid:${uid}`),
+    // Financial premium_orders and immutable audit records are intentionally retained.
     db.prepare("DELETE FROM users WHERE id = ?").bind(uid),
   ]);
 
