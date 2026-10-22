@@ -49,9 +49,11 @@ class TelegramIconSourceRegistryTest {
         val ids = rows.map { it[0] }
         assertEquals(expected, ids.toSet())
         assertEquals(ids.size, ids.toSet().size)
+        assertEquals(7, rows.count { it[7] == "EVE_ORIGINAL_REDRAW_NOT_SOURCE_EXACT" })
         for (row in rows) {
             assertTrue("False Telegram import claim " + row[0],
-                row[7] in setOf("UNMAPPED_PENDING_SOURCE_AUDIT", "CANDIDATE_NOT_IMPORTED", "SEMANTIC_MISMATCH"))
+                row[7] in setOf("UNMAPPED_PENDING_SOURCE_AUDIT", "CANDIDATE_NOT_IMPORTED", "SEMANTIC_MISMATCH",
+                    "EVE_ORIGINAL_REDRAW_NOT_SOURCE_EXACT"))
             assertTrue("Unverified source animation " + row[0],
                 row[5].contains("UNKNOWN") || row[5].contains("NO_TELEGRAM"))
             assertTrue("Unverified exact themed art " + row[0], row[6].contains("NOT_SOURCE_EXACT"))
