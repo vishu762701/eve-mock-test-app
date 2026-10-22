@@ -326,7 +326,9 @@ class ManageSyllabusActivity : EveBaseActivity() {
 
     private suspend fun readPdfWithinLimit(uri: Uri): ByteArray = withContext(Dispatchers.IO) {
         contentResolver.openInputStream(uri)?.use { input ->
-            PdfSelectionReader.readBounded(input, UiArcFileUploadView.MAX_FILE_SIZE_BYTES)
+            PdfSelectionReader.requirePdfContent(
+                PdfSelectionReader.readBounded(input, UiArcFileUploadView.MAX_FILE_SIZE_BYTES)
+            )
         } ?: throw java.io.IOException("Unable to open the selected PDF.")
     }
 
