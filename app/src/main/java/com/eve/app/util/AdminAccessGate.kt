@@ -43,8 +43,9 @@ object AdminAccessGate {
             }
             if (activity.isFinishing || activity.isDestroyed) return@launch
             val current = FirebaseAuth.getInstance().currentUser
-            if (!authorized || current?.uid != user.uid ||
-                !current.email.equals(email, ignoreCase = true)) {
+            if (!AdminIdentityGuard.allowed(
+                    authorized, user.uid, email, current?.uid, current?.email
+                )) {
                 activity.finish()
                 return@launch
             }
