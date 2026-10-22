@@ -1291,6 +1291,18 @@ class MainActivity : EveBaseActivity() {
             com.eve.app.designsystem.EveDesignSystem.Colors.surface(this))
     }
 
+    private var pendingDrawerDestination: Intent? = null
+
+    private fun navigateFromDrawer(intent: Intent) {
+        if (pendingDrawerDestination != null) return // Reject duplicate rapid taps.
+        if (!binding.drawerLayout.isDrawerVisible(GravityCompat.START)) {
+            com.eve.app.util.EveNavigationHelper.navigate(this, intent)
+            return
+        }
+        pendingDrawerDestination = intent
+        binding.drawerLayout.closeDrawer(GravityCompat.START)
+    }
+
     private fun setupDrawer(user: com.google.firebase.auth.FirebaseUser) {
         updateDrawerHeader(user)
         prepareDrawerSurface()
@@ -1319,8 +1331,15 @@ class MainActivity : EveBaseActivity() {
 
             override fun onDrawerClosed(drawerView: View) {
                 binding.ivDrawerGlassBlurBackground.setImageDrawable(null)
-                // Drawer is transient: dismissing it returns to the same Home destination.
-                if (binding.ivProfile.isAttachedToWindow) binding.ivProfile.requestFocus()
+                // Commit navigation only after DrawerLayout has fully released its
+                // scrim and window animation, avoiding overlapping transitions.
+                val destination = pendingDrawerDestination
+                pendingDrawerDestination = null
+                if (destination != null && !isFinishing && !isDestroyed) {
+                    com.eve.app.util.EveNavigationHelper.navigate(this@MainActivity, destination)
+                } else if (binding.ivProfile.isAttachedToWindow) {
+                    binding.ivProfile.requestFocus()
+                }
             }
         })
 
@@ -1328,8 +1347,7 @@ class MainActivity : EveBaseActivity() {
 
         com.eve.app.designsystem.DesignPress.bind(binding.ivDrawerAvatar)
         binding.ivDrawerAvatar.setOnClickListener {
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-            com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, ProfileActivity::class.java), binding.ivDrawerAvatar)
+            navigateFromDrawer(Intent(this, ProfileActivity::class.java))
         }
 
         val drawerRows = listOf(
@@ -1348,47 +1366,34 @@ class MainActivity : EveBaseActivity() {
         }
 
         binding.layoutDrawerProfile.setOnClickListener {
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-            com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, ProfileActivity::class.java), binding.layoutDrawerProfile)
+            navigateFromDrawer(Intent(this, ProfileActivity::class.java))
         }
         binding.layoutDrawerHistory.setOnClickListener {
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-            com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, HistoryActivity::class.java), binding.layoutDrawerHistory)
+            navigateFromDrawer(Intent(this, HistoryActivity::class.java))
         }
         binding.layoutDrawerSaved.setOnClickListener {
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-            com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, BookmarksActivity::class.java), binding.layoutDrawerSaved)
+            navigateFromDrawer(Intent(this, BookmarksActivity::class.java))
         }
         binding.layoutDrawerPremium.setOnClickListener {
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-            com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, com.eve.app.ui.premium.PremiumActivity::class.java), binding.layoutDrawerPremium)
+            navigateFromDrawer(Intent(this, com.eve.app.ui.premium.PremiumActivity::class.java))
         }
         binding.layoutDrawerPerformance.setOnClickListener {
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-            com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, PerformanceActivity::class.java), binding.layoutDrawerPerformance)
+            navigateFromDrawer(Intent(this, PerformanceActivity::class.java))
         }
         binding.layoutDrawerLeaderboard.setOnClickListener {
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-            com.eve.app.util.EveNavigationHelper.navigate(
-                this,
-                Intent(this, LeaderboardActivity::class.java).apply {
-                    putExtra(Constants.EXTRA_EXAM_ID, "overall")
-                    putExtra(Constants.EXTRA_EXAM_NAME, "Overall Leaderboard")
-                },
-                binding.layoutDrawerLeaderboard
-            )
+            navigateFromDrawer(Intent(this, LeaderboardActivity::class.java).apply {
+                putExtra(Constants.EXTRA_EXAM_ID, "overall")
+                putExtra(Constants.EXTRA_EXAM_NAME, "Overall Leaderboard")
+            })
         }
         binding.layoutDrawerSyllabus.setOnClickListener {
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-            com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, SyllabusActivity::class.java), binding.layoutDrawerSyllabus)
+            navigateFromDrawer(Intent(this, SyllabusActivity::class.java))
         }
         binding.layoutDrawerAbout.setOnClickListener {
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-            com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, AboutActivity::class.java), binding.layoutDrawerAbout)
+            navigateFromDrawer(Intent(this, AboutActivity::class.java))
         }
         binding.layoutDrawerSettings.setOnClickListener {
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-            com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, SettingsActivity::class.java), binding.layoutDrawerSettings)
+            navigateFromDrawer(Intent(this, SettingsActivity::class.java))
         }
     }
 
