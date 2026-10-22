@@ -204,12 +204,12 @@ class HomeTypographyTest {
 
         val tvExamName = findElementById(root, "tvExamName")
         assertNotNull(tvExamName)
-        assertEquals("@style/TextAppearance.Eve.Token.Heading", tvExamName?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Telegram.ListTitle", tvExamName?.getAttribute("style"))
         assertTrue("tvExamName must not have hardcoded textSize", tvExamName?.getAttribute("android:textSize").isNullOrEmpty())
 
         val tvExamTime = findElementById(root, "tvExamTime")
         assertNotNull(tvExamTime)
-        assertEquals("@style/TextAppearance.Eve.Token.Secondary", tvExamTime?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Telegram.ListPreview", tvExamTime?.getAttribute("style"))
         assertTrue("tvExamTime must not have hardcoded textSize", tvExamTime?.getAttribute("android:textSize").isNullOrEmpty())
     }
 

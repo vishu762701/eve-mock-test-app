@@ -82,9 +82,9 @@ class ExamAdapter(
 
             val ctx = b.root.context
             HomeAppearance.applyCard(b.root)
-            b.tvExamName.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Token_Heading)
+            b.tvExamName.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Telegram_ListTitle)
             b.tvExamName.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.homeTextPrimary(ctx))
-            b.tvExamTime.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Token_Secondary)
+            b.tvExamTime.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Telegram_ListPreview)
             if (attempted) {
                 b.tvExamTime.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.statusRightText(ctx))
             } else {
@@ -176,13 +176,13 @@ class ExamAdapter(
         fun bind(post: FeedbackPost) {
             HomeAppearance.applyCard(b.root)
             b.tvFeedbackPostTitle.text = post.title
-            b.tvFeedbackPostTitle.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Token_Heading)
+            b.tvFeedbackPostTitle.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Telegram_ListTitle)
             b.tvFeedbackPostTitle.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.homeTextPrimary(b.root.context))
             b.tvFeedbackPostMessage.text = post.message
-            b.tvFeedbackPostMessage.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Token_Body)
+            b.tvFeedbackPostMessage.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Telegram_ListPreview)
             b.tvFeedbackPostMessage.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.homeTextPrimary(b.root.context))
             b.tvFeedbackPostDate.text = formatTimestamp(post.timestamp)
-            b.tvFeedbackPostDate.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Token_Secondary)
+            b.tvFeedbackPostDate.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Telegram_ListTime)
             b.tvFeedbackPostDate.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.homeTextSecondary(b.root.context))
 
             b.btnSendReply.setOnClickListener {

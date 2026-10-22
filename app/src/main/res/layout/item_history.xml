@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <com.eve.app.designsystem.DesignCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" style="@style/Widget.Eve.Token.Card" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginVertical="@dimen/design_zero" android:clickable="true" android:focusable="true" app:rippleColor="@color/design_role_ripple" android:minHeight="@dimen/design_row_with_gap" android:layout_marginBottom="@dimen/design_card_gap">
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-        <TextView android:id="@+id/tvExamName" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="match_parent" android:layout_height="wrap_content" />
-        <TextView android:id="@+id/tvMeta" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" />
+        <TextView android:id="@+id/tvExamName" style="@style/TextAppearance.Eve.Telegram.ListTitle" android:tag="eve_telegram_type" android:layout_width="match_parent" android:layout_height="wrap_content" />
+        <TextView android:id="@+id/tvMeta" style="@style/TextAppearance.Eve.Telegram.ListTime" android:tag="eve_telegram_type" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" />
         <TextView android:id="@+id/tvScore" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" />
         <TextView android:id="@+id/tvBreakdown" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" />
     </LinearLayout>
