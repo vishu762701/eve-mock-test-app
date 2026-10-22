@@ -46,7 +46,7 @@ class ManageExistingExamsActivity : EveBaseActivity() {
         setContentView(binding.root)
 
         binding.btnBack.setOnClickListener { finish() }
-        AdminAccessGate.requireAdmin(this, binding.root) {
+        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
             adminAuthorized = true
             setupAdminControls()
             loadExams()

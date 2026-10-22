@@ -1883,3 +1883,8 @@ Following Batch 01 (ADR-022), Batch 02 (ADR-023), Batch 03 (ADR-024), Typography
 - `NotificationsActivity` always displays the merged local inbox, not a remote-only list that overwrites FCM/reminders. Opening the inbox acknowledges local unread entries; newly fetched items during the open inbox are then acknowledged. Failed network requests keep the existing cached list.
 - A genuine Android instrumentation test checks two remote broadcasts, one local reminder, replay idempotency, unread state, and acknowledgment using isolated/restored preferences. It never sends a live notification.
 - Backend sender identity is redacted for non-admin broadcasts GET; privileged backend writes remain admin-only. Cross-device/FCM duplicate origins and individual category targeting require separate permitted integration verification.
+
+
+### ADR-FINAL-2026-10-22-F: Existing-screen parity correction
+
+- The prior gate expansion covered 15 fresh-gated Activities while three older screens (ManageExistingExams, ManagePolls, ManageSyllabus) still relied on the default cached authorization. All three now explicitly request `requireFreshServer=true` before protected UI/data initialization, aligning the 18-Activity policy. This correction was source audited independently; runtime behavior still requires passing CI.
