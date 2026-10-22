@@ -36,6 +36,7 @@ class UiArcUploadStepperView @JvmOverloads constructor(
         setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
         setTextColor(DesignTokens.secondary(context))
     }
+    private val markerSpring = UiArcMotion.SpringCurve(0.26f, 0f, 360L)
     private var completed = -1
     private var error = false
     private var busy = false
@@ -157,8 +158,8 @@ class UiArcUploadStepperView @JvmOverloads constructor(
                 marker.scaleY = 0.82f
                 marker.alpha = 0.65f
                 marker.animate().scaleX(1f).scaleY(1f).alpha(1f)
-                    .setDuration(UiArcMotion.Spring.SNAPPY.settlingDurationMs)
-                    .setInterpolator(UiArcMotion.Spring.SNAPPY).start()
+                    .setDuration(markerSpring.settlingDurationMs)
+                    .setInterpolator(markerSpring).start()
             }
             val ring = rings[index]
             ring.animate().cancel()
@@ -175,8 +176,8 @@ class UiArcUploadStepperView @JvmOverloads constructor(
                 ring.scaleY = 0.72f
                 ring.animate().scaleX(1f).scaleY(1f)
                     .setStartDelay(if (forward) UiArcMotion.Duration.FAST else 0L)
-                    .setDuration(UiArcMotion.Spring.SNAPPY.settlingDurationMs)
-                    .setInterpolator(UiArcMotion.Spring.SNAPPY).start()
+                    .setDuration(markerSpring.settlingDurationMs)
+                    .setInterpolator(markerSpring).start()
             }
         }
         connectors.forEachIndexed { index, line ->
