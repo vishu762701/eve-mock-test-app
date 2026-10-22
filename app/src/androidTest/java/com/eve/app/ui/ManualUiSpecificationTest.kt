@@ -254,7 +254,8 @@ class ManualUiSpecificationTest {
                         assertEquals(index % 3, result.tabLayoutResult.selectedTabPosition)
                     }
                     val label = tabText(0)
-                    assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP, 14f,
+                    // Telegram ScrollSlidingTextTabStrip.java:549: source-matched 15dp label, EVE sp accessibility.
+                    assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP, 15f,
                         context.resources.displayMetrics), label.textSize, 0.51f)
                     val adapter = QuestionAdapter(listOf(Question(questionText = "हिंदी / English", optionA = "A long answer ".repeat(30))),
                         { "B" }, { _, _ -> }, { false }, {}, { false }, {}, { 0L })

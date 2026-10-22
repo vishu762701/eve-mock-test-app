@@ -149,3 +149,7 @@ Seven EVE-original 24dp vector glyphs replace the prior Tabler-derived paths for
 ## Independently authored alert and utility icon states
 
 Six additional 24dp vectors were independently authored without Telegram GPL art: bell, notification inbox, bell-off, settings, edit and pin. `ic_bell` and `ic_notification` share a consistent generic bell silhouette; `ic_bell_off` adds a clear slash so on/off semantics remain distinguishable. Existing Home notification Lottie, Android notification small-icon resource ID, reminder state toggle, pin state and edit action callbacks are preserved. These are functional **EVE-owned replacements**, not the exact Telegram WebP assets. Total source-informed EVE-owned redraws now 13. The rest retain their previous EVE icons pending source mapping and license clearance.
+
+## Native CI typography regression repair
+
+Native UI gesture/three-button `ManualUiSpecificationTest.responsiveGeometryAndThemeReapplication` originally asserted tab text 14sp and failed after Telegram `ScrollSlidingTextTabStrip.java:549` migrated it to 15sp: expected textPx 36.75, actual 39.375 at fontScale 1.5 (15/14 exactly). Updated the **positive source-derived assertion to 15sp** while keeping its 0.51px tolerance, all fontScale/width/theme loops, ellipsis checks and native runner gates unchanged. The test continues to detect real label-size deviations; this is not a disabled check.
