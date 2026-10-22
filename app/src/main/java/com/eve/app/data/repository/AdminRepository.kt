@@ -108,6 +108,20 @@ class AdminRepository {
         return response.data ?: emptyList()
     }
 
+    suspend fun getUsersPage(
+        query: String,
+        page: Int,
+        pageSize: Int = 50
+    ): com.eve.app.data.model.AdminUsersPage {
+        require(page > 0 && pageSize in 1..200)
+        val response = api.getUsers(query.trim().ifEmpty { null }, page, pageSize)
+        if (!response.success) throw Exception(response.error ?: "Failed to fetch users")
+        // A deployed older Worker cannot silently masquerade as a complete page.
+        val pagination = response.pagination
+            ?: throw IllegalStateException("Server pagination is unavailable; please update the backend")
+        return com.eve.app.data.model.AdminUsersPage(response.data ?: emptyList(), pagination)
+    }
+
     suspend fun toggleUserStatus(userId: String, disabled: Boolean): Boolean {
         val response = api.toggleUserStatus(userId, mapOf("disabled" to disabled))
         if (!response.success) {
