@@ -37,3 +37,18 @@ Source paths below start at `TMessagesProj/src/main/java/org/telegram/`.
 **Regression:** `TelegramTypeSourceRolesTest.textRolesMeetNormalTextContrastOnDayAndNightSurfaces` covers primary, secondary, section and dialog roles against both EVE canvas and card surfaces. The previous failed native UI assertion was `StudentUiRenderingTest` Settings `PREFERENCES` (3.36:1); this fix changes app text colors rather than weakening the assertion.
 
 **Remaining gates:** all other screen roles (questions, timers, scores, button, badge, input, dialog), source-exact icon art/states/motion, full layout/dynamic View inventory, cache/Inter cleanup, custom fonts, license compatibility, light/dark screenshots, RTL/Devanagari/fontScale, native UI, security and publication checks. No obsolete file deleted because reachability is not fully established.
+
+## Main-only incremental component coverage (second change)
+
+Source-verified matches from the same uploaded Telegram ZIP:
+- `ui/Cells/DialogCell.java:1252-1254` and `ui/ActionBar/Theme.java:7803-7815`: conversation-row name 17dp medium/bold() and preview 16dp regular. Adapted to EVE `item_notification.xml` title/body at **17sp/16sp**, without copying Telegram messaging content or interactions.
+- `ui/ActionBar/Theme.java:7897,7926`: dialog-list date text 12dp and `key_chats_date`, mapped to the EVE inbox relative-time label as 12sp with accessible secondary color. These are semantic counterparts, not an assertion that notifications and chats are identical products.
+- `ui/ActionBar/ActionBarMenuItem.java:1530-1532`: 18dp ActionBar search text. Wired Home's `etSearch` to a derived `Widget.Eve.Token.Input.TelegramSearch` that **inherits** EVE's input background, focus states, cursor, input type and touch area. Style parameters are adapted to SP.
+- `ui/Cells/TextSettingsCell.java:82` / `TextDetailSettingsCell.java:40-45`: 16dp settings-action label applied to About screen's Privacy/Terms/Contact links. About navigation title uses the already mapped ActionBar-derived style.
+
+All migrated views bear the `eve_telegram_type` tag to avoid a stale published Inter/iOS typography override. Existing EVE bell drawing and Lottie, button callbacks and scoring logic are untouched. No Telegram source/assets were copied.
+
+### Remaining critical blockers
+- GPL-2.0-only compatibility and full corresponding-source obligations are unresolved: no Telegram icon art, RLottie, or bundled Telegram fonts may be imported into a production build without resolution.
+- Other views, programmatic custom Views, dialog internals, exam-specific roles and Telegram-unique icon states remain unmapped; do not describe the app as Telegram-exact.
+- CI Android build/lint/native UI, light/dark captures, font scale 1.0/enlarged, Devanagari/RTL, permission and motion regression require evidence on the new commit.

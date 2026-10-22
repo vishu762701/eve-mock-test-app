@@ -7,7 +7,7 @@
         </LinearLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
-        <TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="About" />
+        <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:tag="eve_telegram_type" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="About" />
     </LinearLayout>
     <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
@@ -18,15 +18,15 @@
             </LinearLayout>
             <LinearLayout android:id="@+id/rowPrivacyPolicy" android:layout_width="match_parent" android:layout_height="wrap_content" android:foreground="?attr/selectableItemBackground" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Row">
                 <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Privacy Policy" android:src="@drawable/ic_info" app:tint="@color/system_blue" />
-                <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_section_gap" android:layout_weight="1" android:text="Privacy Policy" />
+                <TextView style="@style/TextAppearance.Eve.Telegram.SettingsLabel" android:tag="eve_telegram_type" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_section_gap" android:layout_weight="1" android:text="Privacy Policy" />
             </LinearLayout>
             <LinearLayout android:id="@+id/rowTerms" android:layout_width="match_parent" android:layout_height="wrap_content" android:foreground="?attr/selectableItemBackground" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Row">
                 <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Terms of Service" android:src="@drawable/ic_info" app:tint="@color/system_blue" />
-                <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_section_gap" android:layout_weight="1" android:text="Terms of Service" />
+                <TextView style="@style/TextAppearance.Eve.Telegram.SettingsLabel" android:tag="eve_telegram_type" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_section_gap" android:layout_weight="1" android:text="Terms of Service" />
             </LinearLayout>
             <LinearLayout android:id="@+id/rowContact" android:layout_width="match_parent" android:layout_height="wrap_content" android:foreground="?attr/selectableItemBackground" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Row">
                 <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Contact us" android:src="@drawable/ic_info" app:tint="@color/system_blue" />
-                <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_section_gap" android:layout_weight="1" android:text="Contact Us" />
+                <TextView style="@style/TextAppearance.Eve.Telegram.SettingsLabel" android:tag="eve_telegram_type" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_section_gap" android:layout_weight="1" android:text="Contact Us" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

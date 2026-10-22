@@ -12,7 +12,8 @@ class TelegramTypeSourceRolesTest {
         val s = read("values/telegram_typography.xml")
         val roles = mapOf("NavigationTitle" to 20, "SettingsLabel" to 16,
             "SettingsDetail" to 13, "SettingsSection" to 14, "MenuItem" to 16,
-            "DialogTitle" to 20, "DialogMessage" to 16, "SearchInput" to 18)
+            "DialogTitle" to 20, "DialogMessage" to 16, "SearchInput" to 18,
+            "NotificationTitle" to 17, "NotificationBody" to 16, "NotificationTime" to 12)
         for ((role, size) in roles) {
             val start = s.indexOf("<style name=\"TextAppearance.Eve.Telegram." + role + "\"")
             assertTrue("No role: " + role, start >= 0)
@@ -32,7 +33,8 @@ class TelegramTypeSourceRolesTest {
             }
         }
         for (file in listOf("activity_settings.xml", "activity_notifications.xml",
-            "activity_result.xml", "popup_telegram_menu.xml")) {
+            "activity_result.xml", "popup_telegram_menu.xml",
+            "activity_about.xml", "item_notification.xml")) {
             val text = read("layout/" + file)
             val roles = "TextAppearance.Eve.Telegram.".toRegex().findAll(text).count()
             val marks = "android:tag=\"eve_telegram_type\"".toRegex().findAll(text).count()
@@ -68,6 +70,26 @@ class TelegramTypeSourceRolesTest {
         val end = styles.indexOf("</style>", start)
         assertTrue("Settings section must use dedicated accessible header theme role",
             start >= 0 && end > start && styles.substring(start, end).contains("@color/telegram_type_section"))
+    }
+
+    @Test fun homeSearchHasNativeInputStateAndTelegramText() {
+        val style = read("values/design_widgets.xml")
+        val start = style.indexOf("<style name=\"Widget.Eve.Token.Input.TelegramSearch\"")
+        assertTrue("Search style is absent", start >= 0)
+        val end = style.indexOf("</style>", start)
+        val body = style.substring(start, end)
+        assertTrue(body.contains("parent=\"Widget.Eve.Token.Input\""))
+        assertTrue(body.contains("@style/TextAppearance.Eve.Telegram.SearchInput"))
+        assertTrue(body.contains("18sp"))
+        val home = read("layout/activity_main.xml")
+        assertTrue(home.contains("id=\"@+id/etSearch\" style=\"@style/Widget.Eve.Token.Input.TelegramSearch\" android:tag=\"eve_telegram_type\""))
+        val item = read("layout/item_notification.xml")
+        for (role in listOf("NotificationTitle", "NotificationBody", "NotificationTime")) {
+            assertTrue("Missing mapped notification role " + role,
+                item.contains("style=\"@style/TextAppearance.Eve.Telegram." + role + "\" android:tag=\"eve_telegram_type\""))
+        }
+        // EVE notification bell remains functional until source-exact art can be licensed.
+        assertTrue(item.contains("@drawable/ic_bell"))
     }
 
     private fun contrast(foreground: String, background: String): Double {

@@ -170,7 +170,8 @@ class HomeTypographyTest {
 
         val etSearch = findElementById(root, "etSearch")
         assertNotNull(etSearch)
-        assertEquals("@style/Widget.Eve.Token.Input", etSearch?.getAttribute("style"))
+        assertEquals("@style/Widget.Eve.Token.Input.TelegramSearch", etSearch?.getAttribute("style"))
+        assertEquals("eve_telegram_type", etSearch?.getAttribute("android:tag"))
 
         val tvStreakSummary = findElementById(root, "tvStreakSummary")
         assertNotNull(tvStreakSummary)
