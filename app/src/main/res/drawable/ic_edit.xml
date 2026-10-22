@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EVE-original generic native action geometry. No Telegram copyrighted asset or code imported. -->
+<!-- EVE-original generic Android action geometry. No Telegram copyrighted asset or code imported. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="@dimen/design_icon_size" android:height="@dimen/design_icon_size"
     android:viewportWidth="24" android:viewportHeight="24">
