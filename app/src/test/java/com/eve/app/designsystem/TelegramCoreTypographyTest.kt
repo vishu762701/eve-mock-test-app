@@ -85,7 +85,7 @@ class TelegramCoreTypographyTest {
         ExpectedStyle("Title1", "design_type_title1", "design_line_title1", "20sp", "26sp", "sans-serif", "sans-serif-medium"),
         ExpectedStyle("Title2", "design_type_title2", "design_line_title2", "20sp", "26sp", "sans-serif", "sans-serif-medium"),
         ExpectedStyle("Title3", "design_type_title3", "design_line_title3", "20sp", "25sp", "sans-serif", "sans-serif-medium"),
-        ExpectedStyle("Headline", "design_type_headline", "design_line_headline", "17sp", "22sp", "sans-serif-medium", "sans-serif-medium"),
+        ExpectedStyle("Headline", "design_type_headline", "design_line_headline", "17sp", "22sp", "@font/telegram_roboto_medium", "@font/telegram_roboto_medium"),
         ExpectedStyle("Body", "design_type_body", "design_line_body", "16sp", "22sp", "sans-serif", "sans-serif-medium"),
         ExpectedStyle("Callout", "design_type_callout", "design_line_callout", "16sp", "21sp", "sans-serif", "sans-serif-medium"),
         ExpectedStyle("Subheadline", "design_type_subheadline", "design_line_subheadline", "15sp", "20sp", "sans-serif", "sans-serif-medium"),
