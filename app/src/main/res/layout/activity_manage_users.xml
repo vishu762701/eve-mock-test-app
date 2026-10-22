@@ -31,7 +31,7 @@
         <LinearLayout android:id="@+id/layoutPageControls" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="horizontal">
             <TextView android:id="@+id/btnPagePrevious" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:gravity="center" android:clickable="true" android:focusable="true" android:contentDescription="Previous page" android:text="‹" />
             <HorizontalScrollView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fillViewport="true" android:scrollbars="none">
-                <LinearLayout android:id="@+id/layoutPageNumbers" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:orientation="horizontal" />
+                <com.eve.app.ui.admin.UiArcPaginationStrip android:id="@+id/layoutPageNumbers" android:layout_width="wrap_content" android:layout_height="wrap_content" />
             </HorizontalScrollView>
             <TextView android:id="@+id/btnPageNext" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:gravity="center" android:clickable="true" android:focusable="true" android:contentDescription="Next page" android:text="›" />
         </LinearLayout>
