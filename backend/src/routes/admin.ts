@@ -181,22 +181,56 @@ adminRoutes.get("/stats/users", async (c) => {
   });
 });
 
-// GET /api/admin/users - List users with optional search
+// GET /api/admin/users - Full-dataset search and bounded, deterministic pagination.
+// Backward compatibility: callers that omit pagination parameters retain 200 rows.
 adminRoutes.get("/users", async (c) => {
-  const db = c.env.DB;
-  const q = c.req.query("q")?.trim()?.toLowerCase();
-
-  let query = "SELECT id, eve_id, email, display_name, dob, category, created_at, last_active, COALESCE(disabled, 0) as disabled FROM users";
-  const params: any[] = [];
-  if (q) {
-    query += " WHERE LOWER(email) LIKE ? OR LOWER(display_name) LIKE ? OR LOWER(COALESCE(eve_id, '')) LIKE ?";
-    params.push(`%${q}%`, `%${q}%`, `%${q}%`);
+  const parsePositiveInt = (raw: string | undefined, fallback: number, maximum: number): number | null => {
+    if (raw === undefined) return fallback;
+    if (!/^[1-9][0-9]*$/.test(raw) || raw.length > 7) return null;
+    const value = Number(raw);
+    return Number.isSafeInteger(value) && value <= maximum ? value : null;
+  };
+  const legacy = c.req.query("page") === undefined && c.req.query("pageSize") === undefined;
+  const page = parsePositiveInt(c.req.query("page"), 1, 1000000);
+  const pageSize = parsePositiveInt(c.req.query("pageSize"), legacy ? 200 : 50, 200);
+  if (page === null || pageSize === null) {
+    return c.json({ success: false, error: "Invalid page or pageSize" }, 400);
   }
-  query += " ORDER BY last_active DESC, created_at DESC LIMIT 200";
+  const raw = (c.req.query("q") || "").trim();
+  if (raw.length > 160) return c.json({ success: false, error: "Search query too long" }, 400);
+  // ! is the SQL LIKE escape character. Literal %, _ and ! in search
+  // must never become wildcards or change the predicate.
+  const q = raw.toLowerCase().replace(/[!%_]/g, (ch) => "!" + ch);
+  const where = q
+    ? " WHERE LOWER(COALESCE(email, '')) LIKE ? ESCAPE '!' OR LOWER(COALESCE(display_name, '')) LIKE ? ESCAPE '!' OR LOWER(COALESCE(eve_id, '')) LIKE ? ESCAPE '!'"
+    : "";
+  const params = q ? Array(3).fill(`%${q}%`) : [];
+  const db = c.env.DB;
+  const offset = (page - 1) * pageSize;
+  const order = " ORDER BY last_active DESC, created_at DESC, id ASC LIMIT ? OFFSET ?";
 
   try {
-    const { results } = await db.prepare(query).bind(...params).all<any>();
-    const users = (results || []).map((u) => ({
+    const totalRow = await db.prepare("SELECT COUNT(*) AS total FROM users" + where)
+      .bind(...params).first<{ total: number }>();
+    const total = Number(totalRow?.total ?? 0);
+    if (!Number.isSafeInteger(total) || total < 0) throw new Error("Invalid user count");
+
+    const fetchPage = async (includeDisabled: boolean) => {
+      const columns = "id, eve_id, email, display_name, dob, category, created_at, last_active" +
+        (includeDisabled ? ", COALESCE(disabled, 0) AS disabled" : "");
+      return db.prepare("SELECT " + columns + " FROM users" + where + order)
+        .bind(...params, pageSize, offset).all<any>();
+    };
+    let rows: any[];
+    try {
+      rows = (await fetchPage(true)).results || [];
+    } catch (error: any) {
+      // Compatibility for legacy DB deployments missing the disabled migration;
+      // do not conceal arbitrary database failures with a second query.
+      if (!/no such column:\s*disabled/i.test(String(error?.message || error))) throw error;
+      rows = (await fetchPage(false)).results || [];
+    }
+    const users = rows.map((u) => ({
       id: u.id,
       eveId: u.eve_id || null,
       email: u.email,
@@ -207,29 +241,18 @@ adminRoutes.get("/users", async (c) => {
       lastActive: u.last_active || 0,
       disabled: Boolean(u.disabled),
     }));
-    return c.json({ success: true, data: users });
-  } catch (_: any) {
-    // If disabled column does not exist yet
-    try {
-      const fallbackQuery = q
-        ? "SELECT id, eve_id, email, display_name, dob, category, created_at, last_active FROM users WHERE LOWER(email) LIKE ? OR LOWER(display_name) LIKE ? OR LOWER(COALESCE(eve_id, '')) LIKE ? ORDER BY last_active DESC, created_at DESC LIMIT 200"
-        : "SELECT id, eve_id, email, display_name, dob, category, created_at, last_active FROM users ORDER BY last_active DESC, created_at DESC LIMIT 200";
-      const { results } = await db.prepare(fallbackQuery).bind(...params).all<any>();
-      const users = (results || []).map((u) => ({
-        id: u.id,
-        eveId: u.eve_id || null,
-        email: u.email,
-        displayName: u.display_name || "Student",
-        dob: u.dob || "",
-        category: u.category || "General",
-        createdAt: u.created_at || 0,
-        lastActive: u.last_active || 0,
-        disabled: false,
-      }));
-      return c.json({ success: true, data: users });
-    } catch (e: any) {
-      return c.json({ success: false, error: e.message }, 500);
-    }
+    const totalPages = Math.ceil(total / pageSize);
+    return c.json({
+      success: true,
+      data: users,
+      pagination: {
+        page, pageSize, total, totalPages,
+        hasNext: page < totalPages,
+        hasPrevious: page > 1 && totalPages > 0,
+      },
+    });
+  } catch (_error: any) {
+    return c.json({ success: false, error: "Unable to load users" }, 500);
   }
 });
 
