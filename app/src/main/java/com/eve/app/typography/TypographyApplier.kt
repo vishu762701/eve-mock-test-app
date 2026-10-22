@@ -80,6 +80,8 @@ object TypographyApplier {
     }
 
     fun applyToView(view: TextView, config: TypographyConfig, screenKey: String?) {
+        // Retired remote typography must not overwrite audited Telegram role views.
+        if (view.tag == "eve_telegram_type") return
         val idName = try {
             if (view.id != View.NO_ID) view.resources.getResourceEntryName(view.id) else null
         } catch (_: Exception) {

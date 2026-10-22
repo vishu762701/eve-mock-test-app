@@ -1,0 +1,86 @@
+package com.eve.app.designsystem
+
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import java.io.File
+
+/** Source-traced role guards for the migrated subset only. */
+class TelegramTypeSourceRolesTest {
+    private fun read(path: String): String = File("src/main/res/" + path).readText()
+
+    @Test fun sizesAndFonts() {
+        val s = read("values/telegram_typography.xml")
+        val roles = mapOf("NavigationTitle" to 20, "SettingsLabel" to 16,
+            "SettingsDetail" to 13, "SettingsSection" to 14, "MenuItem" to 16,
+            "DialogTitle" to 20, "DialogMessage" to 16, "SearchInput" to 18)
+        for ((role, size) in roles) {
+            val start = s.indexOf("<style name=\"TextAppearance.Eve.Telegram." + role + "\"")
+            assertTrue("No role: " + role, start >= 0)
+            val end = s.indexOf("</style>", start)
+            assertTrue("Unclosed role: " + role, end > start)
+            val body = s.substring(start, end)
+            assertTrue("Wrong SP size: " + role, body.contains(">" + size + "sp</item>"))
+            assertTrue("Invalid font family: " + role, body.contains("sans-serif"))
+            assertTrue("Inter leaked: " + role, !body.contains("@font/inter"))
+        }
+    }
+    @Test fun pairedColorsAndProtectedUsages() {
+        for (role in listOf("primary", "secondary", "section", "dialog")) {
+            for (qualifier in listOf("values", "values-night")) {
+                assertTrue("Missing " + role + " in " + qualifier,
+                    read(qualifier + "/telegram_colors.xml").contains("name=\"telegram_type_" + role + "\""))
+            }
+        }
+        for (file in listOf("activity_settings.xml", "activity_notifications.xml",
+            "activity_result.xml", "popup_telegram_menu.xml")) {
+            val text = read("layout/" + file)
+            val roles = "TextAppearance.Eve.Telegram.".toRegex().findAll(text).count()
+            val marks = "android:tag=\"eve_telegram_type\"".toRegex().findAll(text).count()
+            assertTrue("Wrong tag count for " + file, roles > 0 && roles == marks)
+        }
+    }
+
+    /**
+     * Guard against the native rendering failure observed on 360dp and 320dp:
+     * contrast 3.36:1 for the previous Telegram gray against Eve's #F5F5F5 canvas.
+     * Check BOTH Eve canvas and solid card, Day and Night, without changing test thresholds.
+     */
+    @Test fun textRolesMeetNormalTextContrastOnDayAndNightSurfaces() {
+        val cases = listOf(
+            Triple("values", "#F5F5F5", "#FFFFFF"),
+            Triple("values-night", "#000000", "#1C1C1E")
+        )
+        for ((qualifier, canvas, surface) in cases) {
+            val content = read(qualifier + "/telegram_colors.xml")
+            for (role in listOf("primary", "secondary", "section", "dialog")) {
+                val matcher = Regex("<color name=\\\"telegram_type_" + role + "\\\">(#?[0-9A-Fa-f]{6,8})</color>").find(content)
+                assertTrue("Missing/invalid " + role + " " + qualifier, matcher != null)
+                val foreground = matcher!!.groupValues[1]
+                for (background in listOf(canvas, surface)) {
+                    val contrast = contrast(foreground, background)
+                    assertTrue("Inaccessible " + qualifier + " " + role + " on " + background + ": " + contrast,
+                        contrast >= 4.5)
+                }
+            }
+        }
+        val styles = read("values/telegram_typography.xml")
+        val start = styles.indexOf("<style name=\\\"TextAppearance.Eve.Telegram.SettingsSection\\\"")
+        val end = styles.indexOf("</style>", start)
+        assertTrue("Settings section must use dedicated accessible header theme role",
+            start >= 0 && end > start && styles.substring(start, end).contains("@color/telegram_type_section"))
+    }
+
+    private fun contrast(foreground: String, background: String): Double {
+        fun luminance(hex: String): Double {
+            val rgb = hex.removePrefix("#").takeLast(6)
+            val channels = listOf(0, 2, 4).map { index ->
+                val v = rgb.substring(index, index + 2).toInt(16) / 255.0
+                if (v <= 0.04045) v / 12.92 else Math.pow((v + 0.055) / 1.055, 2.4)
+            }
+            return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722
+        }
+        val a = luminance(foreground)
+        val b = luminance(background)
+        return (maxOf(a, b) + 0.05) / (minOf(a, b) + 0.05)
+    }
+}
