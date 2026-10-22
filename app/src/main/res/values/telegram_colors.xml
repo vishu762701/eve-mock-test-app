@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Telegram ThemeColors.java:16,26,100,107,197. -->
+    <color name="telegram_type_primary">#FF1A1D21</color>
+    <color name="telegram_type_secondary">#FF82868A</color>
+    <color name="telegram_type_dialog">#FF1A1D21</color>
+</resources>
