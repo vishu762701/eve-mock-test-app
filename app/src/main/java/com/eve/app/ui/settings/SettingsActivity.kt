@@ -338,7 +338,11 @@ class SettingsActivity : EveBaseActivity() {
                 com.eve.app.data.local.PendingSubmissionStore(this@SettingsActivity).clearAllForUser(user.uid)
                 com.eve.app.util.AttemptLimitManager.clearLocalForUser(this@SettingsActivity, user.uid)
                 ProfilePhotoManager.removePhoto(this@SettingsActivity, user.uid)
-                getSharedPreferences("eve_prefs", MODE_PRIVATE).edit().clear().apply()
+                // Never wipe the ownerless legacy preferences file: it also holds
+                // app-wide appearance settings and historic unowned notification
+                // entries that cannot safely be attributed to this UID.
+                com.eve.app.util.SessionManager.clear()
+                com.eve.app.data.repository.PremiumRepository.clearCacheForLogout(user.uid, this@SettingsActivity)
 
                 FirebaseAuth.getInstance().signOut()
                 val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
