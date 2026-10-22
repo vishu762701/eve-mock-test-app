@@ -38,6 +38,7 @@ class ExistingExamsAdapter(
     private val pendingEntranceIds = mutableSetOf<String>()
 
     fun prepareEntrances(newIds: Set<String>) {
+        pendingEntranceIds.clear()
         pendingEntranceIds.addAll(newIds)
     }
 
@@ -74,10 +75,14 @@ class ExistingExamsAdapter(
             }
             binding.btnQuickPreview.text = "Preview"
             binding.btnQuickEdit.text = "Edit"
-            binding.btnQuickPreview.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
-            binding.btnQuickEdit.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
-            binding.btnMoreOptions.layoutParams.width = touchMin
-            binding.tvMoreLabel.layoutParams.width = 0
+            binding.btnQuickPreview.layoutParams = binding.btnQuickPreview.layoutParams.apply {
+                width = ViewGroup.LayoutParams.WRAP_CONTENT
+            }
+            binding.btnQuickEdit.layoutParams = binding.btnQuickEdit.layoutParams.apply {
+                width = ViewGroup.LayoutParams.WRAP_CONTENT
+            }
+            binding.btnMoreOptions.layoutParams = binding.btnMoreOptions.layoutParams.apply { width = touchMin }
+            binding.tvMoreLabel.layoutParams = binding.tvMoreLabel.layoutParams.apply { width = 0 }
             binding.tvMoreLabel.alpha = 0f
         }
 
@@ -259,14 +264,16 @@ class ExistingExamsAdapter(
             val inverseAction = if (item.isExpanded)
                 AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_EXPAND
             else AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_COLLAPSE
-            ViewCompat.replaceAccessibilityAction(binding.root, inverseAction, null, null)
-            ViewCompat.replaceAccessibilityAction(binding.root, a11yAction,
-                if (item.isExpanded) "Collapse sub-exams" else "Expand sub-exams",
-                if (item.hasChildren) androidx.core.view.accessibility.AccessibilityViewCommand { _, _ ->
-                    onExpandToggle(exam)
-                    true
-                } else null
-            )
+            ViewCompat.removeAccessibilityAction(binding.root, inverseAction.id)
+            if (item.hasChildren) {
+                ViewCompat.replaceAccessibilityAction(binding.root, a11yAction,
+                    if (item.isExpanded) "Collapse sub-exams" else "Expand sub-exams",
+                    androidx.core.view.accessibility.AccessibilityViewCommand { _, _ ->
+                        onExpandToggle(exam)
+                        true
+                    }
+                )
+            } else ViewCompat.removeAccessibilityAction(binding.root, a11yAction.id)
             binding.tvCategoryBadge.text = exam.categoryOrOther
             binding.tvTimeLimit.text = "⏱️ ${exam.timeLimitMinutes} mins"
             val qCount = if (item.questionCount > 0) item.questionCount else exam.questionCount
