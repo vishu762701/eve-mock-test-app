@@ -140,6 +140,9 @@ class ManageExistingExamsActivity : EveBaseActivity() {
 
     private fun filterExams(query: String) {
         val filtered = ExamTree.flatten(allExamsWithStats, expandedExamIds, query)
+        val oldIds = adapter.currentList.mapTo(mutableSetOf()) { it.exam.id }
+        adapter.prepareEntrances(filtered.filter { it.treeDepth > 0 && it.exam.id !in oldIds }
+            .mapTo(mutableSetOf()) { it.exam.id })
         adapter.submitList(filtered)
         if (filtered.isEmpty()) {
             binding.emptyGroup.visibility = View.VISIBLE
