@@ -22,7 +22,6 @@
     <dimen name="design_input_padding">16dp</dimen>
     <dimen name="design_icon_size">24dp</dimen>
     <dimen name="design_bottom_bar_height">54dp</dimen>
-    <dimen name="design_bottom_bar_margin">10dp</dimen>
     <dimen name="design_switch_width">51dp</dimen>
     <dimen name="design_switch_height">31dp</dimen>
     <dimen name="design_switch_thumb">27dp</dimen>

@@ -21,9 +21,20 @@ Verification status: source graph checked for direct call sites; full Android/ba
 
 ## Retained ambiguous/cross-cutting candidates
 
-- `UiArcProgressBar.kt`: explicit source and JVM test found, no confirmed active production host. Kept pending full reflection/XML reachability and dependency tests, not called a live feature in the catalog.
-- `ic_nav_home.xml`, `design_bottom_bar_height`, `design_bottom_bar_margin`: Home overlay uses were removed. Retained because wider res qualifiers, design test baselines or dynamic references were not completely disproven; do not mass-delete blindly.
+- `UiArcProgressBar.kt`: removed after source search found no production XML/Kotlin constructor/import/reflection callers. The only non-doc inbound reference was a JVM file-existence assertion; removed that obsolete test without modifying the actual UI behavior suites.
+- `ic_nav_home.xml` and `design_bottom_bar_height`: retained: the icon remains referenced in historical design evidence, and the height dimension is still used for Settings tap rows. A zero-caller check for the rest of the repository (including remote naming) was not exhaustive.
 - `docs/design-reset/*` baseline and `backend/migrations/0017_typography_studio.sql`: retained as historical reference/schema state; removing them could damage source audit or deployed D1 compatibility.
 - The deleted Studio editor entries are audited above; no production D1 tables, app user preferences, font files, secrets or Firebase rules were deleted.
 
 Source scan covered committed files and direct imports/XML references. It is **not** a complete proof for reflection, remotely supplied resource names, release shrinker behavior, or files outside the repo. Ambiguous artifacts are intentionally retained.
+
+
+## Proven dead source/style resource cleanup (2026-10-22)
+
+| Deleted element | Active inbound reference proof | Compatibility note |
+|---|---|---|
+| `app/src/main/java/com/eve/app/designsystem/UiArcProgressBar.kt` | GitHub code search for `UiArcProgressBar` found only the class, a JVM file-existence test and documentation; no Android XML or Kotlin runtime caller. | Kept existing native upload/status progress; removed only dead demonstration code and its existence assertion. |
+| `Widget.Eve.Token.Glass.BottomBar` in `app/src/main/res/values/design_widgets.xml` | Search for full style name found only style declaration, after deleting the Home floating bar. | No screen uses this style after removal. |
+| `design_bottom_bar_margin` from values, values-sw360dp, values-sw600dp | Search found the three declarations and the dead bottom-bar style. | `design_bottom_bar_height` is retained for Settings touch target. |
+
+**NOT DELETED:** `ic_nav_home.xml` (historic design references), source migrations/fonts, current tests, source of truth or production data. Final Android linking and native suite CI still required; dynamic names beyond committed source remain UNKNOWN.

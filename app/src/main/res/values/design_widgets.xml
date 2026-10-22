@@ -154,11 +154,6 @@
     <style name="Widget.Eve.Token.TextInput.Dropdown" parent="Widget.Eve.Token.TextInput">
         <item name="endIconMode">dropdown_menu</item>
     </style>
-    <style name="Widget.Eve.Token.Glass.BottomBar" parent="">
-        <item name="designGlassCapsule">true</item><item name="android:layout_height">@dimen/design_bottom_bar_height</item>
-        <item name="android:layout_marginStart">@dimen/design_screen_margin</item><item name="android:layout_marginEnd">@dimen/design_screen_margin</item>
-        <item name="android:layout_marginBottom">@dimen/design_bottom_bar_margin</item>
-    </style>
     <style name="Widget.Eve.Token.Glass.TopBar" parent="">
         <item name="designGlassRadius">@dimen/design_zero</item>
     </style>

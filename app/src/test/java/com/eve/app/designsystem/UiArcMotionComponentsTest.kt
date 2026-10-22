@@ -267,12 +267,6 @@ class UiArcMotionComponentsTest {
     }
 
     @Test
-    fun testBatch03_Component1_ProgressBar() {
-        val progressBarClass = File(getProjectDir(), "app/src/main/java/com/eve/app/designsystem/UiArcProgressBar.kt")
-        assertTrue("UiArcProgressBar.kt must exist", progressBarClass.exists())
-    }
-
-    @Test
     fun testBatch03_Component2_TargetExamsBottomSheetDetents() {
         val sheetLayout = loadXml("src/main/res/layout/bottom_sheet_target_exams.xml")
         val chipGroup = findElementById(sheetLayout, "chipGroupExams")

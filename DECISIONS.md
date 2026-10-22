@@ -1902,3 +1902,9 @@ Following Batch 01 (ADR-022), Batch 02 (ADR-023), Batch 03 (ADR-024), Typography
 - A failed or delayed submit request must not extend the client exam. Introduce a pure monotonic countdown using the same `SystemClock.elapsedRealtime()` source already used by `TestViewModel`; request retry only resumes UI observation against the existing deadline.
 - Every newly server-authorized start may establish its own remaining-time deadline; only the backend grades/authorizes attempts. No negative-marking, score, or submitted-result logic changes.
 - Remove duplicate pending-submission delete in successful result path; retained the single server-success cleanup. JUnit tests cover countdown semantics, while native process-death and clock-identity cases remain separate verification requirements.
+
+
+## ADR-FINAL-2026-10-22-J: Proven dead Home/style cleanup
+
+- After actual inbound reference searches, remove the unused custom `UiArcProgressBar` (no production host), the obsolete JVM test that only asserted its source file existed, and the old Home bottom-glass style and margin dimensions across all three qualifiers. Do not touch active progress indicators, Settings minimum row height, typography fonts, backend data, tests covering live behavior, or protected theme animation.
+- Mark UIArc Progress as **NOT APPLICABLE** rather than claiming unused code represented a rendered product component. CI remains required for resource linking and native rendering; ambiguous legacy assets remain for deliberate review.
