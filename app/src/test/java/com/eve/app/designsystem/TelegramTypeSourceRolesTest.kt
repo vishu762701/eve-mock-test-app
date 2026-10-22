@@ -212,6 +212,27 @@ class TelegramTypeSourceRolesTest {
         assertTrue(destructive.contains("design_destructive_text"))
     }
 
+    @Test fun pairedNavigationTitleAndSubtitleRespectTelegramPhoneTabletSourceMetrics() {
+        val phone = read("values/telegram_typography.xml")
+        val tablet = read("values-sw600dp/telegram_typography.xml")
+        val detail = File("src/main/res/layout/activity_result_detail.xml").readText()
+        val binder = File("src/main/java/com/eve/app/ui/result/ResultDetailActivity.kt").readText()
+        for ((xml, role, size) in listOf(
+            Triple(phone, "NavigationTitle.WithSubtitle", "18sp"),
+            Triple(phone, "NavigationSubtitle", "14sp"),
+            Triple(tablet, "NavigationTitle.WithSubtitle", "20sp"),
+            Triple(tablet, "NavigationSubtitle", "16sp")
+        )) {
+            val start = xml.indexOf("<style name=\"" + "TextAppearance.Eve.Telegram." + role + "\"")
+            assertTrue("Missing paired role " + role, start >= 0)
+            val end = xml.indexOf("</style>", start)
+            assertTrue("Wrong paired size " + role, xml.substring(start, end).contains(">" + size + "</item>"))
+        }
+        assertTrue(detail.contains("style=\"@style/TextAppearance.Eve.Telegram.NavigationSubtitle\" android:tag=\"eve_telegram_type\""))
+        assertTrue(binder.contains("R.style.TextAppearance_Eve_Telegram_NavigationTitle_WithSubtitle"))
+        assertTrue(binder.contains("R.style.TextAppearance_Eve_Telegram_NavigationTitle"))
+    }
+
     private fun contrast(foreground: String, background: String): Double {
         fun luminance(hex: String): Double {
             val rgb = hex.removePrefix("#").takeLast(6)

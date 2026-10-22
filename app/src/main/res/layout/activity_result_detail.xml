@@ -7,8 +7,8 @@
         </LinearLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
-        <TextView android:id="@+id/tvDetailTitle" style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Details" />
-        <TextView android:id="@+id/tvDetailSubtitle" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:visibility="gone" />
+        <TextView android:id="@+id/tvDetailTitle" style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:tag="eve_telegram_type" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Details" />
+        <TextView android:id="@+id/tvDetailSubtitle" style="@style/TextAppearance.Eve.Telegram.NavigationSubtitle" android:tag="eve_telegram_type" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:visibility="gone" />
     </LinearLayout>
     <androidx.core.widget.NestedScrollView android:layout_width="match_parent" android:layout_height="match_parent" android:clipChildren="false" android:clipToPadding="false" android:fillViewport="true" android:overScrollMode="ifContentScrolls" style="@style/Widget.Eve.Token.Scroll">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:clipChildren="false" android:clipToPadding="false" android:orientation="vertical" style="@style/Widget.Eve.Token.Column">

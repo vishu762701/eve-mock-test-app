@@ -109,3 +109,7 @@ Direct XML contains 66 icon IDs. A targeted executable search of 11 EVE source f
 ## Mapping-confidence correction
 
 The 71-resource source registry now distinguishes **UNMAPPED_PENDING_SOURCE_AUDIT** (Telegram counterpart *unknown*) from **SEMANTIC_MISMATCH** (candidate art exists but call-site purpose differs) and **CANDIDATE_NOT_IMPORTED** (matching candidate asset found but GPL artwork not imported). A missing name search does not prove Telegram has no analogous procedural drawable. Preserve EVE drawables until real asset/call-site/theme/dependency evidence supports replacement. No exact match is fabricated.
+
+## Result Detail paired ActionBar title and subtitle mapping
+
+Telegram ActionBar.java:469-477 and 1445-1452 specify title/subtitle paired metrics of 18dp/14dp for phones and 20dp/16dp for tablets. ResultDetailActivity now changes title style only when the exam-name subtitle is present; otherwise the 20sp NavigationTitle is kept. The mapped XML text styles use corresponding sp sizes for Android font scaling. The Telegram source light subtitle #FF79817E and night #73F2F2F2 are mapped to the more legible EVE telegram_type_secondary Day/Night role, as a documented contrast deviation. Existing labels, multi-line content, screen geometry and functions remain unchanged. No Telegram GPL asset was copied.

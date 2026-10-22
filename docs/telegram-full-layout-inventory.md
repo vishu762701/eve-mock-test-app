@@ -155,3 +155,7 @@ The font has name `Roboto Medium`, weight 500, version 2.138 (2017), embedded co
 
 ## Verification boundary and resumption
 Audit committed from XML source SHA `19c0d1135b6e8e797593b97022912e55ae5d230a`. The filename inventory is guarded by `TelegramInventoryCoverageTest.kt`; the guard checks inventory inclusion, NOT rendered fidelity. After any new XML layout is created, expand this table and validate dynamic Kotlin drawing separately. Latest Android tests and artwork distribution must always be checked against live `main`, not this prior SHA.
+
+## Post-inventory paired title source mapping
+
+Result Detail title and optional exam-name subtitle use Telegram ActionBar.java:1445-1452 responsive 18sp/14sp phone and 20sp/16sp tablet rules. Existing 95-layout inventory counts above are pinned to their original baseline SHA and were not recomputed by this change; layout total remains 95.

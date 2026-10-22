@@ -8,6 +8,18 @@
         <item name="android:textSize">20sp</item>
         <item name="android:textColor">@color/telegram_type_primary</item>
     </style>
+    <!-- ActionBar.java:1445-1452: paired title/subtitle = phone 18/14dp, tablet 20/16dp.
+         EVE uses sp to preserve Android font scaling. -->
+    <style name="TextAppearance.Eve.Telegram.NavigationTitle.WithSubtitle" parent="TextAppearance.Eve.Telegram.NavigationTitle">
+        <item name="android:textSize">18sp</item>
+    </style>
+    <style name="TextAppearance.Eve.Telegram.NavigationSubtitle" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/telegram_type_secondary</item>
+    </style>
     <style name="TextAppearance.Eve.Telegram.SettingsLabel" parent="TextAppearance.Material3.BodyLarge">
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>

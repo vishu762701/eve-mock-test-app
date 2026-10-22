@@ -88,9 +88,16 @@ class ResultDetailActivity : EveBaseActivity() {
         val topperAvg = intent.getStringExtra("EXTRA_TOPPER_AVG").orEmpty()
 
         if (examName.isNotBlank()) {
+            // Telegram ActionBar.java:1445-1452 uses a smaller title when subtitle is shown.
+            androidx.core.widget.TextViewCompat.setTextAppearance(
+                binding.tvDetailTitle, R.style.TextAppearance_Eve_Telegram_NavigationTitle_WithSubtitle
+            )
             binding.tvDetailSubtitle.visibility = View.VISIBLE
             binding.tvDetailSubtitle.text = examName
         } else {
+            androidx.core.widget.TextViewCompat.setTextAppearance(
+                binding.tvDetailTitle, R.style.TextAppearance_Eve_Telegram_NavigationTitle
+            )
             binding.tvDetailSubtitle.visibility = View.GONE
         }
 
