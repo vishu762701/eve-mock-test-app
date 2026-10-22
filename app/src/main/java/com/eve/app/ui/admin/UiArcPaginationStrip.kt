@@ -79,7 +79,10 @@ class UiArcPaginationStrip @JvmOverloads constructor(
         mark.animate().cancel()
         if (window.isEmpty()) { mark.visibility = View.GONE; lastPage = -1; return }
         mark.visibility = View.VISIBLE
-        val destination = (window.indexOf(selected) * slot).toFloat()
+        // FrameLayout.Gravity.START anchors to the right on RTL layouts.
+        // Child indices remain logical; translation sign changes, not their IDs.
+        val direction = if (layoutDirection == View.LAYOUT_DIRECTION_RTL) -1f else 1f
+        val destination = window.indexOf(selected) * slot * direction
         if (lastPage > 0 && UiArcMotion.isMotionEnabled(context)) {
             mark.animate().translationX(destination)
                 .setDuration(UiArcMotion.Spring.MORPH.settlingDurationMs)
