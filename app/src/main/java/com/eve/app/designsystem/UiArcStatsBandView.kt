@@ -113,7 +113,12 @@ class UiArcStatsBandView @JvmOverloads constructor(
     fun checkInView() {
         // Every new target must wait for actual >=50% visibility, even after
         // a previous metric successfully completed its first entrance.
-        if (!isFiftyPercentVisible()) return
+        if (!isFiftyPercentVisible()) {
+            // Scroll can hide the band while the 1.6s counter is still running.
+            // Keep the last visible integer as the next animation's starting point.
+            if (activeAnimators.isNotEmpty()) cancelAllAnimations()
+            return
+        }
         hasTriggeredInView = true
         triggerPendingMetrics()
     }
@@ -153,10 +158,24 @@ class UiArcStatsBandView @JvmOverloads constructor(
             return
         }
 
-        // Suppress repeated animation for identical values
-        if (entry.targetCount == targetCount && entry.hasAnimatedEntrance) {
-            textView.text = targetCount.toString()
-            return
+        // Stop counters when a hidden tab receives an update without a scroll event.
+        // Snapshot before cancellation so returning to the viewport can resume.
+        if (!isFiftyPercentVisible() && activeAnimators.isNotEmpty()) {
+            cancelAllAnimations()
+        }
+
+        // A repeated emission must not jump an in-flight counter to its final value.
+        if (entry.targetCount == targetCount && entry.animator != null) return
+        if (entry.targetCount == targetCount && entry.hasAnimatedEntrance &&
+            entry.displayedCount == targetCount
+        ) return
+
+        // A changed server value may arrive mid-animation; restart from the number
+        // actually on screen, never from the previously completed server value.
+        if (entry.animator != null) {
+            entry.displayedCount = textView.text.toString().toLongOrNull() ?: entry.displayedCount
+            entry.animator?.cancel()
+            entry.animator = null
         }
 
         entry.targetCount = targetCount
