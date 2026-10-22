@@ -121,3 +121,7 @@ See `docs/telegram-icon-binary-geometry.md` for 10 actual source assets across m
 ## Additional exact source call-site corrections
 
 The ZIP's actual Java usages prove `msg_calendar` is a chat search date icon (ChatActivity.java:10664), `msg_pin` is a chat pin action (DialogsActivity.java:6739), and `msg_warning` is a message-error indicator (Theme.java:8228). The icon registry now records those semantics and blocks careless substitutions. Zero Telegram icon bitmaps have been added to EVE's packaged resources; an unresolved whole-app redistribution/license plan remains the constraint.
+
+## Source-derived ActionBar icon tint — limited real UI change
+
+Telegram source `ui/ActionBar/ThemeColors.java:193` defines `key_actionBarDefaultIcon=DEFAULT_BLACK_TEXT` (Telegram day `#FF1A1D21`); bundled `night.attheme` defines the corresponding action icon color white. Eight EVE activity XML layouts now tint **back and overflow actions only** using the already paired `@color/telegram_type_primary` resource (Day `#FF1A1D21`, Night `#FFFFFFFF`): Home, Settings, Notifications, Result, Profile, Result Detail, About and Admin. Original icon art is untouched because Telegram image copyright/GPL compatibility remains unresolved. Existing content descriptions, 48dp touch targets, selectors, callbacks and app navigation are intact. This is verified **color role adaptation only**, emphatically **not exact official icon glyph integration**. Source on-screen per-Activity code may still override icon tint and requires runtime visual review.
