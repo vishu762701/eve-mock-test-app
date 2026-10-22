@@ -1860,3 +1860,11 @@ Following Batch 01 (ADR-022), Batch 02 (ADR-023), Batch 03 (ADR-024), Typography
 - `AdminActivity`, `ManageExamsActivity` and `SendNotificationActivity` now hide protected content until `AdminAccessGate.requireAdmin(requireFreshServer=true)` resolves the signed-in Firebase UID/email against the server. Initialization of privileged listeners and API-backed content occurs exclusively inside the success callback.
 - Server `requireAdmin` and auth middleware remain separately authoritative for each write, including broadcast dispatch. This is UI defense in depth, not a replacement for backend policy.
 - Other admin routes still require per-screen audit and runtime negative-case evidence; the change is not an assertion that every admin activity is secured.
+
+
+## ADR-FINAL-2026-10-22-E: Final catalog applicability and evidence-first audits
+
+- `UIARC_48_FINAL_MATRIX.md` covers all 48 owner-supplied catalog entries with their actual native host or reason for **NOT APPLICABLE**. Registry JSON was not independently obtainable; parity with upstream physics and all-device screenshots is not claimed. No filler widgets, fake user reactions, web cookie banner, or resurrected typography slider were added.
+- `ADMIN_FUNCTION_MATRIX.md` and `MOCK_TEST_CAPABILITY_MATRIX.md` record source-backed functionality separately from truly observed end-to-end test results. They remain explicit about authorization, lifecycle, network, data and physical-device unknowns.
+- Cleanup follows an inbound-reference proof standard; ambiguous assets, database migrations, published user typography and backend compatibility route are retained. No speculative mass deletion.
+- Final mission remains one consolidation; no additional batch number is introduced. The release gate for the exact last SHA includes build/lint/JVM/backend/Functions/native gesture/native three-button and artifact confirmation.
