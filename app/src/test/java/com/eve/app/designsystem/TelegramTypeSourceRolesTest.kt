@@ -122,6 +122,12 @@ class TelegramTypeSourceRolesTest {
         assertTrue(share.contains("EVE-authored") && !share.contains("Tabler"))
     }
 
+    @Test fun adminPaginationCannotReactivateBundledInter() {
+        val source = File("src/main/java/com/eve/app/ui/admin/UiArcPaginationStrip.kt").readText()
+        assertTrue(source.contains("FontManager.regularTypeface(context)"))
+        assertTrue("Admin pagination still forces retired Inter", !source.contains("R.font.inter"))
+    }
+
     private fun contrast(foreground: String, background: String): Double {
         fun luminance(hex: String): Double {
             val rgb = hex.removePrefix("#").takeLast(6)

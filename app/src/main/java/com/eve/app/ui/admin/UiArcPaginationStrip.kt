@@ -54,7 +54,7 @@ class UiArcPaginationStrip @JvmOverloads constructor(
                 minWidth = slot
                 minHeight = slot
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
-                typeface = androidx.core.content.res.ResourcesCompat.getFont(context, R.font.inter_regular)
+                typeface = com.eve.app.util.FontManager.regularTypeface(context)
             }
             cells.addView(button, LinearLayout.LayoutParams(slot, slot))
         }
