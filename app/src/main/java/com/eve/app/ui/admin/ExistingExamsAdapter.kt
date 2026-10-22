@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.View
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -17,14 +18,18 @@ import com.eve.app.designsystem.UiArcMotion
 data class ExamWithStats(
     val exam: Exam,
     val attemptCount: Long = 0L,
-    val questionCount: Int = exam.questionCount
+    val questionCount: Int = exam.questionCount,
+    val treeDepth: Int = 0,
+    val hasChildren: Boolean = false,
+    val isExpanded: Boolean = false
 )
 
 class ExistingExamsAdapter(
     private val onExamClick: (Exam) -> Unit,
     private val onEditClick: (Exam) -> Unit,
     private val onPreviewClick: (Exam) -> Unit,
-    private val onDeleteClick: (Exam) -> Unit
+    private val onDeleteClick: (Exam) -> Unit,
+    private val onExpandToggle: (Exam) -> Unit
 ) : ListAdapter<ExamWithStats, ExistingExamsAdapter.ViewHolder>(DiffCallback) {
 
     inner class ViewHolder(private val binding: ItemExistingExamAdminBinding) :
@@ -59,7 +64,29 @@ class ExistingExamsAdapter(
                 false // Preserve native focus, click and child quick-action dispatch.
             }
             val exam = item.exam
+            val depth = item.treeDepth.coerceIn(0, 3)
             binding.tvExamName.text = exam.examName
+            // Keep current card footprint. Indent only the label for nested exams.
+            binding.tvExamName.setPadding(
+                (depth * 14f * binding.root.resources.displayMetrics.density).toInt(),
+                binding.tvExamName.paddingTop, binding.tvExamName.paddingRight,
+                binding.tvExamName.paddingBottom
+            )
+            binding.btnExpandExam.visibility = if (item.hasChildren) View.VISIBLE else View.GONE
+            binding.btnExpandExam.rotation = if (item.isExpanded) 90f else 0f
+            binding.btnExpandExam.contentDescription =
+                (if (item.isExpanded) "Collapse" else "Expand") + " sub-exams under " + exam.examName
+            binding.btnExpandExam.setOnClickListener {
+                val spring = UiArcMotion.SpringCurve(0.26f, 0f, 360L)
+                if (UiArcMotion.isMotionEnabled(binding.root.context)) {
+                    binding.btnExpandExam.animate().cancel()
+                    binding.btnExpandExam.animate()
+                        .rotation(if (item.isExpanded) 0f else 90f)
+                        .setDuration(spring.settlingDurationMs)
+                        .setInterpolator(spring).start()
+                }
+                onExpandToggle(exam)
+            }
             binding.tvCategoryBadge.text = exam.categoryOrOther
             binding.tvTimeLimit.text = "⏱️ ${exam.timeLimitMinutes} mins"
             val qCount = if (item.questionCount > 0) item.questionCount else exam.questionCount
