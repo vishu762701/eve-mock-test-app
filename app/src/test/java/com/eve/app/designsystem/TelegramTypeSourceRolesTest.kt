@@ -133,10 +133,11 @@ class TelegramTypeSourceRolesTest {
         val tabletLand = read("values-sw600dp-land/telegram_typography.xml")
         assertTrue("ActionBar phone landscape title is 18sp", phoneLand.contains("18sp"))
         assertTrue("ActionBar tablet landscape title is 20sp", tabletLand.contains("20sp"))
+        val dialogTitleFragment = """style="@style/TextAppearance.Eve.Telegram.DialogTitle" android:tag="eve_telegram_type""""
         for (file in listOf("dialog_create_feedback_post.xml", "dialog_reply_feedback.xml")) {
             val xml = read("layout/" + file)
             assertTrue("Dialog heading must use source title role",
-                xml.contains("style=\\\"@style/TextAppearance.Eve.Telegram.DialogTitle\\\" android:tag=\\\"eve_telegram_type\\\""))
+                xml.contains(dialogTitleFragment))
         }
         val widgets = read("values/design_widgets.xml")
         assertTrue(widgets.contains("@style/TextAppearance.Eve.Telegram.DialogTitle"))
