@@ -1038,6 +1038,11 @@ class MainActivity : EveBaseActivity() {
             restoreNotificationBellIdle()
             return
         }
+        // An asynchronous/invalid composition must not hide the always-visible vector.
+        if (binding.btnNotification.composition == null) {
+            restoreNotificationBellIdle()
+            return
+        }
         val generation = ++bellAnimationGeneration
         try {
             binding.btnNotification.cancelAnimation()
@@ -1046,7 +1051,11 @@ class MainActivity : EveBaseActivity() {
             binding.ivNotificationIdle.visibility = View.INVISIBLE
             binding.btnNotification.alpha = 1f
             binding.btnNotification.playAnimation()
-            // An invalid/missing Lottie composition must never leave a blank toolbar.
+            if (!binding.btnNotification.isAnimating) {
+                restoreNotificationBellIdle()
+                return
+            }
+            // Cancel and restore the vector even if a device's animator stalls.
             binding.btnNotification.postDelayed({
                 if (::binding.isInitialized && generation == bellAnimationGeneration) {
                     binding.btnNotification.cancelAnimation()
