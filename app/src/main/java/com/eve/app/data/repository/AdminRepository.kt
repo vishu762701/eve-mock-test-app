@@ -62,6 +62,17 @@ class AdminRepository {
         }
     }
 
+    /**
+     * Fail-closed, uncached backend authorization for high-sensitivity user management.
+     * Never trust the offline emergency allowlist or a stale SessionManager entry.
+     */
+    suspend fun isAdminFresh(uid: String, email: String): Boolean {
+        val response = api.getMe()
+        val profile = response.data ?: return false
+        return response.success && profile.isAdmin &&
+            profile.uid == uid && profile.email.equals(email, ignoreCase = true)
+    }
+
     /** Dynamic admins from D1 */
     suspend fun getDynamicAdmins(): List<String> {
         val response = api.getDynamicAdmins()
