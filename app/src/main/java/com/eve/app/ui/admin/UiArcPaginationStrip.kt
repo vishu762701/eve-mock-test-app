@@ -19,6 +19,8 @@ class UiArcPaginationStrip @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : FrameLayout(context, attrs) {
     private val slot = (48f * resources.displayMetrics.density).toInt()
+    // Arc's documented morph spring is visualDuration=0.42, bounce=0.
+    private val glide = UiArcMotion.SpringCurve(0.42f, 0f, 550L)
     private val mark = View(context)
     private val cells = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
     private var lastStart = -1
@@ -85,8 +87,8 @@ class UiArcPaginationStrip @JvmOverloads constructor(
         val destination = window.indexOf(selected) * slot * direction
         if (lastPage > 0 && UiArcMotion.isMotionEnabled(context)) {
             mark.animate().translationX(destination)
-                .setDuration(UiArcMotion.Spring.MORPH.settlingDurationMs)
-                .setInterpolator(UiArcMotion.Spring.MORPH).start()
+                .setDuration(glide.settlingDurationMs)
+                .setInterpolator(glide).start()
         } else mark.translationX = destination
         lastPage = selected
     }
