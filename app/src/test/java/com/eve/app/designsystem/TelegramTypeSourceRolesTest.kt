@@ -53,7 +53,7 @@ class TelegramTypeSourceRolesTest {
         for ((qualifier, canvas, surface) in cases) {
             val content = read(qualifier + "/telegram_colors.xml")
             for (role in listOf("primary", "secondary", "section", "dialog")) {
-                val matcher = Regex("<color name=\\\"telegram_type_" + role + "\\\">(#?[0-9A-Fa-f]{6,8})</color>").find(content)
+                val matcher = Regex("<color name=\"telegram_type_" + role + "\">(#?[0-9A-Fa-f]{6,8})</color>").find(content)
                 assertTrue("Missing/invalid " + role + " " + qualifier, matcher != null)
                 val foreground = matcher!!.groupValues[1]
                 for (background in listOf(canvas, surface)) {
@@ -64,7 +64,7 @@ class TelegramTypeSourceRolesTest {
             }
         }
         val styles = read("values/telegram_typography.xml")
-        val start = styles.indexOf("<style name=\\\"TextAppearance.Eve.Telegram.SettingsSection\\\"")
+        val start = styles.indexOf("<style name=\"TextAppearance.Eve.Telegram.SettingsSection\"")
         val end = styles.indexOf("</style>", start)
         assertTrue("Settings section must use dedicated accessible header theme role",
             start >= 0 && end > start && styles.substring(start, end).contains("@color/telegram_type_section"))
