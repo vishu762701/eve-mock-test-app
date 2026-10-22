@@ -134,7 +134,7 @@ The table counts literal `<TextView>` nodes and lexical `TextAppearance.Eve.Tele
 | Score/rank/wrong/correct/skipped | No corresponding Telegram exam asset | EVE state graphics | NO EXACT TELEGRAM COUNTERPART; preserve |
 | Launcher and status notification small icon | Android-specific app identity/platform constraints | EVE launch/mipmap and notification small icon | Retain EVE branding/platform requirements |
 
-Assets above are static `.webp` lookups and NOT grounds to invent Telegram icon animation. Any separately animated icon needs its actual source drawable/JSON/RLottie trigger and lifecycle proven before replacement. Only source-independent EVE icon refinements were previously committed; no Telegram GPL-derived assets are in EVE.
+Assets above are static `.webp` lookups and NOT grounds to invent Telegram icon animation. Any separately animated icon needs its actual source drawable/JSON/RLottie trigger and lifecycle proven before replacement. A visual-only 2dp stroke adjustment was tried and subsequently reverted because it had no source-exact Telegram art mapping. The pre-mission EVE icon assets are retained as working fallbacks. No Telegram GPL-derived assets were imported.
 
 ## Source/legal/test gating
 

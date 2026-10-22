@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EVE-authored generic curved share-action geometry, visually source-referenced
-     against Telegram msg_share.webp. No Telegram GPL image/path has been copied.
-     Android tint, resource name and View click handler are preserved. -->
+<!-- Tabler Icons v3.49.0 / share; MIT, bundled Tabler-LICENSE.txt. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="@dimen/design_icon_size" android:height="@dimen/design_icon_size"
     android:viewportWidth="24" android:viewportHeight="24">
     <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
-        android:strokeWidth="2" android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M16 5 L22 11 L16 17 L16 13 C10 13,7 16,4 20 C4 13,8 9,16 9 Z" />
+        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M3 12a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
+        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M15 6a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
+        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M15 18a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
+        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M8.7 10.7l6.6 -3.4" />
+    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
+        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M8.7 13.3l6.6 3.4" />
 </vector>

@@ -4,6 +4,6 @@
     android:width="@dimen/design_icon_size" android:height="@dimen/design_icon_size"
     android:viewportWidth="24" android:viewportHeight="24">
     <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
-        android:strokeWidth="2" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
         android:pathData="M18 7v14l-6 -4l-6 4v-14a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4" />
 </vector>
