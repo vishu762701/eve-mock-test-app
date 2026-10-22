@@ -13,7 +13,12 @@ import kotlinx.coroutines.launch
  * Backend rules remain authoritative for every read/write.
  */
 object AdminAccessGate {
-    fun requireAdmin(activity: EveBaseActivity, protectedRoot: View, onAuthorized: () -> Unit) {
+    fun requireAdmin(
+        activity: EveBaseActivity,
+        protectedRoot: View,
+        requireFreshServer: Boolean = false,
+        onAuthorized: () -> Unit
+    ) {
         // INVISIBLE prevents focus/touch and content disclosure while the async
         // authorization check is unresolved. No privileged listeners/data loads yet.
         protectedRoot.visibility = View.INVISIBLE
@@ -26,7 +31,11 @@ object AdminAccessGate {
 
         activity.lifecycleScope.launch {
             val authorized = try {
-                AdminRepository().isAdmin(email)
+                if (requireFreshServer) {
+                    AdminRepository().isAdminFresh(user.uid, email)
+                } else {
+                    AdminRepository().isAdmin(email)
+                }
             } catch (cancel: CancellationException) {
                 throw cancel
             } catch (_: Exception) {
@@ -34,7 +43,8 @@ object AdminAccessGate {
             }
             if (activity.isFinishing || activity.isDestroyed) return@launch
             val current = FirebaseAuth.getInstance().currentUser
-            if (!authorized || current?.uid != user.uid) {
+            if (!authorized || current?.uid != user.uid ||
+                !current.email.equals(email, ignoreCase = true)) {
                 activity.finish()
                 return@launch
             }
