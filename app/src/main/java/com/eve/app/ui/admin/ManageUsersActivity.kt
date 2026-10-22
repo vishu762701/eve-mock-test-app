@@ -141,7 +141,8 @@ class ManageUsersActivity : EveBaseActivity() {
         binding.progressBar.visibility = View.VISIBLE
         binding.rvUsers.visibility = View.GONE
         binding.emptyGroup.visibility = View.GONE
-        binding.layoutPagination.visibility = View.GONE
+        // Keep the previous page window attached while loading so the shared
+        // mark can spring from the old page to the server-confirmed new page.
         binding.btnRefresh.isEnabled = false
         val pageAtRequest = currentPage
         val queryAtRequest = query
@@ -175,6 +176,7 @@ class ManageUsersActivity : EveBaseActivity() {
                 binding.emptyGroup.visibility = View.VISIBLE
                 binding.tvEmptyTitle.text = "Couldn't load users"
                 binding.tvEmptyMessage.text = e.toUserFriendlyMessage()
+                binding.layoutPagination.visibility = View.GONE
                 binding.btnRetryUsers.visibility = View.VISIBLE
             }
         }
@@ -190,36 +192,8 @@ class ManageUsersActivity : EveBaseActivity() {
         binding.btnPageNext.isEnabled = meta.hasNext
         binding.btnPagePrevious.alpha = if (meta.hasPrevious) 1f else 0.4f
         binding.btnPageNext.alpha = if (meta.hasNext) 1f else 0.4f
-        val row = binding.layoutPageNumbers
-        row.removeAllViews()
-        if (meta.totalPages <= 1) return
-        val countInWindow = minOf(5, meta.totalPages)
-        val first = (meta.page - countInWindow / 2)
-            .coerceIn(1, meta.totalPages - countInWindow + 1)
-        val density = resources.displayMetrics.density
-        val width = (48f * density).toInt()
-        val height = (48f * density).toInt()
-        for (index in first until first + countInWindow) {
-            val selected = index == meta.page
-            val button = TextView(this).apply {
-                text = index.toString()
-                setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
-                typeface = binding.tvPageSummary.typeface
-                gravity = Gravity.CENTER
-                isClickable = true
-                isFocusable = true
-                isSelected = selected
-                contentDescription = if (selected) "Page $index, current page" else "Page $index"
-                if (selected) {
-                    setTextColor(ContextCompat.getColor(this@ManageUsersActivity, R.color.on_accent))
-                    background = GradientDrawable().apply {
-                        cornerRadius = 12f * density
-                        setColor(DesignTokens.accent(this@ManageUsersActivity))
-                    }
-                } else setTextColor(ContextCompat.getColor(this@ManageUsersActivity, R.color.text_primary))
-                setOnClickListener { navigateTo(index) }
-            }
-            row.addView(button, LinearLayout.LayoutParams(width, height))
+        binding.layoutPageNumbers.bind(meta.page, meta.totalPages) { page ->
+            navigateTo(page)
         }
     }
 
