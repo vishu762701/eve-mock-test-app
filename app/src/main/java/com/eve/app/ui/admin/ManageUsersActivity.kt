@@ -46,6 +46,7 @@ class ManageUsersActivity : EveBaseActivity() {
 
     private val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
     private var authorizedUid: String? = null
+    private var gateReady = false
     private var currentPage = 1
     private var query = ""
     private var restoredQuery = ""
@@ -62,6 +63,7 @@ class ManageUsersActivity : EveBaseActivity() {
         binding.btnBack.setOnClickListener { finish() }
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
             authorizedUid = FirebaseAuth.getInstance().currentUser?.uid
+            gateReady = true
             setupAdminControls()
             loadUsers()
         }
@@ -72,10 +74,12 @@ class ManageUsersActivity : EveBaseActivity() {
         // A privilege may have been revoked while this Activity was paused.
         // Never show cached user rows without a fresh server decision.
         if (authorizedUid != null) {
+            gateReady = false
             binding.root.visibility = View.INVISIBLE
             requestJob?.cancel()
             AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
                 authorizedUid = FirebaseAuth.getInstance().currentUser?.uid
+                gateReady = true
                 loadUsers()
             }
         }
@@ -132,7 +136,7 @@ class ManageUsersActivity : EveBaseActivity() {
     }
 
     private fun loadUsers() {
-        if (authorizedUid == null) return
+        if (!gateReady || authorizedUid == null) return
         requestJob?.cancel()
         binding.progressBar.visibility = View.VISIBLE
         binding.rvUsers.visibility = View.GONE
@@ -144,7 +148,8 @@ class ManageUsersActivity : EveBaseActivity() {
         requestJob = lifecycleScope.launch {
             try {
                 val response: AdminUsersPage = adminRepo.getUsersPage(queryAtRequest, pageAtRequest)
-                if (pageAtRequest != currentPage || queryAtRequest != query) return@launch
+                if (!gateReady || authorizedUid != FirebaseAuth.getInstance().currentUser?.uid ||
+                    pageAtRequest != currentPage || queryAtRequest != query) return@launch
                 val meta = response.pagination
                 if (meta.totalPages > 0 && currentPage > meta.totalPages) {
                     currentPage = meta.totalPages
@@ -219,11 +224,14 @@ class ManageUsersActivity : EveBaseActivity() {
     }
 
     private fun showUserDetailsDialog(user: AdminUser) {
+        if (!gateReady || authorizedUid == null) return
         binding.progressBar.visibility = View.VISIBLE
 
         lifecycleScope.launch {
             try {
                 val attempts = adminRepo.getUserAttempts(user.id)
+                if (!gateReady || authorizedUid != FirebaseAuth.getInstance().currentUser?.uid ||
+                    !lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) return@launch
                 binding.progressBar.visibility = View.GONE
 
                 val attemptsSummary = if (attempts.isEmpty()) {
@@ -265,7 +273,7 @@ class ManageUsersActivity : EveBaseActivity() {
     }
 
     private fun confirmToggleUserStatus(user: AdminUser, disable: Boolean) {
-        if (actionPending || authorizedUid == null) return
+        if (actionPending || !gateReady || authorizedUid == null) return
         val actionTitle = if (disable) "Disable / Ban User Account?" else "Enable User Account?"
         val actionWarning = if (disable) {
             "Are you sure? This user will be blocked from accessing and submitting mock tests in the app.\n\nUser: ${user.displayName} (${user.email})"
@@ -277,7 +285,8 @@ class ManageUsersActivity : EveBaseActivity() {
             .setTitle(actionTitle)
             .setMessage(actionWarning)
             .setPositiveButton(if (disable) "Disable Account" else "Enable Account") { _, _ ->
-                if (actionPending) return@setPositiveButton
+                if (actionPending || !gateReady ||
+                    authorizedUid != FirebaseAuth.getInstance().currentUser?.uid) return@setPositiveButton
                 actionPending = true
                 binding.progressBar.visibility = View.VISIBLE
                 lifecycleScope.launch {
