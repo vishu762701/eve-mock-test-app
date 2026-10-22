@@ -12,5 +12,7 @@ data class ApiResponse<T>(
     @SerializedName("message")
     val message: String? = null,
     @SerializedName("serverNow")
-    val serverNow: Long? = null
+    val serverNow: Long? = null,
+    @SerializedName("pagination")
+    val pagination: com.eve.app.data.model.AdminUsersPagination? = null
 )
