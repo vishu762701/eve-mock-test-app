@@ -12,6 +12,7 @@ import com.eve.app.data.model.AdminUser
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.databinding.ActivityManageUsersBinding
 import com.eve.app.util.AppBulletin
+import com.eve.app.util.AdminAccessGate
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -37,6 +38,15 @@ class ManageUsersActivity : EveBaseActivity() {
         setContentView(binding.root)
 
         binding.btnBack.setOnClickListener { finish() }
+        // Do not install privileged listeners or request user records before a
+        // fresh, fail-closed server check. Activity recreation runs this again.
+        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+            setupAuthorizedControls()
+            loadUsers()
+        }
+    }
+
+    private fun setupAuthorizedControls() {
         binding.btnRefresh.setOnClickListener { loadUsers() }
 
         adapter = UserAdminAdapter(
@@ -51,7 +61,6 @@ class ManageUsersActivity : EveBaseActivity() {
             filterUsers(text?.toString().orEmpty())
         }
 
-        loadUsers()
     }
 
     private fun loadUsers() {
