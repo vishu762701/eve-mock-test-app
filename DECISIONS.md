@@ -1940,3 +1940,10 @@ Following Batch 01 (ADR-022), Batch 02 (ADR-023), Batch 03 (ADR-024), Typography
 ### ADR-FINAL-2026-10-22-M verification fixture
 
 - `AccountLocalCleanupTest.kt` uses two synthetic UIDs, isolated test sessions, pending JSON submissions, attempt-limit preferences and notification namespaces. It asserts clearing A retains B and restores/removes all fixtures. No real account deletion, push or backend data mutation is performed. The native Android test matrix is required to evaluate the fixture.
+
+
+## ADR-FINAL-2026-10-22-N: Custom avatar storage is account scoped
+
+- Former `ProfilePhotoManager` saved one device-global `profile_photo.jpg` which could be displayed after changing Firebase accounts. Replace it with a private per-UID SHA-256-derived filename; no email or raw UID appears in the filename, and signed-out users never inherit another account's photo.
+- Unowned legacy photo bytes remain quarantined rather than guessed/migrated to the next login. Account deletion supplies the deleted UID explicitly, since Firebase Auth may already be cleared when local cleanup runs. Existing avatar fallback to Google account image or deterministic gradient remains unchanged.
+- Unit tests cover deterministic distinct opaque storage paths. Actual cross-account gallery picking/rendering on a physical device remains NOT VERIFIED.

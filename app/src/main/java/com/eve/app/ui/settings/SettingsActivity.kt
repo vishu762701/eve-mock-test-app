@@ -337,7 +337,7 @@ class SettingsActivity : EveBaseActivity() {
                 com.eve.app.data.local.TestSessionStore(this@SettingsActivity).clearAllForUser(user.uid)
                 com.eve.app.data.local.PendingSubmissionStore(this@SettingsActivity).clearAllForUser(user.uid)
                 com.eve.app.util.AttemptLimitManager.clearLocalForUser(this@SettingsActivity, user.uid)
-                ProfilePhotoManager.removePhoto(this@SettingsActivity)
+                ProfilePhotoManager.removePhoto(this@SettingsActivity, user.uid)
                 getSharedPreferences("eve_prefs", MODE_PRIVATE).edit().clear().apply()
 
                 FirebaseAuth.getInstance().signOut()

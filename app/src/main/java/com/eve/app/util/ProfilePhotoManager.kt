@@ -9,6 +9,8 @@ import coil.load
 import com.eve.app.R
 import java.io.File
 import java.io.FileOutputStream
+import java.security.MessageDigest
+import com.google.firebase.auth.FirebaseAuth
 
 /**
  * Profile photo user ke apne device par hi save hoti hai (koi Firebase Storage/backend nahi
@@ -18,14 +20,22 @@ import java.io.FileOutputStream
  */
 object ProfilePhotoManager {
 
-    private const val FILE_NAME = "profile_photo.jpg"
+    // The old ownerless profile_photo.jpg is intentionally not assigned to
+    // whichever Firebase account signs in on this phone later.
+    internal fun scopedFileName(uid: String): String {
+        val digest = MessageDigest.getInstance("SHA-256").digest(uid.toByteArray(Charsets.UTF_8))
+            .joinToString("") { "%02x".format(it.toInt() and 0xff) }
+        return "profile_photo_u_v2_$digest.jpg"
+    }
 
-    private fun file(context: Context) = File(context.filesDir, FILE_NAME)
+    private fun currentFile(context: Context): File? =
+        FirebaseAuth.getInstance().currentUser?.uid?.takeIf { it.isNotBlank() }
+            ?.let { File(context.filesDir, scopedFileName(it)) }
 
-    fun hasCustomPhoto(context: Context): Boolean = file(context).exists()
+    fun hasCustomPhoto(context: Context): Boolean = currentFile(context)?.exists() == true
 
     fun loadBitmap(context: Context): Bitmap? {
-        val f = file(context)
+        val f = currentFile(context) ?: return null
         if (!f.exists()) return null
         return try {
             BitmapFactory.decodeFile(f.absolutePath)
@@ -50,7 +60,8 @@ object ProfilePhotoManager {
             // Bahut badi image ho to memory bachane ke liye ek reasonable size par scale kar do
             val target = if (size > 512) Bitmap.createScaledBitmap(cropped, 512, 512, true) else cropped
 
-            FileOutputStream(file(context)).use { out ->
+            val destination = currentFile(context) ?: return false
+            FileOutputStream(destination).use { out ->
                 target.compress(Bitmap.CompressFormat.JPEG, 90, out)
             }
             true
@@ -59,8 +70,9 @@ object ProfilePhotoManager {
         }
     }
 
-    fun removePhoto(context: Context) {
-        val f = file(context)
+    fun removePhoto(context: Context, ownerUid: String? = FirebaseAuth.getInstance().currentUser?.uid) {
+        val uid = ownerUid?.takeIf { it.isNotBlank() } ?: return
+        val f = File(context.filesDir, scopedFileName(uid))
         if (f.exists()) f.delete()
     }
 
