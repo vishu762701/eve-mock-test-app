@@ -260,7 +260,7 @@ class ApprovedUiRenderingTest {
         q.btnReport.performClick(); assertTrue(report)
         val options = listOf(q.rbA, q.rbB, q.rbC, q.rbD)
         options.forEachIndexed { index, option ->
-            sp(option, 17)
+            sp(option, 16) // Telegram-aligned shared body token replaces iOS 17sp.
             assertEquals(dp(48), option.minHeight)
             assertEquals(dp(10), option.paddingTop)
             assertEquals(dp(10), option.paddingBottom)

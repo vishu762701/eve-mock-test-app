@@ -86,7 +86,8 @@ class LockedComponentsTest {
                         sheet.context, com.google.android.material.R.attr.colorPrimary))
                 val modalFont = android.util.TypedValue()
                 assertTrue(sheet.context.theme.resolveAttribute(android.R.attr.fontFamily, modalFont, true))
-                assertEquals(R.font.inter, modalFont.resourceId)
+                assertEquals("Native Telegram text must remain in modal overlays",
+                    "sans-serif", modalFont.string?.toString())
                 sheet.dismiss()
                 val toggle = DesignSwitch(context)
                 toggle.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)

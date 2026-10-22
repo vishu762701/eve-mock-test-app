@@ -108,9 +108,9 @@ class ApprovedUiFunctionalTest {
                 val selectedState = actions.btnMarkReview.drawableState
                 assertEquals(context.getColor(R.color.system_yellow), actions.btnMarkReview.backgroundTintList!!.getColorForState(selectedState, 0))
                 assertEquals(Color.BLACK, actions.btnMarkReview.textColors.getColorForState(selectedState, 0))
-                assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP, 17f,
+                assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP, 16f,
                     context.resources.displayMetrics), b.tvQuestion.textSize, 0.51f)
-                assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP, 17f,
+                assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP, 16f,
                     context.resources.displayMetrics), b.rbA.textSize, 0.51f)
                 assertEquals(1f, b.tvQuestion.lineSpacingMultiplier, 0.01f)
                 assertEquals((48f * context.resources.displayMetrics.density + 0.5f).toInt(), b.rbA.minHeight)
