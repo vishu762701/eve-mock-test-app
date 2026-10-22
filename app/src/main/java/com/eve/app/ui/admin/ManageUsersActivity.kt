@@ -6,6 +6,20 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
+import android.widget.TextView
+import android.widget.LinearLayout
+import android.view.Gravity
+import android.graphics.drawable.GradientDrawable
+import android.util.TypedValue
+import androidx.core.content.ContextCompat
+import com.eve.app.R
+import com.eve.app.designsystem.DesignTokens
+import com.eve.app.data.model.AdminUsersPage
+import com.eve.app.data.model.AdminUsersPagination
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.CancellationException
+import com.google.firebase.auth.FirebaseAuth
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.data.model.AdminUser
@@ -29,75 +43,162 @@ class ManageUsersActivity : EveBaseActivity() {
     private val auditLogRepo = AuditLogRepository()
     private lateinit var adapter: UserAdminAdapter
 
-    private var allUsers: List<AdminUser> = emptyList()
+
     private val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
+    private var authorizedUid: String? = null
+    private var currentPage = 1
+    private var query = ""
+    private var restoredQuery = ""
+    private var requestJob: Job? = null
+    private var debounceJob: Job? = null
+    private var actionPending = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        currentPage = (savedInstanceState?.getInt("users_page") ?: 1).coerceAtLeast(1)
+        restoredQuery = savedInstanceState?.getString("users_query").orEmpty()
         binding = ActivityManageUsersBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         binding.btnBack.setOnClickListener { finish() }
-        // Do not install privileged listeners or request user records before a
-        // fresh, fail-closed server check. Activity recreation runs this again.
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
-            setupAuthorizedControls()
+            authorizedUid = FirebaseAuth.getInstance().currentUser?.uid
+            setupAdminControls()
             loadUsers()
         }
     }
 
-    private fun setupAuthorizedControls() {
-        binding.btnRefresh.setOnClickListener { loadUsers() }
+    override fun onResume() {
+        super.onResume()
+        if (authorizedUid != null && FirebaseAuth.getInstance().currentUser?.uid != authorizedUid) {
+            binding.root.visibility = View.INVISIBLE
+            requestJob?.cancel()
+            finish()
+        }
+    }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("users_page", currentPage)
+        outState.putString("users_query", binding.etSearchUser.text?.toString().orEmpty())
+    }
+
+    private fun setupAdminControls() {
         adapter = UserAdminAdapter(
             onViewDetails = { user -> showUserDetailsDialog(user) },
             onToggleStatus = { user, disable -> confirmToggleUserStatus(user, disable) }
         )
-
         binding.rvUsers.layoutManager = LinearLayoutManager(this)
         binding.rvUsers.adapter = adapter
-
+        binding.btnRefresh.setOnClickListener { loadUsers() }
+        binding.btnRetryUsers.setOnClickListener { loadUsers() }
+        binding.btnPagePrevious.setOnClickListener { navigateTo(currentPage - 1) }
+        binding.btnPageNext.setOnClickListener { navigateTo(currentPage + 1) }
+        query = restoredQuery.trim()
+        binding.etSearchUser.setText(restoredQuery)
+        binding.etSearchUser.setSelection(binding.etSearchUser.length())
         binding.etSearchUser.doAfterTextChanged { text ->
-            filterUsers(text?.toString().orEmpty())
+            debounceJob?.cancel()
+            val next = text?.toString()?.trim().orEmpty()
+            if (next != query) {
+                debounceJob = lifecycleScope.launch {
+                    delay(350)
+                    query = next
+                    currentPage = 1
+                    loadUsers()
+                }
+            }
         }
+    }
 
+    private fun navigateTo(next: Int) {
+        if (next < 1 || next == currentPage || requestJob?.isActive == true) return
+        currentPage = next
+        loadUsers()
     }
 
     private fun loadUsers() {
+        if (authorizedUid == null) return
+        requestJob?.cancel()
         binding.progressBar.visibility = View.VISIBLE
+        binding.rvUsers.visibility = View.GONE
         binding.emptyGroup.visibility = View.GONE
-
-        lifecycleScope.launch {
+        binding.layoutPagination.visibility = View.GONE
+        binding.btnRefresh.isEnabled = false
+        val pageAtRequest = currentPage
+        val queryAtRequest = query
+        requestJob = lifecycleScope.launch {
             try {
-                val users = adminRepo.getUsers()
-                allUsers = users
+                val response: AdminUsersPage = adminRepo.getUsersPage(queryAtRequest, pageAtRequest)
+                if (pageAtRequest != currentPage || queryAtRequest != query) return@launch
+                val meta = response.pagination
+                if (meta.totalPages > 0 && currentPage > meta.totalPages) {
+                    currentPage = meta.totalPages
+                    loadUsers()
+                    return@launch
+                }
+                adapter.submitList(response.users)
                 binding.progressBar.visibility = View.GONE
-                filterUsers(binding.etSearchUser.text?.toString().orEmpty())
+                binding.btnRefresh.isEnabled = true
+                binding.btnRetryUsers.visibility = View.GONE
+                if (response.users.isEmpty()) {
+                    binding.emptyGroup.visibility = View.VISIBLE
+                    binding.tvEmptyTitle.text = "No students found"
+                    binding.tvEmptyMessage.text = if (meta.total == 0)
+                        "No registered users match your search." else "No users on this page."
+                } else binding.rvUsers.visibility = View.VISIBLE
+                renderPagination(meta, response.users.size)
+            } catch (cancel: CancellationException) {
+                throw cancel
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
-                AppBulletin.showError(this@ManageUsersActivity, "Failed to load users: ${e.toUserFriendlyMessage()}")
+                binding.btnRefresh.isEnabled = true
+                binding.emptyGroup.visibility = View.VISIBLE
+                binding.tvEmptyTitle.text = "Couldn't load users"
+                binding.tvEmptyMessage.text = e.toUserFriendlyMessage()
+                binding.btnRetryUsers.visibility = View.VISIBLE
             }
         }
     }
 
-    private fun filterUsers(query: String) {
-        val q = query.trim().lowercase()
-        val filtered = if (q.isBlank()) {
-            allUsers
-        } else {
-            allUsers.filter {
-                it.displayName.lowercase().contains(q) ||
-                        it.email.lowercase().contains(q)
+    private fun renderPagination(meta: AdminUsersPagination, count: Int) {
+        val start = if (count == 0) 0L else (meta.page.toLong() - 1L) * meta.pageSize + 1
+        val end = if (count == 0) 0L else start + count - 1
+        binding.tvPageSummary.text = "Showing " + start + "–" + end + " of " + meta.total
+        binding.layoutPagination.visibility = if (meta.totalPages > 1) View.VISIBLE else View.GONE
+        binding.btnPagePrevious.isEnabled = meta.hasPrevious
+        binding.btnPageNext.isEnabled = meta.hasNext
+        binding.btnPagePrevious.alpha = if (meta.hasPrevious) 1f else 0.4f
+        binding.btnPageNext.alpha = if (meta.hasNext) 1f else 0.4f
+        val row = binding.layoutPageNumbers
+        row.removeAllViews()
+        if (meta.totalPages <= 1) return
+        val countInWindow = minOf(5, meta.totalPages)
+        val first = (meta.page - countInWindow / 2)
+            .coerceIn(1, meta.totalPages - countInWindow + 1)
+        val density = resources.displayMetrics.density
+        val width = (40f * density).toInt()
+        val height = (48f * density).toInt()
+        for (index in first until first + countInWindow) {
+            val selected = index == meta.page
+            val button = TextView(this).apply {
+                text = index.toString()
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
+                typeface = binding.tvPageSummary.typeface
+                gravity = Gravity.CENTER
+                isClickable = true
+                isFocusable = true
+                isSelected = selected
+                contentDescription = if (selected) "Page $index, current page" else "Page $index"
+                if (selected) {
+                    setTextColor(ContextCompat.getColor(this@ManageUsersActivity, R.color.on_accent))
+                    background = GradientDrawable().apply {
+                        cornerRadius = 12f * density
+                        setColor(DesignTokens.accent(this@ManageUsersActivity))
+                    }
+                } else setTextColor(ContextCompat.getColor(this@ManageUsersActivity, R.color.text_primary))
+                setOnClickListener { navigateTo(index) }
             }
-        }
-
-        adapter.submitList(filtered)
-        if (filtered.isEmpty()) {
-            binding.emptyGroup.visibility = View.VISIBLE
-            binding.rvUsers.visibility = View.GONE
-        } else {
-            binding.emptyGroup.visibility = View.GONE
-            binding.rvUsers.visibility = View.VISIBLE
+            row.addView(button, LinearLayout.LayoutParams(width, height))
         }
     }
 
@@ -148,6 +249,7 @@ class ManageUsersActivity : EveBaseActivity() {
     }
 
     private fun confirmToggleUserStatus(user: AdminUser, disable: Boolean) {
+        if (actionPending || authorizedUid == null) return
         val actionTitle = if (disable) "Disable / Ban User Account?" else "Enable User Account?"
         val actionWarning = if (disable) {
             "Are you sure? This user will be blocked from accessing and submitting mock tests in the app.\n\nUser: ${user.displayName} (${user.email})"
@@ -159,6 +261,8 @@ class ManageUsersActivity : EveBaseActivity() {
             .setTitle(actionTitle)
             .setMessage(actionWarning)
             .setPositiveButton(if (disable) "Disable Account" else "Enable Account") { _, _ ->
+                if (actionPending) return@setPositiveButton
+                actionPending = true
                 binding.progressBar.visibility = View.VISIBLE
                 lifecycleScope.launch {
                     try {
@@ -171,16 +275,17 @@ class ManageUsersActivity : EveBaseActivity() {
                             )
                             val msg = if (disable) "Account disabled successfully" else "Account enabled successfully"
                             AppBulletin.showSuccess(this@ManageUsersActivity, msg)
-                            allUsers = allUsers.map {
-                                if (it.id == user.id) it.copy(disabled = disable) else it
-                            }
-                            filterUsers(binding.etSearchUser.text?.toString().orEmpty())
+                            loadUsers() // The backend-confirmed status and page are authoritative.
                         } else {
                             AppBulletin.showError(this@ManageUsersActivity, "Failed to update account status")
                         }
+                    } catch (cancel: CancellationException) {
+                        throw cancel
                     } catch (e: Exception) {
                         binding.progressBar.visibility = View.GONE
                         AppBulletin.showError(this@ManageUsersActivity, "Error: ${e.toUserFriendlyMessage()}")
+                    } finally {
+                        actionPending = false
                     }
                 }
             }
