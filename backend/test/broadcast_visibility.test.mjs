@@ -116,3 +116,43 @@ test("targeted broadcasts fail closed before creating any D1 row", async () => {
   const body = await res.json();
   assert.match(body.error, /targeted delivery is unavailable/i);
 });
+
+function adminDeletionFixture(changesById = {}) {
+  const app = new Hono();
+  app.use("*", async (c, next) => {
+    c.set("user", { uid: "admin", email: "admin@example.test", isAdmin: true });
+    await next();
+  });
+  app.route("/api/broadcasts", broadcastRoutes);
+  const db = {
+    prepare: () => ({ bind: id => ({ id, run: async () => ({ meta: { changes: changesById[id] || 0 } }) }) }),
+    batch: async statements => statements.map(x => ({ meta: { changes: changesById[x.id] || 0 } }))
+  };
+  return { app, env: { DB: db } };
+}
+
+test("delete ID reports 404 for stale records, never fake success", async () => {
+  const { app, env } = adminDeletionFixture({ known: 1 });
+  const missing = await app.fetch(new Request("https://example.test/api/broadcasts/missing", { method: "DELETE" }), env, {});
+  assert.equal(missing.status, 404);
+  assert.equal((await missing.json()).success, false);
+  const found = await app.fetch(new Request("https://example.test/api/broadcasts/known", { method: "DELETE" }), env, {});
+  assert.equal(found.status, 200);
+  assert.equal((await found.json()).success, true);
+});
+
+test("bulk delete returns real changed row count and rejects all-stale requests", async () => {
+  const { app, env } = adminDeletionFixture({ yes: 1 });
+  const send = ids => app.fetch(new Request("https://example.test/api/broadcasts/bulk-delete", {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids })
+  }), env, {});
+  const res = await send(["yes", "missing"]);
+  assert.equal(res.status, 200);
+  const json = await res.json();
+  assert.equal(json.success, true);
+  assert.equal(json.data.count, 1);
+  assert.equal(json.data.requested, 2);
+  const stale = await send(["missing"]);
+  assert.equal(stale.status, 404);
+  assert.equal((await stale.json()).success, false);
+});

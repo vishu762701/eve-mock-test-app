@@ -99,7 +99,13 @@ broadcastRoutes.delete("/:id", requireAdmin, async (c) => {
   const id = c.req.param("id");
   const db = c.env.DB;
 
-  await db.prepare("DELETE FROM notifications WHERE id = ?").bind(id).run();
+  if (!id || id.length > 128) {
+    return c.json({ success: false, error: "Invalid broadcast ID" }, 400);
+  }
+  const result = await db.prepare("DELETE FROM notifications WHERE id = ?").bind(id).run();
+  if ((result.meta?.changes ?? 0) < 1) {
+    return c.json({ success: false, error: "Broadcast not found or already deleted" }, 404);
+  }
   return c.json({ success: true });
 });
 
@@ -116,11 +122,17 @@ broadcastRoutes.post("/bulk-delete", requireAdmin, async (c) => {
   const db = c.env.DB;
   const statements = ids.map((id) => db.prepare("DELETE FROM notifications WHERE id = ?").bind(id));
 
-  // Chunk in batches of 50
+  // Count actual D1 changes, not requested IDs. A stale list must never show
+  // false deletion success. Bounded batches keep request memory predictable.
+  let deletedCount = 0;
   for (let i = 0; i < statements.length; i += 50) {
     const chunk = statements.slice(i, i + 50);
-    await db.batch(chunk);
+    const results = await db.batch(chunk);
+    deletedCount += results.reduce((sum, result) => sum + (result.meta?.changes ?? 0), 0);
   }
 
-  return c.json({ success: true, count: ids.length });
+  if (deletedCount < 1) {
+    return c.json({ success: false, error: "No matching broadcasts remain" }, 404);
+  }
+  return c.json({ success: true, count: deletedCount, data: { count: deletedCount, requested: ids.length } });
 });

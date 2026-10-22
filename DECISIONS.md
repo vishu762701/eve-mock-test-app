@@ -1915,3 +1915,9 @@ Following Batch 01 (ADR-022), Batch 02 (ADR-023), Batch 03 (ADR-024), Typography
 - D1 `POST /api/broadcasts` publishes an **in-app inbox record**. The Firebase Cloud Function `broadcastNotification` triggers on Firestore `notifications/{id}`; it does not automatically observe D1 writes. Until an authenticated transactional transport bridge is designed, never claim an admin D1 write confirms FCM push delivery.
 - Category-targeted D1 writes now return HTTP 422 with a clear explanation. The Admin composer exposes only the genuine All Users inbox publication path, without a nonfunctional category-target spinner. For pre-existing targeted records, non-admin GET filters them out rather than exposing another audience's content; admins still see historical notices.
 - The category audience mapping is unavailable in the inspected backend; no guessed Firebase token lookup, test broadcast, mass device push, D1 destructive migration or live charge was introduced. A compatible future targeted-delivery implementation requires a stable authenticated recipient contract and isolated integration tests.
+
+
+## ADR-FINAL-2026-10-22-L: Admin notice deletions require server-confirmed counts
+
+- Use D1 `meta.changes` for deletion outcomes, not request cardinality. Missing single notice -> HTTP 404; bulk request with no changed rows -> HTTP 404; partial success includes actual changed count and selected count in the typed API payload.
+- Admin composer only confirms actual database changes; refresh list on partial operation. No staged or production deletion was executed while testing; fake DB fixtures verify the route code.

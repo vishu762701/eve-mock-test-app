@@ -59,3 +59,8 @@ Broadcast list limit parsing now rejects malformed/non-positive inputs and caps 
 ## Verified notification-delivery architecture (source audit)
 
 `backend/src/routes/broadcasts.ts` is a D1 inbox route while `functions/index.js` contains an FCM publisher bound to **Firestore** document creation. They are **not** the same event stream. The Admin composer now accurately states in-app inbox publication only. Category sends are rejected at the API with HTTP 422 until recipient membership can be proven; non-admin GET excludes pre-existing category-targeted rows. This is a defensive reduction of a misleading interface, not an implementation of live push. Real FCM mass-send testing was intentionally NOT RUN.
+
+
+## Admin deletion acknowledgment hardening
+
+D1 deletion results now determine user-visible success: single DELETE returns 404 for zero actual changed rows; bulk delete returns `data.count` of confirmed changes (and `requested`) rather than falsely reporting every selected ID removed. The Admin list refreshes and displays actual counts, including partial success. Isolated fake-D1 tests exercise real Hono handlers. Production destructive QA remains NOT RUN.

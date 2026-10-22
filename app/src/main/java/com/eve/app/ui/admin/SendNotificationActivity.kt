@@ -182,14 +182,22 @@ class SendNotificationActivity : EveBaseActivity() {
                     )
                     AppBulletin.showError(this@SendNotificationActivity, err)
                 } else {
+                    val confirmed = (res.data?.get("count") as? Number)?.toInt() ?: 0
+                    if (confirmed <= 0) {
+                        AppBulletin.showError(this@SendNotificationActivity, "Delete result not confirmed by the server")
+                        listenToSentBroadcasts()
+                        return@launch
+                    }
                     auditLogRepo.recordLog(
                         AdminAuditLog.ACTION_BROADCAST_DELETED,
-                        "Batch deleted ${idsToDelete.size} broadcast messages"
+                        "Deleted $confirmed of ${idsToDelete.size} requested in-app notices"
                     )
-                    AppBulletin.showSuccess(
-                        this@SendNotificationActivity,
-                        "Successfully deleted ${idsToDelete.size} broadcast${if (idsToDelete.size > 1) "s" else ""}"
-                    )
+                    val summary = if (confirmed == idsToDelete.size) {
+                        "Deleted $confirmed notice${if (confirmed == 1) "" else "s"}"
+                    } else {
+                        "Deleted $confirmed of ${idsToDelete.size}; list refreshed"
+                    }
+                    AppBulletin.showSuccess(this@SendNotificationActivity, summary)
                     exitSelectionMode()
                     listenToSentBroadcasts()
                 }
@@ -244,7 +252,7 @@ class SendNotificationActivity : EveBaseActivity() {
         val titleText = if (broadcast.title.isNotBlank()) "'${broadcast.title}'" else "this broadcast"
         MaterialAlertDialogBuilder(this)
             .setTitle("Delete Broadcast?")
-            .setMessage("Are you sure you want to delete $titleText?\n\n💬 Message:\n${broadcast.message}\n\nThis will remove it from all students' in-app notification lists and cannot be undone.")
+            .setMessage("Are you sure you want to delete $titleText?\n\n💬 Message:\n${broadcast.message}\n\nThis removes the notice from the server inbox. It cannot recall copies already cached on devices.")
             .setPositiveButton("Delete") { _, _ ->
                 deleteBroadcast(broadcast)
             }
