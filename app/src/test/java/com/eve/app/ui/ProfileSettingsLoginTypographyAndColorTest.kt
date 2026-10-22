@@ -125,11 +125,11 @@ class ProfileSettingsLoginTypographyAndColorTest {
 
         val tvDailyGoalValue = findElementById(root, "tvDailyGoalValue")
         assertNotNull("tvDailyGoalValue must exist", tvDailyGoalValue)
-        assertEquals("@style/TextAppearance.Eve.Token.Secondary", tvDailyGoalValue?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Telegram.SettingsDetail", tvDailyGoalValue?.getAttribute("style"))
 
         val tvLanguageValue = findElementById(root, "tvLanguageValue")
         assertNotNull("tvLanguageValue must exist", tvLanguageValue)
-        assertEquals("@style/TextAppearance.Eve.Token.Secondary", tvLanguageValue?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Telegram.SettingsDetail", tvLanguageValue?.getAttribute("style"))
 
         val rowDeleteAccount = findElementById(root, "rowDeleteAccount")
         assertNotNull("rowDeleteAccount must exist", rowDeleteAccount)
