@@ -11,20 +11,10 @@
 
 ## Current UI design authority
 
-The owner's current root design-reset specification is the default baseline,
-superseding historical UI numeric requirements, earlier palettes and retired font choices.
-Later explicit owner-approved UI changes take precedence within their stated scope.
-Use the exact light/dark palette, bundled Inter (SIL OFL 1.1) 400/500/600/700
-and variable font support for official iOS 26 typography (11 canonical styles), 26dp solid cards,
-sheets and dialogs, capsule controls, 12dp screen margins, 10dp card padding,
-and 9dp native card elevation. Glass is allowed only on top bars, bottom bars
-and menus (14dp backdrop blur; 55% tint or 94% fallback). No list dividers.
-Home has **no floating bottom navigation bar**; History and Saved/Bookmarks are Drawer destinations, and Profile remains accessible there. Keep the real Android system navigation bar.
-The device-font preference is explicitly retired by the owner; Inter is the
-single font family with system fallback for Hindi/Devanagari scripts. The Telegram theme-toggle animation/behavior and its resources
-remain protected. Existing Lottie motion, timing, assets and triggers are also
-retained under the owner's later preservation instruction. UI migration must preserve business logic, data, navigation
-flow, and all other features. Token resources are in `design_*.xml`.
+The owner's **latest** aesthetic direction is source-traced official Telegram Android component typography and icons, not prior iOS/Inter/Poppins lookalikes. The controlled, partially migrated text roles and source references live in `docs/telegram-typography-mission-01.md` and `telegram_typography.xml` with matching Day/Night color resources. Do not label remaining iOS typography or non-Telegram icons as already migrated. Do not automatically replace exam-specific graphics with unrelated Telegram semantics. Never import Telegram GPL artwork/source or distribute a derived APK containing it before resolving applicable licensing/source-publication obligations.
+Older iOS/Inter values in `design_type.xml`, `themes.xml` and `FontManager` are still present as transitional, **not** Telegram-approved defaults. Preserve production API compatibility and text content while replacing them incrementally under source evidence and CI.
+Retain existing structural constraints until expressly replaced: 26dp solid cards, 12dp screen margins, 10dp card padding, 9dp elevation, no list dividers; glass limited to top/bottom bars and menus. Home has **no floating bottom navigation bar**; History and Saved/Bookmarks are Drawer destinations; preserve the Android system navigation bar.
+The device-font preference is retired. Preserve full Hindi/Devanagari fallback, accessibility, Telegram circular reveal and all existing Lottie timing/triggers. Never alter scoring, ranking or business flows for typography.
 
 ## 1. Repository identity
 - Remote origin: `git@github.com:vishu762701/eve-mock-test-app.git`

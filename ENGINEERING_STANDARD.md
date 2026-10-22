@@ -18,7 +18,7 @@ Read this file and `SOURCE_OF_TRUTH.md` before changing the repository. Inspect 
 - Avoid unrelated refactors, broad rewrites, unnecessary dependencies and repeated retry loops. After two failed attempts, investigate root cause and report the blocker.
 
 ## Repository and verification
-- Work against the actual latest `origin/main`; do not force-push or overwrite concurrent work. Before pushing, confirm the expected remote head. Do not push when a task explicitly requests a proposal only.
+- **Owner's standing repository policy:** work and deliver directly on `main`; do not create separate implementation branches or PRs unless the owner explicitly asks. Keep changes small and reviewable, preserve the previous SHA as a restore point, compare the live remote head before each write, use only fast-forward updates with an expected SHA lease, and never force-push or overwrite concurrent work. If a main commit fails CI, diagnose and repair it on main rather than claiming success. Do not push when a task explicitly requests a proposal only.
 - Run checks appropriate to touched layers: Android build/unit/lint/native UI when affected, backend tests/build when affected, and docs/workflow validations when affected. Check `git diff --check` where a local checkout is available.
 - Treat test output and CI status as evidence only for the exact commit and tests actually inspected. If a check cannot run, say UNKNOWN, not PASS.
 - Report changed files, what was implemented, evidence, any remaining limits, and unrelated findings separately. Mark key claims VERIFIED (file:line or command output), INFERRED, or UNKNOWN.
