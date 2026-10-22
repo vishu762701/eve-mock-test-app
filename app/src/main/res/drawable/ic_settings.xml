@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Tabler Icons v3.49.0 / settings; MIT, bundled Tabler-LICENSE.txt. -->
+<!-- EVE-original generic native action geometry. No Telegram copyrighted asset or code imported. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="@dimen/design_icon_size" android:height="@dimen/design_icon_size"
     android:viewportWidth="24" android:viewportHeight="24">
     <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
-        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065" />
-    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
-        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+        android:strokeWidth="1.8" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M10.7,3.5 L13.3,3.5 L14,5.8 C14.7,6.1 15.5,6.4 15.9,6.8 L18,5.7 L19.9,7.6 L18.8,9.7 C19.1,10.3 19.3,10.7 19.3,11.1 L21.5,11.5 L21.5,14 L19.3,14.6 C19.1,15.1 18.9,15.6 18.6,16.1 L19.7,18.1 L17.8,20 L15.7,18.9 C15.1,19.2 14.6,19.4 14,19.5 L13.3,21.5 L10.7,21.5 L10,19.5 C9.3,19.3 8.8,19.1 8.2,18.8 L6.2,19.9 L4.3,18.1 L5.4,16.1 C5.1,15.6 4.8,15 4.7,14.5 L2.5,14 L2.5,11.5 L4.7,11 C4.8,10.5 5.1,10 5.4,9.5 L4.3,7.5 L6.2,5.6 L8.2,6.7 C8.8,6.3 9.4,6 10,5.8 Z M9,12.5 a3,3 0,1 0,6 0 a3,3 0,1 0,-6 0" />
 </vector>

@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Tabler Icons v3.49.0 / pencil; MIT, bundled Tabler-LICENSE.txt. -->
+<!-- EVE-original generic native action geometry. No Telegram copyrighted asset or code imported. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="@dimen/design_icon_size" android:height="@dimen/design_icon_size"
     android:viewportWidth="24" android:viewportHeight="24">
     <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
-        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
-    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
-        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M13.5 6.5l4 4" />
+        android:strokeWidth="2" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M5.7,17.7 L5.5,20.2 L8.1,20 L19.8,8.3 C20.9,7.2 20.9,5.5 19.8,4.4 C18.7,3.3 17,3.3 15.9,4.4 Z M13.9,6.4 L17.8,10.3 M5.8,17.7 L8.1,20" />
 </vector>

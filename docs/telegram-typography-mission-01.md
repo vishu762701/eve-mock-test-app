@@ -145,3 +145,7 @@ The following 24dp Android XML vectors have been **redrawn from independently au
 ## Icon register after first artwork migration
 
 Seven EVE-original 24dp vector glyphs replace the prior Tabler-derived paths for `ic_back`, `ic_more_vert`, `ic_search`, `ic_delete`, `ic_share`, `ic_close`, `ic_bookmark`. `docs/telegram-icon-source-registry.tsv` now marks these as **EVE_ORIGINAL_REDRAW_NOT_SOURCE_EXACT** rather than stale candidate/unmapped status; unit coverage verifies the exact count. Their full Android UI resource IDs and view bindings are unchanged. No trademark or Telegram proprietary bitmap reproduced.
+
+## Independently authored alert and utility icon states
+
+Six additional 24dp vectors were independently authored without Telegram GPL art: bell, notification inbox, bell-off, settings, edit and pin. `ic_bell` and `ic_notification` share a consistent generic bell silhouette; `ic_bell_off` adds a clear slash so on/off semantics remain distinguishable. Existing Home notification Lottie, Android notification small-icon resource ID, reminder state toggle, pin state and edit action callbacks are preserved. These are functional **EVE-owned replacements**, not the exact Telegram WebP assets. Total source-informed EVE-owned redraws now 13. The rest retain their previous EVE icons pending source mapping and license clearance.
