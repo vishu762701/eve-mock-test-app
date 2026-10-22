@@ -70,6 +70,16 @@ class PendingSubmissionStore(private val context: Context) {
         }
     }
 
+    fun clearAllForUser(uid: String) {
+        if (uid.isBlank()) return
+        val files = dir.listFiles { file -> file.extension == "json" } ?: return
+        for (file in files) {
+            val item = try { gson.fromJson(file.readText(), PendingSubmission::class.java) }
+                       catch (_: Exception) { null }
+            if (item?.userId == uid) file.delete()
+        }
+    }
+
     fun get(clientAttemptId: String): PendingSubmission? {
         val file = File(dir, "$clientAttemptId.json")
         if (!file.exists()) return null

@@ -69,3 +69,8 @@ D1 deletion results now determine user-visible success: single DELETE returns 40
 ## Shared-device inbox isolation
 
 `NotificationStore` now stores data per authenticated UID (opaque hashed preference namespace) instead of exposing the unowned legacy global inbox to subsequent accounts. Historical global bytes are retained for safety but never attributed automatically. Server inbox data is fetched independently for each account. Cross-device push and local guest migration remain UNKNOWN.
+
+
+## Account deletion safety (2026-10-22)
+
+Settings now rejects any unsuccessful D1 deletion response and propagates Firebase Auth deletion failures, rather than reporting false success. Successful deletion clears only UID-owned notification/test session/offline queue/attempt-limit artifacts on the device. This is a code-level repair, not a live Firebase account test. Cross-provider partial-delete recovery still needs staging credentials and end-to-end verification.

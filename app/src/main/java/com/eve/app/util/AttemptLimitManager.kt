@@ -44,6 +44,16 @@ object AttemptLimitManager {
             ?: AdminRepository.isOfflineEmergencyAdmin(user.email)
     }
 
+    fun clearLocalForUser(context: Context, uid: String) {
+        if (uid.isBlank()) return
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val edit = prefs.edit()
+        prefs.all.keys.filter {
+            it.startsWith("${KEY_PREFIX}${uid}_") || it.startsWith("confirmed_${uid}_")
+        }.forEach { edit.remove(it) }
+        edit.apply()
+    }
+
     fun getLocalAttemptCount(context: Context, examId: String, uid: String): Int {
         if (examId.isBlank() || uid.isBlank()) return 0
         val sp = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)

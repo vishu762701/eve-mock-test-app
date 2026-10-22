@@ -41,6 +41,11 @@ object NotificationStore {
     private fun notificationPrefs(context: Context): SharedPreferences = context.getSharedPreferences(
         namespaceForUser(FirebaseAuth.getInstance().currentUser?.uid), Context.MODE_PRIVATE
     )
+
+    fun clearDeletedUser(context: Context, uid: String) {
+        if (uid.isBlank()) return
+        context.getSharedPreferences(namespaceForUser(uid), Context.MODE_PRIVATE).edit().clear().apply()
+    }
     private const val KEY_NOTIFICATIONS = "key_notifications_json"
     private const val MAX_STORED = 50
     private const val KEY_LAST_BROADCAST_TS = "key_last_broadcast_delivery_ts"

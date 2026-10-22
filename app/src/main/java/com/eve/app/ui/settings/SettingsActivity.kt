@@ -310,11 +310,11 @@ class SettingsActivity : EveBaseActivity() {
 
         lifecycleScope.launch {
             try {
-                // Call Cloudflare Worker account deletion
-                try {
-                    ApiClient.apiService.deleteAccount()
-                } catch (fnErr: Exception) {
-                    android.util.Log.w("SettingsActivity", "Backend delete callable note: ${fnErr.message}")
+                // Complete server-side data deletion before removing the Firebase
+                // credential. A failed/negative backend response is never success.
+                val response = ApiClient.apiService.deleteAccount()
+                if (!response.success) {
+                    throw IllegalStateException(response.error ?: "Backend account deletion was not confirmed")
                 }
 
                 // Delete client auth user
@@ -326,11 +326,16 @@ class SettingsActivity : EveBaseActivity() {
                         promptReauthentication()
                         return@launch
                     } else {
-                        android.util.Log.w("SettingsActivity", "Client auth delete note: ${authErr.message}")
+                        throw authErr
                     }
                 }
 
-                // Local cleanup
+                // Both remote deletion stages succeeded: remove private data owned
+                // by the deleted UID, not files or prefs of a different account.
+                com.eve.app.util.NotificationStore.clearDeletedUser(this@SettingsActivity, user.uid)
+                com.eve.app.data.local.TestSessionStore(this@SettingsActivity).clearAllForUser(user.uid)
+                com.eve.app.data.local.PendingSubmissionStore(this@SettingsActivity).clearAllForUser(user.uid)
+                com.eve.app.util.AttemptLimitManager.clearLocalForUser(this@SettingsActivity, user.uid)
                 ProfilePhotoManager.removePhoto(this@SettingsActivity)
                 getSharedPreferences("eve_prefs", MODE_PRIVATE).edit().clear().apply()
 

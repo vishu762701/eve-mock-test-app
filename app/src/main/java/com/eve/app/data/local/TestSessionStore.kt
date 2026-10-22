@@ -23,6 +23,13 @@ class TestSessionStore(private val context: Context) {
     private val gson = Gson()
     private val prefs = context.getSharedPreferences("test_session_store_v1", Context.MODE_PRIVATE)
 
+    fun clearAllForUser(uid: String) {
+        if (uid.isBlank()) return
+        val editor = prefs.edit()
+        prefs.all.keys.filter { it.startsWith("$uid:") }.forEach { editor.remove(it) }
+        editor.apply()
+    }
+
     fun saveSession(session: TestSession) {
         val json = gson.toJson(session)
         require(session.userId.isNotBlank()) { "Sign in before saving this test" }
