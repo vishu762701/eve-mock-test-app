@@ -3,7 +3,7 @@
     style="@style/Widget.Eve.Token.Screen" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical">
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
         <LinearLayout style="@style/Widget.Eve.Token.ToolbarRow" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:orientation="horizontal">
-            <ImageButton android:id="@+id/btnBack" style="@style/Widget.Eve.Token.IconButton" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:src="@drawable/ic_back" android:contentDescription="Back" />
+            <ImageButton android:id="@+id/btnBack" style="@style/Widget.Eve.Token.IconButton" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:src="@drawable/ic_back" app:tint="@color/telegram_type_primary" android:contentDescription="Back" />
         </LinearLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
     <LinearLayout style="@style/Widget.Eve.Token.LargeTitleBlock" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">

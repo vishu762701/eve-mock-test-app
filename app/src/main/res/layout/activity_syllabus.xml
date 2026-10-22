@@ -2,7 +2,7 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:ns2="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" style="@style/Widget.Eve.Token.Screen">
     <com.google.android.material.appbar.AppBarLayout android:layout_width="match_parent" android:layout_height="wrap_content" app:elevation="@dimen/design_zero" style="@style/Widget.Eve.Token.AppBar">
         <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-            <com.google.android.material.appbar.MaterialToolbar android:id="@+id/toolbar" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" app:navigationIcon="@drawable/ic_back" app:navigationIconTint="@color/text_primary" />
+            <com.google.android.material.appbar.MaterialToolbar android:id="@+id/toolbar" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" app:navigationIcon="@drawable/ic_back" app:navigationIconTint="@color/telegram_type_primary" />
         </com.eve.app.ui.common.EveGlassToolbar>
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" style="@style/Widget.Eve.Token.LargeTitleBlock">
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Exam Syllabus" style="@style/TextAppearance.Eve.Token.Title" />

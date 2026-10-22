@@ -10,6 +10,34 @@ import java.io.File
  * This test does NOT verify the GPL icon bitmap/shape.
  */
 class TelegramActionIconTintTest {
+    @Test fun everyActivityNavigationActionUsesTelegramSourceIconColors() {
+        val files = File("src/main/res/layout").listFiles()!!.filter {
+            it.isFile && it.name.startsWith("activity_") && it.extension == "xml"
+        }
+        var affected = 0
+        for (file in files) {
+            val lines = file.readLines().filter { line ->
+                line.contains("android:src=\"@drawable/ic_back\"") ||
+                    line.contains("android:src=\"@drawable/ic_more_vert\"") ||
+                    line.contains("app:navigationIcon=\"@drawable/ic_back\"")
+            }
+            for (line in lines) {
+                val tint = if (line.contains("app:navigationIcon=\"")) {
+                    "app:navigationIconTint=\"@color/telegram_type_primary\""
+                } else {
+                    "app:tint=\"@color/telegram_type_primary\""
+                }
+                assertTrue("Incorrect ActionBar tint in " + file.name, line.contains(tint))
+                if (line.contains("android:src=\"")) {
+                    assertTrue("Navigation icon lacks content description in " + file.name,
+                        line.contains("android:contentDescription="))
+                }
+                affected++
+            }
+        }
+        assertTrue("Incomplete source role coverage of ActionBar navigation", affected >= 40)
+    }
+
     @Test fun sourceMappedToolbarActionsHavePairedThemeTintsAndPreservedTargets() {
         val day = File("src/main/res/values/telegram_colors.xml").readText()
         val night = File("src/main/res/values-night/telegram_colors.xml").readText()
