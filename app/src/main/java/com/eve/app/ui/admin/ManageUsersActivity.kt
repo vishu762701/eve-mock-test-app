@@ -195,6 +195,23 @@ class ManageUsersActivity : EveBaseActivity() {
         binding.layoutPageNumbers.bind(meta.page, meta.totalPages) { page ->
             navigateTo(page)
         }
+        // Five accessible 48dp targets can exceed 320dp. Keep the current
+        // mark in the narrow scroll viewport after the server confirms a page.
+        binding.layoutPageNumbers.post {
+            val viewport = binding.layoutPageNumbers.parent as? android.widget.HorizontalScrollView
+                ?: return@post
+            val pages = AdminPageWindow.pages(meta.page, meta.totalPages).toList()
+            val index = pages.indexOf(meta.page)
+            if (index < 0) return@post
+            val rtl = binding.layoutPageNumbers.layoutDirection == View.LAYOUT_DIRECTION_RTL
+            val logicalIndex = if (rtl) pages.lastIndex - index else index
+            val step = (48f * resources.displayMetrics.density).toInt()
+            val centered = ((logicalIndex + 0.5f) * step - viewport.width / 2f)
+                .toInt().coerceAtLeast(0)
+            if (com.eve.app.designsystem.UiArcMotion.isMotionEnabled(this)) {
+                viewport.smoothScrollTo(centered, 0)
+            } else viewport.scrollTo(centered, 0)
+        }
     }
 
     private fun showUserDetailsDialog(user: AdminUser) {
