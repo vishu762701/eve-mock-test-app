@@ -38,6 +38,7 @@ class ExistingExamsAdapter(
         private val actionAnimators = mutableMapOf<View, ValueAnimator>()
         private val actionWidths = mutableMapOf<View, Int>()
         private val widthSpring = UiArcMotion.SpringCurve(0.42f, 0f, 550L)
+        private val originalNamePadding = binding.tvExamName.paddingLeft
 
         private val hoverSpring = UiArcMotion.SpringCurve(
             visualDuration = 0.26f, bounce = 0f, settlingDurationMs = 360L
@@ -51,7 +52,9 @@ class ExistingExamsAdapter(
             actionWidths.clear()
             for (button in listOf(binding.btnQuickEdit, binding.btnQuickPreview, binding.btnMoreOptions)) {
                 button.layoutParams = button.layoutParams.apply {
-                    width = ViewGroup.LayoutParams.WRAP_CONTENT
+                    width = if (button === binding.btnMoreOptions)
+                        binding.root.resources.getDimensionPixelSize(R.dimen.design_touch_min)
+                    else ViewGroup.LayoutParams.WRAP_CONTENT
                 }
                 button.setOnHoverListener(null)
                 button.onFocusChangeListener = null
@@ -123,7 +126,7 @@ class ExistingExamsAdapter(
             binding.tvExamName.text = exam.examName
             // Keep current card footprint. Indent only the label for nested exams.
             binding.tvExamName.setPadding(
-                (depth * 14f * binding.root.resources.displayMetrics.density).toInt(),
+                originalNamePadding + (depth * 14f * binding.root.resources.displayMetrics.density).toInt(),
                 binding.tvExamName.paddingTop, binding.tvExamName.paddingRight,
                 binding.tvExamName.paddingBottom
             )
