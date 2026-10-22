@@ -17,7 +17,7 @@ class TelegramIconSourceRegistryTest {
         val tick = 96.toChar()
         val xmlIcons = inventory.lineSequence()
             .filter { it.startsWith("| " + tick) && it.contains(".xml" + tick + " |") && it.contains("ic_") }
-            .flatMap { line -> Regex("""\\bic_[a-z0-9_]+\\b""")
+            .flatMap { line -> Regex("""\bic_[a-z0-9_]+\b""")
                 .findAll(line).map { it.value }.asSequence() }
             .toSet()
         assertEquals(66, xmlIcons.size)
@@ -36,7 +36,7 @@ class TelegramIconSourceRegistryTest {
         )
         val dynamicIcons = dynamicSources.flatMap { path ->
             val content = File(path).readText()
-            Regex("""R\\.drawable\\.(ic_[a-z0-9_]+)""").findAll(content)
+            Regex("""R\.drawable\.(ic_[a-z0-9_]+)""").findAll(content)
                 .map { it.groupValues[1] }.toList()
         }.toSet()
         val expected = xmlIcons + dynamicIcons
