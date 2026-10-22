@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Patterns
 import android.view.HapticFeedbackConstants
 import android.view.View
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
@@ -137,9 +138,35 @@ class LoginActivity : EveBaseActivity() {
             .requestEmail()
             .build()
         val client = GoogleSignIn.getClient(this, options)
-        client.signOut().addOnCompleteListener {
-            signInLauncher.launch(client.signInIntent)
+        client.signOut().addOnCompleteListener { result ->
+            if (isFinishing || isDestroyed) return@addOnCompleteListener
+            if (!result.isSuccessful) {
+                setLoading(false, isGoogle = true)
+                showError("Google sign-in could not start. Please retry.")
+                return@addOnCompleteListener
+            }
+            try {
+                signInLauncher.launch(client.signInIntent)
+            } catch (e: RuntimeException) {
+                setLoading(false, isGoogle = true)
+                showError("Google sign-in is unavailable right now.")
+            }
         }
+    }
+
+    private fun updateModeText(view: TextView, label: String, animate: Boolean) {
+        view.animate().cancel()
+        view.text = label
+        view.alpha = 1f
+        view.translationY = 0f
+        // The new content is visible and accessible immediately. Translate/fade
+        // the same existing TextView; never create ghost focusable form controls.
+        if (!animate || !com.eve.app.designsystem.UiArcMotion.isMotionEnabled(this)) return
+        view.translationY = 4f * resources.displayMetrics.density
+        view.alpha = 0.75f
+        view.animate().translationY(0f).alpha(1f)
+            .setDuration(com.eve.app.designsystem.UiArcMotion.Duration.STANDARD)
+            .setInterpolator(com.eve.app.designsystem.UiArcMotion.Ease.ENTER).start()
     }
 
     private fun toggleMode(animate: Boolean = true) {
@@ -149,31 +176,35 @@ class LoginActivity : EveBaseActivity() {
         androidx.transition.TransitionManager.endTransitions(binding.cardLogin)
         if (animate && com.eve.app.designsystem.UiArcMotion.isMotionEnabled(this)) {
             val motion = com.eve.app.designsystem.UiArcMotion.Spring.SMOOTH
-            val transition = androidx.transition.ChangeBounds().apply {
-                duration = motion.settlingDurationMs
-                interpolator = motion
-            }
-            androidx.transition.TransitionManager.beginDelayedTransition(binding.cardLogin, transition)
+            androidx.transition.TransitionManager.beginDelayedTransition(
+                binding.cardLogin, androidx.transition.ChangeBounds().apply {
+                    duration = motion.settlingDurationMs
+                    interpolator = motion
+                }
+            )
         }
-        binding.root.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+        if (animate) binding.root.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+        if (!isSignUpMode && binding.etName.hasFocus()) binding.etEmail.requestFocus()
+        binding.tilName.visibility = if (isSignUpMode) View.VISIBLE else View.GONE
+        updateModeText(binding.tvTagline,
+            if (isSignUpMode) "Create your account" else "Welcome back", animate)
+        updateModeText(binding.tvSubtitle,
+            if (isSignUpMode) "Join Eve to save your mock tests and sync performance."
+            else "Sign in to save your mock tests and sync performance.", animate)
+        originalSubmitText = if (isSignUpMode) "Create Account" else "Sign In"
+        updateModeText(binding.btnSubmit, originalSubmitText, animate)
+        updateModeText(binding.btnToggleMode,
+            if (isSignUpMode) "Already have an account? Sign In"
+            else "Don't have an account? Sign Up", animate)
+    }
 
-        if (isSignUpMode) {
-            binding.tilName.visibility = View.VISIBLE
-            binding.tvTagline.text = "Create your account"
-            binding.tvSubtitle.text = "Join Eve to save your mock tests and sync performance."
-            originalSubmitText = "Create Account"
-            binding.btnSubmit.text = originalSubmitText
-            binding.btnToggleMode.text = "Already have an account? Sign In"
-            // Do not steal cursor and IME focus from an active email/password edit.
-        } else {
-            if (binding.etName.hasFocus()) binding.etEmail.requestFocus()
-            binding.tilName.visibility = View.GONE
-            binding.tvTagline.text = "Welcome back"
-            binding.tvSubtitle.text = "Sign in to save your mock tests and sync performance."
-            originalSubmitText = "Sign In"
-            binding.btnSubmit.text = originalSubmitText
-            binding.btnToggleMode.text = "Don't have an account? Sign Up"
+    override fun onDestroy() {
+        if (::binding.isInitialized) {
+            androidx.transition.TransitionManager.endTransitions(binding.cardLogin)
+            listOf(binding.tvTagline, binding.tvSubtitle,
+                binding.btnSubmit, binding.btnToggleMode).forEach { it.animate().cancel() }
         }
+        super.onDestroy()
     }
 
     private fun handleEmailPasswordAuth() {
