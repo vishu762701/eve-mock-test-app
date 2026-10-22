@@ -119,7 +119,7 @@ class HomeTypographyTest {
     }
 
     @Test
-    fun testAppleIOS26_Standard11TextStyles() {
+    fun testNativeTelegramSharedTextStyles() {
         val styles = loadStyles("src/main/res/values/design_type.xml")
         for ((role, token, font) in listOf(
             Triple("Title", "title", "bold"), Triple("Heading", "heading", "semibold"),
@@ -129,12 +129,12 @@ class HomeTypographyTest {
             assertNotNull(style)
             assertEquals("@dimen/design_type_$token", style?.textSize)
             assertEquals("@dimen/design_line_$token", style?.lineHeight)
-            assertEquals("@font/inter_$font", style?.fontFamily)
+            assertEquals(if (font == "regular") "sans-serif" else "sans-serif-medium", style?.fontFamily)
         }
     }
 
     @Test
-    fun testAppleIOS26_ComponentSpecificVariants() {
+    fun testNativeTelegramComponentVariants() {
         val styles = loadStyles("src/main/res/values/design_type.xml")
         for ((role, token, font) in listOf(
             Triple("Tab", "tab", "regular"), Triple("Chip", "chip", "medium"), Triple("Button", "button", "semibold")
@@ -143,9 +143,9 @@ class HomeTypographyTest {
             assertNotNull(style)
             assertEquals("@dimen/design_type_$token", style?.textSize)
             assertEquals("@dimen/design_line_$token", style?.lineHeight)
-            assertEquals("@font/inter_$font", style?.fontFamily)
+            assertEquals(if (font == "regular") "sans-serif" else "sans-serif-medium", style?.fontFamily)
         }
-        assertEquals("@font/inter_semibold", styles["TextAppearance.Eve.Token.Tab.Selected"]?.fontFamily)
+        assertEquals("sans-serif-medium", styles["TextAppearance.Eve.Token.Tab.Selected"]?.fontFamily)
     }
 
     @Test

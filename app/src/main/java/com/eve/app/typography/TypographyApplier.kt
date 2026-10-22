@@ -64,6 +64,9 @@ object TypographyApplier {
 
         val root = activity.findViewById<ViewGroup>(android.R.id.content) ?: return
         val config = repo.getActiveConfig()
+        // Pre-migration published iOS typography is retained for backend compatibility only.
+        // XML/DesignType native Telegram roles must not be re-styled by its Inter cache.
+        if (config.presetId != "telegram_native") return
         val screenKey = TypographyRegistry.findScreenForActivity(activity)
         applyToHierarchy(root, config, screenKey)
     }

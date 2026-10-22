@@ -40,15 +40,15 @@
     <!-- Official Apple iOS 26 Canonical Dynamic Type Scale -->
     <dimen name="design_type_large_title">34sp</dimen>
     <dimen name="design_line_large_title">41sp</dimen>
-    <dimen name="design_type_title1">28sp</dimen>
-    <dimen name="design_line_title1">34sp</dimen>
-    <dimen name="design_type_title2">22sp</dimen>
-    <dimen name="design_line_title2">28sp</dimen>
+    <dimen name="design_type_title1">20sp</dimen>
+    <dimen name="design_line_title1">26sp</dimen>
+    <dimen name="design_type_title2">20sp</dimen>
+    <dimen name="design_line_title2">26sp</dimen>
     <dimen name="design_type_title3">20sp</dimen>
     <dimen name="design_line_title3">25sp</dimen>
     <dimen name="design_type_headline">17sp</dimen>
     <dimen name="design_line_headline">22sp</dimen>
-    <dimen name="design_type_body">17sp</dimen>
+    <dimen name="design_type_body">16sp</dimen>
     <dimen name="design_line_body">22sp</dimen>
     <dimen name="design_type_callout">16sp</dimen>
     <dimen name="design_line_callout">21sp</dimen>
@@ -62,8 +62,8 @@
     <dimen name="design_line_caption2">13sp</dimen>
 
     <!-- Unified Token Dimension Bridges -->
-    <dimen name="design_type_title">28sp</dimen>
-    <dimen name="design_line_title">34sp</dimen>
+    <dimen name="design_type_title">20sp</dimen>
+    <dimen name="design_line_title">26sp</dimen>
     <dimen name="design_type_heading">17sp</dimen>
     <dimen name="design_line_heading">22sp</dimen>
     <dimen name="design_type_secondary">14sp</dimen>

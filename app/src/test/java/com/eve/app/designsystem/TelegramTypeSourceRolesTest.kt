@@ -92,6 +92,20 @@ class TelegramTypeSourceRolesTest {
         assertTrue(item.contains("@drawable/ic_bell"))
     }
 
+    @Test fun globalLegacyInterCannotOverrideNativeSourceTypography() {
+        val theme = read("values/themes.xml")
+        assertTrue(theme.contains("<item name=\"android:fontFamily\">sans-serif</item>"))
+        val styles = read("values/design_type.xml")
+        val widgets = read("values/design_widgets.xml")
+        assertTrue("Migrated global styles must not force bundled Inter", !styles.contains("@font/inter"))
+        assertTrue("Shared widgets must not force bundled Inter", !widgets.contains("@font/inter"))
+        val dimens = read("values/design_dimens.xml")
+        for ((key, expected) in mapOf("design_type_title" to "20sp",
+            "design_type_body" to "16sp", "design_type_heading" to "17sp")) {
+            assertTrue("Wrong $key", dimens.contains("<dimen name=\"" + key + "\">" + expected + "</dimen>"))
+        }
+    }
+
     private fun contrast(foreground: String, background: String): Double {
         fun luminance(hex: String): Double {
             val rgb = hex.removePrefix("#").takeLast(6)

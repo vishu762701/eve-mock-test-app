@@ -7,12 +7,12 @@ import com.eve.app.typography.TypographyRepository
 import com.eve.app.util.FontManager
 
 /**
- * Authoritative central typography coordinator for the official iOS 26 dynamic typography scale
+ * Central typography coordinator for native Telegram-style semantic text sizes
  * and component adaptations across programmatic rows, framework widgets, and XML views.
  */
 object DesignType {
     enum class Role {
-        // Canonical Apple iOS 26 text styles
+        // Legacy role identifiers retained for binary/source compatibility
         LARGE_TITLE,
         TITLE_1,
         TITLE_2,
@@ -26,9 +26,9 @@ object DesignType {
         CAPTION_2,
 
         // Semantic component adaptations & backward-compatible aliases
-        TITLE,       // Maps to Title 1 Emphasized (28sp bold)
-        HEADING,     // Maps to Headline (17sp semibold)
-        SECONDARY,   // Maps to Subheadline (15sp regular)
+        TITLE,       // Maps to the shared native 20sp title role
+        HEADING,     // Maps to Telegram chat-heading 17sp medium
+        SECONDARY,   // Maps to EVE accessible secondary 14sp
         TAB,         // Maps to 14/15sp tab label
         CHIP,        // Maps to Footnote Medium/Emphasized (14sp medium)
         BUTTON       // Maps to Callout Emphasized (16sp semibold)
@@ -106,7 +106,8 @@ object DesignType {
         } catch (_: Exception) {
             null
         }
-        val family = FontManager.FontFamily.fromId(config?.fontFamily)
+        // Retired published iOS/Inter font choice cannot override source-traced Telegram baseline.
+        val family = FontManager.FontFamily.ROBOTO
 
         view.typeface = when {
             role in listOf(Role.LARGE_TITLE, Role.TITLE_1, Role.TITLE_2, Role.TITLE) && (emphasized || role == Role.TITLE) -> FontManager.getTypeface(view.context, family, FontManager.FontWeight.BOLD)
@@ -118,7 +119,7 @@ object DesignType {
         TextViewCompat.setLineHeight(view, view.resources.getDimensionPixelSize(line))
 
         // Apply explicit component override if defined by admin
-        if (config != null) {
+        if (config != null && config.presetId == "telegram_native") {
             val roleKey = when (role) {
                 Role.LARGE_TITLE -> "large_title"
                 Role.TITLE_1, Role.TITLE -> "title_1"

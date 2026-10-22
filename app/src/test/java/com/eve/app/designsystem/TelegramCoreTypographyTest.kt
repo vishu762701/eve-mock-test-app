@@ -9,17 +9,16 @@ import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 
 /**
- * Comprehensive verification of Apple iOS 26 Official Typography implementation.
+ * Verification of EVE compatibility typography roles during Telegram native migration.
  *
  * Validates:
- * 1. All 11 canonical Apple HIG semantic text styles (Large Title through Caption 2).
- * 2. Official font sizes and line heights (34/41 down to 11/13).
- * 3. Standard and Emphasized font weights.
- * 4. Dimensional consistency across base, sw360dp, and sw600dp qualifiers.
- * 5. Open-source Inter font family integration (SIL OFL 1.1).
- * 6. Component-specific adaptations and DesignType mappings.
+ * 1. All retained EVE text roles resolve to documented Android-native font families.
+ * 2. Telegram ActionBar-compatible 20sp heading and 16sp body values, with larger
+ *    EVE exam-specific roles kept where Telegram has no counterpart.
+ * 3. Day/Night and small/tablet dimensions are matched without removing roles.
+ * 4. Legacy Inter files remain with their OFL notices until reachability audit.
  */
-class Ios26OfficialTypographyTest {
+class TelegramCoreTypographyTest {
 
     private fun mainDir(): File = listOf(File("src/main"), File("app/src/main"), File("../app/src/main"))
         .first { it.isDirectory }
@@ -82,21 +81,21 @@ class Ios26OfficialTypographyTest {
     )
 
     private val canonicalStyles = listOf(
-        ExpectedStyle("LargeTitle", "design_type_large_title", "design_line_large_title", "34sp", "41sp", "@font/inter_regular", "@font/inter_bold"),
-        ExpectedStyle("Title1", "design_type_title1", "design_line_title1", "28sp", "34sp", "@font/inter_regular", "@font/inter_bold"),
-        ExpectedStyle("Title2", "design_type_title2", "design_line_title2", "22sp", "28sp", "@font/inter_regular", "@font/inter_bold"),
-        ExpectedStyle("Title3", "design_type_title3", "design_line_title3", "20sp", "25sp", "@font/inter_regular", "@font/inter_semibold"),
-        ExpectedStyle("Headline", "design_type_headline", "design_line_headline", "17sp", "22sp", "@font/inter_semibold", "@font/inter_semibold"),
-        ExpectedStyle("Body", "design_type_body", "design_line_body", "17sp", "22sp", "@font/inter_regular", "@font/inter_semibold"),
-        ExpectedStyle("Callout", "design_type_callout", "design_line_callout", "16sp", "21sp", "@font/inter_regular", "@font/inter_semibold"),
-        ExpectedStyle("Subheadline", "design_type_subheadline", "design_line_subheadline", "15sp", "20sp", "@font/inter_regular", "@font/inter_semibold"),
-        ExpectedStyle("Footnote", "design_type_footnote", "design_line_footnote", "13sp", "18sp", "@font/inter_regular", "@font/inter_semibold"),
-        ExpectedStyle("Caption1", "design_type_caption1", "design_line_caption1", "12sp", "16sp", "@font/inter_regular", "@font/inter_semibold"),
-        ExpectedStyle("Caption2", "design_type_caption2", "design_line_caption2", "11sp", "13sp", "@font/inter_regular", "@font/inter_semibold")
+        ExpectedStyle("LargeTitle", "design_type_large_title", "design_line_large_title", "34sp", "41sp", "sans-serif", "sans-serif-medium"),
+        ExpectedStyle("Title1", "design_type_title1", "design_line_title1", "20sp", "26sp", "sans-serif", "sans-serif-medium"),
+        ExpectedStyle("Title2", "design_type_title2", "design_line_title2", "20sp", "26sp", "sans-serif", "sans-serif-medium"),
+        ExpectedStyle("Title3", "design_type_title3", "design_line_title3", "20sp", "25sp", "sans-serif", "sans-serif-medium"),
+        ExpectedStyle("Headline", "design_type_headline", "design_line_headline", "17sp", "22sp", "sans-serif-medium", "sans-serif-medium"),
+        ExpectedStyle("Body", "design_type_body", "design_line_body", "16sp", "22sp", "sans-serif", "sans-serif-medium"),
+        ExpectedStyle("Callout", "design_type_callout", "design_line_callout", "16sp", "21sp", "sans-serif", "sans-serif-medium"),
+        ExpectedStyle("Subheadline", "design_type_subheadline", "design_line_subheadline", "15sp", "20sp", "sans-serif", "sans-serif-medium"),
+        ExpectedStyle("Footnote", "design_type_footnote", "design_line_footnote", "13sp", "18sp", "sans-serif", "sans-serif-medium"),
+        ExpectedStyle("Caption1", "design_type_caption1", "design_line_caption1", "12sp", "16sp", "sans-serif", "sans-serif-medium"),
+        ExpectedStyle("Caption2", "design_type_caption2", "design_line_caption2", "11sp", "13sp", "sans-serif", "sans-serif-medium")
     )
 
     @Test
-    fun testAll11CanonicalStylesDefinedInDimensWithAppleMetrics() {
+    fun testAllRetainedCoreStylesHaveTelegramCompatibleMetrics() {
         val dimens = loadDimens("app/src/main/res/values/design_dimens.xml")
         for (expected in canonicalStyles) {
             assertEquals("Size for ${expected.name}", expected.expectedSize, dimens[expected.sizeDimen])
@@ -178,7 +177,7 @@ class Ios26OfficialTypographyTest {
     }
 
     @Test
-    fun testInterFontArtifactsAndLicensing() {
+    fun testRetainedInterArtifactsRemainLicensedUntilRemoved() {
         val resFontDir = File(mainDir(), "res/font")
         for (w in listOf("regular", "medium", "semibold", "bold", "variable")) {
             val file = File(resFontDir, "inter_$w.ttf")

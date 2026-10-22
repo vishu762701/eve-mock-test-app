@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Authoritative central font manager providing:
- * 1. Default iOS 26 dynamic typography font family (Inter) with authentic weights (400, 500, 600, 700).
+ * 1. Native Android system sans-serif defaults for Telegram-aligned typography; legacy Inter assets remain for backwards compatibility.
  * 2. 4-Family Font Library: Inter, Poppins, Roboto, and Noto Sans.
  * 3. Thread-safe typeface caching to guarantee zero UI-thread allocation and immediate preview updates.
  * 4. System typeface fallbacks for full multilingual (Hindi/Devanagari) script coverage.
@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap
 object FontManager {
 
     @Volatile
-    var activeFontFamily: FontFamily = FontFamily.INTER
+    var activeFontFamily: FontFamily = FontFamily.ROBOTO
 
     enum class FontFamily(
         val id: String,

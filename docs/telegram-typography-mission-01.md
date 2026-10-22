@@ -52,3 +52,11 @@ All migrated views bear the `eve_telegram_type` tag to avoid a stale published I
 - GPL-2.0-only compatibility and full corresponding-source obligations are unresolved: no Telegram icon art, RLottie, or bundled Telegram fonts may be imported into a production build without resolution.
 - Other views, programmatic custom Views, dialog internals, exam-specific roles and Telegram-unique icon states remain unmapped; do not describe the app as Telegram-exact.
 - CI Android build/lint/native UI, light/dark captures, font scale 1.0/enlarged, Devanagari/RTL, permission and motion regression require evidence on the new commit.
+
+## Main-only native typography foundation — full shared-token coverage
+
+Mapped all `TextAppearance.Eve.*` and `TextAppearance.Eve.Token.*` typography resources, plus shared Android button/input widget fonts and `Theme.Eve.Foundation` family, away from bundled Inter and onto platform `sans-serif` / `sans-serif-medium` (Telegram `AndroidUtilities.bold()` uses platform 500 on supported devices). Original fonts/assets are preserved because standalone license and dependency reachability are unresolved, **not** because they remain approved default.
+
+The shared Home/nav title and content title now use 20sp/26sp as the ActionBar title analogue. Body 16sp/22sp maps Telegram message/setting regular text. Heading 17sp/22sp maps DialogCell conversation header. The 34sp hero value and 11/12sp auxiliary labels are EVE exam-content-specific compatibility semantics, *not* asserted official Telegram universal typography roles. All base/sw360/sw600 dimension variants were updated together. Semantic success/error colors are retained for exam-result meaning.
+
+The prior published `ios26_balanced` typography configuration/cache and backend contract are retained but no longer allowed to repaint XML text or programmatic `DesignType` components. A future `telegram_native` preset requires separate compatibility/security verification before remote overrides may be re-enabled. No deprecated server API or bundled fonts were removed because active dependencies have not been fully audited. Tested compatibility role constraints are updated to measure **actual new fonts and sizes**, not disabled.

@@ -67,8 +67,8 @@
         <item name="android:statusBarColor">@color/transparent</item>
         <item name="android:navigationBarColor">@color/transparent</item>
         <item name="snackbarStyle">@style/Widget.Eve.Token.Snackbar</item>
-        <item name="android:fontFamily">@font/inter</item>
-        <item name="fontFamily">@font/inter</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
         <item name="textAppearanceDisplayLarge">@style/TextAppearance.Eve.LargeTitle.Emphasized</item>
         <item name="textAppearanceDisplayMedium">@style/TextAppearance.Eve.Title1.Emphasized</item>
         <item name="textAppearanceDisplaySmall">@style/TextAppearance.Eve.Title2.Emphasized</item>

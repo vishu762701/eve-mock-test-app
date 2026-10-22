@@ -6,7 +6,7 @@
     </style>
     <style name="Widget.Eve.Token.Button" parent="Widget.Material3.Button">
         <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Button</item>
-        <item name="android:fontFamily">@font/inter_bold</item><item name="fontFamily">@font/inter_bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item><item name="fontFamily">sans-serif-medium</item>
         <item name="android:textSize">@dimen/design_type_button</item>
         <item name="android:includeFontPadding">false</item><item name="android:textAllCaps">false</item>
         <item name="android:letterSpacing">0</item>
@@ -29,7 +29,7 @@
     </style>
     <style name="Widget.Eve.Token.Input" parent="Widget.Material3.TextInputEditText.FilledBox">
         <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Body</item>
-        <item name="android:fontFamily">@font/inter_regular</item><item name="fontFamily">@font/inter_regular</item>
+        <item name="android:fontFamily">sans-serif</item><item name="fontFamily">sans-serif</item>
         <item name="android:includeFontPadding">false</item><item name="android:textSize">@dimen/design_type_body</item>
         <item name="android:minHeight">@dimen/design_input_height</item>
         <item name="android:paddingStart">@dimen/design_input_padding</item><item name="android:paddingEnd">@dimen/design_input_padding</item>
@@ -249,7 +249,7 @@
     </style>
     <style name="Widget.Eve.Token.DropDownItem" parent="Widget.AppCompat.DropDownItem.Spinner">
         <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Body</item>
-        <item name="android:fontFamily">@font/inter_regular</item>
+        <item name="android:fontFamily">sans-serif</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:minHeight">@dimen/design_row_with_gap</item>
         <item name="android:paddingStart">@dimen/design_card_padding</item><item name="android:paddingEnd">@dimen/design_card_padding</item>
@@ -285,7 +285,7 @@
     <style name="Widget.Eve.Token.Tile.Yellow" parent="Widget.Eve.Token.Tile"><item name="android:background">@drawable/design_tile_yellow</item></style>
 <style name="Widget.Eve.Token.Button.Review" parent="Widget.Eve.Token.Button.Secondary"><item name="backgroundTint">@color/design_review_fill</item><item name="android:textColor">@color/design_review_text</item></style><style name="Widget.Eve.Token.SpinnerItem" parent="">
         <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Body</item>
-        <item name="android:fontFamily">@font/inter_regular</item><item name="android:textSize">@dimen/design_type_body</item>
+        <item name="android:fontFamily">sans-serif</item><item name="android:textSize">@dimen/design_type_body</item>
         <item name="android:includeFontPadding">false</item><item name="android:textColor">@color/text_primary</item>
         <item name="android:gravity">center_vertical|start</item><item name="android:singleLine">true</item><item name="android:ellipsize">end</item>
     </style>

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- ===================================================================== -->
-    <!-- OFFICIAL APPLE iOS 26 CANONICAL DYNAMIC TYPE STYLES                    -->
-    <!-- Default Large Category: 34pt to 11pt with Official Apple Line Heights -->
+    <!-- EVE compatibility roles mapped onto Telegram Android native text hierarchy -->
+    <!-- Native sans-serif fonts and EVE app-specific exam size roles               -->
     <!-- ===================================================================== -->
 
     <!-- Large Title (34pt / 41pt) -->
     <style name="TextAppearance.Eve.LargeTitle" parent="TextAppearance.Material3.HeadlineLarge">
-        <item name="android:fontFamily">@font/inter_regular</item>
-        <item name="fontFamily">@font/inter_regular</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
         <item name="android:textSize">@dimen/design_type_large_title</item>
         <item name="lineHeight">@dimen/design_line_large_title</item>
         <item name="android:includeFontPadding">false</item>
@@ -17,15 +17,15 @@
     </style>
 
     <style name="TextAppearance.Eve.LargeTitle.Emphasized" parent="TextAppearance.Eve.LargeTitle">
-        <item name="android:fontFamily">@font/inter_bold</item>
-        <item name="fontFamily">@font/inter_bold</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
     <!-- Title 1 (28pt / 34pt) -->
     <style name="TextAppearance.Eve.Title1" parent="TextAppearance.Material3.HeadlineMedium">
-        <item name="android:fontFamily">@font/inter_regular</item>
-        <item name="fontFamily">@font/inter_regular</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
         <item name="android:textSize">@dimen/design_type_title1</item>
         <item name="lineHeight">@dimen/design_line_title1</item>
         <item name="android:includeFontPadding">false</item>
@@ -34,15 +34,15 @@
     </style>
 
     <style name="TextAppearance.Eve.Title1.Emphasized" parent="TextAppearance.Eve.Title1">
-        <item name="android:fontFamily">@font/inter_bold</item>
-        <item name="fontFamily">@font/inter_bold</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
     <!-- Title 2 (22pt / 28pt) -->
     <style name="TextAppearance.Eve.Title2" parent="TextAppearance.Material3.HeadlineSmall">
-        <item name="android:fontFamily">@font/inter_regular</item>
-        <item name="fontFamily">@font/inter_regular</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
         <item name="android:textSize">@dimen/design_type_title2</item>
         <item name="lineHeight">@dimen/design_line_title2</item>
         <item name="android:includeFontPadding">false</item>
@@ -51,15 +51,15 @@
     </style>
 
     <style name="TextAppearance.Eve.Title2.Emphasized" parent="TextAppearance.Eve.Title2">
-        <item name="android:fontFamily">@font/inter_bold</item>
-        <item name="fontFamily">@font/inter_bold</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
     <!-- Title 3 (20pt / 25pt) -->
     <style name="TextAppearance.Eve.Title3" parent="TextAppearance.Material3.TitleLarge">
-        <item name="android:fontFamily">@font/inter_regular</item>
-        <item name="fontFamily">@font/inter_regular</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
         <item name="android:textSize">@dimen/design_type_title3</item>
         <item name="lineHeight">@dimen/design_line_title3</item>
         <item name="android:includeFontPadding">false</item>
@@ -68,15 +68,15 @@
     </style>
 
     <style name="TextAppearance.Eve.Title3.Emphasized" parent="TextAppearance.Eve.Title3">
-        <item name="android:fontFamily">@font/inter_semibold</item>
-        <item name="fontFamily">@font/inter_semibold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
         <item name="android:textStyle">normal</item>
     </style>
 
     <!-- Headline (17pt / 22pt, Semibold) -->
     <style name="TextAppearance.Eve.Headline" parent="TextAppearance.Material3.TitleMedium">
-        <item name="android:fontFamily">@font/inter_semibold</item>
-        <item name="fontFamily">@font/inter_semibold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
         <item name="android:textSize">@dimen/design_type_headline</item>
         <item name="lineHeight">@dimen/design_line_headline</item>
         <item name="android:includeFontPadding">false</item>
@@ -85,15 +85,15 @@
     </style>
 
     <style name="TextAppearance.Eve.Headline.Emphasized" parent="TextAppearance.Eve.Headline">
-        <item name="android:fontFamily">@font/inter_semibold</item>
-        <item name="fontFamily">@font/inter_semibold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
         <item name="android:textStyle">normal</item>
     </style>
 
     <!-- Body (17pt / 22pt, Regular) -->
     <style name="TextAppearance.Eve.Body" parent="TextAppearance.Material3.BodyLarge">
-        <item name="android:fontFamily">@font/inter_regular</item>
-        <item name="fontFamily">@font/inter_regular</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
         <item name="android:textSize">@dimen/design_type_body</item>
         <item name="lineHeight">@dimen/design_line_body</item>
         <item name="android:includeFontPadding">false</item>
@@ -102,15 +102,15 @@
     </style>
 
     <style name="TextAppearance.Eve.Body.Emphasized" parent="TextAppearance.Eve.Body">
-        <item name="android:fontFamily">@font/inter_semibold</item>
-        <item name="fontFamily">@font/inter_semibold</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
     <!-- Callout (16pt / 21pt) -->
     <style name="TextAppearance.Eve.Callout" parent="TextAppearance.Material3.BodyMedium">
-        <item name="android:fontFamily">@font/inter_regular</item>
-        <item name="fontFamily">@font/inter_regular</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
         <item name="android:textSize">@dimen/design_type_callout</item>
         <item name="lineHeight">@dimen/design_line_callout</item>
         <item name="android:includeFontPadding">false</item>
@@ -119,15 +119,15 @@
     </style>
 
     <style name="TextAppearance.Eve.Callout.Emphasized" parent="TextAppearance.Eve.Callout">
-        <item name="android:fontFamily">@font/inter_semibold</item>
-        <item name="fontFamily">@font/inter_semibold</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
     <!-- Subheadline (15pt / 20pt) -->
     <style name="TextAppearance.Eve.Subheadline" parent="TextAppearance.Material3.BodyMedium">
-        <item name="android:fontFamily">@font/inter_regular</item>
-        <item name="fontFamily">@font/inter_regular</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
         <item name="android:textSize">@dimen/design_type_subheadline</item>
         <item name="lineHeight">@dimen/design_line_subheadline</item>
         <item name="android:includeFontPadding">false</item>
@@ -136,15 +136,15 @@
     </style>
 
     <style name="TextAppearance.Eve.Subheadline.Emphasized" parent="TextAppearance.Eve.Subheadline">
-        <item name="android:fontFamily">@font/inter_semibold</item>
-        <item name="fontFamily">@font/inter_semibold</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
     <!-- Footnote (13pt / 18pt) -->
     <style name="TextAppearance.Eve.Footnote" parent="TextAppearance.Material3.BodySmall">
-        <item name="android:fontFamily">@font/inter_regular</item>
-        <item name="fontFamily">@font/inter_regular</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
         <item name="android:textSize">@dimen/design_type_footnote</item>
         <item name="lineHeight">@dimen/design_line_footnote</item>
         <item name="android:includeFontPadding">false</item>
@@ -153,15 +153,15 @@
     </style>
 
     <style name="TextAppearance.Eve.Footnote.Emphasized" parent="TextAppearance.Eve.Footnote">
-        <item name="android:fontFamily">@font/inter_semibold</item>
-        <item name="fontFamily">@font/inter_semibold</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
     <!-- Caption 1 (12pt / 16pt) -->
     <style name="TextAppearance.Eve.Caption1" parent="TextAppearance.Material3.LabelSmall">
-        <item name="android:fontFamily">@font/inter_regular</item>
-        <item name="fontFamily">@font/inter_regular</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
         <item name="android:textSize">@dimen/design_type_caption1</item>
         <item name="lineHeight">@dimen/design_line_caption1</item>
         <item name="android:includeFontPadding">false</item>
@@ -170,15 +170,15 @@
     </style>
 
     <style name="TextAppearance.Eve.Caption1.Emphasized" parent="TextAppearance.Eve.Caption1">
-        <item name="android:fontFamily">@font/inter_semibold</item>
-        <item name="fontFamily">@font/inter_semibold</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
     <!-- Caption 2 (11pt / 13pt) -->
     <style name="TextAppearance.Eve.Caption2" parent="TextAppearance.Material3.LabelSmall">
-        <item name="android:fontFamily">@font/inter_regular</item>
-        <item name="fontFamily">@font/inter_regular</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
         <item name="android:textSize">@dimen/design_type_caption2</item>
         <item name="lineHeight">@dimen/design_line_caption2</item>
         <item name="android:includeFontPadding">false</item>
@@ -187,17 +187,17 @@
     </style>
 
     <style name="TextAppearance.Eve.Caption2.Emphasized" parent="TextAppearance.Eve.Caption2">
-        <item name="android:fontFamily">@font/inter_semibold</item>
-        <item name="fontFamily">@font/inter_semibold</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
     <!-- ===================================================================== -->
     <!-- COMPONENT-LEVEL SEMANTIC ADAPTATIONS                                   -->
     <!-- ===================================================================== -->
-    <style name="TextAppearance.Eve.Component.NavigationTitle" parent="TextAppearance.Eve.Title3.Emphasized" />
-    <style name="TextAppearance.Eve.Component.DialogTitle" parent="TextAppearance.Eve.Headline" />
-    <style name="TextAppearance.Eve.Component.DialogMessage" parent="TextAppearance.Eve.Body" />
+    <style name="TextAppearance.Eve.Component.NavigationTitle" parent="TextAppearance.Eve.Telegram.NavigationTitle" />
+    <style name="TextAppearance.Eve.Component.DialogTitle" parent="TextAppearance.Eve.Telegram.DialogTitle" />
+    <style name="TextAppearance.Eve.Component.DialogMessage" parent="TextAppearance.Eve.Telegram.DialogMessage" />
     <style name="TextAppearance.Eve.Component.CardHeading" parent="TextAppearance.Eve.Headline" />
     <style name="TextAppearance.Eve.Component.Badge" parent="TextAppearance.Eve.Caption1.Emphasized" />
     <style name="TextAppearance.Eve.Component.Timer" parent="TextAppearance.Eve.Headline" />
@@ -210,19 +210,19 @@
     <!-- ===================================================================== -->
 
     <style name="TextAppearance.Eve.Token.Title" parent="TextAppearance.Eve.Title1.Emphasized">
-        <item name="android:fontFamily">@font/inter_bold</item>
-        <item name="fontFamily">@font/inter_bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
         <item name="android:textSize">@dimen/design_type_title</item>
         <item name="lineHeight">@dimen/design_line_title</item>
         <item name="android:includeFontPadding">false</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:textStyle">normal</item>
         <item name="android:letterSpacing">0</item>
         <item name="android:textColor">@color/text_primary</item>
     </style>
 
     <style name="TextAppearance.Eve.Token.Heading" parent="TextAppearance.Eve.Headline">
-        <item name="android:fontFamily">@font/inter_semibold</item>
-        <item name="fontFamily">@font/inter_semibold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
         <item name="android:textSize">@dimen/design_type_heading</item>
         <item name="lineHeight">@dimen/design_line_heading</item>
         <item name="android:includeFontPadding">false</item>
@@ -232,8 +232,8 @@
     </style>
 
     <style name="TextAppearance.Eve.Token.Body" parent="TextAppearance.Eve.Body">
-        <item name="android:fontFamily">@font/inter_regular</item>
-        <item name="fontFamily">@font/inter_regular</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
         <item name="android:textSize">@dimen/design_type_body</item>
         <item name="lineHeight">@dimen/design_line_body</item>
         <item name="android:includeFontPadding">false</item>
@@ -243,8 +243,8 @@
     </style>
 
     <style name="TextAppearance.Eve.Token.Secondary" parent="TextAppearance.Eve.Subheadline">
-        <item name="android:fontFamily">@font/inter_regular</item>
-        <item name="fontFamily">@font/inter_regular</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
         <item name="android:textSize">@dimen/design_type_secondary</item>
         <item name="lineHeight">@dimen/design_line_secondary</item>
         <item name="android:includeFontPadding">false</item>
@@ -254,8 +254,8 @@
     </style>
 
     <style name="TextAppearance.Eve.Token.Tab" parent="TextAppearance.Material3.BodyLarge">
-        <item name="android:fontFamily">@font/inter_regular</item>
-        <item name="fontFamily">@font/inter_regular</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
         <item name="android:textSize">@dimen/design_type_tab</item>
         <item name="lineHeight">@dimen/design_line_tab</item>
         <item name="android:includeFontPadding">false</item>
@@ -265,8 +265,8 @@
     </style>
 
     <style name="TextAppearance.Eve.Token.Tab.Selected" parent="TextAppearance.Material3.BodyLarge">
-        <item name="android:fontFamily">@font/inter_semibold</item>
-        <item name="fontFamily">@font/inter_semibold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
         <item name="android:textSize">@dimen/design_type_tab</item>
         <item name="lineHeight">@dimen/design_line_tab</item>
         <item name="android:includeFontPadding">false</item>
@@ -276,8 +276,8 @@
     </style>
 
     <style name="TextAppearance.Eve.Token.Chip" parent="TextAppearance.Material3.BodyLarge">
-        <item name="android:fontFamily">@font/inter_medium</item>
-        <item name="fontFamily">@font/inter_medium</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
         <item name="android:textSize">@dimen/design_type_chip</item>
         <item name="lineHeight">@dimen/design_line_chip</item>
         <item name="android:includeFontPadding">false</item>
@@ -287,8 +287,8 @@
     </style>
 
     <style name="TextAppearance.Eve.Token.Button" parent="TextAppearance.Eve.Callout.Emphasized">
-        <item name="android:fontFamily">@font/inter_semibold</item>
-        <item name="fontFamily">@font/inter_semibold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
         <item name="android:textSize">@dimen/design_type_button</item>
         <item name="lineHeight">@dimen/design_line_button</item>
         <item name="android:includeFontPadding">false</item>
