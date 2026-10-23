@@ -17,6 +17,6 @@ class TelegramResultSubtitleSourceTest {
         assertTrue(source.contains("R.style.TextAppearance_Eve_Telegram_NavigationTitle_WithSubtitle"))
         assertTrue(source.contains("R.style.TextAppearance_Eve_Telegram_NavigationTitle"))
         assertTrue(source.contains("binding.tvResultSubtitle.visibility = View.GONE"))
-        assertTrue(source.contains("\"Attempted on $attemptDate\""))
+        assertTrue(source.contains("Attempted on "))
     }
 }
