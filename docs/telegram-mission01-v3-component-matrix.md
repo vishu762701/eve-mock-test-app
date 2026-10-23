@@ -21,33 +21,34 @@ This matrix documents the EVE repository baseline SHA 6be58114a1d9531e1e357fd3e3
 | Shared body + secondary | `java/org/telegram/ui/ActionBar/ThemeColors.java:100,197`, night.attheme foreground | `design_type.xml`, `telegram_colors.xml` Day/Night | IMPLEMENTED token mapping; runtime external text setters and 95-layout exhaustive review PENDING |
 | Unmapped EVE score, timer, palette, question options | No exact Telegram exam component | score, timer, answer controls remain EVE | NO EXACT TELEGRAM COUNTERPART — preserve accuracy and source-authoritative scoring |
 
-## Icon actions — source candidates only, not artwork import
+## Icon actions — verified static source imports and remaining candidates
 
-The following source paths and Java call sites were searched and read from the supplied archive. Most assets are GPL-covered as part of the Telegram repository; none was copied into EVE. The original EVE actions, resource IDs, dimensions, accessibility labels and animation triggers remain unchanged.
+The following source paths and Java call sites were searched and read from the supplied archive. Sixteen tracked action icons now use original Telegram GPL-covered static WebP art, with source-density hashes pinned by regression tests; this is not a claim of Telegram-exact animation, tint, or full-screen fidelity. Existing EVE resource IDs and actions are retained. Some other icons remain EVE-owned redraws or unmapped. This section supersedes the historical candidate-only statuses.
 
 | EVE icon / actual caller | Verified Telegram source asset / call site | Status |
 | --- | --- | --- |
-| `ic_camera` / Profile photo | `drawable-hdpi/msg_camera.webp` — ImageUpdater.java:278 | CANDIDATE_NOT_IMPORTED |
-| `ic_copy` / Copy EVE ID | `drawable-hdpi/msg_copy.webp` — BusinessLinksActivity.java:395 | CANDIDATE_NOT_IMPORTED |
-| `ic_download` / Syllabus download | `drawable-hdpi/msg_download.webp` — ChatActivity.java:10377 | CANDIDATE_NOT_IMPORTED |
-| `ic_info` / About/API info | `drawable-hdpi/msg_info.webp` — ChatActivity.java:31892 | CANDIDATE_NOT_IMPORTED |
-| `ic_link` / Admin banner link | `drawable-hdpi/msg_link.webp` — ChatActivity.java:40482 | CANDIDATE_NOT_IMPORTED (Telegram action copies link; EVE edits link) |
-| `ic_logout` / Logout | `drawable-hdpi/msg_leave.webp` — SettingsActivity.java:342 | CANDIDATE_NOT_IMPORTED; verified Telegram LogOut call site |
-| `ic_send` / Send notification | `drawable-hdpi/msg_send.webp` — ShareAlert.java:2359 | CANDIDATE_NOT_IMPORTED (same send action, different domain) |
-| `ic_back`, `ic_more_vert`, `ic_search`, `ic_delete`, `ic_share`, `ic_close`, `ic_bookmark`, `ic_bell`, `ic_bell_off`, `ic_notification`, `ic_settings`, `ic_edit`, `ic_pin` | Source references in `telegram-icon-source-registry.tsv`, 13 EVE-owned drawable vectors | IMPLEMENTED EVE-owned art, **NOT TELEGRAM-EXACT** |
+| `ic_camera` / Profile photo | `drawable-hdpi/msg_camera.webp` — ImageUpdater.java:278 | OFFICIAL_TELEGRAM_GPL_ART_IMPORTED; original static WebP, source bytes pinned |
+| `ic_copy` / Copy EVE ID | `drawable-hdpi/msg_copy.webp` — BusinessLinksActivity.java:395 | OFFICIAL_TELEGRAM_GPL_ART_IMPORTED; original static WebP, source bytes pinned |
+| `ic_download` / Syllabus download | `drawable-hdpi/msg_download.webp` — ChatActivity.java:10377 | OFFICIAL_TELEGRAM_GPL_ART_IMPORTED; original static WebP, source bytes pinned |
+| `ic_info` / About/API info | `drawable-hdpi/msg_info.webp` — ChatActivity.java:31892 | OFFICIAL_TELEGRAM_GPL_ART_IMPORTED; original static WebP, source bytes pinned |
+| `ic_link` / Admin banner link | `drawable-hdpi/msg_link.webp` — ChatActivity.java:40482 | OFFICIAL_TELEGRAM_GPL_ART_IMPORTED; original static WebP, source bytes pinned (Telegram action copies link; EVE edits link) |
+| `ic_logout` / Logout | `drawable-hdpi/msg_leave.webp` — SettingsActivity.java:342 | OFFICIAL_TELEGRAM_GPL_ART_IMPORTED; original static WebP, source bytes pinned; verified Telegram LogOut call site |
+| `ic_send` / Send notification | `drawable-hdpi/msg_send.webp` — ShareAlert.java:2359 | OFFICIAL_TELEGRAM_GPL_ART_IMPORTED; original static WebP, source bytes pinned (same send action, different domain) |
+| `ic_back`, `ic_more_vert`, `ic_search`, `ic_delete`, `ic_share`, `ic_close`, `ic_bookmark`, `ic_settings`, `ic_edit` | Source archive WebP assets listed in `telegram-icon-source-registry.tsv` | OFFICIAL_TELEGRAM_GPL_ART_IMPORTED; source bytes pinned, static only |
+| `ic_bell`, `ic_bell_off`, `ic_notification`, `ic_pin` | EVE-owned generic redraws; no proven identical Telegram source glyph | EVE_ORIGINAL_REDRAW_NOT_SOURCE_EXACT |
 | Exam-domain performance, score, grade, syllabus, PYQ and question icons | No source-equivalent verified | Preserve semantics, mark NO EXACT COUNTERPART after true source call-site audit |
 
 ## Source and compliance inventory
 
-- **Copied Telegram-owned code or icon artwork in EVE:** **NONE VERIFIED**; no GPL import release can be claimed.
+- **Copied Telegram-owned icon artwork in EVE:** 16 tracked icon resource IDs use imported static Telegram GPL art. Existing derived theme behavior is separately attributed in `THIRD_PARTY_NOTICES.md`. This does **not** establish whole-APK legal compliance or permission to publish a production release.
 - **Separately licensed Google Roboto Medium:** present and attributed under Apache-2.0; source-matched font SHA pinned in `TelegramTypeSourceRolesTest`.
-- **Licensing blocker for original Telegram bitmap/vector import:** GPLv2 applicability for exact selected art, compatible licensing for a combined Android APK and third-party linked dependencies, corresponding-source deliverable, copyright and third-party notices, and distribution rights require a lawful plan. User has authorized publishing relevant code, but a mere public repository does not by itself demonstrate full compliance. Until resolved, **do not distribute GPL-derived APKs**.
+- **Production distribution blocker:** Telegram artwork has already been imported under the repository's GPL-3 licensing plan. Complete corresponding-source availability, dependency/SDK compatibility, applicable copyright notices and production distribution obligations still require audit. A public repository and bundled license texts alone do not prove compliance. **Do not distribute a production GPL-derived APK until that audit passes.**
 - Avoid Telegram launcher/logo, reuse only EVE-owned branding. Separate EVE dynamic / system icons and Firebase notification small icons from action icon surface inventory.
 
 ## Mission status and CI prevention
 
 - Typography central defaults and source-mapped subset: IMPLEMENTED; comprehensive visual runtime parity across all 95 screens still UNVERIFIED.
-- Icon art: 13 EVE-owned replacements; 7 new genuine-source candidates mapped in registry; 71 total tracked (historical inventory). Most remain UNMAPPED or NO EXACT COUNTERPART; exact Telegram art NOT IMPLEMENTED.
+- Icon art: 16 source-byte-matched Telegram static icons, 4 EVE-owned redraws, 7 semantic mismatches, and 44 pending source audit among 71 tracked icon IDs. Static source art does not prove icon animation or exact caller-state/tint fidelity.
 - CI V3: Android unit-test source compilation, AAPT resources, lint/JVM checks now run in build job before **both** native emulator jobs (`native-ui.needs: build`); the full APK publication gate still depends on build, native-ui, backend and firebase-functions. Release signing fails closed without real credentials. History of older red runs and latest final green check must be tied to their own SHAs, not assumed from this matrix.
 - No local Android Gradle/environment build was performed via connected GitHub APIs. CI source and visual screenshot evidence will be evaluated only for the exact final `main` SHA.
 
