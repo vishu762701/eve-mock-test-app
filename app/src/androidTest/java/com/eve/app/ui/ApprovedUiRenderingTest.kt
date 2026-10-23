@@ -138,8 +138,11 @@ class ApprovedUiRenderingTest {
         assertEquals(canvasBackground, context.getColor(R.color.bg_app))
         listOf(b.btnSearch, b.btnNotification, b.btnOverflow).forEach { bare(it) }
         assertNull((b.btnNotification.parent as View).background)
-        assertEquals(dp(48), b.ivProfile.layoutParams.width)
-        assertEquals(dp(48), b.ivProfile.layoutParams.height)
+        // The Telegram navigation migration replaces the old profile avatar with
+        // an accessible menu action. Preserve the 48dp touch-target contract.
+        assertEquals("Menu", b.btnMenu.contentDescription.toString())
+        assertEquals(dp(48), b.btnMenu.layoutParams.width)
+        assertEquals(dp(48), b.btnMenu.layoutParams.height)
         assertEquals(View.GONE, b.cardFloatingAirplane.visibility)
         b.tvWelcome.text = "Hi, Student"
         b.panelHomeBanner.visibility = View.VISIBLE
