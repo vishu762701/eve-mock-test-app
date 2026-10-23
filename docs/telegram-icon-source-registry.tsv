@@ -1,5 +1,5 @@
 # Verified archive SHA-256 0785365538ce05cf5bdf44a15d8fd5f5219f8193db0a2d124af9665fc63fd7b3
-# Telegram paths relative TMessagesProj/src/main/. No GPL Telegram icon art has been imported.
+# Telegram paths relative TMessagesProj/src/main/. 13 of 71 tracked EVE icons now use imported source-exact Telegram GPL art; source/distribution compliance is NOT fully verified. See THIRD_PARTY_NOTICES.md.
 # An unmapped icon is UNKNOWN, not proven without a Telegram counterpart. Static WebP alone does not prove icon animation.
 # 66 distinct direct XML icon IDs plus 5 additional Java/Kotlin dynamic IDs; all 71 are present. Launcher and other dynamic indirection require further audit.
 eve_icon	telegram_zip_asset	telegram_call_site	semantic_confidence	normal_pressed_disabled_checked_loading	motion	day_night_color	source_fidelity_status
