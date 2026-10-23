@@ -14,27 +14,37 @@ NATIVE_TEST = ROOT / "app/src/androidTest/java/com/eve/app/ui/LockedFoundationTe
 
 class Mission01GateTest(unittest.TestCase):
     def test_compile_and_unit_assertions_gate_both_emulator_jobs(self):
+        """Verify functional CI gates, not obsolete Gradle command spellings."""
         workflow = BUILD.read_text()
         build = workflow.split("\n  build:\n", 1)[1].split("\n  native-ui:\n", 1)[0]
         native = workflow.split("\n  native-ui:\n", 1)[1].split("\n  backend:\n", 1)[0]
         publish = workflow.split("\n  publish-apk:\n", 1)[1]
-        for task in (":app:compileDebugKotlin", ":app:compileDebugUnitTestKotlin",
-                     ":app:processDebugResources"):
-            self.assertIn(task, build)
-        self.assertLess(build.index("compileDebugUnitTestKotlin"),
-                        build.index("gradle lintDebug testDebugUnitTest"))
-        self.assertLess(build.index("gradle lintDebug testDebugUnitTest"),
-                        build.index("gradle assembleDebug assembleDebugAndroidTest"))
+        # Assembling plus unit tests transitively compile Kotlin/process resources.
+        # Direct AndroidTest compilation catches test errors before starting emulators.
+        combined_gradle = (":app:assembleDebug :app:compileDebugAndroidTestKotlin "
+                           ":app:lintDebug :app:testDebugUnitTest")
+        self.assertIn(combined_gradle, build)
+        self.assertLess(build.index(combined_gradle), build.index("assembleRelease --dry-run"))
+        self.assertIn("if: " + "$" + "{{ github.event_name == 'workflow_dispatch'", build)
+        self.assertIn("gradle :app:assembleRelease --dry-run", build)
+        self.assertIn("Refusing release build: a real RELEASE_STORE_FILE", build)
+        # FAST push must not run native emulators or publish an unverified APK.
+        # FULL is supported via manual dispatch or final main commit marker.
+        self.assertIn("[eve-full]", workflow)
         self.assertRegex(native, r"(?m)^    needs: build$")
+        self.assertIn("github.event.head_commit.message", native)
         self.assertIn("matrix:\n        navigation: [gesture, three-button]", native)
         self.assertIn("reactivecircus/android-emulator-runner@v2", native)
         self.assertIn("--enforce", native)
         self.assertIn("needs: [build, native-ui, backend, firebase-functions]", publish)
-        self.assertIn("if: " + "$" + "{{ success() }}", publish)
-        self.assertIn("name: Verify release signing fails closed without production credentials", build)
-        self.assertIn("gradle :app:assembleRelease --dry-run", build)
-        self.assertIn("Refusing release build: a real RELEASE_STORE_FILE", build)
-        self.assertLess(build.index("gradle lintDebug testDebugUnitTest"), build.index("assembleRelease --dry-run"))
+        self.assertIn("github.event.head_commit.message", publish)
+        self.assertIn("&& success()", publish)
+        self.assertIn("actions/cache/restore@v4", publish)
+        self.assertIn("sha256sum --check --status", publish)
+        self.assertNotIn("gradle assembleDebug", publish)
+        self.assertIn("name: Eve-debug-apk", publish)
+        self.assertIn("actions/cache/save@v4", build)
+        self.assertIn("sha256sum app/build/outputs/apk/debug/app-debug.apk", build)
         self.assertNotIn("continue-on-error: true", workflow)
 
     def test_release_never_falls_back_to_debug_key(self):
