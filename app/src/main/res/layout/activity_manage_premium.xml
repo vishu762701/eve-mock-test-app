@@ -8,7 +8,7 @@
         </LinearLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
-        <TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Premium Management" />
+        <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Premium Management"  android:tag="eve_telegram_type" />
     </LinearLayout>
     <com.eve.app.designsystem.DesignSegmentedTabs android:id="@+id/tabLayout" style="@style/Widget.Eve.Token.SegmentedTabs" android:layout_width="match_parent" android:layout_height="@dimen/design_tab_height" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginTop="@dimen/design_card_gap" android:layout_marginBottom="@dimen/design_card_gap" app:tabMode="fixed" app:tabGravity="fill">
         <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Settings" />

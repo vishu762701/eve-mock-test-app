@@ -8,7 +8,7 @@
         </LinearLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
-        <TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Manage Syllabus" />
+        <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Manage Syllabus"  android:tag="eve_telegram_type" />
         <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Upload, assign and manage syllabus PDFs" />
     </LinearLayout>
     <androidx.core.widget.NestedScrollView android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
