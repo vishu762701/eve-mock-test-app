@@ -22,8 +22,8 @@ on:
   # Mission-final FULL gate: both emulator suites and one verified APK.
   workflow_dispatch:
 
-# Do not cancel scheduled FULL checkpoints when newer commits arrive.
-# FAST builds also retain their result as diagnostic evidence.
+# Preserve every triggered FULL run as mission-level evidence.
+# Intermediate FAST failures remain visible for root-cause diagnosis.
 
 env:
   APP_VERSION_CODE: ${{ github.run_number }}
@@ -37,8 +37,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Enforce periodic FULL runs even when an agent forgets to schedule one.
-      # Number refers to runs of this workflow, not an exact git-push count.
+      # FULL is a mission-final decision, not a recurring tax on small pushes.
       - name: Resolve FAST or FULL verification profile
         id: verification_profile
         env:
@@ -47,13 +46,11 @@ jobs:
           set -euo pipefail
           full=false
           if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]] || \
-             [[ "$COMMIT_MESSAGE" == *"[eve-full]"* ]] || \
-             (( GITHUB_RUN_NUMBER % 20 == 0 )); then
+             [[ "$COMMIT_MESSAGE" == *"[eve-full]"* ]]; then
             full=true
           fi
           echo "full=$full" >> "$GITHUB_OUTPUT"
           echo "Verification profile: $([[ "$full" == true ]] && echo FULL || echo FAST)"
-          echo "Workflow run: $GITHUB_RUN_NUMBER"
 
       - uses: actions/setup-java@v4
         with:

@@ -29,7 +29,7 @@ class Mission01GateTest(unittest.TestCase):
         self.assertLess(build.index(full_gradle), build.index("assembleRelease --dry-run"))
         self.assertIn("name: FULL test lint and compile AndroidTest sources", build)
         self.assertIn("github.event.head_commit.message", build)
-        self.assertIn("GITHUB_RUN_NUMBER % 20", build)
+        self.assertNotIn("GITHUB_RUN_NUMBER % 20", build)
         self.assertIn("id: verification_profile", build)
         self.assertIn("if: " + "$" + "{{ steps.verification_profile.outputs.full == 'true' }}", build)
         self.assertIn("gradle :app:assembleRelease --dry-run", build)

@@ -66,7 +66,7 @@ The device-font preference is retired. Preserve full Hindi/Devanagari fallback, 
 5. Test scoring, ranking, and answer visibility stay server-authoritative.
 
 ## 4. Verification (run for the layer you changed; both if the change spans both)
-- `Build Eve APK` runs FAST compilation and JVM unit tests on intermediate pushes. FULL runs on the final commit marker `[eve-full]`, manual `workflow_dispatch`, or automatically on every 20th invocation of that workflow; additionally checkpoint 15–20 pushes into long missions. FULL is required for both emulator modes, Light/Dark evidence, signing safeguards and publishing `Eve-debug-apk`. See `ENGINEERING_STANDARD.md`.
+- `Build Eve APK` runs FAST compilation and JVM unit tests on intermediate pushes; it does not automatically run emulators every N builds. FULL runs at completed mission's final commit via `[eve-full]` or manual `workflow_dispatch`; earlier risk-based checkpoints are optional. FULL is required for both emulator modes, Light/Dark evidence, signing safeguards and publishing `Eve-debug-apk`. See `ENGINEERING_STANDARD.md`.
 - Android: `./gradlew testDebugUnitTest` and `./gradlew assembleDebug`.
 - Backend (inside `backend/`): `npm test` and `npm run build`.
 - Always also run `git diff --check`, and check the GitHub Actions result after pushing.

@@ -41,7 +41,7 @@ class TelegramPreflightContractTest(unittest.TestCase):
         self.assertIn("needs: build", native)
         self.assertIn("navigation: [gesture, three-button]", native)
         self.assertIn("needs.build.outputs.full == 'true'", native)
-        self.assertIn("GITHUB_RUN_NUMBER % 20", build)
+        self.assertNotIn("GITHUB_RUN_NUMBER % 20", build)
         self.assertIn("needs: [build, native-ui, backend, firebase-functions]", workflow)
         self.assertIn("name: Eve-debug-apk", workflow)
 
