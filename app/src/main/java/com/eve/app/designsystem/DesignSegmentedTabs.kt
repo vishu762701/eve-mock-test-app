@@ -69,7 +69,8 @@ class DesignSegmentedTabs @JvmOverloads constructor(
             if (view.typeface != tabTypeface) view.typeface = tabTypeface
             val size = resources.getDimension(R.dimen.design_type_tab)
             if (view.textSize != size) view.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
-            val color = ContextCompat.getColor(context, if (selected) R.color.on_accent else R.color.text_primary)
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
+            val color = if (selected) palette.glassTabSelectedText else palette.textPrimary
             if (view.currentTextColor != color) view.setTextColor(color)
             view.isSelected = selected
             val line = resources.getDimensionPixelSize(R.dimen.design_line_tab)

@@ -53,10 +53,11 @@ object EveDesignSystem {
             isChecked = isSelected
             DesignType.apply(this, DesignType.Role.CHIP)
             chipStrokeWidth = 0f
-            chipBackgroundColor = ContextCompat.getColorStateList(context, R.color.accent)
-            setTextColor(ContextCompat.getColor(context, R.color.on_accent))
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
+            chipBackgroundColor = android.content.res.ColorStateList.valueOf(palette.accent)
+            setTextColor(palette.onAccent)
             setCheckedIconResource(R.drawable.ic_target_exam_checked)
-            checkedIconTint = ContextCompat.getColorStateList(context, R.color.on_accent)
+            checkedIconTint = android.content.res.ColorStateList.valueOf(palette.onAccent)
             isCheckedIconVisible = true
             setEnsureMinTouchTargetSize(true)
             chipMinHeight = resources.getDimension(R.dimen.design_pill_height)

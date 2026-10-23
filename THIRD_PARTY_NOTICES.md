@@ -61,3 +61,26 @@ The unchanged Telegram `msg_close.webp`, `msg_share.webp` and `msg_edit.webp` (a
 Two further original Telegram static RGBA icons from the owner-supplied official source ZIP were imported byte-for-byte in four standard Android densities: `msg_settings.webp` as EVE `ic_settings`, and `msg_saved.webp` as EVE `ic_bookmark`. Original Telegram GPL-2.0-or-later copyright and EVE's GPL-3 distribution terms apply. Existing view IDs, Day/Night color tints, drawer/menu destinations, touch interactions and saved-question state logic are unchanged. `TelegramSettingsBookmarkSourceIconsTest` checks all source bytes. No static icon motion has been invented.
 
 - Original Telegram `msg_delete.webp` is imported unchanged for `ic_delete.webp` at source-provided mdpi/hdpi/xhdpi; upstream does not provide a matching xxhdpi file, so Android scales the closest source density. This is a static delete glyph; no Telegram animation is implied. GPL/source-distribution obligations above apply.
+
+## Mission 02: Telegram Complete Visual System, Themes, Icons, and Navigation Pill
+
+- **Source:** Reference archive from user-authorized Telegram Android source package.
+- **Icons imported across 4 densities (mdpi, hdpi, xhdpi, xxhdpi):**
+  - `msg_report.webp` -> `ic_report_flag_premium.webp` (Report question action)
+  - `msg_archive.webp` -> `ic_history.webp` (History action)
+  - `msg_openprofile.webp` -> `ic_person.webp` and `ic_user_profile.webp` (Profile actions)
+  - `msg_add.webp` -> `ic_add.webp`
+  - `msg_language.webp` -> `ic_language.webp`
+  - `msg_qrcode.webp` -> `ic_qr_code.webp`
+  - `msg_secret.webp` -> `ic_key.webp`
+  - `msg_groups.webp` -> `ic_users.webp`
+  - `msg_calendar.webp` -> `ic_calendar.webp`
+  - `msg_stats.webp` -> `ic_analytics.webp`
+  - `msg_home.webp`, `msg_theme.webp`, `msg_palette.webp`
+- **Theme and Navigation Components:**
+  - `TelegramThemeEngine`: `.attheme` parsing, `changeColorAccent` HSV shift, fallback chain, House Day/9 and Night/0 defaults.
+  - Bundled themes (`day.attheme`, `night.attheme`, `arctic.attheme`, `darkblue.attheme`, `bluebubbles.attheme`) in `app/src/main/assets/themes/`.
+  - Settings > Appearance (`AppearanceActivity` and `activity_appearance.xml`) theme picker and preview.
+  - Floating bottom navigation pill (`MainTabsLayout`, `GlassTabView`, `EveBottomPillBar`, `EveNavigationHost`) with Telegram's 320ms decelerate capsule animation, 56dp height, 8dp margin, 344dp max width, and `BlurredBackgroundProviderImpl.mainTabs()` glass drawable with AGSL shader fallback.
+  - Tab Settings animation (`tab_settings.json`) in `app/src/main/res/raw/`.
+- **Copyright & License:** GNU General Public License v2.0 or later (GPL-2.0-or-later) by Telegram FZ-LLC / Nikolai Kudashov and contributors. EVE distributes under GPL-3.0-or-later with root `LICENSE`.

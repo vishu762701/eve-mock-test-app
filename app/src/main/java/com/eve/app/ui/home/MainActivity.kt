@@ -129,6 +129,7 @@ class MainActivity : EveBaseActivity() {
     private val floatingLinkRepo = com.eve.app.data.repository.FloatingLinkRepository()
     private var activeFloatingLinkUrl: String? = null
     private var lastStreakFetchTime: Long = 0L
+    private var bottomPill: com.eve.app.ui.navigation.EveBottomPillBar? = null
 
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* ignored */ }
@@ -306,9 +307,15 @@ class MainActivity : EveBaseActivity() {
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
 
-        com.eve.app.designsystem.DesignPress.bind(binding.ivProfile) {
+        com.eve.app.designsystem.DesignPress.bind(binding.btnMenu) {
             prepareDrawerSurface()
             binding.drawerLayout.openDrawer(GravityCompat.START, UiArcMotion.isMotionEnabled(this))
+        }
+        bottomPill = com.eve.app.ui.navigation.EveNavigationHost.attach(
+            this,
+            com.eve.app.ui.navigation.EveBottomPillBar.TAB_HOME
+        ) {
+            binding.rvExams.smoothScrollToPosition(0)
         }
         loadProfilePhoto(user)
 
@@ -1138,9 +1145,7 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun loadProfilePhoto(user: com.google.firebase.auth.FirebaseUser) {
-        ProfilePhotoManager.applyTo(
-            this, binding.ivProfile, user.photoUrl?.toString(), R.drawable.design_avatar_surface
-        )
+        bottomPill?.setUserAvatar(user.photoUrl?.toString())
     }
 
     private fun setupPushNotifications() {
@@ -1337,8 +1342,8 @@ class MainActivity : EveBaseActivity() {
                 pendingDrawerDestination = null
                 if (destination != null && !isFinishing && !isDestroyed) {
                     com.eve.app.util.EveNavigationHelper.navigate(this@MainActivity, destination)
-                } else if (binding.ivProfile.isAttachedToWindow) {
-                    binding.ivProfile.requestFocus()
+                } else if (binding.btnMenu.isAttachedToWindow) {
+                    binding.btnMenu.requestFocus()
                 }
             }
         })
