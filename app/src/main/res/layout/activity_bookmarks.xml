@@ -7,7 +7,7 @@
         </LinearLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
-        <TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Bookmarked Questions" />
+        <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Bookmarked Questions"  android:tag="eve_telegram_type" />
         <com.eve.app.designsystem.UiArcTextMorphView android:id="@+id/tvBookmarkCount" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone" ns2:text="3 questions saved" ns2:visibility="visible" />
     </LinearLayout>
     <TextView android:id="@+id/tvOfflineBanner" style="@style/TextAppearance.Eve.Token.Body.orange" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="@string/offline_banner_text" android:visibility="gone" />
