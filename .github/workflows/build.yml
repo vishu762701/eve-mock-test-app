@@ -64,12 +64,6 @@ jobs:
       - name: Preflight Android resources and Kotlin unit-test compilation
         run: gradle :app:processDebugResources :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --stacktrace
 
-      # Compile application AND unit-test Kotlin sources before running full checks.
-      # This catches unresolved test references (e.g. an undeclared attemptDate)
-      # without first spinning up both costly native UI emulators.
-      - name: Preflight Kotlin, unit-test compilation and resource processing
-        run: gradle :app:compileDebugKotlin :app:compileDebugUnitTestKotlin :app:processDebugResources --stacktrace
-
       - name: Android lint and unit tests
         run: gradle lintDebug testDebugUnitTest --stacktrace
 
