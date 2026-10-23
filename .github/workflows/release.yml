@@ -17,6 +17,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # GPL-covered Telegram art is present in the APK. Production distribution
+      # needs a separate, affirmative human compliance review before any signing.
+      - name: Require reviewed GPL distribution clearance
+        env:
+          EVE_GPL_RELEASE_APPROVED: ${{ vars.EVE_GPL_RELEASE_APPROVED }}
+        run: |
+          set -euo pipefail
+          if [ "$EVE_GPL_RELEASE_APPROVED" != "true" ]; then
+            echo "::error::Production release blocked: GPL source/dependency/distribution review is not approved. See docs/telegram-release-compliance-gate.md."
+            exit 1
+          fi
+          echo "Manual distribution-review attestation is present; this check does not certify legal compliance."
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:

@@ -70,6 +70,18 @@ class Mission01GateTest(unittest.TestCase):
         self.assertNotIn("continue-on-error: true", workflow)
         self.assertNotIn("cancel-in-progress: true", workflow)
 
+    def test_release_requires_explicit_gpl_distribution_clearance(self):
+        workflow = (ROOT / ".github/workflows/release.yml").read_text()
+        self.assertIn("Require reviewed GPL distribution clearance", workflow)
+        self.assertIn("vars.EVE_GPL_RELEASE_APPROVED", workflow)
+        self.assertIn('"$EVE_GPL_RELEASE_APPROVED" != "true"', workflow)
+        self.assertLess(
+            workflow.index("Require reviewed GPL distribution clearance"),
+            workflow.index("Validate release signing secrets and decode keystore")
+        )
+        self.assertIn("Production release blocked", workflow)
+        self.assertIn("docs/telegram-release-compliance-gate.md", workflow)
+
     def test_release_never_falls_back_to_debug_key(self):
         gradle = GRADLE.read_text()
         release = gradle.split('create("release") {', 1)[1].split("\n        }\n    }\n\n    buildTypes", 1)[0]
