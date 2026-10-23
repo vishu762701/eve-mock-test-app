@@ -95,7 +95,7 @@ timeout 660s adb shell am instrument -w -r \
   com.eve.app.test/androidx.test.runner.AndroidJUnitRunner \
   | tee "$instrumentation_log" || status=$?
 # adb may return zero even when a test fails; parse each test and completion.
-if ! python3 .github/scripts/ci_instrumentation_report.py "$instrumentation_log"; then
+if ! python3 "$(dirname "${BASH_SOURCE[0]}")/ci_instrumentation_report.py" "$instrumentation_log"; then
   [[ "$status" != "0" ]] || status=1
 fi
 if [[ "$status" != "0" ]]; then
