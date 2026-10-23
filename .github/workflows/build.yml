@@ -64,20 +64,29 @@ jobs:
       - name: Preflight Android resources and Kotlin unit-test compilation
         run: gradle :app:processDebugResources :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --stacktrace
 
-      - name: Build debug APK
+      # Compile application AND unit-test Kotlin sources before running full checks.
+      # This catches unresolved test references (e.g. an undeclared attemptDate)
+      # without first spinning up both costly native UI emulators.
+      - name: Preflight Kotlin, unit-test compilation and resource processing
+        run: gradle :app:compileDebugKotlin :app:compileDebugUnitTestKotlin :app:processDebugResources --stacktrace
+
+      - name: Android lint and unit tests
+        run: gradle lintDebug testDebugUnitTest --stacktrace
+
+      - name: Build debug and instrumentation APKs
         env:
           APP_VERSION_CODE: ${{ github.run_number }}
         run: |
           set -o pipefail
-          gradle assembleDebug --stacktrace 2>&1 | tee build.log
-          echo "## Gradle Build Summary" >> $GITHUB_STEP_SUMMARY
-          echo "Build completed successfully." >> $GITHUB_STEP_SUMMARY
-
-      - name: Android lint and unit tests
-        run: gradle lintDebug testDebugUnitTest assembleDebugAndroidTest --stacktrace
+          gradle assembleDebug assembleDebugAndroidTest --stacktrace 2>&1 | tee build.log
+          echo "## Gradle Build Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "Build, source compilation, lint and unit tests succeeded." >> "$GITHUB_STEP_SUMMARY"
 
   native-ui:
     name: Native UI (${{ matrix.navigation }})
+    # Keep both navigation modes. Launch emulators only after the Android source,
+    # resource, unit-test compile, lint and test checks pass on this exact SHA.
+    needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:

@@ -38,27 +38,30 @@ android {
             keyPassword = "android"
         }
 
-        // Real release keystore KABHI repo me commit nahi hota. GitHub Actions isko
-        // GitHub Secrets se decode karke RELEASE_STORE_FILE env var me path deta hai
-        // (dekho .github/workflows/release.yml). Local machine par agar yeh env vars
-        // set nahi hain, to release build automatically debug keystore se hi sign ho
-        // jaayega (taaki `gradle assembleRelease` local par bhi bina secrets ke chal
-        // jaaye) — sirf CI se banaya hua release Play Store ke liye asli signed hota hai.
+        // A production release must never be signed by the committed debug key,
+        // even in local/Termux builds. Release tasks fail without all credentials.
         create("release") {
             val storeFilePath = System.getenv("RELEASE_STORE_FILE")
-            val isReleaseTaskRequested = gradle.startParameter.taskNames.any { it.contains("Release", ignoreCase = true) }
-            if (storeFilePath != null && file(storeFilePath).exists()) {
-                storeFile = file(storeFilePath)
-                storePassword = System.getenv("RELEASE_STORE_PASSWORD")
-                keyAlias = System.getenv("RELEASE_KEY_ALIAS")
-                keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
-            } else if (System.getenv("CI") == "true" && isReleaseTaskRequested) {
-                throw org.gradle.api.GradleException("RELEASE_STORE_FILE is missing in CI environment! Production release must be signed with valid keystore.")
-            } else {
-                storeFile = file("eve-debug.keystore")
-                storePassword = "android"
-                keyAlias = "eve"
-                keyPassword = "android"
+            val storePasswordEnv = System.getenv("RELEASE_STORE_PASSWORD")
+            val keyAliasEnv = System.getenv("RELEASE_KEY_ALIAS")
+            val keyPasswordEnv = System.getenv("RELEASE_KEY_PASSWORD")
+            val isReleaseTaskRequested = gradle.startParameter.taskNames.any {
+                it.contains("Release", ignoreCase = true)
+            }
+            val validKeystore = !storeFilePath.isNullOrBlank() && file(storeFilePath).isFile
+            val validCredentials = !storePasswordEnv.isNullOrBlank() &&
+                !keyAliasEnv.isNullOrBlank() && !keyPasswordEnv.isNullOrBlank()
+            if (isReleaseTaskRequested && (!validKeystore || !validCredentials)) {
+                throw org.gradle.api.GradleException(
+                    "Refusing release build: a real RELEASE_STORE_FILE and complete signing " +
+                        "credentials are required; the debug key is never a release fallback."
+                )
+            }
+            if (validKeystore && validCredentials) {
+                storeFile = file(storeFilePath!!)
+                storePassword = storePasswordEnv
+                keyAlias = keyAliasEnv
+                keyPassword = keyPasswordEnv
             }
         }
     }
