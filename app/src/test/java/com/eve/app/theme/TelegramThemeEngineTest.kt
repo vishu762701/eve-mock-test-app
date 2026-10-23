@@ -41,6 +41,18 @@ class TelegramThemeEngineTest {
     }
 
     @Test
+    fun allBuiltInAccentForegroundsMeetNormalTextContrast() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        for (theme in TelegramThemeEngine.BUILT_IN_THEMES) {
+            for (accent in theme.accentOptions) {
+                val palette = TelegramThemeEngine.resolvePalette(context, theme, accent.id)
+                val ratio = androidx.core.graphics.ColorUtils.calculateContrast(palette.onAccent, palette.accent)
+                assertTrue("${theme.id}/${accent.name} contrast ratio: $ratio", ratio >= 4.5)
+            }
+        }
+    }
+
+    @Test
     fun testAtthemeStreamParser() {
         val sample = """
             // Comment line

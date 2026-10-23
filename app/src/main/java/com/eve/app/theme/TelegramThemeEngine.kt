@@ -386,7 +386,11 @@ object TelegramThemeEngine {
         val drawerIcon = if (isDark) 0xFF828282.toInt() else 0xFF889198.toInt()
         val hairline = if (isDark) 0x2EFFFFFF else 0x1F000000
 
-        val onAccent = if (computePerceivedBrightness(accentColor) > 0.65f) 0xFF000000.toInt() else 0xFFFFFFFF.toInt()
+        // Prefer the foreground with the higher WCAG contrast ratio. A brightness
+        // threshold picks white on House Blue (only ~2.84:1), which is unreadable.
+        val onAccent = if (ColorUtils.calculateContrast(Color.BLACK, accentColor) >=
+            ColorUtils.calculateContrast(Color.WHITE, accentColor)
+        ) Color.BLACK else Color.WHITE
 
         return ResolvedPalette(
             windowBackground = windowBg,
