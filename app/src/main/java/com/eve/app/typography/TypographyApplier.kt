@@ -123,20 +123,11 @@ object TypographyApplier {
             )
             apply(view, resolved, applySize = true)
         } else {
-            // No explicit element/component size override:
-            // Apply authentic typeface for active font family if different from default,
-            // while strictly preserving the approved XML baseline dimensions!
-            val family = FontManager.FontFamily.fromId(config.fontFamily)
-            if (family != FontManager.FontFamily.INTER) {
-                val currentTf = view.typeface
-                val weight = when {
-                    currentTf?.isBold == true -> FontManager.FontWeight.BOLD
-                    else -> FontManager.FontWeight.REGULAR
-                }
-                view.typeface = FontManager.getTypeface(view.context, family, weight)
-                view.paint.isFakeBoldText = false
-                view.includeFontPadding = false
-            }
+            // Preserve the XML-defined Telegram Roboto Medium, Day/Night foreground
+            // colors and spacing when the published profile has no explicit override.
+            // Replacing it with generic Roboto Regular would silently downgrade titles,
+            // list headings and tabs whenever the factory Telegram profile is active.
+            view.paint.isFakeBoldText = false
         }
     }
 

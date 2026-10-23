@@ -42,7 +42,7 @@ class TypographyRepository(
         }
 
         fun createDefaultConfig(): TypographyConfig {
-            val preset = TypographyPreset.IOS26_BALANCED
+            val preset = TypographyPreset.TELEGRAM_NATIVE
             return TypographyConfig(
                 schemaVersion = 1,
                 profileId = "default",
@@ -51,7 +51,7 @@ class TypographyRepository(
                 globalStyles = preset.rules,
                 version = 1,
                 status = "published",
-                notes = "Factory default iOS 26 Balanced configuration"
+                notes = "Factory default Telegram-aligned Android typography configuration"
             )
         }
     }

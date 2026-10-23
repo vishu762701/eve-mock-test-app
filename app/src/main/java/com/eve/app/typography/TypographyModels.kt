@@ -8,8 +8,8 @@ import com.google.gson.annotations.SerializedName
 data class TypographyConfig(
     @SerializedName("schema_version") val schemaVersion: Int = 1,
     @SerializedName("profile_id") val profileId: String = "default",
-    @SerializedName("preset_id") val presetId: String = "ios26_balanced",
-    @SerializedName("font_family") val fontFamily: String = "inter",
+    @SerializedName("preset_id") val presetId: String = "telegram_native",
+    @SerializedName("font_family") val fontFamily: String = "roboto",
     @SerializedName("global_styles") val globalStyles: Map<String, StyleRule> = emptyMap(),
     @SerializedName("screen_overrides") val screenOverrides: Map<String, ScreenTypographyConfig> = emptyMap(),
     @SerializedName("component_overrides") val componentOverrides: Map<String, StyleRule> = emptyMap(),
@@ -47,6 +47,34 @@ data class TypographyPreset(
     val rules: Map<String, StyleRule>
 ) {
     companion object {
+        // EVE's audited Telegram Android screen-role baseline, not a substitute for
+        // copyrighted Telegram source/widgets. Legacy presets remain readable.
+        val TELEGRAM_NATIVE = TypographyPreset(
+            id = "telegram_native",
+            name = "Telegram Native",
+            description = "Android Roboto regular with source-mapped Telegram medium title/list roles",
+            defaultFontFamily = "roboto",
+            rules = mapOf(
+                "large_title" to StyleRule(textSizeSp = 34f, lineHeightSp = 41f, weight = 400),
+                "title_1" to StyleRule(textSizeSp = 20f, lineHeightSp = 26f, weight = 500),
+                "title_2" to StyleRule(textSizeSp = 20f, lineHeightSp = 26f, weight = 500),
+                "title_3" to StyleRule(textSizeSp = 20f, lineHeightSp = 25f, weight = 500),
+                "headline" to StyleRule(textSizeSp = 17f, lineHeightSp = 22f, weight = 500),
+                "body" to StyleRule(textSizeSp = 16f, lineHeightSp = 22f, weight = 400),
+                "callout" to StyleRule(textSizeSp = 16f, lineHeightSp = 22f, weight = 400),
+                "subheadline" to StyleRule(textSizeSp = 15f, lineHeightSp = 20f, weight = 400),
+                "footnote" to StyleRule(textSizeSp = 13f, lineHeightSp = 18f, weight = 400),
+                "caption_1" to StyleRule(textSizeSp = 12f, lineHeightSp = 16f, weight = 400),
+                "caption_2" to StyleRule(textSizeSp = 11f, lineHeightSp = 14f, weight = 400),
+                "title" to StyleRule(textSizeSp = 20f, lineHeightSp = 26f, weight = 500),
+                "heading" to StyleRule(textSizeSp = 17f, lineHeightSp = 22f, weight = 500),
+                "secondary" to StyleRule(textSizeSp = 14f, lineHeightSp = 20f, weight = 400),
+                "tab" to StyleRule(textSizeSp = 15f, lineHeightSp = 20f, weight = 500),
+                "chip" to StyleRule(textSizeSp = 14f, lineHeightSp = 20f, weight = 500),
+                "button" to StyleRule(textSizeSp = 16f, lineHeightSp = 22f, weight = 500)
+            )
+        )
+
         val IOS26_BALANCED = TypographyPreset(
             id = "ios26_balanced",
             name = "iOS 26 Balanced",
@@ -147,10 +175,10 @@ data class TypographyPreset(
             )
         )
 
-        val ALL = listOf(IOS26_BALANCED, IOS26_HIG_REFERENCE, POPPINS_CLEAN, ROBOTO_NEUTRAL, NOTO_READABLE)
+        val ALL = listOf(TELEGRAM_NATIVE, IOS26_BALANCED, IOS26_HIG_REFERENCE, POPPINS_CLEAN, ROBOTO_NEUTRAL, NOTO_READABLE)
 
         fun find(id: String?): TypographyPreset {
-            return ALL.firstOrNull { it.id.equals(id, ignoreCase = true) } ?: IOS26_BALANCED
+            return ALL.firstOrNull { it.id.equals(id, ignoreCase = true) } ?: TELEGRAM_NATIVE
         }
     }
 }

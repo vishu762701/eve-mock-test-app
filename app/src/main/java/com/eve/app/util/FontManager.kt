@@ -57,7 +57,7 @@ object FontManager {
 
         companion object {
             fun fromId(id: String?): FontFamily {
-                return values().firstOrNull { it.id.equals(id, ignoreCase = true) } ?: INTER
+                return values().firstOrNull { it.id.equals(id, ignoreCase = true) } ?: ROBOTO
             }
         }
     }

@@ -43,7 +43,7 @@ object TypographyResolver {
         val elementDesc = elementKey?.let { TypographyRegistry.findElement(it) }
         val role = componentRole ?: elementDesc?.defaultRole ?: "body"
         val activePreset = TypographyPreset.find(config.presetId)
-        val defaultPreset = TypographyPreset.IOS26_BALANCED
+        val defaultPreset = TypographyPreset.TELEGRAM_NATIVE
 
         // 1. Element-specific override
         val elementOverride = if (elementKey != null && screenKey != null) {
@@ -110,7 +110,7 @@ object TypographyResolver {
         val safeRule = defaultPreset.rules[role] ?: StyleRule(textSizeSp = 17f, lineHeightSp = 22f, weight = 400)
         return buildResolvedStyle(
             rule = safeRule,
-            fallbackFamily = "inter",
+            fallbackFamily = "roboto",
             fallbackRule = null,
             source = "Bundled safe default"
         )
