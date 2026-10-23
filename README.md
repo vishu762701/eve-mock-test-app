@@ -14,6 +14,12 @@ Eve is an Android exam-practice application with a Kotlin/XML client, Firebase a
 ## Current engineering instructions
 Read `ENGINEERING_STANDARD.md`, `SOURCE_OF_TRUTH.md`, and `AGENTS.md` before editing. `GEMINI.md` and `CLAUDE.md` redirect to the same instructions. The user's latest explicit, safe, scoped requirement takes precedence over older design requests; historical `DECISIONS.md` entries are an audit trail, not work to replay. Approved UI defaults are described in `APPROVED_UI_IMPLEMENTATION_AUDIT.md`.
 
+## Downloading an installable Android APK
+- **FAST** (every intermediate source push): compiles the debug app and tests but intentionally does **not** publish an APK. A green FAST status is not an APK download link.
+- **FULL** (mission-final `[eve-full]` commit, or explicit owner-requested verified delivery): runs Android lint, signing safeguards, both emulator navigation modes, theme evidence, backend and Functions checks. Only after all gates pass does GitHub Actions upload the **Eve-debug-apk** artifact.
+- On GitHub open **Actions → Build Eve APK → latest successful FULL run → Artifacts → Eve-debug-apk**. Download the ZIP and extract the debug APK to install it. A source commit alone is not an APK release, and a debug APK is not a production release.
+- If the mission is still incomplete, an owner-requested FULL build delivers an explicitly labeled **verification checkpoint**, not a claim that all Mission 01 requirements are finished.
+
 ## Validation
 - Android: `./gradlew assembleDebug testDebugUnitTest lintDebug` (or use the configured GitHub Actions workflow).
 - Worker: `cd backend && npm install --no-package-lock && npm run build && npm test`.
