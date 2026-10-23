@@ -30,7 +30,7 @@ class Mission01GateTest(unittest.TestCase):
         self.assertIn("reactivecircus/android-emulator-runner@v2", native)
         self.assertIn("--enforce", native)
         self.assertIn("needs: [build, native-ui, backend, firebase-functions]", publish)
-        self.assertIn("if: ${{ success() }}", publish)
+        self.assertIn("if: " + "$" + "{{ success() }}", publish)
         self.assertNotIn("continue-on-error: true", workflow)
 
     def test_release_never_falls_back_to_debug_key(self):
