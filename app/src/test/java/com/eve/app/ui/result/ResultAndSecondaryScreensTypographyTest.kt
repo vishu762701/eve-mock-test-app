@@ -259,7 +259,7 @@ class ResultAndSecondaryScreensTypographyTest {
         val syllabusItemRoot = loadXml("src/main/res/layout/item_syllabus.xml")
         val tvExamName = findElementById(syllabusItemRoot, "tvExamName")
         assertNotNull("tvExamName must exist", tvExamName)
-        assertEquals("@style/TextAppearance.Eve.Token.Heading", getStyleOrAppearance(tvExamName))
+        assertEquals("@style/TextAppearance.Eve.Telegram.ListTitle", getStyleOrAppearance(tvExamName))
 
         val feedbackRoot = loadXml("src/main/res/layout/activity_feedback.xml")
         val etFeedbackMessage = findElementById(feedbackRoot, "etFeedbackMessage")
