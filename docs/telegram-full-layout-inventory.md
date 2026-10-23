@@ -1,10 +1,10 @@
-# Telegram Mission 01 — 95-layout XML inventory
+# Telegram Mission 01 — XML inventory (95 baseline + Appearance)
 
 **Repository source SHA:** `19c0d1135b6e8e797593b97022912e55ae5d230a` on `main`. All 95 layout XML files at that SHA were read using the connected GitHub repository. **Telegram reference**: uploaded `Telegram-master (1).zip` with verified SHA-256 `0785365538ce05cf5bdf44a15d8fd5f5219f8193db0a2d124af9665fc63fd7b3`. The archive lacks Git metadata: upstream commit **UNKNOWN**.
 
 The table counts literal `<TextView>` nodes and lexical `TextAppearance.Eve.Telegram.` / `TextAppearance.Eve.Token.` occurrences. **This is an XML inventory, NOT proof that all Kotlin/Java-generated text and images, inherited widget styles or indirect resource lookups are converted.** Referenced icons are direct `@drawable/ic_*` occurrences only; dynamic `setImageResource`, `setCompoundDrawables`, custom Paint/Canvas icons, and Lottie/mipmap/Android status icons require separate analysis.
 
-**Measured inventory:** 95 layouts; 578 literal TextViews; 31 direct Telegram-style references; 555 legacy token references; 66 distinct directly referenced `ic_*` resources. *Counts do not identify full visual fidelity; some Telegram role uses live in shared themes rather than XML.*
+**Measured baseline inventory:** 95 layouts; 578 literal TextViews; 31 direct Telegram-style references; 555 legacy token references; 66 distinct directly referenced `ic_*` resources. *Counts do not identify full visual fidelity; some Telegram role uses live in shared themes rather than XML.* The new `activity_appearance.xml` row is an incremental addition (96 current layouts); baseline totals above are historical and have not been remeasured for all 96 files.
 
 | Layout | TextViews | Direct Telegram styles | Legacy Token styles | Drawable icon references |
 |---|---:|---:|---:|---|
@@ -14,6 +14,7 @@ The table counts literal `<TextView>` nodes and lexical `TextAppearance.Eve.Tele
 | `activity_admin_analytics.xml` | 15 | 0 | 15 | ic_back · ic_refresh · ic_bug_report |
 | `activity_api_usage.xml` | 12 | 0 | 12 | ic_back · ic_refresh · ic_info |
 | `activity_app_config.xml` | 9 | 0 | 9 | ic_back |
+| `activity_appearance.xml` | 9 | 6 | 3 | ic_back |
 | `activity_bookmarks.xml` | 5 | 0 | 6 | ic_back |
 | `activity_content_display.xml` | 10 | 0 | 10 | ic_back · ic_email · ic_phone · ic_language |
 | `activity_edit_about.xml` | 1 | 0 | 1 | ic_back · ic_save |

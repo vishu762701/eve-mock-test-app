@@ -79,12 +79,12 @@ class AppWideTypographyAndColorRolesTest {
     }
 
     @Test
-    fun testZeroHardcodedTextSizesAcrossAll95Layouts() {
+    fun testZeroHardcodedTextSizesAcrossAllProductionLayouts() {
         val layoutDir = getLayoutDir()
         assertTrue("Layout directory must exist at ${layoutDir.absolutePath}", layoutDir.exists())
 
         val layoutFiles = layoutDir.listFiles { file -> file.extension == "xml" }?.sortedBy { it.name } ?: emptyList()
-        assertEquals("Retired Studio-only layouts; preserve all production layouts", 95, layoutFiles.size)
+        assertEquals("Retired Studio-only layouts; preserve all production layouts", 96, layoutFiles.size)
 
         val violations = mutableListOf<String>()
         for (file in layoutFiles) {

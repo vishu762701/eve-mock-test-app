@@ -3,34 +3,53 @@ package com.eve.app.designsystem
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.w3c.dom.Element
+import org.w3c.dom.Node
 import java.io.File
+import javax.xml.parsers.DocumentBuilderFactory
 
 /**
- * Direct matching of Telegram ActionBar default icon color roles.
- * This test does NOT verify the GPL icon bitmap/shape.
+ * Verifies the Telegram action-icon tint and accessibility contract from parsed
+ * XML attributes, independent of whitespace or XML element line wrapping.
+ * This does NOT verify GPL bitmap/shape parity.
  */
 class TelegramActionIconTintTest {
+    private fun actionIcons(file: File): List<Element> {
+        val factory = DocumentBuilderFactory.newInstance().apply {
+            setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
+        }
+        val doc = factory.newDocumentBuilder().parse(file)
+        val found = mutableListOf<Element>()
+        fun visit(node: Node) {
+            if (node is Element) {
+                val source = node.getAttribute("android:src")
+                val navigation = node.getAttribute("app:navigationIcon")
+                if (source == "@drawable/ic_back" || source == "@drawable/ic_more_vert" ||
+                    navigation == "@drawable/ic_back") {
+                    found.add(node)
+                }
+            }
+            val children = node.childNodes
+            for (index in 0 until children.length) visit(children.item(index))
+        }
+        visit(doc.documentElement)
+        return found
+    }
+
     @Test fun everyActivityNavigationActionUsesTelegramSourceIconColors() {
         val files = File("src/main/res/layout").listFiles()!!.filter {
             it.isFile && it.name.startsWith("activity_") && it.extension == "xml"
         }
         var affected = 0
         for (file in files) {
-            val lines = file.readLines().filter { line ->
-                line.contains("android:src=\"@drawable/ic_back\"") ||
-                    line.contains("android:src=\"@drawable/ic_more_vert\"") ||
-                    line.contains("app:navigationIcon=\"@drawable/ic_back\"")
-            }
-            for (line in lines) {
-                val tint = if (line.contains("app:navigationIcon=\"")) {
-                    "app:navigationIconTint=\"@color/telegram_type_primary\""
-                } else {
-                    "app:tint=\"@color/telegram_type_primary\""
-                }
-                assertTrue("Incorrect ActionBar tint in " + file.name, line.contains(tint))
-                if (line.contains("android:src=\"")) {
-                    assertTrue("Navigation icon lacks content description in " + file.name,
-                        line.contains("android:contentDescription="))
+            for (icon in actionIcons(file)) {
+                val toolbarNavigation = icon.getAttribute("app:navigationIcon") == "@drawable/ic_back"
+                val tintAttr = if (toolbarNavigation) "app:navigationIconTint" else "app:tint"
+                assertEquals("Incorrect ActionBar tint in ${file.name}",
+                    "@color/telegram_type_primary", icon.getAttribute(tintAttr))
+                if (!toolbarNavigation) {
+                    assertTrue("Navigation icon lacks content description in ${file.name}",
+                        icon.hasAttribute("android:contentDescription"))
                 }
                 affected++
             }
@@ -45,25 +64,25 @@ class TelegramActionIconTintTest {
         assertTrue(night.contains("<color name=\"telegram_type_primary\">#FFFFFFFF</color>"))
         val screens = listOf("activity_main", "activity_settings", "activity_notifications",
             "activity_result", "activity_profile", "activity_result_detail",
-            "activity_about", "activity_admin")
+            "activity_about", "activity_admin", "activity_appearance")
         var actions = 0
         for (screen in screens) {
-            val layout = File("src/main/res/layout/" + screen + ".xml").readText()
-            val iconLines = layout.lineSequence().filter {
-                it.contains("android:src=\"@drawable/ic_back\"") ||
-                    it.contains("android:src=\"@drawable/ic_more_vert\"")
-            }.toList()
-            assertTrue("No corresponding ActionBar action in " + screen, iconLines.isNotEmpty())
-            for (line in iconLines) {
-                assertTrue("Tint is not Telegram Day/Night action ink in " + screen,
-                    line.contains("app:tint=\"@color/telegram_type_primary\""))
-                assertTrue("Touch size missing " + screen,
-                    line.contains("android:layout_width=\"@dimen/design_touch_min\""))
-                assertTrue("Content description missing " + screen,
-                    line.contains("android:contentDescription="))
+            val file = File("src/main/res/layout/$screen.xml")
+            val icons = actionIcons(file).filter {
+                it.getAttribute("android:src") == "@drawable/ic_back" ||
+                    it.getAttribute("android:src") == "@drawable/ic_more_vert"
+            }
+            assertTrue("No corresponding ActionBar action in $screen", icons.isNotEmpty())
+            for (icon in icons) {
+                assertEquals("Tint is not Telegram Day/Night action ink in $screen",
+                    "@color/telegram_type_primary", icon.getAttribute("app:tint"))
+                assertEquals("Touch size missing $screen",
+                    "@dimen/design_touch_min", icon.getAttribute("android:layout_width"))
+                assertTrue("Content description missing $screen",
+                    icon.hasAttribute("android:contentDescription"))
                 actions++
             }
         }
-        assertEquals(9, actions)
+        assertEquals(10, actions)
     }
 }

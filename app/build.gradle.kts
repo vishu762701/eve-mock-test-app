@@ -143,6 +143,8 @@ dependencies {
 
     // Unit Testing
     testImplementation("junit:junit:4.13.2")
+    // Android Color/HSV unit tests require a real framework implementation on the JVM.
+    testImplementation("org.robolectric:robolectric:4.14.1")
     androidTestImplementation("androidx.test:runner:1.6.2")
     androidTestImplementation("androidx.test:core-ktx:1.6.1")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
