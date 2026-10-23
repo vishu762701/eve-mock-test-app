@@ -35,9 +35,11 @@ class MainTabsLayout @JvmOverloads constructor(
         orientation = HORIZONTAL
         clipChildren = false
         clipToPadding = false
-        // DialogsActivity.MAIN_TABS_MARGIN + 4 = 12dp internal padding
+        // Keep Telegram's 12dp horizontal inset, but do not subtract it vertically:
+        // the parent pill is only 56dp tall, so vertical 12dp insets would shrink
+        // each tab's measured/tappable height to 32dp and clip its label.
         val pad = dp(12)
-        setPadding(pad, pad, pad, pad)
+        setPadding(pad, 0, pad, 0)
         // 328 + 2 * 8 = 344dp max width
         maxWidthPx = dp(344)
     }
