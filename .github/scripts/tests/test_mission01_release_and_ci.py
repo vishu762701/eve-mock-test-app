@@ -42,7 +42,8 @@ class Mission01GateTest(unittest.TestCase):
         # FAST push must not run native emulators or publish an unverified APK.
         # FULL is supported via manual dispatch or final main commit marker.
         self.assertIn("[eve-full]", workflow)
-        self.assertRegex(native, r"(?m)^    needs: build$")
+        self.assertIn("needs: [build, backend, firebase-functions]", native)
+        self.assertIn("needs.build.outputs.full == 'true' && success()", native)
         self.assertIn("needs.build.outputs.full == 'true'", native)
         self.assertIn("matrix:\n        navigation: [gesture, three-button]", native)
         self.assertIn("reactivecircus/android-emulator-runner@v2", native)
@@ -55,6 +56,11 @@ class Mission01GateTest(unittest.TestCase):
         self.assertNotIn("gradle assembleDebug", publish)
         self.assertIn("name: Eve-debug-apk", publish)
         self.assertIn("actions/cache/save@v4", build)
+        # A rerun of ONLY failed jobs must restore the exact built candidate.
+        cache_key = "key: eve-apk-${{ github.run_id }}-${{ github.sha }}"
+        self.assertEqual(1, build.count(cache_key))
+        self.assertEqual(1, publish.count(cache_key))
+        self.assertNotIn("github.run_attempt", workflow)
         self.assertIn("sha256sum app/build/outputs/apk/debug/app-debug.apk", build)
         self.assertNotIn("continue-on-error: true", workflow)
         self.assertNotIn("cancel-in-progress: true", workflow)

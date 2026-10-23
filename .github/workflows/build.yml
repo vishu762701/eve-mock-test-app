@@ -117,13 +117,13 @@ jobs:
           set -euo pipefail
           echo "sha256=$(sha256sum app/build/outputs/apk/debug/app-debug.apk | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
 
-      # Internal immutable handoff; not a public unverified APK artifact.
+      # Internal immutable handoff, stable across rerun-failed-jobs attempts.
       - name: Save candidate APK for gated publication
         if: ${{ steps.verification_profile.outputs.full == 'true' }}
         uses: actions/cache/save@v4
         with:
           path: app/build/outputs/apk/debug/app-debug.apk
-          key: eve-apk-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          key: eve-apk-${{ github.run_id }}-${{ github.sha }}
 
       - name: Explain Android build failure from first actionable log evidence
         if: ${{ failure() }}
@@ -131,9 +131,9 @@ jobs:
 
   native-ui:
     name: Native UI (${{ matrix.navigation }})
-    # Keep both navigation modes; launch emulators only after FULL compilation/lint/JVM tests.
-    needs: build
-    if: ${{ needs.build.outputs.full == 'true' }}
+    # Keep both modes; skip expensive emulators if Android, backend or Functions gates fail.
+    needs: [build, backend, firebase-functions]
+    if: ${{ needs.build.outputs.full == 'true' && success() }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -219,7 +219,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: app/build/outputs/apk/debug/app-debug.apk
-          key: eve-apk-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          key: eve-apk-${{ github.run_id }}-${{ github.sha }}
           fail-on-cache-miss: true
 
       - name: Verify same APK checksum before publication

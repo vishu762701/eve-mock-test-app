@@ -43,7 +43,8 @@ class TelegramPreflightContractTest(unittest.TestCase):
                      ":app:testDebugUnitTest"):
             self.assertIn(task, full_step)
         self.assertLess(compile_step, build.index("      - name: FULL test", compile_step))
-        self.assertIn("needs: build", native)
+        self.assertIn("needs: [build, backend, firebase-functions]", native)
+        self.assertIn("needs.build.outputs.full == 'true' && success()", native)
         self.assertIn("navigation: [gesture, three-button]", native)
         self.assertIn("needs.build.outputs.full == 'true'", native)
         self.assertNotIn("GITHUB_RUN_NUMBER % 20", build)
