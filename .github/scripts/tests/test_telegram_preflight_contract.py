@@ -33,11 +33,16 @@ class TelegramPreflightContractTest(unittest.TestCase):
         build = workflow.split("\n  build:\n", 1)[1].split("\n  native-ui:\n", 1)[0]
         native = workflow.split("\n  native-ui:\n", 1)[1].split("\n  backend:\n", 1)[0]
         compile_step = build.index("name: FAST compile debug APK and JVM test sources")
-        fast_command = ":app:assembleDebug :app:compileDebugUnitTestKotlin :app:testDebugUnitTest"
-        full_command = ":app:compileDebugAndroidTestKotlin :app:lintDebug :app:testDebugUnitTest"
-        self.assertIn(fast_command, build[compile_step:])
-        self.assertIn(full_command, build[compile_step:])
-        self.assertLess(build.index(fast_command), build.index(full_command))
+        fast_step = build[compile_step:build.index("      - name: FULL test", compile_step)]
+        full_step = build[build.index("      - name: FULL test", compile_step):
+                          build.index("      - name: Verify missing release", compile_step)]
+        for task in (":app:assembleDebug", ":app:compileDebugUnitTestKotlin",
+                     ":app:testDebugUnitTest", ":app:compileDebugAndroidTestKotlin"):
+            self.assertIn(task, fast_step)
+        for task in (":app:compileDebugAndroidTestKotlin", ":app:lintDebug",
+                     ":app:testDebugUnitTest"):
+            self.assertIn(task, full_step)
+        self.assertLess(compile_step, build.index("      - name: FULL test", compile_step))
         self.assertIn("needs: build", native)
         self.assertIn("navigation: [gesture, three-button]", native)
         self.assertIn("needs.build.outputs.full == 'true'", native)

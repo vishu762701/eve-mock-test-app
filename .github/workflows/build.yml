@@ -83,18 +83,18 @@ jobs:
       - name: Verify native UI runner and visual evidence contracts
         run: python3 -B -m unittest discover -s .github/scripts/tests -v
 
-      # FAST: compile APK and run JVM unit tests on every main push.
-      # FULL: also run lint and compile AndroidTest sources before emulators.
+      # FAST: build + JVM tests + instrumentation SOURCE compilation; no emulator.
+      # FULL: also lint + device test runs. This catches test compile errors early.
       - name: FAST compile debug APK and JVM test sources
         run: |
           set -euo pipefail
-          gradle :app:assembleDebug :app:compileDebugUnitTestKotlin :app:testDebugUnitTest --stacktrace --console=plain
+          gradle :app:assembleDebug :app:compileDebugUnitTestKotlin :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin --stacktrace --console=plain 2>&1 | tee ci-fast-gradle.log
 
       - name: FULL test lint and compile AndroidTest sources
         if: ${{ steps.verification_profile.outputs.full == 'true' }}
         run: |
           set -euo pipefail
-          gradle :app:compileDebugAndroidTestKotlin :app:lintDebug :app:testDebugUnitTest --stacktrace --console=plain
+          gradle :app:compileDebugAndroidTestKotlin :app:lintDebug :app:testDebugUnitTest --stacktrace --console=plain 2>&1 | tee ci-full-gradle.log
 
       - name: Verify missing release credentials are rejected
         if: ${{ steps.verification_profile.outputs.full == 'true' }}
@@ -124,6 +124,10 @@ jobs:
         with:
           path: app/build/outputs/apk/debug/app-debug.apk
           key: eve-apk-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+
+      - name: Explain Android build failure from first actionable log evidence
+        if: ${{ failure() }}
+        run: python3 .github/scripts/ci_failure_report.py ci-fast-gradle.log ci-full-gradle.log release-signing-preflight.log
 
   native-ui:
     name: Native UI (${{ matrix.navigation }})
@@ -172,6 +176,10 @@ jobs:
       - name: Enforce complete theme evidence when native tests pass
         if: success()
         run: python3 .github/scripts/eve_visual_review.py --captures ui-renderings --source app/src/main/res --output ui-renderings --enforce
+
+      - name: Summarize failing instrumentation assertions
+        if: ${{ failure() }}
+        run: python3 .github/scripts/ci_failure_report.py --native app/build/outputs/androidTest-results/connected
 
   backend:
     runs-on: ubuntu-latest

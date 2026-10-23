@@ -21,12 +21,17 @@ class Mission01GateTest(unittest.TestCase):
         publish = workflow.split("\n  publish-apk:\n", 1)[1]
         # Assembling plus unit tests transitively compile Kotlin/process resources.
         # The FULL gate compiles AndroidTest sources before emulator startup.
-        fast_gradle = ":app:assembleDebug :app:compileDebugUnitTestKotlin :app:testDebugUnitTest"
-        full_gradle = ":app:compileDebugAndroidTestKotlin :app:lintDebug :app:testDebugUnitTest"
-        self.assertIn(fast_gradle, build)
-        self.assertIn(full_gradle, build)
-        self.assertLess(build.index(fast_gradle), build.index(full_gradle))
-        self.assertLess(build.index(full_gradle), build.index("assembleRelease --dry-run"))
+        # Check task-level semantics rather than a brittle exact command spelling.
+        fast_step = build.split("      - name: FAST compile", 1)[1].split("      - name: FULL test", 1)[0]
+        full_step = build.split("      - name: FULL test", 1)[1].split("      - name: Verify missing release", 1)[0]
+        for task in (":app:assembleDebug", ":app:compileDebugUnitTestKotlin",
+                     ":app:testDebugUnitTest", ":app:compileDebugAndroidTestKotlin"):
+            self.assertIn(task, fast_step)
+        for task in (":app:compileDebugAndroidTestKotlin", ":app:lintDebug",
+                     ":app:testDebugUnitTest"):
+            self.assertIn(task, full_step)
+        self.assertLess(build.index("      - name: FAST compile"), build.index("      - name: FULL test"))
+        self.assertLess(build.index("      - name: FULL test"), build.index("assembleRelease --dry-run"))
         self.assertIn("name: FULL test lint and compile AndroidTest sources", build)
         self.assertIn("github.event.head_commit.message", build)
         self.assertNotIn("GITHUB_RUN_NUMBER % 20", build)

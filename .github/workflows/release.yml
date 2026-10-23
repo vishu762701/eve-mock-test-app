@@ -69,7 +69,9 @@ jobs:
           gradle-version: 8.7
 
       - name: Validate Android source before releasing
-        run: gradle lintDebug testDebugUnitTest --stacktrace
+        run: |
+          set -euo pipefail
+          gradle lintDebug testDebugUnitTest --stacktrace --console=plain 2>&1 | tee ci-release-preflight.log
 
       - name: Build Release APK and AAB
         env:
@@ -81,7 +83,11 @@ jobs:
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
           CI: "true"
         run: |
-          ./gradlew assembleRelease bundleRelease --stacktrace
+          ./gradlew assembleRelease bundleRelease --stacktrace --console=plain 2>&1 | tee ci-release-gradle.log
+
+      - name: Explain release failure without suppressing it
+        if: ${{ failure() }}
+        run: python3 .github/scripts/ci_failure_report.py ci-release-preflight.log ci-release-gradle.log
 
       - name: Upload Release Artifacts
         uses: actions/upload-artifact@v4
