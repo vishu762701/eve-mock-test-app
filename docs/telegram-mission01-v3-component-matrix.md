@@ -52,3 +52,18 @@ The following source paths and Java call sites were searched and read from the s
 ## Acceptance gaps
 
 PENDING: per-screen/RTL/fontScale/native screenshot comparison, remaining Telegram-specific icon/state/animation sources, original artwork GPL compatibility and corresponding-source distribution checks, caller-by-caller UI style overrides, full 71 icon review, and final SHA CI proof. Do not call the mission COMPLETE until gaps close or the user explicitly approves narrower scope.
+
+## GPL v2-or-later compatibility path (verified upstream statement)
+
+The official Telegram Apps source page (<https://telegram.org/apps/>) describes its Android source as **GPL version 2 or later**, whereas the supplied archive's root `LICENSE` contains the full GPL v2 text. The Apache Software Foundation licensing FAQ (<https://www.apache.org/foundation/license-faq>) says Apache-2.0 is not compatible with GPLv2-only, but is compatible with GPLv3. This matters because EVE depends on AndroidX, Material and other third-party packages; their exact notice/license expressions must be inventoried for the **combined work**, rather than assuming that merely making the repository public solves linking. A permitted GPLv3-or-later route may exist for original Telegram artwork, **subject to verifying that each selected icon has that grant, all EVE code can be distributed accordingly, dependencies permit combination, the corresponding source and notices are complete, and no Firebase signing keys/API secrets enter the source package**. The user has authorized complying with licenses, but this audit has not independently established rights to relicense every non-owned EVE dependency. Thus no Telegram GPL icon is shipped in the APK at this checkpoint. GPL-free EVE-owned glyphs and already Apache-licensed source-matched Roboto fonts remain integrated.
+
+## Actual CI failure history and V3 repairs
+
+| Exact run | First root cause | Corrective changes | Status interpretation |
+| --- | --- | --- | --- |
+| `39885169104`, `39885465532` | Native `LockedFoundationTest.defaultWidgetsResolveTheLockedRootInBothThemes`: expected hard-coded black (-16777216), got source-derived Telegram ink (-15065823) | Semantic `telegram_type_primary` assertion in both Light/Dark; preflight tests now assert token resolution, not literal black | Historical failures only; newer SHA needed |
+| `39885836727` | Kotlin `TelegramResultSubtitleSourceTest.kt:20:53` attempted undeclared `attemptDate` inside test assertion | Test checks `Attempted on ` source text; compile of both app and unit-test sources is now a mandatory early gate | Historical failure only |
+| `39889074470` | New host Python CI regression test incorrectly matched a backslash-prefixed GitHub expression | Test now matches actual `if: ${{ success() }}` via concatenated string without a backslash | New regression acknowledged; repaired main-only |
+| V3 prevention | Parallel native emulators previously ran despite Android compile errors | `native-ui.needs: build` and Android job sequence: resources/Kotlin+unit compile → lint/JVM tests → **release signing refusal dry-run** → assembleDebug/assembleDebugAndroidTest → both nav-mode emulators → fully gated APK | Exact last-SHA job evidence must still be inspected |
+
+The `assembleRelease --dry-run` check uses `env -u` for all 4 release signing variables. It must fail for the **specific GradleException** from the release signing block, not succeed and not fail with some unrelated Gradle/SDK error. It does not create a release APK; no production signing material is exposed.

@@ -31,6 +31,10 @@ class Mission01GateTest(unittest.TestCase):
         self.assertIn("--enforce", native)
         self.assertIn("needs: [build, native-ui, backend, firebase-functions]", publish)
         self.assertIn("if: " + "$" + "{{ success() }}", publish)
+        self.assertIn("name: Verify release signing fails closed without production credentials", build)
+        self.assertIn("gradle :app:assembleRelease --dry-run", build)
+        self.assertIn("Refusing release build: a real RELEASE_STORE_FILE", build)
+        self.assertLess(build.index("gradle lintDebug testDebugUnitTest"), build.index("assembleRelease --dry-run"))
         self.assertNotIn("continue-on-error: true", workflow)
 
     def test_release_never_falls_back_to_debug_key(self):

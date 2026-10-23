@@ -67,6 +67,23 @@ jobs:
       - name: Android lint and unit tests
         run: gradle lintDebug testDebugUnitTest --stacktrace
 
+      # This must return Gradle's specific signing refusal, not a successful
+      # debug-signed release or an unrelated dependency/compile failure.
+      # --dry-run never emits a production APK or bundle.
+      - name: Verify release signing fails closed without production credentials
+        run: |
+          set -euo pipefail
+          if env -u RELEASE_STORE_FILE -u RELEASE_STORE_PASSWORD -u RELEASE_KEY_ALIAS -u RELEASE_KEY_PASSWORD \
+               gradle :app:assembleRelease --dry-run --console=plain > release-signing-preflight.log 2>&1; then
+            echo "::error::Release task accepted missing credentials."
+            exit 1
+          fi
+          if ! grep -Fq "Refusing release build: a real RELEASE_STORE_FILE" release-signing-preflight.log; then
+            echo "::error::Release failed for an unexpected reason; signing safeguard was not verified."
+            tail -n 60 release-signing-preflight.log
+            exit 1
+          fi
+
       - name: Build debug and instrumentation APKs
         env:
           APP_VERSION_CODE: ${{ github.run_number }}
