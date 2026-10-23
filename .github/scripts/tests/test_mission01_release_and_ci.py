@@ -20,11 +20,15 @@ class Mission01GateTest(unittest.TestCase):
         native = workflow.split("\n  native-ui:\n", 1)[1].split("\n  backend:\n", 1)[0]
         publish = workflow.split("\n  publish-apk:\n", 1)[1]
         # Assembling plus unit tests transitively compile Kotlin/process resources.
-        # Direct AndroidTest compilation catches test errors before starting emulators.
-        combined_gradle = (":app:assembleDebug :app:compileDebugAndroidTestKotlin "
-                           ":app:lintDebug :app:testDebugUnitTest")
-        self.assertIn(combined_gradle, build)
-        self.assertLess(build.index(combined_gradle), build.index("assembleRelease --dry-run"))
+        # The FULL gate compiles AndroidTest sources before emulator startup.
+        fast_gradle = ":app:assembleDebug :app:compileDebugUnitTestKotlin"
+        full_gradle = ":app:compileDebugAndroidTestKotlin :app:lintDebug :app:testDebugUnitTest"
+        self.assertIn(fast_gradle, build)
+        self.assertIn(full_gradle, build)
+        self.assertLess(build.index(fast_gradle), build.index(full_gradle))
+        self.assertLess(build.index(full_gradle), build.index("assembleRelease --dry-run"))
+        self.assertIn("name: FULL test lint and compile AndroidTest sources", build)
+        self.assertIn("github.event.head_commit.message", build)
         self.assertIn("if: " + "$" + "{{ github.event_name == 'workflow_dispatch'", build)
         self.assertIn("gradle :app:assembleRelease --dry-run", build)
         self.assertIn("Refusing release build: a real RELEASE_STORE_FILE", build)

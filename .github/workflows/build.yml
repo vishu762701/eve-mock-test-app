@@ -69,12 +69,18 @@ jobs:
       - name: Verify native UI runner and visual evidence contracts
         run: python3 -B -m unittest discover -s .github/scripts/tests -v
 
-      # FAST: one Gradle invocation on every main push; FULL: same base plus device gates.
-      # Compile instrumentation test sources early to prevent late emulator-only compile failures.
-      - name: Build debug APK, compile native tests, run lint and unit tests
+      # FAST: compile APK and JVM test sources at every main push.
+      # FULL: run lint/JVM tests and compile AndroidTest sources before emulators.
+      - name: FAST compile debug APK and JVM test sources
         run: |
           set -euo pipefail
-          gradle :app:assembleDebug :app:compileDebugAndroidTestKotlin :app:lintDebug :app:testDebugUnitTest --stacktrace --console=plain
+          gradle :app:assembleDebug :app:compileDebugUnitTestKotlin --stacktrace --console=plain
+
+      - name: FULL test lint and compile AndroidTest sources
+        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[eve-full]')) }}
+        run: |
+          set -euo pipefail
+          gradle :app:compileDebugAndroidTestKotlin :app:lintDebug :app:testDebugUnitTest --stacktrace --console=plain
 
       - name: Verify missing release credentials are rejected
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[eve-full]')) }}

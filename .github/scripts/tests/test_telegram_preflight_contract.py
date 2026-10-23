@@ -32,10 +32,12 @@ class TelegramPreflightContractTest(unittest.TestCase):
         workflow = (ROOT / ".github/workflows/build.yml").read_text()
         build = workflow.split("\n  build:\n", 1)[1].split("\n  native-ui:\n", 1)[0]
         native = workflow.split("\n  native-ui:\n", 1)[1].split("\n  backend:\n", 1)[0]
-        compile_step = build.index("name: Build debug APK, compile native tests, run lint and unit tests")
-        compile_command = (":app:assembleDebug :app:compileDebugAndroidTestKotlin "
-                           ":app:lintDebug :app:testDebugUnitTest")
-        self.assertIn(compile_command, build[compile_step:])
+        compile_step = build.index("name: FAST compile debug APK and JVM test sources")
+        fast_command = ":app:assembleDebug :app:compileDebugUnitTestKotlin"
+        full_command = ":app:compileDebugAndroidTestKotlin :app:lintDebug :app:testDebugUnitTest"
+        self.assertIn(fast_command, build[compile_step:])
+        self.assertIn(full_command, build[compile_step:])
+        self.assertLess(build.index(fast_command), build.index(full_command))
         self.assertIn("needs: build", native)
         self.assertIn("navigation: [gesture, three-button]", native)
         self.assertIn("github.event.head_commit.message", native)
