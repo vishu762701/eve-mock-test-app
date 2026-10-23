@@ -6,4 +6,6 @@
     <!-- Telegram BlueHeader (#298ACF) darkened only to preserve 4.5:1 accessibility. -->
     <color name="telegram_type_section">#FF176A9E</color>
     <color name="telegram_type_dialog">#FF1A1D21</color>
+    <!-- Telegram ThemeColors.java:268: chats_menuItemIcon = #FF889198. -->
+    <color name="telegram_drawer_icon">#FF889198</color>
 </resources>

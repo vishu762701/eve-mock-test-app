@@ -6,4 +6,6 @@
     <!-- Telegram night.attheme windowBackgroundWhiteBlueHeader=-9652488, #FF6CB6F8. -->
     <color name="telegram_type_section">#FF6CB6F8</color>
     <color name="telegram_type_dialog">#FFF6F6F6</color>
+    <!-- Telegram TMessagesProj/src/main/assets/night.attheme:292: chats_menuItemIcon = -8224126. -->
+    <color name="telegram_drawer_icon">#FF828282</color>
 </resources>

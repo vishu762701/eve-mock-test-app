@@ -169,3 +169,7 @@ The 95-layout base token cascade now maps `TextAppearance.Eve.Token.Body` and `T
 ## Native question bookmark icon state repaired
 
 Prior `DesignIconStates.bookmark` always installed `ic_star_outline` for both checked and unchecked question bookmarks and only varied tint; the actual selected/saved silhouette was indistinguishable. It now selects EVE's preexisting `ic_star_filled` for checked and `ic_star_outline` for unchecked, keeps its ColorStateList, accessibility content description, `view.isSelected`, haptics, click callbacks and persistence call sites in QuestionAdapter and BookmarkAdapter. Neither vector is alleged to be Telegram's exact copyrighted artwork; this is a functional state-fidelity repair.
+
+## Exact official Telegram drawer icon tint roles
+
+The source ZIP's `ui/ActionBar/ThemeColors.java:268` establishes `chats_menuItemIcon=0xff889198` (Day). `TMessagesProj/src/main/assets/night.attheme:292` establishes `chats_menuItemIcon=-8224126` (Night, `#FF828282`). EVE's eight Home navigation-drawer icon call sites now use `telegram_drawer_icon` Day/Night rather than mixing black/white toolbar text ink; popover ActionBar submenu icons still follow Telegram's distinct `key_actionBarDefaultSubmenuItemIcon` primary role, so the two legitimate sources are not conflated. Drawer labels and destinations are unchanged. Derived contrast ratios: #889198 on #FFFFFF ≈3.21:1 and #828282 on #000000 ≈5.46:1, meeting ≥3:1 non-text icon contrast.
