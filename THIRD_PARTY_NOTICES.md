@@ -38,3 +38,11 @@ grid, with the owner's 2.75 stroke and round caps/joins. MIT License, Copyright
 (c) 2020–2026 Paweł Kuna. Full license: `app/src/main/assets/licenses/Tabler-LICENSE.txt`.
 Source: https://github.com/tabler/tabler-icons/tree/v3.49.0/icons/outline
 Resource-to-source mapping: `docs/design-reset/tabler-icons.json`.
+
+## Official Telegram ActionBar and search icon art (Mission 01 source import)
+
+- **Origin:** user-supplied official Telegram Android source archive (`Telegram-master (1).zip`, SHA-256 `0785365538ce05cf5bdf44a15d8fd5f5219f8193db0a2d124af9665fc63fd7b3`), `TMessagesProj/src/main/res/drawable-{mdpi,hdpi,xhdpi,xxhdpi}/`.
+- **Files copied verbatim:** `ic_ab_back.webp` -> EVE `ic_back.webp`; `ic_ab_other.webp` -> EVE `ic_more_vert.webp`; `msg_search.webp` -> EVE `ic_search.webp`, four original density variants each. Existing EVE drawable resource IDs remain unchanged; prior independently drawn vectors with these same resource IDs were removed after replacement.
+- **Copyright and grant:** Telegram Android source contributors, including Telegram FZ-LLC / Nikolai Kudashov as applicable; the upstream project states GPL-2.0-or-later. For these files EVE elects GPL version 3, with the complete GPL-3 text in root `LICENSE` and the upstream GPL-2 text in `app/src/main/assets/licenses/Telegram-GPL2.txt`. Relevant source is publicly available in this repository and the upstream repository.
+- **Appearance:** upstream white alpha-mask WebP shapes with the existing Day/Night EVE tint and native touch/accessibility behavior. These particular assets are **static**; no intrinsic Telegram icon motion was found or invented. Not the Telegram brand/logo.
+- **Distribution:** publishing an APK with these GPL-covered images requires the complete corresponding source, preservation of notices and a compatible licensing assessment of all included non-free SDKs and other dependencies. Public source publication alone is not a guarantee of compliance. Do not represent release compliance as audited until third-party binary terms and installation-source obligations are checked.

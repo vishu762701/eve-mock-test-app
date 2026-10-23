@@ -49,7 +49,8 @@ class TelegramIconSourceRegistryTest {
         val ids = rows.map { it[0] }
         assertEquals(expected, ids.toSet())
         assertEquals(ids.size, ids.toSet().size)
-        assertEquals(13, rows.count { it[7] == "EVE_ORIGINAL_REDRAW_NOT_SOURCE_EXACT" })
+        assertEquals(10, rows.count { it[7] == "EVE_ORIGINAL_REDRAW_NOT_SOURCE_EXACT" })
+        assertEquals(3, rows.count { it[7] == "OFFICIAL_TELEGRAM_GPL_ART_IMPORTED" })
         val sourceCandidates = mapOf(
             "ic_camera" to "ui/Components/ImageUpdater.java:278",
             "ic_copy" to "ui/Business/BusinessLinksActivity.java:395",
@@ -71,10 +72,10 @@ class TelegramIconSourceRegistryTest {
         for (row in rows) {
             assertTrue("False Telegram import claim " + row[0],
                 row[7] in setOf("UNMAPPED_PENDING_SOURCE_AUDIT", "CANDIDATE_NOT_IMPORTED", "SEMANTIC_MISMATCH",
-                    "EVE_ORIGINAL_REDRAW_NOT_SOURCE_EXACT"))
+                    "EVE_ORIGINAL_REDRAW_NOT_SOURCE_EXACT", "OFFICIAL_TELEGRAM_GPL_ART_IMPORTED"))
             assertTrue("Unverified source animation " + row[0],
                 row[5].contains("UNKNOWN") || row[5].contains("NO_TELEGRAM"))
-            assertTrue("Unverified exact themed art " + row[0], row[6].contains("NOT_SOURCE_EXACT"))
+            assertTrue("Unverified exact themed art " + row[0], row[7] == "OFFICIAL_TELEGRAM_GPL_ART_IMPORTED" || row[6].contains("NOT_SOURCE_EXACT"))
         }
     }
 }

@@ -31,3 +31,7 @@ Payment creation and payment webhooks are disabled unless Cloudflare Worker secr
 The sandbox payment simulation endpoint is **off by default**, and requires both a verified admin account and `PREMIUM_SANDBOX_ENABLED=true` in a controlled test environment. Only the admin's own test orders are eligible. Do not enable sandbox simulation in production. Old historical database migration defaults are not security credentials and are never trusted.
 
 If the signing secret is not configured, the public Premium plan marks purchases unavailable to avoid accepting payments that the backend cannot securely verify.
+
+## Open-source license and original Telegram resources
+
+The EVE-authored application source is distributed under **GPL-3.0-or-later**, subject to separate third-party notices; see `LICENSE` and `THIRD_PARTY_NOTICES.md`. Telegram-derived theme behavior and source-exact Telegram action/search WebP artwork retain their original authorship and GPL-2.0-or-later provenance. EVE is not affiliated with Telegram; no Telegram logo or branding is used as the EVE app mark. License and corresponding-source obligations apply to any distributed APK, and bundled Google/third-party SDK compatibility must be reviewed before production release.
