@@ -7,7 +7,7 @@
         </LinearLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
     <LinearLayout style="@style/Widget.Eve.Token.LargeTitleBlock" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-        <TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="System Health &amp; Operations" />
+        <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="System Health &amp; Operations"  android:tag="eve_telegram_type" />
     </LinearLayout>
     <ScrollView style="@style/Widget.Eve.Token.Scroll" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
         <LinearLayout android:id="@+id/layoutMonitorContent" style="@style/Widget.Eve.Token.Column" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
