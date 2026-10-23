@@ -2,6 +2,8 @@
 <resources>
     <!-- Telegram night.attheme:1,88,319. Secondary contrasts more than Telegram's translucent value. -->
     <color name="telegram_type_primary">#FFFFFFFF</color>
+    <!-- Telegram night.attheme:324 actionBarDefaultSelector = 0x16FFFFFF. -->
+    <color name="telegram_action_selector">#16FFFFFF</color>
     <color name="telegram_type_secondary">#FFA1A1A6</color>
     <!-- Telegram night.attheme windowBackgroundWhiteBlueHeader=-9652488, #FF6CB6F8. -->
     <color name="telegram_type_section">#FF6CB6F8</color>

@@ -139,10 +139,11 @@
         <item name="android:textColor">@color/design_destructive_text</item><item name="iconTint">@color/design_destructive_text</item>
     </style>
     <style name="Widget.Eve.Token.IconButton" parent="Widget.AppCompat.ImageButton">
-        <item name="android:background">@null</item><item name="android:minWidth">@dimen/design_touch_min</item>
+        <!-- Telegram ActionBar back/menu selector: 20dp native ripple; no extra scale animation. -->
+        <item name="android:background">@drawable/telegram_action_icon_ripple</item><item name="android:minWidth">@dimen/design_touch_min</item>
         <item name="android:minHeight">@dimen/design_touch_min</item><item name="android:padding">@dimen/design_screen_margin</item>
         <item name="tint">@color/telegram_type_primary</item>
-        <item name="android:stateListAnimator">@animator/design_press_scale</item>
+        <item name="android:stateListAnimator">@null</item>
     </style>
     <style name="Widget.Eve.Token.Card.Inner" parent="Widget.Eve.Token.Card">
         <item name="shapeAppearance">@style/ShapeAppearance.Eve.Token.Inner</item>
