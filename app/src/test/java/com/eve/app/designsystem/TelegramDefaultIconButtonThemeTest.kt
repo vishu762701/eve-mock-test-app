@@ -14,7 +14,9 @@ class TelegramDefaultIconButtonThemeTest {
         assertTrue(section.contains("<item name=\"tint\">@color/telegram_type_primary</item>"))
         assertTrue(section.contains("<item name=\"android:minWidth\">@dimen/design_touch_min</item>"))
         assertTrue(section.contains("<item name=\"android:minHeight\">@dimen/design_touch_min</item>"))
-        assertTrue(section.contains("<item name=\"android:background\">@drawable/telegram_action_icon_ripple</item>"))
+        assertTrue("Bare icon views must not paint a background", section.contains("<item name=\"android:background\">@null</item>"))
+        assertTrue("Foreground ripple preserves Telegram 20dp press feedback",
+            section.contains("<item name=\"android:foreground\">@drawable/telegram_action_icon_ripple</item>"))
         assertTrue(section.contains("<item name=\"android:stateListAnimator\">@null</item>"))
         val ripple = File("src/main/res/drawable/telegram_action_icon_ripple.xml").readText()
         assertTrue(ripple.contains("<ripple"))

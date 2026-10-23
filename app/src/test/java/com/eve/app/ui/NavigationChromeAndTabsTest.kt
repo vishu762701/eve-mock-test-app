@@ -104,11 +104,11 @@ class NavigationChromeAndTabsTest {
         val parent = bell.parentNode as? Element
         assertNotNull("btnNotification must have a parent", parent)
         val parentBg = parent!!.designAttribute("android:background")
-        assertEquals(
-            "Clickable parent displays source-matched Telegram action ripple without covering Lottie",
-            "@drawable/telegram_action_icon_ripple",
-            parentBg
-        )
+        assertEquals("Clickable notification target remains visually bare", "@null", parentBg)
+        assertEquals("Clickable parent retains source-matched Telegram ripple as foreground",
+            "@drawable/telegram_action_icon_ripple", parent.designAttribute("android:foreground"))
+        assertEquals("Lottie itself must not paint a second foreground ripple",
+            "@null", bell.designAttribute("android:foreground"))
         assertEquals("@null", parent.designAttribute("android:stateListAnimator"))
 
         val dotUnread = findElementById(parent, "dotUnread")

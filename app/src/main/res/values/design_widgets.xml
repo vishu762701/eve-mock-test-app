@@ -140,7 +140,7 @@
     </style>
     <style name="Widget.Eve.Token.IconButton" parent="Widget.AppCompat.ImageButton">
         <!-- Telegram ActionBar back/menu selector: 20dp native ripple; no extra scale animation. -->
-        <item name="android:background">@drawable/telegram_action_icon_ripple</item><item name="android:minWidth">@dimen/design_touch_min</item>
+        <item name="android:background">@null</item><item name="android:foreground">@drawable/telegram_action_icon_ripple</item><item name="android:minWidth">@dimen/design_touch_min</item>
         <item name="android:minHeight">@dimen/design_touch_min</item><item name="android:padding">@dimen/design_screen_margin</item>
         <item name="tint">@color/telegram_type_primary</item>
         <item name="android:stateListAnimator">@null</item>
