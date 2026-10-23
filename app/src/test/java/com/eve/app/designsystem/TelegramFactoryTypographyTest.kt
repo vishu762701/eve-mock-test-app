@@ -18,6 +18,7 @@ class TelegramFactoryTypographyTest {
         assertTrue(m.contains("val fontFamily: String = \"roboto\""))
         assertTrue(m.contains("?: TELEGRAM_NATIVE"))
         assertTrue(r.contains("val preset = TypographyPreset.TELEGRAM_NATIVE"))
+        assertTrue(source("typography/TypographyApplier.kt").contains("if (config.screenOverrides.isEmpty() &&"))
         assertTrue(resolver.contains("val defaultPreset = TypographyPreset.TELEGRAM_NATIVE"))
         assertTrue(resolver.contains("fallbackFamily = \"roboto\""))
         assertTrue(r.contains("val parsed = gson.fromJson(json, TypographyConfig::class.java)"))

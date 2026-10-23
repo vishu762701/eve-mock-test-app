@@ -67,6 +67,14 @@ object TypographyApplier {
         // Pre-migration published iOS typography is retained for backend compatibility only.
         // XML/DesignType native Telegram roles must not be re-styled by its Inter cache.
         if (config.presetId != "telegram_native") return
+        // Factory Telegram profiles have no per-screen or per-element overrides.
+        // All native XML type roles are already styled; avoid a redundant full
+        // Activity traversal that can churn layout during theme transitions and
+        // discard source-fidelity of specialized font paints.
+        if (config.screenOverrides.isEmpty() &&
+            config.elementOverrides.isEmpty() &&
+            config.componentOverrides.isEmpty()
+        ) return
         val screenKey = TypographyRegistry.findScreenForActivity(activity)
         applyToHierarchy(root, config, screenKey)
     }
