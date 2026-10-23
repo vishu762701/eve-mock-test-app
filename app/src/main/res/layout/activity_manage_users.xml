@@ -8,7 +8,7 @@
         </LinearLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
-        <TextView style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Manage Users" />
+        <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Manage Users"  android:tag="eve_telegram_type" />
     </LinearLayout>
     <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:layout_marginBottom="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
         <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">

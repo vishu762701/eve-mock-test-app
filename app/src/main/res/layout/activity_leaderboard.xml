@@ -7,7 +7,7 @@
         </LinearLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
-        <TextView android:id="@+id/tvExamName" style="@style/TextAppearance.Eve.Token.Title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Leaderboard" />
+        <TextView android:id="@+id/tvExamName" style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Leaderboard"  android:tag="eve_telegram_type" />
     </LinearLayout>
     <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:id="@+id/cardYourRank" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:layout_marginBottom="@dimen/design_card_gap" android:visibility="gone">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
