@@ -51,6 +51,12 @@ jobs:
           fi
           echo "full=$full" >> "$GITHUB_OUTPUT"
           echo "Verification profile: $([[ "$full" == true ]] && echo FULL || echo FAST)"
+          echo "### EVE CI: $([[ "$full" == true ]] && echo FULL || echo FAST) verification" >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$full" == true ]]; then
+            echo "Final gate: build, unit tests, lint, both navigation emulators, backend and APK checksum." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Intermediate gate: debug APK, test-source compilation, JVM unit tests and backend; no emulator and no verified APK publication." >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - uses: actions/setup-java@v4
         with:
