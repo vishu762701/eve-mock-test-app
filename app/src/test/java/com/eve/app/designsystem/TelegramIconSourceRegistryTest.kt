@@ -49,8 +49,8 @@ class TelegramIconSourceRegistryTest {
         val ids = rows.map { it[0] }
         assertEquals(expected, ids.toSet())
         assertEquals(ids.size, ids.toSet().size)
-        assertEquals(10, rows.count { it[7] == "EVE_ORIGINAL_REDRAW_NOT_SOURCE_EXACT" })
-        assertEquals(10, rows.count { it[7] == "OFFICIAL_TELEGRAM_GPL_ART_IMPORTED" })
+        assertEquals(7, rows.count { it[7] == "EVE_ORIGINAL_REDRAW_NOT_SOURCE_EXACT" })
+        assertEquals(13, rows.count { it[7] == "OFFICIAL_TELEGRAM_GPL_ART_IMPORTED" })
         val sourceCandidates = mapOf(
             "ic_camera" to "ui/Components/ImageUpdater.java:278",
             "ic_copy" to "ui/Business/BusinessLinksActivity.java:395",

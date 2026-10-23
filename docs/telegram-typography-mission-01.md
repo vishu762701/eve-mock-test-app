@@ -207,3 +207,7 @@ The three source-matched static assets `ic_ab_back.webp`, `ic_ab_other.webp`, `m
 ## Telegram ActionBar selector ripple fidelity
 
 Source audit from the supplied ZIP: `ActionBar.java:266-270` installs `Theme.createSelectorDrawable(itemsBackgroundColor)` for back actions, and `ActionBarMenu.java:54-60` does the same for menu items. `Theme.java:4856-4858,4864,4936-4940` specifies the default 20dp circular RippleDrawable mask/radius. The Day selector color is `0x121A1D21` (`ThemeColors.java:199`); the Night selector color is `0x16FFFFFF` (`night.attheme:324`). EVE's shared `Widget.Eve.Token.IconButton` now uses those exact color roles and a native `android:radius=20dp` ripple, without the previous synthetic press-scale animator. Click handlers, content descriptions, touch targets and existing icon colors remain unchanged. EVE's larger card/row/tab motion is unchanged. The new selector is independently authored from source parameters, not copied Telegram Java code.
+
+## Original Telegram Close/Share/Edit icon parity
+
+Three additional source-matched actions now use the uploaded Telegram ZIP's original static WebP masks: Close (`msg_close`), Share (`msg_share`) and Edit (`msg_edit`) in mdpi/hdpi/xhdpi/xxhdpi, retaining existing resource IDs, caller callbacks and day/night tint attributes. Removed their older EVE-redrawn vectors and protected all twelve original bytes with `TelegramMoreSourceExactIconsTest`. No motion is invented where the source artwork is static; source copyright and GPL notices remain in `THIRD_PARTY_NOTICES.md`.

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- EVE-original generic Android action geometry: no Telegram/Tabler asset or path imported. -->
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="@dimen/design_icon_size" android:height="@dimen/design_icon_size"
-    android:viewportWidth="24" android:viewportHeight="24">
-    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
-        android:strokeWidth="2.3" android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M5.2,5.2 L18.8,18.8 M18.8,5.2 L5.2,18.8" />
-</vector>

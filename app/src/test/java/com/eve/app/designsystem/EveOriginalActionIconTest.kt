@@ -6,8 +6,8 @@ import java.io.File
 
 class EveOriginalActionIconTest {
     @Test fun genericSourceInformedIconsRemainIndependentAndTintable() {
-        for (name in listOf("ic_delete", "ic_share", "ic_close", "ic_bookmark",
-            "ic_bell", "ic_bell_off", "ic_notification", "ic_settings", "ic_edit", "ic_pin")) {
+        for (name in listOf("ic_delete", "ic_bookmark",
+            "ic_bell", "ic_bell_off", "ic_notification", "ic_settings", "ic_pin")) {
             val xml = File("src/main/res/drawable/" + name + ".xml").readText()
             assertTrue("Vector missing: " + name, xml.contains("<vector"))
             assertTrue("24dp intrinsic size lost: " + name,
