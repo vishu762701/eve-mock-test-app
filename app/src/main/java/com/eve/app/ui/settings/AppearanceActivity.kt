@@ -275,7 +275,7 @@ class AppearanceActivity : EveBaseActivity() {
                     return
                 }
 
-                if (isDark) {
+                if (customDef.isDark) {
                     TelegramThemeEngine.setPreviewNightTheme(customDef.id, 0, this)
                 } else {
                     TelegramThemeEngine.setPreviewDayTheme(customDef.id, 0, this)
