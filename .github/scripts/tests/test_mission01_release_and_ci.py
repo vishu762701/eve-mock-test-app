@@ -21,7 +21,7 @@ class Mission01GateTest(unittest.TestCase):
         publish = workflow.split("\n  publish-apk:\n", 1)[1]
         # Assembling plus unit tests transitively compile Kotlin/process resources.
         # The FULL gate compiles AndroidTest sources before emulator startup.
-        fast_gradle = ":app:assembleDebug :app:compileDebugUnitTestKotlin"
+        fast_gradle = ":app:assembleDebug :app:compileDebugUnitTestKotlin :app:testDebugUnitTest"
         full_gradle = ":app:compileDebugAndroidTestKotlin :app:lintDebug :app:testDebugUnitTest"
         self.assertIn(fast_gradle, build)
         self.assertIn(full_gradle, build)
@@ -29,19 +29,21 @@ class Mission01GateTest(unittest.TestCase):
         self.assertLess(build.index(full_gradle), build.index("assembleRelease --dry-run"))
         self.assertIn("name: FULL test lint and compile AndroidTest sources", build)
         self.assertIn("github.event.head_commit.message", build)
-        self.assertIn("if: " + "$" + "{{ github.event_name == 'workflow_dispatch'", build)
+        self.assertIn("GITHUB_RUN_NUMBER % 20", build)
+        self.assertIn("id: verification_profile", build)
+        self.assertIn("if: " + "$" + "{{ steps.verification_profile.outputs.full == 'true' }}", build)
         self.assertIn("gradle :app:assembleRelease --dry-run", build)
         self.assertIn("Refusing release build: a real RELEASE_STORE_FILE", build)
         # FAST push must not run native emulators or publish an unverified APK.
         # FULL is supported via manual dispatch or final main commit marker.
         self.assertIn("[eve-full]", workflow)
         self.assertRegex(native, r"(?m)^    needs: build$")
-        self.assertIn("github.event.head_commit.message", native)
+        self.assertIn("needs.build.outputs.full == 'true'", native)
         self.assertIn("matrix:\n        navigation: [gesture, three-button]", native)
         self.assertIn("reactivecircus/android-emulator-runner@v2", native)
         self.assertIn("--enforce", native)
         self.assertIn("needs: [build, native-ui, backend, firebase-functions]", publish)
-        self.assertIn("github.event.head_commit.message", publish)
+        self.assertIn("needs.build.outputs.full == 'true'", publish)
         self.assertIn("&& success()", publish)
         self.assertIn("actions/cache/restore@v4", publish)
         self.assertIn("sha256sum --check --status", publish)
@@ -50,6 +52,7 @@ class Mission01GateTest(unittest.TestCase):
         self.assertIn("actions/cache/save@v4", build)
         self.assertIn("sha256sum app/build/outputs/apk/debug/app-debug.apk", build)
         self.assertNotIn("continue-on-error: true", workflow)
+        self.assertNotIn("cancel-in-progress: true", workflow)
 
     def test_release_never_falls_back_to_debug_key(self):
         gradle = GRADLE.read_text()

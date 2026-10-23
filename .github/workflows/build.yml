@@ -22,10 +22,8 @@ on:
   # Mission-final FULL gate: both emulator suites and one verified APK.
   workflow_dispatch:
 
-# Intermediate pushes cancel only superseded FAST runs; FULL is never cancelled.
-concurrency:
-  group: eve-${{ github.workflow }}-${{ (github.event_name == 'push' && !contains(github.event.head_commit.message, '[eve-full]')) && github.ref || github.run_id }}
-  cancel-in-progress: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, '[eve-full]') }}
+# Do not cancel scheduled FULL checkpoints when newer commits arrive.
+# FAST builds also retain their result as diagnostic evidence.
 
 env:
   APP_VERSION_CODE: ${{ github.run_number }}
@@ -35,8 +33,27 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       apk_sha256: ${{ steps.apk_digest.outputs.sha256 }}
+      full: ${{ steps.verification_profile.outputs.full }}
     steps:
       - uses: actions/checkout@v4
+
+      # Enforce periodic FULL runs even when an agent forgets to schedule one.
+      # Number refers to runs of this workflow, not an exact git-push count.
+      - name: Resolve FAST or FULL verification profile
+        id: verification_profile
+        env:
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          set -euo pipefail
+          full=false
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]] || \
+             [[ "$COMMIT_MESSAGE" == *"[eve-full]"* ]] || \
+             (( GITHUB_RUN_NUMBER % 20 == 0 )); then
+            full=true
+          fi
+          echo "full=$full" >> "$GITHUB_OUTPUT"
+          echo "Verification profile: $([[ "$full" == true ]] && echo FULL || echo FAST)"
+          echo "Workflow run: $GITHUB_RUN_NUMBER"
 
       - uses: actions/setup-java@v4
         with:
@@ -69,21 +86,21 @@ jobs:
       - name: Verify native UI runner and visual evidence contracts
         run: python3 -B -m unittest discover -s .github/scripts/tests -v
 
-      # FAST: compile APK and JVM test sources at every main push.
-      # FULL: run lint/JVM tests and compile AndroidTest sources before emulators.
+      # FAST: compile APK and run JVM unit tests on every main push.
+      # FULL: also run lint and compile AndroidTest sources before emulators.
       - name: FAST compile debug APK and JVM test sources
         run: |
           set -euo pipefail
-          gradle :app:assembleDebug :app:compileDebugUnitTestKotlin --stacktrace --console=plain
+          gradle :app:assembleDebug :app:compileDebugUnitTestKotlin :app:testDebugUnitTest --stacktrace --console=plain
 
       - name: FULL test lint and compile AndroidTest sources
-        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[eve-full]')) }}
+        if: ${{ steps.verification_profile.outputs.full == 'true' }}
         run: |
           set -euo pipefail
           gradle :app:compileDebugAndroidTestKotlin :app:lintDebug :app:testDebugUnitTest --stacktrace --console=plain
 
       - name: Verify missing release credentials are rejected
-        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[eve-full]')) }}
+        if: ${{ steps.verification_profile.outputs.full == 'true' }}
         run: |
           set -euo pipefail
           if env -u RELEASE_STORE_FILE -u RELEASE_STORE_PASSWORD -u RELEASE_KEY_ALIAS -u RELEASE_KEY_PASSWORD gradle :app:assembleRelease --dry-run --console=plain > release-signing-preflight.log 2>&1; then
@@ -97,7 +114,7 @@ jobs:
           fi
 
       - name: Fingerprint built APK
-        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[eve-full]')) }}
+        if: ${{ steps.verification_profile.outputs.full == 'true' }}
         id: apk_digest
         run: |
           set -euo pipefail
@@ -105,7 +122,7 @@ jobs:
 
       # Internal immutable handoff; not a public unverified APK artifact.
       - name: Save candidate APK for gated publication
-        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[eve-full]')) }}
+        if: ${{ steps.verification_profile.outputs.full == 'true' }}
         uses: actions/cache/save@v4
         with:
           path: app/build/outputs/apk/debug/app-debug.apk
@@ -113,10 +130,9 @@ jobs:
 
   native-ui:
     name: Native UI (${{ matrix.navigation }})
-    # Keep both navigation modes. Launch emulators only after the Android source,
-    # resource, unit-test compile, lint and test checks pass on this exact SHA.
+    # Keep both navigation modes; launch emulators only after FULL compilation/lint/JVM tests.
     needs: build
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[eve-full]')) }}
+    if: ${{ needs.build.outputs.full == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -191,7 +207,7 @@ jobs:
   publish-apk:
     name: Publish verified debug APK
     needs: [build, native-ui, backend, firebase-functions]
-    if: ${{ (github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[eve-full]'))) && success() }}
+    if: ${{ needs.build.outputs.full == 'true' && success() }}
     runs-on: ubuntu-latest
     steps:
       - name: Restore exact candidate APK without recompilation

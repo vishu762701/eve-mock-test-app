@@ -33,14 +33,15 @@ class TelegramPreflightContractTest(unittest.TestCase):
         build = workflow.split("\n  build:\n", 1)[1].split("\n  native-ui:\n", 1)[0]
         native = workflow.split("\n  native-ui:\n", 1)[1].split("\n  backend:\n", 1)[0]
         compile_step = build.index("name: FAST compile debug APK and JVM test sources")
-        fast_command = ":app:assembleDebug :app:compileDebugUnitTestKotlin"
+        fast_command = ":app:assembleDebug :app:compileDebugUnitTestKotlin :app:testDebugUnitTest"
         full_command = ":app:compileDebugAndroidTestKotlin :app:lintDebug :app:testDebugUnitTest"
         self.assertIn(fast_command, build[compile_step:])
         self.assertIn(full_command, build[compile_step:])
         self.assertLess(build.index(fast_command), build.index(full_command))
         self.assertIn("needs: build", native)
         self.assertIn("navigation: [gesture, three-button]", native)
-        self.assertIn("github.event.head_commit.message", native)
+        self.assertIn("needs.build.outputs.full == 'true'", native)
+        self.assertIn("GITHUB_RUN_NUMBER % 20", build)
         self.assertIn("needs: [build, native-ui, backend, firebase-functions]", workflow)
         self.assertIn("name: Eve-debug-apk", workflow)
 
