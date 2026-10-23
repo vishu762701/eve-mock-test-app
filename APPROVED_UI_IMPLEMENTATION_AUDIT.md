@@ -1,3 +1,7 @@
+# Historical UI design-reset baseline (NOT a later Telegram migration override)
+
+This document is a record of the prior UI design reset, not permission to reintroduce Inter/iOS styling into components subsequently approved for source-traced Telegram migration. The latest owner task, `SOURCE_OF_TRUTH.md`, and `docs/telegram-typography-mission-01.md` govern active typography/icon migrations. Not-yet-migrated roles remain transitional. Preserve working flows, Day/Night behavior, and required verification gates.
+
 # Current UI implementation authority
 
 The owner's locked root design-reset specification supersedes historical iOS 26

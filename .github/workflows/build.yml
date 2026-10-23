@@ -2,7 +2,7 @@ name: Build Eve APK
 
 on:
   push:
-    branches: [ main, master, fix/ci-build ]
+    branches: [ main ]
     paths-ignore:
       - '**.md'
       - 'docs/**'
@@ -11,7 +11,7 @@ on:
       - '.github/workflows/docs.yml'
       - '.github/scripts/verify-docs.mjs'
   pull_request:
-    branches: [ main, master ]
+    branches: [ main ]
     paths-ignore:
       - '**.md'
       - 'docs/**'
@@ -19,7 +19,13 @@ on:
       - '*.txt'
       - '.github/workflows/docs.yml'
       - '.github/scripts/verify-docs.mjs'
+  # Mission-final FULL gate: both emulator suites and one verified APK.
   workflow_dispatch:
+
+# Intermediate pushes cancel only superseded FAST runs; FULL is never cancelled.
+concurrency:
+  group: eve-${{ github.workflow }}-${{ github.event_name == 'push' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'push' }}
 
 env:
   APP_VERSION_CODE: ${{ github.run_number }}
@@ -27,6 +33,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      apk_sha256: ${{ steps.apk_digest.outputs.sha256 }}
     steps:
       - uses: actions/checkout@v4
 
@@ -61,43 +69,48 @@ jobs:
       - name: Verify native UI runner and visual evidence contracts
         run: python3 -B -m unittest discover -s .github/scripts/tests -v
 
-      - name: Preflight Android resources and Kotlin unit-test compilation
-        run: gradle :app:processDebugResources :app:compileDebugKotlin :app:compileDebugUnitTestKotlin --stacktrace
-
-      - name: Android lint and unit tests
-        run: gradle lintDebug testDebugUnitTest --stacktrace
-
-      # This must return Gradle's specific signing refusal, not a successful
-      # debug-signed release or an unrelated dependency/compile failure.
-      # --dry-run never emits a production APK or bundle.
-      - name: Verify release signing fails closed without production credentials
+      # FAST: one Gradle invocation on every main push; FULL: same base plus device gates.
+      # Compile instrumentation test sources early to prevent late emulator-only compile failures.
+      - name: Build debug APK, compile native tests, run lint and unit tests
         run: |
           set -euo pipefail
-          if env -u RELEASE_STORE_FILE -u RELEASE_STORE_PASSWORD -u RELEASE_KEY_ALIAS -u RELEASE_KEY_PASSWORD \
-               gradle :app:assembleRelease --dry-run --console=plain > release-signing-preflight.log 2>&1; then
+          gradle :app:assembleDebug :app:compileDebugAndroidTestKotlin :app:lintDebug :app:testDebugUnitTest --stacktrace --console=plain
+
+      - name: Verify missing release credentials are rejected
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          set -euo pipefail
+          if env -u RELEASE_STORE_FILE -u RELEASE_STORE_PASSWORD -u RELEASE_KEY_ALIAS -u RELEASE_KEY_PASSWORD gradle :app:assembleRelease --dry-run --console=plain > release-signing-preflight.log 2>&1; then
             echo "::error::Release task accepted missing credentials."
             exit 1
           fi
           if ! grep -Fq "Refusing release build: a real RELEASE_STORE_FILE" release-signing-preflight.log; then
-            echo "::error::Release failed for an unexpected reason; signing safeguard was not verified."
+            echo "::error::Signing verification failed for an unexpected reason."
             tail -n 60 release-signing-preflight.log
             exit 1
           fi
 
-      - name: Build debug and instrumentation APKs
-        env:
-          APP_VERSION_CODE: ${{ github.run_number }}
+      - name: Fingerprint built APK
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        id: apk_digest
         run: |
-          set -o pipefail
-          gradle assembleDebug assembleDebugAndroidTest --stacktrace 2>&1 | tee build.log
-          echo "## Gradle Build Summary" >> "$GITHUB_STEP_SUMMARY"
-          echo "Build, source compilation, lint and unit tests succeeded." >> "$GITHUB_STEP_SUMMARY"
+          set -euo pipefail
+          echo "sha256=$(sha256sum app/build/outputs/apk/debug/app-debug.apk | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+      # Internal immutable handoff; not a public unverified APK artifact.
+      - name: Save candidate APK for gated publication
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/cache/save@v4
+        with:
+          path: app/build/outputs/apk/debug/app-debug.apk
+          key: eve-apk-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
 
   native-ui:
     name: Native UI (${{ matrix.navigation }})
     # Keep both navigation modes. Launch emulators only after the Android source,
     # resource, unit-test compile, lint and test checks pass on this exact SHA.
     needs: build
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -172,40 +185,28 @@ jobs:
   publish-apk:
     name: Publish verified debug APK
     needs: [build, native-ui, backend, firebase-functions]
-    if: ${{ success() }}
+    if: ${{ github.event_name == 'workflow_dispatch' && success() }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Restore exact candidate APK without recompilation
+        uses: actions/cache/restore@v4
         with:
-          ref: ${{ github.sha }}
+          path: app/build/outputs/apk/debug/app-debug.apk
+          key: eve-apk-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          fail-on-cache-miss: true
 
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 21
-
-      - name: Check google-services.json
-        run: |
-          if [ ! -f app/google-services.json ]; then
-            echo "ERROR: app/google-services.json missing."
-            exit 1
-          fi
-
-      - name: Install Android compile platform
-        run: $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;36.0.0"
-
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: 8.7
-
-      - name: Build debug APK from verified commit
+      - name: Verify same APK checksum before publication
         env:
-          APP_VERSION_CODE: ${{ github.run_number }}
-        run: gradle assembleDebug --stacktrace
+          EXPECTED_SHA256: ${{ needs.build.outputs.apk_sha256 }}
+        run: |
+          set -euo pipefail
+          test -n "$EXPECTED_SHA256"
+          echo "$EXPECTED_SHA256  app/build/outputs/apk/debug/app-debug.apk" | sha256sum --check --status
+          echo "Publishing exact APK compiled for $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload verified debug APK
         uses: actions/upload-artifact@v4
         with:
           name: Eve-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
