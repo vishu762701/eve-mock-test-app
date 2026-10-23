@@ -189,3 +189,7 @@ ResultActivity now follows the verified Telegram ActionBar.java:1445-1452 paired
 ## Shared IconButton default Day/Night color
 
 `Widget.Eve.Token.IconButton` now uses Telegram ActionBar's source-mapped `telegram_type_primary` as its default tint, instead of the retired generic `text_primary`; explicitly tinted answer-status, destructive, category, panel and premium icons retain their local override. The default icon touch sizes, press-scale animator, and `@null` background are unchanged, so this does not invent Telegram ripple timings. No binary Telegram artwork is included.
+
+## Mission 01 V3 provenance and component matrix
+
+See `docs/telegram-mission01-v3-component-matrix.md` for ZIP-verified paths, additional seven real icon source candidates, licensing constraints, Day/Night coverage and CI-process readiness. The registry candidates preserve original EVE art: no GPL2 bitmap has been added and no copyright-bound asset has been falsely declared source-exact.
