@@ -50,7 +50,7 @@ class TelegramIconSourceRegistryTest {
         assertEquals(expected, ids.toSet())
         assertEquals(ids.size, ids.toSet().size)
         assertEquals(10, rows.count { it[7] == "EVE_ORIGINAL_REDRAW_NOT_SOURCE_EXACT" })
-        assertEquals(3, rows.count { it[7] == "OFFICIAL_TELEGRAM_GPL_ART_IMPORTED" })
+        assertEquals(10, rows.count { it[7] == "OFFICIAL_TELEGRAM_GPL_ART_IMPORTED" })
         val sourceCandidates = mapOf(
             "ic_camera" to "ui/Components/ImageUpdater.java:278",
             "ic_copy" to "ui/Business/BusinessLinksActivity.java:395",
@@ -60,13 +60,13 @@ class TelegramIconSourceRegistryTest {
             "ic_logout" to "ui/SettingsActivity.java:342",
             "ic_send" to "ui/Components/ShareAlert.java:2359"
         )
-        val candidateRows = rows.filter { it[7] == "CANDIDATE_NOT_IMPORTED" }
+        val candidateRows = rows.filter { sourceCandidates.containsKey(it[0]) }
         assertEquals("Every ZIP-mapped candidate must be traceable", sourceCandidates.size, candidateRows.size)
         for (row in candidateRows) {
             assertEquals("Wrong source call-site for " + row[0], sourceCandidates[row[0]], row[2])
             assertTrue("Missing official Telegram density asset " + row[0],
                 row[1].startsWith("res/drawable-hdpi/") && row[1].endsWith(".webp"))
-            assertEquals("COPYRIGHTED ART NOT PACKAGED", "CANDIDATE_NOT_IMPORTED", row[7])
+            assertEquals("Original artwork must be tracked as GPL-derived", "OFFICIAL_TELEGRAM_GPL_ART_IMPORTED", row[7])
         }
 
         for (row in rows) {
