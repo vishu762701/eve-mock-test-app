@@ -161,3 +161,7 @@ Factory initialization previously still selected `ios26_balanced` / Inter. `Typo
 ## Home and floating-menu icon role parity
 
 Home search/clear and idle notification glyphs use the same light/dark `telegram_type_primary` as the verified ActionBar back and overflow icon roles, eliminating ink inconsistencies between sibling toolbar actions. The seven independent popup menu icons now use that role as well. The Mistake Notebook popup action previously displayed an X/close icon, which semantically signalled dismissal; it now uses the existing flag icon, already present in EVE, without changing its click destination or adding GPL artwork. Lottie notification animation, its alpha guards and ThemeSwitch circular reveal remain untouched.
+
+## Shared body and secondary foreground semantic migration
+
+The 95-layout base token cascade now maps `TextAppearance.Eve.Token.Body` and `TextAppearance.Eve.Token.Secondary` to Telegram's verified `telegram_type_primary` and the contrast-adapted `telegram_type_secondary` day/night color roles. This reaches legacy reusable body/secondary style references while leaving the original 16sp/14sp size and Android Roboto regular-family settings intact. All explicit green/red/orange/blue answer, destructive and status overrides remain higher priority. EVE's `text_primary`/secondary underlying platform, graph, and exam state tokens have **not** been globally replaced, so code-level setTextColor overrides remain distinct. Telegram's exact message-cell bitmap/padding behaviors are not claimed.
