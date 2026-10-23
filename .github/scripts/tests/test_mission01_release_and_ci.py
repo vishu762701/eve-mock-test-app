@@ -56,6 +56,11 @@ class Mission01GateTest(unittest.TestCase):
         self.assertNotIn("gradle assembleDebug", publish)
         self.assertIn("name: Eve-debug-apk", publish)
         self.assertIn("actions/cache/save@v4", build)
+        self.assertIn(":app:assembleDebugAndroidTest", full_step)
+        self.assertIn("test_apk_sha256:", build)
+        self.assertIn("Restore prebuilt app and instrumentation APKs", native)
+        self.assertIn("Verify original APK checksums", native)
+        self.assertNotIn("setup-gradle", native)
         # A rerun of ONLY failed jobs must restore the exact built candidate.
         cache_key = "key: eve-apk-${{ github.run_id }}-${{ github.sha }}"
         self.assertEqual(1, build.count(cache_key))

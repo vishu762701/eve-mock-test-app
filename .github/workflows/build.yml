@@ -33,6 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       apk_sha256: ${{ steps.apk_digest.outputs.sha256 }}
+      test_apk_sha256: ${{ steps.apk_digest.outputs.test_sha256 }}
       full: ${{ steps.verification_profile.outputs.full }}
     steps:
       - uses: actions/checkout@v4
@@ -100,7 +101,7 @@ jobs:
         if: ${{ steps.verification_profile.outputs.full == 'true' }}
         run: |
           set -euo pipefail
-          gradle :app:compileDebugAndroidTestKotlin :app:lintDebug :app:testDebugUnitTest --stacktrace --console=plain 2>&1 | tee ci-full-gradle.log
+          gradle :app:compileDebugAndroidTestKotlin :app:assembleDebugAndroidTest :app:lintDebug :app:testDebugUnitTest --stacktrace --console=plain 2>&1 | tee ci-full-gradle.log
 
       - name: Verify missing release credentials are rejected
         if: ${{ steps.verification_profile.outputs.full == 'true' }}
@@ -121,14 +122,19 @@ jobs:
         id: apk_digest
         run: |
           set -euo pipefail
+          test -s app/build/outputs/apk/debug/app-debug.apk
+          test -s app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
           echo "sha256=$(sha256sum app/build/outputs/apk/debug/app-debug.apk | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+          echo "test_sha256=$(sha256sum app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
 
       # Internal immutable handoff, stable across rerun-failed-jobs attempts.
       - name: Save candidate APK for gated publication
         if: ${{ steps.verification_profile.outputs.full == 'true' }}
         uses: actions/cache/save@v4
         with:
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
           key: eve-apk-${{ github.run_id }}-${{ github.sha }}
 
       - name: Explain Android build failure from first actionable log evidence
@@ -149,15 +155,24 @@ jobs:
     # Both navigation modes must pass before the verified APK can be published.
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - name: Restore prebuilt app and instrumentation APKs
+        uses: actions/cache/restore@v4
         with:
-          distribution: temurin
-          java-version: 21
-      - name: Install Android compile platform
-        run: $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;36.0.0"
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: 8.7
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+          key: eve-apk-${{ github.run_id }}-${{ github.sha }}
+          fail-on-cache-miss: true
+      - name: Verify original APK checksums
+        env:
+          APP_SHA256: ${{ needs.build.outputs.apk_sha256 }}
+          TEST_SHA256: ${{ needs.build.outputs.test_apk_sha256 }}
+        run: |
+          set -euo pipefail
+          test -n "$APP_SHA256"
+          test -n "$TEST_SHA256"
+          echo "$APP_SHA256  app/build/outputs/apk/debug/app-debug.apk" | sha256sum --check --status
+          echo "$TEST_SHA256  app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk" | sha256sum --check --status
       - name: Enable KVM for native UI verification
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -224,7 +239,9 @@ jobs:
       - name: Restore exact candidate APK without recompilation
         uses: actions/cache/restore@v4
         with:
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
           key: eve-apk-${{ github.run_id }}-${{ github.sha }}
           fail-on-cache-miss: true
 

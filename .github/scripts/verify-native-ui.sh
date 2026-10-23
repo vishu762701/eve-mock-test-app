@@ -85,21 +85,20 @@ if [[ "$actual_mode" != "$expected_mode" ]]; then
 fi
 adb shell input keyevent KEYCODE_WAKEUP
 adb shell wm dismiss-keyguard
+# Install precompiled, checksum-verified binaries; do not run Gradle per emulator.
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 status=0
-gradle connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=com.eve.app.ui "-Pandroid.testInstrumentationRunnerArguments.navigationMode=$mode" --stacktrace || status=$?
+instrumentation_log="ui-renderings/instrumentation-${mode}.log"
+timeout 660s adb shell am instrument -w -r \
+  -e package com.eve.app.ui -e navigationMode "$mode" \
+  com.eve.app.test/androidx.test.runner.AndroidJUnitRunner \
+  | tee "$instrumentation_log" || status=$?
+# adb may return zero even when a test fails; parse each test and completion.
+if ! python3 .github/scripts/ci_instrumentation_report.py "$instrumentation_log"; then
+  [[ "$status" != "0" ]] || status=1
+fi
 if [[ "$status" != "0" ]]; then
-  # Print only failing fixture assertions, so source lines survive Gradle's
-  # abbreviated native-test summary. Preserve the original failing exit code.
-  python3 - <<'PYFAILURES'
-from pathlib import Path
-import xml.etree.ElementTree as ET
-for path in Path("app/build/outputs/androidTest-results/connected").rglob("*.xml"):
-    root = ET.parse(path).getroot()
-    for case in root.iter("testcase"):
-        for failure in list(case.findall("failure")) + list(case.findall("error")):
-            print("NATIVE_FAILURE", case.get("classname"), case.get("name"))
-            print(failure.text or failure.get("message", ""))
-PYFAILURES
   adb shell cmd overlay lookup com.android.systemui com.android.systemui:color/light_mode_icon_color_single_tone > ui-renderings/systemui-light-icon-color.log || true
   adb shell cmd overlay lookup com.android.systemui com.android.systemui:color/dark_mode_icon_color_single_tone > ui-renderings/systemui-dark-icon-color.log || true
   if adb shell pm path com.android.deskclock | grep -q '^package:'; then
