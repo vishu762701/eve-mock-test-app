@@ -244,11 +244,20 @@ class AppearanceActivity : EveBaseActivity() {
     private fun handleThemeImport(uri: Uri) {
         try {
             contentResolver.openInputStream(uri)?.use { stream ->
-                val bytes = stream.readBytes()
-                if (bytes.size > 512 * 1024) {
-                    AppBulletin.showError(this, "Theme file exceeds 512KB limit")
-                    return
+                // Enforce the size limit while reading, not after an unbounded readBytes().
+                val output = java.io.ByteArrayOutputStream()
+                val chunk = ByteArray(8192)
+                while (true) {
+                    val read = stream.read(chunk)
+                    if (read < 0) break
+                    if (read == 0) continue
+                    if (output.size() + read > 512 * 1024) {
+                        AppBulletin.showError(this, "Theme file exceeds 512KB limit")
+                        return
+                    }
+                    output.write(chunk, 0, read)
                 }
+                val bytes = output.toByteArray()
                 val colors = mutableMapOf<String, Int>()
                 TelegramThemeEngine.parseAtthemeStream(bytes.inputStream(), colors)
                 if (colors.isEmpty()) {
@@ -256,25 +265,15 @@ class AppearanceActivity : EveBaseActivity() {
                     return
                 }
 
-                val isDark = colors["windowBackgroundGray"]?.let { Color.red(it) < 50 } ?: false
-                val accentColor = colors["chat_messagePanelSend"] ?: 0xFF56A2C9.toInt()
-
-                // Save locally
                 val fileName = "custom_${System.currentTimeMillis()}.attheme"
                 val destFile = java.io.File(filesDir, fileName)
                 destFile.writeBytes(bytes)
-
-                val customDef = TelegramThemeEngine.ThemeDefinition(
-                    id = "custom_${System.currentTimeMillis()}",
-                    name = "Imported Theme",
-                    isDark = isDark,
-                    assetName = null,
-                    baseAccentColor = accentColor,
-                    defaultAccentId = 0,
-                    accentOptions = listOf(TelegramThemeEngine.ThemeAccentOption(0, accentColor, "Custom")),
-                    isCustom = true,
-                    customFilePath = destFile.absolutePath
-                )
+                val customDef = TelegramThemeEngine.registerCustomTheme(this, destFile)
+                if (customDef == null) {
+                    destFile.delete()
+                    AppBulletin.showError(this, "Theme import validation failed")
+                    return
+                }
 
                 if (isDark) {
                     TelegramThemeEngine.setPreviewNightTheme(customDef.id, 0, this)

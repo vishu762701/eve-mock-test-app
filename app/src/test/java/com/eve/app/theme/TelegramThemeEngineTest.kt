@@ -17,6 +17,30 @@ import java.nio.charset.StandardCharsets
 class TelegramThemeEngineTest {
 
     @Test
+    fun importedThemeIsRegisteredWithStableIdAndResolvablePalette() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        val file = java.io.File(context.filesDir, "custom_${System.nanoTime().toString().replace("-", "")}.attheme")
+        try {
+            file.writeText(
+                "windowBackgroundGray=-1\\n" +
+                    "windowBackgroundWhite=-1\\n" +
+                    "windowBackgroundWhiteBlackText=#FF112233\\n" +
+                    "chat_messagePanelSend=-14509328\\n"
+            )
+            val registered = TelegramThemeEngine.registerCustomTheme(context, file)
+            assertNotNull("Imported file must be registered", registered)
+            val theme = registered!!
+            assertEquals(file.name.removeSuffix(".attheme"), theme.id)
+            assertEquals(theme, TelegramThemeEngine.getTheme(theme.id))
+            assertTrue(TelegramThemeEngine.getAllThemes().any { it.id == theme.id })
+            val palette = TelegramThemeEngine.resolvePalette(context, theme, 0)
+            assertEquals(0xFF112233.toInt(), palette.textPrimary)
+        } finally {
+            file.delete()
+        }
+    }
+
+    @Test
     fun testAtthemeStreamParser() {
         val sample = """
             // Comment line

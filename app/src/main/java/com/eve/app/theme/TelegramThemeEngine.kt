@@ -15,7 +15,7 @@ import kotlin.math.roundToInt
 
 /**
  * Authoritative Telegram theme engine for EVE.
- * Faithful port of Telegram Theme.java, ThemeColors.java, and EmojiThemes.java.
+ * EVE-specific adaptation informed by Telegram theme sources; not an exact port.
  * Resolves .attheme color definitions, accent options, fallback chains, and transactional previews.
  */
 object TelegramThemeEngine {
@@ -161,6 +161,8 @@ object TelegramThemeEngine {
         )
     )
 
+    private const val MAX_CUSTOM_THEME_BYTES = 512 * 1024
+    private val customThemeFileName = Regex("^custom_[0-9]+\\.attheme$")
     private val customThemes = mutableListOf<ThemeDefinition>()
     private val listeners = mutableListOf<(ResolvedPalette) -> Unit>()
 
@@ -190,7 +192,55 @@ object TelegramThemeEngine {
         committedNightAccentId = prefs.getInt(KEY_NIGHT_ACCENT, 0)
         val modeStr = prefs.getString(KEY_THEME_MODE, ThemeMode.SYSTEM.name) ?: ThemeMode.SYSTEM.name
         committedMode = try { ThemeMode.valueOf(modeStr) } catch (_: Exception) { ThemeMode.SYSTEM }
+        restoreCustomThemes(context)
         initialized = true
+    }
+
+    /**
+     * Restore only bounded, app-private theme files. Persisted selections refer to
+     * the same deterministic ID on the next process start.
+     */
+    private fun restoreCustomThemes(context: Context) {
+        context.filesDir.listFiles { file ->
+            file.isFile && customThemeFileName.matches(file.name)
+        }?.sortedBy { it.name }?.forEach { registerCustomTheme(context, it) }
+    }
+
+    /**
+     * Register a validated imported theme before it can be previewed or selected.
+     * An unregistered ID otherwise silently falls back to the built-in Day theme.
+     */
+    fun registerCustomTheme(context: Context, file: File): ThemeDefinition? {
+        if (!customThemeFileName.matches(file.name) ||
+            !file.isFile || file.length() <= 0L || file.length() > MAX_CUSTOM_THEME_BYTES) {
+            return null
+        }
+        if (file.canonicalFile.parentFile != context.filesDir.canonicalFile) return null
+
+        val colors = mutableMapOf<String, Int>()
+        try {
+            file.inputStream().use { parseAtthemeStream(it, colors) }
+        } catch (_: Exception) {
+            return null
+        }
+        if (colors.isEmpty()) return null
+
+        val accent = colors["chat_messagePanelSend"] ?: 0xFF56A2C9.toInt()
+        val isDark = colors["windowBackgroundGray"]?.let { Color.red(it) < 50 } ?: false
+        val definition = ThemeDefinition(
+            id = file.name.removeSuffix(".attheme"),
+            name = "Imported Theme",
+            isDark = isDark,
+            assetName = null,
+            baseAccentColor = accent,
+            defaultAccentId = 0,
+            accentOptions = listOf(ThemeAccentOption(0, accent, "Custom")),
+            isCustom = true,
+            customFilePath = file.canonicalPath
+        )
+        customThemes.removeAll { it.id == definition.id }
+        customThemes.add(definition)
+        return definition
     }
 
     fun getAllThemes(): List<ThemeDefinition> = BUILT_IN_THEMES + customThemes
@@ -414,7 +464,7 @@ object TelegramThemeEngine {
     }
 
     /**
-     * Ports changeColorAccent logic from Telegram Theme.java:6181-6225.
+     * EVE adaptation of Telegram's accent-shift concept; not source-exact.
      */
     fun applyAccentShift(rawColors: Map<String, Int>, baseAccentColor: Int, targetAccentColor: Int, isDark: Boolean): Map<String, Int> {
         if (baseAccentColor == 0 || targetAccentColor == 0 || baseAccentColor == targetAccentColor) {
