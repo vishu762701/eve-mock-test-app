@@ -5,10 +5,10 @@ import android.widget.ImageView
 import androidx.core.widget.ImageViewCompat
 import com.eve.app.R
 
-/** Keep bookmark state visible when both states use the same outline icon family. */
+/** Use a distinct filled star for saved questions and outline for unsaved ones. */
 object DesignIconStates {
     fun bookmark(view: ImageView, checked: Boolean) {
-        view.setImageResource(R.drawable.ic_star_outline)
+        view.setImageResource(if (checked) R.drawable.ic_star_filled else R.drawable.ic_star_outline)
         view.isSelected = checked
         ImageViewCompat.setImageTintList(view, ColorStateList.valueOf(
             if (checked) DesignTokens.accent(view.context) else DesignTokens.secondary(view.context)

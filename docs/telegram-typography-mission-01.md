@@ -165,3 +165,7 @@ Home search/clear and idle notification glyphs use the same light/dark `telegram
 ## Shared body and secondary foreground semantic migration
 
 The 95-layout base token cascade now maps `TextAppearance.Eve.Token.Body` and `TextAppearance.Eve.Token.Secondary` to Telegram's verified `telegram_type_primary` and the contrast-adapted `telegram_type_secondary` day/night color roles. This reaches legacy reusable body/secondary style references while leaving the original 16sp/14sp size and Android Roboto regular-family settings intact. All explicit green/red/orange/blue answer, destructive and status overrides remain higher priority. EVE's `text_primary`/secondary underlying platform, graph, and exam state tokens have **not** been globally replaced, so code-level setTextColor overrides remain distinct. Telegram's exact message-cell bitmap/padding behaviors are not claimed.
+
+## Native question bookmark icon state repaired
+
+Prior `DesignIconStates.bookmark` always installed `ic_star_outline` for both checked and unchecked question bookmarks and only varied tint; the actual selected/saved silhouette was indistinguishable. It now selects EVE's preexisting `ic_star_filled` for checked and `ic_star_outline` for unchecked, keeps its ColorStateList, accessibility content description, `view.isSelected`, haptics, click callbacks and persistence call sites in QuestionAdapter and BookmarkAdapter. Neither vector is alleged to be Telegram's exact copyrighted artwork; this is a functional state-fidelity repair.
