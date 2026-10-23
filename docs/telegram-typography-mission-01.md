@@ -181,3 +181,7 @@ The Telegram default is an XML style baseline, **not a request to re-apply each 
 ## Native UI root-text contract update after ink migration
 
 `LockedFoundationTest.defaultWidgetsResolveTheLockedRootInBothThemes` previously asserted the default TextView is always `text_primary` (pure black in Day). After shared base TextView `TextAppearance.Eve.Token.Body` color migrated to Telegram default `#FF1A1D21`, that is no longer the intended color. Its native Day/Night expected foreground now explicitly resolves `R.color.telegram_type_primary` while existing `DesignTokens.primary`, disabled buttons, backgrounds and all geometry checks remain untouched. This is a source-driven update of one obsolete assertion, not a relaxation or disabling of a CI test.
+
+## Result history paired title/subtitle typography source mapping
+
+ResultActivity now follows the verified Telegram ActionBar.java:1445-1452 paired title/subtitle behavior: historical attempts showing an "Attempted on ..." subheading use `NavigationTitle.WithSubtitle` alongside `NavigationSubtitle`; normal result entries keep `NavigationTitle` and hide the subtitle. The existing phone/tablet 18/14 and 20/16sp resource qualifiers automatically apply. No result tabs, scores, review data or navigation handling was changed.

@@ -184,12 +184,22 @@ class ResultActivity : EveBaseActivity() {
         }
 
         if (fromHistory) {
+            // Telegram ActionBar.java:1445-1452: the title is 18sp on phones
+            // (20sp tablets) only when a navigation subtitle is displayed.
+            androidx.core.widget.TextViewCompat.setTextAppearance(
+                binding.tvResultTitle, R.style.TextAppearance_Eve_Telegram_NavigationTitle_WithSubtitle
+            )
             binding.tvResultSubtitle.visibility = View.VISIBLE
             binding.tvResultSubtitle.text = if (!attemptDate.isNullOrBlank()) {
                 "Attempted on $attemptDate"
             } else {
                 "Historical Attempt"
             }
+        } else {
+            androidx.core.widget.TextViewCompat.setTextAppearance(
+                binding.tvResultTitle, R.style.TextAppearance_Eve_Telegram_NavigationTitle
+            )
+            binding.tvResultSubtitle.visibility = View.GONE
         }
 
         canReattempt = intent.getBooleanExtra(Constants.EXTRA_CAN_REATTEMPT, false)
