@@ -16,7 +16,7 @@ class TelegramPreflightContractTest(unittest.TestCase):
         source = (ROOT / "app/src/androidTest/java/com/eve/app/ui/LockedFoundationTest.kt").read_text()
         self.assertIn("for (dark in listOf(false, true))", source)
         self.assertRegex(source,
-            r"assertEquals\\(\\s*context\\.getColor\\(R\\.color\\.telegram_type_primary\\),\\s*text\\.currentTextColor\\s*\\)")
+            r"assertEquals\(\s*context\.getColor\(R\.color\.telegram_type_primary\),\s*text\.currentTextColor\s*\)")
         values = []
         for qualifier in ("values", "values-night"):
             colors = ET.parse(RES / qualifier / "telegram_colors.xml").getroot()
