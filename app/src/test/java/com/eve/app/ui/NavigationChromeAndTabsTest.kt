@@ -105,10 +105,11 @@ class NavigationChromeAndTabsTest {
         assertNotNull("btnNotification must have a parent", parent)
         val parentBg = parent!!.designAttribute("android:background")
         assertEquals(
-            "btnNotification parent FrameLayout must have @android:color/transparent background",
-            "",
+            "Clickable parent displays source-matched Telegram action ripple without covering Lottie",
+            "@drawable/telegram_action_icon_ripple",
             parentBg
         )
+        assertEquals("@null", parent.designAttribute("android:stateListAnimator"))
 
         val dotUnread = findElementById(parent, "dotUnread")
         assertNotNull("dotUnread must exist inside bell parent", dotUnread)
