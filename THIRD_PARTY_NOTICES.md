@@ -59,3 +59,5 @@ The unchanged Telegram `msg_close.webp`, `msg_share.webp` and `msg_edit.webp` (a
 ### Original Settings and Saved/bookmark action artwork
 
 Two further original Telegram static RGBA icons from the owner-supplied official source ZIP were imported byte-for-byte in four standard Android densities: `msg_settings.webp` as EVE `ic_settings`, and `msg_saved.webp` as EVE `ic_bookmark`. Original Telegram GPL-2.0-or-later copyright and EVE's GPL-3 distribution terms apply. Existing view IDs, Day/Night color tints, drawer/menu destinations, touch interactions and saved-question state logic are unchanged. `TelegramSettingsBookmarkSourceIconsTest` checks all source bytes. No static icon motion has been invented.
+
+- Original Telegram `msg_delete.webp` is imported unchanged for `ic_delete.webp` at source-provided mdpi/hdpi/xhdpi; upstream does not provide a matching xxhdpi file, so Android scales the closest source density. This is a static delete glyph; no Telegram animation is implied. GPL/source-distribution obligations above apply.
