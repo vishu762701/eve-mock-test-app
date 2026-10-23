@@ -70,7 +70,10 @@ class DesignSegmentedTabs @JvmOverloads constructor(
             val size = resources.getDimension(R.dimen.design_type_tab)
             if (view.textSize != size) view.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
             val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
-            val color = if (selected) palette.glassTabSelectedText else palette.textPrimary
+            // The approved segmented indicator uses @color/accent, not the
+            // Telegram glass-tab fill. Keep its foreground paired with that fill.
+            val color = if (selected) ContextCompat.getColor(context, R.color.on_accent)
+                else palette.textPrimary
             if (view.currentTextColor != color) view.setTextColor(color)
             view.isSelected = selected
             val line = resources.getDimensionPixelSize(R.dimen.design_line_tab)
