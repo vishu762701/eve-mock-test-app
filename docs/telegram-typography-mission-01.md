@@ -185,3 +185,7 @@ The Telegram default is an XML style baseline, **not a request to re-apply each 
 ## Result history paired title/subtitle typography source mapping
 
 ResultActivity now follows the verified Telegram ActionBar.java:1445-1452 paired title/subtitle behavior: historical attempts showing an "Attempted on ..." subheading use `NavigationTitle.WithSubtitle` alongside `NavigationSubtitle`; normal result entries keep `NavigationTitle` and hide the subtitle. The existing phone/tablet 18/14 and 20/16sp resource qualifiers automatically apply. No result tabs, scores, review data or navigation handling was changed.
+
+## Shared IconButton default Day/Night color
+
+`Widget.Eve.Token.IconButton` now uses Telegram ActionBar's source-mapped `telegram_type_primary` as its default tint, instead of the retired generic `text_primary`; explicitly tinted answer-status, destructive, category, panel and premium icons retain their local override. The default icon touch sizes, press-scale animator, and `@null` background are unchanged, so this does not invent Telegram ripple timings. No binary Telegram artwork is included.
