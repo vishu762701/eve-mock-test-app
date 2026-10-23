@@ -55,3 +55,7 @@ The source archive's original `msg_camera.webp`, `msg_copy.webp`, `msg_download.
 ### Further original Telegram action icons: Close, Share, Edit
 
 The unchanged Telegram `msg_close.webp`, `msg_share.webp` and `msg_edit.webp` (all four densities) are now shipped as `ic_close`, `ic_share`, `ic_edit` with the original EVE action resource IDs and all existing UI callbacks/tints. All are static masks, not animated sources. Telegram FZ-LLC / contributors retain original GPL-2.0-or-later copyright; root GPL-3 license and bundled upstream GPL license, corresponding-source and third-party notices remain applicable. Binary asset SHA-256 is pinned in `TelegramMoreSourceExactIconsTest`.
+
+### Original Settings and Saved/bookmark action artwork
+
+Two further original Telegram static RGBA icons from the owner-supplied official source ZIP were imported byte-for-byte in four standard Android densities: `msg_settings.webp` as EVE `ic_settings`, and `msg_saved.webp` as EVE `ic_bookmark`. Original Telegram GPL-2.0-or-later copyright and EVE's GPL-3 distribution terms apply. Existing view IDs, Day/Night color tints, drawer/menu destinations, touch interactions and saved-question state logic are unchanged. `TelegramSettingsBookmarkSourceIconsTest` checks all source bytes. No static icon motion has been invented.

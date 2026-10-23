@@ -211,3 +211,7 @@ Source audit from the supplied ZIP: `ActionBar.java:266-270` installs `Theme.cre
 ## Original Telegram Close/Share/Edit icon parity
 
 Three additional source-matched actions now use the uploaded Telegram ZIP's original static WebP masks: Close (`msg_close`), Share (`msg_share`) and Edit (`msg_edit`) in mdpi/hdpi/xhdpi/xxhdpi, retaining existing resource IDs, caller callbacks and day/night tint attributes. Removed their older EVE-redrawn vectors and protected all twelve original bytes with `TelegramMoreSourceExactIconsTest`. No motion is invented where the source artwork is static; source copyright and GPL notices remain in `THIRD_PARTY_NOTICES.md`.
+
+## Settings and Saved icons — official original masks
+
+The source ZIP verifies `msg_settings.webp` from Telegram's bot/settings menu and `msg_saved.webp` used for saved messages/bookmarks. Both are 24dp static WebP resources with original 24/36/48/72px density variants. EVE's shared drawer/menu `ic_settings` and `ic_bookmark` now reference identical bytes, preserving their event handlers, tint and feature semantics. Source hashes and licensing notices are retained; active exam bookmarks still use their separately verified selected/unselected star states.
