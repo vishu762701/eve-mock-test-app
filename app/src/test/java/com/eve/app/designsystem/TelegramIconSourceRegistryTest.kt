@@ -50,6 +50,24 @@ class TelegramIconSourceRegistryTest {
         assertEquals(expected, ids.toSet())
         assertEquals(ids.size, ids.toSet().size)
         assertEquals(13, rows.count { it[7] == "EVE_ORIGINAL_REDRAW_NOT_SOURCE_EXACT" })
+        val sourceCandidates = mapOf(
+            "ic_camera" to "ui/Components/ImageUpdater.java:278",
+            "ic_copy" to "ui/Business/BusinessLinksActivity.java:395",
+            "ic_download" to "ui/ChatActivity.java:10377",
+            "ic_info" to "ui/ChatActivity.java:31892",
+            "ic_link" to "ui/ChatActivity.java:40482",
+            "ic_logout" to "ui/SettingsActivity.java:342",
+            "ic_send" to "ui/Components/ShareAlert.java:2359"
+        )
+        val candidateRows = rows.filter { it[7] == "CANDIDATE_NOT_IMPORTED" }
+        assertEquals("Every ZIP-mapped candidate must be traceable", sourceCandidates.size, candidateRows.size)
+        for (row in candidateRows) {
+            assertEquals("Wrong source call-site for " + row[0], sourceCandidates[row[0]], row[2])
+            assertTrue("Missing official Telegram density asset " + row[0],
+                row[1].startsWith("res/drawable-hdpi/") && row[1].endsWith(".webp"))
+            assertEquals("COPYRIGHTED ART NOT PACKAGED", "CANDIDATE_NOT_IMPORTED", row[7])
+        }
+
         for (row in rows) {
             assertTrue("False Telegram import claim " + row[0],
                 row[7] in setOf("UNMAPPED_PENDING_SOURCE_AUDIT", "CANDIDATE_NOT_IMPORTED", "SEMANTIC_MISMATCH",
