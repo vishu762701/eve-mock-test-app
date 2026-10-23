@@ -33,7 +33,7 @@ class TelegramPreflightContractTest(unittest.TestCase):
         step = workflow[preflight:preflight + 260]
         self.assertIn(":app:compileDebugUnitTestKotlin", step)
         self.assertIn(":app:processDebugResources", step)
-        self.assertLess(preflight, workflow.index("name: Build debug APK"))
+        self.assertLess(preflight, workflow.index("name: Build debug and instrumentation APKs"))
         self.assertIn("needs: [build, native-ui, backend, firebase-functions]", workflow)
 
 
