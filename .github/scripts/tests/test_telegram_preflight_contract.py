@@ -27,14 +27,20 @@ class TelegramPreflightContractTest(unittest.TestCase):
             values.append(value)
         self.assertNotEqual(*values)
 
-    def test_compile_unit_test_sources_before_expensive_assemble(self):
+    def test_compile_gates_run_before_expensive_emulators(self):
+        """Check that FAST compiles test sources and FULL emulators depend on that gate."""
         workflow = (ROOT / ".github/workflows/build.yml").read_text()
-        preflight = workflow.index("name: Preflight Android resources and Kotlin unit-test compilation")
-        step = workflow[preflight:preflight + 260]
-        self.assertIn(":app:compileDebugUnitTestKotlin", step)
-        self.assertIn(":app:processDebugResources", step)
-        self.assertLess(preflight, workflow.index("name: Build debug and instrumentation APKs"))
+        build = workflow.split("\n  build:\n", 1)[1].split("\n  native-ui:\n", 1)[0]
+        native = workflow.split("\n  native-ui:\n", 1)[1].split("\n  backend:\n", 1)[0]
+        compile_step = build.index("name: Build debug APK, compile native tests, run lint and unit tests")
+        compile_command = (":app:assembleDebug :app:compileDebugAndroidTestKotlin "
+                           ":app:lintDebug :app:testDebugUnitTest")
+        self.assertIn(compile_command, build[compile_step:])
+        self.assertIn("needs: build", native)
+        self.assertIn("navigation: [gesture, three-button]", native)
+        self.assertIn("github.event.head_commit.message", native)
         self.assertIn("needs: [build, native-ui, backend, firebase-functions]", workflow)
+        self.assertIn("name: Eve-debug-apk", workflow)
 
 
 if __name__ == "__main__":
