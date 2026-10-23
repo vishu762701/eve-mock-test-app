@@ -22,10 +22,10 @@ class TelegramThemeEngineTest {
         val file = java.io.File(context.filesDir, "custom_${System.nanoTime().toString().replace("-", "")}.attheme")
         try {
             file.writeText(
-                "windowBackgroundGray=-1\\n" +
-                    "windowBackgroundWhite=-1\\n" +
-                    "windowBackgroundWhiteBlackText=#FF112233\\n" +
-                    "chat_messagePanelSend=-14509328\\n"
+                "windowBackgroundGray=-1\n" +
+                    "windowBackgroundWhite=-1\n" +
+                    "windowBackgroundWhiteBlackText=#FF112233\n" +
+                    "chat_messagePanelSend=-14509328\n"
             )
             val registered = TelegramThemeEngine.registerCustomTheme(context, file)
             assertNotNull("Imported file must be registered", registered)
