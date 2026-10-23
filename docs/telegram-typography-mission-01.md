@@ -1,6 +1,6 @@
 # Telegram Android text/icon migration: scoped source register
 
-**Status:** Partial migration delivered to `main`; final native UI and artifact results must be checked on the exact delivery commit. No app-wide or pixel-identical claim.
+**Status:** Mission 01 in progress. The current repository contains some source-matched text roles, original Telegram static action assets, source-aligned Day/Night action ripple and GPL notices. Earlier paragraphs are chronological historical snapshots, not always current; use actual code, the current 71-item icon registry and regression tests for implementation status. Runtime parity across every screen and the final mission FULL native UI gate remain unverified.
 
 Telegram reference archive SHA-256: `0785365538ce05cf5bdf44a15d8fd5f5219f8193db0a2d124af9665fc63fd7b3` (uploaded `Telegram-master (1).zip`). The archive has no .git history, so upstream commit identity is not proven. EVE authoritative starting main SHA: `251475ad7712b4da22339f48bd9e242e9d6b2971`. EVE ZIP was not supplied to this chat.
 

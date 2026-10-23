@@ -2,6 +2,8 @@
 
 This matrix documents the EVE repository baseline SHA 6be58114a1d9531e1e357fd3e342b8ac5bc9ed4a and Telegram ZIP SHA-256 `0785365538ce05cf5bdf44a15d8fd5f5219f8193db0a2d124af9665fc63fd7b3`. Reference archive is a ZIP with no embedded Git commit identity: **do not invent an exact Telegram upstream revision**. Statuses are evidence levels, not promises. Archive `LICENSE` is GPL-2.0 and `README.md` requires own branding and corresponding-source compliance. App `main` commits must pass both native navigation UI suites, unit/lint, backend/functions before publishing a debug APK.
 
+> **Current authoritative delta (supersedes historical V3 baseline below).** The repository now has root `LICENSE` (GPL-3.0-or-later distribution intent), full upstream Telegram GPL notice, and `THIRD_PARTY_NOTICES.md`. Some Telegram-owned static action WebPs are already imported with per-density SHA-256 regression tests; the mutable reference is `docs/telegram-icon-source-registry.tsv`, not the older candidate-only table below. The remaining EVE-specific graphics do not automatically have Telegram counterparts. The repo's FAST/FULL split reserves emulators for a completed mission, not every intermediate push. Source distribution and third-party SDK license compatibility still require verification before production publication. This historical file must not be treated as a ban on all GPL-compliant Telegram imports or a claim that currently imported assets do not exist.
+
 ## Typography (source units vs EVE accessibility)
 
 | Component/role | Telegram archive source (relative to TMessagesProj/src/main) | EVE paths / actual state | Source-fidelity status |
