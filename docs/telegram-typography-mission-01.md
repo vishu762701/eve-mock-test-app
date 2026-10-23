@@ -193,3 +193,9 @@ ResultActivity now follows the verified Telegram ActionBar.java:1445-1452 paired
 ## Mission 01 V3 provenance and component matrix
 
 See `docs/telegram-mission01-v3-component-matrix.md` for ZIP-verified paths, additional seven real icon source candidates, licensing constraints, Day/Night coverage and CI-process readiness. The registry candidates preserve original EVE art: no GPL2 bitmap has been added and no copyright-bound asset has been falsely declared source-exact.
+
+## Source-aligned operational list rows (Mission 01 continuation)
+
+Verified against the supplied Telegram Android archive: `ui/Cells/DialogCell.java:1252-1255` defines 17dp name and 16dp preview; `ui/ActionBar/Theme.java:7812` selects `AndroidUtilities.bold()` for names and `Theme.java:7897` uses 12dp for time. EVE uses 17/16/12 **sp** for font-scale accessibility and the existing source-matched Roboto Medium for titles. `TelegramOperationalListRowsTest` protects the mapped XML roles.
+
+The list-row roles are now applied to nine further reusable EVE layouts: feedback message (sender/email/body/timestamp), post replies (author/body/time), sent broadcasts (title/message/time), premium user (name/email), admin email, audit log (description/admin/time), exam tests (title/subtitle), generated tests (title/details), and admin transactions (email/created time). All updated TextViews carry `eve_telegram_type` to prevent retired typography overrides. Domain-specific amounts, status badges, question controls, and action handlers are untouched. This is **source-backed typography**, not pixel-identical Telegram cell geometry, full icon migration, or completed Mission 01.
