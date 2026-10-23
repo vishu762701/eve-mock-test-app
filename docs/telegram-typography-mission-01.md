@@ -177,3 +177,7 @@ The source ZIP's `ui/ActionBar/ThemeColors.java:268` establishes `chats_menuItem
 ## Factory profile runtime traversal guard
 
 The Telegram default is an XML style baseline, **not a request to re-apply each TextView on Activity creation**. When the active `telegram_native` configuration has no `screenOverrides`, `elementOverrides` or `componentOverrides`, `TypographyApplier.applyToActivity` now exits immediately. This eliminates potentially expensive full Activity traversal and source text-paint disruption, particularly near theme reveal/native UI focus transitions. Published explicit overrides retain the existing hierarchy traversal path. This reduces a potential risk identified after native gesture CI timing/focus failures; it is not falsely claimed to prove that all seven unrelated gesture assertions shared one root cause.
+
+## Native UI root-text contract update after ink migration
+
+`LockedFoundationTest.defaultWidgetsResolveTheLockedRootInBothThemes` previously asserted the default TextView is always `text_primary` (pure black in Day). After shared base TextView `TextAppearance.Eve.Token.Body` color migrated to Telegram default `#FF1A1D21`, that is no longer the intended color. Its native Day/Night expected foreground now explicitly resolves `R.color.telegram_type_primary` while existing `DesignTokens.primary`, disabled buttons, backgrounds and all geometry checks remain untouched. This is a source-driven update of one obsolete assertion, not a relaxation or disabling of a CI test.

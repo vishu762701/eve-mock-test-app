@@ -38,7 +38,9 @@ class LockedFoundationTest {
                 assertEquals(context.getColor(R.color.accent), DesignTokens.color(context, com.google.android.material.R.attr.colorPrimary))
                 val text = TextView(context)
                 assertFalse(text.includeFontPadding)
-                assertEquals(primary, text.currentTextColor)
+                // The native TextView default now resolves the Telegram source-derived
+                // body ink (ThemeColors.java:100), not the original EVE black.
+                assertEquals(context.getColor(R.color.telegram_type_primary), text.currentTextColor)
                 assertEquals(resources.getDimensionPixelSize(R.dimen.design_type_body).toFloat(), text.textSize, .01f)
                 val button = MaterialButton(context)
                 assertFalse(button.includeFontPadding)
