@@ -13,3 +13,7 @@ Before an authorized maintainer sets the variable, review and record evidence fo
 5. Required brand/trademark separation, release version attribution, and final human approval of the distribution package.
 
 Keep the variable unset or set to anything other than `true` until these checks are complete. Even after it is set, all existing signing, unit-test, lint and release-build gates remain mandatory. This protection does not gate internal FAST debug compilation or the mission-final native UI validation.
+
+## Current engineering audit
+
+See [Telegram GPL distribution audit (2026-10-24)](telegram-gpl-audit-2026-10-24.md) for the reviewed source paths, open release risks, and exact closure checklist. It confirms source integrity but **does not** grant production redistribution clearance. The release approval variable must remain unapproved until all P0 findings are resolved and the recipient/source-delivery package is independently reviewed.
