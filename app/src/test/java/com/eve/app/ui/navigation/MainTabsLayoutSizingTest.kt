@@ -42,20 +42,16 @@ class MainTabsLayoutSizingTest {
         val layout = MainTabsLayout(context)
 
         val tabHome = GlassTabView(context).apply {
-            setIconResource(R.drawable.ic_nav_home)
-            setText("Home")
+            configureAsIcon(R.drawable.msg_home, "Home")
         }
         val tabHistory = GlassTabView(context).apply {
-            setIconResource(R.drawable.ic_nav_history)
-            setText("History")
+            configureAsIcon(R.drawable.ic_history, "History")
         }
         val tabSettings = GlassTabView(context).apply {
-            setLottieAsset("tab_settings.json")
-            setText("Settings")
+            configureAsLottie(R.raw.tab_settings, R.drawable.ic_settings, "Settings")
         }
         val tabProfile = GlassTabView(context).apply {
-            setAvatarMode(true)
-            setText("Profile")
+            configureAsAvatar("Profile")
         }
 
         layout.addView(tabHome)
@@ -79,10 +75,10 @@ class MainTabsLayoutSizingTest {
         val context = RuntimeEnvironment.getApplication()
         val layout = MainTabsLayout(context)
 
-        val tab0 = GlassTabView(context).apply { setText("Home") }
-        val tab1 = GlassTabView(context).apply { setText("History") }
-        val tab2 = GlassTabView(context).apply { setText("Settings") }
-        val tab3 = GlassTabView(context).apply { setText("Profile") }
+        val tab0 = GlassTabView(context).apply { configureAsIcon(R.drawable.msg_home, "Home") }
+        val tab1 = GlassTabView(context).apply { configureAsIcon(R.drawable.ic_history, "History") }
+        val tab2 = GlassTabView(context).apply { configureAsLottie(R.raw.tab_settings, R.drawable.ic_settings, "Settings") }
+        val tab3 = GlassTabView(context).apply { configureAsAvatar("Profile") }
 
         layout.addView(tab0)
         layout.addView(tab1)
@@ -134,8 +130,8 @@ class MainTabsLayoutSizingTest {
         val context = RuntimeEnvironment.getApplication()
         val layout = MainTabsLayout(context)
 
-        val tabHome = GlassTabView(context).apply { setText("Home") }
-        val tabHistory = GlassTabView(context).apply { setText("History") }
+        val tabHome = GlassTabView(context).apply { configureAsIcon(R.drawable.msg_home, "Home") }
+        val tabHistory = GlassTabView(context).apply { configureAsIcon(R.drawable.ic_history, "History") }
         layout.addView(tabHome)
         layout.addView(tabHistory)
 
