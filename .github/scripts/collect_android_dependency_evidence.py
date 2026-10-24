@@ -6,11 +6,14 @@ output. POM license tags are *metadata clues*, not verified redistribution grant
 Never read/print credentials or signing material.
 """
 import csv
+from concurrent.futures import ThreadPoolExecutor
 import hashlib
 import json
 import re
 import subprocess
 import sys
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
@@ -48,10 +51,10 @@ def coordinates(lines):
     return sorted(result), unresolved
 
 
-def pom_license_names(pom):
+def pom_license_names_from_bytes(payload):
     try:
-        root = ET.parse(pom).getroot()
-    except (OSError, ET.ParseError):
+        root = ET.fromstring(payload)
+    except ET.ParseError:
         return []
     for element in root.iter():
         if element.tag.split("}")[-1] == "licenses":
@@ -64,6 +67,45 @@ def pom_license_names(pom):
                         found.append(" ".join(node.text.split()))
             return sorted(set(found))
     return []
+
+
+def pom_license_names(pom):
+    try:
+        return pom_license_names_from_bytes(pom.read_bytes())
+    except OSError:
+        return []
+
+
+def repository_metadata(group, artifact, version):
+    """Fetch public POM metadata only; no signing material, code or binary downloads."""
+    rel = "/".join([group.replace(".", "/"), artifact, version, f"{artifact}-{version}.pom"])
+    google = "https://dl.google.com/dl/android/maven2/"
+    maven = "https://repo.maven.apache.org/maven2/"
+    jitpack = "https://jitpack.io/"
+    if group.startswith(("androidx.", "com.google.", "com.android.")):
+        bases = (google, maven)
+    elif group.startswith("com.github."):
+        bases = (jitpack, maven)
+    else:
+        bases = (maven, google)
+    for base in bases:
+        try:
+            request = Request(base + rel, headers={"User-Agent": "EveEvidenceAudit/1.0"})
+            with urlopen(request, timeout=6) as result:
+                payload = result.read(2_000_001)
+            if len(payload) > 2_000_000:
+                continue
+            return {
+                "pom_available": "yes", "metadata_source": base,
+                "pom_sha256": hashlib.sha256(payload).hexdigest(),
+                "labels": pom_license_names_from_bytes(payload),
+            }
+        except (HTTPError, URLError, TimeoutError, OSError):
+            continue
+    return {
+        "pom_available": "no", "metadata_source": "NOT FOUND",
+        "pom_sha256": "", "labels": [],
+    }
 
 
 def gather():
@@ -81,20 +123,28 @@ def gather():
     metadata = []
     no_pom = 0
     no_license = 0
+    remote = {}
+    with ThreadPoolExecutor(max_workers=12) as executor:
+        for coordinate, details in zip(coords, executor.map(lambda c: repository_metadata(*c), coords)):
+            remote[coordinate] = details
     for group, artifact, version in coords:
         directory = cache / group / artifact / version
         poms = sorted(directory.glob("**/*.pom")) if directory.is_dir() else []
-        labels = []
+        remote_data = remote[(group, artifact, version)]
+        labels = list(remote_data["labels"])
         for pom in poms:
             labels.extend(pom_license_names(pom))
         labels = sorted(set(labels))
-        if not poms:
+        if not poms and remote_data["pom_available"] != "yes":
             no_pom += 1
         if not labels:
             no_license += 1
         metadata.append({
             "group": group, "artifact": artifact, "version": version,
             "pom_cached": "yes" if poms else "no",
+            "pom_downloaded": remote_data["pom_available"],
+            "pom_metadata_source": remote_data["metadata_source"],
+            "pom_sha256": remote_data["pom_sha256"],
             "pom_license_names": " | ".join(labels) if labels else "NOT DETERMINED",
             "review_status": "UNREVIEWED",
         })
@@ -124,7 +174,7 @@ def gather():
         "commit": revision,
         "release_configuration": "releaseRuntimeClasspath",
         "runtime_components": len(coords),
-        "components_without_cached_pom": no_pom,
+        "components_without_pom_metadata": no_pom,
         "components_without_pom_license_names": no_license,
         "tracked_resource_files_hashed": len(asset_lines),
         "dependency_graph_sha256": digest(graph),
@@ -135,7 +185,7 @@ def gather():
         json.dumps(summary, indent=2) + "\n", encoding="utf-8"
     )
     print("Runtime components:", len(coords), flush=True)
-    print("Cached POM unavailable:", no_pom, flush=True)
+    print("POM metadata unavailable:", no_pom, flush=True)
     print("POM license names not determined:", no_license, flush=True)
     print("Tracked resources hashed:", len(asset_lines), flush=True)
     print("Evidence commit:", revision, flush=True)
@@ -154,6 +204,7 @@ if __name__ == "__main__":
             ("com.google.firebase", "firebase-auth", "23.0.0"),
         ], coords
         assert not issues
+        assert pom_license_names_from_bytes(b"<project><licenses><license><name>Apache-2.0</name></license></licenses></project>") == ["Apache-2.0"]
         print("SELF_TEST=PASS")
     else:
         try:
