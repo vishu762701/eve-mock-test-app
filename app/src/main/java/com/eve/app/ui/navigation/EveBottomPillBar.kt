@@ -168,6 +168,21 @@ class EveBottomPillBar @JvmOverloads constructor(
         invalidate()
     }
 
+
+    // Source: MainTabsLayout.java:64-66 caps the tab strip at 344dp.
+    // Cap the OUTER glass too; a MATCH_PARENT glass background otherwise spans
+    // the entire window even when MainTabsLayout internally measures narrower.
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val available = MeasureSpec.getSize(widthMeasureSpec)
+        val maxWidth = dp(344)
+        val boundedWidth = if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.UNSPECIFIED) {
+            maxWidth
+        } else {
+            minOf(available, maxWidth)
+        }
+        super.onMeasure(MeasureSpec.makeMeasureSpec(boundedWidth, MeasureSpec.EXACTLY), heightMeasureSpec)
+    }
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && currentPalette != null) {

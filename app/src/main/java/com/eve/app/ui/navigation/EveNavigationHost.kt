@@ -43,6 +43,8 @@ object EveNavigationHost {
             ).apply {
                 gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
                 bottomMargin = (8 * density).toInt() // MAIN_TABS_MARGIN
+                leftMargin = (8 * density).toInt()
+                rightMargin = (8 * density).toInt()
             }
             layoutParams = lp
             root.addView(this)

@@ -103,60 +103,94 @@ class MainTabsLayout @JvmOverloads constructor(
         }
     }
 
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        var width = MeasureSpec.getSize(widthMeasureSpec)
-        val height = MeasureSpec.getSize(heightMeasureSpec)
 
-        if (maxWidthPx > 0 && width > maxWidthPx) {
-            width = maxWidthPx
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val offeredWidth = MeasureSpec.getSize(widthMeasureSpec)
+        val width = if (maxWidthPx > 0) minOf(offeredWidth, maxWidthPx) else offeredWidth
+        val height = MeasureSpec.getSize(heightMeasureSpec)
+        val available = (width - paddingLeft - paddingRight).coerceAtLeast(0)
+        // Telegram MainTabsLayout.java:68-69. On compact screens, never
+        // demand a 320dp tab strip wider than the space actually available.
+        val minimum = minOf(dp(320), available)
+        val visible = (0 until childCount).filter { getChildAt(it).visibility != GONE }
+        val count = visible.size
+        if (count == 0) {
+            setMeasuredDimension(paddingLeft + paddingRight, height)
+            return
         }
 
-        val maxTotalWidthForTabs = width - paddingLeft - paddingRight
-        val visibleChildCount = childCount.coerceAtLeast(1)
-
-        // Content-fit text size pass from Telegram MainTabsLayout.java:73-90
-        var chosenPass = PASS_TEXT_SIZES_DP.size - 1
+        // Exact upstream text-size and horizontal-padding passes:
+        // MainTabsLayout.java:46-47, 71-90.
+        var chosenPass = PASS_TEXT_SIZES_DP.lastIndex
+        val measuredTextWidths = FloatArray(childCount)
         for (pass in PASS_TEXT_SIZES_DP.indices) {
             val textSize = PASS_TEXT_SIZES_DP[pass]
-            val padding = dp(PASS_PADDINGS_DP[pass])
+            val horizontalPadding = dp(PASS_PADDINGS_DP[pass])
             var total = 0f
-            for (i in 0 until childCount) {
-                val child = getChildAt(i)
-                if (child is GlassTabView && child.visibility != GONE) {
+            for (index in visible) {
+                val child = getChildAt(index)
+                if (child is GlassTabView) {
                     child.setTextSizeDp(textSize)
-                    total += child.measureTextWidth() + padding * 2
+                    measuredTextWidths[index] = child.measureTextWidth()
+                } else {
+                    measuredTextWidths[index] = 0f
                 }
+                total += measuredTextWidths[index] + 2f * horizontalPadding
             }
-            if (total <= maxTotalWidthForTabs || pass == PASS_TEXT_SIZES_DP.size - 1) {
+            if (total <= available || pass == PASS_TEXT_SIZES_DP.lastIndex) {
                 chosenPass = pass
                 break
             }
         }
 
-        val finalPassTextSize = PASS_TEXT_SIZES_DP[chosenPass]
-        for (i in 0 until childCount) {
-            val child = getChildAt(i)
-            if (child is GlassTabView) {
-                child.setTextSizeDp(finalPassTextSize)
+        val tabPadding = dp(PASS_PADDINGS_DP[chosenPass])
+        val equalTextSpace = available / count - tabPadding * 2
+        val widths = FloatArray(childCount)
+        val weights = IntArray(childCount)
+        var totalWidth = 0f
+        var totalWeight = 0
+        for (index in visible) {
+            val child = getChildAt(index)
+            if (child is GlassTabView) child.setTextSizeDp(PASS_TEXT_SIZES_DP[chosenPass])
+            widths[index] = measuredTextWidths[index] + tabPadding * 2f
+            weights[index] = if (widths[index] > equalTextSpace + tabPadding * 2) 0 else 1
+            totalWeight += weights[index]
+            totalWidth += widths[index]
+        }
+        if (totalWeight == 0) {
+            for (index in visible) weights[index] = 1
+            totalWeight = count
+        }
+        // Telegram MainTabsLayout.java:94-151: shrink to fit or distribute
+        // additional width only to tabs that meet its text-fit weight rule.
+        when {
+            totalWidth > available && totalWidth > 0f -> {
+                val scale = available / totalWidth
+                for (index in visible) widths[index] *= scale
+            }
+            totalWidth < minimum -> {
+                val grow = (minimum - totalWidth) / totalWeight
+                for (index in visible) widths[index] += grow * weights[index]
             }
         }
-
-        // Divide available space equally among tabs
-        val tabWidth = maxTotalWidthForTabs / visibleChildCount
-        val childWidthSpec = MeasureSpec.makeMeasureSpec(tabWidth, MeasureSpec.EXACTLY)
-        val childHeightSpec = MeasureSpec.makeMeasureSpec(height - paddingTop - paddingBottom, MeasureSpec.EXACTLY)
-
-        for (i in 0 until childCount) {
-            val child = getChildAt(i)
-            if (child.visibility != GONE) {
-                child.measure(childWidthSpec, childHeightSpec)
-                if (child is GlassTabView) {
-                    child.setVisualWidth(tabWidth.toFloat())
-                }
+        var measuredWidth = paddingLeft + paddingRight
+        val heightForTabs = (height - paddingTop - paddingBottom).coerceAtLeast(0)
+        for (index in visible) {
+            val child = getChildAt(index)
+            val childWidth = widths[index].toInt().coerceAtLeast(1)
+            child.measure(
+                MeasureSpec.makeMeasureSpec(childWidth, MeasureSpec.EXACTLY),
+                MeasureSpec.makeMeasureSpec(heightForTabs, MeasureSpec.EXACTLY))
+            if (child is GlassTabView) child.setVisualWidth(childWidth.toFloat())
+            measuredWidth += childWidth
+        }
+        for (index in 0 until childCount) {
+            if (getChildAt(index).visibility == GONE) {
+                getChildAt(index).measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY),
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY))
             }
         }
-
-        setMeasuredDimension(width, height)
+        setMeasuredDimension(minOf(width, measuredWidth), height)
     }
 
     private fun dp(value: Int): Int {

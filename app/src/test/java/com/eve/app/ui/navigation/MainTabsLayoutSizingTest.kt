@@ -70,6 +70,29 @@ class MainTabsLayoutSizingTest {
         }
     }
 
+
+    @Test
+    fun measuredBarFits344dpAndTextWeightedTabsAreNotBlindlyEqual() {
+        val context = RuntimeEnvironment.getApplication()
+        val d = context.resources.displayMetrics.density
+        val bar = EveBottomPillBar(context)
+        bar.measure(
+            View.MeasureSpec.makeMeasureSpec((400 * d).toInt(), View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec((56 * d).toInt(), View.MeasureSpec.EXACTLY))
+        assertEquals((344 * d).toInt(), bar.measuredWidth)
+        assertEquals((56 * d).toInt(), bar.measuredHeight)
+
+        val tabs = MainTabsLayout(context)
+        listOf("A", "History", "Settings", "Profile").forEach {
+            tabs.addView(GlassTabView(context).apply { configureAsIcon(R.drawable.msg_home, it) })
+        }
+        tabs.measure(
+            View.MeasureSpec.makeMeasureSpec((344 * d).toInt(), View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec((56 * d).toInt(), View.MeasureSpec.EXACTLY))
+        assertTrue("Telegram sizing allocates content-aware widths rather than four fixed equal columns",
+            (0 until tabs.childCount).map { tabs.getChildAt(it).measuredWidth }.distinct().size > 1)
+    }
+
     @Test
     fun programmaticSelectTabDoesNotEmitListenerNotification() {
         val context = RuntimeEnvironment.getApplication()
