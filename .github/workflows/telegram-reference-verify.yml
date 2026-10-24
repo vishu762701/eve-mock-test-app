@@ -1,0 +1,39 @@
+name: Verify Telegram Reference Archives
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Telegram-master.zip'
+      - 'Telegram-master-rest-*.zip'
+      - 'docs/telegram-icon-source-registry.tsv'
+      - 'app/src/main/res/drawable-*/**'
+      - '.github/scripts/verify_telegram_archives.py'
+      - '.github/workflows/telegram-reference-verify.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  telegram-reference:
+    name: Verify SHA-256, manifests, exclusions, license and icons
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact commit without submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+          persist-credentials: false
+
+      - name: Verify reference ZIPs against the manifests and bundled app assets
+        run: python3 -B .github/scripts/verify_telegram_archives.py
+
+      - name: Upload verification report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: telegram-reference-verification
+          path: telegram-verification-result.json
+          if-no-files-found: warn
