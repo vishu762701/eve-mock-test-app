@@ -138,4 +138,36 @@ class TelegramThemeEngineTest {
         val result = TelegramThemeEngine.changeColorAccent(baseHsv, accentHsv, nearColor, false, fallback)
         assertTrue("Expected transformed color, not fallback", result != fallback)
     }
+
+    @Test
+    fun resetPreviewCanBeCancelledWithoutPersistingDefaults() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        TelegramThemeEngine.init(context)
+        val previousDay = TelegramThemeEngine.getDayThemeId()
+        val previousDayAccent = TelegramThemeEngine.getDayAccentId()
+        val previousNight = TelegramThemeEngine.getNightThemeId()
+        val previousNightAccent = TelegramThemeEngine.getNightAccentId()
+        val previousMode = TelegramThemeEngine.getThemeMode()
+        try {
+            TelegramThemeEngine.beginPreview()
+            TelegramThemeEngine.setPreviewDayTheme("arctic", 0, context)
+            TelegramThemeEngine.applyChanges(context)
+            assertEquals("arctic", TelegramThemeEngine.getDayThemeId())
+
+            TelegramThemeEngine.beginPreview()
+            TelegramThemeEngine.resetToDefaults(context)
+            assertEquals("day", TelegramThemeEngine.getDayThemeId())
+            TelegramThemeEngine.cancelPreview(context)
+
+            assertEquals("arctic", TelegramThemeEngine.getDayThemeId())
+            val prefs = context.getSharedPreferences(TelegramThemeEngine.PREFS_NAME, android.content.Context.MODE_PRIVATE)
+            assertEquals("arctic", prefs.getString("day_theme_id", null))
+        } finally {
+            TelegramThemeEngine.beginPreview()
+            TelegramThemeEngine.setPreviewDayTheme(previousDay, previousDayAccent, context)
+            TelegramThemeEngine.setPreviewNightTheme(previousNight, previousNightAccent, context)
+            TelegramThemeEngine.setPreviewMode(previousMode, context)
+            TelegramThemeEngine.applyChanges(context)
+        }
+    }
 }

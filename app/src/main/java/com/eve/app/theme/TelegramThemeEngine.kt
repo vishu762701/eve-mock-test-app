@@ -315,12 +315,14 @@ object TelegramThemeEngine {
     }
 
     fun resetToDefaults(context: Context) {
+        // Reset is part of the preview transaction. Only Apply may persist it.
+        previewActive = true
         previewDayThemeId = "day"
         previewDayAccentId = 9
         previewNightThemeId = "night"
         previewNightAccentId = 0
         previewMode = ThemeMode.SYSTEM
-        applyChanges(context)
+        notifyPaletteChanged(context)
     }
 
     fun addThemeChangeListener(listener: (ResolvedPalette) -> Unit) {
