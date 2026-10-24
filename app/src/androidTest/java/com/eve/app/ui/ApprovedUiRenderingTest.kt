@@ -365,7 +365,18 @@ class ApprovedUiRenderingTest {
                 val strip = b.tabLayoutResult.getChildAt(0) as ViewGroup
                 assertEquals(image.width - b.tabLayoutResult.paddingLeft - b.tabLayoutResult.paddingRight, strip.width)
                 val x = ((index + 0.5f) * image.width / 3).toInt()
-                assertEquals("Selected pill must render for $name in dark=$dark", context.getColor(R.color.text_primary), image.getPixel(x, dp(8)))
+                // The Telegram theme engine owns the runtime accent, which may differ
+                // from the legacy monochrome XML token. Assert the rendered fill and
+                // its selected foreground against the same resolved palette.
+                val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
+                assertEquals("Selected pill must render for $name in dark=$dark",
+                    palette.accent, image.getPixel(x, dp(8)))
+                val selectedLabel = b.tabLayoutResult.getTabAt(index)!!.customView as android.widget.TextView
+                assertEquals("Selected label must match Telegram onAccent",
+                    palette.onAccent, selectedLabel.currentTextColor)
+                assertTrue("Selected label must contrast with Telegram accent",
+                    androidx.core.graphics.ColorUtils.calculateContrast(
+                        selectedLabel.currentTextColor, palette.accent) >= 4.5)
                 assertEquals(context.getColor(R.color.track), (b.tabLayoutResult.background as GradientDrawable).color!!.defaultColor)
                 assertPremultipliedPixel("Track", context.getColor(R.color.track), image.getPixel(image.width / 2, dp(1)))
                 val cornerX = b.tabLayoutResult.paddingLeft + strip.getChildAt(index).right - dp(3) - dp(1)
