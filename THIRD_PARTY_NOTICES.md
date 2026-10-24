@@ -8,6 +8,23 @@ This repository contains third-party components and assets. Keep license obligat
 - **Read-only source archive set:** repository-root `Telegram-master.zip` (UI/security core), plus `Telegram-master-rest-1.zip` through `Telegram-master-rest-5.zip` (remaining source). The previous Git submodule is retired. Extract into a temporary directory outside git, never commit extracted sources, and verify against `EVE_MANIFEST.sha256` / `EVE_MANIFEST_FULL.sha256` before using it.
 - **Archive exclusion contract (owner-reported; contents not independently re-audited here):** `TMessagesProj/config/release.keystore`, `TMessagesProj/google-services.json`, `TMessagesProj_App/google-services.json`, `TMessagesProj_AppHockeyApp/google-services.json`, `TMessagesProj_AppHuawei/google-services.json`, `TMessagesProj_AppStandalone/google-services.json`, `TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java`. These signing/configuration sources must never be used as Eve credentials.
 - **Historical upstream provenance:** original Telegram Git reference `0aae959806c57be8ad457980f2a5c6277ff18635` remains a citation for previously imported icons, not an active submodule or an assertion that root archives contain that exact commit.
+
+### Repository-root Telegram archive SHA-256 (2026-10-24)
+
+Recorded from [GitHub Actions Telegram reference verifier (run 40091599695)](https://github.com/vishu762701/eve-mock-test-app/actions/runs/40091599695), commit a4be53c718a87357a4cf09935776624e237a85b2. These hashes describe the **split/repacked root archives**, not the earlier unsplit original archive.
+
+| Archive | SHA-256 |
+|---|---|
+| Telegram-master.zip | fabf0b7370abf2ee5661063ea1c274cb3e537048f008a6871ff3169cbe89cb1e |
+| Telegram-master-rest-1.zip | fb4fdcde402b904e33635a96c7090b523f0c32d2e02ec6db47769889f9b6633c |
+| Telegram-master-rest-2.zip | af56e94af6a97287faf329d9422220f19bfe3d281cfcbc13efb4355a365f17b1 |
+| Telegram-master-rest-3.zip | 2e2f30a7e86530bf5e3c4256398ccdced45b3609ab675cfb380f83126c7db78a |
+| Telegram-master-rest-4.zip | 44aae5a3d18d4d72091f69abcfafbf2e633b07150c6d07be701f3d2c9c5dcb91 |
+| Telegram-master-rest-5.zip | c1ce238a7ab23b9a878d588b3e0f97cf43e3756992911897abf71785d5884308 |
+| Earlier original complete Telegram-master.zip (different archive) | 0785365538ce05cf5bdf44a15d8fd5f5219f8193db0a2d124af9665fc63fd7b3 |
+
+The UI/core manifest verified 7,575 file checks, the full manifest verified 13,976 file checks, and the icon registry verified 32 imported icon IDs with 254 source/app hash comparisons; all reported zero mismatches. The seven intentionally excluded files named above were confirmed absent in extracted source. Root LICENSE contained GNU GPL version 2 (June 1991); per-file "or later" grants depend on applicable notices and need separate licensing assessment.
+
 - **Asset verification:** `docs/telegram-source-verification.tsv` records SHA-256 comparisons against that commit; candidate-only rows are not import claims.
 - **License:** GNU General Public License version 2 or later (GPL-2.0-or-later).
 - **Retained derived behavior:** `app/src/main/java/com/eve/app/util/ThemeManager.kt` (circular Day/Night reveal and transition layering) and `app/src/main/java/com/eve/app/util/TelegramThemeEasing.kt`.
