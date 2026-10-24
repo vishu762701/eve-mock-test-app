@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <solid android:color="@color/glass_fallback" />
-    <corners android:radius="@dimen/design_radius_card" />
-    <stroke android:width="@dimen/design_hairline_width" android:color="@color/hairline" />
-    <padding android:left="@dimen/design_card_padding" android:right="@dimen/design_card_padding" android:top="@dimen/design_card_padding" android:bottom="@dimen/design_card_padding" />
-</shape>

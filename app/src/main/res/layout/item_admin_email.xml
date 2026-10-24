@@ -1,5 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:minHeight="@dimen/design_row_with_gap" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-    <TextView android:id="@+id/tvEmail" style="@style/TextAppearance.Eve.Telegram.ListTitle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"  android:tag="eve_telegram_type" />
-    <TextView android:id="@+id/btnRemove" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Remove" />
-</LinearLayout>

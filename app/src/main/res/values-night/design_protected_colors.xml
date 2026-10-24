@@ -1,5 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <color name="eve_bg">@color/bg_app</color>
-    <color name="eve_text">@color/text_primary</color>
-</resources>

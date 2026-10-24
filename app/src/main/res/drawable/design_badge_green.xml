@@ -1,1 +1,0 @@
-<shape xmlns:android="http://schemas.android.com/apk/res/android"><solid android:color="@color/system_green_container"/><corners android:radius="@dimen/design_input_height"/></shape>

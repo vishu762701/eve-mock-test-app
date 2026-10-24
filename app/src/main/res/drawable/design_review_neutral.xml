@@ -1,1 +1,0 @@
-<shape xmlns:android="http://schemas.android.com/apk/res/android"><solid android:color="@color/surface_inset"/><corners android:radius="@dimen/design_radius_inner"/></shape>

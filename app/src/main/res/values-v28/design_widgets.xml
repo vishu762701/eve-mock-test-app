@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <style name="Widget.Eve.Token.Card" parent="Widget.Eve.Token.Card.Base">
-        <item name="android:outlineAmbientShadowColor">@color/card_shadow</item>
-        <item name="android:outlineSpotShadowColor">@color/card_shadow</item>
-    </style>
-</resources>

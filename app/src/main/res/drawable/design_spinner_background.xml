@@ -1,4 +1,0 @@
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/design_input_background" />
-    <item android:drawable="@drawable/ic_chevron_down" android:gravity="end|center_vertical" android:width="@dimen/design_icon_size" android:height="@dimen/design_icon_size" android:end="@dimen/design_input_padding" />
-</layer-list>

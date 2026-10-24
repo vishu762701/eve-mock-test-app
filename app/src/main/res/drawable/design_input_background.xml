@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_focused="true"><shape><solid android:color="@color/surface_inset" /><corners android:radius="@dimen/design_input_height" /><stroke android:width="@dimen/design_focus_stroke" android:color="@color/accent" /></shape></item>
-    <item><shape><solid android:color="@color/surface_inset" /><corners android:radius="@dimen/design_input_height" /></shape></item>
-</selector>

@@ -72,9 +72,9 @@ class TelegramAppearanceAndThemeAuthorityNativeTest {
 
     @Test
     fun actualNavigationHostKeepsBottomGravityAfterNavigationInsets() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
         ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
             scenario.onActivity { activity ->
-                val parent = activity.findViewById<FrameLayout>(android.R.id.content)
                 val pill = EveNavigationHost.attach(activity, EveBottomPillBar.TAB_HOME)
                 val lpBefore = pill.layoutParams as FrameLayout.LayoutParams
                 assertEquals("Primary pill must attach to the window bottom",
@@ -94,19 +94,34 @@ class TelegramAppearanceAndThemeAuthorityNativeTest {
                     Gravity.BOTTOM, lpAfter.gravity and Gravity.VERTICAL_GRAVITY_MASK)
                 assertEquals("Window inset dispatch must preserve horizontal centering",
                     Gravity.CENTER_HORIZONTAL, lpAfter.gravity and Gravity.HORIZONTAL_GRAVITY_MASK)
+                assertEquals("Synthetic navigation inset must be included exactly once",
+                    (8f * density).toInt() + bottomSystemInsetPx, lpAfter.bottomMargin)
+            }
 
-                val viewportWidth = (360f * density).toInt()
-                val viewportHeight = (720f * density).toInt()
-                parent.measure(
-                    View.MeasureSpec.makeMeasureSpec(viewportWidth, View.MeasureSpec.EXACTLY),
-                    View.MeasureSpec.makeMeasureSpec(viewportHeight, View.MeasureSpec.EXACTLY))
-                parent.layout(0, 0, viewportWidth, viewportHeight)
+            // Observe the real window traversal after the inset-triggered requestLayout.
+            // Forcing a synthetic measure/layout on android.R.id.content while attached
+            // races the decor's traversal and can assert against stale child coordinates.
+            instrumentation.waitForIdleSync()
+            scenario.onActivity { activity ->
+                val parent = activity.findViewById<FrameLayout>(android.R.id.content)
+                val pill = requireNotNull(parent.findViewWithTag<EveBottomPillBar>("eve_bottom_pill_bar"))
+                val lp = pill.layoutParams as FrameLayout.LayoutParams
+                val tolerance = (1f * activity.resources.displayMetrics.density).toInt().coerceAtLeast(1)
+                assertTrue("Content viewport must be laid out", parent.width > 0 && parent.height > 0)
                 assertTrue("Floating bottom pill must have visible dimensions",
-                    pill.width > 0 && pill.height > 0)
-                assertTrue("Floating bottom pill must occupy the lower half of the content viewport",
-                    pill.top >= viewportHeight / 2)
-                assertTrue("Floating bottom pill must not overlap Android system navigation",
-                    pill.bottom <= viewportHeight - lpAfter.bottomMargin + (1f * density).toInt())
+                    pill.width > 0 && pill.height > 0 && pill.isLaidOut)
+                assertEquals("Window traversal must preserve bottom gravity",
+                    Gravity.BOTTOM, lp.gravity and Gravity.VERTICAL_GRAVITY_MASK)
+                assertEquals("Window traversal must preserve horizontal centering",
+                    Gravity.CENTER_HORIZONTAL, lp.gravity and Gravity.HORIZONTAL_GRAVITY_MASK)
+                assertTrue("Floating bottom pill must occupy the lower half of the content viewport: " +
+                    "top=${pill.top}, viewportHeight=${parent.height}",
+                    pill.top >= parent.height / 2)
+                val expectedBottom = parent.height - parent.paddingBottom - lp.bottomMargin
+                assertTrue("Floating bottom pill must be anchored above navigation insets: " +
+                    "actualBottom=${pill.bottom}, expectedBottom=$expectedBottom, " +
+                    "parentPaddingBottom=${parent.paddingBottom}, bottomMargin=${lp.bottomMargin}",
+                    kotlin.math.abs(pill.bottom - expectedBottom) <= tolerance)
             }
         }
     }
