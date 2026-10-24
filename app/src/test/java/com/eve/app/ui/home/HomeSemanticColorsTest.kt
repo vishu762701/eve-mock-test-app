@@ -196,10 +196,17 @@ class HomeSemanticColorsTest {
         assertEquals("Negative sheet overlap should be removed", "",
             sheet.getAttribute("android:layout_marginTop"))
         val helper = source("src/main/java/com/eve/app/util/SystemBarHelper.kt")
+        // Home keeps one uninterrupted canvas, but its runtime color must follow the
+        // selected Telegram palette rather than the default XML bg_app token.
         assertTrue(helper.contains("activity is MainActivity"))
-        assertTrue(helper.contains("ContextCompat.getColor(activity, R.color.bg_app)"))
-        assertTrue(helper.contains("R.color.navigation_legacy_background else R.color.transparent"))
+        assertTrue(helper.contains("TelegramThemeEngine.resolveCurrentPalette(activity)"))
+        assertTrue(helper.contains("val background = palette.windowBackground"))
         assertTrue(helper.contains("activity.findViewById<View>(android.R.id.content)?.setBackgroundColor(background)"))
+        assertTrue(helper.contains("window.statusBarColor = ContextCompat.getColor(activity, R.color.transparent)"))
+        assertTrue(helper.contains("if (android.os.Build.VERSION.SDK_INT < 26 && !isDarkAppearance)"))
+        assertTrue(helper.contains("R.color.navigation_legacy_background else R.color.transparent"))
+        assertTrue(helper.contains("controller.isAppearanceLightStatusBars = !iconDark"))
+        assertTrue(helper.contains("controller.isAppearanceLightNavigationBars = !iconDark"))
     }
 
     @Test
