@@ -23,7 +23,7 @@ This matrix documents the EVE repository baseline SHA 6be58114a1d9531e1e357fd3e3
 
 ## Icon actions — verified static source imports and remaining candidates
 
-The following source paths and Java call sites were searched and read from the supplied archive. Sixteen tracked action icons now use original Telegram GPL-covered static WebP art, with source-density hashes pinned by regression tests; this is not a claim of Telegram-exact animation, tint, or full-screen fidelity. Existing EVE resource IDs and actions are retained. Some other icons remain EVE-owned redraws or unmapped. This section supersedes the historical candidate-only statuses.
+The following source paths and Java call sites were searched and read from the supplied archive. Twenty-seven tracked action icons now use original Telegram GPL-covered static WebP art, with source-density hashes pinned by regression tests; this is not a claim of Telegram-exact animation, tint, or full-screen fidelity. Existing EVE resource IDs and actions are retained. Some other icons remain EVE-owned redraws or unmapped. This section supersedes the historical candidate-only statuses.
 
 | EVE icon / actual caller | Verified Telegram source asset / call site | Status |
 | --- | --- | --- |
@@ -40,7 +40,7 @@ The following source paths and Java call sites were searched and read from the s
 
 ## Source and compliance inventory
 
-- **Copied Telegram-owned icon artwork in EVE:** 16 tracked icon resource IDs use imported static Telegram GPL art. Existing derived theme behavior is separately attributed in `THIRD_PARTY_NOTICES.md`. This does **not** establish whole-APK legal compliance or permission to publish a production release.
+- **Copied Telegram-owned icon artwork in EVE:** 27 tracked icon resource IDs use imported static Telegram GPL art. Existing derived theme behavior is separately attributed in `THIRD_PARTY_NOTICES.md`. This does **not** establish whole-APK legal compliance or permission to publish a production release.
 - **Separately licensed Google Roboto Medium:** present and attributed under Apache-2.0; source-matched font SHA pinned in `TelegramTypeSourceRolesTest`.
 - **Production distribution blocker:** Telegram artwork has already been imported under the repository's GPL-3 licensing plan. Complete corresponding-source availability, dependency/SDK compatibility, applicable copyright notices and production distribution obligations still require audit. A public repository and bundled license texts alone do not prove compliance. **Do not distribute a production GPL-derived APK until that audit passes.**
 - Avoid Telegram launcher/logo, reuse only EVE-owned branding. Separate EVE dynamic / system icons and Firebase notification small icons from action icon surface inventory.
@@ -48,13 +48,13 @@ The following source paths and Java call sites were searched and read from the s
 ## Mission status and CI prevention
 
 - Typography central defaults and source-mapped subset: IMPLEMENTED; comprehensive visual runtime parity across all 95 screens still UNVERIFIED.
-- Icon art: 16 source-byte-matched Telegram static icons, 4 EVE-owned redraws, 7 semantic mismatches, and 44 pending source audit among 71 tracked icon IDs. Static source art does not prove icon animation or exact caller-state/tint fidelity.
+- Icon art: 27 source-byte-matched Telegram static icons, 4 EVE-owned redraws, and 40 documented semantic mismatches among 71 tracked icon IDs; zero remain pending source inventory audit. Static source art does not prove icon animation or exact caller-state/tint fidelity.
 - CI V3: Android unit-test source compilation, AAPT resources, lint/JVM checks now run in build job before **both** native emulator jobs (`native-ui.needs: build`); the full APK publication gate still depends on build, native-ui, backend and firebase-functions. Release signing fails closed without real credentials. History of older red runs and latest final green check must be tied to their own SHAs, not assumed from this matrix.
 - No local Android Gradle/environment build was performed via connected GitHub APIs. CI source and visual screenshot evidence will be evaluated only for the exact final `main` SHA.
 
 ## Acceptance gaps
 
-PENDING: per-screen/RTL/fontScale/native screenshot comparison, remaining Telegram-specific icon/state/animation sources, original artwork GPL compatibility and corresponding-source distribution checks, caller-by-caller UI style overrides, full 71 icon review, and final SHA CI proof. Do not call the mission COMPLETE until gaps close or the user explicitly approves narrower scope.
+PENDING: per-screen/RTL/fontScale/native screenshot comparison, Telegram-specific icon state/animation and caller runtime fidelity, GPL compatibility and corresponding-source distribution checks, and caller-by-caller UI style overrides. All 71 icon IDs have inventory classifications; this does not establish exact runtime parity. Final full CI must be checked on the current SHA. Do not call the mission COMPLETE until gaps close or the user explicitly approves narrower scope.
 
 ## GPL v2-or-later compatibility path (verified upstream statement)
 
