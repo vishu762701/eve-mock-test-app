@@ -41,12 +41,6 @@ class FontManagerTest {
     }
 
     @Test
-    fun bundledInterVariableFontExists() {
-        val varFont = File(mainDir(), "res/font/inter_variable.ttf")
-        assertTrue("Inter variable font exists", varFont.isFile && varFont.length() > 100000)
-    }
-
-    @Test
     fun licenseShipsWithTheFonts() {
         val license = File(mainDir(), "assets/licenses/Inter-OFL.txt").readText()
         assertTrue(license.contains("The Inter Project Authors"))

@@ -12,7 +12,7 @@ This repository contains third-party components and assets. Keep license obligat
 - **Upstream snapshot:** `dc780e81ed1261c369c27870e8e0999a1eb0b600`; relevant origin: Telegram `LaunchActivity` / `DialogsActivity` transition handling.
 - **Credits:** Telegram FZ-LLC / DrKLO and Nikolai Kudashov. The derived theme code is subject to applicable GPL conditions; distributor obligations must be reviewed before publishing a binary.
 
-Old Telegram premium GL renderer classes, models, textures and shaders were deleted during the approved UI design reset. They are **not** current bundled runtime assets; see `docs/design-reset/deleted-files.md` for the removal inventory. Retain these historical attributions for provenance rather than implying those files still ship.
+Old Telegram premium GL renderer classes, models, textures and shaders were deleted during the approved UI design reset. They are **not** current bundled runtime assets. Retain these historical attributions for provenance rather than implying those files still ship.
 
 ### Telegram ButtonBounce motion attribution
 
@@ -31,7 +31,7 @@ release clearance. See `docs/telegram-release-compliance-gate.md`.
 - Copyright (c) 2016-2026 The Inter Project Authors (Rasmus Andersson).
 - License: SIL Open Font License 1.1; full notice distributed in
   `app/src/main/assets/licenses/Inter-OFL.txt`.
-- Bundled, unmodified font binaries: Inter Regular 400, Medium 500, SemiBold 600, Bold 700, and InterVariable.
+- Bundled, unmodified font binaries: Inter Regular 400, Medium 500, SemiBold 600, Bold 700.
 
 > This Font Software is licensed under the SIL Open Font License, Version 1.1.
 
@@ -50,7 +50,6 @@ Outline SVG paths converted to Android VectorDrawable on their original 24-unit
 grid, with the owner's 2.75 stroke and round caps/joins. MIT License, Copyright
 (c) 2020–2026 Paweł Kuna. Full license: `app/src/main/assets/licenses/Tabler-LICENSE.txt`.
 Source: https://github.com/tabler/tabler-icons/tree/v3.49.0/icons/outline
-Resource-to-source mapping: `docs/design-reset/tabler-icons.json`.
 
 ## Official Telegram ActionBar and search icon art (Mission 01 source import)
 

@@ -16,9 +16,7 @@ callbacks. The Telegram day/night reveal, toggle listeners, sun/moon resources
 and transition handoff remain protected. Existing Lottie motion, timing, assets
 and triggers are retained under the owner's later preservation instruction.
 
-Implementation inventory, exact checks, limitations and verified release evidence
-belong in [the current report](docs/design-reset/report.md) and
-[screen inventory](docs/design-reset/screens.md). Native fixture verification is
+Historical release evidence is recorded in `CODEX_STATE.md`. Native fixture verification is
 separate from authenticated production end-to-end verification. Do not reuse
 superseded task documents or historical numeric design decisions as current UI
 requirements.

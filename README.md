@@ -9,10 +9,9 @@ Eve is an Android exam-practice application with a Kotlin/XML client, Firebase a
 - `firestore.rules`, `storage.rules`: Firebase access controls.
 - `.github/workflows/build.yml`: Android, backend, Functions and native UI verification before publishing a debug APK.
 - `.github/workflows/deploy-worker.yml`: Worker deployment and D1 migration workflow.
-- `docs/design-reset/report.md`: latest UI design-reset implementation evidence and limitations.
 
 ## Current engineering instructions
-Read `ENGINEERING_STANDARD.md`, `SOURCE_OF_TRUTH.md`, and `AGENTS.md` before editing. `GEMINI.md` and `CLAUDE.md` redirect to the same instructions. The user's latest explicit, safe, scoped requirement takes precedence over older design requests; historical `DECISIONS.md` entries are an audit trail, not work to replay. Approved UI defaults are described in `APPROVED_UI_IMPLEMENTATION_AUDIT.md`.
+Read `ENGINEERING_STANDARD.md`, `SOURCE_OF_TRUTH.md`, and `AGENTS.md` before editing. `GEMINI.md` and `CLAUDE.md` redirect to the same instructions. The user's latest explicit, safe, scoped requirement takes precedence over older design requests. Approved UI defaults are described in `APPROVED_UI_IMPLEMENTATION_AUDIT.md`.
 
 ## Downloading an installable Android APK
 - **FAST** (every intermediate source push): compiles the debug app and tests but intentionally does **not** publish an APK. A green FAST status is not an APK download link.
