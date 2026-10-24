@@ -313,4 +313,58 @@ class TelegramThemeEngineTest {
             androidx.appcompat.app.AppCompatDelegate.getDefaultNightMode()
         )
     }
+
+    @Test
+    fun testMissingImportedFileOrUnknownThemeRecoversWithModeAppropriateDefault() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        TelegramThemeEngine.init(context)
+
+        // Mode-appropriate default when an unknown or deleted theme ID is requested
+        val darkFallback = TelegramThemeEngine.getTheme("non_existent_custom_theme_123", isDark = true)
+        assertEquals("night", darkFallback.id)
+        assertTrue(darkFallback.isDark)
+
+        val dayFallback = TelegramThemeEngine.getTheme("non_existent_custom_theme_123", isDark = false)
+        assertEquals("day", dayFallback.id)
+        assertFalse(dayFallback.isDark)
+
+        // Resolving palette for missing file returns valid fallback palette without crash
+        val missingCustomDef = TelegramThemeEngine.ThemeDefinition(
+            id = "custom_missing_test",
+            name = "Missing Theme",
+            isDark = true,
+            assetName = null,
+            baseAccentColor = 0xFF56A2C9.toInt(),
+            defaultAccentId = 0,
+            accentOptions = listOf(TelegramThemeEngine.ThemeAccentOption(0, 0xFF56A2C9.toInt(), "Custom")),
+            isCustom = true,
+            customFilePath = "/tmp/does_not_exist_custom.attheme"
+        )
+        val palette = TelegramThemeEngine.resolvePalette(context, missingCustomDef, 0)
+        assertTrue(palette.isDark)
+        assertEquals(0xFF000000.toInt(), palette.windowBackground)
+        assertEquals(0xFF181819.toInt(), palette.surface)
+    }
+
+    @Test
+    fun testCatalogHasFiveBundledThemesWithAssets() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        val themes = TelegramThemeEngine.BUILT_IN_THEMES
+        assertEquals(5, themes.size)
+
+        val ids = themes.map { it.id }.toSet()
+        assertTrue("day must be bundled", ids.contains("day"))
+        assertTrue("night must be bundled", ids.contains("night"))
+        assertTrue("arctic must be bundled", ids.contains("arctic"))
+        assertTrue("darkblue must be bundled", ids.contains("darkblue"))
+        assertTrue("bluebubbles must be bundled", ids.contains("bluebubbles"))
+
+        for (theme in themes) {
+            val asset = theme.assetName
+            assertNotNull(asset)
+            context.assets.open("themes/$asset").use { stream ->
+                assertTrue("Asset $asset must not be empty", stream.available() > 0)
+            }
+        }
+    }
 }
