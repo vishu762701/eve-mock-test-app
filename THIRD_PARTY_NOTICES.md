@@ -12,6 +12,17 @@ This repository contains third-party components and assets. Keep license obligat
 
 Old Telegram premium GL renderer classes, models, textures and shaders were deleted during the approved UI design reset. They are **not** current bundled runtime assets; see `docs/design-reset/deleted-files.md` for the removal inventory. Retain these historical attributions for provenance rather than implying those files still ship.
 
+### Telegram ButtonBounce motion attribution
+
+`app/src/main/java/com/eve/app/designsystem/ButtonBounce.kt` declares a Kotlin port
+of upstream `TMessagesProj/src/main/java/org/telegram/ui/Components/ButtonBounce.java`.
+The upstream Telegram Android project is GPL-2.0-or-later; this EVE adaptation
+is distributed under EVE's GPL-3.0-or-later plan. Preserve upstream
+attribution and provide this modified Kotlin source with corresponding-source
+deliverables. This attribution records provenance; it does **not** establish
+byte-for-byte source parity, complete dependency compatibility, or production
+release clearance. See `docs/telegram-release-compliance-gate.md`.
+
 ## Inter (Official iOS 26 Typography Approximation)
 
 - Source: https://rsms.me/inter/ and https://github.com/rsms/inter

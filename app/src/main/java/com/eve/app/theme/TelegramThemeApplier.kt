@@ -18,6 +18,7 @@ import com.eve.app.ui.navigation.EveBottomPillBar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
+import java.util.WeakHashMap
 
 /**
  * App-wide runtime theme applier.
@@ -28,6 +29,13 @@ import com.google.android.material.chip.Chip
  * and user text inputs are strictly preserved.
  */
 object TelegramThemeApplier {
+
+    private enum class TextColorRole { PRIMARY, SECONDARY }
+
+    private data class AppliedTextColor(val role: TextColorRole, val color: Int)
+
+    // Retain semantic roles across palette changes without retaining detached views.
+    private val appliedTextColors = WeakHashMap<TextView, AppliedTextColor>()
 
     fun applyToActivity(activity: Activity, palette: TelegramThemeEngine.ResolvedPalette) {
         val root = activity.findViewById<View>(android.R.id.content) ?: return
@@ -119,13 +127,29 @@ object TelegramThemeApplier {
             tagStr == "status_unattempted" ||
             tagStr == "timer_countdown"
         ) {
+            appliedTextColors.remove(tv)
             return
         }
+
         val current = tv.currentTextColor
-        if (current == Color.BLACK || current == Color.WHITE || current == 0xFF000000.toInt() || current == 0xFFFFFFFF.toInt()) {
-            tv.setTextColor(palette.textPrimary)
-        } else if (current == 0xFF6C6C70.toInt() || current == 0xFFA1A1A6.toInt()) {
-            tv.setTextColor(palette.textSecondary)
+        val previouslyApplied = appliedTextColors[tv]
+        val role = if (previouslyApplied != null && current == previouslyApplied.color) {
+            previouslyApplied.role
+        } else {
+            // Preserve caller-owned custom colors; reclassify only known defaults.
+            when (current) {
+                Color.BLACK, Color.WHITE -> TextColorRole.PRIMARY
+                0xFF6C6C70.toInt(), 0xFFA1A1A6.toInt() -> TextColorRole.SECONDARY
+                else -> null
+            }
         }
+
+        if (role == null) {
+            appliedTextColors.remove(tv)
+            return
+        }
+        val resolved = if (role == TextColorRole.PRIMARY) palette.textPrimary else palette.textSecondary
+        if (current != resolved) tv.setTextColor(resolved)
+        appliedTextColors[tv] = AppliedTextColor(role, resolved)
     }
 }

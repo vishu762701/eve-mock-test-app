@@ -74,6 +74,44 @@ class TelegramThemeApplierTest {
     }
 
     @Test
+    fun testRepeatedPaletteChangesRetainTextRolesWithoutOverridingCallerColors() {
+        val context = RuntimeEnvironment.getApplication()
+        val root = LinearLayout(context)
+        val primary = TextView(context).apply { setTextColor(Color.BLACK) }
+        val secondary = TextView(context).apply { setTextColor(0xFF6C6C70.toInt()) }
+        val semantic = TextView(context).apply {
+            tag = "status_correct"
+            setTextColor(0xFF34C759.toInt())
+        }
+        root.addView(primary)
+        root.addView(secondary)
+        root.addView(semantic)
+
+        val dayPalette = testPalette.copy(
+            textPrimary = 0xFF1A1D21.toInt(),
+            textSecondary = 0xFF707579.toInt(),
+            isDark = false
+        )
+        TelegramThemeApplier.applyToViewTree(root, dayPalette)
+        assertEquals(dayPalette.textPrimary, primary.currentTextColor)
+        assertEquals(dayPalette.textSecondary, secondary.currentTextColor)
+
+        TelegramThemeApplier.applyToViewTree(root, testPalette)
+        assertEquals(testPalette.textPrimary, primary.currentTextColor)
+        assertEquals(testPalette.textSecondary, secondary.currentTextColor)
+
+        TelegramThemeApplier.applyToViewTree(root, dayPalette)
+        assertEquals(dayPalette.textPrimary, primary.currentTextColor)
+        assertEquals(dayPalette.textSecondary, secondary.currentTextColor)
+        assertEquals(0xFF34C759.toInt(), semantic.currentTextColor)
+
+        primary.setTextColor(0xFFAA3300.toInt())
+        TelegramThemeApplier.applyToViewTree(root, testPalette)
+        assertEquals("Caller-owned custom text color must be preserved", 0xFFAA3300.toInt(), primary.currentTextColor)
+        assertEquals(testPalette.textSecondary, secondary.currentTextColor)
+    }
+
+    @Test
     fun testExemptViewsArePreservedWithoutModification() {
         val context = RuntimeEnvironment.getApplication()
         val exemptLayout = FrameLayout(context).apply {
