@@ -11,6 +11,15 @@ on:
       - '.github/scripts/verify_telegram_archives.py'
       - '.github/workflows/telegram-reference-verify.yml'
   workflow_dispatch:
+    inputs:
+      source_scope:
+        description: 'Download only UI/core Telegram-master.zip, or all six ZIPs for full verification'
+        required: true
+        type: choice
+        default: ui
+        options:
+          - ui
+          - full
 
 permissions:
   contents: read
@@ -26,9 +35,21 @@ jobs:
         with:
           submodules: false
           persist-credentials: false
+          filter: blob:none
+          sparse-checkout: |
+            /*
+            ${{ github.event_name == 'workflow_dispatch' && inputs.source_scope == 'ui' && '!/Telegram-master-rest-*.zip' || '/Telegram-master*.zip' }}
+          sparse-checkout-cone-mode: false
+      - name: Prove only requested Telegram ZIP blobs were downloaded
+        run: bash .github/scripts/check_telegram_checkout_blobs.sh "${{ github.event_name == 'workflow_dispatch' && inputs.source_scope == 'ui' && 'ui' || 'full' }}"
 
       - name: Verify reference ZIPs against the manifests and bundled app assets
-        run: python3 -B .github/scripts/verify_telegram_archives.py
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch && "${{ inputs.source_scope }}" == ui ]]; then
+            python3 -B .github/scripts/verify_telegram_archives.py --ui-only
+          else
+            python3 -B .github/scripts/verify_telegram_archives.py
+          fi
 
       - name: Upload verification report
         if: always()

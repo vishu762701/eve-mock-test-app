@@ -23,6 +23,13 @@ jobs:
         with:
           submodules: false
           persist-credentials: false
+          filter: blob:none
+          sparse-checkout: |
+            /*
+            !/Telegram-master*.zip
+          sparse-checkout-cone-mode: false
+      - name: Prove unused Telegram ZIP blobs were not downloaded
+        run: bash .github/scripts/check_telegram_checkout_blobs.sh none
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
