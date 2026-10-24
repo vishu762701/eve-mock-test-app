@@ -110,6 +110,8 @@ class TelegramAppearanceAndThemeAuthorityNativeTest {
                 assertTrue("Content viewport must be laid out", parent.width > 0 && parent.height > 0)
                 assertTrue("Floating bottom pill must have visible dimensions",
                     pill.width > 0 && pill.height > 0 && pill.isLaidOut)
+                assertEquals("A MATCH_PARENT glass child must never expand the 56dp navigation pill",
+                    (56f * activity.resources.displayMetrics.density).toInt(), pill.height)
                 assertEquals("Window traversal must preserve bottom gravity",
                     Gravity.BOTTOM, lp.gravity and Gravity.VERTICAL_GRAVITY_MASK)
                 assertEquals("Window traversal must preserve horizontal centering",

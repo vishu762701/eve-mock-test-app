@@ -37,7 +37,9 @@ object EveNavigationHost {
             val density = resources.displayMetrics.density
             val lp = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT
+                // Fixed Telegram tab height: the MATCH_PARENT glass child must not
+                // inflate a WRAP_CONTENT pill to the entire Home viewport.
+                (56 * density).toInt()
             ).apply {
                 gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
                 bottomMargin = (8 * density).toInt() // MAIN_TABS_MARGIN
