@@ -140,10 +140,10 @@ from pathlib import Path
 import re
 
 source = Path("app/src/androidTest/java/com/eve/app/ui/StudentUiRenderingTest.kt").read_text()
-match = re.search(r"private val cases = linkedMapOf\\((.*?)\\n    \\)", source, re.S)
+match = re.search(r"private val cases = linkedMapOf\((.*?)\n    \)", source, re.S)
 if not match:
     raise SystemExit("Cannot locate native student fixture registry")
-names = re.findall(r'"([^"]+)"\\s+to\\s+R\\.layout\\.', match.group(1))
+names = re.findall(r'"([^"]+)"\s+to\s+R\.layout\.', match.group(1))
 if len(names) < 44 or len(names) != len(set(names)):
     raise SystemExit(f"Invalid native student fixture inventory: {len(names)} cases")
 for start in range(0, len(names), 11):
