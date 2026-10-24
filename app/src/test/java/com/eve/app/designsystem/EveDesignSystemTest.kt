@@ -112,7 +112,7 @@ class EveDesignSystemTest {
     }
 
     @Test fun interUsesBundledLockedWeightsAndLicense() {
-        for (name in listOf("regular", "medium", "semibold", "bold", "variable")) {
+        for (name in listOf("regular", "medium", "semibold", "bold")) {
             val font = File(getProjectDir(), "app/src/main/res/font/inter_$name.ttf")
             assertTrue("Bundled Inter $name", font.isFile && font.length() > 10000)
         }

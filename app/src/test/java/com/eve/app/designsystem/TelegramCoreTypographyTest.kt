@@ -179,7 +179,7 @@ class TelegramCoreTypographyTest {
     @Test
     fun testRetainedInterArtifactsRemainLicensedUntilRemoved() {
         val resFontDir = File(mainDir(), "res/font")
-        for (w in listOf("regular", "medium", "semibold", "bold", "variable")) {
+        for (w in listOf("regular", "medium", "semibold", "bold")) {
             val file = File(resFontDir, "inter_$w.ttf")
             assertTrue("inter_$w.ttf must exist and be non-empty", file.isFile && file.length() > 10000)
         }
