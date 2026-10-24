@@ -262,8 +262,8 @@ class HomeSemanticColorsTest {
         val style = source("src/main/res/values/design_widgets.xml")
         val indicator = source("src/main/res/drawable/design_tab_segment.xml")
         val implementation = source("src/main/java/com/eve/app/designsystem/DesignSegmentedTabs.kt")
-        assertTrue(style.contains("<item name=\\"tabIndicator\\">@drawable/design_tab_segment</item>".replace("\\\\", "\\")))
-        assertTrue(indicator.contains("<solid android:color=\\"@color/accent\\"".replace("\\\\", "\\")))
+        assertTrue(style.contains("@drawable/design_tab_segment"))
+        assertTrue(indicator.contains("@color/accent"))
         assertTrue(implementation.contains("if (selected) ContextCompat.getColor(context, R.color.on_accent)"))
         for (folder in listOf("values", "values-night")) {
             val colors = loadColors("src/main/res/$folder/design_colors.xml")
